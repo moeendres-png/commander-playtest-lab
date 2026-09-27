@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-08-07",
+  "environment_note": "Local technical timings only; not transferable guarantees.",
+  "measurements": [
+    {
+      "name": "service_initialization",
+      "execution_status": "passed",
+      "seconds": 0.085176,
+      "error": null
+    },
+    {
+      "name": "structural_goldfish_100",
+      "execution_status": "passed",
+      "seconds": 1.102285,
+      "error": null
+    },
+    {
+      "name": "four_player_20_workers_1",
+      "execution_status": "passed",
+      "seconds": 1.43668,
+      "error": null
+    },
+    {
+      "name": "mulligan_sampling_80x2",
+      "execution_status": "passed",
+      "seconds": 4.433775,
+      "error": null
+    },
+    {
+      "name": "paired_variant_10",
+      "execution_status": "passed",
+      "seconds": 1.510522,
+      "error": null
+    },
+    {
+      "name": "counterfactual_branchpoint_scan",
+      "execution_status": "passed",
+      "seconds": 0.00259,
+      "error": null
+    },
+    {
+      "name": "decision_diagnostic",
+      "execution_status": "passed",
+      "seconds": 0.006041,
+      "error": null
+    },
+    {
+      "name": "mcp_2026_server_discover",
+      "execution_status": "passed",
+      "seconds": 1.5e-05,
+      "error": null
+    },
+    {
+      "name": "mcp_2026_tools_list",
+      "execution_status": "passed",
+      "seconds": 1.5e-05,
+      "error": null
+    },
+    {
+      "name": "xmage_external",
+      "execution_status": "blocked",
+      "seconds": null,
+      "error": "No verified external provider process is configured in this runtime."
+    },
+    {
+      "name": "forge_external",
+      "execution_status": "blocked",
+      "seconds": null,
+      "error": "No verified external provider process is configured in this runtime."
+    },
+    {
+      "name": "parquet",
+      "execution_status": "unused",
+      "seconds": null,
+      "error": "Parquet is not an active persistence requirement in the current product path."
+    }
+  ],
+  "semantic_change_allowed": false
+}

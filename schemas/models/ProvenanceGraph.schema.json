@@ -1,0 +1,723 @@
+{
+  "$defs": {
+    "ArtifactRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "artifact_type": {
+          "title": "Artifact Type",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "derived_from": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Derived From",
+          "type": "array"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "package_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Version"
+        },
+        "path_or_drive_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path Or Drive Id"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "transformation_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Transformation Ids",
+          "type": "array"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unverified"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "artifact_type",
+        "title",
+        "content_hash"
+      ],
+      "title": "ArtifactRecord",
+      "type": "object"
+    },
+    "CitationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "citation_id": {
+          "title": "Citation Id",
+          "type": "string"
+        },
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "claim_kind": {
+          "$ref": "#/$defs/ClaimKind"
+        },
+        "claim_text": {
+          "title": "Claim Text",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "derived_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Derived Ids",
+          "type": "array"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "citation_id",
+        "claim_id",
+        "claim_text",
+        "claim_kind"
+      ],
+      "title": "CitationRecord",
+      "type": "object"
+    },
+    "ClaimKind": {
+      "enum": [
+        "source_fact",
+        "model_output",
+        "inference"
+      ],
+      "title": "ClaimKind",
+      "type": "string"
+    },
+    "DerivedDataRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "data_type": {
+          "title": "Data Type",
+          "type": "string"
+        },
+        "derived_from": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Derived From",
+          "type": "array"
+        },
+        "derived_id": {
+          "title": "Derived Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "model_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Label"
+        },
+        "transformation_id": {
+          "title": "Transformation Id",
+          "type": "string"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unverified"
+        }
+      },
+      "required": [
+        "derived_id",
+        "data_type",
+        "content_hash",
+        "derived_from",
+        "transformation_id"
+      ],
+      "title": "DerivedDataRecord",
+      "type": "object"
+    },
+    "LicenseRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "full_text_storage_allowed": {
+          "default": false,
+          "title": "Full Text Storage Allowed",
+          "type": "boolean"
+        },
+        "license_id": {
+          "title": "License Id",
+          "type": "string"
+        },
+        "license_name": {
+          "title": "License Name",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "restrictions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Restrictions",
+          "type": "array"
+        },
+        "usage_rights": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Usage Rights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "license_id",
+        "license_name"
+      ],
+      "title": "LicenseRecord",
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "derived_from": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Derived From",
+          "type": "array"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        },
+        "license": {
+          "default": "unknown",
+          "title": "License",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "observed": {
+          "default": false,
+          "title": "Observed",
+          "type": "boolean"
+        },
+        "package_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Version"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "$ref": "#/$defs/SourceType"
+        },
+        "supersedes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Supersedes",
+          "type": "array"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "transformation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transformation"
+        },
+        "url_or_drive_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url Or Drive Id"
+        },
+        "usage_rights": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Usage Rights",
+          "type": "array"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unverified"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "title",
+        "content_hash"
+      ],
+      "title": "SourceRecord",
+      "type": "object"
+    },
+    "SourceType": {
+      "enum": [
+        "direct_user_statement",
+        "chat_conversation",
+        "google_drive_file",
+        "repository",
+        "official_decklist",
+        "tournament_result",
+        "primer",
+        "guide",
+        "real_game",
+        "synthetic_assumption",
+        "model_inference",
+        "web_research"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    },
+    "SupersessionRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_rank_new": {
+          "minimum": 0,
+          "title": "Authority Rank New",
+          "type": "integer"
+        },
+        "authority_rank_old": {
+          "minimum": 0,
+          "title": "Authority Rank Old",
+          "type": "integer"
+        },
+        "effective_at": {
+          "format": "date-time",
+          "title": "Effective At",
+          "type": "string"
+        },
+        "historical_record_retained": {
+          "default": true,
+          "title": "Historical Record Retained",
+          "type": "boolean"
+        },
+        "new_id": {
+          "title": "New Id",
+          "type": "string"
+        },
+        "old_id": {
+          "title": "Old Id",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "supersession_id": {
+          "title": "Supersession Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "supersession_id",
+        "old_id",
+        "new_id",
+        "reason",
+        "authority_rank_old",
+        "authority_rank_new"
+      ],
+      "title": "SupersessionRecord",
+      "type": "object"
+    },
+    "TransformationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "code_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Code Hash",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "deterministic": {
+          "default": true,
+          "title": "Deterministic",
+          "type": "boolean"
+        },
+        "executed_at": {
+          "format": "date-time",
+          "title": "Executed At",
+          "type": "string"
+        },
+        "git_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Git Commit"
+        },
+        "input_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Ids",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "output_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Ids",
+          "type": "array"
+        },
+        "package_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Version"
+        },
+        "parameters_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameters Hash"
+        },
+        "transformation_id": {
+          "title": "Transformation Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transformation_id",
+        "name",
+        "description",
+        "input_ids",
+        "output_ids",
+        "code_hash"
+      ],
+      "title": "TransformationRecord",
+      "type": "object"
+    },
+    "VerificationStatus": {
+      "enum": [
+        "verified",
+        "hash_verified",
+        "partially_verified",
+        "unverified",
+        "superseded",
+        "missing"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/ArtifactRecord"
+      },
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/CitationRecord"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "derived_data": {
+      "items": {
+        "$ref": "#/$defs/DerivedDataRecord"
+      },
+      "title": "Derived Data",
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "git_commit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Git Commit"
+    },
+    "graph_id": {
+      "title": "Graph Id",
+      "type": "string"
+    },
+    "licenses": {
+      "items": {
+        "$ref": "#/$defs/LicenseRecord"
+      },
+      "title": "Licenses",
+      "type": "array"
+    },
+    "package_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Version"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/SourceRecord"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "supersessions": {
+      "items": {
+        "$ref": "#/$defs/SupersessionRecord"
+      },
+      "title": "Supersessions",
+      "type": "array"
+    },
+    "transformations": {
+      "items": {
+        "$ref": "#/$defs/TransformationRecord"
+      },
+      "title": "Transformations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "graph_id"
+  ],
+  "title": "ProvenanceGraph",
+  "type": "object"
+}

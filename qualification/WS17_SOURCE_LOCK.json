@@ -1,0 +1,103 @@
+{
+  "active_deck_locks": {
+    "kaervek": {
+      "content_sha256": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
+      "git_blob": "beebc3cf50e32b29db5c1e594821f754da69249d",
+      "path": "data/decks/opponents/kaervek/current/decklist.txt",
+      "slots": 100,
+      "unique_identities": 77
+    },
+    "rogshai": {
+      "content_sha256": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3",
+      "git_blob": "4db4174011e6ea0b07196e68165aa4549cff1971",
+      "path": "data/decks/rogshai_current.txt",
+      "slots": 100,
+      "unique_identities": 87
+    }
+  },
+  "candidate_locks": {
+    "argentum": {
+      "commit": "70bf75889e56b85b260d96bb20e70a85d6be047c",
+      "license": "MIT",
+      "license_blob": "90d567bd7406b765255a20f6899bda5325259798",
+      "repository": "wingedsheep/argentum-engine",
+      "tree": "8156ee91397fb4938f4604cc87c94af7f2f95237",
+      "verified": "GITHUB_CONNECTOR"
+    },
+    "forge": {
+      "commit": "1e604105f9e279331063824943b9222b6589f5d8",
+      "license": "GPL-3.0",
+      "repository": "Card-Forge/forge",
+      "tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+      "verified": "GITHUB_CONNECTOR",
+      "version": "2.0.15-SNAPSHOT"
+    },
+    "phase_rs": {
+      "commit": "92c67b872c2a7f69c4a2069f0d0c3cb1b6b0d4c6",
+      "license": "MIT OR Apache-2.0",
+      "license_blobs": [
+        "757ab5c3f8cddd11a8f05d4d16d6d0bd5bc5ba1a",
+        "f5c2a72aa04b76d55ba884bee16541b2a6851bfc"
+      ],
+      "repository": "phase-rs/phase",
+      "verified": "GITHUB_CONNECTOR",
+      "version": "0.66.0"
+    },
+    "xmage": {
+      "commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+      "license": "MIT",
+      "license_blob": "3575e469d848ca405ccc8d0ac9d711c94120eb45",
+      "repository": "moeendres-png/mage",
+      "verified": "GITHUB_CONNECTOR",
+      "version": "1.4.61"
+    }
+  },
+  "generated_at": "2026-08-29T14:18:00+02:00",
+  "input_handoffs_sha256": {
+    "WS-01_FINAL_HANDOFF.md": "ae53d4c962c5dba7be80f726671a662b31dc24cc802149a18eeeb31c8ccce564",
+    "WS-02_FULL_HANDOFF.md": "a08bbd6c160aacc0a6fe8b04ceee3b7a98aaa4df643ba20dc515a69de66104da",
+    "WS-03_FINAL_HANDOFF.md": "58943d9e660c21d15d427250e34a44a81c77859f8210433161158f44f0bf1020",
+    "WS-04_FINAL_HANDOFF.md": "3e66754a7851d71c1eb6cc5f44cae56237285277106f94e66226401555458703",
+    "WS-05_MULTIPLAYER_COMMANDER_RULES_FINAL_HANDOFF.md": "21c02bd69c0804584fd20136b4daa88a996eebfbc788fc8900e4f026c4bcbd90",
+    "WS-06_FINAL_HANDOFF.md": "167ac229e81dedc0659d61783b7d6514e3857e7d1befbd60d116d91deebbb8e5",
+    "WS-07_FINAL_HANDOFF.md": "705053223d52c3569e753d273b0344a9462ecaf0c39671b17ae57862756fc5df",
+    "WS-08_TEST_QUALIFICATION_DIFFERENTIAL_STRATEGY_HANDOFF.md": "903bd7397b133fe8d8e8c1c6c6f362ae6c23392c5cd6f31ed9df0627a204d3ae",
+    "WS-09_LICENSING_INTEROP_CANONICAL_FINAL_HANDOFF.md": "60e2c65f3bc241d8153580e544789c0acb8dfa3d067fc4025bf9174ea8e3a090",
+    "WS-10_FINAL_HANDOFF.md": "7c0eb81496c08464191e37e393c7a9b56554b6e2603c744b312ce6023888c034",
+    "WS-12_FINAL_HANDOFF_COMPLETE.md": "0e6f7895e5cc852131d0faad99b439010bdf7e19c691c4c33f9258ce6a218b92",
+    "WS-13_XMAGE_CANDIDATE_QUALIFICATION_FINAL_HANDOFF_COMPLETE-1.md": "77a3ca6b5f72a5cc7b59b1a10de6c6c7cab7f864ab6594f0e1575b29e169a55b",
+    "WS-14_FORGE_CANDIDATE_QUALIFICATION_FINAL_HANDOFF_RERUN.md": "df5269e3c0ea885ce2f04901bbf7d1b0ba246cb9b03d8f8820197878e58e0c1c",
+    "WS-15_PHASE_RS_CURRENT_RERUN_FINAL_HANDOFF.md": "82d4908db063527271117a96e6da7f8fb4aa9b892804b55b3d4a066e5f71c491",
+    "WS-16_ARGENTUM_CANDIDATE_QUALIFICATION_FINAL_HANDOFF_COMPLETE.md": "2eedb3e5a80433ab52f14c2d8689db9f58e66dabfca160288282bb91b836276a",
+    "WS11_FINAL_HANDOFF_AFTER_WS04.md": "fbad190d20c64e472d8f41b15d57182f0d526c086069dd12306d374073fc32f7"
+  },
+  "schema_version": "ws17-source-lock/1.0.0",
+  "target_repository": {
+    "branch": "main",
+    "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+    "license": "LicenseRef-Proprietary",
+    "package_version": "1.25.0",
+    "repository": "moeendres-png/commander-playtest-lab",
+    "tree": "001462343b93d0190c65c0b91055200604d5376e",
+    "verification": "GITHUB_CONNECTOR_FRESH"
+  },
+  "ws00": {
+    "effect": "No byte-identity or hidden requirements claim; newest direct WS-17 instruction plus WS-01..09 canonical handoffs govern rematerialization.",
+    "searches": [
+      "Google Drive exact title/Requirements Freeze",
+      "target repository code search"
+    ],
+    "status": "UNAVAILABLE"
+  },
+  "ws10_original_bundle": {
+    "action": "WS-10R_REMATERIALIZATION",
+    "byte_identity": "UNKNOWN",
+    "searched": [
+      "supplied /mnt/data",
+      "Google Drive exact bundle name",
+      "Google Drive RULES_SERVICE_PROTOCOL_V1",
+      "target repository code search"
+    ],
+    "status": "UNAVAILABLE"
+  }
+}

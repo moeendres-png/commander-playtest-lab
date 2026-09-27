@@ -1,0 +1,3522 @@
+{
+  "schema_version": 1,
+  "engine_version": "tactical-0.8.0",
+  "cards": {
+    "Academy Manufactor": {
+      "oracle_name": "Academy Manufactor",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "academy_manufactor_replaces_each_token",
+        "killer_service_with_manufactor"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Adarkar Wastes": {
+      "oracle_name": "Adarkar Wastes",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Aftermath Analyst": {
+      "oracle_name": "Aftermath Analyst",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "aftermath_analyst_sacrifices_and_returns_lands"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "An Offer You Can't Refuse": {
+      "oracle_name": "An Offer You Can't Refuse",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "offer_counters_noncreature_and_gives_treasures"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Ancient Grudge": {
+      "oracle_name": "Ancient Grudge",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Arcane Signet": {
+      "oracle_name": "Arcane Signet",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Archmage Emeritus": {
+      "oracle_name": "Archmage Emeritus",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "archmage_emeritus_counts_casts_and_copies",
+        "veyran_repeats_magecraft_trigger"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Assassin's Trophy": {
+      "oracle_name": "Assassin's Trophy",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Azorius Signet": {
+      "oracle_name": "Azorius Signet",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Bastion Protector": {
+      "oracle_name": "Bastion Protector",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "indestructible_fails_minus_toughness"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Battlefield Forge": {
+      "oracle_name": "Battlefield Forge",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Beast Within": {
+      "oracle_name": "Beast Within",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Blackblade Reforged": {
+      "oracle_name": "Blackblade Reforged",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Blacksmith's Skill": {
+      "oracle_name": "Blacksmith's Skill",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Blasphemous Act": {
+      "oracle_name": "Blasphemous Act",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "boros_charm_protects_from_destroy_wipe"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Bojuka Bog": {
+      "oracle_name": "Bojuka Bog",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "bojuka_bog_exiles_target_graveyard"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Boros Charm": {
+      "oracle_name": "Boros Charm",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "boros_charm_protects_from_destroy_wipe",
+        "indestructible_fails_exile",
+        "indestructible_survives_destroy"
+      ],
+      "tactical_passed": 3,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Boros Signet": {
+      "oracle_name": "Boros Signet",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Braids, Arisen Nightmare": {
+      "oracle_name": "Braids, Arisen Nightmare",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "braids_draws_for_each_decline"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Cabaretti Courtyard": {
+      "oracle_name": "Cabaretti Courtyard",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Canyon Slough": {
+      "oracle_name": "Canyon Slough",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Celestial Purge": {
+      "oracle_name": "Celestial Purge",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Chain Reaction": {
+      "oracle_name": "Chain Reaction",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Chandra, Torch of Defiance": {
+      "oracle_name": "Chandra, Torch of Defiance",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Chaos Warp": {
+      "oracle_name": "Chaos Warp",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Cinder Glade": {
+      "oracle_name": "Cinder Glade",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Clever Impersonator": {
+      "oracle_name": "Clever Impersonator",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Clifftop Retreat": {
+      "oracle_name": "Clifftop Retreat",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Combat Research": {
+      "oracle_name": "Combat Research",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "combat_research_draw_trigger"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Command Tower": {
+      "oracle_name": "Command Tower",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Consider": {
+      "oracle_name": "Consider",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Counterspell": {
+      "oracle_name": "Counterspell",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "countered_commander_can_return_to_command",
+        "kaervek_trigger_survives_counter"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Crop Rotation": {
+      "oracle_name": "Crop Rotation",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Culling Ritual": {
+      "oracle_name": "Culling Ritual",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "culling_ritual_mana_per_destroyed_permanent"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Curiosity": {
+      "oracle_name": "Curiosity",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Dark Ritual": {
+      "oracle_name": "Dark Ritual",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Deadly Dispute": {
+      "oracle_name": "Deadly Dispute",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Demolition Field": {
+      "oracle_name": "Demolition Field",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Dovin's Veto": {
+      "oracle_name": "Dovin's Veto",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "dovins_veto_cannot_be_countered"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Duelist's Heritage": {
+      "oracle_name": "Duelist's Heritage",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "double_strike_counts_both_hits"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Escape Tunnel": {
+      "oracle_name": "Escape Tunnel",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Esior, Wardwing Familiar": {
+      "oracle_name": "Esior, Wardwing Familiar",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "esior_taxes_opponent_targeting"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Eumidian Hatchery": {
+      "oracle_name": "Eumidian Hatchery",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Evendo Brushrazer": {
+      "oracle_name": "Evendo Brushrazer",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Evolving Wilds": {
+      "oracle_name": "Evolving Wilds",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Exotic Orchard": {
+      "oracle_name": "Exotic Orchard",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Exploration Broodship": {
+      "oracle_name": "Exploration Broodship",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Exsanguinate": {
+      "oracle_name": "Exsanguinate",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Fabled Passage": {
+      "oracle_name": "Fabled Passage",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Faerie Mastermind": {
+      "oracle_name": "Faerie Mastermind",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Farewell": {
+      "oracle_name": "Farewell",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "farewell_selected_modes_exile",
+        "indestructible_fails_exile"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Farseek": {
+      "oracle_name": "Farseek",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Fellwar Stone": {
+      "oracle_name": "Fellwar Stone",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Fire Covenant": {
+      "oracle_name": "Fire Covenant",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "fire_covenant_pays_total_life"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Flare of Duplication": {
+      "oracle_name": "Flare of Duplication",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Forest": {
+      "oracle_name": "Forest",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Glacial Fortress": {
+      "oracle_name": "Glacial Fortress",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Goblin Bombardment": {
+      "oracle_name": "Goblin Bombardment",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "goblin_bombardment_sacrifices_as_cost"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "God-Eternal Bontu": {
+      "oracle_name": "God-Eternal Bontu",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "bontu_draws_per_sacrifice"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Guttersnipe": {
+      "oracle_name": "Guttersnipe",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "guttersnipe_hits_each_opponent"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Harrow": {
+      "oracle_name": "Harrow",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Hearthhull, the Worldseed": {
+      "oracle_name": "Hearthhull, the Worldseed",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Horizon Explorer": {
+      "oracle_name": "Horizon Explorer",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Idol of Oblivion": {
+      "oracle_name": "Idol of Oblivion",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "idol_requires_token_this_turn"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Ignoble Hierarch": {
+      "oracle_name": "Ignoble Hierarch",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Immersturm Predator": {
+      "oracle_name": "Immersturm Predator",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Imprisoned in the Moon": {
+      "oracle_name": "Imprisoned in the Moon",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Into the Roil": {
+      "oracle_name": "Into the Roil",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Ishai, Ojutai Dragonspeaker": {
+      "oracle_name": "Ishai, Ojutai Dragonspeaker",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "commander_bounce_uses_replacement",
+        "commander_damage_exactly_twenty_one",
+        "commander_damage_not_combined",
+        "double_strike_counts_both_hits",
+        "ishai_only_opponent_spells_trigger",
+        "jeska_triples_commander_combat_damage",
+        "kediss_damage_is_not_commander_damage"
+      ],
+      "tactical_passed": 7,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Island": {
+      "oracle_name": "Island",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Izzet Signet": {
+      "oracle_name": "Izzet Signet",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Jeska, Thrice Reborn": {
+      "oracle_name": "Jeska, Thrice Reborn",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "jeska_triples_commander_combat_damage"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Jund Panorama": {
+      "oracle_name": "Jund Panorama",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Kaervek the Merciless": {
+      "oracle_name": "Kaervek the Merciless",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "kaervek_trigger_survives_counter"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Karplusan Forest": {
+      "oracle_name": "Karplusan Forest",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Kediss, Emberclaw Familiar": {
+      "oracle_name": "Kediss, Emberclaw Familiar",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "kediss_damage_is_not_commander_damage"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Killer Service": {
+      "oracle_name": "Killer Service",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "killer_service_scales_with_opponents",
+        "killer_service_with_manufactor"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Korvold, Fae-Cursed King": {
+      "oracle_name": "Korvold, Fae-Cursed King",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "commander_dies_before_command_move",
+        "commander_tax_third_cast",
+        "countered_commander_can_return_to_command",
+        "korvold_etb_sacrifice_generates_value",
+        "korvold_no_other_permanent"
+      ],
+      "tactical_passed": 5,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Kykar, Wind's Fury": {
+      "oracle_name": "Kykar, Wind's Fury",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "kykar_creates_and_sacrifices_spirits"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Light of Hope": {
+      "oracle_name": "Light of Hope",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Lightning Greaves": {
+      "oracle_name": "Lightning Greaves",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "lightning_greaves_shroud_blocks_own_target"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Llanowar Elves": {
+      "oracle_name": "Llanowar Elves",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Llanowar Wastes": {
+      "oracle_name": "Llanowar Wastes",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Lofty Denial": {
+      "oracle_name": "Lofty Denial",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "lofty_denial_tax_with_flyer"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Loran of the Third Path": {
+      "oracle_name": "Loran of the Third Path",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Loran's Escape": {
+      "oracle_name": "Loran's Escape",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "lorans_escape_protection_package"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Louisoix's Sacrifice": {
+      "oracle_name": "Louisoix's Sacrifice",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Loyal Drake": {
+      "oracle_name": "Loyal Drake",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Massacre Wurm": {
+      "oracle_name": "Massacre Wurm",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "massacre_wurm_counts_opponent_deaths"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Mayhem Devil": {
+      "oracle_name": "Mayhem Devil",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "mayhem_devil_triggers_for_any_player"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Mazirek, Kraul Death Priest": {
+      "oracle_name": "Mazirek, Kraul Death Priest",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "mazirek_counters_all_your_creatures"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Mirkwood Bats": {
+      "oracle_name": "Mirkwood Bats",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "mirkwood_bats_counts_created_and_sacrificed_tokens"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Mountain": {
+      "oracle_name": "Mountain",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Mountain Valley": {
+      "oracle_name": "Mountain Valley",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Narset, Parter of Veils": {
+      "oracle_name": "Narset, Parter of Veils",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "narset_limits_opponent_draws"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Nature's Claim": {
+      "oracle_name": "Nature's Claim",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Nature's Lore": {
+      "oracle_name": "Nature's Lore",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Negate": {
+      "oracle_name": "Negate",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Opal Palace": {
+      "oracle_name": "Opal Palace",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Open the Armory": {
+      "oracle_name": "Open the Armory",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Ophiomancer": {
+      "oracle_name": "Ophiomancer",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "ophiomancer_creates_snake_when_none",
+        "ophiomancer_does_not_duplicate_snake"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Oracle of Mul Daya": {
+      "oracle_name": "Oracle of Mul Daya",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Orcish Lumberjack": {
+      "oracle_name": "Orcish Lumberjack",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Path to Exile": {
+      "oracle_name": "Path to Exile",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Pest Infestation": {
+      "oracle_name": "Pest Infestation",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Pitiless Plunderer": {
+      "oracle_name": "Pitiless Plunderer",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "pitiless_plunderer_ignores_tokens_and_self"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Plains": {
+      "oracle_name": "Plains",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Port Town": {
+      "oracle_name": "Port Town",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Prairie Stream": {
+      "oracle_name": "Prairie Stream",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Preordain": {
+      "oracle_name": "Preordain",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Psychotic Fury": {
+      "oracle_name": "Psychotic Fury",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Rakdos Charm": {
+      "oracle_name": "Rakdos Charm",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "rakdos_charm_creature_mode",
+        "rakdos_charm_graveyard_mode"
+      ],
+      "tactical_passed": 2,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Ramunap Excavator": {
+      "oracle_name": "Ramunap Excavator",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "ramunap_uses_land_play"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Reality Shift": {
+      "oracle_name": "Reality Shift",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Relic of Legends": {
+      "oracle_name": "Relic of Legends",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Riveteers Overlook": {
+      "oracle_name": "Riveteers Overlook",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Rocky Tar Pit": {
+      "oracle_name": "Rocky Tar Pit",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Rograkh, Son of Rohgahh": {
+      "oracle_name": "Rograkh, Son of Rohgahh",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "commander_damage_not_combined"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Sakura-Tribe Elder": {
+      "oracle_name": "Sakura-Tribe Elder",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Scouring Swarm": {
+      "oracle_name": "Scouring Swarm",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Shivan Reef": {
+      "oracle_name": "Shivan Reef",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Silence": {
+      "oracle_name": "Silence",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "silence_blocks_spells_not_abilities"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Skycloud Expanse": {
+      "oracle_name": "Skycloud Expanse",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Slip Out the Back": {
+      "oracle_name": "Slip Out the Back",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "slip_out_avoids_wipe"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Smoldering Marsh": {
+      "oracle_name": "Smoldering Marsh",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Snakeskin Veil": {
+      "oracle_name": "Snakeskin Veil",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Snapback": {
+      "oracle_name": "Snapback",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Sol Ring": {
+      "oracle_name": "Sol Ring",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Soul of Windgrace": {
+      "oracle_name": "Soul of Windgrace",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Soul-Guide Lantern": {
+      "oracle_name": "Soul-Guide Lantern",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "soul_guide_lantern_mass_exile"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Splendid Reclamation": {
+      "oracle_name": "Splendid Reclamation",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "splendid_reclamation_returns_tapped"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Springbloom Druid": {
+      "oracle_name": "Springbloom Druid",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Springleaf Drum": {
+      "oracle_name": "Springleaf Drum",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Sprouting Goblin": {
+      "oracle_name": "Sprouting Goblin",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Staggering Insight": {
+      "oracle_name": "Staggering Insight",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "staggering_insight_draw_and_lifelink"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Storm-Kiln Artist": {
+      "oracle_name": "Storm-Kiln Artist",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "storm_kiln_artist_counts_casts_and_copies"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Stroke of Midnight": {
+      "oracle_name": "Stroke of Midnight",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Sulfur Falls": {
+      "oracle_name": "Sulfur Falls",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Sulfurous Springs": {
+      "oracle_name": "Sulfurous Springs",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Sunhome, Fortress of the Legion": {
+      "oracle_name": "Sunhome, Fortress of the Legion",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Swamp": {
+      "oracle_name": "Swamp",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Swiftfoot Boots": {
+      "oracle_name": "Swiftfoot Boots",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "swiftfoot_boots_hexproof_allows_own_target"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Swords to Plowshares": {
+      "oracle_name": "Swords to Plowshares",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Szarel, Genesis Shepherd": {
+      "oracle_name": "Szarel, Genesis Shepherd",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Talisman of Progress": {
+      "oracle_name": "Talisman of Progress",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Tear Asunder": {
+      "oracle_name": "Tear Asunder",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Temple of Enlightenment": {
+      "oracle_name": "Temple of Enlightenment",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Terramorphic Expanse": {
+      "oracle_name": "Terramorphic Expanse",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "The Gitrog Monster": {
+      "oracle_name": "The Gitrog Monster",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Tinder Wall": {
+      "oracle_name": "Tinder Wall",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Tireless Provisioner": {
+      "oracle_name": "Tireless Provisioner",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "tireless_provisioner_treasure_choice"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Tireless Tracker": {
+      "oracle_name": "Tireless Tracker",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "tireless_tracker_clue_and_counter"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Titania, Protector of Argoth": {
+      "oracle_name": "Titania, Protector of Argoth",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "titania_land_death_creates_elemental"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Toxic Deluge": {
+      "oracle_name": "Toxic Deluge",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "indestructible_fails_minus_toughness",
+        "toxic_deluge_ignores_indestructible",
+        "zero_toughness_is_not_destroy"
+      ],
+      "tactical_passed": 3,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Turbulent Springs": {
+      "oracle_name": "Turbulent Springs",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Twilight Mire": {
+      "oracle_name": "Twilight Mire",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Tyvar's Stand": {
+      "oracle_name": "Tyvar's Stand",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Vandalblast": {
+      "oracle_name": "Vandalblast",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "vandalblast_overload_has_no_targets"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Veil of Summer": {
+      "oracle_name": "Veil of Summer",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Vernal Fen": {
+      "oracle_name": "Vernal Fen",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Veyran, Voice of Duality": {
+      "oracle_name": "Veyran, Voice of Duality",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "veyran_repeats_magecraft_trigger"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Wash Away": {
+      "oracle_name": "Wash Away",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "wash_away_uncleaved_counters_commander"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Wear // Tear": {
+      "oracle_name": "Wear // Tear",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "wear_tear_fuse_from_hand"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Whirlwind of Thought": {
+      "oracle_name": "Whirlwind of Thought",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "whirlwind_triggers_on_cast_not_copy"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Windgrace's Judgment": {
+      "oracle_name": "Windgrace's Judgment",
+      "level": "structural_only",
+      "interaction_ids": [],
+      "tactical_passed": 0,
+      "rules_engine_passed": 0,
+      "notes": [
+        "no project-critical tactical interaction registered"
+      ]
+    },
+    "Winds of Rath": {
+      "oracle_name": "Winds of Rath",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "winds_of_rath_preserves_enchanted_creatures"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    },
+    "Zuran Orb": {
+      "oracle_name": "Zuran Orb",
+      "level": "tactical_validated",
+      "interaction_ids": [
+        "zuran_orb_sacrifice_is_cost"
+      ],
+      "tactical_passed": 1,
+      "rules_engine_passed": 0,
+      "notes": [
+        "local tactical oracle passed; external rules engine not yet recorded"
+      ]
+    }
+  },
+  "interactions": {
+    "commander_tax_third_cast": {
+      "interaction_id": "commander_tax_third_cast",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "commander_tax": 4,
+        "total_cast_cost": 9,
+        "legal": true
+      },
+      "observed": {
+        "commander_tax": 4,
+        "total_cast_cost": 9,
+        "legal": true
+      },
+      "comparison_keys": [
+        "commander_tax",
+        "total_cast_cost",
+        "legal"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "commander_damage_not_combined": {
+      "interaction_id": "commander_damage_not_combined",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "player_loses": false,
+        "loss_reason": null,
+        "maximum_single_commander_damage": 12
+      },
+      "observed": {
+        "player_loses": false,
+        "loss_reason": null,
+        "maximum_single_commander_damage": 12
+      },
+      "comparison_keys": [
+        "player_loses",
+        "loss_reason",
+        "maximum_single_commander_damage"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "commander_damage_exactly_twenty_one": {
+      "interaction_id": "commander_damage_exactly_twenty_one",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "player_loses": true,
+        "loss_reason": "commander_damage",
+        "maximum_single_commander_damage": 21
+      },
+      "observed": {
+        "player_loses": true,
+        "loss_reason": "commander_damage",
+        "maximum_single_commander_damage": 21
+      },
+      "comparison_keys": [
+        "player_loses",
+        "loss_reason",
+        "maximum_single_commander_damage"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "normal_damage_zero_life": {
+      "interaction_id": "normal_damage_zero_life",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "life_after": 0,
+        "player_loses": true,
+        "loss_reason": "life_total"
+      },
+      "observed": {
+        "life_after": 0,
+        "player_loses": true,
+        "loss_reason": "life_total"
+      },
+      "comparison_keys": [
+        "life_after",
+        "player_loses",
+        "loss_reason"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "kediss_damage_is_not_commander_damage": {
+      "interaction_id": "kediss_damage_is_not_commander_damage",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "triggered": true,
+        "other_opponents_hit": 2,
+        "normal_damage_each": 8,
+        "additional_commander_damage": 0
+      },
+      "observed": {
+        "triggered": true,
+        "other_opponents_hit": 2,
+        "normal_damage_each": 8,
+        "additional_commander_damage": 0
+      },
+      "comparison_keys": [
+        "triggered",
+        "other_opponents_hit",
+        "normal_damage_each",
+        "additional_commander_damage"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "jeska_triples_commander_combat_damage": {
+      "interaction_id": "jeska_triples_commander_combat_damage",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "damage": 21,
+        "commander_damage": 21
+      },
+      "observed": {
+        "damage": 21,
+        "commander_damage": 21
+      },
+      "comparison_keys": [
+        "damage",
+        "commander_damage"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "double_strike_counts_both_hits": {
+      "interaction_id": "double_strike_counts_both_hits",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "first_strike_damage": 6,
+        "regular_damage": 6,
+        "total_damage": 12,
+        "commander_damage": 12
+      },
+      "observed": {
+        "first_strike_damage": 6,
+        "regular_damage": 6,
+        "total_damage": 12,
+        "commander_damage": 12
+      },
+      "comparison_keys": [
+        "first_strike_damage",
+        "regular_damage",
+        "total_damage",
+        "commander_damage"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "kaervek_trigger_survives_counter": {
+      "interaction_id": "kaervek_trigger_survives_counter",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "trigger_created": true,
+        "spell_countered": true,
+        "trigger_remains_on_stack": true
+      },
+      "observed": {
+        "trigger_created": true,
+        "spell_countered": true,
+        "trigger_remains_on_stack": true
+      },
+      "comparison_keys": [
+        "trigger_created",
+        "spell_countered",
+        "trigger_remains_on_stack"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "silence_blocks_spells_not_abilities": {
+      "interaction_id": "silence_blocks_spells_not_abilities",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "can_cast_spell": false,
+        "can_activate_ability": true,
+        "can_play_land": true
+      },
+      "observed": {
+        "can_cast_spell": false,
+        "can_activate_ability": true,
+        "can_play_land": true
+      },
+      "comparison_keys": [
+        "can_cast_spell",
+        "can_activate_ability",
+        "can_play_land"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "indestructible_survives_destroy": {
+      "interaction_id": "indestructible_survives_destroy",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "survives": true,
+        "destination": "battlefield"
+      },
+      "observed": {
+        "survives": true,
+        "destination": "battlefield"
+      },
+      "comparison_keys": [
+        "survives",
+        "destination"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "indestructible_fails_minus_toughness": {
+      "interaction_id": "indestructible_fails_minus_toughness",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "survives": false,
+        "destination": "minus"
+      },
+      "observed": {
+        "survives": false,
+        "destination": "minus"
+      },
+      "comparison_keys": [
+        "survives",
+        "destination"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "indestructible_fails_exile": {
+      "interaction_id": "indestructible_fails_exile",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "survives": false,
+        "destination": "exile"
+      },
+      "observed": {
+        "survives": false,
+        "destination": "exile"
+      },
+      "comparison_keys": [
+        "survives",
+        "destination"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "boros_charm_protects_from_destroy_wipe": {
+      "interaction_id": "boros_charm_protects_from_destroy_wipe",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "own_creatures_survive": 4,
+        "opponent_creatures_survive": 0,
+        "creatures_destroyed": 9
+      },
+      "observed": {
+        "own_creatures_survive": 4,
+        "opponent_creatures_survive": 0,
+        "creatures_destroyed": 9
+      },
+      "comparison_keys": [
+        "own_creatures_survive",
+        "opponent_creatures_survive",
+        "creatures_destroyed"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "toxic_deluge_ignores_indestructible": {
+      "interaction_id": "toxic_deluge_ignores_indestructible",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "life_paid": 4,
+        "creatures_died": 3,
+        "survivor_toughnesses": [
+          1
+        ],
+        "indestructible_relevant": false
+      },
+      "observed": {
+        "life_paid": 4,
+        "creatures_died": 3,
+        "survivor_toughnesses": [
+          1
+        ],
+        "indestructible_relevant": false
+      },
+      "comparison_keys": [
+        "life_paid",
+        "creatures_died",
+        "survivor_toughnesses",
+        "indestructible_relevant"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "fire_covenant_pays_total_life": {
+      "interaction_id": "fire_covenant_pays_total_life",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "life_paid": 11,
+        "creatures_died": 2
+      },
+      "observed": {
+        "life_paid": 11,
+        "creatures_died": 2
+      },
+      "comparison_keys": [
+        "life_paid",
+        "creatures_died"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "massacre_wurm_counts_opponent_deaths": {
+      "interaction_id": "massacre_wurm_counts_opponent_deaths",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "creatures_died": 2,
+        "controller_life_loss": 4
+      },
+      "observed": {
+        "creatures_died": 2,
+        "controller_life_loss": 4
+      },
+      "comparison_keys": [
+        "creatures_died",
+        "controller_life_loss"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "culling_ritual_mana_per_destroyed_permanent": {
+      "interaction_id": "culling_ritual_mana_per_destroyed_permanent",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "destroyed": 2,
+        "mana_generated": 2
+      },
+      "observed": {
+        "destroyed": 2,
+        "mana_generated": 2
+      },
+      "comparison_keys": [
+        "destroyed",
+        "mana_generated"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "farewell_selected_modes_exile": {
+      "interaction_id": "farewell_selected_modes_exile",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "creatures_exiled": 7,
+        "artifacts_exiled": 0,
+        "enchantments_exiled": 0,
+        "graveyards_exiled": 18,
+        "indestructible_relevant": false
+      },
+      "observed": {
+        "creatures_exiled": 7,
+        "artifacts_exiled": 0,
+        "enchantments_exiled": 0,
+        "graveyards_exiled": 18,
+        "indestructible_relevant": false
+      },
+      "comparison_keys": [
+        "creatures_exiled",
+        "artifacts_exiled",
+        "enchantments_exiled",
+        "graveyards_exiled",
+        "indestructible_relevant"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "vandalblast_overload_has_no_targets": {
+      "interaction_id": "vandalblast_overload_has_no_targets",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "destroyed": 8,
+        "own_artifacts_destroyed": 0,
+        "uses_targets": false
+      },
+      "observed": {
+        "destroyed": 8,
+        "own_artifacts_destroyed": 0,
+        "uses_targets": false
+      },
+      "comparison_keys": [
+        "destroyed",
+        "own_artifacts_destroyed",
+        "uses_targets"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "wear_tear_fuse_from_hand": {
+      "interaction_id": "wear_tear_fuse_from_hand",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "legal": true,
+        "artifact_destroyed": true,
+        "enchantment_destroyed": true,
+        "spells_cast": 1
+      },
+      "observed": {
+        "legal": true,
+        "artifact_destroyed": true,
+        "enchantment_destroyed": true,
+        "spells_cast": 1
+      },
+      "comparison_keys": [
+        "legal",
+        "artifact_destroyed",
+        "enchantment_destroyed",
+        "spells_cast"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "countered_commander_can_return_to_command": {
+      "interaction_id": "countered_commander_can_return_to_command",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "spell_countered": true,
+        "graveyard_entry": true,
+        "final_zone": "command",
+        "commander_tax_increments": false
+      },
+      "observed": {
+        "spell_countered": true,
+        "graveyard_entry": true,
+        "final_zone": "command",
+        "commander_tax_increments": false
+      },
+      "comparison_keys": [
+        "spell_countered",
+        "graveyard_entry",
+        "final_zone",
+        "commander_tax_increments"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "commander_dies_before_command_move": {
+      "interaction_id": "commander_dies_before_command_move",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "dies_triggered": true,
+        "final_zone": "command",
+        "command_move_method": "state_based_action"
+      },
+      "observed": {
+        "dies_triggered": true,
+        "final_zone": "command",
+        "command_move_method": "state_based_action"
+      },
+      "comparison_keys": [
+        "dies_triggered",
+        "final_zone",
+        "command_move_method"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "commander_bounce_uses_replacement": {
+      "interaction_id": "commander_bounce_uses_replacement",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "dies_triggered": false,
+        "final_zone": "command",
+        "command_move_method": "replacement"
+      },
+      "observed": {
+        "dies_triggered": false,
+        "final_zone": "command",
+        "command_move_method": "replacement"
+      },
+      "comparison_keys": [
+        "dies_triggered",
+        "final_zone",
+        "command_move_method"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "korvold_etb_sacrifice_generates_value": {
+      "interaction_id": "korvold_etb_sacrifice_generates_value",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "permanents_sacrificed": 1,
+        "cards_drawn": 1,
+        "counters_added": 1,
+        "trigger_fizzles": false
+      },
+      "observed": {
+        "permanents_sacrificed": 1,
+        "cards_drawn": 1,
+        "counters_added": 1,
+        "trigger_fizzles": false
+      },
+      "comparison_keys": [
+        "permanents_sacrificed",
+        "cards_drawn",
+        "counters_added",
+        "trigger_fizzles"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "korvold_no_other_permanent": {
+      "interaction_id": "korvold_no_other_permanent",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "permanents_sacrificed": 0,
+        "cards_drawn": 0,
+        "counters_added": 0,
+        "trigger_fizzles": false
+      },
+      "observed": {
+        "permanents_sacrificed": 0,
+        "cards_drawn": 0,
+        "counters_added": 0,
+        "trigger_fizzles": false
+      },
+      "comparison_keys": [
+        "permanents_sacrificed",
+        "cards_drawn",
+        "counters_added",
+        "trigger_fizzles"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "zuran_orb_sacrifice_is_cost": {
+      "interaction_id": "zuran_orb_sacrifice_is_cost",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "cost_paid_before_priority": true,
+        "sacrificed_permanent_zone": "graveyard",
+        "ability_on_stack": true,
+        "can_prevent_cost_with_response": false
+      },
+      "observed": {
+        "cost_paid_before_priority": true,
+        "sacrificed_permanent_zone": "graveyard",
+        "ability_on_stack": true,
+        "can_prevent_cost_with_response": false
+      },
+      "comparison_keys": [
+        "cost_paid_before_priority",
+        "sacrificed_permanent_zone",
+        "ability_on_stack",
+        "can_prevent_cost_with_response"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "academy_manufactor_replaces_each_token": {
+      "interaction_id": "academy_manufactor_replaces_each_token",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "clues": 2,
+        "foods": 2,
+        "treasures": 2
+      },
+      "observed": {
+        "clues": 2,
+        "foods": 2,
+        "treasures": 2
+      },
+      "comparison_keys": [
+        "clues",
+        "foods",
+        "treasures"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "killer_service_scales_with_opponents": {
+      "interaction_id": "killer_service_scales_with_opponents",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "foods": 3,
+        "clues": 0,
+        "treasures": 0,
+        "total_tokens": 3
+      },
+      "observed": {
+        "foods": 3,
+        "clues": 0,
+        "treasures": 0,
+        "total_tokens": 3
+      },
+      "comparison_keys": [
+        "foods",
+        "clues",
+        "treasures",
+        "total_tokens"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "killer_service_with_manufactor": {
+      "interaction_id": "killer_service_with_manufactor",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "foods": 3,
+        "clues": 3,
+        "treasures": 3,
+        "total_tokens": 9
+      },
+      "observed": {
+        "foods": 3,
+        "clues": 3,
+        "treasures": 3,
+        "total_tokens": 9
+      },
+      "comparison_keys": [
+        "foods",
+        "clues",
+        "treasures",
+        "total_tokens"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "ophiomancer_creates_snake_when_none": {
+      "interaction_id": "ophiomancer_creates_snake_when_none",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "snakes_created": 1
+      },
+      "observed": {
+        "snakes_created": 1
+      },
+      "comparison_keys": [
+        "snakes_created"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "ophiomancer_does_not_duplicate_snake": {
+      "interaction_id": "ophiomancer_does_not_duplicate_snake",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "snakes_created": 0
+      },
+      "observed": {
+        "snakes_created": 0
+      },
+      "comparison_keys": [
+        "snakes_created"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "idol_requires_token_this_turn": {
+      "interaction_id": "idol_requires_token_this_turn",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "can_activate_draw": true,
+        "cards_drawn": 1
+      },
+      "observed": {
+        "can_activate_draw": true,
+        "cards_drawn": 1
+      },
+      "comparison_keys": [
+        "can_activate_draw",
+        "cards_drawn"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "titania_land_death_creates_elemental": {
+      "interaction_id": "titania_land_death_creates_elemental",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "land_returned": 1,
+        "elementals_created": 2,
+        "elemental_power": 5,
+        "elemental_toughness": 3
+      },
+      "observed": {
+        "land_returned": 1,
+        "elementals_created": 2,
+        "elemental_power": 5,
+        "elemental_toughness": 3
+      },
+      "comparison_keys": [
+        "land_returned",
+        "elementals_created",
+        "elemental_power",
+        "elemental_toughness"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "ramunap_uses_land_play": {
+      "interaction_id": "ramunap_uses_land_play",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "can_play_land_from_graveyard": true,
+        "uses_land_play": true
+      },
+      "observed": {
+        "can_play_land_from_graveyard": true,
+        "uses_land_play": true
+      },
+      "comparison_keys": [
+        "can_play_land_from_graveyard",
+        "uses_land_play"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "splendid_reclamation_returns_tapped": {
+      "interaction_id": "splendid_reclamation_returns_tapped",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "lands_returned": 7,
+        "enter_tapped": true
+      },
+      "observed": {
+        "lands_returned": 7,
+        "enter_tapped": true
+      },
+      "comparison_keys": [
+        "lands_returned",
+        "enter_tapped"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "aftermath_analyst_sacrifices_and_returns_lands": {
+      "interaction_id": "aftermath_analyst_sacrifices_and_returns_lands",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "analyst_sacrificed": true,
+        "lands_returned": 5,
+        "enter_tapped": true
+      },
+      "observed": {
+        "analyst_sacrificed": true,
+        "lands_returned": 5,
+        "enter_tapped": true
+      },
+      "comparison_keys": [
+        "analyst_sacrificed",
+        "lands_returned",
+        "enter_tapped"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "tireless_provisioner_treasure_choice": {
+      "interaction_id": "tireless_provisioner_treasure_choice",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "foods": 0,
+        "treasures": 3
+      },
+      "observed": {
+        "foods": 0,
+        "treasures": 3
+      },
+      "comparison_keys": [
+        "foods",
+        "treasures"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "tireless_tracker_clue_and_counter": {
+      "interaction_id": "tireless_tracker_clue_and_counter",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "clues_created": 2,
+        "counters_added": 2,
+        "cards_drawn": 2
+      },
+      "observed": {
+        "clues_created": 2,
+        "counters_added": 2,
+        "cards_drawn": 2
+      },
+      "comparison_keys": [
+        "clues_created",
+        "counters_added",
+        "cards_drawn"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "mirkwood_bats_counts_created_and_sacrificed_tokens": {
+      "interaction_id": "mirkwood_bats_counts_created_and_sacrificed_tokens",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "triggers": 5,
+        "life_loss_each_opponent": 5,
+        "total_life_loss": 15
+      },
+      "observed": {
+        "triggers": 5,
+        "life_loss_each_opponent": 5,
+        "total_life_loss": 15
+      },
+      "comparison_keys": [
+        "triggers",
+        "life_loss_each_opponent",
+        "total_life_loss"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "mayhem_devil_triggers_for_any_player": {
+      "interaction_id": "mayhem_devil_triggers_for_any_player",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "triggers": 4,
+        "damage_available": 4
+      },
+      "observed": {
+        "triggers": 4,
+        "damage_available": 4
+      },
+      "comparison_keys": [
+        "triggers",
+        "damage_available"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "mazirek_counters_all_your_creatures": {
+      "interaction_id": "mazirek_counters_all_your_creatures",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "triggers": 3,
+        "counters_each": 3,
+        "total_counters": 15
+      },
+      "observed": {
+        "triggers": 3,
+        "counters_each": 3,
+        "total_counters": 15
+      },
+      "comparison_keys": [
+        "triggers",
+        "counters_each",
+        "total_counters"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "braids_draws_for_each_decline": {
+      "interaction_id": "braids_draws_for_each_decline",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "opponents_lost_life": 2,
+        "life_loss_each": 2,
+        "cards_drawn": 2
+      },
+      "observed": {
+        "opponents_lost_life": 2,
+        "life_loss_each": 2,
+        "cards_drawn": 2
+      },
+      "comparison_keys": [
+        "opponents_lost_life",
+        "life_loss_each",
+        "cards_drawn"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "bontu_draws_per_sacrifice": {
+      "interaction_id": "bontu_draws_per_sacrifice",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "permanents_sacrificed": 6,
+        "cards_drawn": 6
+      },
+      "observed": {
+        "permanents_sacrificed": 6,
+        "cards_drawn": 6
+      },
+      "comparison_keys": [
+        "permanents_sacrificed",
+        "cards_drawn"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "pitiless_plunderer_ignores_tokens_and_self": {
+      "interaction_id": "pitiless_plunderer_ignores_tokens_and_self",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "treasures_created": 3
+      },
+      "observed": {
+        "treasures_created": 3
+      },
+      "comparison_keys": [
+        "treasures_created"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "goblin_bombardment_sacrifices_as_cost": {
+      "interaction_id": "goblin_bombardment_sacrifices_as_cost",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "creatures_sacrificed": 3,
+        "damage": 3,
+        "targets": 3
+      },
+      "observed": {
+        "creatures_sacrificed": 3,
+        "damage": 3,
+        "targets": 3
+      },
+      "comparison_keys": [
+        "creatures_sacrificed",
+        "damage",
+        "targets"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "rakdos_charm_creature_mode": {
+      "interaction_id": "rakdos_charm_creature_mode",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "artifact_destroyed": false,
+        "graveyard_cards_exiled": 0,
+        "creature_damage_to_controller": 14
+      },
+      "observed": {
+        "artifact_destroyed": false,
+        "graveyard_cards_exiled": 0,
+        "creature_damage_to_controller": 14
+      },
+      "comparison_keys": [
+        "artifact_destroyed",
+        "graveyard_cards_exiled",
+        "creature_damage_to_controller"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "rakdos_charm_graveyard_mode": {
+      "interaction_id": "rakdos_charm_graveyard_mode",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "artifact_destroyed": false,
+        "graveyard_cards_exiled": 22,
+        "creature_damage_to_controller": 0
+      },
+      "observed": {
+        "artifact_destroyed": false,
+        "graveyard_cards_exiled": 22,
+        "creature_damage_to_controller": 0
+      },
+      "comparison_keys": [
+        "artifact_destroyed",
+        "graveyard_cards_exiled",
+        "creature_damage_to_controller"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "soul_guide_lantern_mass_exile": {
+      "interaction_id": "soul_guide_lantern_mass_exile",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "single_card_exiled": 0,
+        "opponent_graveyards_exiled": 27,
+        "cards_drawn": 0,
+        "lantern_sacrificed": true
+      },
+      "observed": {
+        "single_card_exiled": 0,
+        "opponent_graveyards_exiled": 27,
+        "cards_drawn": 0,
+        "lantern_sacrificed": true
+      },
+      "comparison_keys": [
+        "single_card_exiled",
+        "opponent_graveyards_exiled",
+        "cards_drawn",
+        "lantern_sacrificed"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "bojuka_bog_exiles_target_graveyard": {
+      "interaction_id": "bojuka_bog_exiles_target_graveyard",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "enters_tapped": true,
+        "graveyard_cards_exiled": 13
+      },
+      "observed": {
+        "enters_tapped": true,
+        "graveyard_cards_exiled": 13
+      },
+      "comparison_keys": [
+        "enters_tapped",
+        "graveyard_cards_exiled"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "combat_research_draw_trigger": {
+      "interaction_id": "combat_research_draw_trigger",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "cards_drawn": 1,
+        "life_gained": 0
+      },
+      "observed": {
+        "cards_drawn": 1,
+        "life_gained": 0
+      },
+      "comparison_keys": [
+        "cards_drawn",
+        "life_gained"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "staggering_insight_draw_and_lifelink": {
+      "interaction_id": "staggering_insight_draw_and_lifelink",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "cards_drawn": 1,
+        "life_gained": 8
+      },
+      "observed": {
+        "cards_drawn": 1,
+        "life_gained": 8
+      },
+      "comparison_keys": [
+        "cards_drawn",
+        "life_gained"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "ishai_only_opponent_spells_trigger": {
+      "interaction_id": "ishai_only_opponent_spells_trigger",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "counters_added": 5,
+        "own_spells_trigger": false
+      },
+      "observed": {
+        "counters_added": 5,
+        "own_spells_trigger": false
+      },
+      "comparison_keys": [
+        "counters_added",
+        "own_spells_trigger"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "veyran_repeats_magecraft_trigger": {
+      "interaction_id": "veyran_repeats_magecraft_trigger",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "total_triggers": 4
+      },
+      "observed": {
+        "total_triggers": 4
+      },
+      "comparison_keys": [
+        "total_triggers"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "guttersnipe_hits_each_opponent": {
+      "interaction_id": "guttersnipe_hits_each_opponent",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "damage_each_opponent": 4,
+        "total_damage": 12
+      },
+      "observed": {
+        "damage_each_opponent": 4,
+        "total_damage": 12
+      },
+      "comparison_keys": [
+        "damage_each_opponent",
+        "total_damage"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "kykar_creates_and_sacrifices_spirits": {
+      "interaction_id": "kykar_creates_and_sacrifices_spirits",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "spirits_created": 3,
+        "red_mana_generated": 2
+      },
+      "observed": {
+        "spirits_created": 3,
+        "red_mana_generated": 2
+      },
+      "comparison_keys": [
+        "spirits_created",
+        "red_mana_generated"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "storm_kiln_artist_counts_casts_and_copies": {
+      "interaction_id": "storm_kiln_artist_counts_casts_and_copies",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "treasures_created": 4
+      },
+      "observed": {
+        "treasures_created": 4
+      },
+      "comparison_keys": [
+        "treasures_created"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "archmage_emeritus_counts_casts_and_copies": {
+      "interaction_id": "archmage_emeritus_counts_casts_and_copies",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "cards_drawn": 3
+      },
+      "observed": {
+        "cards_drawn": 3
+      },
+      "comparison_keys": [
+        "cards_drawn"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "whirlwind_triggers_on_cast_not_copy": {
+      "interaction_id": "whirlwind_triggers_on_cast_not_copy",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "cards_drawn": 2,
+        "copies_trigger": false
+      },
+      "observed": {
+        "cards_drawn": 2,
+        "copies_trigger": false
+      },
+      "comparison_keys": [
+        "cards_drawn",
+        "copies_trigger"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "narset_limits_opponent_draws": {
+      "interaction_id": "narset_limits_opponent_draws",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "additional_draws_allowed": 0,
+        "additional_draws_prevented": 3
+      },
+      "observed": {
+        "additional_draws_allowed": 0,
+        "additional_draws_prevented": 3
+      },
+      "comparison_keys": [
+        "additional_draws_allowed",
+        "additional_draws_prevented"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "esior_taxes_opponent_targeting": {
+      "interaction_id": "esior_taxes_opponent_targeting",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "additional_cost": 3,
+        "legal_if_paid": true
+      },
+      "observed": {
+        "additional_cost": 3,
+        "legal_if_paid": true
+      },
+      "comparison_keys": [
+        "additional_cost",
+        "legal_if_paid"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "slip_out_avoids_wipe": {
+      "interaction_id": "slip_out_avoids_wipe",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "affected_by_wipe": false,
+        "returns_next_untap": true,
+        "attachments_phase_out": true
+      },
+      "observed": {
+        "affected_by_wipe": false,
+        "returns_next_untap": true,
+        "attachments_phase_out": true
+      },
+      "comparison_keys": [
+        "affected_by_wipe",
+        "returns_next_untap",
+        "attachments_phase_out"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "lofty_denial_tax_with_flyer": {
+      "interaction_id": "lofty_denial_tax_with_flyer",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "tax": 4,
+        "spell_countered": true
+      },
+      "observed": {
+        "tax": 4,
+        "spell_countered": true
+      },
+      "comparison_keys": [
+        "tax",
+        "spell_countered"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "wash_away_uncleaved_counters_commander": {
+      "interaction_id": "wash_away_uncleaved_counters_commander",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "legal_target": true,
+        "spell_countered": true
+      },
+      "observed": {
+        "legal_target": true,
+        "spell_countered": true
+      },
+      "comparison_keys": [
+        "legal_target",
+        "spell_countered"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "offer_counters_noncreature_and_gives_treasures": {
+      "interaction_id": "offer_counters_noncreature_and_gives_treasures",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "spell_countered": true,
+        "treasures_created_for_controller": 2
+      },
+      "observed": {
+        "spell_countered": true,
+        "treasures_created_for_controller": 2
+      },
+      "comparison_keys": [
+        "spell_countered",
+        "treasures_created_for_controller"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "dovins_veto_cannot_be_countered": {
+      "interaction_id": "dovins_veto_cannot_be_countered",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "legal_target": true,
+        "spell_countered": true,
+        "veto_can_be_countered": false
+      },
+      "observed": {
+        "legal_target": true,
+        "spell_countered": true,
+        "veto_can_be_countered": false
+      },
+      "comparison_keys": [
+        "legal_target",
+        "spell_countered",
+        "veto_can_be_countered"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "winds_of_rath_preserves_enchanted_creatures": {
+      "interaction_id": "winds_of_rath_preserves_enchanted_creatures",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "enchanted_survive": 2,
+        "unenchanted_destroyed": 7
+      },
+      "observed": {
+        "enchanted_survive": 2,
+        "unenchanted_destroyed": 7
+      },
+      "comparison_keys": [
+        "enchanted_survive",
+        "unenchanted_destroyed"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "lorans_escape_protection_package": {
+      "interaction_id": "lorans_escape_protection_package",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "hexproof": true,
+        "indestructible": true,
+        "scry": 1,
+        "counter_added": 0
+      },
+      "observed": {
+        "hexproof": true,
+        "indestructible": true,
+        "scry": 1,
+        "counter_added": 0
+      },
+      "comparison_keys": [
+        "hexproof",
+        "indestructible",
+        "scry",
+        "counter_added"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "lightning_greaves_shroud_blocks_own_target": {
+      "interaction_id": "lightning_greaves_shroud_blocks_own_target",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "can_target_with_own_spell": false,
+        "protection": "shroud",
+        "equip_cost": 0
+      },
+      "observed": {
+        "can_target_with_own_spell": false,
+        "protection": "shroud",
+        "equip_cost": 0
+      },
+      "comparison_keys": [
+        "can_target_with_own_spell",
+        "protection",
+        "equip_cost"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "swiftfoot_boots_hexproof_allows_own_target": {
+      "interaction_id": "swiftfoot_boots_hexproof_allows_own_target",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "can_target_with_own_spell": true,
+        "protection": "hexproof",
+        "equip_cost": 1
+      },
+      "observed": {
+        "can_target_with_own_spell": true,
+        "protection": "hexproof",
+        "equip_cost": 1
+      },
+      "comparison_keys": [
+        "can_target_with_own_spell",
+        "protection",
+        "equip_cost"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "apnap_trigger_order_four_player": {
+      "interaction_id": "apnap_trigger_order_four_player",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "stack_bottom_to_top": [
+          "A1",
+          "A2",
+          "B1",
+          "C1",
+          "C2",
+          "D1"
+        ],
+        "resolves_first": "D1"
+      },
+      "observed": {
+        "stack_bottom_to_top": [
+          "A1",
+          "A2",
+          "B1",
+          "C1",
+          "C2",
+          "D1"
+        ],
+        "resolves_first": "D1"
+      },
+      "comparison_keys": [
+        "stack_bottom_to_top",
+        "resolves_first"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "stack_resolves_last_in_first_out": {
+      "interaction_id": "stack_resolves_last_in_first_out",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "resolution_order": [
+          "counter-C",
+          "trigger-B",
+          "spell-A"
+        ]
+      },
+      "observed": {
+        "resolution_order": [
+          "counter-C",
+          "trigger-B",
+          "spell-A"
+        ]
+      },
+      "comparison_keys": [
+        "resolution_order"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "zero_toughness_is_not_destroy": {
+      "interaction_id": "zero_toughness_is_not_destroy",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "put_into_graveyard": true,
+        "is_destroyed": false,
+        "indestructible_relevant": false
+      },
+      "observed": {
+        "put_into_graveyard": true,
+        "is_destroyed": false,
+        "indestructible_relevant": false
+      },
+      "comparison_keys": [
+        "put_into_graveyard",
+        "is_destroyed",
+        "indestructible_relevant"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    },
+    "token_ceases_after_zone_change": {
+      "interaction_id": "token_ceases_after_zone_change",
+      "level": "tactical_validated",
+      "passed": true,
+      "backend": "tactical",
+      "expected": {
+        "enters_destination": true,
+        "ceases_to_exist_next_sba": true
+      },
+      "observed": {
+        "enters_destination": true,
+        "ceases_to_exist_next_sba": true
+      },
+      "comparison_keys": [
+        "enters_destination",
+        "ceases_to_exist_next_sba"
+      ],
+      "mismatches": [],
+      "backend_version": "tactical-0.8.0",
+      "evidence_path": null
+    }
+  },
+  "tactical_cases": 73,
+  "tactical_passed": 73,
+  "rules_engine_cases": 0,
+  "rules_engine_passed": 0,
+  "notes": [
+    "tactical_validated is a bounded local model status, not a complete MTG rules proof",
+    "rules_engine_validated requires a matching XMage or Forge bridge observation"
+  ]
+}

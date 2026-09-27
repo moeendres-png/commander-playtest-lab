@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "ObservationStatus": {
+      "description": "Source status for opponent-card assumptions, not empirical game evidence.",
+      "enum": [
+        "directly_observed",
+        "reported_by_player",
+        "inferred_role",
+        "unknown",
+        "synthetic_assumption"
+      ],
+      "title": "ObservationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "card_name": {
+      "title": "Card Name",
+      "type": "string"
+    },
+    "color_identity": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Color Identity",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/ObservationStatus"
+    }
+  },
+  "required": [
+    "card_name",
+    "status"
+  ],
+  "title": "OpponentCardAssumption",
+  "type": "object"
+}

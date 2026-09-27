@@ -1,0 +1,21 @@
+{
+  "deck_id": "rogshai/current",
+  "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+  "hands": [
+    {
+      "id": "rogshai-protected-tempo-keep",
+      "cards": ["Island", "Plains", "Sol Ring", "Consider", "Counterspell", "Slip Out the Back", "Combat Research"],
+      "policy": "primer_policy",
+      "expected": "keep",
+      "rationale": "Early blue, mana, cheap noncreature spell, interaction and protection."
+    },
+    {
+      "id": "rogshai-offense-no-window",
+      "cards": ["Plains", "Mountain", "Blackblade Reforged", "Duelist's Heritage", "Jeska, Thrice Reborn", "Kediss, Emberclaw Familiar", "Farewell"],
+      "policy": "primer_policy",
+      "expected": "mulligan",
+      "rationale": "No early blue and too many offensive payoffs without a protected Ishai window."
+    }
+  ],
+  "model_based": true
+}

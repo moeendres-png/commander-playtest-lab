@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "iterations": {
+      "default": 8,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 24,
+      "maximum": 100,
+      "minimum": 5,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "opponent_deck_ids": {
+      "default": [
+        "opponent/morcant-elves",
+        "opponent/blight-curse-precon",
+        "opponent/doom-prevails-precon"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Opponent Deck Ids",
+      "type": "array"
+    },
+    "output_name": {
+      "default": "latest_pilot_benchmark",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "pilot_names": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 2,
+      "title": "Pilot Names",
+      "type": "array"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_id",
+    "pilot_names"
+  ],
+  "title": "ComparePilotsInput",
+  "type": "object"
+}

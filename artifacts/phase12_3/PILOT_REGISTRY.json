@@ -1,0 +1,461 @@
+{
+  "estimate_type": "structural_model_estimates",
+  "profiles": [
+    {
+      "allowed_deviation": 0.0,
+      "commander_family": "korvold",
+      "description": "Phase-12.2 baseline Korvold pilot.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": true,
+      "mode": "deterministic",
+      "parameter_hash": "03b338d96710bac54bd75a827fdc96018cce3e5512d12d6bd22f9f9fed7856f5",
+      "pilot_name": "KorvoldPilot",
+      "profile_id": "korvold.korvoldpilot.v1",
+      "source_rule_ids": [
+        "korvold.current.commander-immediate-value"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.35,
+        "engine_development": 1.3,
+        "interaction_reserve": 1.15,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.25,
+        "survival": 1.2,
+        "tempo": 1.0,
+        "threat_reduction": 1.2,
+        "win_progress": 1.4
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "korvold",
+      "description": "Maximizes independent value and card advantage.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "9e2ed46f7b70600a8048052d95c013d867a720cd1e84bee2d2e6612c1b3f7e6c",
+      "pilot_name": "KorvoldValuePilot",
+      "profile_id": "korvold.korvoldvaluepilot.v1",
+      "source_rule_ids": [
+        "korvold.current.commander-immediate-value",
+        "korvold.current.motor-vs-finisher"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.5,
+        "commander_value": 1.35,
+        "engine_development": 1.6,
+        "interaction_reserve": 1.15,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.25,
+        "survival": 1.2,
+        "tempo": 1.0,
+        "threat_reduction": 1.2,
+        "win_progress": 1.4
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "korvold",
+      "description": "Prioritizes sacrifice outlets and renewable material.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "e9439ab10cb9b96e360d93f7986c3cf0871528a66aa3b5fc297e89b14aa2805c",
+      "pilot_name": "KorvoldSacrificePilot",
+      "profile_id": "korvold.korvoldsacrificepilot.v1",
+      "source_rule_ids": [
+        "korvold.current.prepare-sacrifice-resources"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.35,
+        "engine_development": 1.55,
+        "interaction_reserve": 1.15,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.25,
+        "survival": 1.2,
+        "tempo": 1.0,
+        "threat_reduction": 1.2,
+        "win_progress": 1.5499999999999998
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "korvold",
+      "description": "Preserves and converts land/graveyard rebuild lines.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "552b8958758cbc88f02a89e876b3313e15db4a69a2d65f8bf5a981302249301b",
+      "pilot_name": "KorvoldLandRebuildPilot",
+      "profile_id": "korvold.korvoldlandrebuildpilot.v1",
+      "source_rule_ids": [
+        "korvold.current.graveyard-hate-risk",
+        "korvold.current.rebuild-after-wipe"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.35,
+        "engine_development": 1.3,
+        "interaction_reserve": 1.15,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.8,
+        "survival": 1.3499999999999999,
+        "tempo": 1.0,
+        "threat_reduction": 1.2,
+        "win_progress": 1.4
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "korvold",
+      "description": "Accepts visibility to advance table damage and commander pressure.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "31967d67b4368db3c3a48b6f10c5c15104b9b9aca6209e466cee005e4b060191",
+      "pilot_name": "KorvoldAggressivePilot",
+      "profile_id": "korvold.korvoldaggressivepilot.v1",
+      "source_rule_ids": [
+        "korvold.current.table-damage-window"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.35,
+        "engine_development": 1.3,
+        "interaction_reserve": 1.15,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.15,
+        "rebuild_capacity": 1.25,
+        "survival": 1.2,
+        "tempo": 1.45,
+        "threat_reduction": 1.2,
+        "win_progress": 1.95
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "korvold",
+      "description": "Reserves protection and minimizes exposed commander casts.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "5c377a05676050b0a1caffd96751fbc8c16fccc164289952be49df8e6b1ae093",
+      "pilot_name": "KorvoldConservativePilot",
+      "profile_id": "korvold.korvoldconservativepilot.v1",
+      "source_rule_ids": [
+        "korvold.current.commander-immediate-value",
+        "korvold.current.rebuild-after-wipe"
+      ],
+      "supported_deck_hashes": [
+        "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.35,
+        "engine_development": 1.3,
+        "interaction_reserve": 1.5,
+        "mana_efficiency": 0.95,
+        "political_visibility": -1.15,
+        "rebuild_capacity": 1.55,
+        "survival": 1.65,
+        "tempo": 1.0,
+        "threat_reduction": 1.2,
+        "win_progress": 1.4
+      }
+    },
+    {
+      "allowed_deviation": 0.0,
+      "commander_family": "rogshai",
+      "description": "Phase-12.2 baseline RogShai pilot.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": true,
+      "mode": "deterministic",
+      "parameter_hash": "64573d2f34de8fcd396ee79445b84bec39091b248053bf3b09b89e9db7e2d487",
+      "pilot_name": "RogShaiPilot",
+      "profile_id": "rogshai.rogshaipilot.v1",
+      "source_rule_ids": [
+        "rogshai.current.ishai-protection-window"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.4000000000000001,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.5,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0,
+        "survival": 1.2,
+        "tempo": 1.1,
+        "threat_reduction": 1.2,
+        "win_progress": 1.5
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "rogshai",
+      "description": "Develops Ishai while preserving cheap tempo interaction.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "7494c672afce15dbaa33353f391fa9333c88471dea7b1f98e1fa42471ebfc7df",
+      "pilot_name": "RogShaiTempoPilot",
+      "profile_id": "rogshai.rogshaitempopilot.v1",
+      "source_rule_ids": [
+        "rogshai.current.ishai-protection-window",
+        "rogshai.current.counter-priority"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.4000000000000001,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.75,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0,
+        "survival": 1.2,
+        "tempo": 1.6500000000000001,
+        "threat_reduction": 1.2,
+        "win_progress": 1.5
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "rogshai",
+      "description": "Concentrates on combat draw and commander-damage pressure.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "9a1c4370fded8c89ef96f80937f9de50e53dd76005c42768f564b5d48408a7a3",
+      "pilot_name": "RogShaiVoltronPilot",
+      "profile_id": "rogshai.rogshaivoltronpilot.v1",
+      "source_rule_ids": [
+        "rogshai.current.aura-exposure",
+        "rogshai.current.kediss-not-commander-damage"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.9000000000000001,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.5,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.2,
+        "rebuild_capacity": 1.0,
+        "survival": 1.2,
+        "tempo": 1.1,
+        "threat_reduction": 1.2,
+        "win_progress": 2.05
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "rogshai",
+      "description": "Builds independent Kykar/Veyran/Storm-Kiln/Guttersnipe axes.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "341562dd9d6ca75c1a503bd6236fa4999add3c0a3cea71eb9dc1e63942bf320c",
+      "pilot_name": "RogShaiSpellslingerPilot",
+      "profile_id": "rogshai.rogshaispellslingerpilot.v1",
+      "source_rule_ids": [
+        "rogshai.current.independent-spellslinger-axis"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.5,
+        "commander_value": 1.2000000000000002,
+        "engine_development": 1.6,
+        "interaction_reserve": 1.5,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0,
+        "survival": 1.2,
+        "tempo": 1.1,
+        "threat_reduction": 1.2,
+        "win_progress": 1.5
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "rogshai",
+      "description": "Reserves interaction for engines and real win attempts.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "24717e5c1e0f5d7f54637663116baf4abb726105c7e492a963d9224658fa3b6a",
+      "pilot_name": "RogShaiControlPilot",
+      "profile_id": "rogshai.rogshaicontrolpilot.v1",
+      "source_rule_ids": [
+        "rogshai.current.counter-priority"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.4000000000000001,
+        "engine_development": 1.1,
+        "interaction_reserve": 2.15,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0,
+        "survival": 1.5499999999999998,
+        "tempo": 1.1,
+        "threat_reduction": 1.65,
+        "win_progress": 1.35
+      }
+    },
+    {
+      "allowed_deviation": 0.25,
+      "commander_family": "rogshai",
+      "description": "Waits for protected Jeska, double-strike or Silence finish windows.",
+      "information_policy": {
+        "exact_future_draws": false,
+        "hidden_opponent_hands": false,
+        "mode": "visible_plus_known_cards",
+        "opponent_hand_model": "plausible_distribution",
+        "random_library_order": false
+      },
+      "is_baseline": false,
+      "mode": "deterministic",
+      "parameter_hash": "e3ca7e279337e09c26192dffb11cd6b16a906addaf2fb97dbec9b2df4db65dd1",
+      "pilot_name": "RogShaiProtectedFinishPilot",
+      "profile_id": "rogshai.rogshaiprotectedfinishpilot.v1",
+      "source_rule_ids": [
+        "rogshai.current.jeska-finish-window",
+        "rogshai.current.silence-window"
+      ],
+      "supported_deck_hashes": [
+        "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656"
+      ],
+      "version": "1.0.0",
+      "weights": {
+        "card_advantage": 1.15,
+        "commander_value": 1.4000000000000001,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.95,
+        "mana_efficiency": 0.95,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0,
+        "survival": 1.45,
+        "tempo": 1.1,
+        "threat_reduction": 1.2,
+        "win_progress": 1.85
+      }
+    }
+  ],
+  "schema_version": "1.0.0",
+  "truth_boundaries": {
+    "automatic_deck_changes": false,
+    "hidden_information_access": false,
+    "legal_actions_only": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "counterfactual_comparison.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "result_paths": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Result Paths",
+      "type": "array"
+    }
+  },
+  "required": [
+    "result_paths"
+  ],
+  "title": "CompareCounterfactualsInput",
+  "type": "object"
+}

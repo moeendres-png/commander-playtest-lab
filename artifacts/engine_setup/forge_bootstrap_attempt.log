@@ -1,0 +1,3 @@
+Cloning pinned forge source into /mnt/data/commander-playtest-lab-phase8-work/artifacts/engine_setup/forge-source-attempt
+Cloning into '/mnt/data/commander-playtest-lab-phase8-work/artifacts/engine_setup/forge-source-attempt'...
+fatal: unable to access 'https://github.com/Card-Forge/forge.git/': Could not resolve host: github.com

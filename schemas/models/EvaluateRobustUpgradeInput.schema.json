@@ -1,0 +1,30 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_deck_id": {
+      "title": "Baseline Deck Id",
+      "type": "string"
+    },
+    "candidate_deck_id": {
+      "title": "Candidate Deck Id",
+      "type": "string"
+    },
+    "ensemble_id": {
+      "title": "Ensemble Id",
+      "type": "string"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "baseline_deck_id",
+    "candidate_deck_id",
+    "ensemble_id"
+  ],
+  "title": "EvaluateRobustUpgradeInput",
+  "type": "object"
+}

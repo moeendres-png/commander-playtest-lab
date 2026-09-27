@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "completed_at": "2026-08-19T12:07:46+02:00",
+  "completed_at_basis": "official_run_directory_stamp",
+  "git_commit": "12a0b35e1bf8ee54b6ccc39db57682d35c3a1dc7",
+  "deck_id": "rogshai/current",
+  "deck_hash": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3",
+  "project_context_hash": "c600722324fb62157d450a50a1907eea9d80c60453d5b6007c746b34f16477d9",
+  "seed_set_hash": "4131880dd7b3998afb7d74c5e288fb9aaeb52b0913c68c2c9490ac910c8a9ba6",
+  "evidence_class": "structural_model_estimates",
+  "evidence_boundary": "structural_model_estimates != empirical_winrates",
+  "canonical_mutation": false,
+  "authorization_required": true,
+  "source": {
+    "type": "official_structural_run",
+    "artifact_stamp": "20260819_120746",
+    "identity_artifact": "artifacts/official_rogshai/20260819_120746/run/EXECUTED_RUN_IDENTITY.json",
+    "report_artifact": "artifacts/official_rogshai/20260819_120746/run/ROGSHAI_FIRST_SERIOUS_RUN_REPORT.md",
+    "note": "Artifact paths identify the executed local official-run evidence; the canonical repository pointer records identity and evidence boundary only."
+  }
+}

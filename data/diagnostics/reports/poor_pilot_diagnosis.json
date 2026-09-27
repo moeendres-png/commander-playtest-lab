@@ -1,0 +1,49 @@
+{
+  "automatic_deck_change": false,
+  "confidence": 0.5900000000000001,
+  "counterevidence": [
+    "curated package minimum is met",
+    "low opponent sensitivity",
+    "low seed sensitivity"
+  ],
+  "counterfactual_result": {
+    "consistency": 0.9,
+    "improvement": 1.2
+  },
+  "cut_release_gate": "blocked:pilot_error_or_style_not_excluded,alternative_line_improves,holdout_not_confirmed,diagnosis_not_deck_or_card_weakness",
+  "diagnosis_id": "8f163407db538d1ad6a05038",
+  "empirically_proven": false,
+  "evidence": [
+    "alternative legal lines improve across sampled futures and stronger pilots identify them"
+  ],
+  "hypothesis": "pilot_does_not_recognize_line",
+  "metrics": {
+    "counterfactual_improvement": 1.2,
+    "dead_card_rate": 0.1,
+    "decision_regret": 1.3,
+    "evidence_strength": 0.6000000000000001,
+    "missed_line_count": 12,
+    "package_failure_rate": 0.0,
+    "pilot_disagreement": 0.75,
+    "unplayable_rate": 0.0625
+  },
+  "model_dependent": true,
+  "opponent_sensitivity": 0.1,
+  "package_dependency": {
+    "checked": true,
+    "completeness": 0.9,
+    "minimum_met": true,
+    "package_id": null
+  },
+  "pilot_sensitivity": 0.75,
+  "recommended_next_test": "add_golden_line_and_retest_same_deck_across_pilots",
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-poor-pilot"
+  ],
+  "subject": "WeakPilot",
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

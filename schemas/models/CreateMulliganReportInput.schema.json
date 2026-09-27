@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "MULLIGAN_LAB_REPORT.md",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "result_path": {
+      "title": "Result Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "result_path"
+  ],
+  "title": "CreateMulliganReportInput",
+  "type": "object"
+}

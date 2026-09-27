@@ -1,0 +1,132 @@
+{
+  "$defs": {
+    "PolicyActionScore": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "baseline_score": {
+          "title": "Baseline Score",
+          "type": "number"
+        },
+        "overlay_score": {
+          "title": "Overlay Score",
+          "type": "number"
+        },
+        "triggered_rules": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PolicyDecisionTrace"
+          },
+          "title": "Triggered Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "action_id",
+        "baseline_score",
+        "overlay_score"
+      ],
+      "title": "PolicyActionScore",
+      "type": "object"
+    },
+    "PolicyDecisionTrace": {
+      "additionalProperties": false,
+      "properties": {
+        "adjustment": {
+          "title": "Adjustment",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "adjustment",
+        "reason"
+      ],
+      "title": "PolicyDecisionTrace",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_scores": {
+      "items": {
+        "$ref": "#/$defs/PolicyActionScore"
+      },
+      "title": "Action Scores",
+      "type": "array"
+    },
+    "baseline_action_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Baseline Action Id"
+    },
+    "baseline_correct": {
+      "title": "Baseline Correct",
+      "type": "boolean"
+    },
+    "conflicts": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "expected_action_id": {
+      "title": "Expected Action Id",
+      "type": "string"
+    },
+    "improved": {
+      "title": "Improved",
+      "type": "boolean"
+    },
+    "overlay_action_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Overlay Action Id"
+    },
+    "overlay_correct": {
+      "title": "Overlay Correct",
+      "type": "boolean"
+    },
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "baseline_action_id",
+    "overlay_action_id",
+    "expected_action_id",
+    "baseline_correct",
+    "overlay_correct",
+    "improved",
+    "action_scores"
+  ],
+  "title": "PolicyEvalResult",
+  "type": "object"
+}

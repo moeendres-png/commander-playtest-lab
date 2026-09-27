@@ -1,0 +1,12 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "fail_on_unreferenced": {
+      "default": false,
+      "title": "Fail On Unreferenced",
+      "type": "boolean"
+    }
+  },
+  "title": "AuditUnreferencedClaimsInput",
+  "type": "object"
+}

@@ -1,0 +1,753 @@
+{
+  "bad_actions": 0,
+  "code_identity": {
+    "golden_evaluator_py_sha256": "23a481cf76c4e6efed802104feed3fd65fb750d3717de45d0219d88236d8fd84",
+    "pilot_models_py_sha256": "f2b14390a0215655ba9a3f350d47460dae33c27e504bde550ad82903e6db5ee7",
+    "pilots_py_sha256": "a8a262ab91d42a7d38de79630cf5a1711878ecaf943c59361524c5474980bc39"
+  },
+  "critical_failures": 0,
+  "development_complete_before_evaluation": true,
+  "estimate_type": "structural_model_estimates",
+  "evaluated_at_utc": "2026-08-10T22:14:12.797270+00:00",
+  "evaluation_ordinal": 1,
+  "first_and_only_intended_evaluation": true,
+  "holdout_case_count": 24,
+  "holdout_id": "J_P4_UNTOUCHED_HOLDOUT_v1",
+  "holdout_sha256": "426e184e2dd3ade9245dd4756ee58e796841e1fa71237c3239b55ab16b0859f2",
+  "mean_action_class_score": 0.9895833333333334,
+  "pass_rate": 1.0,
+  "passed": 24,
+  "phase": "J-P4",
+  "post_holdout_pilot_tuning_permitted": false,
+  "results": [
+    {
+      "case_id": "p4h_01_k_early_exposure",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Avoid early Korvold exposure without material/protection",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "commander_cast"
+        ],
+        "critical_failure_actions": [
+          "cast"
+        ],
+        "preferred_action_classes": [
+          "independent_engine"
+        ]
+      },
+      "observed": {
+        "action_class": "independent_engine",
+        "action_id": "engine",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_02_k_boardwipe_preserve",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Do not overextend into a high boardwipe-risk turn cycle",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "overextend_engine"
+        ],
+        "critical_failure_actions": [
+          "extend"
+        ],
+        "preferred_action_classes": [
+          "hold_rebuild_reserve",
+          "rebuild_setup"
+        ]
+      },
+      "observed": {
+        "action_class": "rebuild_setup",
+        "action_id": "recur",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_03_k_archenemy_target",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Focus scarce interaction on the designated archenemy when threats are close",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "generic_high_threat_interaction"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "archenemy_interaction"
+        ]
+      },
+      "observed": {
+        "action_class": "archenemy_interaction",
+        "action_id": "p2",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_04_k_uncertainty_reserve",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Preserve flexible interaction in a five-player high-uncertainty window",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "tapout_value"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "hold_interaction"
+        ]
+      },
+      "observed": {
+        "action_class": "hold_interaction",
+        "action_id": "hold",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_05_k_commander_denial",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Use commander-independent development when denial risk is extreme",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "commander_cast"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "independent_engine"
+        ]
+      },
+      "observed": {
+        "action_class": "independent_engine",
+        "action_id": "ind",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_06_k_nonlethal_finish_restraint",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Avoid firing a low-impact finisher before it compresses the table",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "premature_finisher"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "value_engine"
+        ]
+      },
+      "observed": {
+        "action_class": "value_engine",
+        "action_id": "engine",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_07_k_protection_reserve",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Do not spend premium protection on a low-value disposable permanent",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "waste_protection"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "preserve_protection"
+        ]
+      },
+      "observed": {
+        "action_class": "preserve_protection",
+        "action_id": "pass",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_08_k_wipe_timing",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Use a boardwipe when opponents have overwhelming board and own rebuild is superior",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "spot_removal"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "boardwipe"
+        ]
+      },
+      "observed": {
+        "action_class": "boardwipe",
+        "action_id": "wipe",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_09_k_five_player_exposure",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Avoid exposed Korvold into four opponents despite moderate immediate value",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "commander_cast"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "sac_setup"
+        ]
+      },
+      "observed": {
+        "action_class": "sac_setup",
+        "action_id": "setup",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_10_k_postwipe_rebuild",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Prioritize land-recursion rebuild after a wipe",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "small_value"
+        ],
+        "bad_action_classes": [
+          "commander_cast"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "land_rebuild"
+        ]
+      },
+      "observed": {
+        "action_class": "land_rebuild",
+        "action_id": "rebuild",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_11_k_table_damage_5p",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Prefer scalable table damage in a five-player pod",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "single_target_pressure"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "table_damage"
+        ]
+      },
+      "observed": {
+        "action_class": "table_damage",
+        "action_id": "bats",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_12_k_graveyard_threat",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Use graveyard hate on the real recursion threat",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "graveyard_hate_low"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "graveyard_hate_high"
+        ]
+      },
+      "observed": {
+        "action_class": "graveyard_hate_high",
+        "action_id": "gy2",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_13_r_ishai_denial",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Use independent spellslinger axis under extreme commander denial",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "ishai_cast"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "independent_spellslinger"
+        ]
+      },
+      "observed": {
+        "action_class": "independent_spellslinger",
+        "action_id": "kykar",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_14_r_jeska_restraint",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Do not spend Jeska into an unprotected nonlethal window",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=acceptable"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "premature_finish"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "hold_counter"
+        ]
+      },
+      "observed": {
+        "action_class": "premature_finish",
+        "action_id": "jeska",
+        "outcome_class": "acceptable"
+      },
+      "passed": true,
+      "score": 0.75,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_15_r_kediss_offline",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Avoid Kediss as a dead commander-dependent payoff with Ishai offline",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "dead_commander_payoff"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "independent_spellslinger"
+        ]
+      },
+      "observed": {
+        "action_class": "independent_spellslinger",
+        "action_id": "veyran",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_16_r_counter_reserve",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Do not counter harmless value under high uncertainty",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "waste_counter"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "hold_counter"
+        ]
+      },
+      "observed": {
+        "action_class": "hold_counter",
+        "action_id": "pass",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_17_r_protection_target",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Protect a large Ishai instead of a low-value independent engine",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "protect_minor_engine"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "protect_ishai"
+        ]
+      },
+      "observed": {
+        "action_class": "protect_ishai",
+        "action_id": "p_ishai",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_18_r_five_player_exposure",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Hold interaction rather than tap out for Ishai in a hostile five-player cycle",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "exposed_ishai"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "hold_interaction"
+        ]
+      },
+      "observed": {
+        "action_class": "hold_interaction",
+        "action_id": "hold",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_19_r_boardwipe_risk",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Use an independent low-exposure axis rather than add Ishai into high wipe risk",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "exposed_ishai"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "independent_value"
+        ]
+      },
+      "observed": {
+        "action_class": "independent_value",
+        "action_id": "draw",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_20_r_wipe_timing",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Use wipe against overwhelming creature pressure when commander is offline",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "hold_counter"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "boardwipe"
+        ]
+      },
+      "observed": {
+        "action_class": "boardwipe",
+        "action_id": "wipe",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_21_r_double_strike_lethal",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Take a commander-damage lethal double-strike line",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [],
+        "critical_failure_actions": [
+          "engine"
+        ],
+        "preferred_action_classes": [
+          "commander_damage_finish"
+        ]
+      },
+      "observed": {
+        "action_class": "commander_damage_finish",
+        "action_id": "ds",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_22_r_combat_draw_risky",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Avoid combat-draw aura when it taps protection under high threat",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "risky_combat_draw"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "hold_protection"
+        ]
+      },
+      "observed": {
+        "action_class": "hold_protection",
+        "action_id": "hold",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_23_r_archenemy_combat",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Direct pressure at archenemy when combat value is otherwise close",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [
+          "generic_combat"
+        ],
+        "bad_action_classes": [],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "archenemy_combat"
+        ]
+      },
+      "observed": {
+        "action_class": "archenemy_combat",
+        "action_id": "p3",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    },
+    {
+      "case_id": "p4h_24_r_independent_axis_denial",
+      "critical": true,
+      "details": [
+        "P4 untouched holdout variant: Develop Veyran over Ishai when repeated commander denial is established",
+        "group=holdout",
+        "preferred_action_class=unspecified",
+        "outcome_class=preferred"
+      ],
+      "expected": {
+        "acceptable_action_classes": [],
+        "bad_action_classes": [
+          "recast_ishai"
+        ],
+        "critical_failure_actions": [],
+        "preferred_action_classes": [
+          "independent_spellslinger"
+        ]
+      },
+      "observed": {
+        "action_class": "independent_spellslinger",
+        "action_id": "veyran",
+        "outcome_class": "preferred"
+      },
+      "passed": true,
+      "score": 1.0,
+      "source": "data/evals/holdout/pilot_decisions_j_p4_v1.json",
+      "status": "passed",
+      "tier": "golden"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "truth_boundary": "Modeled structural pilot decision quality; not empirical human skill or win rate."
+}

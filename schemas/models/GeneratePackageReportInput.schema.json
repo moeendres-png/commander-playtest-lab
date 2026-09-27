@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "output_name": {
+      "default": "package_report.md",
+      "title": "Output Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "GeneratePackageReportInput",
+  "type": "object"
+}

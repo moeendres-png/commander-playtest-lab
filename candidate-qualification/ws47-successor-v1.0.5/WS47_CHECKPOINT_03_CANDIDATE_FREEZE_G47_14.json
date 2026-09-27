@@ -1,0 +1,61 @@
+{
+  "artifact_version": "commander-lab.ws47-checkpoint/1.0.0",
+  "checkpoint": "WS47_CHECKPOINT_03_CANDIDATE_FREEZE_G47_14",
+  "status": "PASS_CANDIDATE_FREEZE_G47_14_G47_15_PENDING",
+  "ws47_branch": "ws47/successor-contract-v1.0.5-freeze",
+  "candidate_freeze_commit": "c8c7234110a3f0c1a5ac7f328161b40983384fbc",
+  "candidate_freeze_tree": "d966c25a9cc4cdfd8755863df3cc3c25ebbb1b12",
+  "predecessor": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54"
+  },
+  "successor_candidate": {
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "record_count": 135,
+    "provider_denominator": 107,
+    "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "canonical_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "static_gates_G47_01_through_G47_13": "PASS",
+    "G47_14": "PASS_DOUBLE_MATERIALIZATION_BYTE_IDENTICAL",
+    "G47_15": "PENDING_POSTFREEZE_REGENERATION",
+    "SUCCESSOR_CONTRACT_FROZEN": false
+  },
+  "materialization_runtime": {
+    "workflow_run": 34230601287,
+    "job": 102075461596,
+    "head_sha": "f4766a32ee452522cf8691ea7c73d492a52f4cbb",
+    "conclusion": "success",
+    "artifact_id": 10057845744,
+    "artifact_name": "ws47-v105-materialization-f4766a32ee452522cf8691ea7c73d492a52f4cbb",
+    "artifact_sha256": "1adc9068af3f7fdbd8ba9a6abada2c2ff0f6966dabf894cc9284d3573b16658c",
+    "independent_validation_A": "PASS",
+    "independent_validation_B": "PASS",
+    "A_B_byte_identity": "PASS",
+    "namespace_persist": "PASS"
+  },
+  "ws46_cross_check": {
+    "live_head": "d599449faa4ceda17315c5db87ec783a241e20aa",
+    "live_tree": "b86edceb0cb9316f4c565ce9f89fc9f8c91c15f4",
+    "checkpoint": "WS46_CHECKPOINT_03K_IMMUTABLE_FAILURE_SHAPES.md",
+    "audit_run": 34230112246,
+    "audit_job": 102073817884,
+    "audit_artifact_id": 10057443340,
+    "audit_artifact_sha256": "5928a5f1e0012f393bf66958ae77afad59020b9b6ef33913e765088dd980c8dc",
+    "current_construction_credit": "88/107_NOT_PASS",
+    "current_failure_count": 19,
+    "additional_terminal_provider_neutral_WS44_contract_defect": false,
+    "classification": "CURRENT_FAILURES_ARE_PROVIDER_TRANSLATION_OR_NATIVE_STATE_DEFECTS",
+    "provider_credit_imported_into_WS47": 0
+  },
+  "credit_policy": {
+    "provider_runtime_executed_by_WS47": false,
+    "provider_pass_imported": false,
+    "AF07_GRANTED": false,
+    "ARCHITECTURE_FREEZE": false
+  },
+  "exact_next_action": "Execute a real post-freeze regeneration on a commit that already contains qualification/ws47; require byte-identical regeneration and independent validation before G47-15 PASS."
+}

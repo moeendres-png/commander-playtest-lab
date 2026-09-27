@@ -1,0 +1,2435 @@
+{
+  "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+  "fixture_results": [
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_2P",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_3P",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_4P",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PLAYER_COUNT_5P",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-PRIO-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-PRIO-5",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TRIG-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TRIG-5",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TURN-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-TURN-5",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-TAX-2",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-TAX-4",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-MULL-2",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-MULL-4",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-START-2",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-START-3",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_PRIORITY",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_TARGET",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_MULLIGAN",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOICE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_PILE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_01",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_02",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_03",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_04",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_05",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_06",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_07",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_08",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_09",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_10",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_11",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_12",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_13",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_14",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_15",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_16",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_17",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_18",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_19",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "RNG_RULES_TAPE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_COSTS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_PRIORITY",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_STACK",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_TARGETS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_MODES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_TRIGGERS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_REPLACEMENT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_PREVENTION",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_LAYERS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_COPY",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_CONTROL",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_COMBAT",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_01",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_02",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_03",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_04",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_05",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_06",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_07",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_08",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_09",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_10",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_11",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_12",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_13",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_14",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_15",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_16",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_17",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_18",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_19",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_20",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_21",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_22",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_23",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_24",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_25",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_26",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_27",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_28",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "artifact_hashes": {},
+      "candidate": "NO_PRODUCTION_PROVIDER_SELECTED",
+      "classification": "RUNTIME_NOT_RUN",
+      "evidence_class": "NOT_RUN",
+      "fixture_id": "CARD_29",
+      "reason": "No production Rules Core selected and no RSP 1.1 provider configured.",
+      "source_lock": {
+        "branch": "main",
+        "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+        "license": "LicenseRef-Proprietary",
+        "package_version": "1.25.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "tree": "001462343b93d0190c65c0b91055200604d5376e",
+        "verification": "GITHUB_CONNECTOR_FRESH"
+      },
+      "verdict": "NOT_RUN"
+    }
+  ]
+}

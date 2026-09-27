@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "freeze_id": "J_P6_BASELINE_FREEZE_v1",
+  "software_commit": "0d5dbc633d0776f72e80e271e52234018e80e307",
+  "software_tree": "169fee0f88b550f5897324b14451b1086c0b3617",
+  "package_version": "1.15.0",
+  "model_version": "structural-0.6.0",
+  "engine_mode": "structural",
+  "engine_provider": "commander_lab_structural",
+  "inventory_hash": "3c9d900d365f0bb84148a1a623bbd2249da927ffc1ed0ed0a0c4c22351ec2247",
+  "data_source_manifest_hash": "d69270bc1e90dea12429c84ab56497cc8f58ca16586a2135efdfbfcd28d7035c",
+  "policy_hash": "4e231823c5fbbf316e2b499407dcc9ad59abc3bbc4dcb5718c99dfc226dcee3a",
+  "deck_hashes": {
+    "korvold/current": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+    "rogshai/current": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
+  },
+  "pilot_parameter_hashes": {
+    "korvold/current": "fdfd967e51e9a3e4b3ff8c086f2254ed339ed4275adcc72d3870e967c6b92a71",
+    "rogshai/current": "14a62ac9d611e27e9a95102fcc5dfd25b80665598814c6ac2700d985e22cf808"
+  },
+  "p4_holdout_status": "consumed_regression_only",
+  "p5_holdout_id": "J_P5_OPTIMIZER_HOLDOUT_v1",
+  "p5_holdout_sha256": "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203",
+  "p5_development_freeze_sha256": "2f5ba17af552350f9c2ab36f9af3099ea4b2db4dbd5c09ef35ab601dc7366ca9",
+  "p5_first_evaluation_sha256": "ec2edda02627170a35df367497604eb3287090891c8f9635109647eed02f926b",
+  "p5_holdout_evaluation_count": 1,
+  "p5_post_holdout_tuning": false,
+  "external_engine_status": "NO_PROVIDER_READY_BLOCKED_WITH_REAL_EVIDENCE",
+  "production_external_bridge": "not_built",
+  "benchmark_policy": "config/J_P6_BENCHMARK_POLICY_v1.json",
+  "performance_optimizations_applied_at_freeze": false,
+  "canonical_deck_mutations_allowed": false
+}

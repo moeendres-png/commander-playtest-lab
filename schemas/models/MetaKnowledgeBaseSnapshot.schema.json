@@ -1,0 +1,879 @@
+{
+  "$defs": {
+    "BudgetBand": {
+      "enum": [
+        "unknown",
+        "budget",
+        "mid_budget",
+        "high_power",
+        "cedh",
+        "proxy_friendly"
+      ],
+      "title": "BudgetBand",
+      "type": "string"
+    },
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    },
+    "MetaArchetype": {
+      "additionalProperties": false,
+      "properties": {
+        "archetype_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{1,127}$",
+          "title": "Archetype Id",
+          "type": "string"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/MetaCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "commanders": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Commanders",
+          "type": "array"
+        },
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "interaction_profile": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Interaction Profile",
+          "type": "object"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "packages": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Packages",
+          "type": "array"
+        },
+        "primary_plan": {
+          "title": "Primary Plan",
+          "type": "string"
+        },
+        "secondary_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Secondary Plan"
+        },
+        "win_conditions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Win Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "archetype_id",
+        "name",
+        "commanders",
+        "categories",
+        "primary_plan"
+      ],
+      "title": "MetaArchetype",
+      "type": "object"
+    },
+    "MetaCardFrequency": {
+      "additionalProperties": false,
+      "properties": {
+        "card_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Card Counts",
+          "type": "object"
+        },
+        "card_frequencies": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Card Frequencies",
+          "type": "object"
+        },
+        "commander": {
+          "title": "Commander",
+          "type": "string"
+        },
+        "format_band": {
+          "$ref": "#/$defs/FormatBand"
+        },
+        "sample_size": {
+          "minimum": 1,
+          "title": "Sample Size",
+          "type": "integer"
+        },
+        "small_sample": {
+          "title": "Small Sample",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "commander",
+        "format_band",
+        "sample_size",
+        "card_counts",
+        "card_frequencies",
+        "small_sample"
+      ],
+      "title": "MetaCardFrequency",
+      "type": "object"
+    },
+    "MetaCategory": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "MetaCategory",
+      "type": "string"
+    },
+    "MetaDeckSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_band": {
+          "$ref": "#/$defs/BudgetBand",
+          "default": "unknown"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/MetaCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "commander": {
+          "title": "Commander",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "deck_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Deck Hash",
+          "type": "string"
+        },
+        "decklist": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Decklist",
+          "type": "array"
+        },
+        "event_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Name"
+        },
+        "format_band": {
+          "$ref": "#/$defs/FormatBand"
+        },
+        "interaction_profile": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Interaction Profile",
+          "type": "object"
+        },
+        "license_notes": {
+          "default": "reference metadata and card-name extraction only",
+          "title": "License Notes",
+          "type": "string"
+        },
+        "packages": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Packages",
+          "type": "array"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placement"
+        },
+        "player_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Count"
+        },
+        "pod_size": {
+          "anyOf": [
+            {
+              "maximum": 10,
+              "minimum": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 4,
+          "title": "Pod Size"
+        },
+        "primary_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Primary Plan"
+        },
+        "provenance": {
+          "additionalProperties": true,
+          "title": "Provenance",
+          "type": "object"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "secondary_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Secondary Plan"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "win_conditions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Win Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_id",
+        "commander",
+        "deck_hash",
+        "retrieved_at",
+        "format_band",
+        "categories",
+        "decklist"
+      ],
+      "title": "MetaDeckSnapshot",
+      "type": "object"
+    },
+    "MetaEvidenceRating": {
+      "enum": [
+        "authoritative_tournament",
+        "verified_decklist",
+        "established_primer",
+        "aggregator",
+        "local_project_context",
+        "partial_or_synthetic"
+      ],
+      "title": "MetaEvidenceRating",
+      "type": "string"
+    },
+    "MetaPackage": {
+      "additionalProperties": false,
+      "properties": {
+        "cards": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Cards",
+          "type": "array"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/MetaCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "package_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{1,127}$",
+          "title": "Package Id",
+          "type": "string"
+        },
+        "roles": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Roles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "package_id",
+        "name",
+        "cards",
+        "roles",
+        "categories"
+      ],
+      "title": "MetaPackage",
+      "type": "object"
+    },
+    "MetaSnapshotManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/MetaCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "deck_hashes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deck Hashes",
+          "type": "array"
+        },
+        "immutable": {
+          "default": true,
+          "title": "Immutable",
+          "type": "boolean"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "supersedes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Supersedes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "created_at",
+        "source_ids",
+        "deck_hashes",
+        "categories"
+      ],
+      "title": "MetaSnapshotManifest",
+      "type": "object"
+    },
+    "MetaSource": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/MetaCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "evidence_quality": {
+          "$ref": "#/$defs/MetaEvidenceRating"
+        },
+        "license_notes": {
+          "default": "reference metadata and short structured extraction only",
+          "title": "License Notes",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "tournament",
+            "decklist",
+            "primer",
+            "aggregator",
+            "local_context",
+            "synthetic"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "source_id",
+        "title",
+        "retrieved_at",
+        "source_type",
+        "categories",
+        "evidence_quality"
+      ],
+      "title": "MetaSource",
+      "type": "object"
+    },
+    "PrimerReference": {
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/MetaCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "commander": {
+          "title": "Commander",
+          "type": "string"
+        },
+        "evidence_quality": {
+          "$ref": "#/$defs/MetaEvidenceRating"
+        },
+        "key_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Points",
+          "type": "array"
+        },
+        "sequencing_notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Sequencing Notes",
+          "type": "array"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "transfer_limitations": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Transfer Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_id",
+        "commander",
+        "title",
+        "key_points",
+        "categories",
+        "evidence_quality"
+      ],
+      "title": "PrimerReference",
+      "type": "object"
+    },
+    "TournamentResult": {
+      "additionalProperties": false,
+      "properties": {
+        "draws": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Draws"
+        },
+        "event_date": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Date"
+        },
+        "event_name": {
+          "title": "Event Name",
+          "type": "string"
+        },
+        "format_band": {
+          "$ref": "#/$defs/FormatBand"
+        },
+        "losses": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Losses"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placement"
+        },
+        "player_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Count"
+        },
+        "pod_size": {
+          "default": 4,
+          "maximum": 10,
+          "minimum": 2,
+          "title": "Pod Size",
+          "type": "integer"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "wins": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wins"
+        }
+      },
+      "required": [
+        "source_id",
+        "event_name",
+        "format_band"
+      ],
+      "title": "TournamentResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "archetypes": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/MetaArchetype"
+      },
+      "title": "Archetypes",
+      "type": "array"
+    },
+    "card_frequencies": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/MetaCardFrequency"
+      },
+      "title": "Card Frequencies",
+      "type": "array"
+    },
+    "deck_snapshots": {
+      "items": {
+        "$ref": "#/$defs/MetaDeckSnapshot"
+      },
+      "title": "Deck Snapshots",
+      "type": "array"
+    },
+    "manifest": {
+      "$ref": "#/$defs/MetaSnapshotManifest"
+    },
+    "packages": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/MetaPackage"
+      },
+      "title": "Packages",
+      "type": "array"
+    },
+    "primer_references": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PrimerReference"
+      },
+      "title": "Primer References",
+      "type": "array"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/MetaSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "tournament_results": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/TournamentResult"
+      },
+      "title": "Tournament Results",
+      "type": "array"
+    }
+  },
+  "required": [
+    "manifest",
+    "sources",
+    "deck_snapshots"
+  ],
+  "title": "MetaKnowledgeBaseSnapshot",
+  "type": "object"
+}

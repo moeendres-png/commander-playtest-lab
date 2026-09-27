@@ -1,0 +1,20 @@
+{
+  "G00": "PASS",
+  "G01": "FAIL",
+  "G02": "NOT_RUN",
+  "G03": "NOT_RUN",
+  "G04": "NOT_RUN",
+  "G05": "NOT_RUN",
+  "G06": "NOT_RUN",
+  "G07": "NOT_RUN",
+  "G08": "NOT_RUN",
+  "G09": "NOT_RUN",
+  "G10": "NOT_RUN",
+  "G11": "UNKNOWN",
+  "G12": "UNKNOWN",
+  "G13": "FAIL",
+  "G14": "NOT_APPLICABLE",
+  "G15": "NOT_APPLICABLE",
+  "note": "Infrastructure materialization is not Production Admission.",
+  "schema_version": "gate-results/1.0.0"
+}

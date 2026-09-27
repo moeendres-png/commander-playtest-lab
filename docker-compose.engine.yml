@@ -1,0 +1,49 @@
+services:
+  xmage:
+    profiles: ["xmage"]
+    build:
+      context: .
+      dockerfile: docker/xmage/Dockerfile
+      # WS-A1D pin authority: build identity is resolved at build time from
+      # config/rules_engines.json (sole pin authority) by
+      # scripts/docker_build_engine.sh, which exports these variables.
+      # A plain `docker compose build` without the wrapper fails closed here
+      # instead of materializing a stale engine.
+      args:
+        ENGINE_REPOSITORY: ${XMAGE_ENGINE_REPOSITORY:?run scripts/docker_build_engine.sh xmage to resolve canonical build identity}
+        ENGINE_COMMIT: ${XMAGE_ENGINE_COMMIT:?run scripts/docker_build_engine.sh xmage to resolve canonical build identity}
+        ENGINE_PROTOCOL_VERSION: ${XMAGE_ENGINE_PROTOCOL_VERSION:?run scripts/docker_build_engine.sh xmage to resolve canonical build identity}
+    environment:
+      ENGINE_PROVIDER: xmage
+      ENGINE_MODE: external
+      ENGINE_PROTOCOL_VERSION: "2.0.0"
+      ENGINE_START_COMMAND: ${ENGINE_START_COMMAND:?set ENGINE_START_COMMAND to a conforming bridge}
+    volumes:
+      - ./:/workspace
+      - ./artifacts/engine_setup/logs:/workspace/artifacts/engine_setup/logs
+    ports:
+      - "127.0.0.1:${ENGINE_PORT:-17171}:${ENGINE_PORT:-17171}"
+  forge:
+    profiles: ["forge"]
+    build:
+      context: .
+      dockerfile: docker/forge/Dockerfile
+      # WS-A1D pin authority: see xmage service above. Forge additionally
+      # resolves its candidate bridge/materialization source (bridge_source)
+      # through the same wrapper; both levels are required build args.
+      args:
+        ENGINE_REPOSITORY: ${FORGE_ENGINE_REPOSITORY:?run scripts/docker_build_engine.sh forge to resolve canonical build identity}
+        ENGINE_COMMIT: ${FORGE_ENGINE_COMMIT:?run scripts/docker_build_engine.sh forge to resolve canonical build identity}
+        ENGINE_PROTOCOL_VERSION: ${FORGE_ENGINE_PROTOCOL_VERSION:?run scripts/docker_build_engine.sh forge to resolve canonical build identity}
+        BRIDGE_REPOSITORY: ${FORGE_BRIDGE_REPOSITORY:?run scripts/docker_build_engine.sh forge to resolve canonical build identity}
+        BRIDGE_COMMIT: ${FORGE_BRIDGE_COMMIT:?run scripts/docker_build_engine.sh forge to resolve canonical build identity}
+    environment:
+      ENGINE_PROVIDER: forge
+      ENGINE_MODE: external
+      ENGINE_PROTOCOL_VERSION: "2.0.0"
+      ENGINE_START_COMMAND: ${ENGINE_START_COMMAND:?set ENGINE_START_COMMAND to a conforming bridge}
+    volumes:
+      - ./:/workspace
+      - ./artifacts/engine_setup/logs:/workspace/artifacts/engine_setup/logs
+    ports:
+      - "127.0.0.1:${ENGINE_PORT:-17172}:${ENGINE_PORT:-17172}"

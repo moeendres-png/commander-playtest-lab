@@ -1,0 +1,315 @@
+{
+  "$defs": {
+    "MulliganEstimateLevel": {
+      "enum": [
+        "exact_hypergeometric",
+        "monte_carlo_hand_quality",
+        "structural_followup"
+      ],
+      "title": "MulliganEstimateLevel",
+      "type": "string"
+    },
+    "MulliganPolicyName": {
+      "enum": [
+        "conservative",
+        "curve_oriented",
+        "commander_oriented",
+        "interaction_oriented",
+        "matchup_oriented",
+        "primer_policy",
+        "current_pilot",
+        "learned_policy"
+      ],
+      "title": "MulliganPolicyName",
+      "type": "string"
+    },
+    "OpeningHandEvaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "cards": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Cards",
+          "type": "array"
+        },
+        "estimate_level": {
+          "$ref": "#/$defs/MulliganEstimateLevel",
+          "default": "monte_carlo_hand_quality"
+        },
+        "features": {
+          "$ref": "#/$defs/OpeningHandFeatures"
+        },
+        "keep": {
+          "title": "Keep",
+          "type": "boolean"
+        },
+        "model_based": {
+          "default": true,
+          "title": "Model Based",
+          "type": "boolean"
+        },
+        "policy": {
+          "$ref": "#/$defs/MulliganPolicyName"
+        },
+        "reasons": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cards",
+        "features",
+        "policy",
+        "keep",
+        "score",
+        "threshold"
+      ],
+      "title": "OpeningHandEvaluation",
+      "type": "object"
+    },
+    "OpeningHandFeatures": {
+      "additionalProperties": false,
+      "properties": {
+        "boardwipe_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Boardwipe Count",
+          "type": "integer"
+        },
+        "cheap_noncreature_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Cheap Noncreature Count",
+          "type": "integer"
+        },
+        "color_stability_score": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Color Stability Score",
+          "type": "number"
+        },
+        "colored_sources": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Colored Sources",
+          "type": "object"
+        },
+        "combat_draw_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Combat Draw Count",
+          "type": "integer"
+        },
+        "commander_immediate_value": {
+          "default": false,
+          "title": "Commander Immediate Value",
+          "type": "boolean"
+        },
+        "commander_synergy_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Commander Synergy Count",
+          "type": "integer"
+        },
+        "dead_high_cost_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Dead High Cost Count",
+          "type": "integer"
+        },
+        "draw_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Draw Count",
+          "type": "integer"
+        },
+        "early_blue_source_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Early Blue Source Count",
+          "type": "integer"
+        },
+        "graveyard_hate_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Graveyard Hate Count",
+          "type": "integer"
+        },
+        "hand_size": {
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Hand Size",
+          "type": "integer"
+        },
+        "independent_engine_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Independent Engine Count",
+          "type": "integer"
+        },
+        "interaction_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Interaction Count",
+          "type": "integer"
+        },
+        "land_count": {
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Land Count",
+          "type": "integer"
+        },
+        "offensive_payoff_without_window_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Offensive Payoff Without Window Count",
+          "type": "integer"
+        },
+        "only_graveyard_plan_without_setup": {
+          "default": false,
+          "title": "Only Graveyard Plan Without Setup",
+          "type": "boolean"
+        },
+        "protection_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Protection Count",
+          "type": "integer"
+        },
+        "ramp_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Ramp Count",
+          "type": "integer"
+        },
+        "sacrifice_resource_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Sacrifice Resource Count",
+          "type": "integer"
+        },
+        "selection_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Selection Count",
+          "type": "integer"
+        },
+        "tapped_source_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Tapped Source Count",
+          "type": "integer"
+        },
+        "wincondition_without_setup_count": {
+          "default": 0,
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Wincondition Without Setup Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "hand_size",
+        "land_count"
+      ],
+      "title": "OpeningHandFeatures",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bottomed_cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Bottomed Cards",
+      "type": "array"
+    },
+    "commander_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commander Names",
+      "type": "array"
+    },
+    "effective_bottom_count": {
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Effective Bottom Count",
+      "type": "integer"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/OpeningHandEvaluation"
+    },
+    "free_multiplayer_mulligan_used": {
+      "title": "Free Multiplayer Mulligan Used",
+      "type": "boolean"
+    },
+    "initial_draws": {
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Initial Draws",
+      "type": "array"
+    },
+    "kept_cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Kept Cards",
+      "type": "array"
+    },
+    "mulligans_taken": {
+      "maximum": 7,
+      "minimum": 0,
+      "title": "Mulligans Taken",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "initial_draws",
+    "kept_cards",
+    "bottomed_cards",
+    "mulligans_taken",
+    "effective_bottom_count",
+    "free_multiplayer_mulligan_used",
+    "evaluation",
+    "commander_names"
+  ],
+  "title": "LondonMulliganResult",
+  "type": "object"
+}

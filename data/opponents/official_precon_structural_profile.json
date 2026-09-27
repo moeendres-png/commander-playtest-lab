@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "data_as_of": "2026-08-16",
+  "estimate_type": "structural_model_estimates",
+  "notes": [
+    "Every referenced deck has an exact official 100-card packaged list in official_precon_profiles.json.",
+    "Card identities and Oracle facts are verified; roles and gameplay effects remain project-inferred structural abstractions.",
+    "These are future-opponent benchmark references, not directly observed opponents and not empirical meta frequencies."
+  ],
+  "profiles": [
+    {
+      "deck_id": "opponent/scions-spellcraft-precon",
+      "name": "Scions & Spellcraft official precon benchmark",
+      "commander": "Y'shtola, Night's Blessed",
+      "commander_cost": 4.0,
+      "commander_power": 2.0,
+      "strategy": "esper_noncreature_spells",
+      "source_status": "official_precon_exact_100_not_observed",
+      "data_quality": "project_inferred",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/scions-spellcraft-precon",
+      "evidence_status": "official_100_verified_not_observed",
+      "evidence_kinds": ["official_precon"]
+    },
+    {
+      "deck_id": "opponent/counter-intelligence-precon",
+      "name": "Counter Intelligence official precon benchmark",
+      "commander": "Inspirit, Flagship Vessel",
+      "commander_cost": 5.0,
+      "commander_power": 4.0,
+      "strategy": "jeskai_artifact_counters",
+      "source_status": "official_precon_exact_100_not_observed",
+      "data_quality": "project_inferred",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/counter-intelligence-precon",
+      "evidence_status": "official_100_verified_not_observed",
+      "evidence_kinds": ["official_precon"]
+    },
+    {
+      "deck_id": "opponent/turtle-power-precon",
+      "name": "Turtle Power! official precon benchmark",
+      "commander": "Leonardo, the Balance",
+      "commander_cost": 4.0,
+      "commander_power": 4.0,
+      "strategy": "five_color_tokens_counters",
+      "source_status": "official_precon_exact_100_not_observed",
+      "data_quality": "project_inferred",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/turtle-power-precon",
+      "evidence_status": "official_100_verified_not_observed",
+      "evidence_kinds": ["official_precon"]
+    },
+    {
+      "deck_id": "opponent/silverquill-influence-precon",
+      "name": "Silverquill Influence official precon benchmark",
+      "commander": "Killian, Decisive Mentor",
+      "commander_cost": 2.0,
+      "commander_power": 2.0,
+      "strategy": "orzhov_auras_politics",
+      "source_status": "official_precon_exact_100_not_observed",
+      "data_quality": "project_inferred",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/silverquill-influence-precon",
+      "evidence_status": "official_100_verified_not_observed",
+      "evidence_kinds": ["official_precon"]
+    },
+    {
+      "deck_id": "opponent/fantastic-four-precon",
+      "name": "The Fantastic Four official precon benchmark",
+      "commander": "Invisible Woman",
+      "commander_cost": 4.0,
+      "commander_power": 3.0,
+      "strategy": "four_color_historic_value",
+      "source_status": "official_precon_exact_100_not_observed",
+      "data_quality": "project_inferred",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/fantastic-four-precon",
+      "evidence_status": "official_100_verified_not_observed",
+      "evidence_kinds": ["official_precon"]
+    },
+    {
+      "deck_id": "opponent/avengers-assemble-precon",
+      "name": "Avengers Assemble official precon benchmark",
+      "commander": "Captain America, Team Leader",
+      "commander_cost": 3.0,
+      "commander_power": 3.0,
+      "strategy": "jeskai_heroes_counters",
+      "source_status": "official_precon_exact_100_not_observed",
+      "data_quality": "project_inferred",
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/avengers-assemble-precon",
+      "evidence_status": "official_100_verified_not_observed",
+      "evidence_kinds": ["official_precon"]
+    }
+  ]
+}

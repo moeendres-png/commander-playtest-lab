@@ -1,0 +1,16 @@
+{
+  "xmage": {
+    "requested_release": "xmage_1.4.60V3",
+    "requested_commit": "06d166b098ad36b277edef01116472203d5a047e",
+    "local_git_verification": "blocked",
+    "reason": "GitHub DNS unavailable; no local XMage object database exists",
+    "usable_for_build": false
+  },
+  "forge": {
+    "requested_release": "forge-2.0.13",
+    "requested_commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
+    "local_git_verification": "blocked",
+    "reason": "GitHub DNS unavailable; no local Forge object database exists",
+    "usable_for_build": false
+  }
+}

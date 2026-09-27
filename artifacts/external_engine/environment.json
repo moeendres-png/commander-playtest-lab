@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-08-05T09:42:00+02:00",
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "architecture": "x86_64",
+  "python": "3.13.5",
+  "commands": {
+    "git": "/usr/bin/git",
+    "java": "/usr/bin/java",
+    "javac": "/usr/bin/javac",
+    "mvn": null,
+    "gradle": null,
+    "docker": null
+  },
+  "network_probes": [
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/magefree/mage.git",
+        "HEAD"
+      ],
+      "returncode": 128,
+      "stdout": "",
+      "stderr": "fatal: unable to access 'https://github.com/magefree/mage.git/': Could not resolve host: github.com\n",
+      "status": "failed"
+    },
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/Card-Forge/forge.git",
+        "HEAD"
+      ],
+      "returncode": 128,
+      "stdout": "",
+      "stderr": "fatal: unable to access 'https://github.com/Card-Forge/forge.git/': Could not resolve host: github.com\n",
+      "status": "failed"
+    },
+    {
+      "command": [
+        "curl",
+        "--fail",
+        "--location",
+        "--head",
+        "https://github.com"
+      ],
+      "returncode": 6,
+      "stdout": "",
+      "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: github.com\n",
+      "status": "failed"
+    },
+    {
+      "command": [
+        "curl",
+        "--fail",
+        "--location",
+        "--head",
+        "https://repo.maven.apache.org/maven2/"
+      ],
+      "returncode": 6,
+      "stdout": "",
+      "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0curl: (6) Could not resolve host: repo.maven.apache.org\n",
+      "status": "failed"
+    }
+  ],
+  "disk": {
+    "command": [
+      "df",
+      "-h",
+      "."
+    ],
+    "returncode": 0,
+    "stdout": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/vda         63G   21G   39G  35% /\n",
+    "stderr": "",
+    "status": "passed"
+  },
+  "memory": {
+    "command": [
+      "bash",
+      "-lc",
+      "free -h || true"
+    ],
+    "returncode": 0,
+    "stdout": "               total        used        free      shared  buff/cache   available\nMem:           5.9Gi       936Mi       4.0Gi        16Ki       1.2Gi       5.0Gi\nSwap:             0B          0B          0B\n",
+    "stderr": "",
+    "status": "passed"
+  },
+  "cpu_count": 5,
+  "writable": true
+}

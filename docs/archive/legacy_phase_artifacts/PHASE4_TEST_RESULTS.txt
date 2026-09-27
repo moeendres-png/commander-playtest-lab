@@ -1,0 +1,61 @@
+Commander Playtest Lab – Phase 4 verification
+Date: 2026-08-04
+
+Package version: 0.4.0
+Engine version: structural-0.4.0
+
+1. Source compilation
+Command: python -m compileall -q src tests
+Result: PASS
+
+2. Full tests
+Command: pytest -q
+Result: PASS
+Output: 67 passed in 4.30s
+
+3. Git whitespace check
+Command: git diff --check
+Result: PASS
+
+4. Local baseline validation
+Command: PYTHONPATH=src python -m commander_lab.cli.app validate-local --root .
+Result: PASS
+- Korvold deck valid: true
+- RogShai deck valid: true
+- simultaneous allocation valid: true
+- Google Drive modified: false
+
+5. Phase-4 validation
+Command: PYTHONPATH=src python -m commander_lab.cli.app validate-pilots --iterations 24 --workers 2 --seed 20260804
+Result: PASS
+- deterministic games completed: 24
+- deterministic games aborted: 0
+- stochastic games completed: 24
+- stochastic games aborted: 0
+- replay identical across worker counts: true
+- required utility dimensions in logs: true
+- controlled strength benchmark monotonic: true
+
+6. Controlled expected-choice rates
+- weak: 0.8072916667
+- average: 0.9361979167
+- strong: 0.9830729167
+- near_optimal_heuristic: 1.0
+
+7. Wheel build
+Initial isolated build dependency resolution: NOT AVAILABLE in the container package index.
+Fallback command: python -m pip wheel . --no-deps --no-build-isolation -w dist
+Result: PASS
+Wheel: commander_playtest_lab-0.4.0-py3-none-any.whl
+SHA-256: 33ac11c309bfaa83d340d948047b999f3a0cd11e1e83cf266f18b94d88f36b36
+
+8. Wheel import check
+Installed the wheel into a temporary target and imported it with the validated local runtime.
+Result: PASS
+- commander_lab.__version__: 0.4.0
+- engine version: structural-0.4.0
+- KorvoldPilot import: PASS
+- RogShaiPilot import: PASS
+
+9. Optional static tools
+ruff and mypy were not installed in the active runtime and were not claimed as executed.

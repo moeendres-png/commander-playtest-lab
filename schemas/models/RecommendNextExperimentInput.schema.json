@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "diagnosis_path": {
+      "title": "Diagnosis Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "diagnosis_path"
+  ],
+  "title": "RecommendNextExperimentInput",
+  "type": "object"
+}

@@ -1,0 +1,58 @@
+{
+  "base_commit": "e207286200854bf9bff557e67bf3b37b5e428392",
+  "controls": [
+    {
+      "actual": "yaml.safe_load raises 'mapping values are not allowed here' (yaml.YAMLError)",
+      "how_reproduced": "yaml.safe_load on hand-concatenated text with unquoted second colon in exact_next_action value",
+      "id": "A",
+      "means": "any hand-concatenated colon scalar can produce an unloadable state file; no writer API prevents hand-authoring",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "free-form colon scalar produces invalid hand-authored YAML"
+    },
+    {
+      "actual": "validate() returns [\"bad failure_class: 'ARGENTUM_ENGINE_DEFECT'\"]; file would still be written by manual edit or any naive dump path because no write gate exists",
+      "how_reproduced": "state.validate() on doc with failure_class=ARGENTUM_ENGINE_DEFECT",
+      "id": "B",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "invalid failure_class enum (candidate-prefixed) rejected by validator but writable to disk"
+    },
+    {
+      "actual": "validate() returns [\"bad root_cause_class: ...\"]; equally writable to disk today",
+      "how_reproduced": "state.validate() on doc with compound candidate-prefixed root_cause_class string",
+      "id": "C",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "invalid root_cause_class enum (candidate-prefixed compound) rejected by validator but writable"
+    },
+    {
+      "actual": "no API or gate exists; state.py exposes only validate/migrate/checks, bootstrap.py writes only at init",
+      "how_reproduced": "hasattr(state, write_state/update_state) == False; CLI offers only --migrate/--in-place with no identity comparison",
+      "id": "D",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "attempted update of audit_base_sha has no guard (no update path at all)"
+    },
+    {
+      "actual": "check_validated_ancestry() reports VALIDATED_OUTSIDE_LOCK but is advisory-only and never invoked on any write path",
+      "how_reproduced": "code inspection: no write path calls check_validated_ancestry; confirmed no writer API exists",
+      "id": "E",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "attempted validated_head outside audit-base lineage has no write-time gate"
+    },
+    {
+      "actual": "check_validated_ancestry() reports VALIDATED_REWRITTEN but is advisory-only and never invoked on any write path",
+      "how_reproduced": "code inspection: same as E",
+      "id": "F",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "attempted validated_head not ancestor of live HEAD has no write-time gate"
+    },
+    {
+      "actual": "after simulated mid-write crash, file contains 'PARTIAL-DOCUMENT-TRUNC'; original bytes destroyed",
+      "how_reproduced": "open(path,'w') + partial write + flush + raise; readback shows truncated partial content",
+      "id": "G",
+      "status": "REPRODUCED_PRE_FIX",
+      "title": "naive truncate-then-write loses original file on mid-write failure"
+    }
+  ],
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "note": "Baseline recorded BEFORE implementation. Post-fix, tests/foundry/test_state_writer.py replays A-G end-to-end against the canonical writer CLI/API and asserts fail-closed + byte-identical preservation; this file is then superseded by test evidence, not edited.",
+  "reproduced": "2026-09-11T00:00:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "evidence_items": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Evidence Items",
+      "type": "array"
+    },
+    "output_name": {
+      "default": "deck-improvement-report.md",
+      "title": "Output Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "deck_id",
+    "evidence_items"
+  ],
+  "title": "CreateDeckImprovementReportInput",
+  "type": "object"
+}

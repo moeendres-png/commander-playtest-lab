@@ -1,0 +1,292 @@
+[
+  {
+    "author": "Moritz Endres",
+    "confidence": 1.0,
+    "content_hash": "643bd517729c6eac274669a6891d3ff5f99110dafd73b7bcfdc89958316a54a3",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "user_provided",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.802582Z",
+    "source_id": "user-direct-current-project-rules",
+    "source_type": "direct_user_statement",
+    "supersedes": [],
+    "title": "Current binding MTG project rules",
+    "transformation": null,
+    "url_or_drive_id": "project-instructions-2026-08-02",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "4d6bcb0dfac116a4431a91e9e93be936f63dddd73802f1ee338960314ffeac96",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.802640Z",
+    "source_id": "drive-current-status-1.4.0",
+    "source_type": "google_drive_file",
+    "supersedes": [],
+    "title": "PLAYTEST_LAB_CURRENT_STATUS.json",
+    "transformation": null,
+    "url_or_drive_id": "1vHWqJV5Rvh4HqiqVyUDJ8yaS1zNGUme4",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "2d190763d491f147b9ca5629e0f8cc24f95ae527efe8dae22144eee2cedfb603",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.802649Z",
+    "source_id": "repo-1.4.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "commander-playtest-lab 1.4.0 repository",
+    "transformation": null,
+    "url_or_drive_id": "1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": null,
+    "confidence": 0.25,
+    "content_hash": "eafe2ac0fb717121706ac4e732c0ec592c2a571e14f6228ddf69487209854012",
+    "derived_from": [],
+    "git_commit": "c6ffd408206551f4fffededca76b06be2a4bb4af",
+    "license": "private_project",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.4.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.802654Z",
+    "source_id": "synthetic-opponent-fixtures",
+    "source_type": "synthetic_assumption",
+    "supersedes": [],
+    "title": "Synthetic structural opponent fixtures",
+    "transformation": null,
+    "url_or_drive_id": "src/commander_lab/engine/structural/fixtures.py",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "dd4b2f48c34f137c114a233dcf0d27e16f58f0d8ad760e88085ffb1d309d3328",
+    "derived_from": [],
+    "git_commit": "82af48877fc4e04687a2f40a89c02b03c107e986",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.5.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.806578Z",
+    "source_id": "repo-1.5.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "commander-playtest-lab 1.5.0 repository",
+    "transformation": null,
+    "url_or_drive_id": "1_WV6yevM82x0MundVlLHtgmGqTDqopXH",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "ad227b48a9c708f90d9a8ece3de2a6e6fa8874951c01aad7bb21f8ca332042cc",
+    "derived_from": [],
+    "git_commit": "65333bc7765a361d6d06c1c992d2ef83eb87bffa",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.6.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.806578Z",
+    "source_id": "repo-1.6.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "commander-playtest-lab 1.6.0 repository",
+    "transformation": null,
+    "url_or_drive_id": "1att92Esr96S-97W4s9fc1P7o7sFS0h2L",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": null,
+    "confidence": 1.0,
+    "content_hash": "a76502cfb1c789fc403812aec243475d2631cc9926334ff9c0a336e3a84b3cf4",
+    "derived_from": [],
+    "git_commit": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+    "license": "private_project",
+    "notes": null,
+    "observed": true,
+    "package_version": "1.7.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T11:29:57.806578Z",
+    "source_id": "repo-1.7.0-implementation",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "commander-playtest-lab 1.7.0 repository",
+    "transformation": null,
+    "url_or_drive_id": "9ae4d05ae26dbc6bd6cf87e4b578df83117152c2",
+    "usage_rights": [
+      "project_internal_use"
+    ],
+    "verification_status": "verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 1.0,
+    "content_hash": "8d68a37510509da02dbe7584d4ee6ce8651517ead4a3aa13bbe95e9e9ccaa11c",
+    "derived_from": [
+      "repo-1.7.0-implementation"
+    ],
+    "git_commit": "a983a28ce21eb4977a8f29eb37368be7c3804fee",
+    "license": "project repository license",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.8.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "repo-1.8.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "Mulligan Lab repository 1.8.0",
+    "transformation": "versioned feature implementation",
+    "url_or_drive_id": "a983a28ce21eb4977a8f29eb37368be7c3804fee",
+    "usage_rights": [
+      "project-internal use",
+      "reproducible build"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 1.0,
+    "content_hash": "6489d80a50f954aa69678c0862a8fb57e23ceaee39a34ab0c7377c88d3d907c6",
+    "derived_from": [
+      "repo-1.8.0"
+    ],
+    "git_commit": "8cfb5b78dd55642707feecb97dbe92033ebbee4b",
+    "license": "project repository license",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.9.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "repo-1.9.0",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "Counterfactual Replay repository 1.9.0",
+    "transformation": "versioned feature implementation",
+    "url_or_drive_id": "8cfb5b78dd55642707feecb97dbe92033ebbee4b",
+    "usage_rights": [
+      "project-internal use",
+      "reproducible build"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 1.0,
+    "content_hash": "cd7313a6835206021d5bc452dcb0076e2817f90eddcbfa6631697625c01b7904",
+    "derived_from": [
+      "repo-1.9.0"
+    ],
+    "git_commit": "ea993210c7f65d3f84c742bca42ffa73bf7dd27e",
+    "license": "project repository license",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.10.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "repo-1.10.0-implementation",
+    "source_type": "repository",
+    "supersedes": [],
+    "title": "Decision Diagnostics implementation 1.10.0",
+    "transformation": "versioned feature implementation",
+    "url_or_drive_id": "ea993210c7f65d3f84c742bca42ffa73bf7dd27e",
+    "usage_rights": [
+      "project-internal use",
+      "reproducible build"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Commander Playtest Lab",
+    "confidence": 0.85,
+    "content_hash": "b761bf5a8a4df010223833d4a7b73ffd73f8845be7eeaae2fcbf0332c86ae716",
+    "derived_from": [
+      "user-direct-current-project-rules"
+    ],
+    "git_commit": "6c734875bdaec147c79e6c8671fbc6d17158dc68",
+    "license": "structured facts and source references",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.1.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "meta-snapshot-phase12-1",
+    "source_type": "web_research",
+    "supersedes": [],
+    "title": "Versioned Meta Knowledge Base snapshot",
+    "transformation": "curated and versioned meta ingestion",
+    "url_or_drive_id": "data/meta/manifests/latest.json",
+    "usage_rights": [
+      "structured project analysis"
+    ],
+    "verification_status": "hash_verified"
+  },
+  {
+    "author": "Structural Simulator",
+    "confidence": 0.6,
+    "content_hash": "a79021dee2b402e75b20bd2790683f1c5e8d851a29448f5f4cbe60ce2c19b65e",
+    "derived_from": [
+      "repo-1.8.0",
+      "pilot-registry"
+    ],
+    "git_commit": "8cfb5b78dd55642707feecb97dbe92033ebbee4b",
+    "license": "project generated data",
+    "notes": null,
+    "observed": false,
+    "package_version": "1.9.0",
+    "published_at": null,
+    "retrieved_at": "2026-08-06T15:20:30.301814Z",
+    "source_id": "structural-replay-korvold-example",
+    "source_type": "model_inference",
+    "supersedes": [],
+    "title": "Recorded Korvold structural event replay used for counterfactual example",
+    "transformation": "deterministic structural simulation event recording",
+    "url_or_drive_id": "data/runs/pilot_ensembles/test-pilot-benchmark-b/KorvoldSacrificePilot/events/pilot-benchmark-korvoldsacrificepilot-9123-00000000.jsonl",
+    "usage_rights": [
+      "project analysis"
+    ],
+    "verification_status": "hash_verified"
+  }
+]

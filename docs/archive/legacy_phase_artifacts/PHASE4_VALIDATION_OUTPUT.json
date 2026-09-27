@@ -1,0 +1,294 @@
+{
+  "decision_log_audit": {
+    "decision_events": 86,
+    "decision_phases": {
+      "combat": 15,
+      "counter": 3,
+      "main": 61,
+      "protection": 2,
+      "removal_target": 5
+    },
+    "event_log": "/mnt/data/commander-playtest-lab/data/runs/phase4_validation/pilot_decision_audit.jsonl",
+    "event_log_sha256": "3c03b543674aed4acbddfb76eff20382073193727e3eaa5e187328f13bcaa171",
+    "match_completed": true,
+    "observed_breakdown_fields": [
+      "card_advantage",
+      "commander_value",
+      "engine_development",
+      "interaction_reserve",
+      "mana_efficiency",
+      "political_visibility",
+      "rebuild_capacity",
+      "specialist_bonus",
+      "survival",
+      "tempo",
+      "threat_reduction",
+      "total_utility",
+      "win_progress"
+    ],
+    "required_utility_dimensions_present": true
+  },
+  "deterministic_specialists": {
+    "aborted_games": 0,
+    "average_turns": 11.833333333333334,
+    "completed_games": 24,
+    "deck_metrics": {
+      "korvold/current": {
+        "average_cards_drawn": 17.916666666666668,
+        "average_commander_damage": 32.877206168166666,
+        "average_engine_value": 1.2057291666666667,
+        "average_final_life": 18.717083970999997,
+        "average_normal_damage": 18.709292366733333,
+        "average_placement": 1.5,
+        "average_ramp_resolved": 5.25,
+        "place_1_share": 0.5,
+        "samples": 24
+      },
+      "rogshai/current": {
+        "average_cards_drawn": 14.125,
+        "average_commander_damage": 39.00889654772222,
+        "average_engine_value": 0.4461458333333333,
+        "average_final_life": 5.196977002933333,
+        "average_normal_damage": 10.565290722333334,
+        "average_placement": 1.5,
+        "average_ramp_resolved": 2.5,
+        "place_1_share": 0.5,
+        "samples": 24
+      },
+      "synthetic/aggro": {
+        "average_cards_drawn": 11.25,
+        "average_commander_damage": 17.00501038333333,
+        "average_engine_value": 0.0,
+        "average_final_life": -3.6940621747333355,
+        "average_normal_damage": 14.635382033333334,
+        "average_placement": 3.0416666666666665,
+        "average_ramp_resolved": 1.7083333333333333,
+        "place_1_share": 0.0,
+        "samples": 24
+      },
+      "synthetic/control": {
+        "average_cards_drawn": 9.166666666666666,
+        "average_commander_damage": 10.951595312499999,
+        "average_engine_value": 0.54,
+        "average_final_life": -3.9240843916666663,
+        "average_normal_damage": 0.10585416666666665,
+        "average_placement": 3.9583333333333335,
+        "average_ramp_resolved": 1.9166666666666667,
+        "place_1_share": 0.0,
+        "samples": 24
+      }
+    },
+    "estimate_type": "structural_model_estimates",
+    "games": 24,
+    "pilot_metrics": {
+      "AggroPilot:average:deterministic": {
+        "average_cards_drawn": 11.25,
+        "average_commander_damage": 17.00501038333333,
+        "average_engine_value": 0.0,
+        "average_final_life": -3.6940621747333355,
+        "average_normal_damage": 14.635382033333334,
+        "average_placement": 3.0416666666666665,
+        "average_ramp_resolved": 1.7083333333333333,
+        "place_1_share": 0.0,
+        "samples": 24
+      },
+      "ControlPilot:strong:deterministic": {
+        "average_cards_drawn": 9.166666666666666,
+        "average_commander_damage": 10.951595312499999,
+        "average_engine_value": 0.54,
+        "average_final_life": -3.9240843916666663,
+        "average_normal_damage": 0.10585416666666665,
+        "average_placement": 3.9583333333333335,
+        "average_ramp_resolved": 1.9166666666666667,
+        "place_1_share": 0.0,
+        "samples": 24
+      },
+      "KorvoldPilot:strong:deterministic": {
+        "average_cards_drawn": 17.916666666666668,
+        "average_commander_damage": 32.877206168166666,
+        "average_engine_value": 1.2057291666666667,
+        "average_final_life": 18.717083970999997,
+        "average_normal_damage": 18.709292366733333,
+        "average_placement": 1.5,
+        "average_ramp_resolved": 5.25,
+        "place_1_share": 0.5,
+        "samples": 24
+      },
+      "RogShaiPilot:strong:deterministic": {
+        "average_cards_drawn": 14.125,
+        "average_commander_damage": 39.00889654772222,
+        "average_engine_value": 0.4461458333333333,
+        "average_final_life": 5.196977002933333,
+        "average_normal_damage": 10.565290722333334,
+        "average_placement": 1.5,
+        "average_ramp_resolved": 2.5,
+        "place_1_share": 0.5,
+        "samples": 24
+      }
+    }
+  },
+  "engine_version": "structural-0.4.0",
+  "estimate_type": "structural_model_estimates",
+  "iterations_per_batch": 24,
+  "phase": 4,
+  "purpose": "technical pilot validation; not rules validation or empirical win rates",
+  "seed": 20260804,
+  "stochastic_replay_identical_across_worker_counts": true,
+  "stochastic_specialists": {
+    "aborted_games": 0,
+    "average_turns": 12.708333333333334,
+    "completed_games": 24,
+    "deck_metrics": {
+      "korvold/current": {
+        "average_cards_drawn": 15.375,
+        "average_commander_damage": 24.222700470166668,
+        "average_engine_value": 1.0505208333333333,
+        "average_final_life": 6.858230329933334,
+        "average_normal_damage": 17.587759514400002,
+        "average_placement": 2.4583333333333335,
+        "average_ramp_resolved": 4.833333333333333,
+        "place_1_share": 0.375,
+        "samples": 24
+      },
+      "rogshai/current": {
+        "average_cards_drawn": 13.833333333333334,
+        "average_commander_damage": 37.781951616444445,
+        "average_engine_value": 0.5964583333333333,
+        "average_final_life": 8.557777221032532,
+        "average_normal_damage": 10.785411511949548,
+        "average_placement": 2.0833333333333335,
+        "average_ramp_resolved": 2.0416666666666665,
+        "place_1_share": 0.5,
+        "samples": 24
+      },
+      "synthetic/aggro": {
+        "average_cards_drawn": 12.208333333333334,
+        "average_commander_damage": 19.218404479166665,
+        "average_engine_value": 0.0,
+        "average_final_life": -1.7551584181333322,
+        "average_normal_damage": 21.72597124346667,
+        "average_placement": 2.4583333333333335,
+        "average_ramp_resolved": 1.9583333333333333,
+        "place_1_share": 0.125,
+        "samples": 24
+      },
+      "synthetic/control": {
+        "average_cards_drawn": 16.416666666666668,
+        "average_commander_damage": 17.733354278817064,
+        "average_engine_value": 0.49500000000000005,
+        "average_final_life": -4.867385948282881,
+        "average_normal_damage": 1.4498791666666666,
+        "average_placement": 3.0,
+        "average_ramp_resolved": 2.4583333333333335,
+        "place_1_share": 0.0,
+        "samples": 24
+      }
+    },
+    "estimate_type": "structural_model_estimates",
+    "games": 24,
+    "pilot_metrics": {
+      "AggroPilot:average:stochastic": {
+        "average_cards_drawn": 12.208333333333334,
+        "average_commander_damage": 19.218404479166665,
+        "average_engine_value": 0.0,
+        "average_final_life": -1.7551584181333322,
+        "average_normal_damage": 21.72597124346667,
+        "average_placement": 2.4583333333333335,
+        "average_ramp_resolved": 1.9583333333333333,
+        "place_1_share": 0.125,
+        "samples": 24
+      },
+      "ControlPilot:strong:stochastic": {
+        "average_cards_drawn": 16.416666666666668,
+        "average_commander_damage": 17.733354278817064,
+        "average_engine_value": 0.49500000000000005,
+        "average_final_life": -4.867385948282881,
+        "average_normal_damage": 1.4498791666666666,
+        "average_placement": 3.0,
+        "average_ramp_resolved": 2.4583333333333335,
+        "place_1_share": 0.0,
+        "samples": 24
+      },
+      "KorvoldPilot:strong:stochastic": {
+        "average_cards_drawn": 15.375,
+        "average_commander_damage": 24.222700470166668,
+        "average_engine_value": 1.0505208333333333,
+        "average_final_life": 6.858230329933334,
+        "average_normal_damage": 17.587759514400002,
+        "average_placement": 2.4583333333333335,
+        "average_ramp_resolved": 4.833333333333333,
+        "place_1_share": 0.375,
+        "samples": 24
+      },
+      "RogShaiPilot:strong:stochastic": {
+        "average_cards_drawn": 13.833333333333334,
+        "average_commander_damage": 37.781951616444445,
+        "average_engine_value": 0.5964583333333333,
+        "average_final_life": 8.557777221032532,
+        "average_normal_damage": 10.785411511949548,
+        "average_placement": 2.0833333333333335,
+        "average_ramp_resolved": 2.0416666666666665,
+        "place_1_share": 0.5,
+        "samples": 24
+      }
+    }
+  },
+  "strength_decision_benchmark": {
+    "by_strength": {
+      "average": {
+        "correct_choices": 719,
+        "expected_choice_rate": 0.9361979166666666,
+        "scenario_rates": {
+          "early_ramp": 0.8489583333333334,
+          "post_wipe_rebuild": 0.9583333333333334,
+          "table_finisher": 0.9635416666666666,
+          "urgent_removal": 0.9739583333333334
+        },
+        "total_choices": 768
+      },
+      "near_optimal_heuristic": {
+        "correct_choices": 768,
+        "expected_choice_rate": 1.0,
+        "scenario_rates": {
+          "early_ramp": 1.0,
+          "post_wipe_rebuild": 1.0,
+          "table_finisher": 1.0,
+          "urgent_removal": 1.0
+        },
+        "total_choices": 768
+      },
+      "strong": {
+        "correct_choices": 755,
+        "expected_choice_rate": 0.9830729166666666,
+        "scenario_rates": {
+          "early_ramp": 0.984375,
+          "post_wipe_rebuild": 0.9947916666666666,
+          "table_finisher": 0.9583333333333334,
+          "urgent_removal": 0.9947916666666666
+        },
+        "total_choices": 768
+      },
+      "weak": {
+        "correct_choices": 620,
+        "expected_choice_rate": 0.8072916666666666,
+        "scenario_rates": {
+          "early_ramp": 0.8229166666666666,
+          "post_wipe_rebuild": 0.6770833333333334,
+          "table_finisher": 0.875,
+          "urgent_removal": 0.8541666666666666
+        },
+        "total_choices": 768
+      }
+    },
+    "monotonic_non_decreasing": true,
+    "purpose": "controlled action-choice calibration, not match win-rate validation",
+    "scenarios": [
+      "early_ramp",
+      "urgent_removal",
+      "post_wipe_rebuild",
+      "table_finisher"
+    ],
+    "trials_per_scenario": 192
+  },
+  "workers": 2
+}

@@ -1,0 +1,122 @@
+{
+  "compile_passed": true,
+  "demo": {
+    "candidate": {
+      "add": "Idol of Oblivion",
+      "candidate_id": "korvold/idol-of-oblivion",
+      "physical_status": "project_context_present_not_revalidated_phase5",
+      "raw_profile_delta": 0.41600000000000037,
+      "remove": "Scouring Swarm",
+      "requires_paired_validation": true,
+      "role_compatibility_adjustment": 0.0,
+      "role_gain": [
+        "draw"
+      ],
+      "role_loss": [
+        "land_synergy",
+        "payoff",
+        "token_source"
+      ],
+      "screening_delta": 0.41600000000000037
+    },
+    "decision": "rejected",
+    "deck": "korvold/current",
+    "holdout": {
+      "all_holdouts_nonnegative": false,
+      "holdouts": [
+        {
+          "comparison": {
+            "baseline_average_cards_drawn": 21.1625,
+            "baseline_average_damage": 72.48611106435288,
+            "baseline_average_placement": 1.1125,
+            "baseline_place_1_share": 0.8875,
+            "cards_drawn_delta": 0.9624999999999986,
+            "damage_delta": -0.7653355711356937,
+            "games": 80,
+            "paired_loss_count": 4,
+            "paired_tie_count": 71,
+            "paired_win_count": 5,
+            "place_1_share_delta": 0.012500000000000067,
+            "placement_improvement": 0.012499999999999956,
+            "variant_average_cards_drawn": 22.125,
+            "variant_average_damage": 71.72077549321719,
+            "variant_average_placement": 1.1,
+            "variant_place_1_share": 0.9
+          },
+          "pod": [
+            "synthetic/control",
+            "synthetic/control",
+            "synthetic/engine"
+          ]
+        },
+        {
+          "comparison": {
+            "baseline_average_cards_drawn": 20.0125,
+            "baseline_average_damage": 65.188694855138,
+            "baseline_average_placement": 1.05,
+            "baseline_place_1_share": 0.95,
+            "cards_drawn_delta": 0.5625,
+            "damage_delta": -0.5742900543863954,
+            "games": 80,
+            "paired_loss_count": 4,
+            "paired_tie_count": 73,
+            "paired_win_count": 3,
+            "place_1_share_delta": -0.012499999999999956,
+            "placement_improvement": -0.012499999999999956,
+            "variant_average_cards_drawn": 20.575,
+            "variant_average_damage": 64.6144048007516,
+            "variant_average_placement": 1.0625,
+            "variant_place_1_share": 0.9375
+          },
+          "pod": [
+            "synthetic/aggro",
+            "synthetic/aggro",
+            "synthetic/control"
+          ]
+        }
+      ],
+      "mean_placement_improvement": 0.0,
+      "swaps": [
+        {
+          "add": "Idol of Oblivion",
+          "candidate_id": "korvold/idol-of-oblivion",
+          "physical_status": "project_context_present_not_revalidated_phase5",
+          "remove": "Scouring Swarm"
+        }
+      ]
+    },
+    "iterations": 80,
+    "paired_comparison": {
+      "baseline_average_cards_drawn": 20.35,
+      "baseline_average_damage": 71.44130986914658,
+      "baseline_average_placement": 1.125,
+      "baseline_place_1_share": 0.875,
+      "cards_drawn_delta": 1.3125,
+      "damage_delta": 0.30731255554172776,
+      "games": 80,
+      "paired_loss_count": 5,
+      "paired_tie_count": 69,
+      "paired_win_count": 6,
+      "place_1_share_delta": 0.012499999999999956,
+      "placement_improvement": 0.012499999999999956,
+      "variant_average_cards_drawn": 21.6625,
+      "variant_average_damage": 71.7486224246883,
+      "variant_average_placement": 1.1125,
+      "variant_place_1_share": 0.8875
+    },
+    "report_path": "/mnt/data/commander-playtest-lab/data/runs/reports/phase5_demo_report.md"
+  },
+  "engine_version": "structural-0.4.0",
+  "estimate_type": "structural_model_estimates",
+  "fastapi_smoke_passed": true,
+  "google_drive_changes": false,
+  "implementation_commit": "05682049d3c35fc5e4058307fc65862f4c978836",
+  "live_openai_api_executed": false,
+  "package_version": "0.5.0",
+  "schema_version": "0.5.0",
+  "tests_passed": 84,
+  "tool_count": 18,
+  "validation_source_commit": "b6e6e672b01fec4bb36dbe860c88bc46e68a7d98",
+  "wheel_build_passed": true,
+  "wheel_import_passed": true
+}

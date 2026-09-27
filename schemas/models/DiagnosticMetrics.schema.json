@@ -1,0 +1,61 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "counterfactual_improvement": {
+      "title": "Counterfactual Improvement",
+      "type": "number"
+    },
+    "dead_card_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Dead Card Rate",
+      "type": "number"
+    },
+    "decision_regret": {
+      "minimum": 0.0,
+      "title": "Decision Regret",
+      "type": "number"
+    },
+    "evidence_strength": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Evidence Strength",
+      "type": "number"
+    },
+    "missed_line_count": {
+      "minimum": 0,
+      "title": "Missed Line Count",
+      "type": "integer"
+    },
+    "package_failure_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Package Failure Rate",
+      "type": "number"
+    },
+    "pilot_disagreement": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Pilot Disagreement",
+      "type": "number"
+    },
+    "unplayable_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Unplayable Rate",
+      "type": "number"
+    }
+  },
+  "required": [
+    "dead_card_rate",
+    "unplayable_rate",
+    "package_failure_rate",
+    "pilot_disagreement",
+    "decision_regret",
+    "missed_line_count",
+    "counterfactual_improvement",
+    "evidence_strength"
+  ],
+  "title": "DiagnosticMetrics",
+  "type": "object"
+}

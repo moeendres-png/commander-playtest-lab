@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "title": "Artifact Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "TraceArtifactProvenanceInput",
+  "type": "object"
+}

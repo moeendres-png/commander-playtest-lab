@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "effective_at": "2026-08-11T04:57:00+02:00",
+  "active_own_decks": ["rogshai/current"],
+  "inactive_former_own_decks": ["korvold/current"],
+  "rogshai_decklist_changed": false,
+  "korvold_historical_list_preserved": true,
+  "korvold_allocations_released": true,
+  "opponent_truth_changed": false,
+  "kaervek_status_changed": false,
+  "source": "direct_user_decision_2026-08-11"
+}

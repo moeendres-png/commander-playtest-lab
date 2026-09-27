@@ -1,0 +1,999 @@
+{
+  "notes": "Initial phase 12.1 seed; reference/evidence layer only. No canonical deck, inventory or allocation file may be changed from this data.",
+  "sources": [
+    {
+      "source_id": "edhtop16-rogsi-commander-2026",
+      "title": "EDHTop16 commander page: Ishai / Rograkh",
+      "url": "https://edhtop16.com/commander/Ishai%2C%20Ojutai%20Dragonspeaker%20%2F%20Rograkh%2C%20Son%20of%20Rohgahh",
+      "author": "EDHTop16 / TopDeck.gg",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "source_type": "tournament",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "authoritative_tournament",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "399 entries; 1.31% meta; 20.80% conversion at retrieval"
+    },
+    {
+      "source_id": "edhtop16-korvold-commander-2026",
+      "title": "EDHTop16 commander page: Korvold",
+      "url": "https://edhtop16.com/commander/Korvold%2C%20Fae-Cursed%20King",
+      "author": "EDHTop16 / TopDeck.gg",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "source_type": "tournament",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "authoritative_tournament",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "94 entries; 0.31% meta; 11.70% conversion at retrieval"
+    },
+    {
+      "source_id": "mtgdecks-korvold-peter-zschau-2026",
+      "title": "MTGDecks Korvold by Peter Zschau",
+      "url": "https://mtgdecks.net/Commander/korvold-fae-cursed-king-decklist-by-peter-zschau-2985613",
+      "author": "Peter Zschau",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": "2026-06-13T00:00:00+00:00",
+      "source_type": "decklist",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "verified_decklist",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Angelic Ascension cEDH 2026, 25 players, 1-4 record"
+    },
+    {
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "title": "Archidekt Korvold cEDH Primer",
+      "url": "https://archidekt.com/decks/5688565/korvold_faecursed_king_cedh_primer",
+      "author": "Archidekt deck author not verified",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "source_type": "primer",
+      "categories": [
+        "cedh_tournament",
+        "high_power"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": null
+    },
+    {
+      "source_id": "edhrec-rogsi-optimized-2026",
+      "title": "EDHREC average RogSi optimized",
+      "url": "https://edhrec.com/average-decks/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/optimized",
+      "author": "EDHREC",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": "2026-06-22T00:00:00+00:00",
+      "source_type": "aggregator",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "11 user-set optimized-bracket decks"
+    },
+    {
+      "source_id": "edhrec-rogsi-control-2026",
+      "title": "EDHREC average RogSi control",
+      "url": "https://edhrec.com/average-decks/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/control",
+      "author": "EDHREC",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": "2026-05-26T00:00:00+00:00",
+      "source_type": "aggregator",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "53 user-set control decks"
+    },
+    {
+      "source_id": "draftsim-korvold-guide",
+      "title": "Draftsim Korvold Commander Deck Guide",
+      "url": "https://draftsim.com/korvold-edh-deck/",
+      "author": "Draftsim",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "source_type": "primer",
+      "categories": [
+        "normal_four_player",
+        "historical_reference"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Commander guide, older but useful for package taxonomy"
+    },
+    {
+      "source_id": "manatap-korvold-mulligan",
+      "title": "ManaTap Korvold Mulligan Guide",
+      "url": "https://www.manatap.ai/commanders/korvold-fae-cursed-king/mulligan-guide",
+      "author": "ManaTap",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "source_type": "primer",
+      "categories": [
+        "normal_four_player"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Mulligan and first-three-turns guidance"
+    },
+    {
+      "source_id": "local-project-meta-2026-08-05",
+      "title": "Local MTG project context for Korvold/RogShai",
+      "url": "drive://MTG-Aktueller-Projektstand",
+      "author": "Moritz Endres / project files",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "source_type": "local_context",
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "large_pod"
+      ],
+      "evidence_quality": "local_project_context",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Local context only; no external performance claim"
+    }
+  ],
+  "deck_snapshots": [
+    {
+      "source_id": "mtgdecks-korvold-peter-zschau-2026",
+      "commander": "Korvold, Fae-Cursed King",
+      "deck_hash": "95a8ff22fed58707783d088969a5f2e80221d05e17b1771f59ebc30161de6f6b",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "cedh_tournament",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "pod_size": 4,
+      "budget_band": "cedh",
+      "event_name": "Angelic Ascension - cEDH Tournament 2026",
+      "placement": "20% / 1-4 record",
+      "player_count": 25,
+      "decklist": [
+        "Korvold, Fae-Cursed King",
+        "Aftermath Analyst",
+        "Birds of Paradise",
+        "Deadpool, Trading Card",
+        "Delighted Halfling",
+        "Haywire Mite",
+        "Ignoble Hierarch",
+        "Lotus Cobra",
+        "Mayhem Devil",
+        "Nissa, Resurgent Animist",
+        "Orcish Lumberjack",
+        "Ragavan, Nimble Pilferer",
+        "Six",
+        "Sylvan Safekeeper",
+        "Tinder Wall",
+        "Tireless Provisioner",
+        "Amulet of Vigor",
+        "Chrome Mox",
+        "Exploration Broodship",
+        "Lion's Eye Diamond",
+        "Lotus Petal",
+        "Mana Vault",
+        "Mox Diamond",
+        "Sol Ring",
+        "Vexing Bauble",
+        "Zuran Orb",
+        "Abrupt Decay",
+        "Ad Nauseam",
+        "Cabal Ritual",
+        "Crop Rotation",
+        "Culling the Weak",
+        "Dark Ritual",
+        "Deflecting Swat",
+        "Entomb",
+        "Final Fortune",
+        "Pyroblast",
+        "Rain of Filth",
+        "Red Elemental Blast",
+        "Vampiric Tutor",
+        "Veil of Summer",
+        "Worldly Tutor",
+        "Culling Ritual",
+        "Demonic Tutor",
+        "Gamble",
+        "Green Sun's Zenith",
+        "Imperial Seal",
+        "Life from the Loam",
+        "Reanimate",
+        "Animate Dead",
+        "Exploration",
+        "Food Chain",
+        "Necropotence",
+        "Squandered Resources",
+        "Underworld Breach",
+        "Ancient Tomb",
+        "Arid Mesa",
+        "Bayou",
+        "Blood Crypt",
+        "Bloodstained Mire"
+      ],
+      "packages": [
+        "korvold-fast-mana-sacrifice",
+        "korvold-land-sacrifice"
+      ],
+      "primary_plan": "fast mana plus sacrifice/combo engine",
+      "secondary_plan": "Korvold card-advantage snowball",
+      "win_conditions": [
+        "Food Chain",
+        "Underworld Breach",
+        "Ad Nauseam"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_extraction": "public MTGDecks card-name table"
+      },
+      "confidence": 0.86,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "commander": "Korvold, Fae-Cursed King",
+      "deck_hash": "a4555ccf19f608e8676f086406bfbf16b836e27af99bfdfff2f24fb75dbc2790",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "cedh_tournament",
+      "categories": [
+        "cedh_tournament",
+        "high_power"
+      ],
+      "pod_size": 4,
+      "budget_band": "cedh",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Korvold, Fae-Cursed King",
+        "Emergence Zone",
+        "Gemstone Caverns",
+        "Gemstone Mine",
+        "Strip Mine",
+        "Verdant Catacombs",
+        "Wasteland",
+        "Windswept Heath",
+        "Wooded Foothills",
+        "Rhythm of the Wild",
+        "Temur Sabertooth",
+        "Veil of Summer",
+        "Arbor Elf",
+        "Birds of Paradise",
+        "Bloom Tender",
+        "Carpet of Flowers",
+        "Food Chain",
+        "Squee, the Immortal",
+        "Dockside Extortionist",
+        "Mayhem Devil",
+        "Tireless Provisioner",
+        "Lotus Cobra",
+        "Squandered Resources",
+        "Underworld Breach",
+        "Crop Rotation",
+        "Culling the Weak",
+        "Dark Ritual",
+        "Abrupt Decay",
+        "Deflecting Swat"
+      ],
+      "packages": [
+        "korvold-land-sacrifice",
+        "korvold-fast-mana-sacrifice"
+      ],
+      "primary_plan": "Food Chain / land-sacrifice acceleration",
+      "secondary_plan": "protected Korvold value",
+      "win_conditions": [
+        "Food Chain",
+        "Temur Sabertooth loops",
+        "commander pressure"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_extraction": "partial Archidekt crawl"
+      },
+      "confidence": 0.68,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "draftsim-korvold-guide",
+      "commander": "Korvold, Fae-Cursed King",
+      "deck_hash": "e3dbe36b79b82bdabed62652a319c6382575ce74552b8aa127ae001542982540",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "normal_four_player",
+      "categories": [
+        "normal_four_player",
+        "historical_reference"
+      ],
+      "pod_size": 4,
+      "budget_band": "high_power",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Korvold, Fae-Cursed King",
+        "Arcane Signet",
+        "Ashnod's Altar",
+        "Phyrexian Altar",
+        "Skullclamp",
+        "Evolutionary Leap",
+        "Ravenous Squirrel",
+        "Tend the Pests",
+        "Victimize",
+        "Phyrexian Tower",
+        "Grim Backwoods",
+        "Treasure Vault",
+        "Kher Keep",
+        "Dust Bowl",
+        "Tectonic Edge",
+        "Bojuka Bog",
+        "Command Beacon",
+        "Thespian's Stage",
+        "Bloodstained Mire",
+        "Fabled Passage",
+        "Ramunap Excavator",
+        "Crucible of Worlds",
+        "Tireless Provisioner",
+        "Academy Manufactor",
+        "Mayhem Devil"
+      ],
+      "packages": [
+        "korvold-land-sacrifice",
+        "korvold-token-aristocrats"
+      ],
+      "primary_plan": "sacrifice value and token fodder",
+      "secondary_plan": "utility lands and recursion",
+      "win_conditions": [
+        "aristocrats",
+        "large board",
+        "commander pressure"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_extraction": "guide package extraction"
+      },
+      "confidence": 0.64,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "edhrec-rogsi-optimized-2026",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "4589bbb54f52be803eeeb8ecccb3e41d5ae398999415c38389fb1d313b18a8c7",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "high_power",
+      "categories": [
+        "high_power"
+      ],
+      "pod_size": 4,
+      "budget_band": "high_power",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh",
+        "An Offer You Can't Refuse",
+        "Ancient Tomb",
+        "Arcane Signet",
+        "Arid Mesa",
+        "Birgi, God of Storytelling",
+        "Blackblade Reforged",
+        "Brain Freeze",
+        "Chrome Mox",
+        "City of Brass",
+        "Command Tower",
+        "Cyclonic Rift",
+        "Deflecting Swat",
+        "Dovin's Veto",
+        "Enlightened Tutor",
+        "Esper Sentinel",
+        "Fierce Guardianship",
+        "Final Fortune",
+        "Flusterstorm",
+        "Force of Will",
+        "Jeweled Lotus",
+        "Jeska, Thrice Reborn",
+        "Kediss, Emberclaw Familiar",
+        "Mystic Remora",
+        "Mystical Tutor",
+        "Rhystic Study",
+        "Silence",
+        "Underworld Breach"
+      ],
+      "packages": [
+        "rogsi-stack-protection",
+        "rogsi-breach-brain-freeze",
+        "rogshai-commander-damage"
+      ],
+      "primary_plan": "optimized Jeskai tempo/combo shell",
+      "secondary_plan": "Ishai/Rograkh value pressure",
+      "win_conditions": [
+        "Underworld Breach",
+        "Brain Freeze",
+        "Jeska + Ishai"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_extraction": "aggregated average deck; not tournament result"
+      },
+      "confidence": 0.58,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "edhrec-rogsi-control-2026",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "06dd568f938efe897b42b5e690a1b8222b597af845eab0d8c848652f3befa6ab",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "high_power",
+      "categories": [
+        "high_power"
+      ],
+      "pod_size": 4,
+      "budget_band": "high_power",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh",
+        "An Offer You Can't Refuse",
+        "Ancient Tomb",
+        "Arcane Signet",
+        "Arid Mesa",
+        "Birgi, God of Storytelling",
+        "Bloodstained Mire",
+        "Borne Upon a Wind",
+        "Brain Freeze",
+        "Chain of Vapor",
+        "Chrome Mox",
+        "City of Brass",
+        "City of Traitors",
+        "Deflecting Swat",
+        "Dovin's Veto",
+        "Force of Will",
+        "Fierce Guardianship",
+        "Silence",
+        "Mystic Remora",
+        "Rhystic Study",
+        "Jeska, Thrice Reborn",
+        "Kediss, Emberclaw Familiar",
+        "Underworld Breach",
+        "Enlightened Tutor"
+      ],
+      "packages": [
+        "rogsi-stack-protection",
+        "rogsi-breach-brain-freeze"
+      ],
+      "primary_plan": "control into compact combo",
+      "secondary_plan": "Ishai pressure under protection",
+      "win_conditions": [
+        "Underworld Breach",
+        "Brain Freeze",
+        "commander damage"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_extraction": "aggregated average deck; not tournament result"
+      },
+      "confidence": 0.58,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "edhtop16-rogsi-commander-2026",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "e7d20694d03bec3d3cd84e0c2dbf8a51e0891985f9eaa1eaa9ad346908f3ae7a",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "cedh_tournament",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "pod_size": 4,
+      "budget_band": "cedh",
+      "event_name": "EDHTop16 commander aggregate, 1-year, 50+ player filter visible",
+      "placement": "multiple 1st-place large events",
+      "player_count": 399,
+      "decklist": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh",
+        "Jeweled Lotus",
+        "Chrome Mox",
+        "Mox Amber",
+        "Lotus Petal",
+        "Mystic Remora",
+        "Rhystic Study",
+        "Underworld Breach",
+        "Brain Freeze",
+        "Silence",
+        "Deflecting Swat",
+        "Fierce Guardianship",
+        "Force of Will",
+        "Flusterstorm",
+        "Dovin's Veto",
+        "Jeska, Thrice Reborn",
+        "Kediss, Emberclaw Familiar",
+        "Final Fortune",
+        "Ad Nauseam",
+        "Dockside Extortionist",
+        "Esper Sentinel",
+        "Ragavan, Nimble Pilferer"
+      ],
+      "packages": [
+        "rogsi-stack-protection",
+        "rogsi-breach-brain-freeze"
+      ],
+      "primary_plan": "fast protected cEDH combo/tempo benchmark",
+      "secondary_plan": "commander pressure with Ishai",
+      "win_conditions": [
+        "Underworld Breach",
+        "Brain Freeze",
+        "commander damage"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_extraction": "representative staples inferred from tournament and aggregate pages"
+      },
+      "confidence": 0.72,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "local-project-meta-2026-08-05",
+      "commander": "Korvold, Fae-Cursed King",
+      "deck_hash": "bd8cb6b6da0746ae3883dbd200af43b3309ac2129d8fff329e23667a1539afec",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "local_meta",
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "large_pod"
+      ],
+      "pod_size": 4,
+      "budget_band": "mid_budget",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Korvold, Fae-Cursed King",
+        "Mirkwood Bats",
+        "Hearthhull, the Worldseed",
+        "Exsanguinate",
+        "Massacre Wurm",
+        "Mazirek, Kraul Death Priest",
+        "Szarel, Genesis Shepherd",
+        "Tireless Provisioner",
+        "Tireless Tracker",
+        "Academy Manufactor",
+        "Goblin Bombardment",
+        "Ramunap Excavator",
+        "Soul of Windgrace",
+        "Crop Rotation",
+        "Veil of Summer",
+        "Lightning Greaves",
+        "Swiftfoot Boots",
+        "Ancient Grudge",
+        "Pest Infestation",
+        "Dark Ritual"
+      ],
+      "packages": [
+        "korvold-land-sacrifice",
+        "korvold-token-aristocrats"
+      ],
+      "primary_plan": "sacrifice, land recursion and table damage in large pods",
+      "secondary_plan": "rebuild after wipes",
+      "win_conditions": [
+        "Mirkwood Bats",
+        "Exsanguinate",
+        "Massacre Wurm",
+        "large Mazirek/Szarel boards"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "source": "project continuation context; not external meta"
+      },
+      "confidence": 0.95,
+      "license_notes": "card-name extraction and compact metadata only"
+    },
+    {
+      "source_id": "local-project-meta-2026-08-05",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "eaa5bde16c0573de16b03d25d1a1a9a854e36a273351792c4d5b518f37de7169",
+      "retrieved_at": "2026-08-05T22:45:00+00:00",
+      "published_at": null,
+      "format_band": "local_meta",
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "large_pod"
+      ],
+      "pod_size": 4,
+      "budget_band": "mid_budget",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh",
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight",
+        "Duelist's Heritage",
+        "Jeska, Thrice Reborn",
+        "Kediss, Emberclaw Familiar",
+        "Silence",
+        "Boros Charm",
+        "An Offer You Can't Refuse",
+        "Vandalblast",
+        "Soul-Guide Lantern",
+        "Archmage Emeritus",
+        "Veyran, Voice of Duality",
+        "Kykar, Wind's Fury",
+        "Open the Armory",
+        "Psychotic Fury"
+      ],
+      "packages": [
+        "rogshai-commander-damage"
+      ],
+      "primary_plan": "protected Ishai growth and Jeskai value",
+      "secondary_plan": "Kediss/Jeska table pressure and spellslinger value",
+      "win_conditions": [
+        "Ishai commander damage",
+        "Jeska tripling",
+        "Kediss table damage"
+      ],
+      "interaction_profile": {},
+      "provenance": {
+        "source": "project continuation context; not external meta"
+      },
+      "confidence": 0.95,
+      "license_notes": "card-name extraction and compact metadata only"
+    }
+  ],
+  "tournament_results": [
+    {
+      "source_id": "edhtop16-rogsi-commander-2026",
+      "event_name": "Misplay on the Lake",
+      "event_date": "2026-04-18T00:00:00+00:00",
+      "pod_size": 4,
+      "placement": "1st / 264",
+      "player_count": 264,
+      "wins": 5,
+      "losses": 1,
+      "draws": 3,
+      "format_band": "cedh_tournament"
+    },
+    {
+      "source_id": "edhtop16-rogsi-commander-2026",
+      "event_name": "Summer Classic 3",
+      "event_date": "2026-07-18T00:00:00+00:00",
+      "pod_size": 4,
+      "placement": "1st / 206",
+      "player_count": 206,
+      "wins": 5,
+      "losses": 0,
+      "draws": 3,
+      "format_band": "cedh_tournament"
+    },
+    {
+      "source_id": "edhtop16-rogsi-commander-2026",
+      "event_name": "Commander Invitational",
+      "event_date": "2026-05-23T00:00:00+00:00",
+      "pod_size": 4,
+      "placement": "1st / 147",
+      "player_count": 147,
+      "wins": 4,
+      "losses": 1,
+      "draws": 2,
+      "format_band": "cedh_tournament"
+    },
+    {
+      "source_id": "edhtop16-korvold-commander-2026",
+      "event_name": "SAT 0900 cEDH 5K - SCG CON Orlando",
+      "event_date": "2025-08-30T00:00:00+00:00",
+      "pod_size": 4,
+      "placement": "1st / 83",
+      "player_count": 83,
+      "wins": 4,
+      "losses": 2,
+      "draws": 1,
+      "format_band": "cedh_tournament"
+    },
+    {
+      "source_id": "edhtop16-korvold-commander-2026",
+      "event_name": "Commander Showdown XXXXII",
+      "event_date": "2026-05-30T00:00:00+00:00",
+      "pod_size": 4,
+      "placement": "6th / 52",
+      "player_count": 52,
+      "wins": 2,
+      "losses": 2,
+      "draws": 2,
+      "format_band": "cedh_tournament"
+    }
+  ],
+  "primer_references": [
+    {
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "commander": "Korvold, Fae-Cursed King",
+      "title": "Korvold cEDH Primer",
+      "key_points": [
+        "Food Chain and land-sacrifice lines are cEDH benchmarks, not automatic local upgrades.",
+        "Protection and fast mana density is much higher than the local normal-pod list."
+      ],
+      "sequencing_notes": [
+        "Preserve Korvold value windows; do not cast a large commander into empty resources."
+      ],
+      "categories": [
+        "cedh_tournament",
+        "high_power"
+      ],
+      "evidence_quality": "established_primer",
+      "transfer_limitations": [
+        "High budget and proxy expectations differ from local play."
+      ]
+    },
+    {
+      "source_id": "draftsim-korvold-guide",
+      "commander": "Korvold, Fae-Cursed King",
+      "title": "Korvold normal Commander guide",
+      "key_points": [
+        "Sacrifice outlets, fodder, utility lands and recursion are useful package categories.",
+        "Casual guide evidence is lower for cEDH speed but higher for normal-pod ergonomics."
+      ],
+      "categories": [
+        "normal_four_player",
+        "historical_reference"
+      ],
+      "evidence_quality": "established_primer",
+      "transfer_limitations": [
+        "Older guide; use for package taxonomy only."
+      ]
+    },
+    {
+      "source_id": "manatap-korvold-mulligan",
+      "commander": "Korvold, Fae-Cursed King",
+      "title": "Korvold mulligan guide",
+      "key_points": [
+        "Hands with ramp but no sacrifice material are suspect.",
+        "Early turns should establish treasure production or sacrifice outlet."
+      ],
+      "categories": [
+        "normal_four_player"
+      ],
+      "evidence_quality": "established_primer",
+      "transfer_limitations": [
+        "Mulligan heuristics must be recalibrated with actual local decklist and playtests."
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "package_id": "korvold-land-sacrifice",
+      "name": "Korvold land sacrifice and recursion",
+      "cards": [
+        "Crop Rotation",
+        "Ramunap Excavator",
+        "Life from the Loam",
+        "Squandered Resources",
+        "Strip Mine",
+        "Wasteland"
+      ],
+      "roles": [
+        "land_synergy",
+        "recursion",
+        "ramp"
+      ],
+      "categories": [
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament"
+      ],
+      "description": "Uses lands as sacrifice resources and recursion targets."
+    },
+    {
+      "package_id": "korvold-fast-mana-sacrifice",
+      "name": "Korvold fast mana sacrifice shell",
+      "cards": [
+        "Dark Ritual",
+        "Culling the Weak",
+        "Lion's Eye Diamond",
+        "Lotus Petal",
+        "Mox Diamond",
+        "Food Chain"
+      ],
+      "roles": [
+        "ramp",
+        "finisher",
+        "sacrifice_outlet"
+      ],
+      "categories": [
+        "cedh_tournament"
+      ],
+      "description": "cEDH-speed mana and combo shell; benchmark only for normal pods."
+    },
+    {
+      "package_id": "korvold-token-aristocrats",
+      "name": "Korvold token/aristocrats engine",
+      "cards": [
+        "Tireless Provisioner",
+        "Academy Manufactor",
+        "Mayhem Devil",
+        "Mirkwood Bats",
+        "Goblin Bombardment"
+      ],
+      "roles": [
+        "token_source",
+        "engine",
+        "finisher"
+      ],
+      "categories": [
+        "normal_four_player",
+        "local_meta",
+        "large_pod"
+      ],
+      "description": "Scales across multi-opponent sacrifice events."
+    },
+    {
+      "package_id": "rogsi-stack-protection",
+      "name": "RogShai stack protection",
+      "cards": [
+        "Force of Will",
+        "Fierce Guardianship",
+        "Deflecting Swat",
+        "Silence",
+        "Dovin's Veto",
+        "Flusterstorm"
+      ],
+      "roles": [
+        "counter",
+        "protection",
+        "interaction"
+      ],
+      "categories": [
+        "cedh_tournament",
+        "high_power"
+      ],
+      "description": "cEDH-heavy protection/stack suite."
+    },
+    {
+      "package_id": "rogshai-commander-damage",
+      "name": "RogShai commander damage conversion",
+      "cards": [
+        "Jeska, Thrice Reborn",
+        "Kediss, Emberclaw Familiar",
+        "Duelist's Heritage",
+        "Psychotic Fury",
+        "Boros Charm"
+      ],
+      "roles": [
+        "finisher",
+        "combat_payoff",
+        "protection"
+      ],
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "large_pod"
+      ],
+      "description": "Ishai damage scaling and table-wide pressure; not all damage is commander damage."
+    },
+    {
+      "package_id": "rogsi-breach-brain-freeze",
+      "name": "RogSi Breach/Brain Freeze shell",
+      "cards": [
+        "Underworld Breach",
+        "Brain Freeze",
+        "Lion's Eye Diamond",
+        "Lotus Petal"
+      ],
+      "roles": [
+        "finisher",
+        "graveyard",
+        "combo"
+      ],
+      "categories": [
+        "cedh_tournament"
+      ],
+      "description": "Tournament combo package; benchmark, not automatic inclusion."
+    }
+  ],
+  "archetypes": [
+    {
+      "archetype_id": "korvold-jund-sacrifice-land-recursion",
+      "name": "Korvold Jund sacrifice / land recursion",
+      "commanders": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "high_power"
+      ],
+      "primary_plan": "Convert sacrifice and land resources into cards, mana and table pressure.",
+      "secondary_plan": "Recover after wipes via graveyard and land recursion.",
+      "win_conditions": [
+        "aristocrats drain",
+        "large Korvold combat",
+        "resource overrun",
+        "big X-spell"
+      ],
+      "interaction_profile": {
+        "artifact_enchantment_removal": "high",
+        "countermagic": "none",
+        "graveyard_dependency": "medium"
+      },
+      "packages": [
+        "korvold-land-sacrifice",
+        "korvold-token-aristocrats"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "archetype_id": "rogshai-jeskai-commander-tempo",
+      "name": "RogShai Jeskai commander-damage tempo/value",
+      "commanders": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "high_power"
+      ],
+      "primary_plan": "Grow and protect Ishai while using Rograkh as a cheap resource.",
+      "secondary_plan": "Generate independent value from spellslinger engines and combat-draw effects.",
+      "win_conditions": [
+        "Ishai commander damage",
+        "Jeska multiplication",
+        "Kediss table damage",
+        "spellslinger payoff"
+      ],
+      "interaction_profile": {
+        "countermagic": "high",
+        "spot_removal": "high",
+        "rebuild": "medium"
+      },
+      "packages": [
+        "rogshai-commander-damage",
+        "rogsi-stack-protection"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "archetype_id": "cedh-rogsi-breach-midrange",
+      "name": "cEDH RogSi breach / protected combo",
+      "commanders": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "categories": [
+        "cedh_tournament"
+      ],
+      "primary_plan": "Use cheap commander, fast mana and protected compact combo turns.",
+      "secondary_plan": "Win through Breach/Brain Freeze or pressure with commander damage.",
+      "win_conditions": [
+        "Underworld Breach",
+        "Brain Freeze",
+        "commander damage"
+      ],
+      "interaction_profile": {
+        "free_stack_interaction": "very_high",
+        "speed": "very_high"
+      },
+      "packages": [
+        "rogsi-breach-brain-freeze",
+        "rogsi-stack-protection"
+      ],
+      "confidence": 0.75
+    }
+  ]
+}

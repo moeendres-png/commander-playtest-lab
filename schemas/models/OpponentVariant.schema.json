@@ -1,0 +1,271 @@
+{
+  "$defs": {
+    "EnsembleWeightMode": {
+      "enum": [
+        "unweighted",
+        "equal",
+        "observation_based",
+        "manual",
+        "worst_case"
+      ],
+      "title": "EnsembleWeightMode",
+      "type": "string"
+    },
+    "NumericRange": {
+      "additionalProperties": false,
+      "properties": {
+        "maximum": {
+          "title": "Maximum",
+          "type": "number"
+        },
+        "minimum": {
+          "title": "Minimum",
+          "type": "number"
+        }
+      },
+      "required": [
+        "minimum",
+        "maximum"
+      ],
+      "title": "NumericRange",
+      "type": "object"
+    },
+    "ObservationStatus": {
+      "description": "Source status for opponent-card assumptions, not empirical game evidence.",
+      "enum": [
+        "directly_observed",
+        "reported_by_player",
+        "inferred_role",
+        "unknown",
+        "synthetic_assumption"
+      ],
+      "title": "ObservationStatus",
+      "type": "string"
+    },
+    "OpponentCardAssumption": {
+      "additionalProperties": false,
+      "properties": {
+        "card_name": {
+          "title": "Card Name",
+          "type": "string"
+        },
+        "color_identity": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Color Identity",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/ObservationStatus"
+        }
+      },
+      "required": [
+        "card_name",
+        "status"
+      ],
+      "title": "OpponentCardAssumption",
+      "type": "object"
+    },
+    "VariantWeight": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/EnsembleWeightMode"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rationale"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "title": "VariantWeight",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assumed_cards": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/OpponentCardAssumption"
+      },
+      "title": "Assumed Cards",
+      "type": "array"
+    },
+    "assumptions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "commander_color_identity": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commander Color Identity",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "confidence": {
+      "default": 0.25,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "deck_version": {
+      "default": "unknown",
+      "title": "Deck Version",
+      "type": "string"
+    },
+    "interaction_density": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NumericRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "known_cards": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/OpponentCardAssumption"
+      },
+      "title": "Known Cards",
+      "type": "array"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "role_distribution": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Role Distribution",
+      "type": "object"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "speed_turn_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NumericRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "synthetic": {
+      "default": true,
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "variant_id": {
+      "title": "Variant Id",
+      "type": "string"
+    },
+    "weight": {
+      "$ref": "#/$defs/VariantWeight"
+    },
+    "win_axes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Win Axes",
+      "type": "array"
+    },
+    "wipe_count_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NumericRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "variant_id",
+    "name",
+    "commander",
+    "commander_color_identity"
+  ],
+  "title": "OpponentVariant",
+  "type": "object"
+}

@@ -1,0 +1,24 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "newer_version": {
+      "title": "Newer Version",
+      "type": "string"
+    },
+    "older_version": {
+      "title": "Older Version",
+      "type": "string"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "package_id",
+    "older_version",
+    "newer_version"
+  ],
+  "title": "ComparePackageVersionsInput",
+  "type": "object"
+}

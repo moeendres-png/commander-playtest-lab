@@ -1,0 +1,8 @@
+{
+  "status": "external_runtime_prepared_but_not_executed",
+  "blocked_by_execution_environment": true,
+  "external_engine_validation_pending": true,
+  "external_engine_ready": false,
+  "external_rules_engine_results": 0,
+  "tactical_oracle_used_as_external_evidence": false
+}

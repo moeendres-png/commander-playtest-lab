@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "best_tested_alternative": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Best Tested Alternative"
+    },
+    "branchpoint_id": {
+      "title": "Branchpoint Id",
+      "type": "string"
+    },
+    "chosen_action": {
+      "title": "Chosen Action",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "contradictory_futures": {
+      "title": "Contradictory Futures",
+      "type": "boolean"
+    },
+    "decision_regret": {
+      "minimum": 0.0,
+      "title": "Decision Regret",
+      "type": "number"
+    },
+    "evidence_samples": {
+      "minimum": 0,
+      "title": "Evidence Samples",
+      "type": "integer"
+    },
+    "recommended_interpretation": {
+      "title": "Recommended Interpretation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "branchpoint_id",
+    "chosen_action",
+    "decision_regret",
+    "evidence_samples",
+    "confidence",
+    "contradictory_futures",
+    "recommended_interpretation"
+  ],
+  "title": "DecisionRegretRecord",
+  "type": "object"
+}

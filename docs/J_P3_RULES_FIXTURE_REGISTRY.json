@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "J_P3_RULES_FIXTURES_v1",
+  "contract_hash": "89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6",
+  "provider_neutral": true,
+  "execution_policy": {
+    "attempt_when_provider_can_technically_execute": true,
+    "unsupported_must_be_recorded_as_UNSUPPORTED": true,
+    "do_not_replace_with_tactical_or_mock_evidence": true,
+    "raw_before_after_state_required_when_available": true,
+    "event_or_trace_required_when_available": true
+  },
+  "fixtures": [
+    {"id":"P3-FX-001","name":"commander_cast","category":"commander","cards":["Korvold, Fae-Cursed King"],"assertions":["commander begins in command-zone semantics","a legal commander cast is exposed/accepted through provider control","post-resolution/counter state is observable"],"source_alignment":["project-critical interactions","Commander production requirements"],"critical":true},
+    {"id":"P3-FX-002","name":"commander_tax","category":"commander","cards":["Korvold, Fae-Cursed King"],"assertions":["third command-zone cast carries +4 generic commander tax","printed five-mana commander therefore requires total cost nine absent other modifiers"],"source_alignment":["commander_tax_third_cast"],"critical":true},
+    {"id":"P3-FX-003","name":"partner_commanders","category":"commander","cards":["Ishai, Ojutai Dragonspeaker","Rograkh, Son of Rohgahh"],"assertions":["both legal partners occupy command-zone commander roles","casting one partner does not erase the other","per-commander cast/tax identity remains distinct"],"critical":true},
+    {"id":"P3-FX-004","name":"per_opponent_commander_damage","category":"commander","cards":["Ishai, Ojutai Dragonspeaker"],"assertions":["commander combat damage is tracked by commander and damaged opponent","21 from one commander to one opponent causes that opponent to lose","damage to different opponents is not combined"],"source_alignment":["commander_damage_not_combined","commander_damage_exactly_twenty_one"],"critical":true},
+    {"id":"P3-FX-005","name":"kediss_normal_damage","category":"combat","cards":["Kediss, Emberclaw Familiar","Ishai, Ojutai Dragonspeaker"],"assertions":["commander combat damage to one opponent creates Kediss trigger","each other opponent takes matching noncombat damage","Kediss damage adds zero commander damage"],"source_alignment":["kediss_damage_is_not_commander_damage"],"critical":true},
+    {"id":"P3-FX-006","name":"jeska_multiplier","category":"combat","cards":["Jeska, Thrice Reborn","Ishai, Ojutai Dragonspeaker"],"assertions":["Jeska effect triples applicable commander combat damage to the chosen opponent","7 applicable combat damage becomes 21 actual damage","because the damage is dealt by the commander, 21 commander damage is tracked"],"source_alignment":["jeska_triples_commander_combat_damage"],"critical":true},
+    {"id":"P3-FX-007","name":"boardwipe","category":"wipe","cards":["Blasphemous Act","Boros Charm"],"assertions":["wipe applies to all applicable creatures","indestructible protection prevents destroy/lethal-damage destruction where rules allow","resulting zones are observable"],"source_alignment":["boros_charm_protects_from_destroy_wipe"],"critical":true},
+    {"id":"P3-FX-008","name":"counter","category":"stack","cards":["Counterspell"],"assertions":["counter response can be submitted in a legal priority window","countered spell does not resolve","state/stack transition is observable"],"critical":true},
+    {"id":"P3-FX-009","name":"protection","category":"protection","cards":["Boros Charm","Toxic Deluge"],"assertions":["indestructible survives applicable destroy/lethal-damage effects","indestructible does not prevent zero-or-less toughness","provider distinguishes these outcomes"],"source_alignment":["indestructible_survives_destroy","indestructible_fails_minus_toughness"],"critical":true},
+    {"id":"P3-FX-010","name":"trigger","category":"trigger","cards":["Kaervek the Merciless","Counterspell"],"assertions":["cast trigger is created on casting","countering the triggering spell does not retroactively remove the already-created trigger","trigger/stack evidence is observable"],"source_alignment":["kaervek_trigger_survives_counter"],"critical":true},
+    {"id":"P3-FX-011","name":"replacement","category":"replacement","cards":[],"assertions":["a deterministic replacement-choice scenario produces a provider choice point or deterministic auto-choice","chosen replacement modifies the event before normal processing","raw state/trace shows replaced outcome"],"critical":true},
+    {"id":"P3-FX-012","name":"stack_priority","category":"stack","cards":["Silence","Counterspell"],"assertions":["priority passes are controllable/observable enough to reach response windows","stack ordering is observable","submitted action is tied to the current choice/state revision"],"critical":true},
+    {"id":"P3-FX-013","name":"illegal_action_rejection","category":"control","cards":[],"assertions":["an action not legal in the current provider state is rejected","rejection does not mutate game state","rejection has machine-capturable evidence"],"critical":true},
+    {"id":"P3-FX-014","name":"replay_state_consistency","category":"replay","cards":[],"assertions":["provider replay or equivalent raw trace preserves ordered externally relevant transitions","reconstructed/checkpoint state agrees with captured live state at defined checkpoints","unknown/unmapped events cannot be silently discarded when they affect state"],"critical":true}
+  ],
+  "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb"
+}

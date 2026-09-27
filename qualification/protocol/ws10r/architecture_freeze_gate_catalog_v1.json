@@ -1,0 +1,78 @@
+{
+  "gates": [
+    {
+      "description": "Exact provider source/build/license/adapter identities are reproducible.",
+      "id": "AF00",
+      "name": "SOURCE_AND_BUILD_LOCK",
+      "required": true
+    },
+    {
+      "description": "Exact RSP 1.1 protocol/schema handshake and truthful capabilities.",
+      "id": "AF01",
+      "name": "PROTOCOL_HANDSHAKE",
+      "required": true
+    },
+    {
+      "description": "Independent runtime support for 2P,3P,4P,5P.",
+      "id": "AF02",
+      "name": "PLAYER_CARDINALITY",
+      "required": true
+    },
+    {
+      "description": "Rules Core is sole legality/rules-randomness authority.",
+      "id": "AF03",
+      "name": "RULES_AUTHORITY",
+      "required": true
+    },
+    {
+      "description": "Complete legal options; no adapter/pilot legality reconstruction; fail-closed unsupported decisions.",
+      "id": "AF04",
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "required": true
+    },
+    {
+      "description": "Actor-safe observation and metadata channels; honeycard leakage negatives.",
+      "id": "AF05",
+      "name": "HIDDEN_INFORMATION",
+      "required": true
+    },
+    {
+      "description": "Runtime qualification across the frozen micro-rules surface.",
+      "id": "AF06",
+      "name": "GENERAL_RULES_CORRECTNESS",
+      "required": true
+    },
+    {
+      "description": "Behavioral runtime qualification for the frozen actual-card denominator and 29-card corpus.",
+      "id": "AF07",
+      "name": "ACTUAL_CARD_BEHAVIOR",
+      "required": true
+    },
+    {
+      "description": "WS-05 MUST multiplayer/Commander semantics at required cardinalities.",
+      "id": "AF08",
+      "name": "MULTIPLAYER_COMMANDER",
+      "required": true
+    },
+    {
+      "description": "Rules RNG attribution plus clean-process semantic replay tapes/checkpoints.",
+      "id": "AF09",
+      "name": "RNG_REPLAY",
+      "required": true
+    },
+    {
+      "description": "No skip/crash/hang/protocol desync/stale evidence; denominator-complete evidence accounting.",
+      "id": "AF10",
+      "name": "RUNTIME_EVIDENCE_RELIABILITY",
+      "required": true
+    },
+    {
+      "description": "Actual integration topology satisfies WS-09; Forge remains a genuine separate process/service.",
+      "id": "AF11",
+      "name": "INTEROP_LICENSE_TOPOLOGY",
+      "required": true
+    }
+  ],
+  "protocol": "commander-lab.rules-service/1.1.0",
+  "schema_version": "architecture-freeze-gate-catalog/1.1.0"
+}

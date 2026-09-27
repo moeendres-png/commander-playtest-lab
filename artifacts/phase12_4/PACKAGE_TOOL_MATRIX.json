@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-06T09:56:01.011786Z",
+  "total_tools": 53,
+  "new_tools": [
+    "extract_archetypes",
+    "extract_packages",
+    "inspect_package",
+    "compare_package_versions",
+    "evaluate_package_density",
+    "detect_orphaned_cards",
+    "generate_package_report"
+  ],
+  "extended_tools": [
+    "run_package_ablation",
+    "run_package_search",
+    "inspect_deck",
+    "compare_deck_to_meta"
+  ],
+  "duplicate_tool_names": false,
+  "automatic_deck_application": false
+}

@@ -1,0 +1,1473 @@
+{
+  "obligations": [
+    {
+      "description": "SOURCE_LOCK",
+      "obligation_id": "G00",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "DOMAIN_FRESHNESS",
+      "obligation_id": "G01",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "PLAYER_COUNT",
+      "obligation_id": "G02",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "RULES_CONFORMANCE",
+      "obligation_id": "G03",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "CARD_REACHABILITY",
+      "obligation_id": "G04",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "LEGAL_ACTIONS",
+      "obligation_id": "G05",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "PILOT_AUTHORITY",
+      "obligation_id": "G06",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "HIDDEN_INFO",
+      "obligation_id": "G07",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "RNG",
+      "obligation_id": "G08",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "REPLAY",
+      "obligation_id": "G09",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "COMMANDER_MULTIPLAYER",
+      "obligation_id": "G10",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "RUNTIME_RELIABILITY",
+      "obligation_id": "G11",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "INTEROP_LICENSE",
+      "obligation_id": "G12",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "GAME_ADMISSION",
+      "obligation_id": "G13",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "DECISION_CAMPAIGN",
+      "obligation_id": "G14",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "HOLDOUT",
+      "obligation_id": "G15",
+      "required": false,
+      "satisfying_verdicts": [
+        "PASS",
+        "NOT_APPLICABLE"
+      ],
+      "scope": "production_admission"
+    },
+    {
+      "description": "Exact provider source/build/license/adapter identities are reproducible.",
+      "obligation_id": "AF00",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Exact RSP 1.1 protocol/schema handshake and truthful capabilities.",
+      "obligation_id": "AF01",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Independent runtime support for 2P,3P,4P,5P.",
+      "obligation_id": "AF02",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Rules Core is sole legality/rules-randomness authority.",
+      "obligation_id": "AF03",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Complete legal options; no adapter/pilot legality reconstruction; fail-closed unsupported decisions.",
+      "obligation_id": "AF04",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Actor-safe observation and metadata channels; honeycard leakage negatives.",
+      "obligation_id": "AF05",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Runtime qualification across the frozen micro-rules surface.",
+      "obligation_id": "AF06",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Behavioral runtime qualification for the frozen actual-card denominator and 29-card corpus.",
+      "obligation_id": "AF07",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "WS-05 MUST multiplayer/Commander semantics at required cardinalities.",
+      "obligation_id": "AF08",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Rules RNG attribution plus clean-process semantic replay tapes/checkpoints.",
+      "obligation_id": "AF09",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "No skip/crash/hang/protocol desync/stale evidence; denominator-complete evidence accounting.",
+      "obligation_id": "AF10",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Actual integration topology satisfies WS-09; Forge remains a genuine separate process/service.",
+      "obligation_id": "AF11",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "architecture_freeze"
+    },
+    {
+      "description": "Full lifecycle with exactly 2 real players",
+      "obligation_id": "PLAYER_COUNT_2P",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Full lifecycle with exactly 3 real players",
+      "obligation_id": "PLAYER_COUNT_3P",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Full lifecycle with exactly 4 real players",
+      "obligation_id": "PLAYER_COUNT_4P",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Full lifecycle with exactly 5 real players",
+      "obligation_id": "PLAYER_COUNT_5P",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiplayer priority live-ring/reset",
+      "obligation_id": "WS05-MP-PRIO-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiplayer priority live-ring/reset",
+      "obligation_id": "WS05-MP-PRIO-5",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "APNAP simultaneous triggers",
+      "obligation_id": "WS05-MP-TRIG-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "APNAP simultaneous triggers",
+      "obligation_id": "WS05-MP-TRIG-5",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiple defending players",
+      "obligation_id": "WS05-MP-COMBAT-4",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiple defending players",
+      "obligation_id": "WS05-MP-COMBAT-5",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Defender/blocker partition",
+      "obligation_id": "WS05-MP-BLOCK-4",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Extra-turn insertion ordering",
+      "obligation_id": "WS05-MP-TURN-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Extra-turn insertion ordering",
+      "obligation_id": "WS05-MP-TURN-5",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "CR 800.4 owned objects leave",
+      "obligation_id": "WS05-MP-ELIM-OWNED-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "CR 800.4 control effects end",
+      "obligation_id": "WS05-MP-ELIM-CONTROL-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "CR 800.4 stack cleanup",
+      "obligation_id": "WS05-MP-ELIM-STACK-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "CR 800.4 priority holder leaves",
+      "obligation_id": "WS05-MP-ELIM-PRIO-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "CR 800.4 active player leaves",
+      "obligation_id": "WS05-MP-ELIM-TURN-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "CR 800.4 five-player recomputation",
+      "obligation_id": "WS05-MP-ELIM-5",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Commander tax",
+      "obligation_id": "WS05-CMD-TAX-2",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Commander tax",
+      "obligation_id": "WS05-CMD-TAX-4",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "GY SBA command-zone choice yes",
+      "obligation_id": "WS05-CMD-ZONE-GY-YES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "GY SBA command-zone choice no",
+      "obligation_id": "WS05-CMD-ZONE-GY-NO",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Exile SBA command-zone choice yes",
+      "obligation_id": "WS05-CMD-ZONE-EXILE-YES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Exile SBA command-zone choice no",
+      "obligation_id": "WS05-CMD-ZONE-EXILE-NO",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Hand replacement choice yes",
+      "obligation_id": "WS05-CMD-ZONE-HAND-YES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Hand replacement choice no",
+      "obligation_id": "WS05-CMD-ZONE-HAND-NO",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Library replacement choice yes",
+      "obligation_id": "WS05-CMD-ZONE-LIB-YES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Library replacement choice no",
+      "obligation_id": "WS05-CMD-ZONE-LIB-NO",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "21 same-commander combat damage loss",
+      "obligation_id": "WS05-CMD-DMG-SAME-21",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Different commanders do not pool damage",
+      "obligation_id": "WS05-CMD-DMG-SPLIT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Commander identity persists across controller changes",
+      "obligation_id": "WS05-CMD-DMG-CONTROL",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Partner tax independent",
+      "obligation_id": "WS05-CMD-PARTNER-TAX",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Partner damage independent",
+      "obligation_id": "WS05-CMD-PARTNER-DMG",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiple commanders start in command zone",
+      "obligation_id": "WS05-CMD-PARTNER-ZONE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Two-player Commander mulligan",
+      "obligation_id": "WS05-CMD-MULL-2",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiplayer Commander free mulligan",
+      "obligation_id": "WS05-CMD-MULL-4",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "2P starting-player/first draw",
+      "obligation_id": "WS05-CMD-START-2",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Multiplayer starting-player/first draw",
+      "obligation_id": "WS05-CMD-START-3",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Commander loss integrates with multiplayer cleanup",
+      "obligation_id": "WS05-CMD-ELIM-4",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family priority must use provider legal options and fail closed",
+      "obligation_id": "PILOT_PRIORITY",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family target must use provider legal options and fail closed",
+      "obligation_id": "PILOT_TARGET",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family choose_object must use provider legal options and fail closed",
+      "obligation_id": "PILOT_CHOOSE_OBJECT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family target_amount must use provider legal options and fail closed",
+      "obligation_id": "PILOT_TARGET_AMOUNT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family mulligan must use provider legal options and fail closed",
+      "obligation_id": "PILOT_MULLIGAN",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family choose_use must use provider legal options and fail closed",
+      "obligation_id": "PILOT_CHOOSE_USE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family choice must use provider legal options and fail closed",
+      "obligation_id": "PILOT_CHOICE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family pile must use provider legal options and fail closed",
+      "obligation_id": "PILOT_PILE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family mana_payment must use provider legal options and fail closed",
+      "obligation_id": "PILOT_MANA_PAYMENT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family announce_x must use provider legal options and fail closed",
+      "obligation_id": "PILOT_ANNOUNCE_X",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family multi_amount must use provider legal options and fail closed",
+      "obligation_id": "PILOT_MULTI_AMOUNT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family replacement_effect must use provider legal options and fail closed",
+      "obligation_id": "PILOT_REPLACEMENT_EFFECT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family trigger_order must use provider legal options and fail closed",
+      "obligation_id": "PILOT_TRIGGER_ORDER",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family choose_mode must use provider legal options and fail closed",
+      "obligation_id": "PILOT_CHOOSE_MODE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family choose_ability must use provider legal options and fail closed",
+      "obligation_id": "PILOT_CHOOSE_ABILITY",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family declare_attacker must use provider legal options and fail closed",
+      "obligation_id": "PILOT_DECLARE_ATTACKER",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "External discretionary family declare_blocker must use provider legal options and fail closed",
+      "obligation_id": "PILOT_DECLARE_BLOCKER",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited first_option cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_FIRST_OPTION",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited random_option cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_RANDOM_OPTION",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited default_yes_no cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_DEFAULT_YES_NO",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited internal_ai cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_INTERNAL_AI",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited gui_default cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_GUI_DEFAULT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited silent_skip cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_SILENT_SKIP",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Prove prohibited parent_class_fallback cannot satisfy a production-reachable decision",
+      "obligation_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "opponent hand identities absent while count remains visible",
+      "obligation_id": "HIDDEN_01",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "library identities/order absent while count remains visible",
+      "obligation_id": "HIDDEN_02",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "face-up exile identities public",
+      "obligation_id": "HIDDEN_03",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "face-down permanent controller sees identity while opponents do not",
+      "obligation_id": "HIDDEN_04",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "face-down exile actor-specific permission persists",
+      "obligation_id": "HIDDEN_05",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "face-down exile knowledge invalidates correctly",
+      "obligation_id": "HIDDEN_06",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "reveal reaches exactly legal audience",
+      "obligation_id": "HIDDEN_07",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "look reaches only specified audience",
+      "obligation_id": "HIDDEN_08",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "hidden-zone search inspection does not leak",
+      "obligation_id": "HIDDEN_09",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "scry/surveil top-N actor knowledge",
+      "obligation_id": "HIDDEN_10",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "shuffle invalidates order knowledge",
+      "obligation_id": "HIDDEN_11",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "controlled-player authority receives legally visible information",
+      "obligation_id": "HIDDEN_12",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "pile metadata does not leak",
+      "obligation_id": "HIDDEN_13",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "target option metadata does not leak",
+      "obligation_id": "HIDDEN_14",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "source metadata does not leak",
+      "obligation_id": "HIDDEN_15",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "ability metadata does not leak",
+      "obligation_id": "HIDDEN_16",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "copy/face-down interactions hide original identity",
+      "obligation_id": "HIDDEN_17",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "transcripts omit actor-private state",
+      "obligation_id": "HIDDEN_18",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "pilot code cannot access omniscient raw engine APIs",
+      "obligation_id": "HIDDEN_19",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Unique forbidden sentinels scanned across prompt/context/option IDs/labels/metadata/source/state/transcript/logs",
+      "obligation_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "RulesRngTape records semantic random operations",
+      "obligation_id": "RNG_RULES_TAPE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "DecisionTape records exact discretionary selections",
+      "obligation_id": "REPLAY_DECISION_TAPE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Semantic EventTape records meaningful changes",
+      "obligation_id": "REPLAY_EVENT_TAPE",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Clean-process semantic replay under same manifest/checkpoints",
+      "obligation_id": "REPLAY_CLEAN_PROCESS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Privileged/public/actor-scoped semantic hashes exclude process-local identity",
+      "obligation_id": "REPLAY_STATE_HASHES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for costs",
+      "obligation_id": "MICRO_COSTS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for mana_payment",
+      "obligation_id": "MICRO_MANA_PAYMENT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for priority",
+      "obligation_id": "MICRO_PRIORITY",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for stack",
+      "obligation_id": "MICRO_STACK",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for targets",
+      "obligation_id": "MICRO_TARGETS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for modes",
+      "obligation_id": "MICRO_MODES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for triggers",
+      "obligation_id": "MICRO_TRIGGERS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for replacement",
+      "obligation_id": "MICRO_REPLACEMENT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for prevention",
+      "obligation_id": "MICRO_PREVENTION",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for continuous_effects",
+      "obligation_id": "MICRO_CONTINUOUS_EFFECTS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for layers",
+      "obligation_id": "MICRO_LAYERS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for state_based_actions",
+      "obligation_id": "MICRO_STATE_BASED_ACTIONS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for zone_changes",
+      "obligation_id": "MICRO_ZONE_CHANGES",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for copy",
+      "obligation_id": "MICRO_COPY",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for control",
+      "obligation_id": "MICRO_CONTROL",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for combat",
+      "obligation_id": "MICRO_COMBAT",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for rules_randomness",
+      "obligation_id": "MICRO_RULES_RANDOMNESS",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Ishai, Ojutai Dragonspeaker",
+      "obligation_id": "CARD_01",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Rograkh, Son of Rohgahh",
+      "obligation_id": "CARD_02",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Esior, Wardwing Familiar",
+      "obligation_id": "CARD_03",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Kediss, Emberclaw Familiar",
+      "obligation_id": "CARD_04",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Veyran, Voice of Duality",
+      "obligation_id": "CARD_05",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Harmonic Prodigy",
+      "obligation_id": "CARD_06",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Narset, Parter of Veils",
+      "obligation_id": "CARD_07",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Jeska, Thrice Reborn",
+      "obligation_id": "CARD_08",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Magma Opus",
+      "obligation_id": "CARD_09",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Wash Away",
+      "obligation_id": "CARD_10",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Wear // Tear",
+      "obligation_id": "CARD_11",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Dig Through Time",
+      "obligation_id": "CARD_12",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Flare of Duplication",
+      "obligation_id": "CARD_13",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Vandalblast",
+      "obligation_id": "CARD_14",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Finale of Revelation",
+      "obligation_id": "CARD_15",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Psychosis Crawler",
+      "obligation_id": "CARD_16",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Kaervek the Merciless",
+      "obligation_id": "CARD_17",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Shriekmaw",
+      "obligation_id": "CARD_18",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Butcher of Malakir",
+      "obligation_id": "CARD_19",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Syphon Mind",
+      "obligation_id": "CARD_20",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Gratuitous Violence",
+      "obligation_id": "CARD_21",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Bolt Bend",
+      "obligation_id": "CARD_22",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Makeshift Mannequin",
+      "obligation_id": "CARD_23",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Warstorm Surge",
+      "obligation_id": "CARD_24",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Basilisk Collar",
+      "obligation_id": "CARD_25",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Burn Down the House",
+      "obligation_id": "CARD_26",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Path of Ancestry",
+      "obligation_id": "CARD_27",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Find // Finality",
+      "obligation_id": "CARD_28",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    },
+    {
+      "description": "Behavioral runtime fixture for frozen regression identity: Boseiju Reaches Skyward // Branch of Boseiju",
+      "obligation_id": "CARD_29",
+      "required": true,
+      "satisfying_verdicts": [
+        "PASS"
+      ],
+      "scope": "common_fixture"
+    }
+  ],
+  "schema_version": "qualification-obligation-catalog/1.0.0"
+}

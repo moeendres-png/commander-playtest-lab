@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "EnsembleWeightMode": {
+      "enum": [
+        "unweighted",
+        "equal",
+        "observation_based",
+        "manual",
+        "worst_case"
+      ],
+      "title": "EnsembleWeightMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aggregate_interpretation": {
+      "default": "equal_weight_reference",
+      "title": "Aggregate Interpretation",
+      "type": "string"
+    },
+    "average": {
+      "title": "Average",
+      "type": "number"
+    },
+    "best": {
+      "title": "Best",
+      "type": "number"
+    },
+    "deck_hash": {
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "ensemble_id": {
+      "title": "Ensemble Id",
+      "type": "string"
+    },
+    "estimate_type": {
+      "default": "structural_model_estimates",
+      "title": "Estimate Type",
+      "type": "string"
+    },
+    "median": {
+      "title": "Median",
+      "type": "number"
+    },
+    "most_sensitive_assumption": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Most Sensitive Assumption"
+    },
+    "per_variant": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Per Variant",
+      "type": "array"
+    },
+    "positive_variant_share": {
+      "title": "Positive Variant Share",
+      "type": "number"
+    },
+    "spread": {
+      "title": "Spread",
+      "type": "number"
+    },
+    "weight_mode": {
+      "$ref": "#/$defs/EnsembleWeightMode",
+      "default": "unweighted"
+    },
+    "worst": {
+      "title": "Worst",
+      "type": "number"
+    }
+  },
+  "required": [
+    "deck_id",
+    "deck_hash",
+    "ensemble_id",
+    "per_variant",
+    "average",
+    "median",
+    "worst",
+    "best",
+    "spread",
+    "positive_variant_share"
+  ],
+  "title": "EnsembleMatchupResult",
+  "type": "object"
+}

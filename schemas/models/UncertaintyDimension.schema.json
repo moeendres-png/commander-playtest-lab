@@ -1,0 +1,51 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "assumed_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Assumed Value"
+    },
+    "confidence": {
+      "default": 0.25,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "maximum": {
+      "title": "Maximum",
+      "type": "number"
+    },
+    "minimum": {
+      "title": "Minimum",
+      "type": "number"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "minimum",
+    "maximum"
+  ],
+  "title": "UncertaintyDimension",
+  "type": "object"
+}

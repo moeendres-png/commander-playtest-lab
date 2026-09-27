@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "average_placement": {
+      "anyOf": [
+        {
+          "minimum": 1.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Average Placement"
+    },
+    "dead_card_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Dead Card Rate",
+      "type": "number"
+    },
+    "decision_regret": {
+      "minimum": 0.0,
+      "title": "Decision Regret",
+      "type": "number"
+    },
+    "missed_line_count": {
+      "minimum": 0,
+      "title": "Missed Line Count",
+      "type": "integer"
+    },
+    "pilot_name": {
+      "title": "Pilot Name",
+      "type": "string"
+    },
+    "primer_rule_miss_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Primer Rule Miss Count",
+      "type": "integer"
+    },
+    "sample_size": {
+      "minimum": 0,
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "success_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Success Rate",
+      "type": "number"
+    },
+    "unplayable_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Unplayable Rate",
+      "type": "number"
+    }
+  },
+  "required": [
+    "pilot_name",
+    "sample_size",
+    "success_rate",
+    "dead_card_rate",
+    "unplayable_rate",
+    "decision_regret",
+    "missed_line_count"
+  ],
+  "title": "PilotDiagnosticEvidence",
+  "type": "object"
+}

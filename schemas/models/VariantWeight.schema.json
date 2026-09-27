@@ -1,0 +1,60 @@
+{
+  "$defs": {
+    "EnsembleWeightMode": {
+      "enum": [
+        "unweighted",
+        "equal",
+        "observation_based",
+        "manual",
+        "worst_case"
+      ],
+      "title": "EnsembleWeightMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "$ref": "#/$defs/EnsembleWeightMode"
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rationale"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Value"
+    }
+  },
+  "required": [
+    "mode"
+  ],
+  "title": "VariantWeight",
+  "type": "object"
+}

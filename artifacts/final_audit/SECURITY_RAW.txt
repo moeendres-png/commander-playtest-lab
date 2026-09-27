@@ -1,0 +1,15 @@
+## pip check
+moviepy 2.2.1 has requirement pillow<12.0,>=9.2.0, but you have pillow 12.2.0.
+## tools
+pip-audit: blocked_not_installed
+cyclonedx-py: blocked_not_installed
+ruff: blocked_not_installed
+mypy: blocked_not_installed
+mutmut: blocked_not_installed
+## tracked .env
+## key-pattern scan
+.env.example:2:OPENAI_API_KEY=
+.github/workflows/ci.yml:42:          ! grep -RInE '(sk-[A-Za-z0-9_-]{20,}|OPENAI_API_KEY=.+)' --exclude='.env.example' --exclude-dir='.git' .
+## unsafe yaml/pickle/eval/exec
+src/commander_lab/tools/service.py:1044:    def run_policy_eval(self, request: RunPolicyEvalInput) -> ToolResponse:
+## subprocess shell true

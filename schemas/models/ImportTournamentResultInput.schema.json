@@ -1,0 +1,82 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "event_name": {
+      "title": "Event Name",
+      "type": "string"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "placement": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Placement"
+    },
+    "player_count": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Player Count"
+    },
+    "pod_size": {
+      "default": 4,
+      "maximum": 10,
+      "minimum": 2,
+      "title": "Pod Size",
+      "type": "integer"
+    },
+    "snapshot_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Snapshot Path"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_id",
+    "event_name",
+    "format_band"
+  ],
+  "title": "ImportTournamentResultInput",
+  "type": "object"
+}

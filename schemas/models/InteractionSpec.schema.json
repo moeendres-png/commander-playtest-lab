@@ -1,0 +1,80 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cards",
+      "type": "array"
+    },
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "comparison_keys": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Comparison Keys",
+      "type": "array"
+    },
+    "critical": {
+      "default": true,
+      "title": "Critical",
+      "type": "boolean"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "expected_normalized": {
+      "additionalProperties": true,
+      "title": "Expected Normalized",
+      "type": "object"
+    },
+    "input_state": {
+      "additionalProperties": true,
+      "title": "Input State",
+      "type": "object"
+    },
+    "interaction_id": {
+      "title": "Interaction Id",
+      "type": "string"
+    },
+    "preferred_backend": {
+      "default": "either",
+      "enum": [
+        "xmage",
+        "forge",
+        "either"
+      ],
+      "title": "Preferred Backend",
+      "type": "string"
+    },
+    "rule": {
+      "title": "Rule",
+      "type": "string"
+    },
+    "source_notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "interaction_id",
+    "description",
+    "category",
+    "cards",
+    "rule",
+    "input_state",
+    "expected_normalized",
+    "comparison_keys"
+  ],
+  "title": "InteractionSpec",
+  "type": "object"
+}

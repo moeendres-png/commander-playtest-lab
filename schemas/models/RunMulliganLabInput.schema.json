@@ -1,0 +1,114 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "approval_token": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approval Token"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "followup_samples": {
+      "default": 250,
+      "maximum": 100000,
+      "minimum": 0,
+      "title": "Followup Samples",
+      "type": "integer"
+    },
+    "game_plan": {
+      "default": "balanced",
+      "title": "Game Plan",
+      "type": "string"
+    },
+    "opponent_ensemble_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Opponent Ensemble Id"
+    },
+    "output_name": {
+      "default": "mulligan_lab_result.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "pilot_profile_id": {
+      "default": "baseline",
+      "title": "Pilot Profile Id",
+      "type": "string"
+    },
+    "pilot_version": {
+      "default": "unspecified",
+      "title": "Pilot Version",
+      "type": "string"
+    },
+    "pod_size": {
+      "default": 4,
+      "maximum": 10,
+      "minimum": 2,
+      "title": "Pod Size",
+      "type": "integer"
+    },
+    "policies": {
+      "default": [
+        "conservative",
+        "curve_oriented",
+        "commander_oriented",
+        "interaction_oriented",
+        "matchup_oriented",
+        "primer_policy",
+        "current_pilot",
+        "learned_policy"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Policies",
+      "type": "array"
+    },
+    "samples": {
+      "default": 5000,
+      "maximum": 5000000,
+      "minimum": 1,
+      "title": "Samples",
+      "type": "integer"
+    },
+    "seat_position": {
+      "default": 1,
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Seat Position",
+      "type": "integer"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "starting_player": {
+      "default": false,
+      "title": "Starting Player",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "RunMulliganLabInput",
+  "type": "object"
+}

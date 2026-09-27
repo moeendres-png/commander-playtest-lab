@@ -1,0 +1,231 @@
+name: External XMage Integration
+
+on:
+  pull_request:
+    paths:
+      - "engine-bridge/**"
+      - "src/commander_lab/engine/rules/**"
+      - "src/commander_lab/evals/differential.py"
+      - "src/commander_lab/models/engine_runtime.py"
+      - "src/commander_lab/models/game.py"
+      - "src/commander_lab/models/rules.py"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/whole_deck/decision_authority.py"
+      - "artifacts/architecture/FUTURE_XMAGE_SCENARIO_SCHEMA.json"
+      - "docs/architecture/deckbuilding-simulation-separation.md"
+      - "config/rules_engines.json"
+      - "data/evals/differential/rules_cases.json"
+      - "tests/differential/test_phase6_differential.py"
+      - "scripts/run_external_b3_regression.py"
+      - "scripts/run_external_b4a_regression.py"
+      - "scripts/run_external_b4b_regression.py"
+      - "scripts/run_external_b4c_regression.py"
+      - "scripts/run_external_b4d_regression.py"
+      - "scripts/run_external_b4f_replay.py"
+      - "scripts/run_external_b4f_illegal_action_regression.py"
+      - "scripts/run_external_b4f_capability_closeout.py"
+      - "scripts/run_external_b4f_provider_pin_validation.py"
+      - ".github/workflows/external-engine-integration.yml"
+  workflow_dispatch:
+    inputs:
+      xmage_commit:
+        description: Verified full XMage commit SHA
+        required: true
+        default: b19596980f2734496ea1896504253e1bdd2756dd
+
+permissions:
+  contents: read
+
+env:
+  XMAGE_COMMIT: ${{ inputs.xmage_commit || 'b19596980f2734496ea1896504253e1bdd2756dd' }}
+  ENGINE_PROVIDER: xmage
+  ENGINE_MODE: external
+  ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
+  PYTHONHASHSEED: "0"
+  XMAGE_B3_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B3_SHUTDOWN_TIMEOUT_SECONDS: "30"
+  XMAGE_B4A_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B4B_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B4C_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B4D_REQUEST_TIMEOUT_SECONDS: "120"
+  XMAGE_B4F_REQUEST_TIMEOUT_SECONDS: "120"
+  COMMANDER_LAB_XMAGE_BRIDGE_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+  COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD: >-
+    java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar phase6 {input} {output}
+
+jobs:
+  build-and-integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Validate immutable XMage input
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$XMAGE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "xmage_commit must be a full 40-character lowercase hexadecimal commit SHA" >&2
+            exit 1
+          }
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5 immutable revision
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - name: Verify XMage commit and metadata
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+          git cat-file -t "$XMAGE_COMMIT"
+          git show --no-patch --format=fuller "$XMAGE_COMMIT"
+          mkdir -p ../../../artifacts/external-engine
+          git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/external-engine/xmage-source-description.txt
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        run: |
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Require provider-specific bridge
+        run: |
+          test -f engine-bridge/pom.xml || {
+            echo 'Provider-specific XMage Java bridge is missing. This is a hard failure, not a fallback.' >&2
+            exit 1
+          }
+      - name: Compile XMage bridge main sources
+        working-directory: engine-bridge
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/external-engine
+          mvn -B -ntp -DskipTests compile 2>&1 | tee ../artifacts/external-engine/b4d-main-compile.log
+      - name: Compile XMage bridge test sources
+        working-directory: engine-bridge
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/external-engine
+          mvn -B -ntp -DskipTests test-compile 2>&1 | tee ../artifacts/external-engine/b4d-test-compile.log
+      - name: Run XMage bridge tests and package
+        working-directory: engine-bridge
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/external-engine
+          mvn -B -ntp verify 2>&1 | tee ../artifacts/external-engine/b4d-bridge-verify.log
+      - name: Verify current provider capability truth
+        run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py tests/unit/test_models.py
+      - name: Run real B3 JSONL process regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b3_regression.py 2>&1 | tee artifacts/external-engine/b3-process.log
+      - name: Run real B4-A state observation regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b4a_regression.py 2>&1 | tee artifacts/external-engine/b4a-process.log
+      - name: Run real B4-B external decision regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b4b_regression.py 2>&1 | tee artifacts/external-engine/b4b-process.log
+      - name: Run real B4-C priority/action regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b4c_regression.py 2>&1 | tee artifacts/external-engine/b4c-process.log
+      - name: Run real B4-D event log/lifecycle regression
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          python scripts/run_external_b4d_regression.py 2>&1 | tee artifacts/external-engine/b4d-process.log
+      - name: Run provider-bound Phase-6 differential fixtures
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/external-engine
+          pytest -q -rs tests/differential/test_phase6_differential.py 2>&1 \
+            | tee artifacts/external-engine/phase6-differential.log
+      - name: Run deterministic Phase-6 reconstruction replay
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_replay.py 2>&1 \
+            | tee artifacts/external-engine/b4f-phase6-replay.log
+      - name: Run explicit illegal-action rejection regression
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_illegal_action_regression.py 2>&1 \
+            | tee artifacts/external-engine/b4f-illegal-action.log
+      - name: Generate B4-F capability descriptor and binding
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_capability_closeout.py 2>&1 \
+            | tee artifacts/external-engine/b4f-capability-closeout.log
+      - name: Validate B4-F provider pin and capability hash
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/run_external_b4f_provider_pin_validation.py 2>&1 \
+            | tee artifacts/external-engine/b4f-provider-pin.log
+      - name: Record bridge identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/external-engine
+          sha256sum engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
+            > artifacts/external-engine/xmage-bridge.sha256
+          printf 'lab_commit=%s\nxmage_commit=%s\nprotocol=2.0.0\nprovider=xmage\nevidence_class=external_rules_engine\nphase6_scenario_mode=provider_state_injection_v1\n' \
+            "$GITHUB_SHA" "$XMAGE_COMMIT" \
+            > artifacts/external-engine/XMAGE_RUNTIME_IDENTITY.txt
+      - name: Generate evidence checksums
+        if: always()
+        run: |
+          mkdir -p artifacts/external-engine
+          find artifacts/external-engine -type f ! -name 'external-engine-checksums.sha256' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > artifacts/external-engine/external-engine-checksums.sha256 || true
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: external-engine-b4f-evidence-${{ github.sha }}
+          path: |
+            artifacts/external-engine/
+            engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+          if-no-files-found: error
+      - name: Upload legacy B4-D artifact-name compatibility alias
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: external-engine-b4d-evidence-${{ github.sha }}
+          path: |
+            artifacts/external-engine/
+            engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+          if-no-files-found: error

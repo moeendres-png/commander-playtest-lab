@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "recommendation_id": {
+      "title": "Recommendation Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "recommendation_id"
+  ],
+  "title": "TraceRecommendationSourcesInput",
+  "type": "object"
+}

@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "check": "ruff check .",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "ruff format --check .",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "mypy src/commander_lab",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "Hypothesis RuleBasedStateMachine",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "mutmut",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "pip-audit",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "CycloneDX SBOM",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "pip-licenses",
+      "execution_status": "blocked",
+      "reason": "Tool distribution unavailable from the configured package index; no preinstalled executable/module."
+    },
+    {
+      "check": "pytest -q",
+      "execution_status": "passed",
+      "result": "266 passed, 1 skipped, 0 failed"
+    },
+    {
+      "check": "python -m compileall -q src tests",
+      "execution_status": "passed"
+    },
+    {
+      "check": "git diff --check",
+      "execution_status": "passed"
+    },
+    {
+      "check": "git fsck --full",
+      "execution_status": "passed"
+    },
+    {
+      "check": "pip check",
+      "execution_status": "failed",
+      "result": "Global runtime conflict: moviepy 2.2.1 requires pillow<12; installed pillow is 12.2.0. Not introduced by project dependencies."
+    },
+    {
+      "check": "deterministic property/mutation/fuzz fallback tests",
+      "execution_status": "passed",
+      "result": "14 passed; not a substitute for Hypothesis or mutmut."
+    },
+    {
+      "check": "internal fallback secret scan",
+      "execution_status": "passed",
+      "result": "0 findings"
+    },
+    {
+      "check": "fallback SBOM/license inventory",
+      "execution_status": "passed_with_limitations",
+      "result": "Generated from importlib.metadata; official tools blocked."
+    }
+  ],
+  "schema_version": "1.0.0"
+}

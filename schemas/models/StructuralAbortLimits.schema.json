@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "max_events": {
+      "default": 20000,
+      "minimum": 10,
+      "title": "Max Events",
+      "type": "integer"
+    },
+    "max_no_progress_turns": {
+      "default": 12,
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Max No Progress Turns",
+      "type": "integer"
+    },
+    "max_spells_per_turn": {
+      "default": 8,
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Max Spells Per Turn",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 30,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Max Turns",
+      "type": "integer"
+    }
+  },
+  "title": "StructuralAbortLimits",
+  "type": "object"
+}

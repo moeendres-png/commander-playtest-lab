@@ -1,0 +1,324 @@
+{
+  "authority": "WS90 recomputed FROM corrected 15-slot pack (per_scenario union, not intuition edit; no generic ordering categories)",
+  "candidate_behavior_status": "NOT_RUN",
+  "count": 15,
+  "denominator_ids": [
+    "RQ-C3-A03",
+    "RQ-C3-A04",
+    "RQ-C3-B01",
+    "RQ-C3-C01",
+    "RQ-C3-C03",
+    "RQ-C3-D06",
+    "RQ-C3-E01",
+    "RQ-C3-E02",
+    "RQ-C3-F01",
+    "RQ-C3-G02",
+    "RQ-C3-G03",
+    "RQ-C3-G04",
+    "RQ-C3-H01",
+    "RQ-C3-I01",
+    "RQ-C3-J02"
+  ],
+  "derivation_method": "Mechanical set-union over per_scenario required external-choice kinds. MUST-NOT-OCCUR assertions (HUMILITY_FIRST copy choices absence) gate the H01 slot but do not enter the positive union. Historical 20/20 not carried forward by assertion; recomputed and happens to remain 20 because B/C preserve one copy-choices slot.",
+  "h01_decision_occurrence": {
+    "CLONE_FIRST": {
+      "copy_choice_offered": true,
+      "copy_choice_taken": true,
+      "note": "REQUIRED positive: offered+taken Bear copy; union contributor"
+    },
+    "HUMILITY_FIRST": {
+      "copy_choice_offered": false,
+      "copy_choice_taken": false,
+      "note": "MUST-NOT-OCCUR: any offered/taken copy choice falsifies H01-A; not a union member"
+    },
+    "NO_HUMILITY": {
+      "copy_choice_offered": true,
+      "copy_choice_taken": true,
+      "note": "REQUIRED positive: offered+taken Bear copy; union contributor"
+    }
+  },
+  "h01_subcase_kinds": {
+    "RQ-C3-H01-CLONE_FIRST": [
+      "cast",
+      "copy choices",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-H01-HUMILITY_FIRST": [
+      "cast",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-H01-NO_HUMILITY": [
+      "cast",
+      "copy choices",
+      "mana payment",
+      "pass"
+    ]
+  },
+  "must_not_occur": {
+    "RQ-C3-H01-HUMILITY_FIRST": [
+      "copy choices"
+    ]
+  },
+  "per_scenario": {
+    "RQ-C3-A03": [
+      "cast",
+      "targets",
+      "mana payment",
+      "activate",
+      "mana source",
+      "pass"
+    ],
+    "RQ-C3-A04": [
+      "cast",
+      "X",
+      "mana source",
+      "mana payment",
+      "replacement ordering",
+      "pass"
+    ],
+    "RQ-C3-B01": [
+      "cast",
+      "mana payment",
+      "trigger ordering",
+      "pass"
+    ],
+    "RQ-C3-C01": [
+      "cast",
+      "targets",
+      "alternate cost",
+      "hidden-zone selection",
+      "mana source",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-C03": [
+      "cast",
+      "X",
+      "targets",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-D06": [
+      "cast",
+      "modes",
+      "targets",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-E01": [
+      "attackers",
+      "defender per attacker",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-E02": [
+      "attackers",
+      "defender per attacker",
+      "blockers",
+      "combat damage assignment",
+      "pass"
+    ],
+    "RQ-C3-F01": [
+      "cast",
+      "mana payment",
+      "search",
+      "hidden-zone selection",
+      "pass"
+    ],
+    "RQ-C3-G02": [
+      "cast",
+      "targets",
+      "mana payment",
+      "Commander movement",
+      "pass"
+    ],
+    "RQ-C3-G03": [
+      "attackers",
+      "defender per attacker",
+      "blockers",
+      "pass"
+    ],
+    "RQ-C3-G04": [
+      "concession",
+      "pass"
+    ],
+    "RQ-C3-H01": [
+      "cast",
+      "copy choices",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-I01": [
+      "cast",
+      "targets",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-J02": [
+      "attackers",
+      "defender per attacker",
+      "targets",
+      "pass"
+    ]
+  },
+  "provenance": {
+    "Commander movement": "Carriers ['RQ-C3-G02']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "X": "Carriers ['RQ-C3-A04', 'RQ-C3-C03']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "activate": "Carriers ['RQ-C3-A03']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "alternate cost": "Carriers ['RQ-C3-C01']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "attackers": "Carriers ['RQ-C3-E01', 'RQ-C3-E02', 'RQ-C3-G03', 'RQ-C3-J02']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "blockers": "Carriers ['RQ-C3-E02', 'RQ-C3-G03']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "cast": "Carriers ['RQ-C3-A03', 'RQ-C3-A04', 'RQ-C3-B01', 'RQ-C3-C01', 'RQ-C3-C03', 'RQ-C3-D06', 'RQ-C3-F01', 'RQ-C3-G02', 'RQ-C3-H01', 'RQ-C3-I01']: all casting scenarios including H01 family (HUMILITY_FIRST cast with no copy; B/C cast with copy). Historical carriers identical; unaffected by H01 oracle change.",
+    "combat damage assignment": "Carriers ['RQ-C3-E02']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "concession": "Carriers ['RQ-C3-G04']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "copy choices": "Sole carrier RQ-C3-H01 via REQUIRED controls CLONE_FIRST and NO_HUMILITY (both offer+take Bear copy). HUMILITY_FIRST contributes MUST-NOT-OCCUR (absence required), not a positive union member. No other scenario lists copy choices (verified by census of historical per_scenario). Historical union copy choices=[RQ-C3-H01] predicated on superseded oracle; corrected retention is via B/C only.",
+    "defender per attacker": "Carriers ['RQ-C3-E01', 'RQ-C3-E02', 'RQ-C3-G03', 'RQ-C3-J02']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "hidden-zone selection": "Carriers ['RQ-C3-C01', 'RQ-C3-F01']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "mana payment": "Carriers ['RQ-C3-A03', 'RQ-C3-A04', 'RQ-C3-B01', 'RQ-C3-C01', 'RQ-C3-C03', 'RQ-C3-D06', 'RQ-C3-E01', 'RQ-C3-F01', 'RQ-C3-G02', 'RQ-C3-H01', 'RQ-C3-I01']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "mana source": "Carriers ['RQ-C3-A03', 'RQ-C3-A04', 'RQ-C3-C01']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "modes": "Carriers ['RQ-C3-D06']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "pass": "Carriers ['RQ-C3-A03', 'RQ-C3-A04', 'RQ-C3-B01', 'RQ-C3-C01', 'RQ-C3-C03', 'RQ-C3-D06', 'RQ-C3-E01', 'RQ-C3-E02', 'RQ-C3-F01', 'RQ-C3-G02', 'RQ-C3-G03', 'RQ-C3-G04', 'RQ-C3-H01', 'RQ-C3-I01', 'RQ-C3-J02']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "replacement ordering": "Carriers ['RQ-C3-A04']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "search": "Carriers ['RQ-C3-F01']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "targets": "Carriers ['RQ-C3-A03', 'RQ-C3-C01', 'RQ-C3-C03', 'RQ-C3-D06', 'RQ-C3-G02', 'RQ-C3-I01', 'RQ-C3-J02']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed).",
+    "trigger ordering": "Carriers ['RQ-C3-B01']: recomputed from corrected pack per_scenario; H01 oracle change does not add or remove this kind (verified: no other scenario decision_kinds changed)."
+  },
+  "schema": "ws90.first-wave-decision-requirements-corrected.v1",
+  "union": {
+    "Commander movement": [
+      "RQ-C3-G02"
+    ],
+    "X": [
+      "RQ-C3-A04",
+      "RQ-C3-C03"
+    ],
+    "activate": [
+      "RQ-C3-A03"
+    ],
+    "alternate cost": [
+      "RQ-C3-C01"
+    ],
+    "attackers": [
+      "RQ-C3-E01",
+      "RQ-C3-E02",
+      "RQ-C3-G03",
+      "RQ-C3-J02"
+    ],
+    "blockers": [
+      "RQ-C3-E02",
+      "RQ-C3-G03"
+    ],
+    "cast": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-B01",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-F01",
+      "RQ-C3-G02",
+      "RQ-C3-H01",
+      "RQ-C3-I01"
+    ],
+    "combat damage assignment": [
+      "RQ-C3-E02"
+    ],
+    "concession": [
+      "RQ-C3-G04"
+    ],
+    "copy choices": [
+      "RQ-C3-H01"
+    ],
+    "defender per attacker": [
+      "RQ-C3-E01",
+      "RQ-C3-E02",
+      "RQ-C3-G03",
+      "RQ-C3-J02"
+    ],
+    "hidden-zone selection": [
+      "RQ-C3-C01",
+      "RQ-C3-F01"
+    ],
+    "mana payment": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-B01",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-E01",
+      "RQ-C3-F01",
+      "RQ-C3-G02",
+      "RQ-C3-H01",
+      "RQ-C3-I01"
+    ],
+    "mana source": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-C01"
+    ],
+    "modes": [
+      "RQ-C3-D06"
+    ],
+    "pass": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-B01",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-E01",
+      "RQ-C3-E02",
+      "RQ-C3-F01",
+      "RQ-C3-G02",
+      "RQ-C3-G03",
+      "RQ-C3-G04",
+      "RQ-C3-H01",
+      "RQ-C3-I01",
+      "RQ-C3-J02"
+    ],
+    "replacement ordering": [
+      "RQ-C3-A04"
+    ],
+    "search": [
+      "RQ-C3-F01"
+    ],
+    "targets": [
+      "RQ-C3-A03",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-G02",
+      "RQ-C3-I01",
+      "RQ-C3-J02"
+    ],
+    "trigger ordering": [
+      "RQ-C3-B01"
+    ]
+  },
+  "union_counts": {
+    "Commander movement": 1,
+    "X": 2,
+    "activate": 1,
+    "alternate cost": 1,
+    "attackers": 4,
+    "blockers": 2,
+    "cast": 10,
+    "combat damage assignment": 1,
+    "concession": 1,
+    "copy choices": 1,
+    "defender per attacker": 4,
+    "hidden-zone selection": 2,
+    "mana payment": 11,
+    "mana source": 3,
+    "modes": 1,
+    "pass": 15,
+    "replacement ordering": 1,
+    "search": 1,
+    "targets": 7,
+    "trigger ordering": 1
+  },
+  "workstream": "WS90-RQC3-CORRECTED-FIRST-WAVE-REISSUE"
+}

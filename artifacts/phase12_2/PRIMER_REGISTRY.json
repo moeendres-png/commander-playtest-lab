@@ -1,0 +1,1030 @@
+{
+  "primers": [
+    {
+      "commander": "Korvold, Fae-Cursed King",
+      "content_sha256": "abd2d0afaef2cfa57dd131a45bdac97e69974d0f5df91e1dbe059bfd5c1b6de7",
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "format_band": "normal_four_player",
+      "imported_at": "2026-08-06T07:37:31.450145Z",
+      "license_notes": "structured extraction only unless the source is user-provided",
+      "notes": null,
+      "primer_format": "markdown",
+      "primer_id": "meta-korvold-reference-v1",
+      "raw_text_stored": false,
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "source_path": "data/primer_rules/imports/korvold_meta_primer_extract.md",
+      "title": "Korvold primer structured extraction"
+    },
+    {
+      "commander": "Korvold, Fae-Cursed King",
+      "content_sha256": "dbc690c6b3e2ef510cb401eba8c2596bf1b3e01f0f9f983abbf7b95dfcd115d0",
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "format_band": "normal_four_player",
+      "imported_at": "2026-08-06T07:37:31.458542Z",
+      "license_notes": "user-provided project guidance",
+      "notes": null,
+      "primer_format": "markdown",
+      "primer_id": "local-korvold-guidance-v1",
+      "raw_text_stored": false,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "source_path": "data/primer_rules/imports/korvold_local_guidance.md",
+      "title": "Current local Korvold guidance"
+    },
+    {
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "content_sha256": "d63f05458096dec516d4e83d3a8f4e685900c67f5d313fca68f41e0ddf98bc59",
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "format_band": "normal_four_player",
+      "imported_at": "2026-08-06T07:37:31.465449Z",
+      "license_notes": "user-provided project guidance",
+      "notes": null,
+      "primer_format": "markdown",
+      "primer_id": "local-rogshai-guidance-v1",
+      "raw_text_stored": false,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "source_path": "data/primer_rules/imports/rogshai_local_guidance.md",
+      "title": "Current local RogShai guidance"
+    }
+  ],
+  "rules": [
+    {
+      "action_preference": {
+        "action_kinds": [
+          "commander"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Avoid exposing the commander without an immediate value window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.commander_immediate_value",
+            "op": "falsy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "state.resources",
+            "op": "le",
+            "value": 0
+          }
+        ],
+        "field": null,
+        "op": "any",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "meta-korvold-reference-v1.auto.b38f0fa12236",
+      "score_adjustment": -2.0,
+      "source_excerpt": "Preserve Korvold value windows; do not cast the commander into empty resources.",
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "status": "needs_review",
+      "tags": [
+        "commander_cast",
+        "exposure"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "opening_hand",
+        "description": "Opening-hand guidance extracted from primer prose",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.always",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "meta-korvold-reference-v1.auto.c968459e226a",
+      "score_adjustment": 0.0,
+      "source_excerpt": "Hands with ramp but no sacrifice material are suspect.",
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "status": "needs_review",
+      "tags": [
+        "mulligan"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Develop sacrifice material or outlets",
+        "match_mode": "any",
+        "roles": [
+          "sacrifice_outlet",
+          "token_source"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.always",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "meta-korvold-reference-v1.auto.848a0b9c624d",
+      "score_adjustment": 0.75,
+      "source_excerpt": "Early turns should establish treasure production or a sacrifice outlet.",
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "status": "needs_review",
+      "tags": [
+        "sacrifice"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "rebuild",
+        "description": "Rebuild after a board wipe",
+        "match_mode": "any",
+        "roles": [
+          "recursion",
+          "land_synergy"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.always",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "meta-korvold-reference-v1.auto.6c783e869235",
+      "score_adjustment": 0.0,
+      "source_excerpt": "Rebuild lines matter after a wipe.",
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "status": "needs_review",
+      "tags": [
+        "rebuild"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [
+          "commander"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Avoid exposing the commander without an immediate value window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.commander_immediate_value",
+            "op": "falsy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "state.resources",
+            "op": "le",
+            "value": 0
+          }
+        ],
+        "field": null,
+        "op": "any",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "local-korvold-guidance-v1.auto.e75c43e05ae8",
+      "score_adjustment": -2.0,
+      "source_excerpt": "Commander should not be exposed without immediate value.",
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "needs_review",
+      "tags": [
+        "commander_cast",
+        "exposure"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "rebuild",
+        "description": "Rebuild after a board wipe",
+        "match_mode": "any",
+        "roles": [
+          "recursion",
+          "land_synergy"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.always",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "local-korvold-guidance-v1.auto.40e856fe382a",
+      "score_adjustment": 0.0,
+      "source_excerpt": "Rebuild after a wipe with land and graveyard resources.",
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "needs_review",
+      "tags": [
+        "rebuild"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [
+          "commander"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Prefer a protection window for commander deployment",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [],
+        "field": "context.protection_available",
+        "op": "falsy",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "local-rogshai-guidance-v1.auto.a671c0441502",
+      "score_adjustment": -1.0,
+      "source_excerpt": "Cast Ishai with protection available.",
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "needs_review",
+      "tags": [
+        "protection"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [
+          "counter"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Counterspell priority guidance",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [],
+        "field": "context.always",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.45,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "primer_inferred",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": false,
+      "priority": 25,
+      "rationale": "Automatically extracted candidate; requires human review before activation.",
+      "requires_cards": [],
+      "rule_id": "local-rogshai-guidance-v1.auto.e3fdf1a83acf",
+      "score_adjustment": 0.0,
+      "source_excerpt": "Do not spend counters on harmless value.",
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "needs_review",
+      "tags": [
+        "interaction",
+        "counter"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [
+          "commander"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Do not expose Korvold without immediate value",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.commander_immediate_value",
+        "op": "falsy",
+        "value": null
+      },
+      "confidence": 0.96,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 100,
+      "rationale": "The current list must prepare a sacrifice or other immediate value before committing Korvold.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.commander-immediate-value",
+      "score_adjustment": -3.0,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "commander_cast",
+        "exposure"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Prepare fodder or a sacrifice outlet",
+        "match_mode": "any",
+        "roles": [
+          "sacrifice_outlet",
+          "token_source"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "state.turn",
+            "op": "le",
+            "value": 5
+          },
+          {
+            "clauses": [],
+            "field": "context.package_complete",
+            "op": "falsy",
+            "value": null
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 0.9,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 80,
+      "rationale": "The current deck should establish sacrifice resources before relying on Korvold.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.prepare-sacrifice-resources",
+      "score_adjustment": 1.35,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "setup",
+        "sacrifice"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Avoid committing graveyard resources into visible hate",
+        "match_mode": "any",
+        "roles": [
+          "recursion",
+          "land_synergy"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.graveyard_hate_visible",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.9,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 95,
+      "rationale": "Graveyard and land-rebuild resources should be preserved while opposing hate is active.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.avoid-graveyard-hate-window",
+      "score_adjustment": -2.1,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "graveyard",
+        "sequencing"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Do not treat every payoff as an immediate finish",
+        "match_mode": "any",
+        "roles": [
+          "finisher"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.finish_window",
+            "op": "falsy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "state.lowest_opponent_life",
+            "op": "gt",
+            "value": 15
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 0.88,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 70,
+      "rationale": "The current list separates resource engines from actual closing windows.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.motor-not-finisher",
+      "score_adjustment": -1.35,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "finisher",
+        "visibility"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [
+          "Mirkwood Bats",
+          "Mayhem Devil",
+          "Massacre Wurm"
+        ],
+        "decision_point": "main_action",
+        "description": "Deploy table-damage pieces near a real closing window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.finish_window",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.91,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 90,
+      "rationale": "These cards are strongest when their visibility immediately converts into table pressure.",
+      "requires_cards": [
+        "Mirkwood Bats",
+        "Mayhem Devil",
+        "Massacre Wurm"
+      ],
+      "rule_id": "korvold.current.table-damage-finish-window",
+      "score_adjustment": 2.25,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "finisher",
+        "large_pod"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "rebuild",
+        "description": "Prioritize land and graveyard rebuild lines after wipes",
+        "match_mode": "any",
+        "roles": [
+          "recursion",
+          "land_synergy"
+        ]
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [],
+        "field": "context.boardwipe_resolved",
+        "op": "truthy",
+        "value": null
+      },
+      "confidence": 0.94,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 92,
+      "rationale": "The current deck is designed to rebuild through land and graveyard resources.",
+      "requires_cards": [
+        "Aftermath Analyst",
+        "Ramunap Excavator"
+      ],
+      "rule_id": "korvold.current.rebuild-after-wipe",
+      "score_adjustment": 2.0,
+      "source_excerpt": null,
+      "source_id": "local-user-korvold-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "rebuild",
+        "wipe"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [
+          "commander"
+        ],
+        "card_names": [
+          "Ishai, Ojutai Dragonspeaker"
+        ],
+        "decision_point": "main_action",
+        "description": "Cast Ishai with protection available",
+        "match_mode": "all",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [],
+        "field": "context.protection_available",
+        "op": "falsy",
+        "value": null
+      },
+      "confidence": 0.96,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 100,
+      "rationale": "Ishai is a visible investment and should normally enter with protection or immediate leverage.",
+      "requires_cards": [
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule_id": "rogshai.current.ishai-protection-window",
+      "score_adjustment": -2.75,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "commander_cast",
+        "protection"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [
+          "Combat Research",
+          "Curiosity",
+          "Staggering Insight"
+        ],
+        "decision_point": "main_action",
+        "description": "Avoid exposing combat-draw auras without a protected attack window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.ishai_online",
+            "op": "falsy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "context.protection_available",
+            "op": "falsy",
+            "value": null
+          }
+        ],
+        "field": null,
+        "op": "any",
+        "value": null
+      },
+      "confidence": 0.95,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 95,
+      "rationale": "The current list wants these auras to produce value immediately or remain protected.",
+      "requires_cards": [
+        "Combat Research",
+        "Curiosity",
+        "Staggering Insight"
+      ],
+      "rule_id": "rogshai.current.aura-protection-window",
+      "score_adjustment": -2.2,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "aura",
+        "sequencing"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [
+          "Jeska, Thrice Reborn"
+        ],
+        "decision_point": "main_action",
+        "description": "Hold Jeska for a real finish window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [],
+        "field": "context.finish_window",
+        "op": "falsy",
+        "value": null
+      },
+      "confidence": 0.98,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 100,
+      "rationale": "Jeska should not advertise the primary commander-damage finish before it can convert.",
+      "requires_cards": [
+        "Jeska, Thrice Reborn"
+      ],
+      "rule_id": "rogshai.current.jeska-finish-window",
+      "score_adjustment": -3.0,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "finisher",
+        "commander_damage"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [
+          "Kediss, Emberclaw Familiar"
+        ],
+        "decision_point": "main_action",
+        "description": "Use Kediss as multi-opponent normal damage, not extra commander damage",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.ishai_online",
+            "op": "truthy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "context.finish_window",
+            "op": "truthy",
+            "value": null
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 1.0,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "tactical_oracle",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 80,
+      "rationale": "Kediss damage is normal damage to other opponents and must remain separate from commander-damage accounting.",
+      "requires_cards": [
+        "Kediss, Emberclaw Familiar"
+      ],
+      "rule_id": "rogshai.current.kediss-normal-damage-semantics",
+      "score_adjustment": 1.0,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "kediss",
+        "rules_semantics"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [
+          "Silence"
+        ],
+        "decision_point": "main_action",
+        "description": "Use Silence as protection or a closing window",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.finish_window",
+            "op": "truthy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "context.opponent_can_win_next_turn",
+            "op": "truthy",
+            "value": null
+          }
+        ],
+        "field": null,
+        "op": "any",
+        "value": null
+      },
+      "confidence": 0.95,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 90,
+      "rationale": "Silence is reserved for a protected setup, finish, or concrete opposing win window.",
+      "requires_cards": [
+        "Silence"
+      ],
+      "rule_id": "rogshai.current.silence-window",
+      "score_adjustment": 2.25,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "protection",
+        "interaction"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [
+          "counter"
+        ],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Do not spend counters on harmless value",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [],
+        "field": "action.threat_score",
+        "op": "lt",
+        "value": 3.0
+      },
+      "confidence": 0.92,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 85,
+      "rationale": "Counterspells are reserved for commanders, engines, wipes, protection fights and real closing attempts; low-threat value should normally pass.",
+      "requires_cards": [],
+      "rule_id": "rogshai.current.counter-threat-threshold",
+      "score_adjustment": -4.25,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "counter",
+        "threat_priority"
+      ],
+      "version": "1.0.1"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "main_action",
+        "description": "Develop independent spellslinger engines when Ishai is not viable",
+        "match_mode": "any",
+        "roles": [
+          "engine",
+          "draw"
+        ]
+      },
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.ishai_online",
+            "op": "falsy",
+            "value": null
+          },
+          {
+            "clauses": [],
+            "field": "context.spellslinger_axis_available",
+            "op": "truthy",
+            "value": null
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 0.93,
+      "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+      "evidence_type": "local_user_instruction",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 88,
+      "rationale": "RogShai must preserve an independent value and damage axis when commander combat is unsafe.",
+      "requires_cards": [
+        "Whirlwind of Thought"
+      ],
+      "rule_id": "rogshai.current.independent-spellslinger-axis",
+      "score_adjustment": 1.6,
+      "source_excerpt": null,
+      "source_id": "local-user-rogshai-guidance-2026-08-02",
+      "status": "active",
+      "tags": [
+        "spellslinger",
+        "commander_independence"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "action_preference": {
+        "action_kinds": [],
+        "card_names": [],
+        "decision_point": "opening_hand",
+        "description": "Penalize ramp-only hands with no sacrifice material",
+        "match_mode": "any",
+        "roles": []
+      },
+      "commander": "Korvold, Fae-Cursed King",
+      "condition": {
+        "clauses": [
+          {
+            "clauses": [],
+            "field": "context.ramp_count",
+            "op": "ge",
+            "value": 1
+          },
+          {
+            "clauses": [],
+            "field": "context.sacrifice_material_count",
+            "op": "le",
+            "value": 0
+          }
+        ],
+        "field": null,
+        "op": "all",
+        "value": null
+      },
+      "confidence": 0.72,
+      "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "evidence_type": "primer_explicit",
+      "forbidden_when": [],
+      "format_band": "normal_four_player",
+      "manually_approved": true,
+      "priority": 75,
+      "rationale": "The external mulligan heuristic is accepted only for the current Korvold deck hash and remains subject to real-playtest calibration.",
+      "requires_cards": [],
+      "rule_id": "korvold.current.mulligan-ramp-without-sacrifice",
+      "score_adjustment": -1.4,
+      "source_excerpt": "Hands with ramp but no sacrifice material are suspect.",
+      "source_id": "manatap-korvold-mulligan",
+      "status": "active",
+      "tags": [
+        "mulligan",
+        "sacrifice"
+      ],
+      "version": "1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

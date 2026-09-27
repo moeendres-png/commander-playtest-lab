@@ -1,0 +1,89 @@
+{
+  "$defs": {
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "DecisionPoint": {
+      "enum": [
+        "opening_hand",
+        "main_action",
+        "reaction",
+        "combat_target",
+        "sequencing",
+        "rebuild"
+      ],
+      "title": "DecisionPoint",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_kinds": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Action Kinds",
+      "type": "array"
+    },
+    "card_names": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Card Names",
+      "type": "array"
+    },
+    "decision_point": {
+      "$ref": "#/$defs/DecisionPoint",
+      "default": "main_action"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "match_mode": {
+      "default": "any",
+      "enum": [
+        "any",
+        "all"
+      ],
+      "title": "Match Mode",
+      "type": "string"
+    },
+    "roles": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Roles",
+      "type": "array"
+    }
+  },
+  "required": [
+    "description"
+  ],
+  "title": "ActionPreference",
+  "type": "object"
+}

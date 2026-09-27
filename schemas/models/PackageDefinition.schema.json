@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "ArchetypeName": {
+      "enum": [
+        "sacrifice",
+        "land_engine",
+        "graveyard_recursion",
+        "commander_value",
+        "voltron",
+        "tempo",
+        "control",
+        "spellslinger",
+        "artifact_engine",
+        "go_wide",
+        "punisher",
+        "combo",
+        "stax",
+        "midrange",
+        "turbo"
+      ],
+      "title": "ArchetypeName",
+      "type": "string"
+    },
+    "ExtractionMethod": {
+      "enum": [
+        "rule_roles",
+        "card_frequency",
+        "co_occurrence",
+        "primer_hint",
+        "known_synergy",
+        "manual_curation"
+      ],
+      "title": "ExtractionMethod",
+      "type": "string"
+    },
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    },
+    "PackageStatus": {
+      "enum": [
+        "candidate",
+        "machine_extracted",
+        "curated",
+        "validated",
+        "rejected"
+      ],
+      "title": "PackageStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "archetype": {
+      "$ref": "#/$defs/ArchetypeName"
+    },
+    "automatic_deck_application": {
+      "default": false,
+      "title": "Automatic Deck Application",
+      "type": "boolean"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "core_cards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Core Cards",
+      "type": "array"
+    },
+    "enablers": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Enablers",
+      "type": "array"
+    },
+    "extraction_methods": {
+      "items": {
+        "$ref": "#/$defs/ExtractionMethod"
+      },
+      "title": "Extraction Methods",
+      "type": "array"
+    },
+    "failure_modes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Modes",
+      "type": "array"
+    },
+    "finishers": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Finishers",
+      "type": "array"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "minimum_density": {
+      "minimum": 1,
+      "title": "Minimum Density",
+      "type": "integer"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "optional_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Optional Cards",
+      "type": "array"
+    },
+    "package_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Package Id",
+      "type": "string"
+    },
+    "payoffs": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Payoffs",
+      "type": "array"
+    },
+    "redundancy": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Redundancy",
+      "type": "integer"
+    },
+    "sample_size": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "source_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/PackageStatus"
+    },
+    "support_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Support Cards",
+      "type": "array"
+    },
+    "supported_deck_hashes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Supported Deck Hashes",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "package_id",
+    "version",
+    "name",
+    "commander",
+    "archetype",
+    "core_cards",
+    "minimum_density",
+    "source_ids",
+    "confidence",
+    "format_band",
+    "status",
+    "extraction_methods"
+  ],
+  "title": "PackageDefinition",
+  "type": "object"
+}

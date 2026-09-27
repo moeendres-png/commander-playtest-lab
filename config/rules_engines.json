@@ -1,0 +1,118 @@
+{
+  "schema_version": 3,
+  "protocol_version": "2.0.0",
+  "primary_engine": {
+    "provider": "xmage",
+    "release": "compatibility-fork-unreleased",
+    "commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "repository": "https://github.com/moeendres-png/mage.git",
+    "source_archive": "https://github.com/moeendres-png/mage/archive/b19596980f2734496ea1896504253e1bdd2756dd.tar.gz",
+    "license": "MIT",
+    "role": "real pinned XMage B4-D bounded bridge for deck import, Commander game start, live state observation, current-priority legal-action handoff, fail-closed targetless/nonmodal action submission, external audit event export and explicit per-game lifecycle cleanup; complete external game control remains incomplete",
+    "status": "B4D_EVENT_LOG_LIFECYCLE_VALIDATED_DEGRADED",
+    "real_execution": true,
+    "production_ready": false,
+    "validated_capabilities": [
+      "commander_supported",
+      "partner_supported",
+      "multiplayer_supported",
+      "headless_supported",
+      "deck_import_supported",
+      "commander_game_construction",
+      "game_start_to_turn_1_upkeep",
+      "game_state_observation",
+      "priority_visible",
+      "stack_visible",
+      "monotonic_state_observation_offset",
+      "bounded_current_priority_legal_action_enumeration",
+      "bounded_priority_pass_submission",
+      "bounded_targetless_nonmodal_action_submission",
+      "stale_decision_action_rejection",
+      "real_rograkh_commander_cast_to_stack",
+      "event_log_supported",
+      "monotonic_event_offset",
+      "action_decision_event_linkage",
+      "pre_post_state_hashes",
+      "game_shutdown_supported",
+      "repeated_game_lifecycle_cleanup"
+    ],
+    "missing_required_capabilities": [
+      "legal_actions_supported",
+      "action_submission_supported"
+    ]
+  },
+  "secondary_engine": {
+    "provider": "forge",
+    "release": "forge-2.0.14",
+    "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "repository": "https://github.com/Card-Forge/forge.git",
+    "source_archive": "https://github.com/Card-Forge/forge/archive/a37a865a53280dd8ad6fad3384d69611e8c5a42f.tar.gz",
+    "license": "GPL-3.0",
+    "role": "candidate provider; PARTIAL real evidence, not production-selected",
+    "status": "PARTIAL",
+    "real_execution": true,
+    "production_ready": false,
+    "bridge_source": {
+      "repository": "https://github.com/moeendres-png/forge.git",
+      "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+      "rules_core_base_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    }
+  },
+  "maven": {
+    "version": "3.9.16",
+    "download_base": "https://archive.apache.org/dist/maven/maven-3/3.9.16/binaries"
+  },
+  "bridge_environment": {
+    "xmage": "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
+    "forge": "COMMANDER_LAB_FORGE_BRIDGE_CMD"
+  },
+  "runtime_validation_levels": [
+    "structural_only",
+    "tactical_oracle",
+    "external_rules_engine"
+  ],
+  "legacy_card_validation_levels": [
+    "structural_only",
+    "tactical_validated",
+    "rules_engine_validated"
+  ],
+  "rules_engine_release_gate": {
+    "minimum_project_critical_interactions": 50,
+    "required_match_rate": 1,
+    "allow_tactical_oracle_substitution": false
+  },
+  "current_runtime": {
+    "external_engine_validation_pending": true,
+    "status": "external_rules_engine_b4d_event_log_lifecycle_degraded",
+    "provider_selected": false,
+    "production_provider": null,
+    "xmage_status": "PARTIAL_B4D_EVENT_LOG_LIFECYCLE",
+    "forge_status": "PARTIAL",
+    "required_missing_capabilities": [
+      "legal_actions_supported",
+      "action_submission_supported"
+    ],
+    "tactical_oracle_substitution_allowed": false,
+    "source_of_truth": "real_b4d_process_regression_on_pinned_xmage_plus_current_pr_head"
+  },
+  "provider_decision": "NO_PROVIDER_READY",
+  "production_bridge": "b4d_event_log_lifecycle_bridge",
+  "truth_boundary": "B4-D is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection, bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast, an externally exportable monotonic bridge audit event stream with action/decision identity and pre/post state hashes, and explicit per-game XMage lifecycle cleanup/reuse. The audit stream covers real bridge/XMage lifecycle and externally controlled action boundaries; it is not claimed to be an exhaustive raw internal XMage GameEvent tap. Globally complete legal-action enumeration and action submission remain unproven because target, mode, choice and combat classes are incomplete. Mulligan, seed-control, replay and complete production game-loop coverage remain unproven. This is not win-rate evidence and does not make XMage a production-ready provider.",
+  "historical_phase85": {
+    "status": "external_runtime_prepared_but_not_executed",
+    "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",
+    "note": "Preserved only for Phase 8.5 provenance; not current provider truth."
+  },
+  "authority_note": {
+    "pin_authority": "This file (config/rules_engines.json) is the sole machine-readable authority for current engine pins: primary_engine.commit and secondary_engine.commit.",
+    "dual_identity": "Forge carries two distinct identities that must never be conflated. secondary_engine.commit is the Rules-Core authority (the engine identity the bridge reports and Rules qualification binds to). secondary_engine.bridge_source is the materialization source actually cloned and built (repository, exact commit, and the Rules-Core base commit it must descend from). The bridge source contains the Rules Core plus additive bridge surfaces; it is not a new Rules-Core version.",
+    "documentation_rule": "Human-readable pin statements elsewhere (integrations/*/README.md, docs/engine_setup.md) must cite this file and must not restate commits. On any disagreement, this file wins.",
+    "role_terminology": {
+      "primary_engine": "Engine under active integration (validated B4-D bridge surface). NOT a selected architecture leader and NOT a Production Provider.",
+      "secondary_engine": "Differential candidate backend under investigation. NOT a runner-up selection.",
+      "selection_truth": "ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED. provider_decision=NO_PROVIDER_READY, current_runtime.provider_selected=false, current_runtime.production_provider=null. No engine is production-selected until the provider release gate passes and a Freeze workstream records the decision.",
+      "rename_policy": "Do not rename primary_engine/secondary_engine keys: they are runtime-contract fields consumed by src/commander_lab/technical_truth.py, scripts/run_external_b4f_*.py and .github/workflows/release-artifacts.yml. Terminology changes belong in documentation, not in schema renames."
+    },
+    "known_stale_pointers": "docker/forge/Dockerfile, docker/xmage/Dockerfile and src/commander_lab/engine/rules/phase85.py (Phase-8.5 output template) carry older pins. They are NOT authority. Re-pinning container flows requires a dedicated re-pin workstream with requalification (Authority Gate PIN_DIVERGENCE_DOCKERFILES); see docs/RETENTION_AND_LIFECYCLE_POLICY.md, Appendix G (recorded Authority Gates). WS88 addendum: since WS-A1D both Dockerfiles declare required build args without pin defaults and resolve identity from this manifest at build time, so they are pin-free by design; phase85.py remains frozen historical provenance. Prior canonical xmage pin db134b9737e951367d65ef5806ad986319cc73ab is retained only in sealed historical evidence from WS213 and descendants. Canonical xmage pin is now b19596980f2734496ea1896504253e1bdd2756dd, the cumulative M1-M4 Mage residual candidate (RG-02 commander-damage restore qualification, RG-07 exact-N target offering qualification, RG-08 replacement timing qualification, RG-06A ordered-library/face-down state-load remediation). Architecture Freeze remains NOT CLAIMED and Production Provider remains NOT SELECTED."
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "schema_version": 2,
+  "validation_level": "structural_only",
+  "pilot_profiles": [
+    {
+      "pilot_id": "weak",
+      "utility_weights": {
+        "survival": 0.75,
+        "mana_efficiency": 0.95,
+        "card_advantage": 0.5999999999999999,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 0.4999999999999999,
+        "commander_value": 1.1,
+        "threat_reduction": 0.8999999999999999,
+        "win_progress": 1.25,
+        "political_visibility": -0.24999999999999994,
+        "rebuild_capacity": 0.35
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "average",
+      "utility_weights": {
+        "survival": 1.0,
+        "mana_efficiency": 0.95,
+        "card_advantage": 0.9999999999999999,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 0.9499999999999998,
+        "commander_value": 1.1,
+        "threat_reduction": 1.25,
+        "win_progress": 1.1,
+        "political_visibility": -0.49999999999999994,
+        "rebuild_capacity": 0.75
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "strong",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.25,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.25,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "near_optimal_heuristic",
+      "utility_weights": {
+        "survival": 1.3499999999999999,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.25,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.45,
+        "commander_value": 1.1,
+        "threat_reduction": 1.55,
+        "win_progress": 1.4,
+        "political_visibility": -0.85,
+        "rebuild_capacity": 1.15
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "aggressive",
+      "utility_weights": {
+        "survival": 0.95,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.45,
+        "engine_development": 1.1,
+        "interaction_reserve": 0.8999999999999999,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.8,
+        "political_visibility": -0.24999999999999994,
+        "rebuild_capacity": 0.75
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "conservative",
+      "utility_weights": {
+        "survival": 1.5499999999999998,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 0.8,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.55,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.05,
+        "political_visibility": -1.0499999999999998,
+        "rebuild_capacity": 1.25
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "interaction_holding",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 0.7999999999999999,
+        "card_advantage": 1.15,
+        "tempo": 0.9,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.9,
+        "commander_value": 1.1,
+        "threat_reduction": 1.7999999999999998,
+        "win_progress": 1.25,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "commander_focused",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.0,
+        "engine_development": 0.9000000000000001,
+        "interaction_reserve": 1.25,
+        "commander_value": 1.85,
+        "threat_reduction": 1.45,
+        "win_progress": 1.5,
+        "political_visibility": -0.44999999999999996,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "engine_focused",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.5,
+        "tempo": 0.8,
+        "engine_development": 1.85,
+        "interaction_reserve": 1.25,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.25,
+        "political_visibility": -0.49999999999999994,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "anti_leader",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.5,
+        "commander_value": 1.1,
+        "threat_reduction": 2.15,
+        "win_progress": 1.15,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "anti_combo",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 0.85,
+        "card_advantage": 1.15,
+        "tempo": 0.8,
+        "engine_development": 1.1,
+        "interaction_reserve": 2.05,
+        "commander_value": 1.1,
+        "threat_reduction": 2.05,
+        "win_progress": 1.25,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "rebuild_focused",
+      "utility_weights": {
+        "survival": 1.4,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.4,
+        "tempo": 0.75,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.25,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.25,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.9
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "tempo_focused",
+      "utility_weights": {
+        "survival": 1.2,
+        "mana_efficiency": 1.2,
+        "card_advantage": 1.15,
+        "tempo": 1.7,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.45,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.25,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 0.7
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "politically_low_visibility",
+      "utility_weights": {
+        "survival": 1.4,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.25,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.15,
+        "political_visibility": -1.65,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "politically_aggressive",
+      "utility_weights": {
+        "survival": 1.05,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.25,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.25,
+        "commander_value": 1.1,
+        "threat_reduction": 1.45,
+        "win_progress": 1.7,
+        "political_visibility": -0.04999999999999993,
+        "rebuild_capacity": 1.0
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    },
+    {
+      "pilot_id": "adversarial_worst_case",
+      "utility_weights": {
+        "survival": 1.5,
+        "mana_efficiency": 0.95,
+        "card_advantage": 1.15,
+        "tempo": 1.0,
+        "engine_development": 1.1,
+        "interaction_reserve": 1.8,
+        "commander_value": 1.1,
+        "threat_reduction": 2.0,
+        "win_progress": 1.35,
+        "political_visibility": -0.7,
+        "rebuild_capacity": 1.4
+      },
+      "hidden_information_access": false,
+      "empirical_fit": false
+    }
+  ],
+  "politics_regimes": [
+    {
+      "regime_id": "rational_threat_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "current_leader_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "commander_reputation_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "combo_prevention",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "revenge_bias",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "random_targeting_noise",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "open_mana_deterrence",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "visible_engine_focus",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "low_visibility_tolerance",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    },
+    {
+      "regime_id": "table_balance",
+      "scenario_axis_only": true,
+      "predicted_truth": false,
+      "empirical_fit": false
+    }
+  ]
+}

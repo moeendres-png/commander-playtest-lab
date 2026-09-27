@@ -1,0 +1,22 @@
+{
+  "architecture_freeze_contract": "1.1.0",
+  "authority_basis": [
+    "newest direct WS-17 instruction",
+    "WS-01 through WS-09 final handoffs"
+  ],
+  "materialization": "WS-10R",
+  "migration_reason": "The unavailable 1.0.0 bytes/semantic identity cannot be demonstrated; 1.1.0 is a new authoritative materialization and does not credit any candidate against missing 1.0.0.",
+  "original_byte_identity": "UNKNOWN",
+  "original_ws10_bundle_status": "UNAVAILABLE",
+  "protocol": "commander-lab.rules-service/1.1.0",
+  "schema_version": "ws10r-source-lock/1.0.0",
+  "target_main": {
+    "branch": "main",
+    "commit": "3ad43c38c44299fd8d72b94f30af61d409c47b9e",
+    "license": "LicenseRef-Proprietary",
+    "package_version": "1.25.0",
+    "repository": "moeendres-png/commander-playtest-lab",
+    "tree": "001462343b93d0190c65c0b91055200604d5376e",
+    "verification": "GITHUB_CONNECTOR_FRESH"
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "automatic_deck_change": false,
+  "calibrated_sesoi": 0.05,
+  "calibration_source": "optimizer-v2-calibration-0.1.0",
+  "candidate_search_performed": false,
+  "canonical_deck_mutation": false,
+  "confirmatory_evidence_consumed": false,
+  "data_snapshot_hash": "bc41f0e982a1edc46d91fd5427b5a6467ac1796a18b8486331ccfb3dfbfb4a5f",
+  "decision_use": {
+    "absolute_pooled_structural_claims_allowed": false,
+    "paired_candidate_comparisons_allowed": true,
+    "paired_candidate_conditions": [
+      "same_seed",
+      "same_own_seat",
+      "same_opponent_seat_assignment",
+      "balanced_own_seat_coverage",
+      "report_seat_stratified_effect_consistency",
+      "report_admissible_scenario_robustness"
+    ],
+    "pilot_sensitivity_gate": "STANDARD_PILOT_EVIDENCE",
+    "scenario_sensitivity_gate": "REQUIRE_SCENARIO_ROBUSTNESS",
+    "seat_sensitivity_gate": "REQUIRE_BALANCED_PAIRED_AND_SEAT_STRATIFIED_EVIDENCE",
+    "strong_decision_policy": "Measured resolution clears only the sampling-resolution gate. Strong promotion/elimination/equivalence still requires all upstream Domain/Input, Structural Fidelity, Tactical, Model Information, declared robustness, confirmatory and authorized holdout gates applicable to the decision stage."
+  },
+  "effective_resolution": 0.3749999999999998,
+  "effective_resolution_rule": "max(calibrated_sesoi, independent_same-model_seed-block_range); robustness/input sensitivity axes are reported separately and are not averaged into the resolution threshold",
+  "empirical_commander_resolution_claim": false,
+  "evidence_class": "structural_model_estimates",
+  "evidence_context": "technical_model_resolution_calibration",
+  "measured_axis_spreads": {
+    "independent_null_seed_blocks": 0.3749999999999998
+  },
+  "measurement_artifact": {
+    "artifact_archive_digest": "sha256:09b9bdb18d791c2c40f2cbd4f3acc943f2bc59746134eeac10e9eeec3122167d",
+    "artifact_id": 9375664640,
+    "measurement_json_sha256": "aeb23b9523b10c0b60b471983b06de19ca2b98b37097e011c01a2b9482374d32",
+    "report_hash": "f7d8b3a10806d7fbfc17b704b649318239103438807a0c4f28fc3fe290c5af3c",
+    "source_head": "3514394babfae1f2b86ebbc1a58bc1b638b27ccd",
+    "source_pr_head": "38e773c4516ed8b985c4555a6791d9991af9af82",
+    "source_ref_kind": "pull_request_merge_ref",
+    "workflow_run_id": 32280460332
+  },
+  "metric": "placement_improvement",
+  "metric_unit": "average_placement_positions",
+  "official_rogshai_optimizer_run": false,
+  "opponent_registry_hash": "0d31e2b07774edbea7a790a9a4c027f57e9f92fc66c149772be3186738a91fad",
+  "outcome_compression": {
+    "dominant_placement_share": 0.5357142857142857,
+    "folded_into_effective_resolution": false,
+    "place_1_share": 0.5357142857142857,
+    "placement_distribution": {
+      "1": 120,
+      "2": 24,
+      "3": 35,
+      "4": 45
+    },
+    "seat_spread": 2.375,
+    "status": "INFORMATIVE",
+    "unique_placement_values": 4
+  },
+  "robustness_axis_means": {
+    "pilot_policy": {
+      "average_deterministic": 1.9107142857142858,
+      "strong_deterministic": 1.9821428571428572
+    },
+    "seat_assignment": {
+      "1": 1.1428571428571428,
+      "2": 1.1428571428571428,
+      "3": 2.2857142857142856,
+      "4": 3.517857142857143
+    }
+  },
+  "robustness_axis_spreads": {
+    "admissible_opponent_group": 3.0,
+    "pilot_policy": 0.0714285714285714,
+    "seat_assignment": 2.375
+  },
+  "robustness_materiality": {
+    "admissible_opponent_group_exceeds_sampling_resolution": true,
+    "pilot_policy_exceeds_sampling_resolution": false,
+    "seat_assignment_exceeds_sampling_resolution": true
+  },
+  "sampling_measurement": {
+    "axis": "independent_null_seed_blocks",
+    "block_mean_mcse": 0.06839979216984177,
+    "block_means": [
+      2.0714285714285716,
+      2.1785714285714284,
+      1.8035714285714286,
+      2.0357142857142856
+    ],
+    "block_population_sd": 0.13679958433968353,
+    "block_range": 0.3749999999999998,
+    "epistemic_class": "PRECISION_ONLY_SAME_MODEL",
+    "evidence_class": "structural_model_estimates",
+    "games_per_seed_block": 56,
+    "independent_seed_blocks": 4,
+    "measurement_version": "model-resolution-measurement-0.1.0",
+    "protocol_hash": "09d0ea44916238283d76d6ea1a57214e8bc5dd651a7045d79132fbf3de1bd9bb"
+  },
+  "schema_version": "1.1.0",
+  "sealed_holdout_evidence_consumed": false,
+  "software_identity": {
+    "freshness_semantics": "content_addressed_resolution_relevant_software_not_commit_identity",
+    "identity_sha256": "9802486ddfa37c226447fac970154b7a7cfe2f607e561c13c7ffb7be2f533c9a",
+    "identity_version": "model-resolution-software-identity-1.1.0",
+    "measurement_entrypoint_blob_sha1": "5ded3089412fb6fbd3a293c34f21c0f6c100e628",
+    "package_manifest_blob_sha1": "2196c2d95bba43ab0412b295a5260f091d4bcf60",
+    "resolution_source_manifest_sha256": "7fa2c260bfa9fbc13952f10b9a2f8fc4d3110ae6236764616d149c5bc873617c",
+    "schema_version": "1.1.0",
+    "scope_paths": [
+      "src/commander_lab/model_resolution_measurement.py",
+      "src/commander_lab/model_resolution_software_identity.py",
+      "src/commander_lab/engine/structural",
+      "src/commander_lab/whole_deck",
+      "src/commander_lab/agents",
+      "src/commander_lab/fresh_rebuild.py",
+      "src/commander_lab/repositories/candidates.py",
+      "src/commander_lab/canonical_features.py",
+      "src/commander_lab/deck_registry.py",
+      "src/commander_lab/semantic_features.py",
+      "src/commander_lab/mana_analysis.py",
+      "src/commander_lab/decision_statistics.py",
+      "src/commander_lab/pod_scheduling.py",
+      "src/commander_lab/pod_scheduling_5p.py",
+      "src/commander_lab/project_context.py",
+      "src/commander_lab/storage",
+      "src/commander_lab/models/cards.py",
+      "src/commander_lab/models/common.py",
+      "src/commander_lab/models/pilots.py",
+      "src/commander_lab/models/roles.py",
+      "src/commander_lab/models/structural.py",
+      "src/commander_lab/models/opponents.py",
+      "src/commander_lab/models/opponent_ensembles.py",
+      "scripts/measure_model_resolution.py",
+      "pyproject.toml"
+    ],
+    "source_objects": {
+      "pyproject.toml": "2196c2d95bba43ab0412b295a5260f091d4bcf60",
+      "scripts/measure_model_resolution.py": "5ded3089412fb6fbd3a293c34f21c0f6c100e628",
+      "src/commander_lab/agents": "52a1c3e7d5226479c13aab1dac6cf4ea006eea53",
+      "src/commander_lab/canonical_features.py": "75181c4c40839d94db39bcfa9ef2d077a4001b1b",
+      "src/commander_lab/decision_statistics.py": "e05ab4b3844109e39edc62bebe406e8f1850f849",
+      "src/commander_lab/deck_registry.py": "7d718aa59e34016af8952ac2dacf1924de3a4292",
+      "src/commander_lab/engine/structural": "5401f6191be4bb1d56b0e6f46ffd2f406486eff7",
+      "src/commander_lab/fresh_rebuild.py": "28009840c0d9ee688cd5fe342fff37f6a202f296",
+      "src/commander_lab/mana_analysis.py": "c526f18dd0053a2f555295c3dbc57656515d24de",
+      "src/commander_lab/model_resolution_measurement.py": "39657f925056da8819d4cba1a54100018be3a8f0",
+      "src/commander_lab/model_resolution_software_identity.py": "ae8cdb8761f5fac1650f82c65f46a8fe2358159a",
+      "src/commander_lab/models/cards.py": "716f531fdd845958564aab38806e0ed9ced2fe93",
+      "src/commander_lab/models/common.py": "23c792b33e9414566ce46e4e8d3acff21a9d5ec2",
+      "src/commander_lab/models/opponent_ensembles.py": "c7e87dd03b3c3341039359d5c39c1b8db548a2ec",
+      "src/commander_lab/models/opponents.py": "519ebcf0216042baf4b5d115591476d30b43f3c5",
+      "src/commander_lab/models/pilots.py": "6afb6dd065058636590a78bddedd7b4af110df55",
+      "src/commander_lab/models/roles.py": "8765b644f301d7944f1c0e543e9c97398d71c4b7",
+      "src/commander_lab/models/structural.py": "5a574e6cde31bfd021e9ae35c2cea9e5f616b98e",
+      "src/commander_lab/pod_scheduling.py": "90d389100217b74c285c1c486e2a22e232f78dd3",
+      "src/commander_lab/pod_scheduling_5p.py": "ff409a931842141c4cbf18de89f574a388901dff",
+      "src/commander_lab/project_context.py": "263c34de0acd90e2f56eb9855e5fbb31a74b8f40",
+      "src/commander_lab/repositories/candidates.py": "8806abdf7fbe0e60503e9ee291cdb63affd31a15",
+      "src/commander_lab/semantic_features.py": "c6a9cb0610231099f1dd0f7fc586ab34ed502dc5",
+      "src/commander_lab/storage": "8581b51f4857a0485c4ba9de30dafa18a43f6930",
+      "src/commander_lab/whole_deck": "0c8f70550e7b1b0038acfeea5c0a3ad499da540a"
+    }
+  },
+  "starting_player_contract": {
+    "campaign_runner_starting_player_seat_index": 0,
+    "interpretation": "physical seat 1 starts in Whole-Deck campaign matches; RogShai own seat rotates through balanced scenarios, so absolute seat effects are expected model inputs and must be controlled by same-seat pairing for deck comparisons"
+  },
+  "status": "MEASURED",
+  "structural_control_deck_hash": "87b741e53026f0d6b1545f961b600e6f2d8501b3932550b2e7dbf95145c8f743",
+  "synthetic_calibration_is_measurement": false,
+  "truth_boundary": "measured same-model Structural resolution and sensitivity only; not empirical Commander performance, not a local opponent-frequency estimate, and not an external rules engine",
+  "unsupported_same_metric_axes": {
+    "mulligan_policy": "UNSUPPORTED_SEPARATELY: current Structural match runner does not expose a frozen mulligan-policy intervention on the same placement metric",
+    "tie_quantization": "DIAGNOSTIC_ONLY: integer placement compression is reported directly; no arbitrary numeric tie penalty is invented"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "checks": [
+    {
+      "artifact": "qualification/protocol/ws10r/rules_service_protocol_v1.schema.json",
+      "check": "check_schema",
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/protocol/ws10r/rsp_semantics_v1.schema.json",
+      "check": "check_schema",
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/protocol/ws10r/architecture_freeze_contract_v1.schema.json",
+      "check": "check_schema",
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json",
+      "check": "check_schema",
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/evidence/normalized_evidence_v1.schema.json",
+      "check": "check_schema",
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/evidence/candidate_result_v1.schema.json",
+      "check": "check_schema",
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
+      "check": "fixture_manifest_validation",
+      "fixture_count": 135,
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/evidence/candidates/xmage.json",
+      "check": "candidate_result_validation",
+      "fixture_count": 135,
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/evidence/candidates/forge.json",
+      "check": "candidate_result_validation",
+      "fixture_count": 135,
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/evidence/candidates/phase_rs.json",
+      "check": "candidate_result_validation",
+      "fixture_count": 135,
+      "status": "PASS"
+    },
+    {
+      "artifact": "qualification/evidence/candidates/argentum.json",
+      "check": "candidate_result_validation",
+      "fixture_count": 135,
+      "status": "PASS"
+    }
+  ],
+  "materialization": "WS-10R",
+  "schema_version": "ws10r-schema-validation-report/1.0.0",
+  "status": "PASS"
+}

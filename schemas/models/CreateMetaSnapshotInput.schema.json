@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allow_overwrite": {
+      "default": false,
+      "title": "Allow Overwrite",
+      "type": "boolean"
+    },
+    "seed_file": {
+      "default": "data/meta/provenance/meta_seed_sources.json",
+      "title": "Seed File",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "snapshot_id"
+  ],
+  "title": "CreateMetaSnapshotInput",
+  "type": "object"
+}

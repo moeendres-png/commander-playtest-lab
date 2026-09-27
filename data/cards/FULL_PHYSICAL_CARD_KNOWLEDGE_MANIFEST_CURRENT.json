@@ -1,0 +1,61 @@
+{
+  "design": {
+    "context_layer": "DECK_CONTEXT_EVALUATION recomputed when deck/package/opponent/policy changes",
+    "persistent_intrinsic_layer": "FACT + DERIVED_STRUCTURAL for all physically owned identities",
+    "universal_power_score": null,
+    "update_mode": "incremental_not_full_rebuild_per_run"
+  },
+  "evidence_boundary": "Structural semantics are DERIVED_STRUCTURAL; they are not empirical winrates, external-rules-engine execution, or universal card power.",
+  "generated_at": "2026-08-20T18:20:00+02:00",
+  "governance": {
+    "does_not_change_allocations": true,
+    "does_not_change_deck_candidate_scope": true,
+    "does_not_change_inventory_quantities": true,
+    "does_not_change_opponent_truth": true,
+    "does_not_change_purchases": true,
+    "kaervek_unchanged": true,
+    "newly_enriched_offcolor_cards_are_knowledge_only": true,
+    "rogshai_search_scope_remains_commander_legal_and_ci_subset_wur": true
+  },
+  "outputs": {
+    "FULL_PHYSICAL_CARD_FUNCTIONAL_SEMANTICS_CURRENT.jsonl": {
+      "records": 1338,
+      "sha256": "7edc422f95e899b67de726630421fc70164925a77c5e32d97194f6c1447d520e"
+    },
+    "FULL_PHYSICAL_CARD_KNOWLEDGE_BASE_CURRENT.jsonl": {
+      "records": 1338,
+      "sha256": "1b8c3e7e5c3711552fad59a64b6c6c0d22c869d2f66ce5ee987720ea262f73af"
+    },
+    "FULL_PHYSICAL_CARD_KNOWLEDGE_QUALITY_REPORT_CURRENT.json": {
+      "sha256": "456da731552b51742d43852c12a3005a14c9315c34932c4d8eeded643df292ca"
+    }
+  },
+  "physical_identity_count": 1338,
+  "schema_version": "1.0",
+  "source_bindings": {
+    "canonical_inventory": {
+      "drive_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+      "identity_registry_sha256": "cdac9fbc1ba83d9f7435c2f46781ae18853ad8fc9c0f15cecd296262aed42ff0",
+      "local_file": "CARD_IDENTITY_REGISTRY_CURRENT.jsonl"
+    },
+    "existing_target_semantics": {
+      "drive_id": "1R3UdhdcN7vZ8kzf6zzXmH6aV7CDHfV3P",
+      "rows": 1007,
+      "sha256": "9f8c30314c1ef3a832ee5cfd46b1693b0160bbb5bd4119e4ea93d5fb5e1a3925"
+    },
+    "physical_registry": {
+      "drive_id": "1N6YxgqHVFnJBy6NtEl1k23q1KJCXkIGt",
+      "sha256": "6772a6701998e7e876703dd809df371ee1db07bed74276f36d72281146a8e1f2"
+    },
+    "rogshai_context": {
+      "drive_id": "1ISgjG70YCJWVJNSCV1gXuDgh8liVCppx",
+      "rows": 795,
+      "sha256": "6025ac072a704339d418a92ac91e3caedcf7ddbd8ffd2ae62421739ae9419eae"
+    },
+    "taxonomy": {
+      "drive_id": "1bzDePGMDhOix0enaBxQ53BCxB9Dw4IQj",
+      "sha256": "23bf37c32b4e556bd0c1e4368b30047c615c51340d0420bd01ce2e501e312466"
+    }
+  },
+  "status": "current_full_physical_card_knowledge_baseline"
+}

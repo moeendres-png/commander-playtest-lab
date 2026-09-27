@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "card_names": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Card Names",
+      "type": "array"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "require_external": {
+      "default": false,
+      "title": "Require External",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "RunRulesCoverageGateInput",
+  "type": "object"
+}

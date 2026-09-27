@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "audit_point": "E",
+  "bug_id": "BUG-PERF-001",
+  "generated_date": "2026-08-08",
+  "status": "reproduced_and_targeted_fix_measured_locally_pending_final_ci",
+  "pre_fix_github_reproduction": {
+    "environment": "GitHub Actions Ubuntu 24.04, 2 vCPU, Python 3.12",
+    "iterations": 32,
+    "pod_size": 4,
+    "seed": 20260808,
+    "medians_seconds": {
+      "1_worker": 2.502754527,
+      "2_workers": 3.023993484,
+      "4_workers": 3.798890876
+    },
+    "relative_to_1_worker": {
+      "2_workers_slower_percent": 20.8,
+      "4_workers_slower_percent": 51.8
+    },
+    "profile": {
+      "task_build_seconds_32": 0.000272,
+      "deck_serialize_seconds": 0.00192,
+      "deck_payload_bytes": 305058,
+      "process_spawn_cumulative_seconds": 0.921,
+      "process_pool_shutdown_wait_cumulative_seconds": 1.794,
+      "conclusion": "process lifecycle dominated the undersized workload; task construction and serialization were negligible"
+    },
+    "resource_tracker_or_semaphore_warning_reproduced": false,
+    "active_children_after_runs": []
+  },
+  "fix": {
+    "minimum_games_per_effective_process_worker": 32,
+    "cpu_cap": true,
+    "single_worker_path_changed": false,
+    "raw_large_batch_implementation_changed": false,
+    "small_batch_behavior": "fall back to existing serial implementation when the measured process startup cost cannot be amortized"
+  },
+  "post_fix_local_guarded_measurement": {
+    "environment": "OpenAI local Linux runtime, Python 3.13.5, 5 visible CPUs",
+    "iterations": 32,
+    "seed": 20260808,
+    "repetitions": 3,
+    "raw_1_worker_median_seconds": 1.8904049350003334,
+    "raw_2_workers_median_seconds": 2.5301799829994707,
+    "scheduled_request_2_median_seconds": 1.9230520149994845,
+    "scheduled_request_4_median_seconds": 1.8830829349990381,
+    "scheduled_request_2_effective_workers": 1,
+    "scheduled_request_4_effective_workers": 1,
+    "scheduled_request_2_vs_raw_2_improvement_percent": 23.995445860742674,
+    "final_active_children": [],
+    "claim_boundary": "This is a same-runtime raw-vs-scheduled local measurement. It is not represented as a universal or GitHub-hosted speedup."
+  },
+  "invalidated_measurement": {
+    "github_run_id": 31275744838,
+    "reason": "benchmark helper omitted an if __name__ == '__main__' guard while exercising process-spawn, causing recursive child execution and repeated output blocks",
+    "used_for_performance_claim": false
+  },
+  "remaining_boundary": "The historical resource_tracker/semaphore warning was not reproduced and is not claimed fixed. Final PR CI/Release/Windows validation remains required before merge."
+}

@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "decisionFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "constraints": {
+          "type": "object"
+        },
+        "context": {
+          "type": "object"
+        },
+        "decision_authority_player_id": {
+          "type": "string"
+        },
+        "decision_id": {
+          "type": "string"
+        },
+        "decision_kind": {
+          "type": "string"
+        },
+        "legal_options": {
+          "items": {
+            "$ref": "#/$defs/legalOption"
+          },
+          "type": "array"
+        },
+        "options_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "state_revision": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "subject_player_id": {
+          "type": "string"
+        },
+        "viewer_player_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_id",
+        "subject_player_id",
+        "decision_authority_player_id",
+        "viewer_player_id",
+        "decision_kind",
+        "state_revision",
+        "options_digest",
+        "legal_options"
+      ],
+      "type": "object"
+    },
+    "fixtureResult": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hashes": {
+          "additionalProperties": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "checkpoints": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "decision_tape": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "events": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "evidence_class": {
+          "enum": [
+            "RUNTIME_VERIFIED",
+            "DIRECT_CODE_FAIL",
+            "CODE_DERIVED",
+            "SOURCE_DERIVED",
+            "NOT_RUN"
+          ]
+        },
+        "fixture_id": {
+          "type": "string"
+        },
+        "provider_identity": {
+          "type": "object"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "rules_rng_tape": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "verdict": {
+          "$ref": "#/$defs/verdict"
+        }
+      },
+      "required": [
+        "fixture_id",
+        "verdict",
+        "evidence_class",
+        "provider_identity",
+        "artifact_hashes"
+      ],
+      "type": "object"
+    },
+    "legalOption": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "option_id": {
+          "type": "string"
+        },
+        "semantic_ref": {
+          "type": [
+            "string",
+            "object"
+          ]
+        }
+      },
+      "required": [
+        "option_id",
+        "label",
+        "semantic_ref"
+      ],
+      "type": "object"
+    },
+    "observation": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_private_state": {
+          "type": "object"
+        },
+        "events": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "knowledge": {
+          "type": "object"
+        },
+        "public_state": {
+          "type": "object"
+        },
+        "state_revision": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "viewer_player_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "viewer_player_id",
+        "state_revision",
+        "public_state",
+        "actor_private_state",
+        "knowledge"
+      ],
+      "type": "object"
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "UNKNOWN",
+        "NOT_RUN",
+        "PARTIAL",
+        "UNSUPPORTED",
+        "NOT_APPLICABLE"
+      ]
+    }
+  },
+  "$id": "https://commander-lab.local/schemas/rsp_semantics_v1_1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RSP 1.1 Semantic Types"
+}

@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "J-P3D",
+  "decision": "NO_PROVIDER_READY",
+  "primary_provider": null,
+  "provider_selected": false,
+  "j_p3_external_engine": "BLOCKED_WITH_REAL_EVIDENCE",
+  "production_bridge": "not_built",
+  "decision_basis": "Frozen P3A contract and scoring plus real P3B XMage and P3C Forge evidence only",
+  "frozen_identity": {
+    "contract_hash": "89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6",
+    "scoring_hash": "67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227",
+    "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb",
+    "xmage_pin": "xmage_1.4.60V3 @ 06d166b098ad36b277edef01116472203d5a047e",
+    "forge_pin": "forge-2.0.14 @ a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+  },
+  "providers": {
+    "xmage": {
+      "status": "PARTIAL",
+      "score": 36.0,
+      "knockout": false,
+      "real_execution": true,
+      "production_ready": false,
+      "critical_unproven": [
+        "exact live four-player Ishai/Rograkh end-to-end controller path",
+        "complete machine-listable live legal-action surface",
+        "externally selected valid live gameplay action submission",
+        "semantic state-bound illegal/stale action rejection",
+        "external seed control",
+        "external live stack/priority control",
+        "provider replay"
+      ]
+    },
+    "forge": {
+      "status": "PARTIAL",
+      "score": 47.25,
+      "knockout": false,
+      "real_execution": true,
+      "production_ready": false,
+      "critical_unproven": [
+        "complete external machine-listable live legal-action surface",
+        "externally selected revision-bound valid live gameplay action submission",
+        "semantic state-bound illegal/stale action rejection",
+        "provider replay/checkpoint reconstruction",
+        "cross-process same-seed trace determinism"
+      ]
+    }
+  },
+  "production_readiness_gate": {
+    "requires_real_state_action_chain": true,
+    "requires_external_legal_actions": true,
+    "requires_external_action_submission": true,
+    "requires_state_or_revision_binding": true,
+    "requires_semantic_illegal_stale_rejection": true,
+    "requires_fail_closed_external_mode": true,
+    "xmage_meets_gate": false,
+    "forge_meets_gate": false
+  },
+  "comparison": {
+    "frozen_score_leader": "forge",
+    "rules_fidelity": "forge_stronger_but_partial",
+    "commander_partner_multiplayer": "forge_stronger",
+    "action_submission": "neither_production_proven",
+    "state_observability": "forge_stronger_but_not_normalized_external_state_api",
+    "legal_choice_surface": "neither_complete_external_surface_proven",
+    "stack_priority": "forge_stronger_live_trace_but_external_control_unproven",
+    "events": "forge_stronger",
+    "replay_trace": "forge_stronger_raw_trace; provider replay unproven",
+    "determinism": "neither_sufficiently_proven; forge same-seed traces diverged",
+    "lifecycle_headless": "forge_automatable_with_xvfb; xmage_real_server_lifecycle_proven",
+    "build_runtime_complexity": "both_nontrivial",
+    "integration_fork_depth": "forge_has_promising_in_process_hooks_but_external_adapter_depth_unproven",
+    "maintenance": "no frozen knockout for either"
+  },
+  "safety": {
+    "engine_mode_external_fail_closed": "PASS_EXISTING_PROJECT_PATH",
+    "synthetic_or_tactical_substitution_in_external_path": false,
+    "run_identity_engine_binding": "PARTIAL",
+    "run_identity_note": "RunIdentity binds engine_mode and provider and keeps Tactical Oracle separate, but provider version/pin and capability hash remain UNKNOWN without a validated production provider handshake."
+  },
+  "rules_fixture_validation": {
+    "production_bridge_fixture_run": "NOT_APPLICABLE_PRODUCTION_BRIDGE_NOT_BUILT",
+    "xmage_p3b_results_retained": true,
+    "forge_p3c_results_retained": true,
+    "no_missing_fixture_promoted": true
+  },
+  "scope": {
+    "new_rules_engine": false,
+    "fake_external_engine": false,
+    "cosmetic_hybrid": false,
+    "p4_pilot_tuning": false,
+    "deck_mutation": false,
+    "inventory_mutation": false,
+    "opponent_truth_mutation": false,
+    "purchase_or_allocation_mutation": false
+  },
+  "gate": {
+    "J_P3_COMPLETE": true,
+    "J_P4_READY": true,
+    "remaining_external_engine_blocker_visible_for_j_final": true
+  }
+}

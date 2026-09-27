@@ -1,0 +1,11 @@
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Looking in indexes: https://reader:****@packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/pypi/pypi-public/simple
+Processing /mnt/data/commander-playtest-lab-phase8-work
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: commander-playtest-lab
+  Building wheel for commander-playtest-lab (pyproject.toml): started
+  Building wheel for commander-playtest-lab (pyproject.toml): finished with status 'done'
+  Created wheel for commander-playtest-lab: filename=commander_playtest_lab-0.8.5-py3-none-any.whl size=171036 sha256=2ff20dbee77c90dbd98217a2eb5bb2c1f95eefb5427c365257afe10e53f5d427
+  Stored in directory: /tmp/pip-ephem-wheel-cache-q7bygbew/wheels/5e/72/f1/a0ff51a96499d50299ff8398877373db6ec626c8c92700e00f
+Successfully built commander-playtest-lab

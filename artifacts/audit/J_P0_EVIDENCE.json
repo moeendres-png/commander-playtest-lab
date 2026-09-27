@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "J-P0",
+  "baseline": {
+    "main_commit": "85af667c2bda54c3d1370dc0f83046dca9d34c1c",
+    "main_tree": "c98a707010a3fb58aa8beadbbcd39bdbbf3e009b",
+    "package_version": "1.13.4",
+    "pre_j_complete": true,
+    "j_start_allowed": true
+  },
+  "scope": {
+    "run_identity": "implemented",
+    "stale_input_fail_closed": true,
+    "canonical_serialization": "implemented",
+    "eval_registry": "frozen",
+    "new_j_holdout_evaluated": false,
+    "model_tuning": false,
+    "deck_changes": 0,
+    "inventory_changes": 0,
+    "opponent_truth_changes": 0,
+    "purchase_changes": 0,
+    "physical_allocation_changes": 0
+  },
+  "eval_registry": {
+    "path": "data/evals/j_eval_registry.json",
+    "development_set_hash": "4eb3f456c24935f9058e598d8b941aa54b9bdadeb0d6ce68a2d13f30ff6a59c0",
+    "j_holdout_v1_file_sha256": "a5875cd1a8edf6bbf79248b3e4ba26151579f628eaeefd4ef2369abb309da8d1",
+    "j_holdout_v1_set_hash": "724e84f1ea34bea9ec6b37929d945724c77c408a464b3a9dd05235738a00d5d6",
+    "j_holdout_v1_cases": 12,
+    "j_holdout_v1_pod_sizes": [3, 4, 5],
+    "j_holdout_v1_used_for_tuning": false,
+    "j_holdout_v1_first_evaluation_timestamp": null,
+    "sensitivity_set_hash": "2eee87444676e95202c585b5863d364e9a3a87773d9f08a593f19804ff9a5cdf",
+    "rules_fixture_set_hash": "eecbe8ea3efb6dd76b22d6bb331714b9e49ac3a6200b4a58f509e533a1887ecd",
+    "g_legacy_holdout_hash": "0e7376c9dfc7075992b149d0fc50cfb098fdacd35033c0ceafdfb8ad9f16e937"
+  },
+  "local_validation": {
+    "python_version": "3.13.5",
+    "pytest_collected": 336,
+    "pytest_passed": 335,
+    "pytest_failed": 0,
+    "pytest_skipped": 1,
+    "expected_skip": "real XMage/Forge differential command not configured",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "git_fsck": "PASS_WITH_HISTORICAL_DANGLING_COMMITS",
+    "canonical_data_audit": "MATCH",
+    "cli_run_identity_smoke": "PASS",
+    "api_mcp_smoke": "PASS",
+    "clean_tree": "PASS",
+    "wheel_build": "PASS",
+    "wheel_install_import": "PASS",
+    "ruff": "LOCAL_UNAVAILABLE",
+    "mypy": "LOCAL_UNAVAILABLE",
+    "phase86_audit": "BLOCKED_BY_LOCAL_RUFF_MYPY_AND_PENDING_EXTERNAL_ENGINE",
+    "phase86_tracked_tree_changed": false
+  },
+  "truth_boundaries": {
+    "structural_model_estimates_are_empirical_winrates": false,
+    "tactical_oracle_is_external_engine": false,
+    "real_external_engine_validation_completed": false,
+    "real_playtest_calibration": "inactive_project_scope"
+  },
+  "release_policy": {
+    "package_version_bump_required": true,
+    "target_package_version": "1.14.0",
+    "recovery_snapshot_refresh_required": true,
+    "public_release_required": false
+  },
+  "github_validation": "PENDING_FINAL_INTEGRATION",
+  "drive_closeout": "PENDING_POST_MERGE"
+}

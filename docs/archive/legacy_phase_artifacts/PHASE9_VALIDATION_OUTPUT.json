@@ -1,0 +1,53 @@
+{
+  "base_commit": "1971e4e4349960251cd11a8e3cda2e4894bc3528",
+  "canonical_deck_files_modified": false,
+  "canonical_inventory_modified": false,
+  "external_engine_validation_pending": true,
+  "features": {
+    "aborted_simulations_excluded": true,
+    "append_only_dataset": true,
+    "automatic_parameter_application": false,
+    "bootstrap_intervals": true,
+    "csv_import": true,
+    "deck_version_isolation": true,
+    "json_import": true,
+    "minimum_evidence_thresholds": true,
+    "sealed_train_validation_split": true,
+    "wilson_intervals": true,
+    "xlsx_import": true
+  },
+  "google_drive_files_modified": false,
+  "implementation_commit": "57be0aa9f015166f057001b312c441ec04758993",
+  "implementation_status": "passed",
+  "independent_confirmation_claimed": false,
+  "package_version": "0.9.0",
+  "phase": "9",
+  "real_playtest_calibration_status": "not_run",
+  "real_playtest_games_supplied": 0,
+  "reason": "No user-supplied real playtest records were present.",
+  "synthetic_pipeline_validation": {
+    "accepted_parameters_from_synthetic_fixture": {},
+    "calibration_markdown_path": "/mnt/data/audit_check_phase85/data/runs/phase9_validation/synthetic_calibration_report.md",
+    "calibration_report_path": "/mnt/data/audit_check_phase85/data/runs/phase9_validation/synthetic_calibration_report.json",
+    "canonical_deck_files_modified": false,
+    "engine_parameters_modified": false,
+    "expected_fixture_decision": "insufficient_evidence",
+    "external_engine_validation_pending": true,
+    "google_drive_files_modified": false,
+    "implementation_status": "passed",
+    "independent_confirmation_claimed": false,
+    "phase": "9",
+    "real_playtest_calibration_status": "not_run",
+    "reason": "No user-supplied real playtest records were present.",
+    "structural_reference_path": "/mnt/data/audit_check_phase85/data/runs/phase9_validation/structural_reference/structural_results.json",
+    "synthetic_fixture_games": 6,
+    "synthetic_fixture_status": "insufficient_evidence",
+    "train_validation_separated": true
+  },
+  "test_results": {
+    "failed": 0,
+    "passed": 153,
+    "skipped": 1,
+    "skipped_reason": "real XMage/Forge differential command not configured"
+  }
+}

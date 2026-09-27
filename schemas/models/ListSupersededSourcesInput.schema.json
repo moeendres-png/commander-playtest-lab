@@ -1,0 +1,12 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "include_historical": {
+      "default": true,
+      "title": "Include Historical",
+      "type": "boolean"
+    }
+  },
+  "title": "ListSupersededSourcesInput",
+  "type": "object"
+}

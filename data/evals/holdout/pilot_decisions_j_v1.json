@@ -1,0 +1,1760 @@
+{
+  "cases": [
+    {
+      "acceptable_action_ids": [
+        "develop"
+      ],
+      "actions": [
+        {
+          "action_id": "korvold",
+          "action_kind": "commander",
+          "base_power": 4,
+          "card_name": "Korvold, Fae-Cursed King",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 0.6,
+          "mana_cost": 5,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 1,
+          "role_strengths": {
+            "draw": 1.0,
+            "engine": 1.0,
+            "payoff": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "develop",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Tireless Provisioner",
+          "commander_synergy": 0.2,
+          "floor_value": 0.9,
+          "immediate_impact": 0.7,
+          "mana_cost": 3,
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "commander_independent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 3,
+          "role_strengths": {
+            "engine": 1.0,
+            "land_synergy": 1.0,
+            "token_source": 1.0
+          },
+          "roles": [
+            "engine",
+            "token_source",
+            "land_synergy"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [
+        "korvold"
+      ],
+      "case_id": "j_h_k_3p_hold_exposed_commander",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 1: Hold Korvold when there is no sacrifice material and no protection",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 2,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 5,
+            "casts": 0,
+            "name": "Korvold, Fae-Cursed King",
+            "next_cost": 5,
+            "on_battlefield": false,
+            "power": 4
+          }
+        ],
+        "deck_id": "korvold/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 34.0,
+        "mana_available": 6,
+        "opponents": [
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 5.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p3",
+            "threat": 5.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 3,
+        "ramp_mana": 1,
+        "resources": 0,
+        "role_counts": {
+          "land_synergy": 0,
+          "protection": 0,
+          "sacrifice_outlet": 0,
+          "token_source": 0
+        },
+        "strategy": "korvold",
+        "tokens": 0,
+        "turn": 4
+      },
+      "strategic_reason": "Korvold should not be exposed without immediate resources or protection.",
+      "strategy": "korvold",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "korvold"
+      ],
+      "actions": [
+        {
+          "action_id": "korvold",
+          "action_kind": "commander",
+          "base_power": 4,
+          "card_name": "Korvold, Fae-Cursed King",
+          "commander_synergy": 1.0,
+          "floor_value": 0.7,
+          "immediate_impact": 0.8,
+          "mana_cost": 5,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {
+            "draw": 1.0,
+            "engine": 1.0,
+            "payoff": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "value",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Idol of Oblivion",
+          "commander_synergy": 0.2,
+          "floor_value": 0.9,
+          "immediate_impact": 0.4,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 5,
+          "role_strengths": {
+            "draw": 1.0,
+            "engine": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_k_5p_protected_commander_window",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 2: Cast Korvold when sacrifice value and protection are both available",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 4,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [
+          "Lightning Greaves"
+        ],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 5,
+            "casts": 0,
+            "name": "Korvold, Fae-Cursed King",
+            "next_cost": 5,
+            "on_battlefield": false,
+            "power": 4
+          }
+        ],
+        "deck_id": "korvold/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 33.0,
+        "mana_available": 7,
+        "opponents": [
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 5.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p3",
+            "threat": 5.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p4",
+            "threat": 5.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 32.0,
+            "player_id": "p5",
+            "threat": 5.75
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 5,
+        "ramp_mana": 1,
+        "resources": 2,
+        "role_counts": {
+          "land_synergy": 2,
+          "protection": 1,
+          "sacrifice_outlet": 1,
+          "token_source": 2
+        },
+        "strategy": "korvold",
+        "tokens": 2,
+        "turn": 5
+      },
+      "strategic_reason": "Immediate sacrifice value plus protection makes commander exposure efficient.",
+      "strategy": "korvold",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "wipe"
+      ],
+      "actions": [
+        {
+          "action_id": "wipe",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Toxic Deluge",
+          "commander_synergy": 0.2,
+          "floor_value": 0.8,
+          "immediate_impact": 1.5,
+          "mana_cost": 3,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 1.0,
+          "remaining_mana": 4,
+          "role_strengths": {
+            "removal": 1.0,
+            "wipe": 1.0
+          },
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "engine",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Tireless Tracker",
+          "commander_synergy": 0.2,
+          "floor_value": 0.9,
+          "immediate_impact": 0.45,
+          "mana_cost": 3,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 4,
+          "role_strengths": {
+            "draw": 1.0,
+            "engine": 1.0,
+            "land_synergy": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "land_synergy"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_k_3p_boardwipe_timing",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 3: Wipe a developed hostile board rather than add another engine",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 1,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 3,
+        "commanders": [
+          {
+            "base_cost": 5,
+            "casts": 0,
+            "name": "Korvold, Fae-Cursed King",
+            "next_cost": 5,
+            "on_battlefield": false,
+            "power": 4
+          }
+        ],
+        "deck_id": "korvold/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 35.0,
+        "mana_available": 7,
+        "opponents": [
+          {
+            "board_power": 12,
+            "commander_damage_from_actor": {},
+            "engine_value": 5,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 9.25
+          },
+          {
+            "board_power": 10,
+            "commander_damage_from_actor": {},
+            "engine_value": 4,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 37,
+            "player_id": "p3",
+            "threat": 8.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 3,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "korvold",
+        "tokens": 0,
+        "turn": 7
+      },
+      "strategic_reason": "Enemy board pressure already exceeds the value of incremental development.",
+      "strategy": "korvold",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "remove"
+      ],
+      "actions": [
+        {
+          "action_id": "remove",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Assassin's Trophy",
+          "commander_synergy": 0.2,
+          "floor_value": 0.75,
+          "immediate_impact": 1.2,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 3,
+          "role_strengths": {
+            "removal": 1.0
+          },
+          "roles": [
+            "removal"
+          ],
+          "target_player_id": "p2",
+          "target_threat": 10,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "engine",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Ophiomancer",
+          "commander_synergy": 0.2,
+          "floor_value": 0.9,
+          "immediate_impact": 0.5,
+          "mana_cost": 3,
+          "mechanic_tags": [
+            "token_engine",
+            "repeatable_token_source",
+            "commander_independent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {
+            "engine": 1.0,
+            "token_source": 1.0
+          },
+          "roles": [
+            "engine",
+            "token_source"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_k_4p_engine_vs_threat",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 4: Answer a central engine instead of greedily developing",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 3,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 5,
+            "casts": 0,
+            "name": "Korvold, Fae-Cursed King",
+            "next_cost": 5,
+            "on_battlefield": false,
+            "power": 4
+          }
+        ],
+        "deck_id": "korvold/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 34.0,
+        "mana_available": 5,
+        "opponents": [
+          {
+            "board_power": 6,
+            "commander_damage_from_actor": {},
+            "engine_value": 10,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 38,
+            "player_id": "p2",
+            "threat": 10.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p3",
+            "threat": 5.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p4",
+            "threat": 5.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 4,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "korvold",
+        "tokens": 0,
+        "turn": 5
+      },
+      "strategic_reason": "A central opposing engine must be reduced before optional value development.",
+      "strategy": "korvold",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "artifact"
+      ],
+      "actions": [
+        {
+          "action_id": "artifact",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Pest Infestation",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 1.35,
+          "mana_cost": 7,
+          "mechanic_tags": [
+            "token_engine",
+            "go_wide",
+            "commander_independent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0.9,
+          "remaining_mana": 1,
+          "role_strengths": {
+            "payoff": 1.0,
+            "removal": 1.0,
+            "token_source": 1.0
+          },
+          "roles": [
+            "removal",
+            "token_source",
+            "payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "value",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Tireless Tracker",
+          "commander_synergy": 0.2,
+          "floor_value": 0.9,
+          "immediate_impact": 0.4,
+          "mana_cost": 3,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 5,
+          "role_strengths": {
+            "draw": 1.0,
+            "engine": 1.0,
+            "land_synergy": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "land_synergy"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_k_3p_artifact_pressure",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 5: Prefer broad artifact interaction against a developed Wakanda/Cosmic table",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "Cosmic Spider-Man commander and four hard-known cards are known.",
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 2,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 5,
+        "commanders": [
+          {
+            "base_cost": 5,
+            "casts": 0,
+            "name": "Korvold, Fae-Cursed King",
+            "next_cost": 5,
+            "on_battlefield": true,
+            "power": 5
+          }
+        ],
+        "deck_id": "korvold/current",
+        "engine_value": 3,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 33.0,
+        "mana_available": 8,
+        "opponents": [
+          {
+            "board_power": 10,
+            "commander_damage_from_actor": {},
+            "engine_value": 8,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 30,
+            "player_id": "p2",
+            "threat": 9.25
+          },
+          {
+            "board_power": 9,
+            "commander_damage_from_actor": {},
+            "engine_value": 7,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 29,
+            "player_id": "p3",
+            "threat": 8.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 3,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "korvold",
+        "tokens": 0,
+        "turn": 8
+      },
+      "strategic_reason": "Flexible multi-target permanent interaction matters more than another value engine.",
+      "strategy": "korvold",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "Remaining Cosmic list is unknown/synthetic completion.",
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "protect"
+      ],
+      "actions": [
+        {
+          "action_id": "protect",
+          "action_kind": "protection",
+          "base_power": 0,
+          "card_name": "Heroic Intervention analogue",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 1.1,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 5,
+          "role_strengths": {
+            "protection": 1.0
+          },
+          "roles": [
+            "protection"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 9,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "decline",
+          "action_kind": "pass",
+          "base_power": 0,
+          "card_name": "Decline Protection",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 0.6,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 5,
+          "role_strengths": {},
+          "roles": [],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_k_5p_archenemy_survival",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 6: As archenemy under pressure, preserve survival before visible payoff development",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 5,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 8,
+        "commanders": [
+          {
+            "base_cost": 5,
+            "casts": 0,
+            "name": "Korvold, Fae-Cursed King",
+            "next_cost": 5,
+            "on_battlefield": true,
+            "power": 9
+          }
+        ],
+        "deck_id": "korvold/current",
+        "engine_value": 5,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 13.0,
+        "mana_available": 7,
+        "opponents": [
+          {
+            "board_power": 8,
+            "commander_damage_from_actor": {},
+            "engine_value": 5,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 34,
+            "player_id": "p2",
+            "threat": 8.0
+          },
+          {
+            "board_power": 7,
+            "commander_damage_from_actor": {},
+            "engine_value": 4,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 32,
+            "player_id": "p3",
+            "threat": 8.25
+          },
+          {
+            "board_power": 6,
+            "commander_damage_from_actor": {},
+            "engine_value": 4,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 37,
+            "player_id": "p4",
+            "threat": 7.0
+          },
+          {
+            "board_power": 6,
+            "commander_damage_from_actor": {},
+            "engine_value": 3,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p5",
+            "threat": 7.25
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 5,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "korvold",
+        "tokens": 0,
+        "turn": 9
+      },
+      "strategic_reason": "High visibility plus low life makes survival the immediate constraint.",
+      "strategy": "korvold",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "pass"
+      ],
+      "actions": [
+        {
+          "action_id": "aura",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Curiosity",
+          "commander_synergy": 0.9,
+          "floor_value": 0.65,
+          "immediate_impact": 0.35,
+          "mana_cost": 1,
+          "mechanic_tags": [
+            "commander_dependent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 0,
+          "role_strengths": {
+            "combat_payoff": 1.0,
+            "draw": 1.0,
+            "engine": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "combat_payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "pass",
+          "action_kind": "pass",
+          "base_power": 0,
+          "card_name": "Hold Countermagic",
+          "commander_synergy": 0.2,
+          "floor_value": 0,
+          "immediate_impact": 0,
+          "mana_cost": 0,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {},
+          "roles": [],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [
+        "aura"
+      ],
+      "case_id": "j_h_r_3p_hold_aura_unprotected",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 7: Do not expose a combat-draw aura into high interaction with no reserve",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 2,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 4,
+            "casts": 0,
+            "name": "Ishai, Ojutai Dragonspeaker",
+            "next_cost": 4,
+            "on_battlefield": true,
+            "power": 6
+          },
+          {
+            "base_cost": 0,
+            "casts": 0,
+            "name": "Rograkh, Son of Rohgahh",
+            "next_cost": 0,
+            "on_battlefield": true,
+            "power": 0
+          }
+        ],
+        "deck_id": "rogshai/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 34.0,
+        "mana_available": 2,
+        "opponents": [
+          {
+            "board_power": 5,
+            "commander_damage_from_actor": {},
+            "engine_value": 5,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 9.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 4,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 38,
+            "player_id": "p3",
+            "threat": 7.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 3,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {
+          "counter": 1,
+          "protection": 0
+        },
+        "strategy": "rogshai",
+        "tokens": 0,
+        "turn": 5
+      },
+      "strategic_reason": "Auras should not be exposed when interaction must be held and no protection remains.",
+      "strategy": "rogshai",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "aura"
+      ],
+      "actions": [
+        {
+          "action_id": "aura",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Combat Research",
+          "commander_synergy": 0.95,
+          "floor_value": 0.75,
+          "immediate_impact": 0.45,
+          "mana_cost": 1,
+          "mechanic_tags": [
+            "commander_dependent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 3,
+          "role_strengths": {
+            "combat_payoff": 1.0,
+            "draw": 1.0,
+            "engine": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "combat_payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "pass",
+          "action_kind": "pass",
+          "base_power": 0,
+          "card_name": "Pass",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 0.6,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 4,
+          "role_strengths": {},
+          "roles": [],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_r_5p_protected_aura_window",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 8: Deploy combat draw when Ishai is online and protection remains available",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 4,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 4,
+            "casts": 0,
+            "name": "Ishai, Ojutai Dragonspeaker",
+            "next_cost": 4,
+            "on_battlefield": true,
+            "power": 6
+          },
+          {
+            "base_cost": 0,
+            "casts": 0,
+            "name": "Rograkh, Son of Rohgahh",
+            "next_cost": 0,
+            "on_battlefield": true,
+            "power": 0
+          }
+        ],
+        "deck_id": "rogshai/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 33.0,
+        "mana_available": 4,
+        "opponents": [
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 5.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p3",
+            "threat": 5.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p4",
+            "threat": 5.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 32.0,
+            "player_id": "p5",
+            "threat": 5.75
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 5,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {
+          "counter": 1,
+          "protection": 1
+        },
+        "strategy": "rogshai",
+        "tokens": 0,
+        "turn": 5
+      },
+      "strategic_reason": "Protected combat-draw converts commander pressure into sustained cards.",
+      "strategy": "rogshai",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "jeska"
+      ],
+      "actions": [
+        {
+          "action_id": "jeska",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Jeska, Thrice Reborn",
+          "commander_synergy": 1.0,
+          "floor_value": 0.75,
+          "immediate_impact": 1.1,
+          "mana_cost": 3,
+          "mechanic_tags": [
+            "commander_damage_support",
+            "finisher_compression",
+            "commander_dependent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {
+            "combat_payoff": 1.0,
+            "finisher": 1.0,
+            "payoff": 1.0
+          },
+          "roles": [
+            "payoff",
+            "finisher",
+            "combat_payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "kediss",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Kediss, Emberclaw Familiar",
+          "commander_synergy": 0.2,
+          "floor_value": 0.75,
+          "immediate_impact": 0.75,
+          "mana_cost": 2,
+          "mechanic_tags": [
+            "table_damage",
+            "finisher_compression",
+            "commander_dependent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 1.2,
+          "remaining_mana": 3,
+          "role_strengths": {
+            "combat_payoff": 1.0,
+            "finisher": 1.0,
+            "payoff": 1.0
+          },
+          "roles": [
+            "payoff",
+            "finisher",
+            "combat_payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_r_3p_jeska_window",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 9: Use Jeska for a genuine Ishai commander-damage finishing window",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 1,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 4,
+            "casts": 0,
+            "name": "Ishai, Ojutai Dragonspeaker",
+            "next_cost": 4,
+            "on_battlefield": true,
+            "power": 8
+          },
+          {
+            "base_cost": 0,
+            "casts": 0,
+            "name": "Rograkh, Son of Rohgahh",
+            "next_cost": 0,
+            "on_battlefield": true,
+            "power": 0
+          }
+        ],
+        "deck_id": "rogshai/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 35.0,
+        "mana_available": 5,
+        "opponents": [
+          {
+            "board_power": 5,
+            "commander_damage_from_actor": {
+              "Ishai, Ojutai Dragonspeaker": 8
+            },
+            "engine_value": 4,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 28,
+            "player_id": "p2",
+            "threat": 7.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 31,
+            "player_id": "p3",
+            "threat": 6.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 3,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "rogshai",
+        "tokens": 0,
+        "turn": 8
+      },
+      "strategic_reason": "Jeska multiplies actual Ishai combat damage; Kediss table spread is not commander damage.",
+      "strategy": "rogshai",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "counter"
+      ],
+      "actions": [
+        {
+          "action_id": "counter",
+          "action_kind": "counter",
+          "base_power": 0,
+          "card_name": "Dovin's Veto",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 1.2,
+          "mana_cost": 2,
+          "mechanic_tags": [
+            "stack_interaction"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {
+            "counter": 1.0
+          },
+          "roles": [
+            "counter"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 11,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "aura",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Staggering Insight",
+          "commander_synergy": 0.2,
+          "floor_value": 0.8,
+          "immediate_impact": 0.45,
+          "mana_cost": 2,
+          "mechanic_tags": [
+            "commander_dependent"
+          ],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {
+            "combat_payoff": 1.0,
+            "draw": 1.0,
+            "engine": 1.0
+          },
+          "roles": [
+            "draw",
+            "engine",
+            "combat_payoff"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_r_4p_counter_priority",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 10: Counter Kaervek before an own multi-spell sequence",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 3,
+      "stack_state_if_relevant": "Kaervek cast is on stack.",
+      "state": {
+        "battlefield_names": [],
+        "board_power": 4,
+        "commanders": [
+          {
+            "base_cost": 4,
+            "casts": 0,
+            "name": "Ishai, Ojutai Dragonspeaker",
+            "next_cost": 4,
+            "on_battlefield": true,
+            "power": 6
+          },
+          {
+            "base_cost": 0,
+            "casts": 0,
+            "name": "Rograkh, Son of Rohgahh",
+            "next_cost": 0,
+            "on_battlefield": true,
+            "power": 0
+          }
+        ],
+        "deck_id": "rogshai/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 34.0,
+        "mana_available": 4,
+        "opponents": [
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 4,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 11.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p3",
+            "threat": 5.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p4",
+            "threat": 5.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 4,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "rogshai",
+        "tokens": 0,
+        "turn": 6
+      },
+      "strategic_reason": "Kaervek belongs on the stack-priority axis before a longer own spell sequence.",
+      "strategy": "rogshai",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "wipe"
+      ],
+      "actions": [
+        {
+          "action_id": "wipe",
+          "action_kind": "card",
+          "base_power": 0,
+          "card_name": "Blasphemous Act",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 1.5,
+          "mana_cost": 1,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 1.0,
+          "remaining_mana": 6,
+          "role_strengths": {
+            "removal": 1.0,
+            "wipe": 1.0
+          },
+          "roles": [
+            "removal",
+            "wipe"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "pass",
+          "action_kind": "pass",
+          "base_power": 0,
+          "card_name": "Hold Counter",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 0.6,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 7,
+          "role_strengths": {},
+          "roles": [],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_r_3p_wipe_vs_reserve",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 11: Use a wipe when multiple boards are already beyond single-counter containment",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 2,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 3,
+        "commanders": [
+          {
+            "base_cost": 4,
+            "casts": 0,
+            "name": "Ishai, Ojutai Dragonspeaker",
+            "next_cost": 4,
+            "on_battlefield": true,
+            "power": 6
+          },
+          {
+            "base_cost": 0,
+            "casts": 0,
+            "name": "Rograkh, Son of Rohgahh",
+            "next_cost": 0,
+            "on_battlefield": true,
+            "power": 0
+          }
+        ],
+        "deck_id": "rogshai/current",
+        "engine_value": 2,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 33.0,
+        "mana_available": 7,
+        "opponents": [
+          {
+            "board_power": 12,
+            "commander_damage_from_actor": {},
+            "engine_value": 6,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 34,
+            "player_id": "p2",
+            "threat": 9.25
+          },
+          {
+            "board_power": 11,
+            "commander_damage_from_actor": {},
+            "engine_value": 5,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 32,
+            "player_id": "p3",
+            "threat": 8.0
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 3,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {},
+        "strategy": "rogshai",
+        "tokens": 0,
+        "turn": 7
+      },
+      "strategic_reason": "A broad developed board cannot be contained by reserving a single counterspell.",
+      "strategy": "rogshai",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    },
+    {
+      "acceptable_action_ids": [
+        "protect"
+      ],
+      "actions": [
+        {
+          "action_id": "protect",
+          "action_kind": "protection",
+          "base_power": 0,
+          "card_name": "Boros Charm",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 1.2,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {
+            "protection": 1.0
+          },
+          "roles": [
+            "protection"
+          ],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 9,
+          "turn_cycle_risk": 0.35
+        },
+        {
+          "action_id": "decline",
+          "action_kind": "pass",
+          "base_power": 0,
+          "card_name": "Decline Protection",
+          "commander_synergy": 0.2,
+          "floor_value": 0.7,
+          "immediate_impact": 0.6,
+          "mana_cost": 2,
+          "mechanic_tags": [],
+          "metadata": {},
+          "multiplayer_scaling": 0,
+          "remaining_mana": 2,
+          "role_strengths": {},
+          "roles": [],
+          "target_player_id": null,
+          "target_threat": 0,
+          "threat_score": 0,
+          "turn_cycle_risk": 0.35
+        }
+      ],
+      "bad_action_ids": [],
+      "case_id": "j_h_r_5p_archenemy_protection",
+      "critical": true,
+      "description": "J holdout v1 unseen variant 12: As archenemy, prioritize protecting the grown Ishai over adding visibility",
+      "expected_utility_dimensions": [],
+      "failure_mode": "",
+      "known_information": [
+        "J_HOLDOUT_v1 sealed before J-P2/J-P4 tuning"
+      ],
+      "preferred_action_class": "",
+      "scenario_group": "holdout",
+      "seat": 5,
+      "stack_state_if_relevant": null,
+      "state": {
+        "battlefield_names": [],
+        "board_power": 10,
+        "commanders": [
+          {
+            "base_cost": 4,
+            "casts": 0,
+            "name": "Ishai, Ojutai Dragonspeaker",
+            "next_cost": 4,
+            "on_battlefield": true,
+            "power": 11
+          },
+          {
+            "base_cost": 0,
+            "casts": 0,
+            "name": "Rograkh, Son of Rohgahh",
+            "next_cost": 0,
+            "on_battlefield": true,
+            "power": 0
+          }
+        ],
+        "deck_id": "rogshai/current",
+        "engine_value": 5,
+        "graveyard_size": 5,
+        "hand_names": [],
+        "hand_size": 5,
+        "lands": 5,
+        "life": 22.0,
+        "mana_available": 4,
+        "opponents": [
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 35,
+            "player_id": "p2",
+            "threat": 9.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 36,
+            "player_id": "p3",
+            "threat": 8.25
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 34,
+            "player_id": "p4",
+            "threat": 8.0
+          },
+          {
+            "board_power": 4,
+            "commander_damage_from_actor": {},
+            "engine_value": 2,
+            "graveyard_size": 4,
+            "hand_size": 5,
+            "life": 37,
+            "player_id": "p5",
+            "threat": 8.25
+          }
+        ],
+        "player_id": "p1",
+        "pod_size": 5,
+        "ramp_mana": 1,
+        "resources": 1,
+        "role_counts": {
+          "counter": 1,
+          "protection": 1
+        },
+        "strategy": "rogshai",
+        "tokens": 0,
+        "turn": 8
+      },
+      "strategic_reason": "A high-visibility commander is the current resource to preserve.",
+      "strategy": "rogshai",
+      "strength": "near_optimal_heuristic",
+      "uncertainty": [
+        "exact opponent hidden cards remain unknown"
+      ]
+    }
+  ],
+  "derivation_note": "New exact state variants authored and sealed in J-P0 from development scenario families; not executed during J-P0.",
+  "estimate_type": "structural_model_estimates",
+  "first_evaluation_timestamp": null,
+  "holdout_id": "J_HOLDOUT_v1",
+  "schema_version": "1.0.0",
+  "sealed_for_tuning": true,
+  "used_for_tuning": false
+}

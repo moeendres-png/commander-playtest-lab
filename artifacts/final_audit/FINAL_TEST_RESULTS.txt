@@ -1,0 +1,17 @@
+Final Phase 12.11 grouped regression audit
+
+Collected: 260
+Passed: 259
+Skipped: 1
+Failed: 0
+
+Executed groups:
+- Unit A: 111 passed; 2 collection warnings for Pydantic input-model class names beginning with Test.
+- Unit B: 90 passed.
+- Integration excluding Phase-10 acceptance: 21 passed.
+- Phase-10 acceptance slow workflow: 1 passed in 26.73 seconds (28.12 seconds wall, 167744 KiB peak RSS).
+- Remaining Phase-10 acceptance checks: 4 passed.
+- Agent evals, architecture, contracts, differential, fuzz, golden, mutation, property and regressions: 32 passed, 1 skipped.
+
+The single skip requires a configured real XMage or Forge differential command. No external-engine result is claimed.
+Pytest external plugin autoload was disabled and pytest-asyncio was loaded explicitly for reproducibility.

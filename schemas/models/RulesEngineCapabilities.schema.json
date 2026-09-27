@@ -1,0 +1,186 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_submission": {
+      "default": false,
+      "title": "Action Submission",
+      "type": "boolean"
+    },
+    "action_submission_supported": {
+      "default": false,
+      "title": "Action Submission Supported",
+      "type": "boolean"
+    },
+    "commander_damage_visible": {
+      "default": false,
+      "title": "Commander Damage Visible",
+      "type": "boolean"
+    },
+    "commander_games": {
+      "default": false,
+      "title": "Commander Games",
+      "type": "boolean"
+    },
+    "commander_supported": {
+      "default": false,
+      "title": "Commander Supported",
+      "type": "boolean"
+    },
+    "commander_tax_visible": {
+      "default": false,
+      "title": "Commander Tax Visible",
+      "type": "boolean"
+    },
+    "deck_import_supported": {
+      "default": false,
+      "title": "Deck Import Supported",
+      "type": "boolean"
+    },
+    "deck_loading": {
+      "default": false,
+      "title": "Deck Loading",
+      "type": "boolean"
+    },
+    "deterministic_seed": {
+      "default": false,
+      "title": "Deterministic Seed",
+      "type": "boolean"
+    },
+    "event_log_supported": {
+      "default": false,
+      "title": "Event Log Supported",
+      "type": "boolean"
+    },
+    "event_logs": {
+      "default": false,
+      "title": "Event Logs",
+      "type": "boolean"
+    },
+    "game_logs": {
+      "default": false,
+      "title": "Game Logs",
+      "type": "boolean"
+    },
+    "headless_supported": {
+      "default": false,
+      "title": "Headless Supported",
+      "type": "boolean"
+    },
+    "healthcheck_supported": {
+      "default": true,
+      "title": "Healthcheck Supported",
+      "type": "boolean"
+    },
+    "legal_action_query": {
+      "default": false,
+      "title": "Legal Action Query",
+      "type": "boolean"
+    },
+    "legal_actions_supported": {
+      "default": false,
+      "title": "Legal Actions Supported",
+      "type": "boolean"
+    },
+    "max_players": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Players"
+    },
+    "maximum_players": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximum Players"
+    },
+    "multiplayer": {
+      "default": false,
+      "title": "Multiplayer",
+      "type": "boolean"
+    },
+    "multiplayer_supported": {
+      "default": false,
+      "title": "Multiplayer Supported",
+      "type": "boolean"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "partner_supported": {
+      "default": false,
+      "title": "Partner Supported",
+      "type": "boolean"
+    },
+    "priority_visible": {
+      "default": false,
+      "title": "Priority Visible",
+      "type": "boolean"
+    },
+    "replay_supported": {
+      "default": false,
+      "title": "Replay Supported",
+      "type": "boolean"
+    },
+    "reproducible_starting_state": {
+      "default": false,
+      "title": "Reproducible Starting State",
+      "type": "boolean"
+    },
+    "runtime_kind": {
+      "default": "unknown",
+      "enum": [
+        "external_rules_engine",
+        "tactical_oracle",
+        "unknown"
+      ],
+      "title": "Runtime Kind",
+      "type": "string"
+    },
+    "scenario_injection": {
+      "default": false,
+      "title": "Scenario Injection",
+      "type": "boolean"
+    },
+    "scenario_injection_supported": {
+      "default": false,
+      "title": "Scenario Injection Supported",
+      "type": "boolean"
+    },
+    "seed_supported": {
+      "default": false,
+      "title": "Seed Supported",
+      "type": "boolean"
+    },
+    "stack_visible": {
+      "default": false,
+      "title": "Stack Visible",
+      "type": "boolean"
+    },
+    "starting_state_injection_supported": {
+      "default": false,
+      "title": "Starting State Injection Supported",
+      "type": "boolean"
+    }
+  },
+  "title": "RulesEngineCapabilities",
+  "type": "object"
+}

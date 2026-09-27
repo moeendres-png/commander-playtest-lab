@@ -1,0 +1,15 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "evidence": {
+      "additionalProperties": true,
+      "title": "Evidence",
+      "type": "object"
+    }
+  },
+  "required": [
+    "evidence"
+  ],
+  "title": "ExplainRecommendationInput",
+  "type": "object"
+}

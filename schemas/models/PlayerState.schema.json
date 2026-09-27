@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "ZoneState": {
+      "additionalProperties": false,
+      "properties": {
+        "battlefield": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Battlefield",
+          "type": "array"
+        },
+        "command": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Command",
+          "type": "array"
+        },
+        "exile": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Exile",
+          "type": "array"
+        },
+        "graveyard": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Graveyard",
+          "type": "array"
+        },
+        "hand": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Hand",
+          "type": "array"
+        },
+        "library": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Library",
+          "type": "array"
+        }
+      },
+      "title": "ZoneState",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "commander_cast_count": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Commander Cast Count",
+      "type": "object"
+    },
+    "commander_damage_received": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Commander Damage Received",
+      "type": "object"
+    },
+    "has_lost": {
+      "default": false,
+      "title": "Has Lost",
+      "type": "boolean"
+    },
+    "land_plays_remaining": {
+      "default": 1,
+      "minimum": 0,
+      "title": "Land Plays Remaining",
+      "type": "integer"
+    },
+    "life": {
+      "default": 40,
+      "title": "Life",
+      "type": "integer"
+    },
+    "loss_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Loss Reason"
+    },
+    "mana_pool": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Mana Pool",
+      "type": "object"
+    },
+    "player_id": {
+      "title": "Player Id",
+      "type": "string"
+    },
+    "poison_counters": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Poison Counters",
+      "type": "integer"
+    },
+    "seat": {
+      "minimum": 0,
+      "title": "Seat",
+      "type": "integer"
+    },
+    "zones": {
+      "$ref": "#/$defs/ZoneState"
+    }
+  },
+  "required": [
+    "player_id",
+    "seat"
+  ],
+  "title": "PlayerState",
+  "type": "object"
+}

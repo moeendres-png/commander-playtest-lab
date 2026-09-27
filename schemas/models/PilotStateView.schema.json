@@ -1,0 +1,263 @@
+{
+  "$defs": {
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    },
+    "PilotCommanderView": {
+      "additionalProperties": false,
+      "properties": {
+        "base_cost": {
+          "minimum": 0.0,
+          "title": "Base Cost",
+          "type": "number"
+        },
+        "casts": {
+          "minimum": 0,
+          "title": "Casts",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "next_cost": {
+          "minimum": 0.0,
+          "title": "Next Cost",
+          "type": "number"
+        },
+        "on_battlefield": {
+          "default": false,
+          "title": "On Battlefield",
+          "type": "boolean"
+        },
+        "power": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Power",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "base_cost",
+        "next_cost",
+        "casts"
+      ],
+      "title": "PilotCommanderView",
+      "type": "object"
+    },
+    "PilotOpponentView": {
+      "additionalProperties": false,
+      "properties": {
+        "board_power": {
+          "minimum": 0.0,
+          "title": "Board Power",
+          "type": "number"
+        },
+        "commander_damage_from_actor": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Commander Damage From Actor",
+          "type": "object"
+        },
+        "engine_value": {
+          "minimum": 0.0,
+          "title": "Engine Value",
+          "type": "number"
+        },
+        "graveyard_size": {
+          "minimum": 0,
+          "title": "Graveyard Size",
+          "type": "integer"
+        },
+        "hand_size": {
+          "minimum": 0,
+          "title": "Hand Size",
+          "type": "integer"
+        },
+        "life": {
+          "title": "Life",
+          "type": "number"
+        },
+        "player_id": {
+          "title": "Player Id",
+          "type": "string"
+        },
+        "threat": {
+          "minimum": 0.0,
+          "title": "Threat",
+          "type": "number"
+        }
+      },
+      "required": [
+        "player_id",
+        "life",
+        "threat",
+        "board_power",
+        "engine_value",
+        "graveyard_size",
+        "hand_size"
+      ],
+      "title": "PilotOpponentView",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "battlefield_names": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Battlefield Names",
+      "type": "array"
+    },
+    "board_power": {
+      "minimum": 0.0,
+      "title": "Board Power",
+      "type": "number"
+    },
+    "commanders": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PilotCommanderView"
+      },
+      "title": "Commanders",
+      "type": "array"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "engine_value": {
+      "minimum": 0.0,
+      "title": "Engine Value",
+      "type": "number"
+    },
+    "graveyard_size": {
+      "minimum": 0,
+      "title": "Graveyard Size",
+      "type": "integer"
+    },
+    "hand_names": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Hand Names",
+      "type": "array"
+    },
+    "hand_size": {
+      "minimum": 0,
+      "title": "Hand Size",
+      "type": "integer"
+    },
+    "lands": {
+      "minimum": 0,
+      "title": "Lands",
+      "type": "integer"
+    },
+    "life": {
+      "title": "Life",
+      "type": "number"
+    },
+    "mana_available": {
+      "minimum": 0.0,
+      "title": "Mana Available",
+      "type": "number"
+    },
+    "opponents": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PilotOpponentView"
+      },
+      "title": "Opponents",
+      "type": "array"
+    },
+    "player_id": {
+      "title": "Player Id",
+      "type": "string"
+    },
+    "pod_size": {
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Pod Size",
+      "type": "integer"
+    },
+    "ramp_mana": {
+      "minimum": 0.0,
+      "title": "Ramp Mana",
+      "type": "number"
+    },
+    "resources": {
+      "minimum": 0.0,
+      "title": "Resources",
+      "type": "number"
+    },
+    "role_counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Role Counts",
+      "type": "object"
+    },
+    "strategy": {
+      "title": "Strategy",
+      "type": "string"
+    },
+    "tokens": {
+      "minimum": 0.0,
+      "title": "Tokens",
+      "type": "number"
+    },
+    "turn": {
+      "minimum": 1,
+      "title": "Turn",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "player_id",
+    "deck_id",
+    "strategy",
+    "turn",
+    "pod_size",
+    "life",
+    "hand_size",
+    "mana_available",
+    "lands",
+    "ramp_mana",
+    "resources",
+    "tokens",
+    "board_power",
+    "engine_value",
+    "graveyard_size"
+  ],
+  "title": "PilotStateView",
+  "type": "object"
+}

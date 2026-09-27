@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "flow": [
+    "owned_verified_drive_deck",
+    "kaervek/current immutable snapshot",
+    "structural role profile",
+    "KaervekOpponentPilot",
+    "pod/mulligan/holdout resolution",
+    "structural simulation"
+  ],
+  "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
+  "source_drive_id": "1n4wUDx7jMheUps8tkqRSa64QSV1DFdI1",
+  "validation_level": "structural_only",
+  "external_engine_validation_pending": true,
+  "last_user_correction": "2026-08-07 Midnight Reaper -> Warstorm Surge (Leons Box)"
+}

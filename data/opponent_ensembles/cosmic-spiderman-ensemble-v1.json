@@ -1,0 +1,206 @@
+{
+  "automatic_profile_overwrite": false,
+  "commander": "Cosmic Spider-Man",
+  "commander_color_identity": [
+    "W",
+    "U",
+    "B",
+    "R",
+    "G"
+  ],
+  "ensemble_id": "cosmic-spiderman-ensemble-v1",
+  "name": "Cosmic Spider-Man uncertainty ensemble",
+  "observed_constraints": [],
+  "source_ids": [
+    "user-direct-current-project-rules"
+  ],
+  "variants": [
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "Cosmic Spider-Man",
+      "commander_color_identity": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.25,
+        "minimum": 0.1
+      },
+      "known_cards": [],
+      "name": "Aggressive",
+      "role_distribution": {
+        "aggro": 0.7,
+        "legends": 0.4
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 8,
+        "minimum": 5
+      },
+      "synthetic": true,
+      "variant_id": "cosmic-aggressive",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "combat"
+      ],
+      "wipe_count_range": {
+        "maximum": 2,
+        "minimum": 0
+      }
+    },
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "Cosmic Spider-Man",
+      "commander_color_identity": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.4,
+        "minimum": 0.2
+      },
+      "known_cards": [],
+      "name": "Midrange",
+      "role_distribution": {
+        "legends": 0.7,
+        "midrange": 0.7
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 11,
+        "minimum": 7
+      },
+      "synthetic": true,
+      "variant_id": "cosmic-midrange",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "combat",
+        "value"
+      ],
+      "wipe_count_range": {
+        "maximum": 3,
+        "minimum": 1
+      }
+    },
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "Cosmic Spider-Man",
+      "commander_color_identity": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.35,
+        "minimum": 0.15
+      },
+      "known_cards": [],
+      "name": "Legends Value",
+      "role_distribution": {
+        "legends": 0.9,
+        "value": 0.8
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 12,
+        "minimum": 8
+      },
+      "synthetic": true,
+      "variant_id": "cosmic-legends-value",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "legend value"
+      ],
+      "wipe_count_range": {
+        "maximum": 3,
+        "minimum": 1
+      }
+    },
+    {
+      "assumed_cards": [],
+      "assumptions": [],
+      "commander": "Cosmic Spider-Man",
+      "commander_color_identity": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "confidence": 0.25,
+      "deck_version": "unknown",
+      "interaction_density": {
+        "maximum": 0.6,
+        "minimum": 0.35
+      },
+      "known_cards": [],
+      "name": "Control-oriented",
+      "role_distribution": {
+        "control": 0.8,
+        "legends": 0.4
+      },
+      "source_ids": [
+        "user-direct-current-project-rules",
+        "synthetic-opponent-fixtures"
+      ],
+      "speed_turn_range": {
+        "maximum": 14,
+        "minimum": 9
+      },
+      "synthetic": true,
+      "variant_id": "cosmic-control",
+      "weight": {
+        "mode": "unweighted",
+        "source_ids": [],
+        "value": null
+      },
+      "win_axes": [
+        "control finish"
+      ],
+      "wipe_count_range": {
+        "maximum": 5,
+        "minimum": 2
+      }
+    }
+  ],
+  "version": 1,
+  "weight_mode": "unweighted"
+}

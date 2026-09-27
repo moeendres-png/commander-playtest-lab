@@ -1,0 +1,15 @@
+Phase 8.6 final local verification
+
+pytest: 145 passed, 1 skipped in 36.55s
+skipped: real XMage/Forge differential command not configured
+compileall: passed
+pytest --collect-only: passed
+local acceptance workflow: passed
+SQLite integrity: passed
+Ruff check: blocked (executable unavailable)
+Ruff format check: blocked (executable unavailable)
+mypy: blocked (executable unavailable)
+Hypothesis state-machine run: blocked (package unavailable)
+automated mutmut/fuzz/dependency audit/SBOM: blocked (packages/network unavailable)
+external rules engine: not run
+external_engine_validation_pending=true

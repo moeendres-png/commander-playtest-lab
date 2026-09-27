@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "full_text_storage_allowed": {
+      "default": false,
+      "title": "Full Text Storage Allowed",
+      "type": "boolean"
+    },
+    "license_id": {
+      "title": "License Id",
+      "type": "string"
+    },
+    "license_name": {
+      "title": "License Name",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "restrictions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Restrictions",
+      "type": "array"
+    },
+    "usage_rights": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Usage Rights",
+      "type": "array"
+    }
+  },
+  "required": [
+    "license_id",
+    "license_name"
+  ],
+  "title": "LicenseRecord",
+  "type": "object"
+}

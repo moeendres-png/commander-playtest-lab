@@ -1,0 +1,4 @@
+.                                                                        [100%]
+1 passed in 26.73s
+wall_seconds=28.12
+peak_rss_kib=167744

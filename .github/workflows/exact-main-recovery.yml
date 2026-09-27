@@ -1,0 +1,178 @@
+name: Exact Main Recovery
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exact-main-recovery-${{ github.sha }}
+  cancel-in-progress: false
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  recovery:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - name: Install build and validation runtime
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Focused exact-main architecture conformance
+        run: |
+          pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py
+          python scripts/run_candidate_handoff_conformance.py \
+            --root . --output-dir artifacts/candidate-handoff
+          python scripts/generate_full_game_contract_artifacts.py
+      - name: Build exact-main recovery payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          tree="$(git rev-parse HEAD^{tree})"
+          version="$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          print(tomllib.loads(Path('pyproject.toml').read_text())['project']['version'])
+          PY
+          )"
+          short="${commit:0:12}"
+          inner="recovery/inner"
+          rm -rf recovery
+          mkdir -p "$inner"
+          python -m build --wheel --outdir "$inner"
+          git archive --format=tar.gz --output="$inner/source-${commit}.tar.gz" "$commit"
+          git bundle create "$inner/repository-${commit}.bundle" HEAD --branches --tags
+          cp -R artifacts/architecture "$inner/architecture-artifacts"
+          cp -R artifacts/candidate-handoff "$inner/candidate-handoff-validation"
+          cp -R artifacts/xmage-full-game "$inner/xmage-full-game-contracts"
+          cp ARCHITECTURE_MIGRATION_REPORT.md "$inner/ARCHITECTURE_MIGRATION_REPORT.md"
+          cp MIGRATION_CLOSEOUT.md "$inner/MIGRATION_CLOSEOUT.md"
+          cp XMAGE_FULL_GAME_MIGRATION_REPORT.md "$inner/XMAGE_FULL_GAME_MIGRATION_REPORT.md"
+          cp XMAGE_FULL_GAME_CLOSEOUT.md "$inner/XMAGE_FULL_GAME_CLOSEOUT.md"
+          cp docs/architecture/xmage-full-game-external-pilots.md \
+            "$inner/xmage-full-game-external-pilots.md"
+          python - <<PY
+          import json
+          from pathlib import Path
+
+          provenance = {
+              'schema_version': 'exact-main-recovery-provenance-1.1.0',
+              'git_commit': '$commit',
+              'git_tree': '$tree',
+              'package_version': '$version',
+              'candidate_pipeline_runtime': 'candidate-pipeline-1.0.0',
+              'candidate_set_schema': 'deck-candidate-set-1.0.0',
+              'candidate_validation_report_schema': 'candidate-validation-report-1.0.0',
+              'simulation_queue_schema': 'simulation-candidate-queue-1.0.0',
+              'pre_simulation_invariant_report_schema': 'pre-simulation-invariant-report-1.0.0',
+              'future_xmage_scenario_contract': 'future-xmage-scenario-contract-1.0.0',
+              'xmage_full_game_lane': 'xmage_full_game_external_pilots',
+              'xmage_full_game_decision_protocol': 'xmage-external-decision-protocol-1.0.0',
+              'xmage_pinned_commit': 'cfc36f445f917f101fa2ed588770e043f53bc44c',
+              'operational_pod_size': 4,
+              'xmage_rules_authority': True,
+              'our_pilots_decision_authority': True,
+              'structural_decision_authority': False,
+              'tactical_decision_authority': False,
+              'random_or_default_discretionary_fallback': False,
+              'official_gameplay_evidence_consumed': False,
+              'sealed_holdout_opened': False,
+              'canonical_mutation_performed': False,
+          }
+          Path('$inner/PROVENANCE.json').write_text(
+              json.dumps(provenance, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          closeout = {
+              'schema_version': 'commander-lab-architecture-closeout-1.1.0',
+              'pre_simulation_architecture_reset_complete': True,
+              'external_candidate_set_supported': True,
+              'hard_validation_only_before_gameplay': True,
+              'lossless_handoff': True,
+              'pre_simulation_heuristic_elimination': False,
+              'structural_decision_authority': False,
+              'tactical_decision_authority': False,
+              'full_xmage_pilot_loop_implemented': True,
+              'full_xmage_lane': 'xmage_full_game_external_pilots',
+              'xmage_rules_authority': True,
+              'our_pilots_decision_policy_authority': True,
+              'full_game_operational_pod_size': 4,
+              'full_game_state_injection': False,
+              'full_game_hidden_information_actor_scoped': True,
+              'full_game_default_fallback': False,
+              'full_game_one_isolated_jvm_per_game': True,
+              'full_game_real_engine_conformance': 'VERIFIED_BY_SEPARATE_XMAGE_FULL_GAME_CONFORMANCE_WORKFLOW',
+              'canonical_deck_changed': False,
+              'inventory_changed': False,
+              'allocation_changed': False,
+              'purchase_changed': False,
+              'opponent_truth_changed': False,
+              'official_gameplay_evidence_consumed': False,
+              'sealed_holdout_opened': False,
+              'final_main_commit': '$commit',
+              'final_main_tree': '$tree',
+              'package_version': '$version',
+              'recovery_created': True,
+              'drive_upload': 'PENDING_EXTERNAL_READBACK',
+          }
+          Path('$inner/EXACT_MAIN_FINAL_CLOSEOUT.json').write_text(
+              json.dumps(closeout, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          verify="$RUNNER_TEMP/recovery-bundle-clone"
+          rm -rf "$verify"
+          git clone "$inner/repository-${commit}.bundle" "$verify"
+          test "$(git -C "$verify" rev-parse HEAD)" = "$commit"
+          test "$(git -C "$verify" rev-parse HEAD^{tree})" = "$tree"
+          restored_version="$(python - <<PY
+          import tomllib
+          from pathlib import Path
+          print(tomllib.loads(Path('$verify/pyproject.toml').read_text())['project']['version'])
+          PY
+          )"
+          test "$restored_version" = "$version"
+          printf 'status=PASS\ncommit=%s\ntree=%s\npackage_version=%s\nfresh_bundle_clone=PASS\n' \
+            "$commit" "$tree" "$version" > "$inner/VALIDATION.txt"
+          (
+            cd "$inner"
+            find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
+          (
+            cd recovery
+            tar -czf "commander-playtest-lab-exact-main-${short}.tar.gz" inner
+            sha256sum "commander-playtest-lab-exact-main-${short}.tar.gz" \
+              > "commander-playtest-lab-exact-main-${short}.tar.gz.sha256"
+          )
+      - name: Verify outer recovery checksum
+        shell: bash
+        run: |
+          cd recovery
+          sha256sum -c *.tar.gz.sha256
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: exact-main-recovery-${{ github.sha }}
+          path: |
+            recovery/*.tar.gz
+            recovery/*.sha256
+          if-no-files-found: error
+          retention-days: 90

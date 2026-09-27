@@ -1,0 +1,14 @@
+Phase 12.4 test results
+=======================
+
+Split regression (used because one monolithic foreground invocation exceeded the tool wall-time):
+- Unit: 155 passed
+- Integration: 24 passed
+- Golden/property/architecture/contract: 19 passed
+- Differential/fuzz/mutation/regression/agent evaluation: 12 passed, 1 skipped
+
+TOTAL: 210 passed, 1 skipped, 0 failed
+
+Skipped: real XMage/Forge differential test because no external engine command was configured.
+Compileall: passed.
+No unexecuted test is counted as passed.

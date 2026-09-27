@@ -1,0 +1,5 @@
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Looking in indexes: https://reader:****@packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/pypi/pypi-public/simple
+Processing ./artifacts/final_audit/build/commander_playtest_lab-1.10.2-py3-none-any.whl
+Installing collected packages: commander-playtest-lab
+Successfully installed commander-playtest-lab-1.10.2

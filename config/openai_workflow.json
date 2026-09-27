@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.5.0",
+  "default_model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "responses_api": true,
+  "structured_output_model": "WorkflowReport",
+  "session_backend": "SQLiteSession",
+  "session_path": "data/runs/openai_sessions.sqlite",
+  "local_trace_directory": "data/runs/openai_traces",
+  "deterministic_game_log_directory": "data/runs/tool_runs",
+  "trace_include_sensitive_data": false,
+  "budgets": {
+    "max_model_calls": 12,
+    "max_total_tokens": 120000,
+    "max_output_tokens_per_call": 8000,
+    "max_estimated_cost_usd": 5.0,
+    "max_simulation_seconds": 120.0,
+    "approval_threshold_iterations": 5000,
+    "hard_max_iterations": 100000,
+    "max_variants": 32
+  }
+}

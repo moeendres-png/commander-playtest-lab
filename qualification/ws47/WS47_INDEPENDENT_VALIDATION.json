@@ -1,0 +1,20 @@
+{
+  "actual_card_preservation": "29/29 PASS_AFTER_ENVELOPE_NORMALIZATION",
+  "artifact_version": "commander-lab.ws47-independent-validation/1.0.0",
+  "blocker_surface": [
+    "obj:P2-bears",
+    "obj:mp-p2-blocker"
+  ],
+  "canonical_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+  "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+  "obligation_changed_fixture_ids": [],
+  "provider_denominator": "107/107 IDENTITY_AND_ORDER_PASS",
+  "record_identity_order_count": "135/135 PASS",
+  "referential_report": "SEPARATE_BUILDER_GATE",
+  "requested_state_changed_fixture_ids": [
+    "WS05-MP-BLOCK-4"
+  ],
+  "schema_validation": "PASS",
+  "terminal_status": "PASS",
+  "unrelated_record_equivalence": "134/134 PASS_AFTER_VERSION_AND_MATERIALIZATION_DIGEST_ENVELOPE_NORMALIZATION"
+}

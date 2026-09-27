@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "ObservationStatus": {
+      "description": "Source status for opponent-card assumptions, not empirical game evidence.",
+      "enum": [
+        "directly_observed",
+        "reported_by_player",
+        "inferred_role",
+        "unknown",
+        "synthetic_assumption"
+      ],
+      "title": "ObservationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "constraint_id": {
+      "title": "Constraint Id",
+      "type": "string"
+    },
+    "kind": {
+      "title": "Kind",
+      "type": "string"
+    },
+    "required": {
+      "default": true,
+      "title": "Required",
+      "type": "boolean"
+    },
+    "source_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Id"
+    },
+    "status": {
+      "$ref": "#/$defs/ObservationStatus",
+      "default": "directly_observed"
+    },
+    "value": {
+      "title": "Value",
+      "type": "string"
+    }
+  },
+  "required": [
+    "constraint_id",
+    "kind",
+    "value"
+  ],
+  "title": "ObservedConstraint",
+  "type": "object"
+}

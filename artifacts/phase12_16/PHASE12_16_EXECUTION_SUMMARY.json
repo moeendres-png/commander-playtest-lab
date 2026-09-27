@@ -1,0 +1,42 @@
+{
+  "allocation_modified": false,
+  "candidate_profiles": 569,
+  "candidate_semantics": {
+    "curated": 3,
+    "keyword_inferred_structural_only": 566
+  },
+  "canonical_deck_files_modified": false,
+  "canonical_inventory_owned_names": 1349,
+  "external_engine_observations": {
+    "korvold": {
+      "forge": 0,
+      "xmage": 0
+    },
+    "rogshai": {
+      "forge": 0,
+      "xmage": 0
+    }
+  },
+  "external_engine_status": {
+    "korvold": {
+      "forge": "blocked",
+      "xmage": "blocked"
+    },
+    "rogshai": {
+      "forge": "blocked",
+      "xmage": "blocked"
+    }
+  },
+  "inventory_modified": false,
+  "korvold_multifidelity_status": "insufficient_evidence",
+  "korvold_screen_count": 20,
+  "phase": "12.16",
+  "recommendations_applied": false,
+  "robustness_scenarios": 30,
+  "rogshai_multifidelity_status": "insufficient_evidence",
+  "rogshai_screen_count": 20,
+  "runtime_seconds": 16.904,
+  "schema_version": 1,
+  "tool_count": 100,
+  "verified_candidate_names": 569
+}

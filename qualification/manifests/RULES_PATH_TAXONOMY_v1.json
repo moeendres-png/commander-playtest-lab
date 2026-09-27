@@ -1,0 +1,147 @@
+{
+  "categories": {
+    "combat_damage": [
+      "declaring attackers",
+      "multiple defenders",
+      "blockers",
+      "evasion",
+      "first strike",
+      "double strike",
+      "combat damage assignment",
+      "noncombat damage",
+      "deathtouch",
+      "lifelink"
+    ],
+    "commander": [
+      "commander designation",
+      "Partner",
+      "command-zone movement",
+      "commander replacement choice",
+      "commander tax",
+      "commander damage tracked per commander"
+    ],
+    "continuous_layers": [
+      "continuous effects",
+      "dependency",
+      "timestamp",
+      "type-changing effects",
+      "text-changing effects",
+      "power/toughness layers",
+      "characteristic interaction"
+    ],
+    "hidden_information": [
+      "concealed hand information",
+      "hidden library information",
+      "reveal boundaries",
+      "opponent knowledge boundaries",
+      "legal-information exposure"
+    ],
+    "mana_casting_costs": [
+      "mana abilities",
+      "colored / colorless mana",
+      "mana restrictions",
+      "normal costs",
+      "alternative costs",
+      "additional costs",
+      "variable / X costs",
+      "cost increases",
+      "cost reductions",
+      "commander tax"
+    ],
+    "multiplayer": [
+      "APNAP",
+      "each player / each opponent",
+      "multiple opponents",
+      "multiple defending players",
+      "player-leaves-game cleanup",
+      "ownership/control cleanup",
+      "free-for-all behavior"
+    ],
+    "objects_characteristics": [
+      "object identity",
+      "card faces",
+      "ownership",
+      "control",
+      "new-object semantics",
+      "last known information",
+      "tokens",
+      "counters",
+      "attachments",
+      "copyable values",
+      "copies"
+    ],
+    "priority_stack_legal_action": [
+      "legal action enumeration",
+      "priority passing",
+      "stack ordering",
+      "spell resolution",
+      "ability resolution",
+      "spell copies",
+      "ability copies"
+    ],
+    "replacement_prevention": [
+      "replacement effects",
+      "prevention effects",
+      "competing replacement ordering",
+      "affected-player / object choices"
+    ],
+    "rules_randomness": [
+      "shuffle",
+      "random choices",
+      "deterministic seeded replay requirements"
+    ],
+    "special_structures": [
+      "split cards",
+      "double-faced / transforming cards",
+      "Sagas",
+      "planeswalkers / loyalty abilities",
+      "other special forms reachable in actual-card universe"
+    ],
+    "state_based_actions": [
+      "lethal damage",
+      "zero / negative toughness",
+      "legend rule",
+      "illegal attachments",
+      "token cleanup where applicable",
+      "player loss",
+      "commander damage loss"
+    ],
+    "targets_choices": [
+      "target legality",
+      "target recheck on resolution",
+      "multiple targets",
+      "distributed targets",
+      "retargeting",
+      "modes",
+      "optional may choices",
+      "simultaneous choices",
+      "APNAP choice ordering"
+    ],
+    "triggered_abilities": [
+      "normal triggers",
+      "delayed triggers",
+      "intervening-if clauses",
+      "trigger ordering",
+      "APNAP trigger ordering",
+      "trigger multiplication / duplication"
+    ],
+    "zones": [
+      "library",
+      "hand",
+      "battlefield",
+      "graveyard",
+      "exile",
+      "command zone",
+      "search",
+      "shuffle",
+      "mill",
+      "reveal",
+      "recursion",
+      "linked objects",
+      "zone-change semantics"
+    ]
+  },
+  "exact_card_to_path_incidence": "SOURCE_DERIVED_NOT_AUTHORITATIVE",
+  "schema_version": "rules-path-taxonomy/1.0.0",
+  "status": "PASS_AS_TAXONOMY"
+}

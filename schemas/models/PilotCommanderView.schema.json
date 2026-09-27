@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "base_cost": {
+      "minimum": 0.0,
+      "title": "Base Cost",
+      "type": "number"
+    },
+    "casts": {
+      "minimum": 0,
+      "title": "Casts",
+      "type": "integer"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "next_cost": {
+      "minimum": 0.0,
+      "title": "Next Cost",
+      "type": "number"
+    },
+    "on_battlefield": {
+      "default": false,
+      "title": "On Battlefield",
+      "type": "boolean"
+    },
+    "power": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Power",
+      "type": "number"
+    }
+  },
+  "required": [
+    "name",
+    "base_cost",
+    "next_cost",
+    "casts"
+  ],
+  "title": "PilotCommanderView",
+  "type": "object"
+}

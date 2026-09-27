@@ -1,0 +1,45 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "format_band": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FormatBand"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "deck_id",
+    "commander"
+  ],
+  "title": "CompareDeckToMetaInput",
+  "type": "object"
+}

@@ -1,0 +1,20 @@
+{
+  "denominators": {
+    "actual_cards": 29,
+    "common_fixtures": 135,
+    "known_actual_card_universe": 1385,
+    "mandatory_fixtures": 135,
+    "technical_player_counts": [
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "results": {
+    "runtime_not_run": 135,
+    "runtime_pass": 0
+  },
+  "schema_version": "coverage-manifest/1.0.0",
+  "status": "FAIL_CLOSED"
+}

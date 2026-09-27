@@ -1,0 +1,144 @@
+{
+  "snapshot_id": "meta-2026-08-05-phase12-1",
+  "sources": [
+    {
+      "author": "EDHTop16 / TopDeck.gg",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "authoritative_tournament",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "399 entries; 1.31% meta; 20.80% conversion at retrieval",
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "edhtop16-rogsi-commander-2026",
+      "source_type": "tournament",
+      "title": "EDHTop16 commander page: Ishai / Rograkh",
+      "url": "https://edhtop16.com/commander/Ishai%2C%20Ojutai%20Dragonspeaker%20%2F%20Rograkh%2C%20Son%20of%20Rohgahh"
+    },
+    {
+      "author": "EDHTop16 / TopDeck.gg",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "authoritative_tournament",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "94 entries; 0.31% meta; 11.70% conversion at retrieval",
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "edhtop16-korvold-commander-2026",
+      "source_type": "tournament",
+      "title": "EDHTop16 commander page: Korvold",
+      "url": "https://edhtop16.com/commander/Korvold%2C%20Fae-Cursed%20King"
+    },
+    {
+      "author": "Peter Zschau",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "verified_decklist",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Angelic Ascension cEDH 2026, 25 players, 1-4 record",
+      "published_at": "2026-06-13T00:00:00Z",
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "mtgdecks-korvold-peter-zschau-2026",
+      "source_type": "decklist",
+      "title": "MTGDecks Korvold by Peter Zschau",
+      "url": "https://mtgdecks.net/Commander/korvold-fae-cursed-king-decklist-by-peter-zschau-2985613"
+    },
+    {
+      "author": "Archidekt deck author not verified",
+      "categories": [
+        "cedh_tournament",
+        "high_power"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": null,
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "archidekt-korvold-cedh-primer-5688565",
+      "source_type": "primer",
+      "title": "Archidekt Korvold cEDH Primer",
+      "url": "https://archidekt.com/decks/5688565/korvold_faecursed_king_cedh_primer"
+    },
+    {
+      "author": "EDHREC",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "11 user-set optimized-bracket decks",
+      "published_at": "2026-06-22T00:00:00Z",
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "edhrec-rogsi-optimized-2026",
+      "source_type": "aggregator",
+      "title": "EDHREC average RogSi optimized",
+      "url": "https://edhrec.com/average-decks/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/optimized"
+    },
+    {
+      "author": "EDHREC",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "53 user-set control decks",
+      "published_at": "2026-05-26T00:00:00Z",
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "edhrec-rogsi-control-2026",
+      "source_type": "aggregator",
+      "title": "EDHREC average RogSi control",
+      "url": "https://edhrec.com/average-decks/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/control"
+    },
+    {
+      "author": "Draftsim",
+      "categories": [
+        "normal_four_player",
+        "historical_reference"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Commander guide, older but useful for package taxonomy",
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "draftsim-korvold-guide",
+      "source_type": "primer",
+      "title": "Draftsim Korvold Commander Deck Guide",
+      "url": "https://draftsim.com/korvold-edh-deck/"
+    },
+    {
+      "author": "ManaTap",
+      "categories": [
+        "normal_four_player"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Mulligan and first-three-turns guidance",
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "manatap-korvold-mulligan",
+      "source_type": "primer",
+      "title": "ManaTap Korvold Mulligan Guide",
+      "url": "https://www.manatap.ai/commanders/korvold-fae-cursed-king/mulligan-guide"
+    },
+    {
+      "author": "Moritz Endres / project files",
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "large_pod"
+      ],
+      "evidence_quality": "local_project_context",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Local context only; no external performance claim",
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "local-project-meta-2026-08-05",
+      "source_type": "local_context",
+      "title": "Local MTG project context for Korvold/RogShai",
+      "url": "drive://MTG-Aktueller-Projektstand"
+    }
+  ]
+}

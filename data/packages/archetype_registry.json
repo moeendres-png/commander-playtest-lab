@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "archetypes": [
+    {
+      "name": "sacrifice",
+      "description": "sacrifice",
+      "status": "supported"
+    },
+    {
+      "name": "land_engine",
+      "description": "land engine",
+      "status": "supported"
+    },
+    {
+      "name": "graveyard_recursion",
+      "description": "graveyard recursion",
+      "status": "supported"
+    },
+    {
+      "name": "commander_value",
+      "description": "commander value",
+      "status": "supported"
+    },
+    {
+      "name": "voltron",
+      "description": "voltron",
+      "status": "supported"
+    },
+    {
+      "name": "tempo",
+      "description": "tempo",
+      "status": "supported"
+    },
+    {
+      "name": "control",
+      "description": "control",
+      "status": "supported"
+    },
+    {
+      "name": "spellslinger",
+      "description": "spellslinger",
+      "status": "supported"
+    },
+    {
+      "name": "artifact_engine",
+      "description": "artifact engine",
+      "status": "supported"
+    },
+    {
+      "name": "go_wide",
+      "description": "go wide",
+      "status": "supported"
+    },
+    {
+      "name": "punisher",
+      "description": "punisher",
+      "status": "supported"
+    },
+    {
+      "name": "combo",
+      "description": "combo",
+      "status": "supported"
+    },
+    {
+      "name": "stax",
+      "description": "stax",
+      "status": "supported"
+    },
+    {
+      "name": "midrange",
+      "description": "midrange",
+      "status": "supported"
+    },
+    {
+      "name": "turbo",
+      "description": "turbo",
+      "status": "supported"
+    }
+  ]
+}

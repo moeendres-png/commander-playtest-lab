@@ -1,0 +1,19 @@
+Phase 12.3 test result
+======================
+Baseline after Drive restore:
+- 181 passed
+- 1 skipped (external XMage/Forge differential runtime unavailable)
+- 2 failed (missing generated replay fixture in 1.2.0 repository handoff)
+
+After recovery fix and implementation:
+- 195 passed
+- 1 skipped
+- 0 failed
+
+Additional checks:
+- compileall: passed
+- deterministic benchmark reproducibility: passed
+- legal-actions-only guard: passed
+- omniscient information policy rejection: passed
+- equal and custom ensemble validation: passed
+- automatic deck application: false

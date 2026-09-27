@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "added_core_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Added Core Cards",
+      "type": "array"
+    },
+    "added_support_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Added Support Cards",
+      "type": "array"
+    },
+    "confidence_delta": {
+      "default": 0.0,
+      "title": "Confidence Delta",
+      "type": "number"
+    },
+    "minimum_density_delta": {
+      "default": 0,
+      "title": "Minimum Density Delta",
+      "type": "integer"
+    },
+    "newer_version": {
+      "title": "Newer Version",
+      "type": "string"
+    },
+    "older_version": {
+      "title": "Older Version",
+      "type": "string"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "redundancy_delta": {
+      "default": 0,
+      "title": "Redundancy Delta",
+      "type": "integer"
+    },
+    "removed_core_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Removed Core Cards",
+      "type": "array"
+    },
+    "removed_support_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Removed Support Cards",
+      "type": "array"
+    },
+    "status_changed": {
+      "default": false,
+      "title": "Status Changed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "package_id",
+    "older_version",
+    "newer_version"
+  ],
+  "title": "PackageVersionComparison",
+  "type": "object"
+}

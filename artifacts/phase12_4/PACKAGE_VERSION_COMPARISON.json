@@ -1,0 +1,19 @@
+{
+  "package_id": "korvold-land-sacrifice-recursion",
+  "older_version": "1.0.0",
+  "newer_version": "1.1.0",
+  "added_core_cards": [
+    "Aftermath Analyst"
+  ],
+  "removed_core_cards": [],
+  "added_support_cards": [
+    "Soul of Windgrace"
+  ],
+  "removed_support_cards": [
+    "Aftermath Analyst"
+  ],
+  "minimum_density_delta": 1,
+  "redundancy_delta": 0,
+  "status_changed": false,
+  "confidence_delta": 0.03
+}

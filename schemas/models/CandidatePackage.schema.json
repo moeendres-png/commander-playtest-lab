@@ -1,0 +1,55 @@
+{
+  "$defs": {
+    "VariantSwap": {
+      "additionalProperties": false,
+      "properties": {
+        "add_candidate_id": {
+          "title": "Add Candidate Id",
+          "type": "string"
+        },
+        "remove": {
+          "title": "Remove",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remove",
+        "add_candidate_id"
+      ],
+      "title": "VariantSwap",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rationale"
+    },
+    "swaps": {
+      "items": {
+        "$ref": "#/$defs/VariantSwap"
+      },
+      "title": "Swaps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "package_id",
+    "swaps"
+  ],
+  "title": "CandidatePackage",
+  "type": "object"
+}

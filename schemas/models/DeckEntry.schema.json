@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "DeckZone": {
+      "enum": [
+        "commander",
+        "main",
+        "sideboard",
+        "maybeboard"
+      ],
+      "title": "DeckZone",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "oracle_name": {
+      "minLength": 1,
+      "title": "Oracle Name",
+      "type": "string"
+    },
+    "physical_copy_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Physical Copy Ids",
+      "type": "array"
+    },
+    "quantity": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Quantity",
+      "type": "integer"
+    },
+    "zone": {
+      "$ref": "#/$defs/DeckZone",
+      "default": "main"
+    }
+  },
+  "required": [
+    "oracle_name"
+  ],
+  "title": "DeckEntry",
+  "type": "object"
+}

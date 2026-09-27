@@ -1,0 +1,49 @@
+{
+  "completion_status": "opponent_pilot_politics_uncertainty_ready_with_limitations",
+  "empirical_weights_used": false,
+  "estimate_type": "structural_model_estimates",
+  "execution_status": "passed_with_limitations",
+  "hidden_information_access": false,
+  "limitations": [
+    "All policy and politics outcomes are structural model estimates, not empirical human-behaviour forecasts or win rates.",
+    "Unknown opponent slots remain unknown; no exact unknown card names are fabricated.",
+    "External rules-engine validation is not part of Phase 12.15 and remains blocked separately."
+  ],
+  "opponent_truth": {
+    "alen_morcant": "53 confirmed / 47 unknown",
+    "cosmic_spiderman": "4 confirmed / 96 unknown",
+    "doom_prevails": "official 100-card precon baseline plus unknown local upgrade-role band"
+  },
+  "opponent_variants": 13,
+  "package_version": "1.10.3",
+  "phase": "12.15",
+  "pilot_profiles": 16,
+  "pod_sizes": [
+    3,
+    4,
+    5
+  ],
+  "politics_regimes": 10,
+  "real_playtests_required": false,
+  "structural_policy_tournament": {
+    "aborted": 0,
+    "adversarial_worst_case": "executed",
+    "best_response": "executed",
+    "common_random_numbers": true,
+    "completed": 960,
+    "games": 960,
+    "regret_method": "multiplicative_weights",
+    "scenario_contexts": 60,
+    "workers": 4
+  },
+  "structural_self_play": {
+    "aborted": 0,
+    "completed": 96,
+    "games": 96,
+    "same_policy_all_seats": true,
+    "scenario_contexts": 6
+  },
+  "synthetic_stress_rows": 6240,
+  "unknown_cards_invented": false,
+  "validation_level": "structural_only"
+}
