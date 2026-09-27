@@ -132,6 +132,7 @@ class XmageFullGameHiddenInformationTest {
         assertTrue(detected.getMessage().contains("hidden card identity leaked"));
     }
 
+    // Shared fail-closed oracle used by the live boundary scan and the injected-leak mutation.
     private static void assertNoHiddenCardIdentities(
             JsonObject pending, Set<String> hiddenIds) {
         String serialized = pending.toString();
