@@ -936,6 +936,10 @@ def test_execution_model_child_lifecycle(
     expected = 130 if result in ("interrupt", -2) else 127 if result == "spawn-error" else result
     assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", effort) == expected
     assert len(calls) == 1
+    assert "--model" in calls[0]
+    assert calls[0][calls[0].index("--model") + 1] == plan["execution"]["model"]
+    assert "--variant" in calls[0]
+    assert calls[0][calls[0].index("--variant") + 1] == effort
     assert "--agent" in calls[0]
     assert calls[0][calls[0].index("--agent") + 1] == expected_agent
     records = [

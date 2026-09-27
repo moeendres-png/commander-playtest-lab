@@ -740,13 +740,16 @@ def _launch_locked(
         print(f"LAUNCH_WARN: telemetry start not recorded: {exc}", file=sys.stderr)
     binary = plan.get("opencode_binary") or env.get(OPENCODE_BIN_ENV, "opencode")
     try:
-        # CLI selection outranks persisted session/model history on an explicit
-        # Zen launch. Caller model flags were rejected before taking the lock.
-        selected = (
-            ["--model", execution["model"]]
-            if execution["override"] == "zen"
-            else ["--agent", execution["agent"]]
-        )
+        # Bind the exact model even on resumed sessions: primary-agent selection
+        # alone does not replace a session's stored model. Headless mode also
+        # binds the catalog variant explicitly; TUI uses the model's canonical
+        # options + model-pinned primary agent because the pinned CLI root
+        # command has no portable --variant contract.
+        selected = ["--model", execution["model"]]
+        if execution["override"] != "zen":
+            if mode == "headless":
+                selected += ["--variant", execution["effective_variant"]]
+            selected += ["--agent", execution["agent"]]
         argv = build_argv(binary, mode, [*selected, *argv_extra])
     except ValueError as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)

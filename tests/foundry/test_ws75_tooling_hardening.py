@@ -240,7 +240,15 @@ def test_headless_launch_execs_run_auto_first(
     parts = lines[0].split(" ")
     assert parts[1] == "run"
     assert parts[2] == "--auto"
-    assert parts[3:] == ["do", "the", "thing"]
+    assert parts[3:9] == [
+        "--model",
+        "opencode-go/space-bunny-free",
+        "--variant",
+        "max",
+        "--agent",
+        "foundry-implementer",
+    ]
+    assert parts[9:] == ["do", "the", "thing"]
 
 
 def test_tui_launch_execs_without_run(
@@ -256,6 +264,13 @@ def test_tui_launch_execs_without_run(
     assert rc == 7
     parts = record.read_text(encoding="utf-8").strip().split(" ")
     assert parts[1] == "--auto"
+    assert parts[2:6] == [
+        "--model",
+        "opencode-go/space-bunny-free",
+        "--agent",
+        "foundry-implementer",
+    ]
+    assert "--variant" not in parts[1:]
     assert "run" not in parts[1:]
 
 

@@ -78,7 +78,10 @@ Muse lane:
 ```
 
 The launcher exports the exact resolved identity as `FOUNDRY_EXECUTION_MODEL` and
-`FOUNDRY_EXECUTION_LANE`. Persist it at checkpoints; do not infer model identity from
+`FOUNDRY_EXECUTION_LANE`. It always passes the selected model explicitly so a resumed
+session cannot retain the previous worker's model. Headless launches also pass the exact
+variant; TUI launches bind effort through the selected model's canonical options and
+model-pinned agent. Persist the resolved identity at checkpoints; do not infer it from
 conversation history.
 
 ## Prompt header
