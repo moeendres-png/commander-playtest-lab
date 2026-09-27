@@ -83,8 +83,17 @@ def load_effective_materialization() -> dict[str, Any]:
         if record.get("requested_state_digest") != patch["predecessor_requested_state_digest"]:
             raise ContractError(f"predecessor digest mismatch for {fixture_id}")
 
+        historical_digests = {}
+        for key in ("materialization_digest", "obligation_digest", "supersedes_record_digest"):
+            if key in record:
+                historical_digests[key] = record.pop(key)
+        record["historical_digests"] = historical_digests
+
         for key, value in patch["replace"].items():
             record[key] = copy.deepcopy(value)
+        record["knowledge_state"]["channel_policy"] = patch[
+            "knowledge_state_channel_policy"
+        ]
         record.setdefault("native_procedure", []).extend(
             copy.deepcopy(patch["append_native_procedure"])
         )
