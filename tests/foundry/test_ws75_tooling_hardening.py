@@ -335,10 +335,10 @@ def test_implementer_reads_exact_state_path() -> None:
     assert "FOUNDRY_STATE_PATH" in text
     assert "FOUNDRY_RUN_DIR" in text
     assert "FOUNDRY_REFERENCE_ROOTS" in text
-    assert "never retry an identical denied command" in text.lower()
-    assert (
-        "never use `git -C`" in text or "never use ``git -C``" in text or "Never `git -C`" in text
-    )
+    assert "Space Bunny MAX" in text
+    assert "Muse XHIGH" in text
+    assert "including `git -C`" in text
+    assert "explicitly declared read-only stays read-only" in text
 
 
 # --- 4. REFERENCE_ROOT contract ------------------------------------------------
