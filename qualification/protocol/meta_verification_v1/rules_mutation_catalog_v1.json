@@ -1,0 +1,70 @@
+{
+  "schema_version": "commander-lab.rules-mutation-catalog/1.0.0",
+  "mutations": [
+    {
+      "id": "MQ-LEGAL-001",
+      "subsystem": "LEGAL_ACTIONS",
+      "description": "Alter the authoritative legal-set digest at a real replay decision.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "LEGAL_ACTION_SET_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-DECISION-001",
+      "subsystem": "DECISION_IDENTITY",
+      "description": "Alter the selected semantic option fingerprint at a real replay decision.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "DECISION_IDENTITY_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-RNG-001",
+      "subsystem": "RULES_RNG",
+      "description": "Alter Rules-RNG call coordinates at a real replay decision.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "RULES_RNG_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-EVENT-001",
+      "subsystem": "SEMANTIC_EVENT",
+      "description": "Alter a semantic event digest at a real replay decision.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "EVENT_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-OBS-001",
+      "subsystem": "PRINCIPAL_OBSERVATION",
+      "description": "Alter the principal-scoped observation digest at a real replay decision.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "PUBLIC_STATE_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-STATE-001",
+      "subsystem": "POST_STATE",
+      "description": "Alter the post-checkpoint digest at a real replay decision.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "PUBLIC_STATE_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-TERMINAL-001",
+      "subsystem": "TERMINAL_OUTCOME",
+      "description": "Alter a terminal outcome on a real replay tape.",
+      "execution_tier": "REAL_REPLAY_TAPE",
+      "expected_detector": "TERMINAL_OUTCOME_MISMATCH",
+      "critical": true
+    },
+    {
+      "id": "MQ-HIDDEN-001",
+      "subsystem": "HIDDEN_INFORMATION",
+      "description": "Inject an opponent-private identity into the live principal observation boundary.",
+      "execution_tier": "RUNTIME_BRIDGE_REQUIRED",
+      "expected_detector": "XmageFullGameHiddenInformationTest",
+      "critical": true,
+      "status": "NOT_RUN_UNTIL_RUNTIME_FAULT_SEAM"
+    }
+  ]
+}
