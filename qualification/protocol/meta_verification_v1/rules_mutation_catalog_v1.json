@@ -60,11 +60,11 @@
     {
       "id": "MQ-HIDDEN-001",
       "subsystem": "HIDDEN_INFORMATION",
-      "description": "Inject an opponent-private identity into the live principal observation boundary.",
-      "execution_tier": "RUNTIME_BRIDGE_REQUIRED",
-      "expected_detector": "XmageFullGameHiddenInformationTest",
+      "description": "Inject an opponent-private card identity into a copy of a real live principal observation and require the production-boundary leakage oracle to reject it.",
+      "execution_tier": "LIVE_XMAGE_BOUNDARY",
+      "expected_detector": "XmageFullGameHiddenInformationTest#qualificationOracleKillsInjectedOpponentPrivateIdentity",
       "critical": true,
-      "status": "NOT_RUN_UNTIL_RUNTIME_FAULT_SEAM"
+      "status": "EXECUTABLE_LIVE_XMAGE_BOUNDARY"
     }
   ]
 }
