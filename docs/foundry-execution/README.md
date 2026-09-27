@@ -10,6 +10,7 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
 | Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Muse default, Space Bunny Max profile, legacy Zen override, no fallback |
 | Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / Space Bunny MAX / Muse / Astra authority model |
+| Full project execution authority | `docs/foundry-execution/FULL_PROJECT_EXECUTION_AUTHORITY_2026-09-27.md` | Project-scoped Git/GitHub execution pre-authorization; reserved boundaries |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | Post-PR172 merge procedure; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
@@ -65,11 +66,9 @@ this repository. Do not edit user-global skills from this workstream.
 ## Permission model (summary)
 
 Root `opencode.json` is the single permission authority; agents inherit it and
-must not widen it. `foundry-implementer` carries no agent-local permission
-override. `foundry-adjudicator` narrows to `edit: deny`, ask-gated
-`pytest`/`python`/`ruff`/`gh api`, and denied destructive/remote/mutation
-paths. `foundry-reviewer` stays fully contained (`edit: deny`,
-`bash: deny` except read-only Git). Generic `gh api*` is ask-gated for all
-roles because OpenCode glob semantics cannot reliably distinguish read
-(`GET`) from mutation (`POST`/`PATCH`/`PUT`/`DELETE`); no method-sensitive
-enforcement is claimed.
+must not widen it. The primary implementer/executor is pre-authorized for ordinary
+project-scoped Git/GitHub work, including owned branches/worktrees, pushes, PR/issue
+mutation, integration and CI remediation. Secret/system/reserved-authority operations
+remain denied. `foundry-adjudicator` and `foundry-reviewer` intentionally remain
+narrower read/test-first roles; their local restrictions do not reduce the authority
+of the primary campaign executor.
