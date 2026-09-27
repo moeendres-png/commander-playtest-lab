@@ -1,3 +1,10 @@
+> **Authority update — 2026-09-27:** The command-deny portions of this dated threat model
+> are superseded for current project-scoped execution by
+> `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` and canonical `opencode.json`.
+> This file remains historical threat-model evidence. Secret/system boundaries and
+> Rules/evidence invariants still apply; ordinary Git/GitHub execution is now
+> pre-authorized inside the active campaign/workstream.
+
 # SAFE_AUTO Threat Model — 2026-09-10
 
 Project workstreams intentionally start with `opencode --auto`. Verified CLI
