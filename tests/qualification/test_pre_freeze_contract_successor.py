@@ -108,7 +108,10 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
     old = {record["fixture_id"]: record for record in base["records"]}
     new = {record["fixture_id"]: record for record in effective["records"]}
 
-    assert effective["schema_version"] == "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+    assert (
+        effective["schema_version"]
+        == "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+    )
     assert effective["contract_id"] == "commander-lab.full107/1.0.6-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
