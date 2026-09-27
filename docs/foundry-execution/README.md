@@ -6,15 +6,15 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Surface | Canonical path | Role |
 |---|---|---|
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
-| Machine config | `opencode.json` (root) | Safe committed Muse default; launcher-selected Space Bunny MAX profile; permissions; sharing off |
+| Machine config | `opencode.json` (root) | Space Bunny MAX committed/default; Muse XHIGH explicit alternate; permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Muse default, Space Bunny Max profile, legacy Zen override, no fallback |
+| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX default, Muse XHIGH alternate, legacy Zen compatibility, no fallback |
 | Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / Space Bunny MAX / Muse / Astra authority model |
 | Full project execution authority | `docs/foundry-execution/FULL_PROJECT_EXECUTION_AUTHORITY_2026-09-27.md` | Project-scoped Git/GitHub execution pre-authorization; reserved boundaries |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | Post-PR172 merge procedure; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
-| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (HIGH) |
+| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running Space Bunny MAX worker |
 | Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (XHIGH) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation |
