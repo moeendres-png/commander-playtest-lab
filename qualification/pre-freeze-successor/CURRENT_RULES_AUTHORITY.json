@@ -1,47 +1,38 @@
 {
-  "schema_version": "commander-lab.current-rules-authority-receipt/1.1.0",
+  "schema_version": "commander-lab.current-rules-authority-receipt/1.2.0",
   "authority": "Wizards of the Coast",
   "verified_date": "2026-09-27",
   "official_rules_page_url": "https://magic.wizards.com/en/rules",
   "applicable_rule": "103.8a",
   "semantic_requirement": "In a two-player game, the starting player skips the entire draw step of the first turn.",
-  "authority_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
+  "authority_status": "CURRENT_OFFICIAL_AUTHORITY_VERIFIED",
   "directly_retrieved_official_source": {
     "url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "discovery_source": "https://magic.wizards.com/en/rules",
     "effective_date": "2026-08-07",
     "rule_103_8a_observed": true,
-    "classification": "DIRECTLY_VERIFIED_OFFICIAL_BUT_FRESHNESS_DISPUTED"
+    "rules_page_current_link_verified": true,
+    "classification": "EXTERNALLY_RULE_VALIDATED_CURRENT_OFFICIAL"
   },
   "newer_release_signal": {
-    "effective_date": "2026-09-25",
-    "status": "REQUIRES_DIRECT_OFFICIAL_BYTE_CAPTURE",
-    "official_txt_url": null,
-    "official_txt_sha256": null,
+    "claimed_effective_date": "2026-09-25",
+    "disposition": "NOT_CURRENT_COMPREHENSIVE_RULES_AUTHORITY",
+    "reason": "The official Reality Fracture Update Bulletin describes rules changes as planned for the set release and directs readers to the official Rules page for current authority. Reality Fracture releases 2026-10-02; 2026-09-25 is the Prerelease start date, not an independently established Comprehensive Rules effective date.",
+    "official_update_bulletin_url": "https://www.magic.wizards.com/en/news/announcements/reality-fracture-update-bulletin",
+    "official_rules_page_url": "https://magic.wizards.com/en/rules",
     "admission_credit": false,
-    "corroboration": [
-      {
-        "type": "USER_SUPPLIED_WORK_EXECUTION_REPORT",
-        "note": "A prior execution worker reported a newer official Comprehensive Rules TXT effective 2026-09-25."
-      },
-      {
-        "type": "SECONDARY_PUBLIC_MIRROR",
-        "repository": "muz/mtgrulediff",
-        "commit": "8ba7eb0d63a9b1e67aa1280fafb9fd0d16052592",
-        "rules_file": "rules/MagicCompRules 20260925.txt",
-        "rules_file_git_blob": "4dc4fead596288be1ca6aa9c913ea1739c680a29",
-        "rule_103_8a_semantics_match": true,
-        "authority_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
-      }
-    ]
+    "secondary_public_mirror_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
   },
   "reproduction": {
-    "require_direct_official_current_txt_capture": true,
-    "require_current_effective_date": true,
-    "require_current_txt_sha256": true,
+    "require_official_rules_page": true,
+    "require_official_rules_page_txt_link": true,
+    "require_effective_date": "2026-08-07",
     "require_rule_number": "103.8a",
+    "require_rule_semantics": "starting player in a two-player game skips the draw step of the first turn",
+    "exact_current_txt_sha256_status": "NOT_CAPTURED_IN_THIS_POST_MERGE_SEAL",
     "fail_closed_on_source_drift": true,
-    "fail_closed_on_freshness_conflict": true,
-    "on_unresolved_conflict": "BLOCK_CURRENT_RULES_AUTHORITY_CREDIT"
+    "fail_closed_if_rules_page_points_to_newer_effective_rules": true,
+    "on_future_drift": "BLOCK_CURRENT_RULES_AUTHORITY_CREDIT_PENDING_IMPACT_ADJUDICATION"
   },
   "historical_repository_provenance": {
     "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
@@ -50,5 +41,15 @@
     "historical_resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
     "historical_txt_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
     "carry_forward_as_current_authority": false
+  },
+  "adjudication": {
+    "status": "FRESHNESS_CONFLICT_RESOLVED",
+    "basis": [
+      "Official Wizards Rules page currently identifies the 2026-08-07 Comprehensive Rules as the current TXT authority.",
+      "The official Reality Fracture Update Bulletin says its changes are planned for the set release and defers to the Rules page as authority.",
+      "Reality Fracture Prerelease begins 2026-09-25; worldwide release is 2026-10-02."
+    ],
+    "cr_103_8a_changed": false,
+    "start2_successor_semantics_affected": false
   }
 }
