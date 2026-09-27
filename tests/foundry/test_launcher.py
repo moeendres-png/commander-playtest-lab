@@ -1131,6 +1131,7 @@ def _workspace_surface(tmp_path: Path, *, ownership: str = "TEST-WS") -> tuple[P
     _git(["init", "-b", "main"], root, env)
     _git(["config", "remote.origin.url", f"https://github.com/{CPL_SLUG}.git"], root, env)
     (root / "side.txt").write_text("side\n", encoding="utf-8")
+    (root / ".gitignore").write_text(".foundry/\n", encoding="utf-8")
     _git(["add", "."], root, env)
     _git(["commit", "-m", "side"], root, env)
     _git(["checkout", "-b", "project/side"], root, env)
@@ -1161,7 +1162,7 @@ def _workspace_surface(tmp_path: Path, *, ownership: str = "TEST-WS") -> tuple[P
         "repo_slug": CPL_SLUG,
         "commit": head,
         "tree": tree,
-        "cleanliness": "clean",
+        "cleanliness": "allow-ignored-build-outputs",
         "access": "owned-write",
         "branch": "project/side",
         "state_path": str(state_path),
