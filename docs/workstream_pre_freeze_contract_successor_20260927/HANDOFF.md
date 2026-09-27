@@ -212,11 +212,11 @@ than choosing between historical FULL107/RSP artifacts ad hoc.
 
 ## Exact Next Action
 
-After PR #254 is integrated, run the bounded common-fixture execution/requalification
-against the effective successor contract:
+Run the bounded current-boundary common-fixture execution/requalification against the
+now-integrated effective successor contract:
 
-1. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
-   including corrected `WS05-CMD-START-2`.
+1. Fresh execution of all 107 FULL107 rows on XMage and Forge, including corrected
+   `WS05-CMD-START-2`.
 2. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
    provider/adapter/build identities for both candidates.
 3. Only then consume the normalized results in the pre-Freeze provider-comparison
@@ -297,3 +297,89 @@ supersede the official source.
 This follow-up changes no fixture semantics, AF gate semantics, engine code, provider
 code, FULL107 denominator, or evidence-promotion policy. It only closes the erroneous
 freshness blocker and reseals the changed qualification artifacts.
+
+
+## Terminal Integrated Closeout — 2026-09-27
+
+The bounded contract-normalization workstream is fully integrated.
+
+### Canonical current main
+
+- Commit: `60fc3c8afbe5245ddc3a9f6262b86736e2a0a635`
+- Tree: `0fe5be6d46949c74b37aba83169e38a7ecfe2068`
+- PR #254 merge commit:
+  `c5f9418e755a02ffec0e02c34b4a739baf10f5f0`
+- PR #260 Rules-authority freshness follow-up merge commit:
+  `60fc3c8afbe5245ddc3a9f6262b86736e2a0a635`
+
+PR #254 review threads are resolved. PR #260 has no review-thread blockers.
+
+### Integrated-source impact adjudication
+
+The fully validated PR #260 head was
+`b35fa5b2bc1c9eef2a9d0a158c5ce7c0bcba25fd`.
+
+The final merge parent already contained later governance/Foundry work. Comparing that
+validated head to canonical `main@60fc3c8a` changes only:
+
+- `.foundry/repo-profiles/cpl.json`
+- `.opencode/agents/foundry-adjudicator.md`
+- `.opencode/agents/foundry-implementer.md`
+- `.opencode/agents/foundry-reviewer.md`
+- `AGENTS.md`
+- `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`
+- `docs/foundry-execution/README.md`
+- `docs/foundry-execution/ROUTING_AND_EFFORT.md`
+- `tests/foundry/test_foundry_tools.py`
+
+None overlap the START-2 successor contract, AF01 v2, schemas, resolver, qualification
+tests, Rules-authority receipt, or qualification SHA manifests.
+
+Disposition:
+`SOURCE_DRIFT = NON_IMPACTING_CONTRACT_SURFACE`.
+
+### Final validation receipts
+
+On the exact PR #260 head:
+
+- CI run `36325813155`: **SUCCESS**
+  - security: SUCCESS
+  - Ruff lint: SUCCESS
+  - Ruff format: SUCCESS — 954 files already formatted
+  - mypy strict: SUCCESS — 0 issues / 261 source files
+  - full Python suite: **1629 passed / 7 skipped / 1 warning**
+  - compile / secret scan / wheel build: SUCCESS
+- Production Qualification run `36325813302`: **SUCCESS**
+  - qualification suite: **37 passed / 2 skipped**
+  - canonical fixture manifest validation: SUCCESS
+
+On exact canonical `main@60fc3c8a`:
+
+- Exact Main Recovery run `36326352815`: **SUCCESS**
+  - focused exact-main architecture conformance: SUCCESS
+  - recovery payload/checksum: SUCCESS
+  - focused suite: **33 passed**
+
+### Current official Rules authority recheck
+
+On 2026-09-27 the official Wizards Rules page still exposes the official Comprehensive
+Rules TXT currently represented by the successor receipt. That TXT states an effective
+date of 2026-08-07, and CR 103.8a requires the starting player in a two-player game to
+skip the draw step of their first turn.
+
+No byte-exact current-web SHA-256 is claimed by the receipt. Its fail-closed source-drift
+policy remains authoritative.
+
+### Terminal disposition
+
+- `PRE_FREEZE_CONTRACT_SUCCESSOR = COMPLETE / BOUNDED PASS`
+- `START2_CONTRACT_AUTHORITY_CORRECTION = TECHNICALLY_CONFORMANT`
+- `START2_RULES_BASIS = EXTERNALLY_RULE_VALIDATED`
+- `AF01_CONTRACT_MIGRATION = TECHNICALLY_CONFORMANT`
+- `QUALIFICATION_INTEGRITY = DIRECTLY_VERIFIED`
+- `START2_CANDIDATE_RUNTIME = UNKNOWN`
+- `AF01_CANDIDATE_RUNTIME = UNKNOWN`
+- `ARCHITECTURE_FREEZE = NOT CLAIMED`
+- `PRODUCTION_PROVIDER = NOT SELECTED`
+
+No further mutation belongs to this contract-normalization workstream.
