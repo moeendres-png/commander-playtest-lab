@@ -347,7 +347,9 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     flat = " ".join(text.lower().split())
     assert "technical_decision_authority = autonomous_within_contract" in flat
     assert "do not stop or ask the coordinator for routine technical decisions" in flat
+    assert "space bunny max" in flat
     assert "muse xhigh" in flat
+    assert "autonomous tool use" in flat
     assert "authority_gate" in flat
 
 
@@ -806,3 +808,46 @@ def test_skill_library_conformance() -> None:
     for required in ("AUTHORITY_GATE", "UNKNOWN", "Sol High"):
         assert required in escalation
     assert "second hidden rules engine" not in escalation.lower()
+
+
+def test_dual_executor_current_authority_is_canonical() -> None:
+    authority = REPO_ROOT / "docs" / "COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md"
+    assert authority.is_file()
+    flat = " ".join(authority.read_text(encoding="utf-8").lower().split())
+    for required in (
+        "space bunny free max",
+        "opencode-go/space-bunny-free",
+        "native variant: `max`",
+        "muse spark 1.3 contributor",
+        "technical_decision_authority = autonomous_within_contract",
+        "tool-use authority",
+        "no automatic fallback",
+        "production provider selection",
+        "architecture freeze",
+    ):
+        assert required.lower() in flat
+
+
+def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
+    profile = json.loads((REPO_ROOT / ".foundry" / "repo-profiles" / "cpl.json").read_text())
+    canonical = profile["canonical_files"]
+    assert "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md" in canonical
+    assert "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md" in canonical
+    assert "docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md" not in canonical
+    notes = profile["notes"].lower()
+    assert "dual-executor" in notes
+    assert "space bunny max" in notes
+    assert "muse" in notes
+
+
+def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
+    routing = (REPO_ROOT / "docs" / "foundry-execution" / "ROUTING_AND_EFFORT.md").read_text(
+        encoding="utf-8"
+    )
+    flat = " ".join(routing.lower().split())
+    assert "preferred for new substantial work" in flat
+    assert "space-bunny" in flat
+    assert "native `max`" in flat
+    assert "muse" in flat
+    assert "neither supported opencode foundry executor can perform it" in flat
+    assert "docs/coordinator_execution_authority_2026-09-27.md" in flat
