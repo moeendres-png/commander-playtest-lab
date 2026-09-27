@@ -181,7 +181,7 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: 1264fc0724bacc6a7538bdf847ddbe3cd02d188d
+state_written_against_head: 36eb34ed9cacc0441e43291ab28a5b27557cd2c0
 status: WAITING
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
@@ -256,5 +256,5 @@ validated_gates:
   not a missing engine seam
 - 'PB-09 established and CORRECTED: the executed Forge candidate is a Lab Rules-Core
   fork (47 Lab commits touch forge-game), not the pinned candidate'
-validated_head: 1264fc0724bacc6a7538bdf847ddbe3cd02d188d
+validated_head: 36eb34ed9cacc0441e43291ab28a5b27557cd2c0
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
