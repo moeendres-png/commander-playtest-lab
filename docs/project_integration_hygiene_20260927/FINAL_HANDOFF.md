@@ -146,10 +146,12 @@ B8 duplicate Forge clone. Detail in `REMAINING_BLOCKERS.md`.
 
 ## Remote Branch / HEAD / TREE
 
-- Local `wsr23/project-integration-hygiene-20260927` = `240a8d40` + the final packet commit, on
-  `bbbb6b9c`.
+- Local `wsr23/project-integration-hygiene-20260927` = 3 commits on `bbbb6b9c` (the packet commit,
+  the publication/drift record, and the dirty-count correction). The packet commit's own SHA is
+  recorded in the git history; this line is deliberately not SHA-pinned so it cannot rot.
 - Remote `origin/wsr23/project-integration-hygiene-20260927` = `c5f9418e` (unchanged; it existed at dispatch).
-- Local is a **strict descendant**; publication is a clean fast-forward with no force required.
+- Local is a **strict descendant** of `c5f9418e`; publication is a clean fast-forward of one
+  refspec with no force required. Verified with `git merge-base --is-ancestor`.
 
 ## PR State
 
