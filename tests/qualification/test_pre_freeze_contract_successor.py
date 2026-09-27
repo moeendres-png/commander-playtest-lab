@@ -5,6 +5,9 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+from jsonschema import Draft202012Validator
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
@@ -156,16 +159,68 @@ def test_af_catalog_has_exact_required_gate_set_and_no_rsp11_af01_binding() -> N
 
 def test_freeze_schema_binds_current_boundary_without_claiming_freeze() -> None:
     schema = _json(AF_SCHEMA_PATH)
+    Draft202012Validator.check_schema(schema)
     props = schema["properties"]
     assert (
         props["qualification_boundary"]["const"]
         == "commander-lab.pre-freeze-qualification/2.0.0"
     )
     assert props["transport_protocol_version"]["const"] == "2.0.0"
-    assert props["af_results"]["minItems"] == props["af_results"]["maxItems"] == 12
+    assert props["architecture_winner"]["const"] is False
+    assert props["gate_results"]["minItems"] == props["gate_results"]["maxItems"] == 12
+    assert "evidence_refs" in props["gate_results"]["items"]["required"]
 
     legacy = _json(
         REPO_ROOT
         / "qualification/protocol/ws10r/architecture_freeze_gate_catalog_v1.json"
     )
     assert legacy["protocol"] == "commander-lab.rules-service/1.1.0"
+
+
+def _freeze_result(verdict: str = "PASS", freeze_eligible: bool = True) -> dict:
+    return {
+        "schema_version": "architecture-freeze-result/2.0.0",
+        "architecture_winner": False,
+        "candidate": "fixture-candidate",
+        "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+        "transport_protocol_version": "2.0.0",
+        "protocol_schema_identity": "sha256:test",
+        "source_lock": {"commit": "a" * 40},
+        "truthful_capabilities": {"legal_actions_supported": True},
+        "gate_results": [
+            {
+                "gate_id": f"AF{i:02d}",
+                "verdict": verdict,
+                "reason": "test evidence",
+                "evidence_refs": [f"artifact:AF{i:02d}"],
+            }
+            for i in range(12)
+        ],
+        "freeze_eligible": freeze_eligible,
+    }
+
+
+def test_freeze_schema_requires_all_gate_ids_once_and_evidence_refs() -> None:
+    validator = Draft202012Validator(_json(AF_SCHEMA_PATH))
+    validator.validate(_freeze_result())
+
+    duplicate = _freeze_result()
+    duplicate["gate_results"][11]["gate_id"] = "AF10"
+    with pytest.raises(Exception):
+        validator.validate(duplicate)
+
+    no_evidence = _freeze_result()
+    no_evidence["gate_results"][0]["evidence_refs"] = []
+    with pytest.raises(Exception):
+        validator.validate(no_evidence)
+
+
+def test_freeze_eligible_true_requires_all_pass() -> None:
+    validator = Draft202012Validator(_json(AF_SCHEMA_PATH))
+    invalid = _freeze_result()
+    invalid["gate_results"][3]["verdict"] = "PARTIAL"
+    with pytest.raises(Exception):
+        validator.validate(invalid)
+
+    not_eligible = _freeze_result(verdict="PARTIAL", freeze_eligible=False)
+    validator.validate(not_eligible)
