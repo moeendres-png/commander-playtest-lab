@@ -187,6 +187,10 @@ def test_freeze_schema_binds_current_boundary_without_claiming_freeze() -> None:
         props["qualification_boundary"]["const"] == "commander-lab.pre-freeze-qualification/2.0.0"
     )
     assert props["transport_protocol_version"]["const"] == "2.0.0"
+    assert (
+        props["protocol_schema_identity"]["const"]
+        == "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+    )
     assert props["architecture_winner"]["const"] is False
     assert props["gate_results"]["minItems"] == props["gate_results"]["maxItems"] == 12
     assert "evidence_refs" in props["gate_results"]["items"]["required"]
@@ -204,7 +208,7 @@ def _freeze_result(verdict: str = "PASS", freeze_eligible: bool = True) -> dict:
         "candidate": "fixture-candidate",
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
         "transport_protocol_version": "2.0.0",
-        "protocol_schema_identity": "sha256:test",
+        "protocol_schema_identity": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5",
         "source_lock": {
             "provider_source": {
                 "repository": "example/provider",
@@ -311,6 +315,14 @@ def test_current_rules_authority_is_reproducible_and_has_no_missing_local_artifa
     assert receipt["applicable_rule"] == "103.8a"
     assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
     assert "artifact_path" not in receipt
+    assert (
+        receipt["live_verification"]["official_rules_page_current_txt_link"]
+        == receipt["official_txt_url"]
+    )
+    assert receipt["live_verification"]["rule_103_8a_observed"] is True
+    adjudication = receipt["historical_url_drift_adjudication"]
+    assert adjudication["current_official_rules_page_link_differs"] is True
+    assert adjudication["carry_forward_of_historical_byte_digest"] is False
 
 
 def test_freeze_schema_rejects_unbound_source_or_capabilities() -> None:
