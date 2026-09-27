@@ -307,20 +307,34 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
     validator.validate(not_eligible)
 
 
-def test_current_rules_authority_freshness_conflict_fails_closed() -> None:
+def test_current_rules_authority_is_current_and_prerelease_is_not_rules_effective_date() -> None:
     receipt = _json(RULES_AUTHORITY_PATH)
     successor = _json(SUCCESSOR_PATH)
+    authority = _json(AUTHORITY_PATH)
+
     assert receipt["authority"] == "Wizards of the Coast"
-    assert receipt["authority_status"] == "FRESHNESS_CONFLICT_FAIL_CLOSED"
-    assert receipt["directly_retrieved_official_source"]["effective_date"] == "2026-08-07"
-    assert receipt["directly_retrieved_official_source"]["rule_103_8a_observed"] is True
-    assert receipt["newer_release_signal"]["effective_date"] == "2026-09-25"
-    assert receipt["newer_release_signal"]["official_txt_url"] is None
-    assert receipt["newer_release_signal"]["official_txt_sha256"] is None
-    assert receipt["newer_release_signal"]["admission_credit"] is False
-    assert receipt["reproduction"]["fail_closed_on_freshness_conflict"] is True
+    assert receipt["authority_status"] == "CURRENT_OFFICIAL_AUTHORITY_VERIFIED"
+    source = receipt["directly_retrieved_official_source"]
+    assert source["discovery_source"] == "https://magic.wizards.com/en/rules"
+    assert source["url"].endswith("MagicCompRules%2020260807.txt")
+    assert source["effective_date"] == "2026-08-07"
+    assert source["rule_103_8a_observed"] is True
+    assert source["rules_page_current_link_verified"] is True
+
+    signal = receipt["newer_release_signal"]
+    assert signal["claimed_effective_date"] == "2026-09-25"
+    assert signal["disposition"] == "NOT_CURRENT_COMPREHENSIVE_RULES_AUTHORITY"
+    assert signal["admission_credit"] is False
+
+    assert receipt["adjudication"]["status"] == "FRESHNESS_CONFLICT_RESOLVED"
+    assert receipt["adjudication"]["cr_103_8a_changed"] is False
+    assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
+    assert receipt["reproduction"]["fail_closed_if_rules_page_points_to_newer_effective_rules"] is True
+
     assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
     assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-08-07"
+    assert authority["rules_authority"]["current_status"] == receipt["authority_status"]
+    assert authority["rules_authority"]["freshness_adjudication"] == "FRESHNESS_CONFLICT_RESOLVED"
 
 
 def test_freeze_schema_rejects_unbound_source_or_capabilities() -> None:
