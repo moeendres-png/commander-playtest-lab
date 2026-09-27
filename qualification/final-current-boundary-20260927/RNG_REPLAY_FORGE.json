@@ -1,0 +1,33 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "event_log": {},
+ "rules_rng_binding": {
+  "engine_owned": true,
+  "harness_injected_outcomes": false,
+  "provider_reported_seed_supported": true,
+  "requested_seed": 424242
+ },
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
+  "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "dfb490e268b40dba7315a3fb53861eb2580d8baa",
+  "runner_tree": "504a5f296a68bd1c60828eb54538b577021aac7e",
+  "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+ },
+ "same_seed_twin": "see comparison packet; twin runs are executed per candidate",
+ "schema_version": "wsr22.rng-replay/1.0.0",
+ "semantic_replay": {
+  "error": [
+   {
+    "code": "unknown_message",
+    "details": {},
+    "message": "export_replay is not supported: deterministic replay is not claimed",
+    "retryable": false
+   }
+  ]
+ }
+}

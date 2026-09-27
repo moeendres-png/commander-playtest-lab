@@ -561,7 +561,7 @@
           "const": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
         },
         "effective_date": {
-          "const": "2026-08-07"
+          "const": "2026-09-25"
         },
         "rule": {
           "const": "103.8a"
