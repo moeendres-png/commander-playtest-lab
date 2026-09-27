@@ -1,3 +1,8 @@
+> **Current routing authority update — 2026-09-27:** Historical HIGH/XHIGH
+> adjudications below are provenance only. Current active-work routing is Space Bunny
+> MAX by default/preference and Muse XHIGH only; Muse HIGH is no longer an active lane.
+> See `ROUTING_AND_EFFORT.md` and `COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`.
+
 # Governance Supersession — PR #161, #166, #167
 
 This branch (`project/opencode-execution-system-consolidation-20260910`, based on
