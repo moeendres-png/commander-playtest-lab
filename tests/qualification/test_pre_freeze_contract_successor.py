@@ -21,6 +21,13 @@ AF_CATALOG_PATH = (
 AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
+MATERIALIZATION_SCHEMA_PATH = (
+    REPO_ROOT
+    / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json"
+)
+RULES_AUTHORITY_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
+)
 
 
 def _json(path: Path) -> dict:
@@ -42,8 +49,14 @@ def test_current_authority_preserves_history_and_changes_only_start2() -> None:
     assert authority["full107"]["changed_fixture_ids"] == ["WS05-CMD-START-2"]
     assert authority["full107"]["unchanged_fixture_count"] == 106
     assert (
-        authority["full107"]["evidence_survival"]["WS05-CMD-START-2"] == "REQUALIFICATION_REQUIRED"
+        authority["full107"]["evidence_survival"]["WS05-CMD-START-2"]
+        == "REQUALIFICATION_REQUIRED_SEMANTIC_CHANGE"
     )
+    assert (
+        authority["full107"]["evidence_migration"]["common_comparison_runtime_credit"]
+        == "FRESH_CURRENT_BOUNDARY_EXECUTION_REQUIRED_ALL_107"
+    )
+    assert authority["full107"]["evidence_migration"]["automatic_carry_forward"] is False
     assert "PROVIDER_SELECTION" in authority["forbidden_claims"]
     assert "ARCHITECTURE_FREEZE" in authority["forbidden_claims"]
 
@@ -83,9 +96,12 @@ def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
     assert record["knowledge_state"]["channel_policy"].startswith(
         "Current candidate-neutral qualification-boundary"
     )
-    for stale_key in ("materialization_digest", "obligation_digest", "supersedes_record_digest"):
-        assert stale_key not in record
-        assert stale_key in record["historical_digests"]
+    for current_key in ("materialization_digest", "obligation_digest", "supersedes_record_digest"):
+        assert current_key in record
+    for historical_key in ("materialization_digest", "obligation_digest"):
+        assert historical_key in record["historical_digests"]
+    assert record["obligation_digest"] == resolver.obligation_digest(record)
+    assert record["materialization_digest"] == resolver.materialization_digest(record)
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -95,18 +111,27 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
     old = {record["fixture_id"]: record for record in base["records"]}
     new = {record["fixture_id"]: record for record in effective["records"]}
 
-    assert "canonical_bundle_digest" not in effective
-    assert "common_fixture_manifest_sha256" not in effective
-    assert effective["authority_lock"]["lock_id"] == "AUTHORITY_LOCK_v2"
+    assert effective["schema_version"] == (
+        "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+    )
+    assert effective["contract_id"] == "commander-lab.full107/1.0.6-successor"
+    assert effective["protocol"] == base["protocol"]
+    assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
+    assert (
+        effective["qualification_boundary"]
+        == "commander-lab.pre-freeze-qualification/2.0.0"
+    )
+    assert effective["common_fixture_manifest_sha256"] == base["common_fixture_manifest_sha256"]
     assert effective["historical_authority_lock"] == base["authority_lock"]
+    assert effective["authority_lock"]["receipt_path"].endswith("CURRENT_RULES_AUTHORITY.json")
     assert (
         effective["supersedes"]["historical_canonical_bundle_digest"]
         == base["canonical_bundle_digest"]
     )
-    assert (
-        effective["fixture_denominator_source"]["historical_common_fixture_manifest_sha256"]
-        == base["common_fixture_manifest_sha256"]
+    assert effective["canonical_bundle_digest"] == _resolver().canonical_bundle_digest(
+        effective
     )
+    Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
     assert old.keys() == new.keys()
     for fixture_id in old:
         if fixture_id == "WS05-CMD-START-2":
@@ -180,8 +205,64 @@ def _freeze_result(verdict: str = "PASS", freeze_eligible: bool = True) -> dict:
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
         "transport_protocol_version": "2.0.0",
         "protocol_schema_identity": "sha256:test",
-        "source_lock": {"commit": "a" * 40},
-        "truthful_capabilities": {"legal_actions_supported": True},
+        "source_lock": {
+            "provider_source": {
+                "repository": "example/provider",
+                "commit": "a" * 40,
+                "tree": "b" * 40,
+            },
+            "adapter_source": {
+                "repository": "example/adapter",
+                "commit": "c" * 40,
+                "tree": "d" * 40,
+            },
+            "build": {
+                "artifact_identity": "candidate.jar",
+                "artifact_sha256": "e" * 64,
+            },
+        },
+        "truthful_capabilities": {
+            "reported_by_provider": True,
+            "runtime_kind": "external_rules_engine",
+            "capabilities": {
+                "commander_supported": True,
+                "multiplayer_supported": True,
+                "deck_import_supported": True,
+                "legal_actions_supported": True,
+                "action_submission_supported": True,
+                "event_log_supported": True,
+                "headless_supported": True,
+                "seed_supported": True,
+                "replay_supported": True,
+                "game_shutdown_supported": True,
+                "engine_shutdown_supported": True,
+                "priority_visible": True,
+                "stack_visible": True,
+                "commander_tax_visible": True,
+                "commander_damage_visible": True,
+                "mulligan_supported": True,
+                "target_selection_supported": True,
+                "mode_selection_supported": True,
+                "trigger_order_supported": True,
+                "concede_supported": True,
+                "starting_state_injection_supported": False,
+                "scenario_injection_supported": False,
+            },
+            "required_capabilities": [
+                "commander_supported",
+                "multiplayer_supported",
+                "deck_import_supported",
+                "legal_actions_supported",
+                "action_submission_supported",
+                "event_log_supported",
+                "headless_supported",
+                "seed_supported",
+                "replay_supported",
+                "game_shutdown_supported",
+                "engine_shutdown_supported",
+            ],
+            "missing_required_capabilities": [],
+        },
         "gate_results": [
             {
                 "gate_id": f"AF{i:02d}",
@@ -219,3 +300,48 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
 
     not_eligible = _freeze_result(verdict="PARTIAL", freeze_eligible=False)
     validator.validate(not_eligible)
+
+
+def test_current_rules_authority_is_reproducible_and_has_no_missing_local_artifact() -> None:
+    receipt = _json(RULES_AUTHORITY_PATH)
+    assert receipt["authority"] == "Wizards of the Coast"
+    assert receipt["official_rules_page_url"] == "https://magic.wizards.com/en/rules"
+    assert receipt["official_txt_url"].endswith("MagicCompRules%2020260807.txt")
+    assert receipt["effective_date"] == "2026-08-07"
+    assert receipt["applicable_rule"] == "103.8a"
+    assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
+    assert "artifact_path" not in receipt
+
+
+def test_freeze_schema_rejects_unbound_source_or_capabilities() -> None:
+    validator = Draft202012Validator(_json(AF_SCHEMA_PATH))
+
+    no_source = _freeze_result()
+    no_source["source_lock"] = {}
+    with pytest.raises(ValidationError):
+        validator.validate(no_source)
+
+    no_capabilities = _freeze_result()
+    no_capabilities["truthful_capabilities"] = {}
+    with pytest.raises(ValidationError):
+        validator.validate(no_capabilities)
+
+    missing_capability = _freeze_result()
+    missing_capability["truthful_capabilities"]["missing_required_capabilities"] = [
+        "legal_actions_supported"
+    ]
+    with pytest.raises(ValidationError):
+        validator.validate(missing_capability)
+
+
+def test_historical_full107_runtime_credit_is_not_automatically_promoted() -> None:
+    authority = _json(AUTHORITY_PATH)
+    migration = authority["full107"]["evidence_migration"]
+    assert migration["protocol_boundary_changed"] is True
+    assert migration["automatic_carry_forward"] is False
+    assert migration["source_identity_alone_is_sufficient"] is False
+    assert migration["impact_adjudication_required"] is True
+    assert (
+        migration["common_comparison_runtime_credit"]
+        == "FRESH_CURRENT_BOUNDARY_EXECUTION_REQUIRED_ALL_107"
+    )
