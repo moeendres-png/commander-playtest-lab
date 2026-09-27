@@ -155,24 +155,27 @@ Final fully validated post-review, post-PR-257 integration head:
 The handoff update following that validated head is documentation-only; no contract,
 hash manifest, resolver, schema or test semantics change in that handoff commit.
 
-Rules-authority status is deliberately fail closed:
+Rules-authority freshness is now resolved:
 
-- the directly retrieved official Wizards source proves CR 103.8a semantics for the
-  2026-08-07 rules;
-- a newer 2026-09-25 release signal exists but no direct official current TXT bytes and
-  SHA-256 are yet bound in the repository;
-- therefore `CURRENT_RULES_AUTHORITY.authority_status =
-  FRESHNESS_CONFLICT_FAIL_CLOSED`;
-- the 2026-08-07 semantics may support the START-2 correction, but **current Rules
-  authority admission credit remains blocked** until the newer official bytes are
-  directly captured and adjudicated.
+- the current official Wizards Rules page was rechecked on 2026-09-27 and still points
+  to `MagicCompRules 20260807.txt`;
+- that official TXT identifies the rules as effective 2026-08-07 and retains CR 103.8a
+  with the same two-player first-turn draw-step-skip semantics;
+- the official Reality Fracture Update Bulletin describes its rules changes as planned
+  for the set release and explicitly defers to the Rules page as authority;
+- Reality Fracture Prerelease begins 2026-09-25, while worldwide release is 2026-10-02;
+  therefore the prior 2026-09-25 "new CR effective date" signal was a prerelease-date
+  misclassification, not current Comprehensive Rules authority;
+- `CURRENT_RULES_AUTHORITY.authority_status =
+  CURRENT_OFFICIAL_AUTHORITY_VERIFIED`;
+- future Rules-page/effective-date drift remains fail closed.
 
 Evidence classification:
 
 - Contract implementation/repository integration: **TECHNICALLY_CONFORMANT** within
   this bounded contract-normalization scope.
-- START-2 semantic basis: **EXTERNALLY_RULE_VALIDATED** for CR 103.8a semantics, with
-  current-authority freshness explicitly blocked rather than silently promoted.
+- START-2 semantic basis: **EXTERNALLY_RULE_VALIDATED** against the current official
+  Wizards Rules page/TXT and CR 103.8a.
 - Qualification hash sealing and CI receipts: **DIRECTLY_VERIFIED**.
 - START-2 candidate runtime behavior: **UNKNOWN** until current-boundary execution.
 - AF01 candidate runtime compliance: **UNKNOWN** until candidate-specific execution.
@@ -189,14 +192,13 @@ Evidence classification:
 
 ## Remaining Blockers
 
-1. Resolve `FRESHNESS_CONFLICT_FAIL_CLOSED` by directly capturing and binding the
-   current official Comprehensive Rules bytes corresponding to the newer release signal,
-   then impact-adjudicate CR 103.8a.
-2. Execute all 107 FULL107 rows freshly under the current qualification boundary for
+1. Execute all 107 FULL107 rows freshly under the current qualification boundary for
    XMage and Forge; START-2 uses the corrected successor semantics.
-3. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
+2. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
    candidate using exact provider/adapter/build source locks.
-4. Continue provider comparison only from those normalized current-boundary results.
+3. Continue provider comparison only from those normalized current-boundary results.
+
+No Rules-authority freshness blocker remains for this contract-normalization workstream.
 
 ## Dependencies Unblocked
 
@@ -208,13 +210,11 @@ than choosing between historical FULL107/RSP artifacts ad hoc.
 After PR #254 is integrated, run the bounded common-fixture execution/requalification
 against the effective successor contract:
 
-1. Close the current Rules-authority freshness conflict with a direct official current
-   CR capture and record whether CR 103.8a changed.
-2. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
+1. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
    including corrected `WS05-CMD-START-2`.
-3. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
+2. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
    provider/adapter/build identities for both candidates.
-4. Only then consume the normalized results in the pre-Freeze provider-comparison
+3. Only then consume the normalized results in the pre-Freeze provider-comparison
    framework.
 
 Do not select a provider from this contract-only workstream.
@@ -277,3 +277,27 @@ The current main was integrated as a real second parent in merge commit
 `add963b9f57f3910d1a80912cac1a7dc89163843`; no force update or stale-base
 merge was used. Final qualification receipts must therefore bind to the
 post-integration PR head, not to any earlier intermediate head.
+
+## Post-Merge Rules Authority Seal
+
+PR #254 merged at `c5f9418e755a02ffec0e02c34b4a739baf10f5f0` (tree
+`610f93d81e3b7154731d95472be6dcac05057eac`).
+
+A final post-merge authority check resolved the only remaining in-scope blocker:
+
+- official Rules page: `https://magic.wizards.com/en/rules`;
+- current linked TXT: `MagicCompRules%2020260807.txt`;
+- TXT effective date: 2026-08-07;
+- CR 103.8a semantics: unchanged;
+- Reality Fracture 2026-09-25 is Prerelease, not an independently established CR
+  effective date;
+- Reality Fracture worldwide release: 2026-10-02.
+
+The authority receipt and regression tests now encode this disposition and retain
+fail-closed behavior if the official Rules page later advances.
+
+Post-merge authority-seal branch:
+`sol/pre-freeze-authority-seal-20260927`.
+
+Contract-normalization scope after that seal:
+**COMPLETE / BOUNDED PASS / NO IN-SCOPE AUTHORITY BLOCKER**.
