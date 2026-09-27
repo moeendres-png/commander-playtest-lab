@@ -1,0 +1,125 @@
+audit_base_sha: 7d50937d4d3234589a59dce2cef88e6465096bae
+audit_base_tree: 15c47157e05518e1529543dbdb92e61b735380cd
+authority_gates:
+- PRODUCTION_PROVIDER = NOT SELECTED (Coordinator authority; unchanged)
+- ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged)
+- MTG Rules adjudication remains with GPT-5.6 Sol High; this successor adopts a Coordinator
+  adjudication and makes no Rules ruling of its own
+branch: wsr22-successor/current-boundary-freeze-20260927
+evidence:
+- qualification/final-current-boundary-20260927/SOURCE_LOCK.json
+- qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json
+- qualification/final-current-boundary-20260927/CURRENT_BOUNDARY_COMPARISON.json
+- qualification/final-current-boundary-20260927/PROVIDER_BLOCKERS.json
+- qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json
+- docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md
+- docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
+exact_next_action: 'Run the impact-required gate set on this branch, bind validation
+  credit to the exact head, push, open one PR against main, inspect exact-head CI,
+  repair only attributable failures, merge, re-read post-merge main, and only then
+  mark PR #269 superseded - which requires proving every WSR22 evidence family is
+  present on main with the successor''s provenance intact.'
+forbidden_shortcuts:
+- Transplanting a generated manifest instead of recomputing it
+- Loosening the semantic fixture schema const into a pattern rather than moving it
+  with its subject
+- Deleting the superseded Rules receipt instead of recording it as a supersession
+- Rewriting historical provenance records to match a current receipt
+- Reducing the FULL107 denominator to make a blocker disappear
+hard_gates:
+- Cut only from fresh origin/main, never from the stale local main
+- No force push, no history rewrite, no rebase of the evidence head
+- FULL107 denominator stays 107 with denominator_decreased_to_bypass_blocker false
+- Generated manifests are computed from the integrated tree, never transplanted
+- No expected value weakened to obtain green
+in_scope:
+- Transplant qualification/final-current-boundary-20260927/, src/commander_lab/qualification/current_boundary/,
+  the two current-boundary runner scripts and test_wsr22_current_boundary.py as whole
+  files from the immutable evidence head 208341c6124674046787f3a4b1d699c98c286a27
+- Adopt the 2026-09-25 direct official Rules capture as the current authority receipt,
+  preserving the superseded 2026-08-07 receipt as a recorded supersession rather than
+  deleting it
+- 'Update the live effective-date pins with their subject: the semantic fixture schema
+  const and the two current-input comprehensive_rules_effective_date values'
+- Retarget the receipt assertions in tests/qualification/test_pre_freeze_contract_successor.py
+  to the new receipt while keeping every protection asserted
+- Regenerate qualification/SHA256SUMS and WS17_SHA256SUMS from the integrated tree
+- Repair strict-mypy findings in the transplanted package by narrowing, never suppressing
+- Run impact-required checks, then publish, open a PR, inspect exact-head CI and merge
+objective: 'Create a current-main successor to WSR22''s provider qualification evidence:
+  transplant the justified evidence and implementation surfaces from the immutable
+  evidence head with explicit provenance, adopt the Coordinator-adjudicated 2026-09-25
+  official Rules authority, reseal only the mechanical integrity manifests, and run
+  only impact-required checks. The 107-row FULL107 denominator is preserved exactly;
+  no blanket runtime rerun is performed because the accepted change is a Rules-authority
+  receipt whose qualification-relevant rule diff is semantically nil.'
+out_of_scope:
+- Any rewrite, rebase or mutation of the WSR22 evidence head; it is immutable provenance
+- Any change to the FULL107 denominator, which stays exactly 107 rows
+- Any blanket runtime requalification of the 107-row matrix; the accepted change is
+  provenance
+- Any rewrite of historical provenance records in qualification/ws47/, qualification/ws79-*
+  or qualification/manifests/AUTHORITY_LOCK_v*.json, which record what was decided
+  at the time
+- PB-09 Forge candidate identity work, which is a separate battlefield with its own
+  branch
+- PB-03 starting-state injection work
+- Provider selection and ARCHITECTURE_FREEZE, which remain Coordinator decisions
+ownership: wsr22-successor-current-boundary-freeze-20260927
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+state_written_against_head: 35ed98b539eb05bc5af2e7381ba12dedcd9020e6
+status: WAITING
+technical_decisions:
+- Main was merged as the base and main moved three times during the WSR23 stage, so
+  this branch binds the exact post-merge main 7d50937d TREE 15c47157 rather than the
+  Coordinator-stated 8d2aacd5 or the dispatch-prompt b786fbf2.
+- 'All 41 transplanted paths are new to main, so the transplant cannot regress newer
+  content. The five paths WSR22 also modified are handled deliberately rather than
+  bulk-copied: the receipt is written fresh, the live pins move with their subject,
+  and the two manifests are recomputed.'
+- byte_identity_claim moves false -> true. That is a stronger claim backed by a recorded
+  sha256 and an independent re-fetch, not a weakened assertion.
+- The superseded 2026-08-07 receipt is preserved in a supersedes block with its original
+  schema version, effective date, byte-exact status and the reason it was wrong, so
+  the correction is auditable rather than silent.
+- The 4 strict-mypy errors in the transplanted package are fixed by narrowing. Suppressing
+  them would have hidden exactly the kind of gap CI exists to catch.
+validated_head: 35ed98b539eb05bc5af2e7381ba12dedcd9020e6
+worktree: /home/moeen/code/wsr22-successor-current-boundary
+tests_run:
+- 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 35ed98b539eb05bc5af2e7381ba12dedcd9020e6):
+  1713 passed, 5 skipped, 0 failed'
+- 'pytest tests/qualification -q: 87 passed, 2 skipped'
+- 'pytest tests/qualification/test_pre_freeze_contract_successor.py tests/qualification/test_wsr22_current_boundary.py
+  -q: 26 passed'
+- 'pytest tests/qualification/test_ws17_qualification.py -q: 12 passed (manifest integrity,
+  after reseal)'
+- 'ruff check: All checks passed'
+- 'ruff format --check: 1009 files already formatted'
+- 'mypy src/commander_lab (strict): Success, no issues in 270 source files'
+- 'python -m compileall -q src tests: exit 0'
+- 'python tools/project_invariant_audit.py: 6 pass / 0 fail / 1 not_applicable'
+- 'python tools/foundry/state.py --check-validated: STATE_OK schema=2.0'
+- 'python tools/foundry/bootstrap.py --workstream wsr22-successor-current-boundary-freeze-20260927:
+  BOOTSTRAP_PASS'
+validated_gates:
+- Full python test suite green on a clean tree (1713 passed / 5 skipped / 0 failed)
+- Receipt assertions retargeted to the 2026-09-25 capture and still asserting byte-exact
+  hash, byte count, independent re-verification, explicit supersession with preserved_not_deleted,
+  both fail-closed reproduction flags, and successor/receipt agreement
+- Both integrity manifests recomputed from the integrated tree and verified by the
+  WS17 manifest gate
+- FULL107 denominator preserved at exactly 107; no row removed or duplicated
+- Strict mypy green on src/commander_lab including the transplanted package
+- ruff lint and format clean; compileall clean
+- 'project invariant audit: 6 pass, 0 fail'
+- WORKSTREAM_STATE STATE_OK schema 2.0; bootstrap gate BOOTSTRAP_PASS
+- 'Evidence provenance bound: WSR22 evidence head 208341c6 recorded and untouched'
+current_reasoning: 'The successor is complete and validated locally. The transplant
+  is whole-file from the immutable evidence head for 41 paths that are all new to
+  main, so it cannot regress newer content. The five paths WSR22 also modified were
+  handled deliberately: the receipt was written fresh with an explicit supersession
+  record, the live effective-date pins moved with their subject rather than being
+  loosened, and both manifests were recomputed. Four strict-mypy errors inherited
+  from the transplant were fixed by narrowing.'
