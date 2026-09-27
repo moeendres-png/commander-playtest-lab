@@ -6,7 +6,7 @@ inside WSR24 and recorded in the readiness JSON packets.
 
 Conventions per slot: QUESTION / WHY_COORDINATOR_AUTHORITY /
 EXACT_EVIDENCE / AVAILABLE_OPTIONS / TECHNICAL_CONSEQUENCE_OF_EACH_OPTION.
-No slot names a recommended winner. No slot ranks providers.
+No slot names a recommended winner. NO RECOMMENDED WINNER in this file.
 
 Freeze rule (binding, from `architecture_freeze_contract_v2.schema.json`):
 `freeze_eligible=true` ONLY IF every required AF00–AF11 gate is PASS AND all
