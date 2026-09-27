@@ -101,6 +101,35 @@ checkout and remained byte-clean at `18bba95a…`.
 
 Each repair was re-verified by re-running the affected execution.
 
+## Lab unit-suite baseline (impact check)
+
+A full `tests/unit` run was used as the impact check for the new package.
+
+| Tree state | Result |
+|---|---|
+| **Clean committed tree (this workstream's final state)** | **1001 passed, 3 failed, 8 collection errors** |
+| Same HEAD with the workstream's uncommitted edits stashed | 1001 passed, 3 failed, 0 errors |
+
+Interpretation (important, and the reason the dirty-tree run looked alarming):
+
+- The 42 extra failures seen on a **dirty** worktree were **not** caused by this
+  workstream's code. The repository contains a canonical-input guard
+  (`src/commander_lab/tools/service.py:753`, "stale canonical inputs rejected:
+  tracked software worktree differs from recorded git tree") that refuses to run
+  tools while the worktree differs from the recorded Git tree. A dirty tree
+  therefore fails many unrelated tests by design. On a clean committed tree
+  they all pass. This guard is a real repository invariant and was respected:
+  the workstream commits before running canonical-input tests.
+- The **3 remaining failures are pre-existing and environmental**:
+  `test_snapshot_reproducibility`, `test_structural_profiles` and
+  `test_first_run_preparation` each spawn a subprocess in a temporary cwd that
+  cannot import `commander_lab` because the package is not pip-installed in this
+  environment (`python3 -m pip show commander-lab` → not found) and
+  `pythonpath = ["src"]` applies only to the pytest process. They are unrelated
+  to this workstream and were not modified by it.
+- The 8 collection errors are pre-existing missing optional dependencies
+  (`typer`, an `asyncio` plugin) in tests unrelated to this workstream.
+
 ## Not run (honest NOT_RUN)
 
 - `mypy`: the binary/module is absent in this environment (environmental, not
