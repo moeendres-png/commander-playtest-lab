@@ -130,40 +130,51 @@ No historical WS47/WS10R contract, Rules-engine runtime, provider, or publisher 
 
 ## Tests / Evidence
 
-Initial PR validation exposed one legitimate infrastructure failure:
-`test_all_ws17_hash_manifests_verify_and_cover_changed_artifacts` rejected the six
-new `qualification/` artifacts because they were not yet covered by the current hash
-manifests. The gate was not weakened. Both hash manifests were extended with exact
-SHA-256 entries and the root manifest was rebound to the updated
-`qualification/SHA256SUMS`.
+The qualification integrity gate initially caught missing SHA-256 coverage for the new
+qualification artifacts. The gate was preserved; both `qualification/SHA256SUMS` and
+`WS17_SHA256SUMS` were extended/resealed whenever a sealed qualification artifact
+changed.
 
-Final branch validation on implementation head
-`29f1e0f3073262f2fd47cca94d08cf0a3d8e8abd`:
+Final fully validated post-review, post-PR-257 integration head:
 
-- CI run `36313283271`: **SUCCESS**
+`236ff2d48ac79c0fe84380e7f44b0d7bc2894bb0`
+
+- CI run `36319384132`: **SUCCESS**
   - Ruff lint: SUCCESS
-  - Ruff format: SUCCESS
-  - mypy strict: SUCCESS
-  - full Python test suite: **1614 passed / 7 skipped / 1 warning**
+  - Ruff format: SUCCESS — 953 files already formatted
+  - mypy strict: SUCCESS — 0 issues / 261 source files
+  - full Python suite: **1626 passed / 7 skipped / 1 warning**
   - compile / secret-pattern scan / wheel build: SUCCESS
-- Production Qualification run `36313283325`: **SUCCESS**
-  - qualification suite: **33 passed / 2 skipped**
+  - security job: SUCCESS
+- Production Qualification run `36319384122`: **SUCCESS**
+  - qualification suite: **37 passed / 2 skipped**
   - canonical fixture manifest validation: SUCCESS
-  - exact-main-admission intentionally skipped on PR event
-- Windows Runtime Hygiene run `36313283360`: **SUCCESS**
-  - filesystem/atomic-storage, external-runtime boundary, doctor/probe cleanliness,
-    structural/tactical validation and final clean-repository assertion all SUCCESS.
+  - exact-main-admission skipped as expected for the PR event
+- Windows Runtime Hygiene run `36319384133`: **SUCCESS**
 
-The earlier integrity failure was fully remediated without weakening a test or gate:
-new qualification artifacts are sealed in both SHA-256 manifests.
+The handoff update following that validated head is documentation-only; no contract,
+hash manifest, resolver, schema or test semantics change in that handoff commit.
+
+Rules-authority status is deliberately fail closed:
+
+- the directly retrieved official Wizards source proves CR 103.8a semantics for the
+  2026-08-07 rules;
+- a newer 2026-09-25 release signal exists but no direct official current TXT bytes and
+  SHA-256 are yet bound in the repository;
+- therefore `CURRENT_RULES_AUTHORITY.authority_status =
+  FRESHNESS_CONFLICT_FAIL_CLOSED`;
+- the 2026-08-07 semantics may support the START-2 correction, but **current Rules
+  authority admission credit remains blocked** until the newer official bytes are
+  directly captured and adjudicated.
 
 Evidence classification:
 
-- Contract implementation and repository integration: **TECHNICALLY_CONFORMANT**
-  within this bounded contract-normalization scope.
-- Official Rules basis for START-2: **EXTERNALLY_RULE_VALIDATED** against the
-  repository-pinned current CR 103.8a authority.
-- START-2 candidate runtime behavior: **UNKNOWN** until successor requalification.
+- Contract implementation/repository integration: **TECHNICALLY_CONFORMANT** within
+  this bounded contract-normalization scope.
+- START-2 semantic basis: **EXTERNALLY_RULE_VALIDATED** for CR 103.8a semantics, with
+  current-authority freshness explicitly blocked rather than silently promoted.
+- Qualification hash sealing and CI receipts: **DIRECTLY_VERIFIED**.
+- START-2 candidate runtime behavior: **UNKNOWN** until current-boundary execution.
 - AF01 candidate runtime compliance: **UNKNOWN** until candidate-specific execution.
 
 ## PASS / FAIL / UNKNOWN
@@ -178,11 +189,14 @@ Evidence classification:
 
 ## Remaining Blockers
 
-1. Execute all 107 FULL107 rows freshly under the current qualification boundary for
+1. Resolve `FRESHNESS_CONFLICT_FAIL_CLOSED` by directly capturing and binding the
+   current official Comprehensive Rules bytes corresponding to the newer release signal,
+   then impact-adjudicate CR 103.8a.
+2. Execute all 107 FULL107 rows freshly under the current qualification boundary for
    XMage and Forge; START-2 uses the corrected successor semantics.
-2. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
+3. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
    candidate using exact provider/adapter/build source locks.
-3. Continue provider comparison only from those normalized current-boundary results.
+4. Continue provider comparison only from those normalized current-boundary results.
 
 ## Dependencies Unblocked
 
@@ -194,11 +208,13 @@ than choosing between historical FULL107/RSP artifacts ad hoc.
 After PR #254 is integrated, run the bounded common-fixture execution/requalification
 against the effective successor contract:
 
-1. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
+1. Close the current Rules-authority freshness conflict with a direct official current
+   CR capture and record whether CR 103.8a changed.
+2. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
    including corrected `WS05-CMD-START-2`.
-2. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
+3. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
    provider/adapter/build identities for both candidates.
-3. Only then consume the normalized results in the pre-Freeze provider-comparison
+4. Only then consume the normalized results in the pre-Freeze provider-comparison
    framework.
 
 Do not select a provider from this contract-only workstream.
@@ -211,11 +227,17 @@ Do not select a provider from this contract-only workstream.
 
 - PR: #254 — `Pre-Freeze contract successor: correct START-2 and migrate AF01`
 - Branch: `sol/pre-freeze-contract-successor-start2-af01-20260927`
-- Validated implementation head: `29f1e0f3073262f2fd47cca94d08cf0a3d8e8abd`
-- Base main: `58e8fca430651207a87a8f3e9f41d8c6527dd4cd`
-- Base tree: `4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2`
-- Mergeability at validation: TRUE
+- Fully validated contract/integration head:
+  `236ff2d48ac79c0fe84380e7f44b0d7bc2894bb0`
+- Current integrated base main:
+  `586914ea10caf1ede3e509908a6b177c4a20d5e7`
+- Current integrated base tree:
+  `6d2aab11a5bf432207a96977c9009fb11906c0d0`
+- Current-main integration merge parent:
+  `add963b9f57f3910d1a80912cac1a7dc89163843`
+- Mergeability at validated state: TRUE
 - Scope status: **COMPLETE / BOUNDED PASS**
+- Runtime/provider qualification remains outside this contract-only PASS.
 
 ## Review Remediation Before Merge
 
