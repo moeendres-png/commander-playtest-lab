@@ -28,6 +28,9 @@
    unchanged non-START2 records, protocol binding and historical preservation.
 8. Removed stale predecessor materialization/obligation/supersession digests from the
    effective START-2 record and retained them only under `historical_digests`.
+9. Removed the predecessor bundle's canonical digest/common-manifest digest from current
+   identity fields, preserved them as historical provenance, and rebound the effective
+   bundle to `AUTHORITY_LOCK_v2`.
 
 ## START-2 Authority Correction
 
