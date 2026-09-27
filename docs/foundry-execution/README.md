@@ -8,7 +8,7 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
 | Machine config | `opencode.json` (root) | Safe committed Muse default; launcher-selected Space Bunny MAX profile; permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Muse default, Space Bunny Max profile, legacy Zen override, no fallback |
+| Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Verified read-only references and explicit multi-surface owned-write access |\n| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Muse default, Space Bunny Max profile, legacy Zen override, no fallback |
 | Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / Space Bunny MAX / Muse / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
