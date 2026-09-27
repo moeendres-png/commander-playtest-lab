@@ -2,7 +2,7 @@
 description: Read-only fresh-context reviewer for Foundry implementation and evidence
 mode: subagent
 model: opencode-go/muse-spark-1.3-contributor
-variant: high
+variant: xhigh
 permission:
   edit: deny
   bash:

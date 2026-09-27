@@ -66,11 +66,22 @@ import opencode_cli_version as version_mod
 import reference_roots as reference_mod
 import writer_lock as writer_lock_mod
 
-CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
+CANONICAL_MODEL = "opencode-go/space-bunny-free"
 CANONICAL_PROVIDER = "opencode-go"
 ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
 SPACE_BUNNY_MODEL = "opencode-go/space-bunny-free"
+ALTERNATE_MODEL = "opencode-go/muse-spark-1.3-contributor"
 EXECUTION_PROFILES = ("muse", "space-bunny")
+DEFAULT_EXECUTION_PROFILE = "space-bunny"
+# Operator authority (2026-09-27): exactly two executors are reachable, each
+# pinned to one native reasoning level. Space Bunny runs at native `max`; Muse
+# runs at `xhigh`. The project-level --effort field still describes task and
+# authority routing and never lowers either native level. No other variant of
+# either model is selectable, and there is no silent fallback between them.
+AUTHORIZED_NATIVE_VARIANT = {
+    "space-bunny-free": "max",
+    "muse-spark-1.3-contributor": "xhigh",
+}
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
@@ -87,12 +98,15 @@ def execution_identity(
         raise ValueError(f"unknown execution profile {execution_profile!r}")
     if effort not in ALLOWED_EFFORTS:
         raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
+    # Zen is a legacy provider override that names its own executor, so it may only
+    # be combined with the Muse profile or with no profile at all. Naming any other
+    # profile would ask for two different executors at once.
     if override and execution_profile not in (None, "muse"):
         raise ValueError(
             "execution profile and provider override cannot select different executors"
         )
 
-    profile = execution_profile or "muse"
+    profile = execution_profile or DEFAULT_EXECUTION_PROFILE
     if override == "zen":
         return {
             "profile": "muse-free-zen",
@@ -115,9 +129,9 @@ def execution_identity(
         }
     return {
         "profile": "muse",
-        "override": "canonical",
+        "override": "muse",
         "provider": CANONICAL_PROVIDER,
-        "model": CANONICAL_MODEL,
+        "model": ALTERNATE_MODEL,
         "requested_effort": effort,
         "variant_resolution": "canonical_agent_variant",
         "native_variant": None,
@@ -268,14 +282,41 @@ def build_content_bundle(
         raise ValueError(f"canonical provider drift: {providers!r}")
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
-    short_model = CANONICAL_MODEL.split("/", 1)[1]
+    canonical_short = CANONICAL_MODEL.split("/", 1)[1]
+    alternate_short = ALTERNATE_MODEL.split("/", 1)[1]
     try:
-        variants = config["provider"][CANONICAL_PROVIDER]["models"][short_model]["variants"]
+        models = config["provider"][CANONICAL_PROVIDER]["models"]
     except KeyError as exc:
         raise ValueError(f"canonical model entry missing: {exc}") from exc
-    for effort in BELOW_HIGH:
-        if variants.get(effort) != {"disabled": True}:
-            raise ValueError(f"canonical below-HIGH variant {effort!r} not disabled")
+    # No silent fallback: the canonical executor must be first, and the documented
+    # alternate must stay selectable in the same session. A whitelist that drops
+    # the alternate would make a Muse resume impossible without an edit.
+    whitelist = config["provider"][CANONICAL_PROVIDER].get("whitelist", [])
+    if whitelist != [canonical_short, alternate_short]:
+        raise ValueError(
+            f"canonical execution allowlist drift: {whitelist!r} "
+            f"(want canonical {[canonical_short, alternate_short]!r})"
+        )
+    for model_name in (canonical_short, alternate_short):
+        try:
+            variants = models[model_name]["variants"]
+        except KeyError as exc:
+            raise ValueError(f"canonical model entry missing: {exc}") from exc
+        for effort in BELOW_HIGH:
+            if variants.get(effort) != {"disabled": True}:
+                raise ValueError(
+                    f"canonical below-HIGH variant {effort!r} not disabled for {model_name!r}"
+                )
+        # Exactly one reachable native level per model, and it must be the
+        # authorized one. Anything else would silently re-open a retired effort
+        # level, so fail closed instead of trusting the declaration order.
+        want = AUTHORIZED_NATIVE_VARIANT[model_name]
+        enabled = sorted(name for name, spec in variants.items() if spec != {"disabled": True})
+        if enabled != [want]:
+            raise ValueError(
+                f"authorized-variant drift for {model_name!r}: enabled {enabled!r} "
+                f"(want exactly [{want!r}])"
+            )
     if config.get("share", "disabled") != "disabled":
         raise ValueError("canonical share must remain disabled")
     bundle = {
@@ -303,7 +344,11 @@ def build_content_bundle(
     bundle["experimental"] = experimental
     if "default_agent" in config:
         bundle["default_agent"] = config["default_agent"]
-    if execution_profile == "space-bunny":
+    # Branch on the RESOLVED profile, never the raw flag. An omitted flag now
+    # resolves to the space-bunny default, so branching on the flag would let a
+    # default launch fall through to the wrong executor block.
+    resolved_profile = execution["profile"]
+    if resolved_profile == "space-bunny":
         bundle["model"] = SPACE_BUNNY_MODEL
         bundle["small_model"] = SPACE_BUNNY_MODEL
         bundle["enabled_providers"] = [CANONICAL_PROVIDER]
@@ -352,6 +397,34 @@ def build_content_bundle(
         names.update(config.get("agent", {}))
         names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
         bundle["agent"] = {name: {"model": ZEN_MODEL, "variant": ""} for name in sorted(names)}
+    else:
+        # Explicit Muse profile. The committed default is now Space Bunny, so a
+        # Muse run must pin the alternate executor itself. Inheriting the
+        # committed model here would let telemetry and lock metadata claim "muse"
+        # while Space Bunny actually ran, which is a silent fallback.
+        bundle["model"] = ALTERNATE_MODEL
+        bundle["small_model"] = ALTERNATE_MODEL
+        bundle["enabled_providers"] = [CANONICAL_PROVIDER]
+        short = ALTERNATE_MODEL.split("/", 1)[1]
+        bundle["provider"] = {
+            CANONICAL_PROVIDER: {
+                "whitelist": [short],
+                "models": {
+                    short: {
+                        "options": {"reasoningEffort": "xhigh"},
+                        "variants": {"xhigh": {}},
+                    }
+                },
+            }
+        }
+        # Inline run config wins over the unchanged canonical Markdown snapshot,
+        # pinning every reachable agent to Muse XHIGH.
+        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
+        names.update(config.get("agent", {}))
+        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
+        bundle["agent"] = {
+            name: {"model": ALTERNATE_MODEL, "variant": "xhigh"} for name in sorted(names)
+        }
     return bundle
 
 
@@ -733,9 +806,12 @@ def _launch_locked(
         print(f"LAUNCH_WARN: telemetry start not recorded: {exc}", file=sys.stderr)
     binary = plan.get("opencode_binary") or env.get(OPENCODE_BIN_ENV, "opencode")
     try:
-        # CLI model selection outranks persisted session/model history on every
-        # explicit non-default executor. Caller model flags are rejected.
-        selected = ["--model", execution["model"]] if execution["override"] != "canonical" else []
+        # CLI model selection outranks persisted session/model history, so every
+        # profile is pinned explicitly on the child argv. An earlier "canonical"
+        # sentinel skipped this for the committed default, which relied on the
+        # child inheriting the right model; pinning instead makes a silent
+        # fallback to another executor impossible. Caller model flags are refused.
+        selected = ["--model", execution["model"]]
         argv = build_argv(binary, mode, [*selected, *argv_extra])
     except ValueError as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)

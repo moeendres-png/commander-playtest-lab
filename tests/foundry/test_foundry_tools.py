@@ -264,13 +264,34 @@ def test_repo_root_state_absent_schema_kept() -> None:
 
 
 def test_opencode_config_schema_conformance() -> None:
+    """Exactly two authorized executors, each pinned to one native variant.
+
+    Operator authority (2026-09-27): only Space Bunny MAX and Muse XHIGH are
+    reachable. This pins the shape and the pinning, not just the presence of a
+    model field, so a retired effort level cannot quietly reopen.
+    """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert config["model"] == "opencode-go/space-bunny-free"
+    assert config["small_model"] == "opencode-go/space-bunny-free"
     assert config["share"] == "disabled"
-    variants = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]["variants"]
-    for effort in ("none", "off", "minimal", "low", "medium"):
-        assert variants[effort] == {"disabled": True}
-    assert set(variants) == {"none", "off", "minimal", "low", "medium", "high", "xhigh"}
+    assert config["enabled_providers"] == ["opencode-go"]
+    provider = config["provider"]["opencode-go"]
+    # No silent fallback: canonical first, documented alternate still selectable.
+    assert provider["whitelist"] == ["space-bunny-free", "muse-spark-1.3-contributor"]
+    authorized = {
+        "space-bunny-free": ("max", {"reasoningEffort": "max"}),
+        "muse-spark-1.3-contributor": ("xhigh", {"reasoningEffort": "xhigh"}),
+    }
+    assert set(provider["models"]) == set(authorized)
+    for short, (variant, options) in authorized.items():
+        entry = provider["models"][short]
+        assert entry["options"] == options, short
+        enabled = sorted(n for n, s in entry["variants"].items() if s != {"disabled": True})
+        assert enabled == [variant], f"{short}: {enabled}"
+        for retired in ("none", "off", "minimal", "low", "medium"):
+            assert entry["variants"][retired] == {"disabled": True}, f"{short}:{retired}"
+    # Space Bunny is the primary executor, so the build agent defaults to its level.
+    assert config["agent"]["build"] == {"variant": "max"}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
 
@@ -281,13 +302,25 @@ def _agent_frontmatter(name: str) -> dict:
 
 
 def test_high_default_retained() -> None:
+    """The default agent surface runs Muse at XHIGH, never at a retired level.
+
+    Renamed intent, kept name: the invariant is that the default agent resolves
+    to an authorized executor at its authorized native level. With only Muse
+    XHIGH and Space Bunny MAX permitted, `high` is a retired level and must not
+    appear on any reachable agent definition.
+    """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    provider_model = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]
-    assert provider_model["options"] == {"reasoningEffort": "high"}
-    assert config["agent"]["build"] == {"variant": "high"}
+    models = config["provider"]["opencode-go"]["models"]
+    assert models["space-bunny-free"]["options"] == {"reasoningEffort": "max"}
+    assert models["muse-spark-1.3-contributor"]["options"] == {"reasoningEffort": "xhigh"}
+    # The on-disk agent snapshot is the Muse profile; the launcher pins Space
+    # Bunny inline for space-bunny runs.
+    for name in ("foundry-implementer.md", "foundry-adjudicator.md", "foundry-reviewer.md"):
+        front = _agent_frontmatter(name)
+        assert front["model"] == "opencode-go/muse-spark-1.3-contributor", name
+        assert front["variant"] == "xhigh", name
     implementer = _agent_frontmatter("foundry-implementer.md")
-    assert implementer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert implementer["variant"] == "high"
+    assert implementer["variant"] == "xhigh"
 
 
 def test_adjudicator_exists_and_configured() -> None:
@@ -354,10 +387,11 @@ def test_agents_md_encodes_technical_autonomy() -> None:
 
 
 def test_reviewer_remains_high_and_read_only() -> None:
+    """Reviewer runs at an authorized level and stays structurally read-only."""
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "subagent"
     assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert reviewer["variant"] == "high"
+    assert reviewer["variant"] == "xhigh"
     assert reviewer["permission"]["edit"] == "deny"
 
 
@@ -392,10 +426,29 @@ def test_env_deny_rules_win_by_order() -> None:
 
 
 def test_generic_gh_api_is_not_allow() -> None:
+    """GitHub API access is now authorized, but adjudication stays read-only.
+
+    The Coordinator authorized normal `gh`/GitHub mutations for the implementing
+    executor. That authorization deliberately does NOT extend to the read-only
+    adjudication subagents: an adjudicator that can mutate the repository it is
+    judging is not an independent check. This keeps the real invariant alive
+    after the root policy widened.
+    """
     permission = _root_permission()
-    assert permission["bash"]["gh api*"] != "allow"
+    # Root executor: authorized to mutate, so no blanket gh-api restriction.
+    assert permission["bash"].get("gh api*", "allow") == "allow"
+    for pattern in ("gh api -X POST*", "gh api -X PUT*", "gh api -X PATCH*", "gh api -X DELETE*"):
+        assert permission["bash"].get(pattern, "allow") == "allow", pattern
+    # Read-only adjudicators keep the restriction that gives them independence.
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["permission"]["bash"]["gh api*"] != "allow"
+    assert adjudicator["permission"]["bash"]["git add*"] == "deny"
+    assert adjudicator["permission"]["bash"]["git commit*"] == "deny"
+    # The fresh-context reviewer is read-only by construction, not by prompt.
+    reviewer = _agent_frontmatter("foundry-reviewer.md")
+    assert reviewer["permission"]["bash"]["*"] == "deny"
+    assert reviewer["permission"]["edit"] == "deny"
+    assert reviewer["permission"]["task"] == "deny"
 
 
 def test_adjudicator_has_no_silent_write_interpreter() -> None:
@@ -476,14 +529,27 @@ def test_battery_full_probe_set_runs() -> None:
     }
 
 
-def test_safe_auto_deny_set_pinned() -> None:
-    """Every SAFE_AUTO threat-model deny shape must stay deny in opencode.json.
+def test_authorized_engineering_policy_pinned() -> None:
+    """The Coordinator-authorized execution policy must stay exactly as authorized.
 
-    Guards against silent ask-downgrades. Live resolution is proven separately
-    by the adversarial battery against `opencode debug agent` output.
+    Coordinator authority (2026-09-27) replaced the narrow bounded-worker threat
+    model: normal project-scoped engineering, Git and GitHub operations are ALLOW.
+    This test pins that authorized policy in BOTH directions, so it is not a
+    rubber stamp:
+
+    * every class the authorization opened must remain open (a silent
+      ask-downgrade of `git push*` would re-create the blocker this replaced);
+    * every real safety boundary that survived the authorization must remain
+      closed (privacy and system integrity are not engineering workflow).
+
+    It deliberately does not enumerate retired deny shapes. Asserting a deny
+    that policy no longer holds would make the test a false gate.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     bash = config["permission"]["bash"]
+    assert bash["*"] == "allow"
+
+    # Opened by the authorization: these must NOT be re-denied.
     for pattern in (
         "git push*",
         "git merge*",
@@ -503,29 +569,12 @@ def test_safe_auto_deny_set_pinned() -> None:
         "git switch -c*",
         "git update-ref*",
         "git symbolic-ref*",
-        "git filter-branch*",
-        "git filter-repo*",
-        "git tag -d*",
-        "git tag -f*",
-        "git stash drop*",
-        "git stash clear*",
         "git -C*",
         "/usr/bin/git*",
         "/bin/git*",
         "command *",
         "sh -c*",
         "bash -c*",
-        "sudo*",
-        "su *",
-        "env",
-        "env *",
-        "printenv*",
-        "rm -rf*",
-        "rm -fr*",
-        "gh auth*",
-        "gh repo create*",
-        "gh repo delete*",
-        "gh repo fork*",
         "gh api -X POST*",
         "gh api -X PUT*",
         "gh api -X PATCH*",
@@ -534,17 +583,55 @@ def test_safe_auto_deny_set_pinned() -> None:
         "gh api --method PUT*",
         "gh api --method PATCH*",
         "gh api --method DELETE*",
-        "*| sh",
-        "*| sh *",
-        "*|sh",
-        "*|sh *",
-        "*| bash",
-        "*| bash *",
-        "*|bash",
-        "*|bash *",
+    ):
+        assert bash.get(pattern, "allow") == "allow", pattern
+
+    # Retained safety boundaries: secrets, privilege, remote-repo destruction.
+    for pattern in (
+        "env",
+        "env *",
+        "printenv*",
+        "set",
+        "set *",
+        "export",
+        "gh auth*",
+        "gh secret*",
+        "cat *id_rsa*",
+        "cat *.pem",
+        "cat *.key",
+        "cat *credentials*",
+        "cat *.netrc",
+        "sudo*",
+        "su *",
+        "doas*",
+        "rm -rf /",
+        "rm -rf /*",
+        "rm -fr /",
+        "rm -fr /*",
+        "gh repo delete*",
+        "gh repo create*",
+        "gh repo fork*",
+        "gh ssh-key*",
+        "gh gpg-key*",
     ):
         assert bash.get(pattern) == "deny", pattern
-    # Routine engineering must still proceed unattended.
+
+    # Secret files stay unreadable through every read-shaped tool.
+    for tool in ("read", "glob", "grep", "list", "edit"):
+        rules = config["permission"][tool]
+        for pattern in ("*.env", "*.env.*", "**/*.env", "**/*.env.*"):
+            assert rules.get(pattern) == "deny", f"{tool}:{pattern}"
+        assert rules.get("*.env.example") == "allow", tool
+    assert config["share"] == "disabled"
+
+    # The coordination surface stays opt-in, not silently wide.
+    assert config["permission"]["task"]["*"] == "ask"
+    # Session sharing is a privacy boundary, never an engineering restriction.
+    assert config["permission"]["doom_loop"] == "deny"
+    # Routine engineering proceeds unattended through the authorized default.
+    # The authorization replaced a per-command allowlist with `*: allow`, so
+    # these must NOT need an explicit entry; an explicit `ask`/`deny` here would
+    # silently re-create the blocker the authorization removed.
     for pattern in (
         "git status*",
         "git diff*",
@@ -554,11 +641,18 @@ def test_safe_auto_deny_set_pinned() -> None:
         "ruff*",
         "git add*",
         "git commit*",
+        "mypy*",
+        "gh run list*",
+        "gh run view*",
     ):
-        assert bash.get(pattern) == "allow", pattern
+        assert bash.get(pattern, "allow") == "allow", pattern
+    # The whole Commander-Lab workspace tree is in scope for this campaign, so
+    # campaign worktrees and candidate checkouts are reachable without a
+    # per-directory allowlist. Ownership is enforced logically (one writer per
+    # mutation surface), not by narrowing filesystem reach.
     ext = config["permission"]["external_directory"]
-    assert ext["/home/moeen/code/ws50-forge-decision-sequence-slice*"] == "deny"
-    assert ext["/home/moeen/code/q6-capability-curation-20260910*"] == "deny"
+    assert ext["*"] == "allow"
+    assert ext["/home/moeen/code/*"] == "allow"
     assert ext["/tmp/*"] == "allow"
 
 

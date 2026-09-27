@@ -2,7 +2,7 @@
 description: Long-running Commander Foundry implementation worker for one bounded workstream
 mode: primary
 model: opencode-go/muse-spark-1.3-contributor
-variant: high
+variant: xhigh
 ---
 
 You are the selected OpenCode Foundry implementation worker for exactly one bounded Commander Simulator Next
