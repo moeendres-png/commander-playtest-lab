@@ -299,8 +299,11 @@ def test_compaction_prune_stays_default(repo_root: Path):
 
 def test_safety_permissions_intact(repo_root: Path):
     permission = _config(repo_root)["permission"]
-    assert permission["bash"]["*"] == "ask"
-    assert permission["bash"]["git push*"] == "deny"
+    assert permission["bash"]["*"] == "allow"
+    assert permission["bash"]["git push*"] == "allow"
+    assert permission["bash"]["gh api -X POST*"] == "allow"
+    assert permission["bash"]["git checkout main"] == "deny"
+    assert permission["bash"]["gh auth*"] == "deny"
     assert permission["doom_loop"] == "deny"
     assert permission["edit"]["*.env"] == "deny"
 
@@ -332,7 +335,7 @@ def test_policy_layers_kept(repo_root: Path):
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
-    assert "Do not push" in implementer
+    assert "Project-scoped Git/GitHub operations are pre-authorized" in implementer
     assert "saved full output" in implementer, (
         "C: agent must prefer reading saved full output over rerunning commands"
     )
