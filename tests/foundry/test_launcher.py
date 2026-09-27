@@ -326,7 +326,7 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     env = plan["_env"]
     bundle = json.loads(env["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert bundle["permission"]["bash"]["git push*"] == "deny"
+    assert bundle["permission"]["bash"]["git push*"] == "allow"
     sib_deny = f"{target['wt'].parent / 'sib'}*"
     assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
     assert env["FOUNDRY_EFFORT"] == "high"
@@ -467,7 +467,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
         "assert bundle['model'] == 'opencode-go/muse-spark-1.3-contributor', 'model lock missing'\n"
-        "assert bundle['permission']['bash']['git push*'] == 'deny', 'deny lock missing'\n"
+        "assert bundle['permission']['bash']['git push*'] == 'allow', 'project execution authority missing'\n"
         "assert os.environ.get('FOUNDRY_EFFORT') == 'xhigh', 'effort missing'\n"
         "assert os.path.isdir(os.environ['OPENCODE_CONFIG_DIR']), 'config dir missing'\n"
         "lock = writer_lock.WriterLock(os.environ['FOUNDARY_WT'], 'INTRUDER', 'project/test', '')\n"
@@ -592,7 +592,7 @@ def test_init_ready_for_all_three_profiles(
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert bundle["permission"]["bash"]["git push*"] == "deny"
+    assert bundle["permission"]["bash"]["git push*"] == "allow"
 
 
 # --- explicit-state authority (ROOT_STATE_SEMANTICS) -------------------------
