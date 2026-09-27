@@ -104,7 +104,11 @@ def run_meta_verification(
         divergence = comparison.divergence
         observed = divergence.kind.value if divergence is not None else None
         record_index = divergence.record_index if divergence is not None else None
-        was_killed = (\n            not comparison.match\n            and observed == spec.expected_detector\n            and record_index == expected_index\n        )
+        was_killed = (
+            not comparison.match
+            and observed == spec.expected_detector
+            and record_index == expected_index
+        )
         results.append(
             {
                 "mutation_id": spec.mutation_id,
