@@ -230,10 +230,13 @@ Qualification fixture or obligation names are evidence labels, not architecture 
 
 ## 10. Workstream contract
 
-One session owns exactly one workstream ↔ one branch ↔ one worktree ↔ one mutation
-surface. Every substantial assignment needs Objective, Source Lock, In/Out of Scope,
-Ownership, Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements,
-Persistence, and Stop Conditions. One primary objective; do not silently broaden scope.
+One session owns exactly one primary workstream and one primary mutation surface by
+default. A bounded cross-workstream integration assignment may additionally own explicitly
+declared `owned-write` surfaces under that SAME workstream, provided every surface has
+matching state ownership and a live writer lock held for the full child lifetime. Every
+substantial assignment needs Objective, Source Lock, In/Out of Scope, Ownership,
+Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements, Persistence, and
+Stop Conditions. One primary objective; do not silently broaden scope.
 
 ## 11. Git, worktree, ownership
 
@@ -243,6 +246,27 @@ history rewriting, remote repository creation, paid services, process killing, a
 worktree deletion require explicit user approval. Before material work, verify branch,
 HEAD, tree, `git status`, contract, and state file; resume from the newest verified
 state without redoing valid evidence.
+
+### Cross-workstream access
+
+Project-wide understanding does not imply project-wide write authority.
+
+The normal Foundry run owns one primary writable worktree. A bounded integration task may
+also declare additional verified workspace surfaces:
+
+- `read-only`: exact repository + HEAD/tree, materialized into a disposable detached runtime snapshot; the authoritative source worktree remains non-writable;
+- `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership;
+  for cross-WS mutation the checkout must be standalone (checkout-local `.git`), its state
+  must live under that checkout's `.foundry`, and writable surfaces must be disjoint.
+
+All owned-write surfaces must name the CURRENT workstream as state ownership, be locked
+before the OpenCode child starts, and remain locked for its entire lifetime.
+Foreign-active, unknown-owner and undeclared sibling worktrees remain non-writable.
+Cross-workstream child execution uses Bubblewrap with the host filesystem mounted
+read-only and only the explicitly writable standalone surfaces, unique runtime directory,
+and narrow tool caches rebound read-write. Missing/unusable Bubblewrap is a launch refusal,
+never a silent downgrade. Agents must not use sudo or bypass the sandbox to install it.
+Space Bunny MAX and Muse use the same access contract.
 
 ## 12. Privacy
 

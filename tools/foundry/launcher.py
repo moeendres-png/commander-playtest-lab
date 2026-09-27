@@ -39,8 +39,14 @@ WS75 hardening:
 - The exact ``--state`` path plus worktree/branch/workstream/run-dir/
   mode/effort reach the selected worker as ``FOUNDRY_*`` env (no secrets) and as
   ``run_dir/launch-context.json``.
-- Declared read-only reference roots (``--reference`` JSON, repeatable)
-  are verified at bootstrap and exposed as ``FOUNDRY_REFERENCE_ROOTS``.
+- Declared read-only reference roots (``--reference`` JSON, repeatable) are verified and materialized as disposable detached snapshots; the authoritative source root remains denied.
+- Explicit ``--workspace-access`` surfaces may be read-only or owned-write; writable
+  surfaces bind repo/branch/HEAD/tree/state/ownership and are multi-locked for the
+  complete child lifetime.
+- Any run with cross-workstream references/access is executed under a fail-closed
+  Bubblewrap read-only-root mount namespace. Only the primary standalone checkout,
+  explicit standalone owned-write roots,
+  run/temp state and narrow tool caches are writable; sandbox setup failure refuses launch.
 - The installed OpenCode CLI must equal the canonical qualified version
   (``tools/foundry/opencode_cli_version.py``) unless explicit
   ``--version-audit-mode`` bounds the drift for migration/audit runs.
@@ -54,6 +60,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -64,6 +71,7 @@ import drift_check as drift_mod
 import metrics as metrics_mod
 import opencode_cli_version as version_mod
 import reference_roots as reference_mod
+import workspace_access as workspace_access_mod
 import writer_lock as writer_lock_mod
 
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
@@ -198,6 +206,202 @@ def _git_dir(worktree: str) -> str:
     return str(path if path.is_absolute() else Path(worktree) / common)
 
 
+def _git_path(root: str, args: list[str]) -> str:
+    raw = _git(args, root)
+    path = Path(raw)
+    return os.path.realpath(str(path if path.is_absolute() else Path(root) / path))
+
+
+def _is_standalone_checkout(root: str) -> bool:
+    """True only when all Git metadata belongs to this checkout."""
+    canonical = os.path.realpath(os.path.abspath(root))
+    dotgit = Path(canonical) / ".git"
+    if not dotgit.is_dir():
+        return False
+    try:
+        git_dir = _git_path(canonical, ["rev-parse", "--git-dir"])
+        common_dir = _git_path(canonical, ["rev-parse", "--git-common-dir"])
+    except RuntimeError:
+        return False
+    expected = os.path.realpath(str(dotgit))
+    if git_dir != expected or common_dir != expected:
+        return False
+
+    # A nested repository would inherit the parent writable mount even though it is
+    # a distinct mutation surface. Submodules/nested repos therefore require their
+    # own isolated assignment instead of silently riding the parent capability.
+    for current, dirs, files in os.walk(canonical):
+        if os.path.realpath(current) == canonical:
+            dirs[:] = [name for name in dirs if name != ".git"]
+            continue
+        if ".git" in dirs or ".git" in files:
+            return False
+    return True
+
+
+def _contains_path(parent: str, child: str) -> bool:
+    parent_real = os.path.realpath(os.path.abspath(parent))
+    child_real = os.path.realpath(os.path.abspath(child))
+    try:
+        return os.path.commonpath([parent_real, child_real]) == parent_real
+    except ValueError:
+        return False
+
+
+def _paths_overlap(a: str, b: str) -> bool:
+    return _contains_path(a, b) or _contains_path(b, a)
+
+
+def _repo_worktree_roots(root: str) -> set[str]:
+    try:
+        raw = _git(["worktree", "list", "--porcelain"], root)
+    except RuntimeError:
+        return {os.path.realpath(os.path.abspath(root))}
+    roots = {
+        os.path.realpath(line[len("worktree ") :])
+        for line in raw.splitlines()
+        if line.startswith("worktree ")
+    }
+    return roots or {os.path.realpath(os.path.abspath(root))}
+
+
+def _state_inside_surface(state_path: str, root: str) -> bool:
+    state_real = os.path.realpath(os.path.abspath(state_path))
+    foundry_root = os.path.realpath(os.path.join(root, ".foundry"))
+    return _contains_path(foundry_root, state_real)
+
+
+def _validate_cross_ws_topology(
+    primary: str,
+    state_path: str,
+    refs: list[dict],
+    access: list[dict],
+    requested_run_dir: str,
+) -> str | None:
+    """Fail closed on topology that can leak cross-workstream mutation authority."""
+    if not refs and not access:
+        return None
+
+    writable = {os.path.realpath(primary)}
+    writable.update(
+        os.path.realpath(spec["root"]) for spec in access if spec.get("access") == "owned-write"
+    )
+    readonly = {os.path.realpath(ref["root"]) for ref in refs}
+    readonly.update(
+        os.path.realpath(spec["root"]) for spec in access if spec.get("access") == "read-only"
+    )
+
+    # Cross-WS mutation requires checkout-local Git metadata. Shared worktree Git
+    # directories would otherwise expose refs/index/config for foreign surfaces.
+    for root in sorted(writable):
+        if not _is_standalone_checkout(root):
+            return (
+                f"cross-workstream writable surface {root!r} is not a standalone "
+                "checkout with checkout-local .git metadata"
+            )
+
+    if not _state_inside_surface(state_path, primary):
+        return "cross-workstream primary --state must live under PRIMARY/.foundry"
+    for spec in access:
+        if spec.get("access") != "owned-write":
+            continue
+        if not _state_inside_surface(spec["state_path"], spec["root"]):
+            return f"owned-write surface {spec['label']!r} state must live under ROOT/.foundry"
+
+    protected = set(readonly)
+    for root in sorted(writable | readonly):
+        protected.update(_repo_worktree_roots(root) - writable)
+
+    writable_list = sorted(writable)
+    for index, write_root in enumerate(writable_list):
+        for other in writable_list[index + 1 :]:
+            if _paths_overlap(write_root, other):
+                return (
+                    f"writable surfaces {write_root!r} and {other!r} overlap; "
+                    "each mutation surface must be disjoint"
+                )
+        for protected_root in sorted(protected):
+            if _paths_overlap(write_root, protected_root):
+                return (
+                    f"writable surface {write_root!r} overlaps protected workspace "
+                    f"{protected_root!r}"
+                )
+
+    run_real = os.path.realpath(os.path.abspath(requested_run_dir))
+    if not _runtime_base_allowed(run_real):
+        return (
+            "cross-workstream run-dir must be under the system temp directory or "
+            "~/.local/share/commander-foundry/runs"
+        )
+    for root in sorted(writable | protected):
+        if _paths_overlap(run_real, root):
+            return f"run-dir {run_real!r} overlaps authoritative/protected workspace {root!r}"
+    return None
+
+
+def _runtime_base_allowed(path: str) -> bool:
+    canonical = os.path.realpath(os.path.abspath(path))
+    tmp_base = os.path.realpath(tempfile.gettempdir())
+    home = Path(os.environ.get("HOME", str(Path.home())))
+    foundry_base = os.path.realpath(str(home / ".local" / "share" / "commander-foundry" / "runs"))
+    return _contains_path(tmp_base, canonical) or _contains_path(foundry_base, canonical)
+
+
+def _reserve_run_dir(requested_run_dir: str, workstream: str) -> str:
+    if not _runtime_base_allowed(requested_run_dir):
+        raise ValueError(
+            "cross-workstream run-dir must be under the system temp directory or "
+            "~/.local/share/commander-foundry/runs"
+        )
+    parent = Path(requested_run_dir)
+    parent.mkdir(parents=True, exist_ok=True)
+    safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in workstream)[:48]
+    return os.path.realpath(tempfile.mkdtemp(prefix=f"launch-{safe}-", dir=str(parent)))
+
+
+def _sandbox_write_roots(plan: dict, worktree: str, run_dir: str) -> list[str]:
+    """Exact paths the cross-WS child may mutate under the mount sandbox."""
+    roots = {
+        os.path.realpath(worktree),
+        os.path.realpath(run_dir),
+    }
+    for spec in plan.get("workspace_access", []):
+        if spec.get("access") == "owned-write":
+            roots.add(os.path.realpath(spec["root"]))
+
+    home = Path(os.environ.get("HOME", str(Path.home())))
+    cache_candidates = [
+        home / ".cache" / "opencode",
+        home / ".local" / "share" / "opencode",
+        home / ".local" / "state" / "opencode",
+        home / ".m2",
+        home / ".gradle",
+        home / ".npm",
+    ]
+    for path in cache_candidates:
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            continue
+        roots.add(os.path.realpath(str(path)))
+    if Path("/dev/shm").is_dir():
+        roots.add("/dev/shm")
+    return sorted(roots)
+
+
+def _sandbox_command(plan: dict, argv: list[str], worktree: str, run_dir: str) -> list[str]:
+    """Wrap cross-WS execution in the fail-closed read-only-root mount sandbox."""
+    if not plan.get("references") and not plan.get("workspace_access"):
+        return argv
+    sandbox = Path(__file__).resolve().parent / "fs_sandbox.py"
+    if not sandbox.is_file():
+        raise ValueError(f"cross-workstream sandbox helper missing: {sandbox}")
+    command = [sys.executable, str(sandbox)]
+    for root in _sandbox_write_roots(plan, worktree, run_dir):
+        command.extend(["--allow-write", root])
+    return [*command, "--", *argv]
+
+
 def install_hook(worktree: str, branch: str) -> str:
     """Install (or verify) the branch-scoped pre-push hook. Returns hook path."""
     hooks_dir = Path(_git_dir(worktree)) / "hooks"
@@ -210,20 +414,96 @@ def install_hook(worktree: str, branch: str) -> str:
     return str(hook_path)
 
 
-def sibling_denies(worktree: str) -> list[str]:
-    """external_directory denies for every OTHER worktree of the same repo."""
+def _root_patterns(root: str) -> tuple[str, str]:
+    """Exact directory + descendants without same-prefix sibling leakage."""
+    canonical = os.path.realpath(os.path.abspath(root)).rstrip("/")
+    return canonical, f"{canonical}/*"
+
+
+def sibling_denies(worktree: str, accessible_roots: set[str] | None = None) -> list[str]:
+    """Deny every undeclared sibling worktree of the same repo at path boundaries."""
     canonical = os.path.realpath(os.path.abspath(worktree))
+    accessible = {os.path.realpath(path) for path in (accessible_roots or set())}
     try:
         raw = _git(["worktree", "list", "--porcelain"], canonical)
     except RuntimeError:
         return []
-    denies = []
+    denies: list[str] = []
     for line in raw.splitlines():
         if line.startswith("worktree "):
             path = os.path.realpath(line[len("worktree ") :])
-            if path != canonical:
-                denies.append(f"{path}*")
-    return sorted(denies)
+            if path != canonical and path not in accessible:
+                denies.extend(_root_patterns(path))
+    return sorted(set(denies))
+
+
+def _clone_snapshot(source_root: str, commit: str, destination: Path) -> str:
+    """Materialize one exact disposable snapshot at a fresh unique destination."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        raise ValueError(f"reference snapshot destination already exists: {destination}")
+    proc = subprocess.run(
+        ["git", "clone", "--no-hardlinks", "--no-checkout", source_root, str(destination)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise ValueError(f"reference snapshot clone failed: {proc.stderr.strip()[:200]}")
+    proc = subprocess.run(
+        ["git", "checkout", "--detach", commit],
+        cwd=str(destination),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise ValueError(f"reference snapshot checkout failed: {proc.stderr.strip()[:200]}")
+    subprocess.run(
+        ["git", "remote", "remove", "origin"],
+        cwd=str(destination),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    live = _git(["rev-parse", "HEAD"], str(destination))
+    if live != commit:
+        raise ValueError(f"reference snapshot HEAD {live!r} != expected {commit!r}")
+    return os.path.realpath(str(destination))
+
+
+def materialize_runtime_references(
+    references: list[dict], workspace_access: list[dict], run_dir: str
+) -> tuple[list[dict], list[dict]]:
+    """Replace read-only source roots with disposable runtime snapshots.
+
+    The authoritative source worktree is never added to the OpenCode external-directory
+    allowlist. Build tools may write into the disposable snapshot without mutating source.
+    """
+    base = Path(run_dir) / "reference-snapshots"
+    base.mkdir(parents=True, exist_ok=True)
+    runtime_refs: list[dict] = []
+    runtime_access: list[dict] = []
+    for ref in references:
+        source_root = os.path.realpath(ref["root"])
+        slot = Path(tempfile.mkdtemp(prefix=f"reference-{ref['label']}-", dir=str(base)))
+        runtime_root = _clone_snapshot(source_root, ref["commit"], slot / "checkout")
+        item = dict(ref)
+        item["source_root"] = source_root
+        item["root"] = runtime_root
+        runtime_refs.append(item)
+    for spec in workspace_access:
+        if spec["access"] == "owned-write":
+            runtime_access.append(dict(spec))
+            continue
+        source_root = os.path.realpath(spec["root"])
+        slot = Path(tempfile.mkdtemp(prefix=f"workspace-{spec['label']}-", dir=str(base)))
+        runtime_root = _clone_snapshot(source_root, spec["commit"], slot / "checkout")
+        item = dict(spec)
+        item["source_root"] = source_root
+        item["root"] = runtime_root
+        runtime_access.append(item)
+    return runtime_refs, runtime_access
 
 
 def _validated_tool_output(value: object) -> dict:
@@ -392,6 +672,7 @@ def resolve_environment(
     state_path: str,
     mode: str,
     references: list[dict],
+    workspace_access: list[dict],
     opencode_binary: str,
     execution_provider: str | None = None,
     execution_profile: str | None = None,
@@ -402,15 +683,73 @@ def resolve_environment(
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
-    denies = sibling_denies(worktree)
+    writable_roots = {
+        os.path.realpath(spec["root"])
+        for spec in workspace_access
+        if spec["access"] == "owned-write"
+    }
+    authoritative_roots = {os.path.realpath(worktree)}
+    authoritative_roots.update(
+        os.path.realpath(ref.get("source_root", ref["root"])) for ref in references
+    )
+    authoritative_roots.update(
+        os.path.realpath(spec.get("source_root", spec["root"])) for spec in workspace_access
+    )
+    denies: list[str] = []
+    for repo_root in sorted(authoritative_roots):
+        denies.extend(sibling_denies(repo_root, writable_roots))
     static_denies = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
         "permission"
     ]["external_directory"]
-    denies += [k for k, v in static_denies.items() if v == "deny"]
+    static_denies_only = [k for k, v in static_denies.items() if v == "deny"]
+    source_roots = {os.path.realpath(ref.get("source_root", ref["root"])) for ref in references} | {
+        os.path.realpath(spec.get("source_root", spec["root"])) for spec in workspace_access
+    }
+    for root in sorted(source_roots):
+        for pattern in static_denies_only:
+            prefix = pattern[:-1] if pattern.endswith("*") else pattern
+            if root == prefix or root.startswith(prefix):
+                raise ValueError(
+                    f"declared workspace root {root!r} conflicts with static deny {pattern!r}"
+                )
+    denies += static_denies_only
     execution = execution_identity(execution_provider, effort, execution_profile)
     bundle = build_content_bundle(
         canonical_root, sorted(set(denies)), execution_provider, execution_profile
     )
+    ext = bundle["permission"].setdefault("external_directory", {})
+    edit = bundle["permission"].setdefault("edit", {})
+    for ref in references:
+        source = ref.get("source_root")
+        if source:
+            for pattern in _root_patterns(source):
+                ext[pattern] = "deny"
+                edit[pattern] = "deny"
+        root = os.path.realpath(ref["root"])
+        for pattern in _root_patterns(root):
+            ext[pattern] = "allow"
+            edit[pattern] = "deny"
+    for spec in workspace_access:
+        source = spec.get("source_root")
+        if source:
+            for pattern in _root_patterns(source):
+                ext[pattern] = "deny"
+                edit[pattern] = "deny"
+        root = os.path.realpath(spec["root"])
+        for pattern in _root_patterns(root):
+            ext[pattern] = "allow"
+            edit[pattern] = "allow" if spec["access"] == "owned-write" else "deny"
+    # Root-specific allows are intentionally broad, so canonical sensitive-file
+    # edit denials must be reinserted LAST (OpenCode permission matching is
+    # last-match-wins). Reinsert rather than overwrite to move ordering.
+    canonical_edit = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
+        "permission"
+    ]["edit"]
+    for pattern, action in canonical_edit.items():
+        if action != "deny":
+            continue
+        edit.pop(pattern, None)
+        edit[pattern] = "deny"
     env = dict(os.environ)
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
@@ -441,7 +780,15 @@ def resolve_environment(
     env["FOUNDRY_WORKTREE"] = worktree
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
-    env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(references, sort_keys=True)
+    public_refs = [
+        {key: value for key, value in ref.items() if key != "source_root"} for ref in references
+    ]
+    public_access = [
+        {key: value for key, value in spec.items() if key != "source_root"}
+        for spec in workspace_access
+    ]
+    env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(public_refs, sort_keys=True)
+    env["FOUNDRY_WORKSPACE_ACCESS"] = json.dumps(public_access, sort_keys=True)
     env["FOUNDRY_CANONICAL_POLICY_HASH"] = policy_hash
     env["FOUNDRY_CONFIG_DIR_MANIFEST"] = manifest["sha256"]
     if drift_suppressed:
@@ -481,6 +828,7 @@ def init(
     run_dir: str,
     ui_mode: str = "headless",
     references: list[str] | None = None,
+    workspace_access: list[str] | None = None,
     opencode_bin: str | None = None,
     version_audit_mode: bool = False,
     worktree_states: list[str] | None = None,
@@ -501,11 +849,93 @@ def init(
         return {"verdict": "LAUNCH_REFUSED", "error": f"unknown ui_mode {ui_mode!r}"}
     canonical = os.path.realpath(os.path.abspath(worktree))
     parsed_refs: list[dict] = []
+    seen_labels: set[str] = set()
+    seen_reference_roots: set[str] = set()
     for raw in references or []:
         try:
-            parsed_refs.append(reference_mod.parse_spec(raw))
+            ref = reference_mod.parse_spec(raw)
         except reference_mod.ReferenceError as exc:
             return {"verdict": "LAUNCH_REFUSED", "error": f"reference: {exc}"}
+        root = os.path.realpath(os.path.abspath(ref["root"]))
+        if ref["label"] in seen_labels:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate declared workspace label {ref['label']!r}",
+            }
+        if root in seen_reference_roots:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate --reference root {root!r}",
+            }
+        fetch_error = workspace_access_mod.exact_fetch_identity_error(root, ref["repo_slug"])
+        if fetch_error is not None:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"reference {ref['label']!r}: exact fetch identity rejected ({fetch_error})",
+            }
+        seen_labels.add(ref["label"])
+        seen_reference_roots.add(root)
+        parsed_refs.append(ref)
+    parsed_access: list[dict] = []
+    seen_access_roots: set[str] = set()
+    for raw in workspace_access or []:
+        try:
+            spec = workspace_access_mod.parse_spec(raw)
+        except workspace_access_mod.WorkspaceAccessError as exc:
+            return {"verdict": "LAUNCH_REFUSED", "error": f"workspace-access: {exc}"}
+        root = os.path.realpath(spec["root"])
+        if root == canonical:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": "workspace-access must not redeclare the primary worktree",
+            }
+        if spec["label"] in seen_labels:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate declared workspace label {spec['label']!r}",
+            }
+        if root in seen_reference_roots:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": (
+                    f"workspace root {root!r} cannot be both --reference and --workspace-access"
+                ),
+            }
+        if root in seen_access_roots:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate --workspace-access root {root!r}",
+            }
+        seen_access_roots.add(root)
+        seen_labels.add(spec["label"])
+        reasons = workspace_access_mod.verify(spec)
+        if reasons:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"workspace-access {spec['label']!r}: {reasons[0]}",
+            }
+        if spec["access"] == "owned-write" and spec["ownership"] != workstream:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": (
+                    f"workspace-access {spec['label']!r}: owned-write ownership "
+                    f"{spec['ownership']!r} != current workstream {workstream!r}"
+                ),
+            }
+        parsed_access.append(spec)
+    topology_error = _validate_cross_ws_topology(
+        canonical,
+        state_path,
+        parsed_refs,
+        parsed_access,
+        run_dir,
+    )
+    if topology_error is not None:
+        return {"verdict": "LAUNCH_REFUSED", "error": topology_error}
+    effective_run_dir = (
+        _reserve_run_dir(run_dir, workstream) if parsed_refs or parsed_access else run_dir
+    )
+    Path(effective_run_dir).mkdir(parents=True, exist_ok=True)
     # Explicit ownership authority: the launcher always declares its own
     # worktree/state pair (ground truth for this run) plus any
     # operator-declared sibling pairs. A conflicting operator pair for our
@@ -528,6 +958,17 @@ def init(
             "error": "--worktree-state for this worktree conflicts with --state",
         }
     state_map[canonical] = state_path
+    for spec in parsed_access:
+        if spec["access"] != "owned-write":
+            continue
+        root = os.path.realpath(spec["root"])
+        other_state = spec["state_path"]
+        if root in state_map and state_map[root] != other_state:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"owned-write state conflicts with --worktree-state for {root!r}",
+            }
+        state_map[root] = other_state
     binary = resolve_opencode_binary(opencode_bin)
     try:
         version = version_mod.verify(binary)
@@ -564,6 +1005,12 @@ def init(
     )
     if gate["verdict"] != "BOOTSTRAP_PASS":
         return {"verdict": "LAUNCH_REFUSED", "gate": gate}
+    try:
+        runtime_refs, runtime_access = materialize_runtime_references(
+            parsed_refs, parsed_access, effective_run_dir
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"snapshot: {exc}"}
     drift_suppressed = gate["drift"]["verdict"] == "DRIFT_FAIL"
     resolved_state = state_path
     try:
@@ -575,10 +1022,11 @@ def init(
             effort=effort,
             session=session,
             drift_suppressed=drift_suppressed,
-            run_dir=run_dir,
+            run_dir=effective_run_dir,
             state_path=resolved_state,
             mode=mode,
-            references=parsed_refs,
+            references=runtime_refs,
+            workspace_access=runtime_access,
             opencode_binary=binary,
             execution_provider=execution_provider,
             execution_profile=execution_profile,
@@ -595,13 +1043,20 @@ def init(
         live_head = _git(["rev-parse", "HEAD"], canonical)
     except RuntimeError:
         live_head = "UNKNOWN"
+    public_refs = [
+        {key: value for key, value in ref.items() if key != "source_root"} for ref in runtime_refs
+    ]
+    public_access = [
+        {key: value for key, value in spec.items() if key != "source_root"}
+        for spec in runtime_access
+    ]
     context = {
         "execution": execution,
         "workstream": workstream,
         "branch": branch,
         "worktree": canonical,
         "state_path": resolved_state,
-        "run_dir": run_dir,
+        "run_dir": effective_run_dir,
         "mode": mode,
         "ui_mode": ui_mode,
         "effort": effort,
@@ -611,12 +1066,13 @@ def init(
         "version_audit_mode": version_audit_mode,
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
-        "references": parsed_refs,
+        "references": public_refs,
+        "workspace_access": public_access,
         "worktree_states": state_map,
         "live_head": live_head,
     }
     try:
-        context_path = write_launch_context(run_dir, context)
+        context_path = write_launch_context(effective_run_dir, context)
     except OSError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"context: {exc}"}
     notes = []
@@ -634,9 +1090,11 @@ def init(
         "ui_mode": ui_mode,
         "session": session,
         "live_head": live_head,
-        "run_dir": run_dir,
+        "run_dir": effective_run_dir,
         "state_path": resolved_state,
         "worktree_states": state_map,
+        "references": public_refs,
+        "workspace_access": public_access,
         "opencode_binary": binary,
         "opencode_version": version,
         "version_audit_mode": version_audit_mode,
@@ -644,6 +1102,46 @@ def init(
         "notes": notes,
         "_env": env,
     }
+
+
+def _revalidate_locked_surfaces(
+    plan: dict, worktree: str, workstream: str, env: dict
+) -> str | None:
+    """Recheck exact writable identities and foreign-process occupancy under locks."""
+    try:
+        live_branch = _git(["branch", "--show-current"], worktree)
+        live_head = _git(["rev-parse", "HEAD"], worktree)
+    except RuntimeError:
+        return "primary worktree identity unreadable after writer lock acquisition"
+    if live_branch != env.get("FOUNDRY_BRANCH", ""):
+        return (
+            f"primary branch changed after init: {live_branch!r} != "
+            f"{env.get('FOUNDRY_BRANCH', '')!r}"
+        )
+    if live_head != plan.get("live_head"):
+        return (
+            f"primary HEAD changed after init: {live_head[:12]} != "
+            f"{str(plan.get('live_head'))[:12]}"
+        )
+
+    for spec in plan.get("workspace_access", []):
+        if spec.get("access") != "owned-write":
+            continue
+        if spec.get("ownership") != workstream:
+            return (
+                f"owned-write surface {spec.get('label')!r} ownership "
+                f"{spec.get('ownership')!r} != current workstream {workstream!r}"
+            )
+        procs = writer_lock_mod.scan_cwd_processes(spec["root"])
+        if procs:
+            return (
+                f"owned-write surface {spec.get('label')!r} has foreign/unknown "
+                f"same-CWD OpenCode occupancy; refusing competing writer"
+            )
+        reasons = workspace_access_mod.verify(spec)
+        if reasons:
+            return f"owned-write surface {spec.get('label')!r} changed after init: {reasons[0]}"
+    return None
 
 
 def launch(
@@ -668,18 +1166,47 @@ def launch(
         return 1
     mode = ui_mode or plan.get("ui_mode", "headless")
     env: dict = plan["_env"]
-    lock = writer_lock_mod.WriterLock(
-        worktree, workstream, env.get("FOUNDRY_BRANCH", ""), env.get("FOUNDRY_SESSION", "")
-    )
+    lock_specs = [
+        {
+            "root": os.path.realpath(worktree),
+            "workstream": workstream,
+            "branch": env.get("FOUNDRY_BRANCH", ""),
+        }
+    ]
+    for spec in plan.get("workspace_access", []):
+        if spec.get("access") == "owned-write":
+            lock_specs.append(
+                {
+                    "root": os.path.realpath(spec["root"]),
+                    "workstream": spec["ownership"],
+                    "branch": spec["branch"],
+                }
+            )
+    locks: list[writer_lock_mod.WriterLock] = []
+    for spec in sorted(lock_specs, key=lambda item: item["root"]):
+        lock = writer_lock_mod.WriterLock(
+            spec["root"],
+            spec["workstream"],
+            spec["branch"],
+            env.get("FOUNDRY_SESSION", ""),
+        )
+        try:
+            lock.acquire()
+        except writer_lock_mod.LockedError as exc:
+            for held in reversed(locks):
+                held.release()
+            print(str(exc), file=sys.stderr)
+            return writer_lock_mod.HELD_EXIT
+        locks.append(lock)
     try:
-        lock.acquire()
-    except writer_lock_mod.LockedError as exc:
-        print(str(exc), file=sys.stderr)
-        return writer_lock_mod.HELD_EXIT
-    try:
+        stale = _revalidate_locked_surfaces(plan, worktree, workstream, env)
+        if stale is not None:
+            print(f"LAUNCH_REFUSED: {stale}", file=sys.stderr)
+            return 1
         return _launch_locked(plan, argv_extra, worktree, workstream, effort, mode, execution)
     finally:
-        lock.release()
+        for lock in reversed(locks):
+            lock.release()
 
 
 def _launch_locked(
@@ -737,7 +1264,13 @@ def _launch_locked(
         # explicit non-default executor. Caller model flags are rejected.
         selected = ["--model", execution["model"]] if execution["override"] != "canonical" else []
         argv = build_argv(binary, mode, [*selected, *argv_extra])
-    except ValueError as exc:
+        argv = _sandbox_command(plan, argv, worktree, run_dir)
+        if plan.get("references") or plan.get("workspace_access"):
+            tmp_dir = Path(run_dir) / "tmp"
+            tmp_dir.mkdir(parents=True, exist_ok=True)
+            env["TMPDIR"] = str(tmp_dir)
+            env["FOUNDRY_FS_SANDBOX"] = "bubblewrap-readonly-root"
+    except (OSError, RuntimeError, ValueError) as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
         return 1
     print(f"LAUNCH: holding writer lock; exec {' '.join(argv)} (cwd={worktree})")
@@ -850,6 +1383,15 @@ def main(argv: list[str] | None = None) -> int:
         help="Declared read-only reference root as JSON (repeatable).",
     )
     parser.add_argument(
+        "--workspace-access",
+        action="append",
+        default=[],
+        help=(
+            "Verified project surface as JSON (repeatable): access=read-only or "
+            "owned-write; writable surfaces require branch/state_path/ownership."
+        ),
+    )
+    parser.add_argument(
         "--worktree-state",
         action="append",
         default=[],
@@ -870,7 +1412,6 @@ def main(argv: list[str] | None = None) -> int:
         print("LAUNCH_REFUSED: reader mode is audit-only (use init)", file=sys.stderr)
         return 1
     run_dir = args.run_dir or f"/tmp/foundry-launch-{args.workstream}"
-    os.makedirs(run_dir, exist_ok=True)
     plan = init(
         profile=args.profile,
         worktree=args.worktree,
@@ -888,6 +1429,7 @@ def main(argv: list[str] | None = None) -> int:
         run_dir=run_dir,
         ui_mode=args.ui_mode,
         references=args.reference,
+        workspace_access=args.workspace_access,
         opencode_bin=args.opencode_bin,
         version_audit_mode=args.version_audit_mode,
         worktree_states=args.worktree_state,

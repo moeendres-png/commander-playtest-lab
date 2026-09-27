@@ -14,7 +14,7 @@ Technical-decision authority defaults to autonomous-within-contract.
 
 ## Branch
 
-[branch name; one workstream ↔ one branch ↔ one worktree]
+[primary branch name; normal case is one workstream ↔ one primary branch/worktree. A cross-WS task may additionally declare verified writable surfaces below; one active writer per surface remains absolute.]
 
 ## Source Lock / AUDIT_BASE_SHA
 
@@ -46,6 +46,28 @@ Technical-decision authority defaults to autonomous-within-contract.
 
 [session/workstream owning the mutation surface]
 
+## Workspace Access
+
+Default: the primary worktree is the only writable surface.
+
+Declare additional project surfaces explicitly:
+
+- REFERENCE / read-only: verified repo + exact HEAD/tree; launcher materializes a disposable detached runtime snapshot for inspection/build/test while the authoritative source worktree stays outside mutation authority.
+- OWNED_WRITE / owned-write: verified repo + branch + exact HEAD/tree + state path under ROOT/.foundry + ownership equal to THIS workstream; cross-WS writable checkouts must be standalone (checkout-local .git), disjoint, and the launcher holds every writer lock for the entire worker lifetime.
+- FOREIGN_ACTIVE: read-only; never take writer ownership.
+- UNKNOWN_OWNER: read-only / fail closed for mutation.
+
+A cross-WS assignment may own N writable surfaces only when each is explicitly contracted
+and verified. Undeclared sibling worktrees are not writable.
+
+Runtime isolation: Bubblewrap is mandatory for a cross-WS child. The host root is
+read-only; only contracted standalone writable surfaces, the unique runtime directory and
+narrow tool caches are write-mounted. Missing/unusable Bubblewrap fails closed. The
+requested run-dir must live under the system temp directory or
+~/.local/share/commander-foundry/runs and may not overlap any workspace. Cross-WS launch additionally requires the Linux Landlock write boundary; absence/failure is a hard launch gate.
+
+[list exact roots / branch / access / ownership / state path]
+
 ## Dependencies
 
 [list]
@@ -66,7 +88,7 @@ Technical-decision authority defaults to autonomous-within-contract.
 
 Default: `AUTONOMOUS_WITHIN_CONTRACT`
 
-Muse owns technical in-scope decisions: inspect authoritative evidence, form and
+The selected OpenCode Foundry executor owns technical in-scope decisions: inspect authoritative evidence, form and
 challenge hypotheses, run the smallest permitted validation, adjudicate within
 already-defined project policy, persist the decision and evidence, continue.
 Reaching and persisting a technical root cause is the job, not an escalation.
@@ -80,7 +102,7 @@ Explicit questions reserved for Sol High (empty only with justification):
 
 ## ESCALATION
 
-HIGH may determine the task has become nonlocal or ambiguous and requires XHIGH
+The selected executor may determine the task has become nonlocal or ambiguous and requires project-level XHIGH
 (technical adjudication tier). HIGH→XHIGH escalation is not failure. Persist
 state (HEAD, validated gates, current hypothesis, remaining scope, exact next
 action) before changing sessions or effort where necessary.
