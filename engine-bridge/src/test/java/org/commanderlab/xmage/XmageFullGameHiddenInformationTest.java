@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -100,6 +101,45 @@ class XmageFullGameHiddenInformationTest {
         for (String observation : grantObservations) {
             assertTrue(observation.startsWith("choose_object:"),
                     "library grant outside library-zone decision: " + observation);
+        }
+    }
+
+    @Test
+    void qualificationOracleKillsInjectedOpponentPrivateIdentity() throws Exception {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        List<String> handles = importCopies(importer, loadRogShaiRuntimeDeck(), 4);
+        XmageFullGameSession session = new XmageFullGameSession(
+                "meta-hidden-mutation", handles, 0, 40, 10704L, importer
+        );
+        session.start();
+
+        JsonObject payload = session.pendingDecisionPayload();
+        assertTrue(!payload.get("decision").isJsonNull(), "live game must expose a decision");
+        JsonObject pending = payload.getAsJsonObject("decision");
+        String actorId = pending.get("actor_id").getAsString();
+        Set<String> hiddenIds = hiddenCardIds(session, actorId);
+        assertTrue(!hiddenIds.isEmpty(), "mutation requires a real opponent-private identity");
+
+        String hidden = hiddenIds.iterator().next();
+        JsonObject mutated = JsonParser.parseString(pending.toString()).getAsJsonObject();
+        JsonObject context = mutated.getAsJsonObject("context");
+        context.addProperty("meta_hidden_information_mutation", hidden);
+
+        AssertionError detected = assertThrows(
+                AssertionError.class,
+                () -> assertNoHiddenCardIdentities(mutated, Set.of(hidden))
+        );
+        assertTrue(detected.getMessage().contains("hidden card identity leaked"));
+    }
+
+    private static void assertNoHiddenCardIdentities(
+            JsonObject pending, Set<String> hiddenIds) {
+        String serialized = pending.toString();
+        for (String hidden : hiddenIds) {
+            assertTrue(!serialized.contains(hidden),
+                    "hidden card identity leaked at offset "
+                            + pending.get("decision_offset").getAsLong()
+                            + " class=" + pending.get("decision_class").getAsString());
         }
     }
 
