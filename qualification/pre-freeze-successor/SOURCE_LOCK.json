@@ -15,13 +15,17 @@
   "current_inputs": {
     "rules_authority_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
     "comprehensive_rules_effective_date": "2026-08-07",
-    "comprehensive_rules_artifact": "artifacts/cr/MagicCompRules_20260819.txt",
-    "comprehensive_rules_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
     "applicable_rule": "103.8a",
     "engine_protocol_source": "config/rules_engines.json#protocol_version",
     "engine_protocol_at_lock": "2.0.0",
     "engine_protocol_schema": "schemas/engine_adapter_protocol.schema.json",
-    "engine_protocol_schema_git_blob": "ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+    "engine_protocol_schema_git_blob": "ea8651f75a1461ecc41dc1f24586c00bff97fee5",
+    "rules_authority_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+    "official_rules_page_url": "https://magic.wizards.com/en/rules",
+    "official_comprehensive_rules_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "historical_authority_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+    "historical_authority_lock_note": "Historical capture provenance only; its artifacts/cr path is not treated as a current repository-verifiable artifact by this successor.",
+    "successor_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json"
   },
   "ownership": {
     "publisher_safe_push": "OUT_OF_SCOPE",
