@@ -64,12 +64,30 @@ def load_effective_materialization() -> dict[str, Any]:
         raise ContractError("successor patch set differs from current authority")
 
     effective = copy.deepcopy(bundle)
+    historical_authority_lock = effective.pop("authority_lock", None)
+    historical_bundle_digest = effective.pop("canonical_bundle_digest", None)
+    historical_manifest_digest = effective.pop("common_fixture_manifest_sha256", None)
+    historical_supersedes = effective.get("supersedes")
+
     effective["schema_version"] = successor["contract_id"]
     effective["protocol"] = "commander-lab.pre-freeze-qualification/2.0.0"
     effective["protocol_version"] = "2.0.0"
+    effective["authority_lock"] = {
+        "lock_id": "AUTHORITY_LOCK_v2",
+        "path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+        "comprehensive_rules_effective_date": successor["rules_authority"]["effective_date"],
+        "applicable_successor_rule": successor["rules_authority"]["rule"],
+    }
+    effective["historical_authority_lock"] = historical_authority_lock
+    effective["fixture_denominator_source"] = {
+        "historical_common_fixture_manifest_sha256": historical_manifest_digest,
+        "role": "HISTORICAL_FIXTURE_DENOMINATOR_SOURCE_ONLY",
+        "successor_contract": full107["successor_contract"],
+    }
     effective["supersedes"] = {
         "historical_schema_version": bundle.get("schema_version"),
-        "historical_canonical_bundle_digest": bundle.get("canonical_bundle_digest"),
+        "historical_canonical_bundle_digest": historical_bundle_digest,
+        "historical_supersedes": historical_supersedes,
         "successor_contract": full107["successor_contract"],
     }
 
