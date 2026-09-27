@@ -127,25 +127,44 @@ manifests. The gate was not weakened. Both hash manifests were extended with exa
 SHA-256 entries and the root manifest was rebound to the updated
 `qualification/SHA256SUMS`.
 
-Required/final validation:
+Final branch validation on implementation head
+`29f1e0f3073262f2fd47cca94d08cf0a3d8e8abd`:
 
-- `pytest -q tests/qualification/test_pre_freeze_contract_successor.py`
-- existing FULL107 direct-correspondence tests
-- qualification/contract tests touching protocol 2.0.0
-- JSON parse/format sanity
-- repository lint/format for the new Python files
+- CI run `36313283271`: **SUCCESS**
+  - Ruff lint: SUCCESS
+  - Ruff format: SUCCESS
+  - mypy strict: SUCCESS
+  - full Python test suite: **1614 passed / 7 skipped / 1 warning**
+  - compile / secret-pattern scan / wheel build: SUCCESS
+- Production Qualification run `36313283325`: **SUCCESS**
+  - qualification suite: **33 passed / 2 skipped**
+  - canonical fixture manifest validation: SUCCESS
+  - exact-main-admission intentionally skipped on PR event
+- Windows Runtime Hygiene run `36313283360`: **SUCCESS**
+  - filesystem/atomic-storage, external-runtime boundary, doctor/probe cleanliness,
+    structural/tactical validation and final clean-repository assertion all SUCCESS.
 
-Classification until CI executes: **CODE_DERIVED** for the new contract logic.
-Official Rules basis: **EXTERNALLY_RULE_VALIDATED** against current CR 103.8a.
+The earlier integrity failure was fully remediated without weakening a test or gate:
+new qualification artifacts are sealed in both SHA-256 manifests.
+
+Evidence classification:
+
+- Contract implementation and repository integration: **TECHNICALLY_CONFORMANT**
+  within this bounded contract-normalization scope.
+- Official Rules basis for START-2: **EXTERNALLY_RULE_VALIDATED** against the
+  repository-pinned current CR 103.8a authority.
+- START-2 candidate runtime behavior: **UNKNOWN** until successor requalification.
+- AF01 candidate runtime compliance: **UNKNOWN** until candidate-specific execution.
 
 ## PASS / FAIL / UNKNOWN
 
-- START2_CONTRACT_AUTHORITY_CORRECTION: PASS at specification level.
-- AF01_CONTRACT_MIGRATION: PASS at specification level.
-- START2_SUCCESSOR_RUNTIME: NOT_RUN / requires candidate requalification.
-- AF01_CANDIDATE_RUNTIME: NOT_RUN / requires candidate-specific qualification.
-- Provider Selection: NOT RUN.
-- Architecture Freeze: NOT CLAIMED.
+- START2_CONTRACT_AUTHORITY_CORRECTION: **PASS / TECHNICALLY_CONFORMANT**
+- AF01_CONTRACT_MIGRATION: **PASS / TECHNICALLY_CONFORMANT**
+- QUALIFICATION_INTEGRITY_SEAL: **PASS / DIRECTLY_VERIFIED**
+- START2_SUCCESSOR_RUNTIME: **UNKNOWN** / requires candidate requalification
+- AF01_CANDIDATE_RUNTIME: **UNKNOWN** / requires candidate-specific qualification
+- Provider Selection: **NOT RUN**
+- Architecture Freeze: **NOT CLAIMED**
 
 ## Remaining Blockers
 
@@ -160,10 +179,27 @@ than choosing between historical FULL107/RSP artifacts ad hoc.
 
 ## Exact Next Action
 
-After this branch's tests/CI are green, run the bounded cross-engine successor
-requalification for START-2 and AF01 v2. Do not select a provider from this contract-only
-workstream.
+After PR #254 is integrated, run the bounded common-fixture execution/requalification
+against the effective successor contract:
+
+1. `WS05-CMD-START-2` successor semantics independently on XMage and Forge.
+2. AF01 v2 handshake / truthful-capability / fail-closed qualification independently
+   on XMage and Forge.
+3. Only then consume the normalized results in the pre-Freeze provider-comparison
+   framework.
+
+Do not select a provider from this contract-only workstream.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`
 
 `PRODUCTION_PROVIDER = NOT SELECTED`
+
+## Terminal PR State
+
+- PR: #254 — `Pre-Freeze contract successor: correct START-2 and migrate AF01`
+- Branch: `sol/pre-freeze-contract-successor-start2-af01-20260927`
+- Validated implementation head: `29f1e0f3073262f2fd47cca94d08cf0a3d8e8abd`
+- Base main: `58e8fca430651207a87a8f3e9f41d8c6527dd4cd`
+- Base tree: `4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2`
+- Mergeability at validation: TRUE
+- Scope status: **COMPLETE / BOUNDED PASS**
