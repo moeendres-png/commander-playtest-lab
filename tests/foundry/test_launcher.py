@@ -1218,7 +1218,7 @@ def test_legacy_reference_uses_disposable_snapshot(
         "repo_slug": CPL_SLUG,
         "commit": owned["commit"],
         "tree": owned["tree"],
-        "cleanliness": "clean",
+        "cleanliness": "allow-ignored-build-outputs",
         "intent": "read-only",
     }
     plan = _plan(target, canon, references=[json.dumps(ref)])
@@ -1494,7 +1494,11 @@ def test_cross_workspace_requires_standalone_primary_checkout(
     target: dict, canon: Path, tmp_path: Path
 ) -> None:
     linked = tmp_path / "linked-primary"
-    _git(["worktree", "add", str(linked), "-b", "project/linked-primary"], target["wt"], target["env"])
+    _git(
+        ["worktree", "add", str(linked), "-b", "project/linked-primary"],
+        target["wt"],
+        target["env"],
+    )
     head = _git(["rev-parse", "HEAD"], linked, target["env"])
     state_path = linked / ".foundry" / "WORKSTREAM_STATE.yaml"
     state_path.parent.mkdir(parents=True)
@@ -1569,7 +1573,7 @@ def test_cross_workspace_init_reserves_unique_runtime_snapshots(
         "repo_slug": CPL_SLUG,
         "commit": owned["commit"],
         "tree": owned["tree"],
-        "cleanliness": "clean",
+        "cleanliness": "allow-ignored-build-outputs",
         "intent": "read-only",
     }
     first = _plan(target, canon, references=[json.dumps(ref)])
