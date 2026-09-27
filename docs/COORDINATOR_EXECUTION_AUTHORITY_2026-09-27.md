@@ -140,13 +140,13 @@ subject to the repository permission/approval gates.
 
 Project-wide understanding must not be confused with project-wide write authority.
 
-Both Space Bunny MAX and Muse may consume explicitly verified project references across /home/moeen/code. A cross-workstream task may also receive multiple explicit owned-write mutation surfaces. Every writable surface must bind exact repository, branch, HEAD/tree, state path and ownership, and all writer locks are held concurrently for the complete child lifetime.
+Both Space Bunny MAX and Muse may consume explicitly verified project references across /home/moeen/code. Read-only references are materialized as disposable detached runtime snapshots so builds/searches cannot mutate the authoritative source checkout through normal Foundry tool paths. A cross-workstream task may also receive multiple explicit owned-write mutation surfaces. Every writable surface must bind exact repository, branch, HEAD/tree, state path and ownership equal to the CURRENT workstream, and all writer locks are held concurrently for the complete child lifetime.
 
-Read-only references are runtime-readable but edit-denied. Foreign active and unknown-owner worktrees are not mutation-authorized. Undeclared siblings remain denied. This lets Foundry perform real integration work without creating competing writers.
+The authoritative roots behind read-only references remain denied; only their disposable snapshots are exposed to the OpenCode child. Snapshot build outputs are non-authoritative and may be discarded. Foreign active and unknown-owner worktrees are not mutation-authorized. Undeclared siblings remain denied. This lets Foundry perform real integration work without creating competing writers.
 
 ## Executor handoff and parallelism
 
-Exactly one active writer owns one branch/worktree/mutation surface.
+Exactly one active writer owns each branch/worktree/mutation surface. A single explicitly contracted cross-WS workstream may own multiple surfaces, but no surface may have two writers.
 
 Space Bunny and Muse may work sequentially on one workstream only after a persisted
 checkpoint records branch, HEAD/tree, state, validation and exact next action, and the
