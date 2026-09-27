@@ -115,7 +115,7 @@ def execution_identity(
             "variant_resolution": "provider_default_unverified",
         }
 
-    lane = execution_model or "bunny"
+    lane = "bunny" if execution_model is None else execution_model
     if lane not in EXECUTION_LANES:
         raise ValueError(f"unknown execution model {lane!r}")
     spec = EXECUTION_LANES[lane]
@@ -326,8 +326,10 @@ def build_content_bundle(
         {"action": "provider.use", "effect": "allow", "resource": execution["provider"]},
     ]
     bundle["experimental"] = experimental
-    if "default_agent" in config:
-        bundle["default_agent"] = execution["agent"] or config["default_agent"]
+    if execution["agent"]:
+        bundle["default_agent"] = execution["agent"]
+    elif "default_agent" in config:
+        bundle["default_agent"] = config["default_agent"]
 
     if execution_provider == "zen":
         bundle["model"] = ZEN_MODEL
@@ -342,7 +344,16 @@ def build_content_bundle(
                     short: {
                         "variants": {
                             name: {"disabled": True}
-                            for name in ("none", "off", "minimal", "low", "medium", "high", "xhigh", "max")
+                            for name in (
+                                "none",
+                                "off",
+                                "minimal",
+                                "low",
+                                "medium",
+                                "high",
+                                "xhigh",
+                                "max",
+                            )
                         }
                     }
                 },

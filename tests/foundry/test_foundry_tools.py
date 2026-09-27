@@ -336,7 +336,7 @@ def test_state_accepts_adjudication_extension_fields() -> None:
     state.update(
         {
             "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
-            "current_reasoning_tier": "xhigh",
+            "current_reasoning_tier": "max",
             "hypotheses_rejected": ["harness-only cause"],
             "technical_decisions": [{"decision": "root cause is adapter", "evidence": "log1"}],
             "authority_gates": [],

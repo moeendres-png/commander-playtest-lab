@@ -84,7 +84,7 @@ def canon(tmp_path: Path) -> Path:
     (root / ".opencode" / "skills").mkdir(parents=True)
     (root / "AGENTS.md").write_text("# canonical policy\n", encoding="utf-8")
     (root / ".opencode" / "agents" / "foundry-implementer.md").write_text(
-        "---\nvariant: high\n---\n", encoding="utf-8"
+        "---\nvariant: max\n---\n", encoding="utf-8"
     )
     (root / ".opencode" / "skills" / "demo").mkdir()
     (root / ".opencode" / "skills" / "demo" / "SKILL.md").write_text("# demo\n", encoding="utf-8")

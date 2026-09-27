@@ -17,6 +17,10 @@ research reports and superseded PRs retain their original model identities as pr
 Exact model IDs and invocation rules live in
 `docs/foundry-execution/EXECUTION_MODEL_ROUTING.md`.
 
+Exact OpenCode model IDs:
+- preferred: `opencode-go/space-bunny-free`
+- alternate: `opencode-go/muse-spark-1.3-contributor`
+
 ## Effort policy
 
 - Space Bunny: `max` only.

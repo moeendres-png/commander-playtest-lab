@@ -129,6 +129,9 @@ Both Space Bunny MAX and Muse XHIGH own autonomous technical execution inside th
 authorized workstream contract: inspect, reason, decide technically, implement when
 authorized, test, diagnose, repair, validate, persist evidence and continue.
 
+OpenCode workers do not stop or ask the Coordinator for routine technical decisions
+that can be resolved from the workstream contract, source, tests, logs or bounded runtime evidence.
+
 Sol High retains authority for ambiguous MTG Rules interpretation, project-wide
 evidence/qualification policy, shared architecture, cross-workstream ownership conflict,
 material scope expansion, Production Provider selection and Architecture Freeze.

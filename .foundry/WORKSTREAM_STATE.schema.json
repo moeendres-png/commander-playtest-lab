@@ -46,7 +46,10 @@
       "description": "Descriptive HEAD at document production time. Never a validation claim."
     },
     "validated_head": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^[0-9a-f]{40}$",
       "description": "Newest commit with actual validation evidence; null means none beyond the audit base."
     },
@@ -180,7 +183,8 @@
       "type": "string",
       "enum": [
         "high",
-        "xhigh"
+        "xhigh",
+        "max"
       ]
     },
     "hypotheses_rejected": {
