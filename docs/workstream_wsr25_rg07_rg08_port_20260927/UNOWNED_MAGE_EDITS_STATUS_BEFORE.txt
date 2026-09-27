@@ -1,0 +1,7 @@
+ M Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java
+ M Mage.Sets/src/mage/cards/g/GhastlyConscription.java
+ M Mage.Sets/src/mage/cards/j/JalumGrifter.java
+ M Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java
+ M Mage.Sets/src/mage/cards/v/VialSmasherTheFierce.java
+ M Mage/src/main/java/mage/players/PlayerImpl.java
+ M Mage/src/main/java/mage/util/RandomUtil.java

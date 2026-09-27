@@ -52,3 +52,7 @@ remote persistence pending at report time).
 
 - Coordinator PR/merge handling (no PR created here).
 - Later RQ-C3 wave for current First-Wave ranking (out of scope).
+
+## WSR25 Successor Note (2026-09-27, additive only)
+
+Historical-at-time truth above (`NEW_XMAGE_RUNTIME_CANDIDATE = cfc36f44`) is preserved. Current authority (`config/rules_engines.json`) is XMage `b19596980f2734496ea1896504253e1bdd2756dd` via lineage `cfc36f44` → `db134b97` (WS213) → `b1959698` (PR #242). This report is superseded as a pin claim, retained as promotion evidence.
