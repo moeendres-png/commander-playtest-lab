@@ -51,10 +51,10 @@ Sol is not the routine coding/debugging micro-manager.
 Exact model: `opencode-go/space-bunny-free`
 Native variant: `max`
 
-For new substantial OpenCode engineering work, this is the preferred execution profile.
-The Foundry launcher must pin the main model, small model and reachable injected project
-agents to Space Bunny with native MAX. The project-level effort field remains a
-high/xhigh workstream classification and does not reduce Bunny's native MAX compute.
+This is the committed/default and preferred execution profile for active OpenCode work.
+Manual OpenCode, Foundry-launched sessions and the GitHub OpenCode lane should select
+Space Bunny at native MAX unless Muse XHIGH is explicitly requested. Space Bunny is
+never represented as HIGH or XHIGH; its execution identity is MAX.
 
 Within an authorized workstream Space Bunny is expected to:
 - understand the objective, contract, current source state and relevant project context;
@@ -76,11 +76,11 @@ evidence merely because tokens are available.
 
 Exact model: `opencode-go/muse-spark-1.3-contributor`
 
-Muse remains fully supported:
-- HIGH for ordinary bounded engineering;
-- XHIGH for difficult nonlocal technical reasoning and adjudication;
-- continuation of existing Muse-owned workstreams;
-- deliberate alternate implementation/review/challenge.
+Muse remains supported only at native XHIGH:
+- difficult nonlocal technical reasoning and adjudication;
+- explicit alternate implementation, continuation or cross-model review/challenge.
+
+Muse HIGH is not permitted for active project work.
 
 Muse has the same autonomous technical authority inside a workstream contract as Space
 Bunny. Model choice does not change Rules/Evidence/Privacy semantics.
