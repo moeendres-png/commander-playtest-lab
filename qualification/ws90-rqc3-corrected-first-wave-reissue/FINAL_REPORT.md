@@ -66,7 +66,3 @@ Validate the sealed commit (`verify.py` + manifests + tests), set `validated_hea
 
 ---
 `ARCHITECTURE_FREEZE = NOT_CLAIMED`. `PRODUCTION_PROVIDER = NOT_SELECTED`. `REMOTE_PERSISTENCE` per safe_push section. `NEW_PR_CREATED = NO`.
-
-## WSR25 Successor Note (2026-09-27, additive only)
-
-Historical-at-time pin references above (`cfc36f44`) are preserved. Current authority (`config/rules_engines.json`) is XMage `b19596980f2734496ea1896504253e1bdd2756dd` (lineage `cfc36f44` → `db134b97` → `b1959698`, PR #242). Zero behavior credit granted here is unchanged by this note.

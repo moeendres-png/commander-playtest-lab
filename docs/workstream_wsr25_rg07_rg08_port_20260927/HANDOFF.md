@@ -64,8 +64,13 @@
 - Meta-Qual v1 (merged PR #262) NOT re-run; exact-head CI on PR will confirm.
 
 ## Stale Pointer Notes
-- 3 additive successor notes (lineage `77d7646→cfc36f44→db134b97→b1959698`, authority pointer).
-  Historical bodies preserved. WSR23-owned files untouched.
+- Landed: `docs/RETENTION_AND_LIFECYCLE_POLICY.md` WSR25 lineage addendum
+  (`77d7646→cfc36f44→db134b97→b1959698`; docs/ is not hash-gated).
+- Deferred (NOT landed): ws88/ws90 `FINAL_REPORT.md` successor notes drafted in
+  `SUCCESSOR_NOTES_DEFERRED.md` but reverted — `test_ws17_qualification`
+  requires `qualification/SHA256SUMS` to match every file under `qualification/`,
+  and updating that sealed manifest is outside WSR25 authority. Coordinator /
+  manifest owner applies note + manifest update together. No sealed body rewritten.
 
 ## Unowned Mage Patch Preservation
 - Binary-safe patch + diffstat + SHA256 + base + status-before/after in
