@@ -18,5 +18,20 @@
     "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
     "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE_ONLY",
     "note": "The historical lock names an untracked artifacts/cr capture. The successor does not treat that absent path as current repository-verifiable authority."
+  },
+  "live_verification": {
+    "verified_at": "2026-09-27",
+    "official_rules_page_current_txt_link": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "txt_effective_date_observed": "2026-08-07",
+    "rule_103_8a_observed": true,
+    "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL_SOURCE"
+  },
+  "historical_url_drift_adjudication": {
+    "historical_lock_recorded_resolved_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+    "historical_lock_capture_date": "2026-09-15",
+    "current_official_rules_page_link_differs": true,
+    "authority_precedence": "CURRENT_OFFICIAL_WIZARDS_RULES_PAGE_OVER_HISTORICAL_CAPTURE_URL",
+    "carry_forward_of_historical_byte_digest": false,
+    "note": "The historical 20260819 capture remains provenance. The current official Rules page freshly verified on 2026-09-27 links 20260807.txt; requalification must follow the live official page and fail closed if it drifts."
   }
 }
