@@ -49,17 +49,29 @@ evidence:
 - docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json
 - docs/project_integration_hygiene_20260927/PUBLICATIONS.md
 - docs/project_integration_hygiene_20260927/STATE_OWNERSHIP_REPAIR.md
-exact_next_action: 'Operator: start a launcher-spawned Foundry WRITER session for
-  /home/moeen/code/wsr23-project-integration-hygiene on branch wsr23/project-integration-hygiene-20260927
-  with --workstream wsr23-project-integration-hygiene-20260927 and --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml
-  (that session''s own writer lock is what safe_push gate 6 requires), then run the
-  safe-push command recorded in PUBLICATIONS.md section 2, then open the WSR23 PR
-  against current main. Campaign: with WSR23 published, re-lock main and proceed to
-  the WSR22 successor integration (Coordinator-adjudicated: adopt MagicCompRules 20260925.txt,
-  sha256 8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca, RULES_AUTHORITY_CONTRADICTION
-  = RESOLVED, no blanket FULL107 rerun). Coordinator: REMAINING_BLOCKERS.md B1 (RG-07/RG-08
-  off unpublished camp/rg-closure-20260925) and B3 (unowned Mage engine modifications
-  in xmage-ws49-baseline) still need a ruling.'
+- docs/pre_freeze_completion_20260927/CAMPAIGN_STATE.md
+- docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md
+- docs/pre_freeze_completion_20260927/PB03_ROOT_CAUSE_AND_REMEDIATION.md
+- docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
+exact_next_action: 'AUTHORITY_GATE (not a difficulty). Two verified preconditions
+  block every remote step of this campaign and neither may be evaded: (1) the root
+  opencode.json denies git push*, git switch -c*, git checkout -b* and git worktree
+  add*, and denies gh api -X POST; (2) this session carries no FOUNDRY_* launcher
+  context and /tmp/foundry-launch-wsr23-project-integration-hygiene-20260927 is empty,
+  so no launcher ever acquired the writer lock that safe_push gate 6 requires. The
+  writer lock must NOT be self-acquired. Operator action, in order: (a) grant publication
+  authority for this campaign, or run the safe-push from a launcher-spawned writer
+  session; (b) push wsr23/project-integration-hygiene-20260927 and open its PR against
+  main 8d2aacd530ea47d3ef39f4ab4f974f301da3cf24; (c) cut the WSR22 successor branch
+  from origin/main (never from the stale local main 586914ea) per docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md
+  section 5, transplanting only justified content with provenance to 208341c6124674046787f3a4b1d699c98c286a27,
+  adopting the 2026-09-25 Rules receipt, regenerating qualification/SHA256SUMS and
+  WS17_SHA256SUMS, and running only the four mechanical requalification items; (d)
+  resolve PB-09 (Forge executed commit ef958ee9 vs pin a37a865a) since it undermines
+  the soundness of any Forge/XMage comparison; (e) implement PB-03 per docs/pre_freeze_completion_20260927/PB03_ROOT_CAUSE_AND_REMEDIATION.md
+  as a dimension-admission fix, never as a capability-flag flip; (f) address PB-06,
+  PB-07, PB-08 by decision value; (g) recompute AF00-AF11 and the comparison package.
+  ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED.'
 failed_gates: []
 failure_class: INFRASTRUCTURE_DEFECT
 files_modified:
@@ -168,7 +180,7 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: 372851c145fc35f5b2dc887a21fdd872ef1184d5
+state_written_against_head: adcd2c83cc687d501c67b0950eac8d8b391afb77
 status: BLOCKED
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
@@ -213,25 +225,37 @@ tests_run:
 - 'pytest tests/foundry -q: 447 passed, 1 skipped (10 new: identity-token contract,
   JSON/YAML state equivalence, prose reported verbatim, fail-closed ownership cases)'
 - 'ruff check: All checks passed'
-- 'ruff format --check: 961 files already formatted'
+- 'ruff format --check: 966 files already formatted'
 - 'mypy src/commander_lab (strict): Success, no issues in 261 source files'
 - 'python -m compileall -q src tests: exit 0'
+- 'python tools/project_invariant_audit.py: 6 pass / 0 fail / 1 not_applicable'
 - 'python tools/foundry/bootstrap.py --workstream wsr23-project-integration-hygiene-20260927
   ... --profile cpl: BOOTSTRAP_FAIL (prose ownership, fail-before) -> BOOTSTRAP_PASS
   (post-repair)'
-- 'python tools/foundry/state.py --check-validated: STATE_OK schema=2.0'
-- 'python tools/foundry/worktree_inventory.py --fail-on-duplicate-writer: duplicate_writers=[]'
+- 'python tools/foundry/state.py --check-validated --fail-on-validated-problem: STATE_OK,
+  exit 0'
+- 'python tools/foundry/safe_push.py ... --dry-run: PUSH_REJECT at gate 6 (no writer
+  lock); gates 1-5 and 7-9 pass'
+- 'python tools/foundry/worktree_inventory.py --fail-on-duplicate-writer: duplicate_writers=[]
+  over 173 Lab worktrees'
+- 'independent live fetch of https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt:
+  effective-date text and rule 103.8a confirmed verbatim, matching the WSR22-recorded
+  text'
 validated_gates:
-- Full python test suite green on a clean tree at 372851c1 in a lock-faithful Python
-  3.12 venv (1638 passed, 5 skipped, 0 failed)
+- Full python test suite green on a clean tree in a lock-faithful Python 3.12 venv
+  (1638 passed, 5 skipped, 0 failed)
 - 'tests/foundry green: 447 passed, 1 skipped'
 - mypy strict green on src/commander_lab
 - ruff lint and format green
 - Foundry bootstrap gate BOOTSTRAP_PASS for workstream wsr23-project-integration-hygiene-20260927
   after the ownership identity repair
 - WORKSTREAM_STATE validates as schema 2.0 and is STATE_OK
-- 'commander-playtest-lab remote passes the hardened effective-target checks: one
-  fetch URL record, zero pushurl records, no mirror, no receivepack, no insteadOf
-  or pushInsteadOf rewrite'
-validated_head: 372851c145fc35f5b2dc887a21fdd872ef1184d5
+- 'project invariant audit: 6 pass, 0 fail'
+- Rules authority 2026-09-25 independently re-verified against the live official Wizards
+  TXT
+- PB-03 root cause established as a Lab harness defect (fixture-id prefix hardcode),
+  not a missing engine seam
+- 'New blocker PB-09 established: the Forge commit WSR22 executed matches neither
+  pinned Forge identity'
+validated_head: adcd2c83cc687d501c67b0950eac8d8b391afb77
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
