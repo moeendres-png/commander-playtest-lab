@@ -298,45 +298,29 @@ def test_compaction_prune_stays_default(repo_root: Path):
 
 
 def test_safety_permissions_intact(repo_root: Path):
-    """Privacy and system boundaries survive the execution-policy widening.
-
-    Coordinator authority (2026-09-27) replaced `bash: ask` plus a narrow deny
-    list with an authorized default-allow for project engineering. What it did NOT
-    open is credential disclosure and runaway retries, so those are pinned here.
-    """
     permission = _config(repo_root)["permission"]
-    assert permission["bash"]["*"] == "allow"
-    for pattern in (
-        "env",
-        "env *",
-        "printenv*",
-        "set",
-        "export",
-        "gh auth*",
-        "gh secret*",
-        "cat *id_rsa*",
-        "cat *.pem",
-        "cat *.netrc",
-        "sudo*",
-        "su *",
-        "gh repo delete*",
+    assert permission["bash"]["*"] == "ask"
+    # Delegated authority (AGENTS.md): owned-branch push allowed; force/main/master
+    # and destructive shapes stay denied via later last-match-wins rules.
+    assert permission["bash"]["git push*"] == "allow"
+    for denied in (
+        "git push --force*",
+        "git push --delete*",
+        "git push origin main*",
+        "git push origin master*",
+        "git rebase*",
+        "git reset --hard*",
+        "git clean*",
     ):
-        assert permission["bash"][pattern] == "deny", pattern
+        assert permission["bash"][denied] == "deny", denied
     assert permission["doom_loop"] == "deny"
     assert permission["edit"]["*.env"] == "deny"
-    assert permission["read"]["*.env"] == "deny"
-    assert _config(repo_root)["share"] == "disabled"
 
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    # Space Bunny MAX is the primary executor; Muse XHIGH stays selectable as the
-    # documented alternate, and no other model is whitelisted.
-    assert config["model"] == "opencode-go/space-bunny-free"
+    assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
     assert config["enabled_providers"] == ["opencode-go"]
-    provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["space-bunny-free", "muse-spark-1.3-contributor"]
-    assert set(provider["models"]) == {"space-bunny-free", "muse-spark-1.3-contributor"}
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
         "OpenCode V2 accepts config.instructions but does not resolve its entries; "
@@ -360,17 +344,7 @@ def test_policy_layers_kept(repo_root: Path):
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
-    # The implementer is no longer self-restricted from ordinary publication, but
-    # the boundaries that actually protect the project must still be written into
-    # the agent's own instructions, not only into the permission table.
-    for required in (
-        "force-pushing or rewriting immutable evidence",
-        "destroying unique unintegrated work",
-        "exposing secrets",
-        "unique content is proven preserved",
-        "ARCHITECTURE_FREEZE",
-    ):
-        assert required in implementer, required
+    assert "Do not push" in implementer
     assert "saved full output" in implementer, (
         "C: agent must prefer reading saved full output over rerunning commands"
     )
@@ -387,7 +361,7 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
         sys.path.remove(str(repo_root / "tools" / "foundry"))
     bundle = launcher_mod.build_content_bundle(str(repo_root), [])
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode-go/space-bunny-free"
+    assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):

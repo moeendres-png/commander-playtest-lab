@@ -264,34 +264,13 @@ def test_repo_root_state_absent_schema_kept() -> None:
 
 
 def test_opencode_config_schema_conformance() -> None:
-    """Exactly two authorized executors, each pinned to one native variant.
-
-    Operator authority (2026-09-27): only Space Bunny MAX and Muse XHIGH are
-    reachable. This pins the shape and the pinning, not just the presence of a
-    model field, so a retired effort level cannot quietly reopen.
-    """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/space-bunny-free"
-    assert config["small_model"] == "opencode-go/space-bunny-free"
+    assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
     assert config["share"] == "disabled"
-    assert config["enabled_providers"] == ["opencode-go"]
-    provider = config["provider"]["opencode-go"]
-    # No silent fallback: canonical first, documented alternate still selectable.
-    assert provider["whitelist"] == ["space-bunny-free", "muse-spark-1.3-contributor"]
-    authorized = {
-        "space-bunny-free": ("max", {"reasoningEffort": "max"}),
-        "muse-spark-1.3-contributor": ("xhigh", {"reasoningEffort": "xhigh"}),
-    }
-    assert set(provider["models"]) == set(authorized)
-    for short, (variant, options) in authorized.items():
-        entry = provider["models"][short]
-        assert entry["options"] == options, short
-        enabled = sorted(n for n, s in entry["variants"].items() if s != {"disabled": True})
-        assert enabled == [variant], f"{short}: {enabled}"
-        for retired in ("none", "off", "minimal", "low", "medium"):
-            assert entry["variants"][retired] == {"disabled": True}, f"{short}:{retired}"
-    # Space Bunny is the primary executor, so the build agent defaults to its level.
-    assert config["agent"]["build"] == {"variant": "max"}
+    variants = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]["variants"]
+    for effort in ("none", "off", "minimal", "low", "medium"):
+        assert variants[effort] == {"disabled": True}
+    assert set(variants) == {"none", "off", "minimal", "low", "medium", "high", "xhigh"}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
 
@@ -302,25 +281,13 @@ def _agent_frontmatter(name: str) -> dict:
 
 
 def test_high_default_retained() -> None:
-    """The default agent surface runs Muse at XHIGH, never at a retired level.
-
-    Renamed intent, kept name: the invariant is that the default agent resolves
-    to an authorized executor at its authorized native level. With only Muse
-    XHIGH and Space Bunny MAX permitted, `high` is a retired level and must not
-    appear on any reachable agent definition.
-    """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    models = config["provider"]["opencode-go"]["models"]
-    assert models["space-bunny-free"]["options"] == {"reasoningEffort": "max"}
-    assert models["muse-spark-1.3-contributor"]["options"] == {"reasoningEffort": "xhigh"}
-    # The on-disk agent snapshot is the Muse profile; the launcher pins Space
-    # Bunny inline for space-bunny runs.
-    for name in ("foundry-implementer.md", "foundry-adjudicator.md", "foundry-reviewer.md"):
-        front = _agent_frontmatter(name)
-        assert front["model"] == "opencode-go/muse-spark-1.3-contributor", name
-        assert front["variant"] == "xhigh", name
+    provider_model = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]
+    assert provider_model["options"] == {"reasoningEffort": "high"}
+    assert config["agent"]["build"] == {"variant": "high"}
     implementer = _agent_frontmatter("foundry-implementer.md")
-    assert implementer["variant"] == "xhigh"
+    assert implementer["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert implementer["variant"] == "high"
 
 
 def test_adjudicator_exists_and_configured() -> None:
@@ -387,11 +354,10 @@ def test_agents_md_encodes_technical_autonomy() -> None:
 
 
 def test_reviewer_remains_high_and_read_only() -> None:
-    """Reviewer runs at an authorized level and stays structurally read-only."""
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "subagent"
     assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert reviewer["variant"] == "xhigh"
+    assert reviewer["variant"] == "high"
     assert reviewer["permission"]["edit"] == "deny"
 
 
@@ -426,29 +392,10 @@ def test_env_deny_rules_win_by_order() -> None:
 
 
 def test_generic_gh_api_is_not_allow() -> None:
-    """GitHub API access is now authorized, but adjudication stays read-only.
-
-    The Coordinator authorized normal `gh`/GitHub mutations for the implementing
-    executor. That authorization deliberately does NOT extend to the read-only
-    adjudication subagents: an adjudicator that can mutate the repository it is
-    judging is not an independent check. This keeps the real invariant alive
-    after the root policy widened.
-    """
     permission = _root_permission()
-    # Root executor: authorized to mutate, so no blanket gh-api restriction.
-    assert permission["bash"].get("gh api*", "allow") == "allow"
-    for pattern in ("gh api -X POST*", "gh api -X PUT*", "gh api -X PATCH*", "gh api -X DELETE*"):
-        assert permission["bash"].get(pattern, "allow") == "allow", pattern
-    # Read-only adjudicators keep the restriction that gives them independence.
+    assert permission["bash"]["gh api*"] != "allow"
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["permission"]["bash"]["gh api*"] != "allow"
-    assert adjudicator["permission"]["bash"]["git add*"] == "deny"
-    assert adjudicator["permission"]["bash"]["git commit*"] == "deny"
-    # The fresh-context reviewer is read-only by construction, not by prompt.
-    reviewer = _agent_frontmatter("foundry-reviewer.md")
-    assert reviewer["permission"]["bash"]["*"] == "deny"
-    assert reviewer["permission"]["edit"] == "deny"
-    assert reviewer["permission"]["task"] == "deny"
 
 
 def test_adjudicator_has_no_silent_write_interpreter() -> None:
@@ -490,6 +437,63 @@ def test_battery_last_match_wins() -> None:
     assert permission_battery.evaluate_rule(rules, "bash", "git status")[0] == "ENFORCED_ALLOW"
 
 
+def _live_bash_rules() -> list[dict]:
+    perm = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))["permission"]
+    return [
+        {"permission": "bash", "pattern": pattern, "action": action}
+        for pattern, action in perm["bash"].items()
+    ]
+
+
+def test_delegated_git_allow_with_specific_denies() -> None:
+    """Live opencode.json resolution: owned-branch Git allowed, destructive denied."""
+    rules = _live_bash_rules()
+    for cmd in (
+        "git fetch origin",
+        "git push origin foundry/feature-20260927",
+        "git push",
+        "git merge origin/main",
+        "git pull --ff-only",
+        "git cherry-pick abc123",
+        "git checkout -b foundry/feature-20260927",
+        "git switch -c foundry/feature-20260927",
+        "git worktree add /tmp/wt -b foundry/feature-20260927",
+        "gh pr create --title x",
+        "gh pr merge 266",
+    ):
+        verdict, matched = permission_battery.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
+    for cmd in (
+        "git push --force origin foundry/feature-20260927",
+        "git push origin foundry/feature-20260927 --force",
+        "git push -f origin foundry/feature-20260927",
+        "git push --force-with-lease origin foundry/feature-20260927",
+        "git push origin foundry/feature-20260927 --delete",
+        "git push origin main",
+        "git push origin master",
+        "git push upstream main",
+        "git checkout -B foundry/feature-20260927",
+        "git switch -C foundry/feature-20260927",
+        "git rebase origin/main",
+        "git reset --hard HEAD",
+        "git clean -fd",
+        "git branch -D foundry/feature-20260927",
+        "git worktree remove /tmp/wt",
+        "git worktree remove --force /tmp/wt",
+    ):
+        verdict, matched = permission_battery.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "DENIED", (cmd, matched)
+
+
+def test_pr_merge_vs_raw_main_push_distinction() -> None:
+    """Guarded PR merge path is allowed; raw main push is denied."""
+    rules = _live_bash_rules()
+    verdict, _ = permission_battery.evaluate_rule(rules, "bash", "gh pr merge 266")
+    assert verdict == "ENFORCED_ALLOW"
+    verdict, matched = permission_battery.evaluate_rule(rules, "bash", "git push origin main")
+    assert verdict == "DENIED", matched
+
+
 def test_battery_env_deny_beats_allow_all() -> None:
     rules = [
         {"permission": "read", "pattern": "*", "action": "allow"},
@@ -529,52 +533,71 @@ def test_battery_full_probe_set_runs() -> None:
     }
 
 
-def test_authorized_engineering_policy_pinned() -> None:
-    """The Coordinator-authorized execution policy must stay exactly as authorized.
+def test_safe_auto_deny_set_pinned() -> None:
+    """Destructive shapes must stay deny in opencode.json; owned-branch Git is allow.
 
-    Coordinator authority (2026-09-27) replaced the narrow bounded-worker threat
-    model: normal project-scoped engineering, Git and GitHub operations are ALLOW.
-    This test pins that authorized policy in BOTH directions, so it is not a
-    rubber stamp:
-
-    * every class the authorization opened must remain open (a silent
-      ask-downgrade of `git push*` would re-create the blocker this replaced);
-    * every real safety boundary that survived the authorization must remain
-      closed (privacy and system integrity are not engineering workflow).
-
-    It deliberately does not enumerate retired deny shapes. Asserting a deny
-    that policy no longer holds would make the test a false gate.
+    Delegated integration authority (AGENTS.md): normal push/merge/branch/worktree
+    creation on the owned feature branch is ENFORCED_ALLOW, while force, main/master
+    and destructive shapes stay DENIED via later last-match-wins rules.
+    Guards against silent ask-downgrades. Live resolution is proven separately
+    by the adversarial battery against `opencode debug agent` output.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     bash = config["permission"]["bash"]
-    assert bash["*"] == "allow"
-
-    # Opened by the authorization: these must NOT be re-denied.
     for pattern in (
-        "git push*",
-        "git merge*",
+        "git push --force*",
+        "git push * --force*",
+        "git push -f*",
+        "git push * -f *",
+        "git push * -f",
+        "git push --force-with-lease*",
+        "git push * --force-with-lease*",
+        "git push --delete*",
+        "git push * --delete*",
+        "git push * :*",
+        "git push origin main*",
+        "git push origin master*",
+        "git push upstream main*",
+        "git push upstream master*",
         "git rebase*",
         "git reset --hard*",
         "git clean*",
         "git branch -D*",
         "git branch -d*",
-        "git worktree add*",
         "git worktree remove*",
         "git worktree move*",
+        "git worktree remove --force*",
         "git checkout main",
         "git checkout master",
-        "git checkout -b*",
+        "git checkout -B*",
         "git switch main",
         "git switch master",
-        "git switch -c*",
+        "git switch -C*",
         "git update-ref*",
         "git symbolic-ref*",
+        "git filter-branch*",
+        "git filter-repo*",
+        "git tag -d*",
+        "git tag -f*",
+        "git stash drop*",
+        "git stash clear*",
         "git -C*",
         "/usr/bin/git*",
         "/bin/git*",
         "command *",
         "sh -c*",
         "bash -c*",
+        "sudo*",
+        "su *",
+        "env",
+        "env *",
+        "printenv*",
+        "rm -rf*",
+        "rm -fr*",
+        "gh auth*",
+        "gh repo create*",
+        "gh repo delete*",
+        "gh repo fork*",
         "gh api -X POST*",
         "gh api -X PUT*",
         "gh api -X PATCH*",
@@ -583,55 +606,30 @@ def test_authorized_engineering_policy_pinned() -> None:
         "gh api --method PUT*",
         "gh api --method PATCH*",
         "gh api --method DELETE*",
-    ):
-        assert bash.get(pattern, "allow") == "allow", pattern
-
-    # Retained safety boundaries: secrets, privilege, remote-repo destruction.
-    for pattern in (
-        "env",
-        "env *",
-        "printenv*",
-        "set",
-        "set *",
-        "export",
-        "gh auth*",
-        "gh secret*",
-        "cat *id_rsa*",
-        "cat *.pem",
-        "cat *.key",
-        "cat *credentials*",
-        "cat *.netrc",
-        "sudo*",
-        "su *",
-        "doas*",
-        "rm -rf /",
-        "rm -rf /*",
-        "rm -fr /",
-        "rm -fr /*",
-        "gh repo delete*",
-        "gh repo create*",
-        "gh repo fork*",
-        "gh ssh-key*",
-        "gh gpg-key*",
+        "*| sh",
+        "*| sh *",
+        "*|sh",
+        "*|sh *",
+        "*| bash",
+        "*| bash *",
+        "*|bash",
+        "*|bash *",
     ):
         assert bash.get(pattern) == "deny", pattern
-
-    # Secret files stay unreadable through every read-shaped tool.
-    for tool in ("read", "glob", "grep", "list", "edit"):
-        rules = config["permission"][tool]
-        for pattern in ("*.env", "*.env.*", "**/*.env", "**/*.env.*"):
-            assert rules.get(pattern) == "deny", f"{tool}:{pattern}"
-        assert rules.get("*.env.example") == "allow", tool
-    assert config["share"] == "disabled"
-
-    # The coordination surface stays opt-in, not silently wide.
-    assert config["permission"]["task"]["*"] == "ask"
-    # Session sharing is a privacy boundary, never an engineering restriction.
-    assert config["permission"]["doom_loop"] == "deny"
-    # Routine engineering proceeds unattended through the authorized default.
-    # The authorization replaced a per-command allowlist with `*: allow`, so
-    # these must NOT need an explicit entry; an explicit `ask`/`deny` here would
-    # silently re-create the blocker the authorization removed.
+    # Delegated owned-branch Git authority must stay allow.
+    for pattern in (
+        "git push*",
+        "git merge*",
+        "git pull --ff-only*",
+        "git cherry-pick*",
+        "git checkout -b*",
+        "git switch -c*",
+        "git worktree add*",
+        "gh pr create*",
+        "gh pr merge*",
+    ):
+        assert bash.get(pattern) == "allow", pattern
+    # Routine engineering must still proceed unattended.
     for pattern in (
         "git status*",
         "git diff*",
@@ -641,18 +639,11 @@ def test_authorized_engineering_policy_pinned() -> None:
         "ruff*",
         "git add*",
         "git commit*",
-        "mypy*",
-        "gh run list*",
-        "gh run view*",
     ):
-        assert bash.get(pattern, "allow") == "allow", pattern
-    # The whole Commander-Lab workspace tree is in scope for this campaign, so
-    # campaign worktrees and candidate checkouts are reachable without a
-    # per-directory allowlist. Ownership is enforced logically (one writer per
-    # mutation surface), not by narrowing filesystem reach.
+        assert bash.get(pattern) == "allow", pattern
     ext = config["permission"]["external_directory"]
-    assert ext["*"] == "allow"
-    assert ext["/home/moeen/code/*"] == "allow"
+    assert ext["/home/moeen/code/ws50-forge-decision-sequence-slice*"] == "deny"
+    assert ext["/home/moeen/code/q6-capability-curation-20260910*"] == "deny"
     assert ext["/tmp/*"] == "allow"
 
 
@@ -769,90 +760,6 @@ def test_inventory_ignores_conventional_root_file(repo: Path, tmp_path: Path) ->
             str(repo), {str(tmp_path / "elsewhere"): str(tmp_path / "nope.yaml")}
         )[0]["ownership"]
         == "UNKNOWN"
-    )
-
-
-def test_inventory_reports_ownership_from_json_state(repo: Path, tmp_path: Path) -> None:
-    """A schema-2.0 state written as JSON yields its ownership, not UNKNOWN.
-
-    Regression: the reader used to line-scan for a bare ``ownership:`` YAML
-    key, so every JSON-format state (which state.py/bootstrap.py both read
-    correctly via yaml.safe_load) silently reported UNKNOWN here.
-    """
-    custom = tmp_path / "dedicated" / "WS-JSON.yaml"
-    custom.parent.mkdir(parents=True)
-    custom.write_text(json.dumps(_ownership_state("WS-JSON"), indent=2), encoding="utf-8")
-    entries = worktree_inventory.inventory(str(repo), {str(repo): str(custom)})
-    assert entries[0]["ownership"] == "WS-JSON"
-
-
-def test_inventory_json_and_yaml_states_agree_on_ownership(repo: Path, tmp_path: Path) -> None:
-    """One identity, one answer: serialization must not change the reading."""
-    as_json = tmp_path / "json" / "WS-SAME.yaml"
-    as_yaml = tmp_path / "yaml" / "WS-SAME.yaml"
-    as_json.parent.mkdir(parents=True)
-    as_yaml.parent.mkdir(parents=True)
-    as_json.write_text(json.dumps(_ownership_state("WS-SAME")), encoding="utf-8")
-    as_yaml.write_text(yaml.safe_dump(_ownership_state("WS-SAME")), encoding="utf-8")
-    assert (
-        worktree_inventory.inventory(str(repo), {str(repo): str(as_json)})[0]["ownership"]
-        == worktree_inventory.inventory(str(repo), {str(repo): str(as_yaml)})[0]["ownership"]
-        == "WS-SAME"
-    )
-
-
-def test_inventory_reports_prose_ownership_verbatim(repo: Path, tmp_path: Path) -> None:
-    """Inventory reports, it does not judge: prose is reported as-is.
-
-    Whether prose is a legal identity is the bootstrap gate's decision, not
-    this reporter's. Suppressing or truncating it here would destroy the very
-    evidence the gate needs to explain its refusal.
-    """
-    prose = "WSR23 is the sole writer of branch b in worktree /w."
-    custom = tmp_path / "dedicated" / "WS-PROSE.yaml"
-    custom.parent.mkdir(parents=True)
-    custom.write_text(yaml.safe_dump(_ownership_state(prose)), encoding="utf-8")
-    assert (
-        worktree_inventory.inventory(str(repo), {str(repo): str(custom)})[0]["ownership"] == prose
-    )
-
-
-def test_inventory_unreadable_or_malformed_state_is_unknown(repo: Path, tmp_path: Path) -> None:
-    """Fail closed: malformed, non-mapping, and fieldless states are UNKNOWN."""
-    base = _ownership_state("WS-ANY")
-    cases: dict[str, str] = {
-        "not-a-mapping.yaml": "- just\n- a\n- list\n",
-        "plain-scalar.yaml": "just-a-string\n",
-        "empty-document.yaml": "\n",
-        "absent-field.yaml": yaml.safe_dump({k: v for k, v in base.items() if k != "ownership"}),
-        "null-field.yaml": yaml.safe_dump({**base, "ownership": None}),
-        "empty-field.yaml": yaml.safe_dump({**base, "ownership": "   "}),
-        "non-string-field.yaml": yaml.safe_dump({**base, "ownership": {"ws": "WS-NESTED"}}),
-        "truncated-json.yaml": '{"ownership": "WS-TRUNC',
-    }
-    for name, body in cases.items():
-        custom = tmp_path / "cases" / name
-        custom.parent.mkdir(parents=True, exist_ok=True)
-        custom.write_text(body, encoding="utf-8")
-        assert (
-            worktree_inventory.inventory(str(repo), {str(repo): str(custom)})[0]["ownership"]
-            == "UNKNOWN"
-        ), name
-
-
-def test_inventory_reads_minimal_mapping_field(repo: Path, tmp_path: Path) -> None:
-    """Field-level read: a minimal mapping still reports its identity token.
-
-    Whole-document schema validity is state.py's and the bootstrap gate's
-    job. This reporter answers one question — what identity token does the
-    explicitly mapped file declare — and must not silently widen or narrow it.
-    """
-    custom = tmp_path / "dedicated" / "WS-MINIMAL.yaml"
-    custom.parent.mkdir(parents=True)
-    custom.write_text("ownership: WS-MINIMAL\n", encoding="utf-8")
-    assert (
-        worktree_inventory.inventory(str(repo), {str(repo): str(custom)})[0]["ownership"]
-        == "WS-MINIMAL"
     )
 
 

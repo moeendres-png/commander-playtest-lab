@@ -230,19 +230,73 @@ Qualification fixture or obligation names are evidence labels, not architecture 
 
 ## 10. Workstream contract
 
-One session owns exactly one workstream ↔ one branch ↔ one worktree ↔ one mutation
-surface. Every substantial assignment needs Objective, Source Lock, In/Out of Scope,
-Ownership, Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements,
-Persistence, and Stop Conditions. One primary objective; do not silently broaden scope.
+One session owns exactly one primary workstream and one primary mutation surface by
+default. A bounded cross-workstream integration assignment may additionally own explicitly
+declared `owned-write` surfaces under that SAME workstream, provided every surface has
+matching state ownership and a live writer lock held for the full child lifetime. Every
+substantial assignment needs Objective, Source Lock, In/Out of Scope, Ownership,
+Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements, Persistence, and
+Stop Conditions. One primary objective; do not silently broaden scope.
+
+### Delegated Git integration authority
+
+`DELEGATED_GIT_INTEGRATION_AUTHORITY = ENABLED`
+
+Inside an exclusively owned workstream, the worker may autonomously: fetch remotes;
+inspect refs/remotes/branches; create feature branches; create isolated worktrees;
+merge current target/base INTO the owned feature branch (normal merge only);
+bounded cherry-pick; commit; push the owned non-protected feature branch normally;
+create/update PRs; comment on PRs/issues; inspect CI; repair attributable failures;
+push follow-ups; mark ready; and merge the campaign-owned PR through the normal GitHub
+PR merge path once every merge-gate condition below holds. Routine user confirmation
+is not required for those operations.
+
+Hard boundaries (never evaded by wrappers, alternate binaries, or shell indirection):
+no force push in any spelling; no direct push to `main`/`master`; no committing while
+checked out on `main`/`master`; no history rewriting; no general rebase; no
+`reset --hard`; no `clean`; no destructive branch/worktree deletion; no `update-ref`,
+ref, filter, or forced-tag mutation; no branch-protection or admin bypass; no
+remote-repository creation/deletion; no secret/token extraction or exposure.
+
+A campaign-owned PR may merge without further confirmation only when: exclusive
+ownership holds; exact PR head and target SHAs are freshly verified; target drift is
+adjudicated; all required exact-head CI/qualification gates PASS; no current
+non-outdated unresolved P1/P2 remains; no FAIL/UNKNOWN/BLOCKED is hidden; Rules and
+evidence integrity hold; no source-lock or ownership conflict remains; the merge needs
+no force/admin bypass/history rewrite; the branch is the worker's own; and canonical
+HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise repair if
+technical and in-scope, or stop on a genuine authority/ownership/source blocker.
 
 ## 11. Git, worktree, ownership
 
 Do not modify another active workstream's branch or worktree. Do not modify `main`
-directly. Local commits for resumability are encouraged. Push, merge, rebase,
+directly. Local commits for resumability are encouraged. Rebase,
 history rewriting, remote repository creation, paid services, process killing, and
-worktree deletion require explicit user approval. Before material work, verify branch,
+worktree deletion require explicit user approval; push and merge of the owned
+workstream branch/PR follow the delegated authority above instead. Before material work, verify branch,
 HEAD, tree, `git status`, contract, and state file; resume from the newest verified
 state without redoing valid evidence.
+
+### Cross-workstream access
+
+Project-wide understanding does not imply project-wide write authority.
+
+The normal Foundry run owns one primary writable worktree. A bounded integration task may
+also declare additional verified workspace surfaces:
+
+- `read-only`: exact repository + HEAD/tree, materialized into a disposable detached runtime snapshot; the authoritative source worktree remains non-writable;
+- `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership;
+  for cross-WS mutation the checkout must be standalone (checkout-local `.git`), its state
+  must live under that checkout's `.foundry`, and writable surfaces must be disjoint.
+
+All owned-write surfaces must name the CURRENT workstream as state ownership, be locked
+before the OpenCode child starts, and remain locked for its entire lifetime.
+Foreign-active, unknown-owner and undeclared sibling worktrees remain non-writable.
+Cross-workstream child execution uses Bubblewrap with the host filesystem mounted
+read-only and only the explicitly writable standalone surfaces, unique runtime directory,
+and narrow tool caches rebound read-write. Missing/unusable Bubblewrap is a launch refusal,
+never a silent downgrade. Agents must not use sudo or bypass the sandbox to install it.
+Space Bunny MAX and Muse use the same access contract.
 
 ## 12. Privacy
 

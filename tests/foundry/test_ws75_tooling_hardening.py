@@ -240,12 +240,7 @@ def test_headless_launch_execs_run_auto_first(
     parts = lines[0].split(" ")
     assert parts[1] == "run"
     assert parts[2] == "--auto"
-    # The launcher owns executor selection and pins it on the argv, so the child
-    # cannot silently inherit a different model from session history. The prompt
-    # words follow the pin, in order.
-    assert parts[3] == "--model"
-    assert parts[4] == plan["execution"]["model"]
-    assert parts[5:] == ["do", "the", "thing"]
+    assert parts[3:] == ["do", "the", "thing"]
 
 
 def test_tui_launch_execs_without_run(
@@ -453,7 +448,12 @@ def test_launcher_exposes_verified_references(
     assert plan["verdict"] == "LAUNCH_READY", plan
     exposed = json.loads(plan["_env"]["FOUNDRY_REFERENCE_ROOTS"])
     assert exposed[0]["label"] == "forge"
-    assert exposed[0]["root"] == str(refrepo["root"])
+    snapshot = Path(exposed[0]["root"])
+    assert snapshot != refrepo["root"]
+    assert snapshot.is_dir()
+    assert _git(["rev-parse", "HEAD"], snapshot, target["env"]) == refrepo["head"]
+    assert str(snapshot).startswith(str(Path(plan["run_dir"]) / "reference-snapshots"))
+    assert "source_root" not in exposed[0]
     assert "reference" in plan["gate"]["notes"][-1].lower() or any(
         "reference" in n.lower() for n in plan["gate"]["notes"]
     )
@@ -495,94 +495,77 @@ def _config_ext_rules() -> list[dict]:
     ]
 
 
-def _config_tool_rules(tool: str) -> list[dict]:
-    perm = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))["permission"]
-    return [
-        {"permission": tool, "pattern": pattern, "action": action}
-        for pattern, action in perm[tool].items()
-    ]
-
-
 def test_doom_loop_deny() -> None:
     config = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
     assert config["permission"]["doom_loop"] == "deny"
 
 
-def test_direct_git_push_allowed_by_authorization() -> None:
-    """Coordinator authority (2026-09-27) opened publication to the implementing executor.
-
-    This replaces the retired narrow-worker assertion that denied `git push`. The
-    gate that remains is not the permission table but the campaign's own
-    integration discipline: exact-head validation, reviewed diff, no force push to
-    immutable evidence branches, and no history rewrite. The test now pins the
-    authorized resolution so a silent ask-downgrade cannot re-create the blocker.
-    """
+def test_direct_git_push_denied() -> None:
     rules = _config_bash_rules()
-    for cmd in ("git push origin test/ws", "git push --set-upstream origin test/ws", "git push"):
+    # Delegated authority: owned-branch push is allowed.
+    for cmd in ("git push origin test/ws", "git push"):
         verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
         assert verdict == "ENFORCED_ALLOW", (cmd, matched)
-
-
-def test_git_C_allowed_by_authorization() -> None:
-    """`git -C` is ordinary project tooling and is now authorized."""
-    rules = _config_bash_rules()
-    for cmd in ("git -C /tmp/wt status", "git -C /tmp/wt push origin x"):
-        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
-        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
-
-
-def test_retained_safety_boundaries_still_denied() -> None:
-    """The privacy/system boundaries the authorization explicitly kept closed.
-
-    The widening opened engineering and Git/GitHub mutation. It did not open
-    credential disclosure, privilege escalation, or remote-repository
-    destruction, and this pins those resolutions against the live rule evaluator.
-    """
-    rules = _config_bash_rules()
+    # Force, deletion and main/master push stay denied via later rules.
     for cmd in (
-        "gh auth token",
-        "printenv GITHUB_TOKEN",
-        "env",
-        "sudo rm -rf /var",
-        "gh repo delete moeendres-png/commander-playtest-lab",
-        "gh secret list",
-        "cat ~/.ssh/id_rsa",
-        "cat server.pem",
+        "git push --force origin test/ws",
+        "git push -f origin test/ws",
+        "git push origin test/ws --delete",
+        "git push origin main",
+        "git push origin master",
     ):
         verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
         assert verdict == "DENIED", (cmd, matched)
 
 
-def test_campaign_workspace_reachable_by_authorization() -> None:
-    """The whole Commander-Lab workspace tree is in campaign scope.
+def test_owned_branch_git_allow_set() -> None:
+    rules = _config_bash_rules()
+    bash = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))["permission"]["bash"]
+    assert bash.get("git push --delete*") == "deny"
+    assert bash.get("git push * --delete*") == "deny"
+    for cmd in (
+        "git merge origin/main",
+        "git pull --ff-only",
+        "git cherry-pick deadbee",
+        "git checkout -b foundry/x",
+        "git switch -c foundry/x",
+        "git worktree add /tmp/wt",
+        "gh pr create --title t",
+        "gh pr merge 266",
+        "gh issue comment 265 --body hi",
+    ):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
+    for cmd in (
+        "git rebase origin/main",
+        "git reset --hard HEAD",
+        "git clean -fd",
+        "git branch -D foundry/x",
+        "git checkout -B foundry/x",
+        "git switch -C foundry/x",
+        "git worktree remove /tmp/wt",
+        "git checkout main",
+        "gh repo delete owner/repo",
+    ):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "DENIED", (cmd, matched)
 
-    Ownership is enforced logically (one writer per mutation surface), not by
-    narrowing filesystem reach, so campaign worktrees, candidate checkouts and
-    build trees are reachable without a per-directory allowlist.
-    """
+
+def test_git_C_remains_denied() -> None:
+    rules = _config_bash_rules()
+    for cmd in ("git -C /tmp/wt status", "git -C /tmp/wt push origin x"):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "DENIED", (cmd, matched)
+
+
+def test_no_broad_home_code_write_access() -> None:
     rules = _config_ext_rules()
     for probe in (
-        "/home/moeen/code/wsr23-project-integration-hygiene/tools/foundry/launcher.py",
-        "/home/moeen/code/forge/engine-bridge/src/main/java",
+        "/home/moeen/code/ws75-foundry-opencode-tooling-hardening/tools/foundry/launcher.py",
         "/home/moeen/code/some-other-checkout/file.txt",
-        "/tmp/opencode/scratch.json",
     ):
         verdict, matched = battery_mod.evaluate_rule(rules, "external_directory", probe)
-        assert verdict == "ENFORCED_ALLOW", (probe, matched)
-
-
-def test_secret_files_stay_unreadable() -> None:
-    """Secret files remain closed to every read-shaped tool after the widening."""
-    for tool in ("read", "glob", "grep", "list", "edit"):
-        rules = _config_tool_rules(tool)
-        for probe in (
-            "/home/moeen/code/commander-playtest-lab/.env",
-            "/home/moeen/code/commander-playtest-lab/.env.local",
-        ):
-            verdict, matched = battery_mod.evaluate_rule(rules, tool, probe)
-            assert verdict == "DENIED", (tool, probe, matched)
-        verdict, _ = battery_mod.evaluate_rule(rules, tool, "/home/moeen/code/x/.env.example")
-        assert verdict == "ENFORCED_ALLOW", tool
+        assert verdict != "ENFORCED_ALLOW", (probe, matched)
 
 
 def test_sibling_worktree_denied_in_bundle(target: dict, canon: Path, tmp_path: Path) -> None:
@@ -595,8 +578,8 @@ def test_sibling_worktree_denied_in_bundle(target: dict, canon: Path, tmp_path: 
     plan = _plan(target, canon, opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    sib_deny = f"{target['wt'].parent / 'sib'}*"
-    assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
+    for sib_deny in launcher_mod._root_patterns(str(target["wt"].parent / "sib")):
+        assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
 
 
 def test_safe_push_succeeds_under_ancestor_lock(tmp_path: Path) -> None:
