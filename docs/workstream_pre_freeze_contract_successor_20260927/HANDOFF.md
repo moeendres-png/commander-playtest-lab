@@ -99,7 +99,7 @@ against this boundary is still required.
 
 ## Changes
 
-Added only:
+Added:
 
 - `qualification/CURRENT_PRE_FREEZE_CONTRACT.json`
 - `qualification/pre-freeze-successor/SOURCE_LOCK.json`
@@ -111,11 +111,23 @@ Added only:
 - `tests/qualification/test_pre_freeze_contract_successor.py`
 - this handoff
 
-No historical contract or runtime file is modified.
+Modified only for qualification-integrity sealing:
+
+- `qualification/SHA256SUMS`
+- `WS17_SHA256SUMS`
+
+No historical WS47/WS10R contract, Rules-engine runtime, provider, or publisher file is modified.
 
 ## Tests / Evidence
 
-Required validation:
+Initial PR validation exposed one legitimate infrastructure failure:
+`test_all_ws17_hash_manifests_verify_and_cover_changed_artifacts` rejected the six
+new `qualification/` artifacts because they were not yet covered by the current hash
+manifests. The gate was not weakened. Both hash manifests were extended with exact
+SHA-256 entries and the root manifest was rebound to the updated
+`qualification/SHA256SUMS`.
+
+Required/final validation:
 
 - `pytest -q tests/qualification/test_pre_freeze_contract_successor.py`
 - existing FULL107 direct-correspondence tests
