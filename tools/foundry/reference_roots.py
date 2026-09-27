@@ -115,9 +115,7 @@ def verify(ref: dict) -> list[str]:
         urls = source_lock_mod.remote_url_records(root, "origin")
     except RuntimeError:
         urls = []
-    if len(urls) != 1 or not source_lock_mod.is_canonical_remote(
-        urls[0], ref["repo_slug"]
-    ):
+    if len(urls) != 1 or not source_lock_mod.is_canonical_remote(urls[0], ref["repo_slug"]):
         failures.append(
             f"reference {ref['label']!r}: remote identity is not the exact requested slug"
         )
