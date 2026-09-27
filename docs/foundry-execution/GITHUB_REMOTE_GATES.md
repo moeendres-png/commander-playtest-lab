@@ -26,10 +26,12 @@ repository rulesets are empty.
 1. **PR path to the protected default branch.** Require pull requests
    before merging; disable direct pushes to the default branch for all
    actors, including admins where policy allows (or log admin bypasses).
-2. **Force-push prohibited.** Block `git push --force` / `--force-with-lease`
-   to the default branch. (Local tooling already refuses force semantics:
-   `safe_push` pushes exactly `HEAD:refs/heads/<branch>` with no force
-   flags, and `git push*`-family bypass shapes are DENY in `opencode.json`.)
+2. **Force-push prohibited on the default branch.** Block `git push --force` /
+   `--force-with-lease` to the default branch. Current project policy authorizes
+   normal Git/GitHub execution for owned campaign branches; `safe_push` remains an
+   optional hardened publication path, not a mandatory authority gate. Server-side
+   protection, exact-head PR checks, evidence provenance, and the no-direct-`main`
+   policy remain the durable boundary.
 3. **Branch deletion prohibited.** Block deletion of the default branch.
 4. **Relevant required CI checks.** Mark the qualification lanes that must
    pass before merge as required status checks, at minimum the core CI lane
@@ -40,10 +42,10 @@ repository rulesets are empty.
    would block merges on a check that normal PR activity never produces.
    Require branches to be up to date before merging where the team can
    sustain it.
-5. **No OpenCode/Muse direct push to the default branch.** Automation
-   (including the `opencode` GitHub workflow in this repo, which runs
-   with `contents: read`) must never receive push rights to a default
-   branch. Workstream branches land via `safe_push` + PR review only.
+5. **No OpenCode executor direct push to the default branch.** Automation
+   must not land campaign commits directly on the default branch. Owned workstream
+   branches may be published with normal Git or the optional hardened `safe_push`
+   path, then integrate through exact-head PR review/checks.
 
 ### B. `mage` / `master` and `forge` / `master` (upstream mirrors — sync-only)
 
@@ -74,10 +76,10 @@ protection. Observed-state section above preserved verbatim as the
 
 ## Why this matters to Foundry tooling
 
-- `tools/foundry/safe_push.py` already refuses `main`/`master`/`HEAD` as
-  push destinations and enforces fast-forward-only updates, but those are
-  client-side gates: without server-side branch protection, any credential
-  with push access can bypass them.
+- `tools/foundry/safe_push.py` remains available as an optional hardened
+  fast-forward publication helper. It is no longer the sole authority path for
+  owned campaign branches; server-side default-branch protection plus exact-head
+  PR checks are the durable remote gates.
 - The launcher-installed pre-push hook is explicitly L3-partial
   (bypassable via `--no-verify` by construction); branch protection plus
   required checks are the real gates.

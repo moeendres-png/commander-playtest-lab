@@ -1,10 +1,10 @@
 # Explicit execution profile and provider overrides
 
-The committed default remains `opencode-go/muse-spark-1.3-contributor`.
+The committed/default and preferred executor is `opencode-go/space-bunny-free` at native `max`.
 
 ## Space Bunny Max profile
 
-For an operator-selected run, add `--execution-profile space-bunny` to the existing
+Space Bunny MAX is selected by default. An explicit `--execution-profile space-bunny` is equivalent and may be used for clarity in
 Foundry `init` or `launch` invocation:
 
 ```text
@@ -12,8 +12,7 @@ python3 tools/foundry/launcher.py launch <existing workstream arguments> --effor
 ```
 
 This selects `opencode-go/space-bunny-free` and pins every injected agent to native
-`max` reasoning. The project-level `--effort high|xhigh` field remains required and
-continues to describe task/authority routing; for this profile it does not reduce the
+`max` reasoning. The launcher requires `--effort max` for this profile; no HIGH/XHIGH alias is accepted. This preserves the
 native Space Bunny reasoning level. The selected profile/model/native variant are
 recorded in launch context/environment and existing model/provider telemetry.
 
@@ -46,6 +45,19 @@ is authenticated or that the limited-time preview remains available forever. If 
 catalog/model/auth path is unavailable, the selected Space Bunny run fails closed; it
 must never fall back silently to Muse. Requalification is required if the CLI pin,
 catalog contract, provider protocol, or Space Bunny reasoning contract changes.
+
+## Muse XHIGH profile
+
+Muse is an explicit alternate only:
+
+```text
+--execution-profile muse --effort xhigh
+```
+
+This selects `opencode-go/muse-spark-1.3-contributor` and pins the main model,
+small model and reachable injected agents to native `xhigh`. Muse HIGH is rejected.
+There is no silent fallback from Space Bunny MAX to Muse XHIGH or vice versa.
+
 
 ## Legacy Zen Muse override
 

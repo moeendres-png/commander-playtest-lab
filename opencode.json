@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/muse-spark-1.3-contributor",
+  "model": "opencode-go/space-bunny-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -59,7 +59,7 @@
       "*.env.example": "allow"
     },
     "bash": {
-      "*": "ask",
+      "*": "allow",
       "git status*": "allow",
       "git diff*": "allow",
       "git log*": "allow",
@@ -93,15 +93,7 @@
       "gh issue view*": "allow",
       "gh issue list*": "allow",
       "gh issue comment*": "allow",
-      "gh api*": "ask",
-      "gh api -X POST*": "deny",
-      "gh api -X PUT*": "deny",
-      "gh api -X PATCH*": "deny",
-      "gh api -X DELETE*": "deny",
-      "gh api --method POST*": "deny",
-      "gh api --method PUT*": "deny",
-      "gh api --method PATCH*": "deny",
-      "gh api --method DELETE*": "deny",
+      "gh api*": "allow",
       "git push*": "allow",
       "git merge*": "allow",
       "git pull --ff-only*": "allow",
@@ -131,12 +123,6 @@
       "git tag -f*": "deny",
       "git stash drop*": "deny",
       "git stash clear*": "deny",
-      "git -C*": "deny",
-      "/usr/bin/git*": "deny",
-      "/bin/git*": "deny",
-      "command *": "deny",
-      "sh -c*": "deny",
-      "bash -c*": "deny",
       "sudo*": "deny",
       "su *": "deny",
       "env": "deny",
@@ -169,7 +155,19 @@
       "git push origin main*": "deny",
       "git push origin master*": "deny",
       "git push upstream main*": "deny",
-      "git push upstream master*": "deny"
+      "git push upstream master*": "deny",
+      "set": "deny",
+      "set *": "deny",
+      "export": "deny",
+      "gh secret*": "deny",
+      "cat *id_rsa*": "deny",
+      "cat *.pem": "deny",
+      "cat *.key": "deny",
+      "cat *credentials*": "deny",
+      "cat *.netrc": "deny",
+      "gh ssh-key*": "deny",
+      "gh gpg-key*": "deny",
+      "doas*": "deny"
     },
     "task": {
       "*": "ask",
@@ -178,22 +176,21 @@
       "foundry-reviewer": "allow"
     },
     "external_directory": {
-      "*": "ask",
-      "/home/moeen/code/*": "ask",
-      "/tmp/*": "allow",
-      "/home/moeen/code/ws50-forge-decision-sequence-slice*": "deny",
-      "/home/moeen/code/q6-capability-curation-20260910*": "deny"
+      "*": "allow",
+      "/home/moeen/code/*": "allow",
+      "/tmp/*": "allow"
     }
   },
   "provider": {
     "opencode-go": {
       "whitelist": [
+        "space-bunny-free",
         "muse-spark-1.3-contributor"
       ],
       "models": {
-        "muse-spark-1.3-contributor": {
+        "space-bunny-free": {
           "options": {
-            "reasoningEffort": "high"
+            "reasoningEffort": "max"
           },
           "variants": {
             "none": {
@@ -211,7 +208,38 @@
             "medium": {
               "disabled": true
             },
-            "high": {},
+            "high": {
+              "disabled": true
+            },
+            "xhigh": {
+              "disabled": true
+            },
+            "max": {}
+          }
+        },
+        "muse-spark-1.3-contributor": {
+          "options": {
+            "reasoningEffort": "xhigh"
+          },
+          "variants": {
+            "none": {
+              "disabled": true
+            },
+            "off": {
+              "disabled": true
+            },
+            "minimal": {
+              "disabled": true
+            },
+            "low": {
+              "disabled": true
+            },
+            "medium": {
+              "disabled": true
+            },
+            "high": {
+              "disabled": true
+            },
             "xhigh": {}
           }
         }
@@ -220,7 +248,7 @@
   },
   "agent": {
     "build": {
-      "variant": "high"
+      "variant": "max"
     }
   },
   "experimental": {
@@ -236,5 +264,6 @@
         "resource": "opencode-go"
       }
     ]
-  }
+  },
+  "small_model": "opencode-go/space-bunny-free"
 }

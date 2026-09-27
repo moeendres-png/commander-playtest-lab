@@ -1,0 +1,70 @@
+{
+  "authority": {
+    "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT SELECTED"
+  },
+  "branch": "wsr23/project-integration-hygiene-20260927",
+  "entry_count": 250,
+  "evidence_semantics": "UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS",
+  "generated_at": "2026-09-27T17:20:00+02:00",
+  "git_worktrees_registered": 225,
+  "issue": "https://github.com/moeendres-png/commander-playtest-lab/issues/263",
+  "main_drift": {
+    "action_taken": "git rebase origin/main onto the WSR23 branch; validation re-run on the rebased tip.",
+    "cause": "PRs #260 and #261 and then PR #268 merged into main while WSR23 was running.",
+    "classification": "NO_IMPACT",
+    "detected_at": "2026-09-27T17:06:06+02:00 (mid-run, after the first validation pass)",
+    "evidence": "git diff --name-only c5f9418e bbbb6b9c lists 15 paths. WSR23's mutation surface is docs/project_integration_hygiene_20260927/** and docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Intersection is empty. git diff c5f9418e bbbb6b9c -- docs/foundry-execution/GOVERNANCE_SUPERSESSION.md is empty, so the repair target was untouched by the merges. AGENTS.md section numbering is also unchanged by #261: \u00a711 is still 'Git, worktree, ownership' and \u00a712 is still 'Privacy', so repair R1's premise still holds. The rebase was therefore a clean, conflict-free replay, not a semantic adaptation.",
+    "initial_audit_base": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+    "revalidated_against": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719"
+  },
+  "non_git_project_state_directories": [
+    {
+      "files": 20,
+      "path": "/home/moeen/code/.foundry-state",
+      "role": "legacy root-level Foundry state records (2026-09-12..2026-09-14), all HISTORICAL_PROVENANCE_ONLY; WSR23 wrote nothing here"
+    },
+    {
+      "files": 0,
+      "path": "/home/moeen/code/foundry-state",
+      "role": "empty directory"
+    },
+    {
+      "path": "/home/moeen/code/foundry-runs/ws233-forge-s3-mechanic-partials",
+      "role": "historic run output"
+    },
+    {
+      "path": "/home/moeen/code/.foundry-harness-backup/ws76-metrics.jsonl",
+      "role": "historic telemetry backup"
+    },
+    {
+      "bytes": 182589,
+      "path": "/home/moeen/code/session-ses_f44a.md",
+      "role": "historic session transcript; provenance only, not a current authority"
+    }
+  ],
+  "observed_main_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
+  "observed_main_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
+  "out_of_scope": "Unrelated personal repositories under /home/moeen/code were neither inspected nor modified beyond detecting that they carry no Commander Simulator Next remote.",
+  "root": "/home/moeen/code",
+  "root_is_not_a_git_repository": true,
+  "untracked_residue_requiring_owner_attribution": [
+    {
+      "action": "left untouched",
+      "class": "DIRTY_UNKNOWN_OWNER",
+      "path": "/home/moeen/code/commander-playtest-lab/Datenpaket_19_09/"
+    },
+    {
+      "action": "left untouched; also hard-denied in opencode.json external_directory policy",
+      "class": "DIRTY_UNKNOWN_OWNER",
+      "path": "/home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ (51 untracked paths)"
+    },
+    {
+      "action": "left untouched; highest-value unowned local state found (see REMAINING_BLOCKERS.md B3)",
+      "class": "DIRTY_UNKNOWN_OWNER",
+      "path": "/home/moeen/code/xmage-ws49-baseline (7 tracked Mage engine modifications)"
+    }
+  ],
+  "workstream": "WSR23",
+  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+}
