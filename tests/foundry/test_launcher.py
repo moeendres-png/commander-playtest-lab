@@ -1047,9 +1047,7 @@ def test_space_bunny_profile_rejects_unknown_api_profile(target, canon):
     assert "unknown execution profile" in plan["error"]
 
 
-def test_space_bunny_launch_uses_explicit_model_and_no_fallback(
-    target, canon, monkeypatch
-):
+def test_space_bunny_launch_uses_explicit_model_and_no_fallback(target, canon, monkeypatch):
     plan = _plan(target, canon, execution_profile="space-bunny")
     assert plan["verdict"] == "LAUNCH_READY", plan
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
@@ -1067,8 +1065,7 @@ def test_space_bunny_launch_uses_explicit_model_and_no_fallback(
     assert len(calls) == 1
     assert calls[0][3:5] == ["--model", launcher_mod.SPACE_BUNNY_MODEL]
     records = [
-        json.loads(s)
-        for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
+        json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
     assert {record["model"] for record in records} == {launcher_mod.SPACE_BUNNY_MODEL}
     assert {record["execution_override"] for record in records} == {"space-bunny"}

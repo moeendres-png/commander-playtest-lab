@@ -88,7 +88,9 @@ def execution_identity(
     if effort not in ALLOWED_EFFORTS:
         raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
     if override and execution_profile not in (None, "muse"):
-        raise ValueError("execution profile and provider override cannot select different executors")
+        raise ValueError(
+            "execution profile and provider override cannot select different executors"
+        )
 
     profile = execution_profile or "muse"
     if override == "zen":
@@ -728,11 +730,7 @@ def _launch_locked(
     try:
         # CLI model selection outranks persisted session/model history on every
         # explicit non-default executor. Caller model flags are rejected.
-        selected = (
-            ["--model", execution["model"]]
-            if execution["override"] != "canonical"
-            else []
-        )
+        selected = ["--model", execution["model"]] if execution["override"] != "canonical" else []
         argv = build_argv(binary, mode, [*selected, *argv_extra])
     except ValueError as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
