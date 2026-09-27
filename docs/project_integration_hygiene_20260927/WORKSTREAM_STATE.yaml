@@ -169,7 +169,7 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: 7d14810ed98fed32c4915d62e596636999a0efc1
+state_written_against_head: eac61e11a988da548f8d30e4d4d738f44ef26a23
 status: WAITING
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
@@ -248,5 +248,5 @@ validated_gates:
 - ruff lint and format clean
 - 'project invariant audit: 6 pass, 0 fail'
 - WORKSTREAM_STATE validates as schema 2.0 and is STATE_OK; bootstrap gate BOOTSTRAP_PASS
-validated_head: 7d14810ed98fed32c4915d62e596636999a0efc1
+validated_head: eac61e11a988da548f8d30e4d4d738f44ef26a23
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
