@@ -129,12 +129,19 @@ Within configured permissions the selected OpenCode worker should use:
 - task/subagent calls for bounded exploration, technical adjudication and fresh-context
   review.
 
-An allowed tool should be used without asking the user for routine approval. An ask/deny
-result is a real boundary and must never be bypassed through shell wrappers, alternate
-spellings, indirect interpreters, another tool, or a different model.
+An allowed tool should be used without asking the user for routine approval. For this
+project, the canonical execution policy deliberately grants the selected OpenCode
+executor project-scoped Git/GitHub authority for ordinary engineering and integration.
+A stale ask/deny rule that contradicts this document is configuration drift to repair,
+not a reason to stop a valid campaign.
 
-Push/merge/rebase/destructive operations, secrets and cross-worktree mutation remain
-subject to the repository permission/approval gates.
+Project-scoped branch/worktree creation, push, PR/issue mutation, merge/rebase/cherry-pick,
+CI remediation, and cleanup of proven-superseded campaign surfaces are pre-authorized
+inside the active workstream/campaign when Source Truth, ownership, exact-head checks,
+and evidence gates are satisfied. Preserve immutable evidence branches and unique
+unintegrated work. Direct mutation of `main`/`master`, raw-secret extraction,
+account/org security changes, remote repository creation/deletion, paid services,
+Production Provider selection, and Architecture Freeze remain reserved boundaries.
 
 ## Executor handoff and parallelism
 
