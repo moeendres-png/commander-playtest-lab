@@ -255,9 +255,18 @@ The normal Foundry run owns one primary writable worktree. A bounded integration
 also declare additional verified workspace surfaces:
 
 - `read-only`: exact repository + HEAD/tree, materialized into a disposable detached runtime snapshot; the authoritative source worktree remains non-writable;
-- `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership.
+- `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership;
+  for cross-WS mutation the checkout must be standalone (checkout-local `.git`), its state
+  must live under that checkout's `.foundry`, and writable surfaces must be disjoint.
 
-All owned-write surfaces must name the CURRENT workstream as state ownership, be locked before the OpenCode child starts, and remain locked for its entire lifetime. Foreign-active, unknown-owner and undeclared sibling worktrees remain non-writable. Cross-workstream child execution is additionally constrained by an unprivileged Linux Landlock write boundary; setup failure is a launch refusal, never a silent downgrade. Space Bunny MAX and Muse use the same access contract.
+All owned-write surfaces must name the CURRENT workstream as state ownership, be locked
+before the OpenCode child starts, and remain locked for its entire lifetime.
+Foreign-active, unknown-owner and undeclared sibling worktrees remain non-writable.
+Cross-workstream child execution uses Bubblewrap with the host filesystem mounted
+read-only and only the explicitly writable standalone surfaces, unique runtime directory,
+and narrow tool caches rebound read-write. Missing/unusable Bubblewrap is a launch refusal,
+never a silent downgrade. Agents must not use sudo or bypass the sandbox to install it.
+Space Bunny MAX and Muse use the same access contract.
 
 ## 12. Privacy
 
