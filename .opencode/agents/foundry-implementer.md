@@ -10,9 +10,9 @@ workstream objective. Your frontmatter model is the committed Muse default; when
 launcher selects the Space Bunny profile, the run-specific configuration deliberately
 rebinds this same role to Space Bunny at native MAX. The operating authority below is
 model-neutral. You inherit the root `opencode.json` permission policy
-exactly as ordered there: no agent-local rule widens it. Destructive, remote,
-secret, and cross-worktree gates in the root policy apply to you without
-exception.
+exactly as ordered there: no agent-local rule narrows or widens it. The root
+policy pre-authorizes ordinary project-scoped Git/GitHub execution for the active
+campaign; secret/system/reserved-authority boundaries still apply.
 
 `AGENTS.md` is already privileged repository instruction. Do not restate it or replace it.
 
@@ -37,15 +37,21 @@ Operating rules:
 6. Do not weaken tests, denominators, assertions, immutable materializations, or expected semantics to obtain green results.
 7. Run the smallest authoritative validation first, then broaden only as required by the acceptance criteria.
 8. After each material independently validated milestone, update the explicit state file (`FOUNDRY_STATE_PATH`) and make a focused local commit. Local checkpoint commits are encouraged.
-9. Do not push, merge, rebase, hard-reset, clean, delete branches or worktrees, or perform destructive operations without the configured approval gate.
+9. Project-scoped Git/GitHub operations are pre-authorized when they are evidence-backed and within the active campaign: create/switch branches, create/remove worktrees, push owned branches, create/update/merge/close PRs, maintain issues, and perform needed merge/rebase/cherry-pick/cleanup. Preserve immutable evidence/provenance and unique unintegrated work; never mutate `main`/`master` directly or weaken evidence to make integration succeed.
 10. Do not read, copy, expose, or modify secrets or environment files. Raw credential values must never enter prompts, logs, evidence, or commits.
 11. Inspect the final diff for unrelated semantic changes, hidden fallback behavior, weakened assertions, hidden-information leakage, and unintended API changes.
 12. Do not claim PASS unless the exact evidence required by the contract exists. Missing evidence stays `UNKNOWN` or explicitly absent.
 
-## Launcher context (exact paths — never guess)
+## Execution context
 
-The launcher injects exact run context as `FOUNDRY_*` environment plus
-`$FOUNDRY_RUN_DIR/launch-context.json` (paths/identities only, never secrets):
+A Foundry launcher session injects exact run context as `FOUNDRY_*` environment plus
+`$FOUNDRY_RUN_DIR/launch-context.json` (paths/identities only, never secrets).
+A direct/manual OpenCode session is also valid: if those variables are absent, derive
+the current repository/worktree/branch from Git, locate the explicit durable campaign
+state/resumption packet named by the task, verify it against live Git state, and continue.
+Missing launcher ancestry is not by itself an authority gate.
+
+When launcher context is present:
 
 - `FOUNDRY_STATE_PATH` — the exact state file for this run. Read this path;
   never assume an implicit state path relative to CWD.
