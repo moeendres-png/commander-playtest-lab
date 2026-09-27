@@ -8,6 +8,9 @@
     "schema_version": {
       "const": "architecture-freeze-result/2.0.0"
     },
+    "architecture_winner": {
+      "const": false
+    },
     "candidate": {
       "type": "string",
       "minLength": 1
@@ -28,7 +31,7 @@
     "truthful_capabilities": {
       "type": "object"
     },
-    "af_results": {
+    "gate_results": {
       "type": "array",
       "minItems": 12,
       "maxItems": 12,
@@ -65,12 +68,21 @@
           "reason": {
             "type": "string",
             "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "required": [
           "gate_id",
           "verdict",
-          "reason"
+          "reason",
+          "evidence_refs"
         ]
       }
     },
@@ -80,26 +92,259 @@
   },
   "required": [
     "schema_version",
+    "architecture_winner",
     "candidate",
     "qualification_boundary",
     "transport_protocol_version",
     "protocol_schema_identity",
     "source_lock",
     "truthful_capabilities",
-    "af_results",
+    "gate_results",
     "freeze_eligible"
   ],
   "allOf": [
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF00"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF01"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF02"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF03"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF04"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF05"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF06"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF07"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF08"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF09"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF10"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF11"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
     {
       "if": {
         "properties": {
           "freeze_eligible": {
             "const": true
           }
-        }
+        },
+        "required": [
+          "freeze_eligible"
+        ]
       },
       "then": {
-        "description": "Repository validation additionally requires all twelve AF gates to be present exactly once and PASS; schema shape alone does not grant Freeze."
+        "properties": {
+          "gate_results": {
+            "items": {
+              "properties": {
+                "verdict": {
+                  "const": "PASS"
+                }
+              },
+              "required": [
+                "verdict"
+              ]
+            }
+          }
+        }
       }
     }
   ]
