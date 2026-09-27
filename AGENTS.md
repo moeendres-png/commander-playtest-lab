@@ -244,6 +244,20 @@ worktree deletion require explicit user approval. Before material work, verify b
 HEAD, tree, `git status`, contract, and state file; resume from the newest verified
 state without redoing valid evidence.
 
+### Cross-workstream access
+
+Project-wide understanding does not imply project-wide write authority.
+
+The normal Foundry run owns one primary writable worktree. A bounded integration task may
+also declare additional verified workspace surfaces:
+
+- `read-only`: exact repository + HEAD/tree, runtime-readable, edit-denied;
+- `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership.
+
+All owned-write surfaces must be locked before the OpenCode child starts and remain locked
+for its entire lifetime. Foreign-active, unknown-owner and undeclared sibling worktrees
+remain non-writable. Space Bunny MAX and Muse use the same access contract.
+
 ## 12. Privacy
 
 The selected OpenCode Foundry executor may use project-relevant technical data: repository source, tests, contracts,
