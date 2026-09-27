@@ -8,11 +8,15 @@ from jsonschema import Draft202012Validator
 from commander_lab.meta_qualification import run_meta_verification
 
 
-def test_real_xmage_replay_mutations_are_killed_and_not_run_is_visible(
+def _real_tape(repo_root: Path) -> tuple[Path, dict]:
+    tape_path = repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
+    return tape_path, json.loads(tape_path.read_text())
+
+
+def test_real_xmage_replay_mutations_are_killed_and_runtime_gap_is_visible(
     repo_root: Path,
 ) -> None:
-    tape_path = repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
-    tape = json.loads(tape_path.read_text())
+    tape_path, tape = _real_tape(repo_root)
     report = run_meta_verification(tape, source_tape=str(tape_path.relative_to(repo_root)))
 
     assert report["attempted"] == 7
@@ -28,9 +32,31 @@ def test_real_xmage_replay_mutations_are_killed_and_not_run_is_visible(
     assert all(by_id[mid]["status"] == "KILLED" for mid in by_id if mid != "MQ-HIDDEN-001")
 
 
+def test_runtime_hidden_kill_completes_catalogue(repo_root: Path) -> None:
+    tape_path, tape = _real_tape(repo_root)
+    report = run_meta_verification(
+        tape,
+        source_tape=str(tape_path.relative_to(repo_root)),
+        runtime_kills={"MQ-HIDDEN-001"},
+    )
+
+    assert report["attempted"] == 8
+    assert report["killed"] == 8
+    assert report["survived"] == 0
+    assert report["not_run"] == 0
+    assert report["kill_rate"] == 1.0
+    assert report["catalog_coverage"] == 1.0
+
+    hidden = next(row for row in report["results"] if row["mutation_id"] == "MQ-HIDDEN-001")
+    assert hidden["status"] == "KILLED"
+    assert (
+        hidden["observed_detector"]
+        == "XmageFullGameHiddenInformationTest#qualificationOracleKillsInjectedOpponentPrivateIdentity"
+    )
+
+
 def test_meta_verification_report_validates_against_schema(repo_root: Path) -> None:
-    tape_path = repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
-    tape = json.loads(tape_path.read_text())
+    tape_path, tape = _real_tape(repo_root)
     report = run_meta_verification(tape, source_tape=str(tape_path.relative_to(repo_root)))
     schema_path = (
         repo_root
