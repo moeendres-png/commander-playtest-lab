@@ -7,6 +7,7 @@ internals, never computes legality, and never fabricates a response.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import subprocess
@@ -114,11 +115,9 @@ class BridgeProcess:
                 self.request(message, {}, timeout_s=timeout_s)
             except (BridgeLaunchError, AssertionError, OSError):
                 break
-        try:
+        with contextlib.suppress(OSError):
             if self.popen.stdin is not None:
                 self.popen.stdin.close()
-        except OSError:
-            pass
         try:
             self.popen.wait(timeout=timeout_s)
         except subprocess.TimeoutExpired:
@@ -126,10 +125,8 @@ class BridgeProcess:
         finally:
             for stream in (self.popen.stdout, self.popen.stderr):
                 if stream is not None:
-                    try:
+                    with contextlib.suppress(OSError):
                         stream.close()
-                    except OSError:
-                        pass
 
     def __enter__(self) -> BridgeProcess:
         return self
@@ -236,7 +233,7 @@ def launch(plan: LaunchPlan, *, timeout_s: float = 60.0) -> BridgeProcess:
     env.pop("JAVA_TOOL_OPTIONS", None)
     env.update(plan.env_overrides)
     try:
-        popen = subprocess.Popen(  # noqa: S603 - exact pinned argv, no shell
+        popen = subprocess.Popen(
             list(plan.argv),
             cwd=str(plan.cwd),
             env=env,

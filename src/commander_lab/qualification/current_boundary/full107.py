@@ -32,10 +32,8 @@ from .game_driver import (
     DECISION_IDENTITY_SHAPES,
     CommandedGameResult,
     drive_commander_game,
-    normalize_decision_frame,
     poll_decision,
 )
-from .materialization import EffectiveMaterialization
 from .source_lock import (
     CURRENT_QUALIFICATION_BOUNDARY,
     CURRENT_RULES_AUTHORITY_EFFECTIVE_DATE,
@@ -62,7 +60,8 @@ INJECTION_BLOCKED_FAMILIES = ("WS05-MP-", "WS05-CMD-ZONE-", "WS05-CMD-DMG-", "WS
 # Rows whose obligation is a *per-scenario hidden-information probe* that needs
 # engine-native principal-scoped channel instrumentation which the generic
 # Protocol-2 state projection does not expose.
-HIDDEN_SCENARIO_ROWS = tuple(f"HIDDEN_{index:02d}" for index in range(1, 20)) + (
+HIDDEN_SCENARIO_ROWS = (
+    *(f"HIDDEN_{index:02d}" for index in range(1, 20)),
     "HIDDEN_HONEYCARD_SENTINEL",
 )
 
@@ -238,38 +237,59 @@ def cardinality_row(
     }
     if result.failure:
         return RowResult(
-            fixture_id, candidate, "FAIL", "PROTOCOL2_LIFECYCLE",
-            f"lifecycle runtime failure: {result.failure}", evidence,
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_LIFECYCLE",
+            f"lifecycle runtime failure: {result.failure}",
+            evidence,
         )
     if wanted is None:
         return RowResult(
-            fixture_id, candidate, "UNKNOWN", "PROTOCOL2_LIFECYCLE",
-            "the effective record does not state the required player count", evidence,
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_LIFECYCLE",
+            "the effective record does not state the required player count",
+            evidence,
         )
     if created != wanted:
         return RowResult(
-            fixture_id, candidate, "FAIL", "PROTOCOL2_LIFECYCLE",
-            f"engine created {created} players for a {wanted}P fixture", evidence,
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_LIFECYCLE",
+            f"engine created {created} players for a {wanted}P fixture",
+            evidence,
         )
     if not result.terminal_facts.get("priority_reached"):
         return RowResult(
-            fixture_id, candidate, "FAIL", "PROTOCOL2_LIFECYCLE",
-            "no external priority decision was ever reached", evidence,
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_LIFECYCLE",
+            "no external priority decision was ever reached",
+            evidence,
         )
-    external_choices = [
-        entry for entry in result.decision_tape if entry.chosen_option_id
-    ]
+    external_choices = [entry for entry in result.decision_tape if entry.chosen_option_id]
     if not external_choices:
         return RowResult(
-            fixture_id, candidate, "FAIL", "PROTOCOL2_LIFECYCLE",
-            "no externally supplied discretionary decision was bound to an "
-            "engine-offered option", evidence,
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_LIFECYCLE",
+            "no externally supplied discretionary decision was bound to an engine-offered option",
+            evidence,
         )
     return RowResult(
-        fixture_id, candidate, "PASS", "PROTOCOL2_LIFECYCLE",
+        fixture_id,
+        candidate,
+        "PASS",
+        "PROTOCOL2_LIFECYCLE",
         f"real {wanted}P Commander lifecycle executed under Protocol "
         f"{CURRENT_TRANSPORT_PROTOCOL} with engine-owned legality and external "
-        f"discretionary choices bound to engine-offered options", evidence,
+        f"discretionary choices bound to engine-offered options",
+        evidence,
     )
 
 
@@ -317,30 +337,48 @@ def start2_row(
     }
     if game.failure:
         return RowResult(
-            fixture_id, candidate, "FAIL", "PROTOCOL2_START2_V1_0_6",
-            f"START-2 lifecycle failure: {game.failure}", evidence,
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_START2_V1_0_6",
+            f"START-2 lifecycle failure: {game.failure}",
+            evidence,
         )
     if draw_frames:
         return RowResult(
-            fixture_id, candidate, "FAIL", "PROTOCOL2_START2_V1_0_6",
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_START2_V1_0_6",
             "the engine exposed a decision checkpoint inside the first-turn draw "
             "step, which CR 103.8a skips entirely; this is a current-boundary "
             "Rules-visible FAIL candidate requiring Coordinator adjudication",
             evidence,
         )
     if "starting_player:P1" not in required:
-        return RowResult(fixture_id, candidate, "UNKNOWN", "PROTOCOL2_START2_V1_0_6",
-                         "effective record does not carry the starting-player event",
-                         evidence)
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "effective record does not carry the starting-player event",
+            evidence,
+        )
     if not game.terminal_facts.get("priority_reached"):
         return RowResult(
-            fixture_id, candidate, "UNKNOWN", "PROTOCOL2_START2_V1_0_6",
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
             "the run did not reach an observable checkpoint after the skipped draw "
             "step, so the successor terminal postcondition could not be evaluated",
             evidence,
         )
     return RowResult(
-        fixture_id, candidate, "PASS", "PROTOCOL2_START2_V1_0_6",
+        fixture_id,
+        candidate,
+        "PASS",
+        "PROTOCOL2_START2_V1_0_6",
         "CR 103.8a satisfied on the current boundary: the starting player's entire "
         "first-turn draw step was skipped, no draw-step checkpoint, draw event or "
         "in-step priority was ever exposed by the engine, and the first observable "
@@ -412,7 +450,7 @@ def wait_for_frame(
 ) -> dict[str, Any] | None:  # pragma: no cover - helper
     try:
         return poll_decision(proc, game_id, seat_count=seat_count, candidate=candidate)
-    except Exception:  # noqa: BLE001 - absence is recorded, never substituted
+    except Exception:
         return None
 
 

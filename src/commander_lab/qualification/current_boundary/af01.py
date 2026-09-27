@@ -194,14 +194,16 @@ def run_af01(
         add(
             "request_id_matches",
             "FAIL" if mismatched_ids else "PASS",
-            f"mismatched request_ids: {mismatched_ids}" if mismatched_ids
+            f"mismatched request_ids: {mismatched_ids}"
+            if mismatched_ids
             else "every response echoed the exact request_id",
             {"request_ids": request_ids},
         )
         add(
             "protocol_version_exact",
             "FAIL" if bad_protocol else "PASS",
-            f"protocol_version mismatches: {bad_protocol}" if bad_protocol
+            f"protocol_version mismatches: {bad_protocol}"
+            if bad_protocol
             else f"every response reported protocol_version={CURRENT_TRANSPORT_PROTOCOL}",
             {"observed": {m: payloads[m].get("protocol_version") for m in payloads}},
         )
@@ -215,7 +217,10 @@ def run_af01(
     capabilities = capabilities if isinstance(capabilities, dict) else {}
     full_game_lane = capabilities_payload.get("full_game_lane")
     if isinstance(full_game_lane, dict):
-        capabilities = {**capabilities, **{f"full_game_lane.{k}": v for k, v in full_game_lane.items()}}
+        capabilities = {
+            **capabilities,
+            **{f"full_game_lane.{k}": v for k, v in full_game_lane.items()},
+        }
 
     reported_commit = version_payload.get("engine_commit")
     reported_provider = version_payload.get("engine") or version_payload.get("provider")
@@ -233,38 +238,60 @@ def run_af01(
 
     expected_provider = "xmage" if candidate == "xmage" else "forge"
     if reported_provider == expected_provider:
-        add("provider_identity_exact", "PASS", f"provider reported as {expected_provider!r}",
-            {"reported": reported_provider})
+        add(
+            "provider_identity_exact",
+            "PASS",
+            f"provider reported as {expected_provider!r}",
+            {"reported": reported_provider},
+        )
     elif reported_provider is None:
         add("provider_identity_exact", "UNKNOWN", "provider identity absent from provider_version")
     else:
-        add("provider_identity_exact", "FAIL",
+        add(
+            "provider_identity_exact",
+            "FAIL",
             f"expected {expected_provider!r}, provider reported {reported_provider!r}",
-            {"reported": reported_provider})
+            {"reported": reported_provider},
+        )
 
     if reported_commit == expected_commit:
-        add("engine_version_or_commit_exact", "PASS",
+        add(
+            "engine_version_or_commit_exact",
+            "PASS",
             f"provider reported the exact candidate commit {expected_commit}",
-            {"reported": reported_commit})
+            {"reported": reported_commit},
+        )
     elif reported_commit is None:
         add("engine_version_or_commit_exact", "UNKNOWN", "no engine commit reported")
     else:
-        add("engine_version_or_commit_exact", "FAIL",
+        add(
+            "engine_version_or_commit_exact",
+            "FAIL",
             f"expected {expected_commit}, provider reported {reported_commit}",
-            {"reported": reported_commit})
+            {"reported": reported_commit},
+        )
 
     if capabilities:
-        add("capabilities_explicitly_reported", "PASS",
+        add(
+            "capabilities_explicitly_reported",
+            "PASS",
             f"provider reported {len(capabilities)} capability fields",
-            {"capability_keys": sorted(capabilities)})
-        add("capabilities_provider_reported_not_inferred", "PASS",
+            {"capability_keys": sorted(capabilities)},
+        )
+        add(
+            "capabilities_provider_reported_not_inferred",
+            "PASS",
             "every capability value was read from the provider get_capabilities payload; "
             "no value was derived from the provider name",
-            {"sampled": {k: capabilities.get(k) for k in REQUIRED_TRUTHFUL_CAPABILITIES}})
+            {"sampled": {k: capabilities.get(k) for k in REQUIRED_TRUTHFUL_CAPABILITIES}},
+        )
     else:
         add("capabilities_explicitly_reported", "FAIL", "no capability payload reported")
-        add("capabilities_provider_reported_not_inferred", "FAIL",
-            "capabilities absent; inference is forbidden")
+        add(
+            "capabilities_provider_reported_not_inferred",
+            "FAIL",
+            "capabilities absent; inference is forbidden",
+        )
 
     runtime_kind = (
         capabilities_payload.get("runtime_kind")
@@ -272,14 +299,25 @@ def run_af01(
         or capabilities.get("runtime_kind")
     )
     if runtime_kind == "external_rules_engine":
-        add("runtime_kind_external_rules_engine", "PASS", "provider reported runtime_kind",
-            {"runtime_kind": runtime_kind})
+        add(
+            "runtime_kind_external_rules_engine",
+            "PASS",
+            "provider reported runtime_kind",
+            {"runtime_kind": runtime_kind},
+        )
     elif runtime_kind is None:
-        add("runtime_kind_external_rules_engine", "UNKNOWN",
-            "provider did not report runtime_kind in the handshake payload")
+        add(
+            "runtime_kind_external_rules_engine",
+            "UNKNOWN",
+            "provider did not report runtime_kind in the handshake payload",
+        )
     else:
-        add("runtime_kind_external_rules_engine", "FAIL",
-            f"provider reported runtime_kind={runtime_kind!r}", {"runtime_kind": runtime_kind})
+        add(
+            "runtime_kind_external_rules_engine",
+            "FAIL",
+            f"provider reported runtime_kind={runtime_kind!r}",
+            {"runtime_kind": runtime_kind},
+        )
 
     # --- legacy alias handshake must not satisfy AF01 -------------------
     alias_evidence: dict[str, Any] = {}
@@ -288,55 +326,80 @@ def run_af01(
         legacy = proc.request("engine_hello", {})
         alias_evidence["engine_hello"] = legacy
         legacy_used = legacy.get("success") is True
-    except Exception as exc:  # noqa: BLE001 - a rejected alias is a valid observation
+    except Exception as exc:
         alias_evidence["engine_hello_error"] = str(exc)
-    add("legacy_alias_handshake_not_accepted", "PASS",
+    add(
+        "legacy_alias_handshake_not_accepted",
+        "PASS",
         "AF01 credit was taken only from the canonical protocol-2 messages; any legacy alias "
         "response observed during probing was recorded but never used for credit",
-        {"legacy_alias_responded": legacy_used, **alias_evidence})
+        {"legacy_alias_responded": legacy_used, **alias_evidence},
+    )
 
     # --- fail-closed invariants ----------------------------------------
     mismatch = proc.request("get_capabilities", {}, protocol_version="1.1.0")
-    add("fail_closed_protocol_mismatch",
+    add(
+        "fail_closed_protocol_mismatch",
         "PASS" if _fails_closed(mismatch) else "FAIL",
-        "provider rejected a wrong protocol_version without success" if _fails_closed(mismatch)
+        "provider rejected a wrong protocol_version without success"
+        if _fails_closed(mismatch)
         else "provider accepted a wrong protocol_version",
-        mismatch)
+        mismatch,
+    )
 
     unknown = proc.request("wsr22_definitely_not_a_message", {})
-    add("fail_closed_unknown_message",
+    add(
+        "fail_closed_unknown_message",
         "PASS" if _fails_closed(unknown) else "FAIL",
-        "provider rejected an unknown message type" if _fails_closed(unknown)
+        "provider rejected an unknown message type"
+        if _fails_closed(unknown)
         else "provider accepted an unknown message type",
-        unknown)
+        unknown,
+    )
 
-    illegal = proc.request("submit_action", {"actor": "P1", "legal_action_id": "wsr22-not-a-real-option"})
-    add("fail_closed_illegal_action",
+    illegal = proc.request(
+        "submit_action", {"actor": "P1", "legal_action_id": "wsr22-not-a-real-option"}
+    )
+    add(
+        "fail_closed_illegal_action",
         "PASS" if _fails_closed(illegal) else "FAIL",
-        "provider rejected an unrecognised legal_action_id" if _fails_closed(illegal)
+        "provider rejected an unrecognised legal_action_id"
+        if _fails_closed(illegal)
         else "provider accepted an unrecognised legal_action_id",
-        illegal)
+        illegal,
+    )
 
-    stale = proc.request("submit_action", {
-        "actor": "P1",
-        "legal_action_id": "wsr22-not-a-real-option",
-        "decision_id": "wsr22-stale-decision-id",
-    })
-    add("fail_closed_stale_or_unknown_decision",
+    stale = proc.request(
+        "submit_action",
+        {
+            "actor": "P1",
+            "legal_action_id": "wsr22-not-a-real-option",
+            "decision_id": "wsr22-stale-decision-id",
+        },
+    )
+    add(
+        "fail_closed_stale_or_unknown_decision",
         "PASS" if _fails_closed(stale) else "FAIL",
-        "provider rejected an unknown decision identity" if _fails_closed(stale)
+        "provider rejected an unknown decision identity"
+        if _fails_closed(stale)
         else "provider accepted an unknown decision identity",
-        stale)
+        stale,
+    )
 
-    unsupported = proc.request("get_legal_actions", {
-        "decision_class": "wsr22_unsupported_decision_class",
-    })
-    add("fail_closed_unsupported_decision",
+    unsupported = proc.request(
+        "get_legal_actions",
+        {
+            "decision_class": "wsr22_unsupported_decision_class",
+        },
+    )
+    add(
+        "fail_closed_unsupported_decision",
         "PASS" if _fails_closed(unsupported) else "FAIL",
         "an unsupported decision class failed closed without a default option"
         if _fails_closed(unsupported)
         else "an unsupported decision class did not fail closed",
-        unsupported)
+        unsupported,
+    )
 
     # --- rules-authority invariants ------------------------------------
     illegal_invariants = [
@@ -344,20 +407,28 @@ def run_af01(
         for item in illegal.get("payload", {}).get("legal_options", [])
         if isinstance(item, dict)
     ]
-    add("rules_core_sole_legality_authority",
+    add(
+        "rules_core_sole_legality_authority",
         "PASS" if _fails_closed(illegal) and not illegal_invariants else "FAIL",
         "an out-of-scope submission produced no fabricated legal option",
-        {"fabricated_options": len(illegal_invariants)})
+        {"fabricated_options": len(illegal_invariants)},
+    )
 
-    add("no_adapter_legality_reconstruction", "PASS",
+    add(
+        "no_adapter_legality_reconstruction",
+        "PASS",
         "the Lab qualification runner contains no legality reconstruction: it only transports "
         "the request, reads the provider response, and classifies it",
-        {"runner_commit": runner_commit, "runner_tree": runner_tree})
+        {"runner_commit": runner_commit, "runner_tree": runner_tree},
+    )
 
-    add("no_fabricated_legal_options", "PASS",
+    add(
+        "no_fabricated_legal_options",
+        "PASS",
         "no legal option is ever synthesised by the runner; option sets are only ever read "
         "from get_legal_actions/get_capabilities payloads",
-        {"probe": "illegal action probe returned no options"})
+        {"probe": "illegal action probe returned no options"},
+    )
 
     seed_supported = capabilities.get("seed_supported")
     seed_payload = capabilities_payload.get("rules_seed_binding")
@@ -366,13 +437,19 @@ def run_af01(
         detail = "provider reports seed_supported and any RNG binding stays inside the engine"
     elif seed_supported is False:
         verdict = "UNKNOWN"
-        detail = "provider truthfully reports seed_supported=false; Rules RNG is not exposed, so " \
-                 "AF09 must bind at engine level only"
+        detail = (
+            "provider truthfully reports seed_supported=false; Rules RNG is not exposed, so "
+            "AF09 must bind at engine level only"
+        )
     else:
         verdict = "UNKNOWN"
         detail = "provider did not report seed_supported"
-    add("rules_randomness_core_owned", verdict, detail,
-        {"seed_supported": seed_supported, "rules_seed_binding": seed_payload})
+    add(
+        "rules_randomness_core_owned",
+        verdict,
+        detail,
+        {"seed_supported": seed_supported, "rules_seed_binding": seed_payload},
+    )
 
     import hashlib
     import json as _json

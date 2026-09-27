@@ -83,7 +83,7 @@ def load_effective_materialization(root: Path | None = None) -> EffectiveMateria
     resolved_root = root or repo_root()
     module = _resolver(str(resolved_root))
     bundle = module.load_effective_materialization()
-    denominator_doc = module._load(  # noqa: SLF001 - single canonical denominator source
+    denominator_doc = module._load(
         resolved_root / "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json"
     )
     denominator = list(denominator_doc["fixture_ids"])

@@ -20,9 +20,7 @@ SUPERSEDED_RULES_SERVICE_BOUNDARY = "commander-lab.rules-service/1.1.0"
 # qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json).
 CURRENT_RULES_AUTHORITY_EFFECTIVE_DATE = "2026-09-25"
 CURRENT_RULES_TXT_SHA256 = "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
-CURRENT_RULES_TXT_URL = (
-    "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt"
-)
+CURRENT_RULES_TXT_URL = "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt"
 
 FULL107_FROZEN_SOURCE = "5a2e4f462fd45bba25f2271153212aab9faf09f5"
 FULL107_SUCCESSOR_CONTRACT = "1.0.6-successor"
@@ -46,8 +44,7 @@ CONTRACT_PATHS = {
     "FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
     "materialization_schema": "qualification/pre-freeze-successor/"
     "SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
-    "af01_boundary": "qualification/pre-freeze-successor/"
-    "AF01_QUALIFICATION_BOUNDARY_V2.json",
+    "af01_boundary": "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json",
     "freeze_gate_catalog": "qualification/pre-freeze-successor/"
     "architecture_freeze_gate_catalog_v2.json",
     "freeze_result_schema": "qualification/pre-freeze-successor/"

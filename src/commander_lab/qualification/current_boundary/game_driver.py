@@ -21,14 +21,14 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from .bridge_launcher import BridgeProcess, BridgeLaunchError
+from .bridge_launcher import BridgeLaunchError, BridgeProcess
 
 POLL_ATTEMPTS = 40
 POLL_INTERVAL_S = 1.0
 
 # Named pilot policies. Each states its semantic intent explicitly; none is a
 # fallback and none is applied when the engine offers no matching option.
-MULLIGAN_POLICY = "keep_all"          # Commander: keep the opening hand.
+MULLIGAN_POLICY = "keep_all"  # Commander: keep the opening hand.
 PRIORITY_POLICY = "pass_when_offered"  # Decline the optional priority action.
 STARTING_PLAYER_POLICY = "fixture_scripted_seat"
 
@@ -66,10 +66,18 @@ class GameObservation:
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
 DECISION_IDENTITY_SHAPES = {
-    "xmage": {"field": "decision_id", "type": "sha256_hex",
-              "pass_extra": ("actor_id", "action_id"), "requires_external_control": True},
-    "forge": {"field": "revision", "type": "monotonic_long",
-              "pass_extra": ("actor_id",), "requires_external_control": False},
+    "xmage": {
+        "field": "decision_id",
+        "type": "sha256_hex",
+        "pass_extra": ("actor_id", "action_id"),
+        "requires_external_control": True,
+    },
+    "forge": {
+        "field": "revision",
+        "type": "monotonic_long",
+        "pass_extra": ("actor_id",),
+        "requires_external_control": False,
+    },
 }
 
 
@@ -191,7 +199,9 @@ def build_deck(deck_id: str) -> dict[str, Any]:
     }
 
 
-def normalize_decision_frame(candidate: str, seat: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+def normalize_decision_frame(
+    candidate: str, seat: str, payload: dict[str, Any]
+) -> dict[str, Any] | None:
     """Normalize a candidate decision frame WITHOUT inferring any semantics.
 
     The two candidates publish different response shapes on the generic
@@ -259,7 +269,9 @@ def poll_decision(
     raise GameDriveError(f"no parked decision observed (last: {last})")
 
 
-def _structural_options(actions: list[dict[str, Any]], decision: dict[str, Any]) -> list[dict[str, Any]]:
+def _structural_options(
+    actions: list[dict[str, Any]], decision: dict[str, Any]
+) -> list[dict[str, Any]]:
     kind = str(decision.get("kind", "")).upper()
     wanted = {"STARTING_PLAYER": "seat", "CHOOSE_STARTING_PLAYER": "seat"}
     field_name = wanted.get(kind)
@@ -326,8 +338,14 @@ def drive_commander_game(
         created = _require_ok(
             proc.request(
                 "create_commander_game",
-                {"request": {"game_id": game_id, "deck_handles": handles, "format": "commander",
-                            "external_control": True}},
+                {
+                    "request": {
+                        "game_id": game_id,
+                        "deck_handles": handles,
+                        "format": "commander",
+                        "external_control": True,
+                    }
+                },
                 game_id=game_id,
                 timeout_s=300.0,
             ),
@@ -342,7 +360,9 @@ def drive_commander_game(
         result.terminal_facts["created_player_count"] = created.get("player_count", len(handles))
         result.steps_completed.append("create_commander_game")
 
-        started = _require_ok(proc.request("start_game", {}, game_id=game_id, timeout_s=300.0), "start_game")
+        started = _require_ok(
+            proc.request("start_game", {}, game_id=game_id, timeout_s=300.0), "start_game"
+        )
         result.terminal_facts["start_status"] = started.get("status")
         result.steps_completed.append("start_game")
 
@@ -357,19 +377,33 @@ def drive_commander_game(
             actor = str(decision.get("actor", frame["seat"]))
             revision = decision.get("revision")
             actions = frame["actions"]
-            offered = [str(action.get("action_id")) for action in actions if action.get("action_id")]
+            offered = [
+                str(action.get("action_id")) for action in actions if action.get("action_id")
+            ]
 
             if "DRAW" in kind:
                 draw_step_frames.append(
-                    {"kind": kind, "actor": actor, "step": decision.get("step"),
-                     "phase": decision.get("phase"), "turn": decision.get("turn_number")}
+                    {
+                        "kind": kind,
+                        "actor": actor,
+                        "step": decision.get("step"),
+                        "phase": decision.get("phase"),
+                        "turn": decision.get("turn_number"),
+                    }
                 )
                 result.semantic_events.append(f"draw_step_exposed:{actor}")
                 chosen = self_choice_pass(actions, actor, revision)
                 result.decision_tape.append(
-                    DecisionTapeEntry("draw_step", kind, actor, revision,
-                                      "pass_when_offered", chosen, offered,
-                                      "a draw-step decision was exposed by the engine")
+                    DecisionTapeEntry(
+                        "draw_step",
+                        kind,
+                        actor,
+                        revision,
+                        "pass_when_offered",
+                        chosen,
+                        offered,
+                        "a draw-step decision was exposed by the engine",
+                    )
                 )
                 continue
 
@@ -377,16 +411,28 @@ def drive_commander_game(
                 keep = _require_ok(
                     proc.request(
                         "resolve_mulligan",
-                        {"player_id": actor, **decision_identity_params(candidate, frame),
-                         "keep": True, "bottom_card_ids": []},
+                        {
+                            "player_id": actor,
+                            **decision_identity_params(candidate, frame),
+                            "keep": True,
+                            "bottom_card_ids": [],
+                        },
                         game_id=game_id,
                         timeout_s=120.0,
                     ),
                     "resolve_mulligan",
                 )
                 result.decision_tape.append(
-                    DecisionTapeEntry("mulligan", kind, actor, revision, MULLIGAN_POLICY, None,
-                                      offered, "external keep decision; no bottoming")
+                    DecisionTapeEntry(
+                        "mulligan",
+                        kind,
+                        actor,
+                        revision,
+                        MULLIGAN_POLICY,
+                        None,
+                        offered,
+                        "external keep decision; no bottoming",
+                    )
                 )
                 result.observations.append(GameObservation("mulligan_keep", keep))
                 continue
@@ -419,9 +465,16 @@ def drive_commander_game(
                     "submit_action(STARTING_PLAYER)",
                 )
                 result.decision_tape.append(
-                    DecisionTapeEntry("starting_player", kind, actor, revision,
-                                      STARTING_PLAYER_POLICY, chosen, offered,
-                                      f"fixture-scripted seat {scripted_starting_seat}")
+                    DecisionTapeEntry(
+                        "starting_player",
+                        kind,
+                        actor,
+                        revision,
+                        STARTING_PLAYER_POLICY,
+                        chosen,
+                        offered,
+                        f"fixture-scripted seat {scripted_starting_seat}",
+                    )
                 )
                 result.observations.append(GameObservation("starting_player", answer))
                 continue
@@ -431,12 +484,21 @@ def drive_commander_game(
                 pass_actions = [a for a in actions if a.get("action_type") == "pass_priority"]
                 if not pass_actions:
                     result.observations.append(
-                        GameObservation("priority_no_pass_offered",
-                                        {"actor": actor, "offered": offered})
+                        GameObservation(
+                            "priority_no_pass_offered", {"actor": actor, "offered": offered}
+                        )
                     )
                     result.decision_tape.append(
-                        DecisionTapeEntry("priority", kind, actor, revision, PRIORITY_POLICY, None,
-                                          offered, "engine offered no pass_priority; not substituted")
+                        DecisionTapeEntry(
+                            "priority",
+                            kind,
+                            actor,
+                            revision,
+                            PRIORITY_POLICY,
+                            None,
+                            offered,
+                            "engine offered no pass_priority; not substituted",
+                        )
                     )
                     break
                 chosen = str(pass_actions[0]["action_id"])
@@ -446,14 +508,26 @@ def drive_commander_game(
                     "pass_priority",
                 )
                 result.decision_tape.append(
-                    DecisionTapeEntry("priority", kind, actor, revision, PRIORITY_POLICY, chosen,
-                                      offered, "external priority pass")
+                    DecisionTapeEntry(
+                        "priority",
+                        kind,
+                        actor,
+                        revision,
+                        PRIORITY_POLICY,
+                        chosen,
+                        offered,
+                        "external priority pass",
+                    )
                 )
                 result.observations.append(GameObservation("priority_pass", answer))
                 result.terminal_facts["priority_pass_state_changed"] = (
-                    _payload(answer).get("decision", {}).get("post_state_hash")
-                    != _payload(answer).get("decision", {}).get("pre_state_hash")
-                ) if isinstance(_payload(answer).get("decision"), dict) else None
+                    (
+                        _payload(answer).get("decision", {}).get("post_state_hash")
+                        != _payload(answer).get("decision", {}).get("pre_state_hash")
+                    )
+                    if isinstance(_payload(answer).get("decision"), dict)
+                    else None
+                )
                 if drive_to == "priority":
                     break
                 if drive_to == "first_turn_draw_skip" and steps >= 2:
@@ -463,9 +537,16 @@ def drive_commander_game(
             # Any other decision class: record the engine-offered domain and stop
             # driving. Substituting a choice here would be a forbidden default.
             result.decision_tape.append(
-                DecisionTapeEntry("other_decision_class", kind, actor, revision,
-                                  "NO_MATCHING_OFFERED_OPTION", None, offered,
-                                  "unsupported pilot policy for this decision class; fail closed")
+                DecisionTapeEntry(
+                    "other_decision_class",
+                    kind,
+                    actor,
+                    revision,
+                    "NO_MATCHING_OFFERED_OPTION",
+                    None,
+                    offered,
+                    "unsupported pilot policy for this decision class; fail closed",
+                )
             )
             result.terminal_facts["stopped_at_decision_kind"] = kind
             break
@@ -477,9 +558,11 @@ def drive_commander_game(
         result.steps_completed.append("decision_drive")
     except (GameDriveError, DecisionUnsatisfied, BridgeLaunchError) as exc:
         result.failure = f"{type(exc).__name__}: {exc}"
-        result.failure_kind = "FAIL_CLOSED_UNSATISFIED" if isinstance(
-            exc, DecisionUnsatisfied
-        ) else "ENGINE_RUNTIME_ERROR"
+        result.failure_kind = (
+            "FAIL_CLOSED_UNSATISFIED"
+            if isinstance(exc, DecisionUnsatisfied)
+            else "ENGINE_RUNTIME_ERROR"
+        )
     return result
 
 
