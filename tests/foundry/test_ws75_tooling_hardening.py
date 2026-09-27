@@ -448,7 +448,12 @@ def test_launcher_exposes_verified_references(
     assert plan["verdict"] == "LAUNCH_READY", plan
     exposed = json.loads(plan["_env"]["FOUNDRY_REFERENCE_ROOTS"])
     assert exposed[0]["label"] == "forge"
-    assert exposed[0]["root"] == str(refrepo["root"])
+    snapshot = Path(exposed[0]["root"])
+    assert snapshot != refrepo["root"]
+    assert snapshot.is_dir()
+    assert _git(["rev-parse", "HEAD"], snapshot, target["env"]) == refrepo["head"]
+    assert str(snapshot).startswith(str(Path(plan["run_dir"]) / "reference-snapshots"))
+    assert "source_root" not in exposed[0]
     assert "reference" in plan["gate"]["notes"][-1].lower() or any(
         "reference" in n.lower() for n in plan["gate"]["notes"]
     )
@@ -529,8 +534,8 @@ def test_sibling_worktree_denied_in_bundle(target: dict, canon: Path, tmp_path: 
     plan = _plan(target, canon, opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    sib_deny = f"{target['wt'].parent / 'sib'}*"
-    assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
+    for sib_deny in launcher_mod._root_patterns(str(target["wt"].parent / "sib")):
+        assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
 
 
 def test_safe_push_succeeds_under_ancestor_lock(tmp_path: Path) -> None:
