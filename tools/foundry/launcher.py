@@ -911,6 +911,7 @@ def init(
         if parsed_refs or parsed_access
         else run_dir
     )
+    Path(effective_run_dir).mkdir(parents=True, exist_ok=True)
     # Explicit ownership authority: the launcher always declares its own
     # worktree/state pair (ground truth for this run) plus any
     # operator-declared sibling pairs. A conflicting operator pair for our
@@ -1391,7 +1392,6 @@ def main(argv: list[str] | None = None) -> int:
         print("LAUNCH_REFUSED: reader mode is audit-only (use init)", file=sys.stderr)
         return 1
     run_dir = args.run_dir or f"/tmp/foundry-launch-{args.workstream}"
-    os.makedirs(run_dir, exist_ok=True)
     plan = init(
         profile=args.profile,
         worktree=args.worktree,
