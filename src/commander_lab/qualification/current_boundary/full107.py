@@ -29,7 +29,6 @@ from typing import Any
 
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
-    DECISION_IDENTITY_SHAPES,
     CommandedGameResult,
     drive_commander_game,
     poll_decision,
@@ -228,11 +227,16 @@ def cardinality_row(
         "terminal_facts": result.terminal_facts,
         "runtime_identity": runtime_identity,
         "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
-        "rules_rng_binding": {
-            "requested_seed": 424242,
-            "engine_owned": True,
-            "provider_reported_seed_supported": DECISION_IDENTITY_SHAPES is not None,
-        },
+        # Same defect as START-2: engine_owned was asserted from caller intent.
+        # Control comes from the engine's acknowledgement via the driver.
+        "rules_rng_binding": (
+            result.seed_binding.to_document()
+            if result.seed_binding is not None
+            else {
+                "control": "UNCONTROLLED_ENGINE_RNG",
+                "detail": "the engine acknowledged no seed for this run",
+            }
+        ),
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
     }
     if result.failure:
@@ -320,6 +324,18 @@ def start2_row(
     )
     kinds = [entry.kind for entry in game.decision_tape]
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
+    # Observations, not the fixture's expectations. The verdict below is derived
+    # from these, and from the fixture only as a statement of the obligation.
+    zone_counts = game.terminal_facts.get("observed_actor_zone_counts")
+    observed_draw_events = [event for event in game.semantic_events if "draw" in str(event).lower()]
+    observed_starting_actor = next(
+        (
+            entry.actor
+            for entry in game.decision_tape
+            if entry.kind.upper() != "DRAW" and entry.actor
+        ),
+        None,
+    )
     evidence = {
         "player_count": 2,
         "actual_cards": _actual_cards(),
@@ -328,12 +344,26 @@ def start2_row(
         "terminal_facts": game.terminal_facts,
         "runtime_identity": runtime_identity,
         "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
-        "rules_rng_binding": {"requested_seed": 424242, "engine_owned": True},
+        # Real binding from the engine's acknowledgement, not a hard-coded
+        # engine_owned flag. An engine that confirms nothing leaves this
+        # UNCONTROLLED and the row cannot be credited for RNG or replay.
+        "rules_rng_binding": (
+            game.seed_binding.to_document()
+            if game.seed_binding is not None
+            else {
+                "control": "UNCONTROLLED_ENGINE_RNG",
+                "detail": "the engine acknowledged no seed for this run",
+            }
+        ),
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
         "v1_0_6_required_events": required,
         "v1_0_6_forbidden_events": forbidden,
         "observed_decision_kinds": kinds,
         "observed_draw_step_frames": draw_frames,
+        "observed_draw_semantic_events": observed_draw_events,
+        "observed_actor_zone_counts": zone_counts,
+        "observed_starting_actor": observed_starting_actor,
+        "fixture_required_events_are_obligation_statements_not_evidence": True,
     }
     if game.failure:
         return RowResult(
@@ -355,13 +385,38 @@ def start2_row(
             "Rules-visible FAIL candidate requiring Coordinator adjudication",
             evidence,
         )
-    if "starting_player:P1" not in required:
+    # A draw semantic event inside the skipped step is a Rules-visible failure,
+    # distinct from a draw checkpoint: either would mean the step was not
+    # skipped entirely.
+    if observed_draw_events:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_START2_V1_0_6",
+            "the engine emitted a draw event during the step CR 103.8a skips "
+            f"entirely: {observed_draw_events}",
+            evidence,
+        )
+    if not zone_counts:
         return RowResult(
             fixture_id,
             candidate,
             "UNKNOWN",
             "PROTOCOL2_START2_V1_0_6",
-            "effective record does not carry the starting-player event",
+            "the engine reported no principal-scoped zone counts, so the "
+            "hand/library postcondition of the skipped draw step could not be "
+            "observed and the row is not credited",
+            evidence,
+        )
+    if observed_starting_actor is None:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "no acting principal was observed, so which seat was the starting "
+            "player could not be established from the run",
             evidence,
         )
     if not game.terminal_facts.get("priority_reached"):

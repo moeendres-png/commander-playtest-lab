@@ -595,6 +595,36 @@ def drive_commander_game(
             result.terminal_facts["stopped_at_decision_kind"] = kind
             break
 
+        if drive_to == "first_turn_draw_skip":
+            # Observe the acting seat's own zone counts from the engine, so the
+            # draw-skip obligation is judged on observed state rather than on the
+            # absence of a decision checkpoint. A checkpoint is not the same
+            # thing as a draw: an engine could skip the checkpoint and still draw
+            # the card, and only the counts can tell the difference.
+            actor_seat = frame["seat"] if "frame" in dir() else None
+            try:
+                observed = proc.request(
+                    "get_game_state", {"actor": actor_seat}, game_id=result.game_id
+                )
+                seats = _payload(observed).get("players")
+                mine = [
+                    {
+                        "seat": entry.get("seat"),
+                        "hand_count": entry.get("hand_count"),
+                        "library_count": entry.get("library_count"),
+                        "is_actor": entry.get("is_actor"),
+                    }
+                    for entry in (seats or [])
+                    if isinstance(entry, dict) and entry.get("is_actor") is True
+                ]
+                result.terminal_facts["observed_actor_zone_counts"] = mine
+                result.terminal_facts["observed_zone_count_source"] = (
+                    "ENGINE_REPORTED_PRINCIPAL_SCOPED"
+                )
+            except Exception as exc:  # fail closed on the evidence, not on the run
+                result.terminal_facts["observed_actor_zone_counts"] = None
+                result.terminal_facts["observed_zone_count_error"] = str(exc)
+
         result.terminal_facts["decision_identity_shape"] = DECISION_IDENTITY_SHAPES[candidate]
         result.terminal_facts["draw_step_decision_frames"] = draw_step_frames
         result.terminal_facts["draw_step_decision_exposed"] = bool(draw_step_frames)
