@@ -35,7 +35,10 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 
 ## Explicitly not done (other owners)
 
-- PB-03 starting-state injection and the WSR22 successor integration (Space Bunny MAX).
+- PB-03 starting-state injection and the WSR22 successor integration (Space Bunny MAX),
+  which must also carry **PB-09** (Forge candidate identity: the executed `forge@ef958ee9`
+  is a Lab fork whose bridge-source pin `4753bb7c` is not the pinned candidate).
+  The pre-Freeze blocker register is `UNAFFECTED_REUSABLE`, extended by PB-09.
 - Forge PB-05/06/07/08 (Forge Muse).
 - Provider selection and Architecture Freeze (Coordinator only).
 - 33 provenance pull requests kept open on purpose; no branch or repository deletion.
@@ -44,7 +47,14 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 
 ## Known residual gaps after closure
 
-- PB-03 harness fixture-prefix defect plus eleven genuinely blocked MICRO rows.
+- PB-03 harness fixture-prefix defect, plus eleven rows whose `BLOCKED` status is a
+  **modeled projection** from the bridge dimension manifest (not an executed result):
+  `MICRO_STACK`, `MICRO_TRIGGERS`, `MICRO_REPLACEMENT`, `MICRO_PREVENTION`, `MICRO_COPY`,
+  `MICRO_MODES`, `MICRO_CONTINUOUS_EFFECTS`, `MICRO_STATE_BASED_ACTIONS`, `MICRO_CONTROL`,
+  `MICRO_COMBAT`, `MICRO_RULES_RANDOMNESS`. They stay blocked while `stack spells`,
+  `attachments and counters`, `controller/owner divergence` and `temporal points outside
+  the qualified turn-1 allow-list` remain unsupported, and must still be executed to
+  learn their real outcome. The corresponding ~22-row admission is likewise a projection.
 - `ACTIVATED_ABILITY_PRESENT` guard is intentionally conservative after the RG-06B
   falsification; relaxation is a post-selection Lab re-pin decision.
 - B4-D action submission for 18 decision classes (WS-204 line).
