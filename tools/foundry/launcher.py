@@ -335,10 +335,7 @@ def _validate_cross_ws_topology(
         )
     for root in sorted(writable | protected):
         if _paths_overlap(run_real, root):
-            return (
-                f"run-dir {run_real!r} overlaps authoritative/protected workspace "
-                f"{root!r}"
-            )
+            return f"run-dir {run_real!r} overlaps authoritative/protected workspace {root!r}"
     return None
 
 
@@ -705,11 +702,8 @@ def resolve_environment(
         "permission"
     ]["external_directory"]
     static_denies_only = [k for k, v in static_denies.items() if v == "deny"]
-    source_roots = {
-        os.path.realpath(ref.get("source_root", ref["root"])) for ref in references
-    } | {
-        os.path.realpath(spec.get("source_root", spec["root"]))
-        for spec in workspace_access
+    source_roots = {os.path.realpath(ref.get("source_root", ref["root"])) for ref in references} | {
+        os.path.realpath(spec.get("source_root", spec["root"])) for spec in workspace_access
     }
     for root in sorted(source_roots):
         for pattern in static_denies_only:
@@ -748,9 +742,9 @@ def resolve_environment(
     # Root-specific allows are intentionally broad, so canonical sensitive-file
     # edit denials must be reinserted LAST (OpenCode permission matching is
     # last-match-wins). Reinsert rather than overwrite to move ordering.
-    canonical_edit = json.loads(
-        (canonical / "opencode.json").read_text(encoding="utf-8")
-    )["permission"]["edit"]
+    canonical_edit = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
+        "permission"
+    ]["edit"]
     for pattern, action in canonical_edit.items():
         if action != "deny":
             continue
@@ -787,8 +781,7 @@ def resolve_environment(
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
     public_refs = [
-        {key: value for key, value in ref.items() if key != "source_root"}
-        for ref in references
+        {key: value for key, value in ref.items() if key != "source_root"} for ref in references
     ]
     public_access = [
         {key: value for key, value in spec.items() if key != "source_root"}
@@ -899,8 +892,7 @@ def init(
             return {
                 "verdict": "LAUNCH_REFUSED",
                 "error": (
-                    f"workspace root {root!r} cannot be both --reference and "
-                    "--workspace-access"
+                    f"workspace root {root!r} cannot be both --reference and --workspace-access"
                 ),
             }
         if root in seen_access_roots:
@@ -935,9 +927,7 @@ def init(
     if topology_error is not None:
         return {"verdict": "LAUNCH_REFUSED", "error": topology_error}
     effective_run_dir = (
-        _reserve_run_dir(run_dir, workstream)
-        if parsed_refs or parsed_access
-        else run_dir
+        _reserve_run_dir(run_dir, workstream) if parsed_refs or parsed_access else run_dir
     )
     Path(effective_run_dir).mkdir(parents=True, exist_ok=True)
     # Explicit ownership authority: the launcher always declares its own
