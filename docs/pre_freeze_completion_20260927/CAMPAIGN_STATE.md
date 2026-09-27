@@ -40,8 +40,7 @@ machine-readable authority for current engine pins"*.
 | Protocol | `2.0.0` | — |
 | Maven | `3.9.16` | — |
 
-**PB-05 UNDERSTATED — see §7. The Forge candidate that WSR22 actually executed
-(`ef958ee91ac6c9ce0152189f2654bf6e05abf273`) matches neither pinned Forge identity.**
+| Forge **executed** commit | `moeendres-png/forge@ef958ee91ac` (master, 2026-09-21). Rules-Core pin **satisfied** (`a37a865a` is an ancestor); Lab bridge-source pin `4753bb7c…` **not** satisfied — divergent histories, 328 commits apart (§7, PB-09) |
 
 ## 3. ACTIVE_PRS
 
@@ -110,28 +109,42 @@ and matching the repository's own historical hash `4381ad1b…` exactly.
 between 2026-08-19 and 2026-09-25 (103.8a/b/c, 504.1, 800.4a/j, 508.8) carries
 `semantic_delta: NONE`.
 
-## 7. NEW FINDING — Forge source lock does not match the pin authority
+## 7. NEW FINDING — Forge bridge source lock does not match the pin authority
 
 This is the most decision-relevant new fact produced by this campaign, and it is **not** in the
-inherited blocker register.
+inherited blocker register. It was raised here and then fully traced to a concrete divergence in
+`/home/moeen/code/forge` (`moeendres-png/forge`, the Lab-owned Forge candidate/bridge repository).
+Full treatment in `PRE_FREEZE_COMPARISON_PACKAGE.md` §7.1; recorded as **PB-09**.
 
-- `config/rules_engines.json` (sole pin authority on main) pins Forge at
-  `a37a865a53280dd8ad6fad3384d69611e8c5a42f` (Rules-Core) and `4753bb7c…` (Lab bridge source).
-- WSR22's `SOURCE_LOCK.json` `candidate_identities.forge_commit` and its
-  `FULL107_FORGE_RUNTIME_LOG_INDEX.json` both record the **executed** Forge commit as
-  `ef958ee91ac6c9ce0152189f2654bf6e05abf273`.
-- `ef958ee9…` matches **neither** pinned Forge identity.
+- `config/rules_engines.json` (sole pin authority on main) pins the Forge **Rules-Core** at
+  `a37a865a53280dd8ad6fad3384d69611e8c5a42f` (upstream `forge-2.0.14`) and the **Lab bridge source** at
+  `4753bb7c72ea60d653121e0bab989077b4009f9c` (2026-09-12, tip of
+  `candidate/forge-2.0.14-h4f-integration-20260912`).
+- WSR22's `SOURCE_LOCK.json` and `FULL107_FORGE_RUNTIME_LOG_INDEX.json` both record the **executed**
+  commit as `ef958ee91ac6c9ce0152189f2654bf6e05abf273`, which is `master` of that repository dated
+  2026-09-21 ("Merge pull request #3 from moeendres-png/merge-wsr19-into-master").
+- **Rules-Core pin: satisfied.** `a37a865a` *is* an ancestor of `ef958ee9`, so the executed build
+  included the pinned upstream release.
+- **Bridge-source pin: not satisfied.** `4753bb7c` does **not** appear anywhere in `ef958ee9`'s
+  history. The two are on divergent histories, **328 commits** apart. The executed commit additionally
+  carries wsr15–wsr19 Lab work absent from the pin: 2–5P multiplayer conformance, six-player
+  support, CI qualification, and promotion packets. `ef958ee9` is an ancestor of
+  `wsr24/forge-candidate-evidence-closure-20260927` = `18bba95a`, which is precisely the
+  `historical_wsr20_reference.evidence_tip` WSR22 records.
 
 PB-05 classified this as `BOUNDED_NON_BLOCKING` and asserted *"The reported commit matched the
-candidate exactly."* Against the pin manifest that assertion does not hold. Because Forge's reported
-commit is operator-supplied (`engine_commit_source=env:FORGE_ENGINE_SHA`, not build-proven), the
-run cannot be shown to have executed the pinned candidate at all.
+candidate exactly."* That assertion holds only for the Rules-Core and fails for the bridge source.
+Because Forge's reported commit is operator-supplied (`engine_commit_source=env:FORGE_ENGINE_SHA`,
+not build-proven), the evidence cannot demonstrate which bridge it ran.
 
-Consequence: **Forge `AF00 SOURCE_AND_BUILD_LOCK = PASS` is not supported by the current pin
-authority.** This is an evidence-integrity defect, not a Forge capability defect, and it must be
-resolved before Forge evidence can be compared to XMage evidence. It is recorded as **PB-09** in
-`PRE_FREEZE_COMPARISON_PACKAGE.md`.
+**Why this is decision-critical.** It supplies a mechanical, candidate-side explanation for the
+79-vs-30 FULL107 gap: the Forge side executed 328 commits of unpinned Lab bridge engineering —
+including the 2–5P and six-player work — while the XMage side executed at exactly its pinned commit
+(`b1959698…`, verified matching). The Coordinator's caution not to read Forge's 79 PASS versus
+XMage's 30 PASS as capability ranking is therefore not merely sound advice; it now has a specific
+identified cause. Forge `AF00 = PASS` and `AF11` rest on an unreconciled bridge identity.
 
+Consequence: resolve PB-09 before any Forge-versus-XMage comparison is read as capability evidence.
 The XMage side is clean: WSR22's `xmage_commit` `b1959698…` is exactly main's pin.
 
 ## 8. REUSABLE_EVIDENCE
