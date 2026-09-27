@@ -155,6 +155,7 @@ record, no existing expectation.
 | START-2 v1.0.6 | PASS on both (no draw-step checkpoint on either) |
 | AF01 v2 | XMage compat UNKNOWN (seed not exposed), XMage full-game PASS, Forge PASS |
 | Lab tests | 27 passed |
+| Lab `tests/unit` on a clean tree | 1001 passed, 3 failed, 8 collection errors (all pre-existing/environmental — see `VALIDATION.md`) |
 | ruff check / format | clean |
 | mypy | NOT_RUN (module absent in this environment) |
 
@@ -302,8 +303,12 @@ and the repository contract), `SOURCE_LOCK.json`,
 ## Remote Branch / HEAD / TREE
 
 - Local branch `wsr22/final-current-boundary-freeze-qualification-20260927`.
-- Local HEAD/TREE: recorded in `WORKSTREAM_STATE.yaml` (updated at the final
-  checkpoint commit).
+- Local HEAD: `f81561be395eedb9dcaba77535e0d6823dfcbbcd`
+- Local TREE: `de8734ed3541ff72088017d9f98b2131ebccc97f`
+- Checkpoint commits: `dfb490e2` (Gate 1 Rules authority) -> `8e30dda0`
+  (runner + fresh execution) -> `4bcfb10c` (matrix/comparison/handoff) ->
+  `de08e928` (clean-tree baseline + manifest reseal) -> `f81561be`
+  (final state binding).
 - Remote: NOT PUBLISHED in this session — `git push` is denied by the root tool
   policy. No force push, no rebase, no tag, no settings change was attempted.
 
