@@ -28,6 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: "3.12"
@@ -72,7 +74,7 @@ jobs:
           sha256sum             qualification/protocol/meta_verification_v1/meta_verification_contract_v1.json             qualification/protocol/meta_verification_v1/rules_mutation_catalog_v1.json             qualification/protocol/meta_verification_v1/meta_verification_result_v1.schema.json             qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json             > artifacts/meta-verification/SHA256SUMS
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: meta-verification-${{ github.sha }}
+          name: meta-verification-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/meta-verification/
           if-no-files-found: error
           retention-days: 90
