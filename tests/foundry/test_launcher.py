@@ -990,10 +990,6 @@ def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys
     assert captured["execution_provider"] == "zen"
 
 
-if __name__ == "__main__":
-    raise SystemExit(pytest.main([__file__, "-q"]))
-
-
 # --- explicit Space Bunny execution profile ---------------------------------
 
 
@@ -1120,3 +1116,7 @@ def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
     )
     assert rc == 0
     assert captured["execution_profile"] == "space-bunny"
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__, "-q"]))
