@@ -18,8 +18,8 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 
 | Objective | Result | Merge commit |
 | --- | --- | --- |
-| RG-07 exact-N target offering, current-pin Lab evidence | PASS 6/6 | `425a9af2` (#270) |
-| RG-08 replacement timing, current-pin Lab evidence | PASS 8/8 | `425a9af2` (#270) |
+| RG-07 exact-N target offering, current-pin Lab evidence | PASS 6/6 — `DIRECTLY_VERIFIED` (runtime, engine-bounded; no CR/Oracle comparison) | `425a9af2` (#270) |
+| RG-08 replacement timing, current-pin Lab evidence | PASS 8/8 — `DIRECTLY_VERIFIED` (runtime, engine-bounded; no CR/Oracle comparison) | `425a9af2` (#270) |
 | Camp-carrier transplant manifest and rejected-residue preservation | merged | `425a9af2`, `4a3abd34` (#273) |
 | Delegated owned-branch Git authority (repo policy + machine-verified battery) | ENABLED | `f5941985` (#272) |
 | Foundry workspace access | merged by the owning lane | `b786fbf2` (#266) |
