@@ -21,6 +21,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from . import receipts as seed_receipts
 from .bridge_launcher import BridgeLaunchError, BridgeProcess
 
 POLL_ATTEMPTS = 40
@@ -65,6 +66,28 @@ class GameObservation:
 # execution on the shared Protocol-2 surface. Recorded, not normalized away.
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
+def _acknowledged_seed(response: Any) -> Any:
+    """Extract whatever seed the provider actually acknowledged, if anything.
+
+    A provider may echo the seed at the top level, inside a nested rules/rng
+    object, or not at all. Returning ``None`` is a legitimate and important
+    answer: it means the engine gave us nothing to confirm and the run is
+    uncontrolled.
+    """
+    if not isinstance(response, dict):
+        return None
+    for key in ("rules_seed", "seed", "acknowledged_seed", "engine_seed"):
+        if key in response:
+            return response[key]
+    for key in ("rules", "rng", "random", "options", "result", "state"):
+        nested = response.get(key)
+        if isinstance(nested, dict):
+            found = _acknowledged_seed(nested)
+            if found is not None:
+                return found
+    return None
+
+
 DECISION_IDENTITY_SHAPES: dict[str, dict[str, Any]] = {
     "xmage": {
         "field": "decision_id",
@@ -118,9 +141,13 @@ class CommandedGameResult:
     steps_completed: list[str] = field(default_factory=list)
     failure: str | None = None
     failure_kind: str | None = None
+    seed_binding: Any = None
 
     def to_document(self) -> dict[str, Any]:
         return {
+            "rules_rng_binding": (
+                self.seed_binding.to_document() if self.seed_binding is not None else None
+            ),
             "candidate": self.candidate,
             "player_count": self.player_count,
             "deck_identity": self.deck_identity,
@@ -345,6 +372,12 @@ def drive_commander_game(
                         "deck_handles": handles,
                         "format": "commander",
                         "external_control": True,
+                        # The seed must reach the provider's authoritative
+                        # request. Recording a requested seed that never left
+                        # the harness is the Gate 3 defect.
+                        "seed": seed,
+                        "rules_seed": seed,
+                        "options": {"seed": seed, "rules_seed": seed},
                     }
                 },
                 game_id=game_id,
@@ -352,6 +385,16 @@ def drive_commander_game(
             ),
             "create_commander_game",
         )
+        # Seed control is derived from what the engine acknowledged, never from
+        # the fact that the caller asked. An engine that echoes nothing is
+        # UNCONTROLLED and earns no RNG or replay credit.
+        binding = seed_receipts.classify_seed_binding(
+            requested_seed=seed,
+            acknowledged_seed=_acknowledged_seed(created),
+            source="create_commander_game_response",
+        )
+        result.terminal_facts["rules_rng_binding"] = binding.to_document()
+        result.seed_binding = binding
         seats = created.get("seats")
         seat_ids = [seat.get("player_id") for seat in seats] if isinstance(seats, list) else None
         if seat_ids is not None and len(seat_ids) != player_count:

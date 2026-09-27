@@ -674,6 +674,35 @@ def main() -> int:
             json.dumps(probes, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
         )
 
+    # The executing qualification code must be the committed code, or the
+    # receipts below would name a provenance the bytes do not have.
+    runner = receipt_mod.capture_runner_identity(REPO_ROOT)
+    receipt_mod.require_clean_runner(runner)
+    print(
+        "runner bound:",
+        json.dumps(
+            {
+                "commit": runner.commit,
+                "tree": runner.tree,
+                "dirty": runner.dirty,
+                "inputs": len(runner.input_digests),
+                "digest": runner.digest(),
+            },
+            indent=1,
+        ),
+    )
+    native_receipts = run_all_native_suites(runner)
+    write(
+        "NATIVE_SUITE_RECEIPTS.json",
+        {
+            "schema_version": "wsr22.native-suite-receipt-index/1.0.0",
+            "runner": runner.to_document(),
+            "receipt_count": len(native_receipts),
+            "receipt_digests": {
+                f"{r['candidate']}:{r['group']}": r["receipt_digest"] for r in native_receipts
+            },
+        },
+    )
     print(json.dumps({k: v["counts"] for k, v in summary.items()}, indent=1))
     print(
         "boundary receipt:",

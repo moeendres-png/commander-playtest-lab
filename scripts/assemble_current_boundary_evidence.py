@@ -20,98 +20,15 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
 FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 
-# Native classes executed fresh in this workstream, with their green counts.
-NATIVE_RUNS = {
-    "xmage": {
-        "direct": {
-            "returncode": 0,
-            "tests": 34,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "XmageFull107ResidualRequalificationTest",
-                "XmageDigestCreditTest",
-                "XmageFullGameWs05MulliganTest",
-                "XmageFullGameTaxExecutionTest",
-                "XmageFullGamePartnerExecutionTest",
-                "XmageFullGameCard02ExecutionTest",
-                "XmageFullGameMicroExecutionTest",
-                "XmageFullGameTrigExecutionTest",
-                "XmageFullGameDecisionExecutionTest",
-            ],
-        },
-        "mechanism": {
-            "returncode": 0,
-            "tests": 134,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "XmageNativeStateRestorationTest",
-                "XmageTemporalProgressionDriverTest",
-                "XmageTemporalAdvancedProgressionTest",
-                "XmageCausalStackReconstructionTest",
-                "XmageCausalStackMechanicsTest",
-                "XmageControlDivergenceReconstructionTest",
-                "XmageCausalEliminationReconstructionTest",
-                "XmageHiddenReplayIntegrationTest",
-                "XmageCommanderDamageRestorationTest",
-                "XmageFullGameHiddenInformationTest",
-                "XmageFullGamePlayerCountTest",
-                "XmageVariablePlayerLifecycleTest",
-                "XmageFullGameCombatDamageTest",
-                "XmageDecisionRejectionWs229Test",
-                "XmageFullGameRulesSeedBindingTest",
-            ],
-        },
-    },
-    "forge": {
-        "direct": {
-            "returncode": 0,
-            "tests": 150,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "WsR20Full107DenominatorTest",
-                "WS233CardinalityTest",
-                "WS227SemanticReplayTest",
-                "WsR15HiddenInfoFamilyTest",
-                "WS234S3BridgeTest",
-                "WS236F4BridgeTest",
-                "WS216GapClosureTest",
-                "WS202ExecutableSurfaceTest",
-                "WS217DividedAllocationTest",
-                "WsR15MulticountCombatTest",
-                "WsR15MulticountTriggerTest",
-                "WsR15DeterminismTwinTest",
-                "WsR15ConcessionFamilyTest",
-                "WsR16SixPlayerFamilyTest",
-                "BridgeEngineTest",
-            ],
-        },
-        "mechanism": {
-            "returncode": 0,
-            "tests": 67,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "ProtocolTest",
-                "BridgeProtocolProcessTest",
-                "HeadlessGuiFailClosedTest",
-                "WS216SeparateProcessTest",
-                "WS217SeparateProcessTest",
-                "WS227SeparateProcessTest",
-                "WS233CardinalityProcessTest",
-                "WS202SeparateProcessTest",
-            ],
-        },
-    },
-}
+# Execution receipts. The assembler trusts nothing else for native credit: no
+# receipt means no credit, and source text is never a substitute.
+RECEIPT_DIR = OUT / "receipts"
 
-# Forge native suite -> FULL107 obligations it exercises, taken from the
-# WSR20 107-item mapping that was ingested and re-verified in this workstream.
 FORGE_NATIVE_BINDING_PATH = OUT / "wsr20-ingest" / "FULL107_FORGE_MAPPING.json"
 
 
@@ -127,45 +44,49 @@ def write(name: str, payload: Any) -> None:
 
 
 def native_bindings() -> dict[str, dict[str, list[str]]]:
-    """fixture_id -> {candidate: [classes]} from source-extracted evidence."""
-    import re
+    """Fixture -> test identities, derived from persisted positive receipts only.
 
-    pattern = re.compile(
-        r"\b(PLAYER_COUNT_[2-6]P|PILOT_[A-Z_]+|NEGATIVE_[A-Z_]+|HIDDEN_HONEYCARD_SENTINEL"
-        r"|HIDDEN_\d{2}|RNG_[A-Z_]+|REPLAY_[A-Z_]+|MICRO_[A-Z_]+|CARD_02|WS05-[A-Z0-9-]+)\b"
-    )
-    denominator = set(
+    This previously scanned test source for fixture-id strings. That promoted
+    HIDDEN_02 from UNKNOWN to PASS on the strength of a test that mentions
+    HIDDEN_02 only to assert that loading it FAILS. A string mention is not
+    evidence, so the whole scanning path is gone: credit now requires a positive
+    receipt, and anything without one simply receives no credit.
+    """
+    denominator = {
         load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"][i]["fixture_id"] for i in range(107)
-    )
+    }
+    receipts, rejected = receipt_mod.collect_receipts(RECEIPT_DIR)
+    if rejected:
+        for reason in rejected:
+            print(f"native receipt rejected: {reason}")
+    if not receipts:
+        print("no valid native receipts: no native credit is possible this assembly")
+    identity = {
+        c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
+        for c in ("xmage", "forge")
+    }
     out: dict[str, dict[str, list[str]]] = {}
-
-    for group in NATIVE_RUNS["xmage"].values():
-        for name in group["classes"]:
-            source = REPO / "engine-bridge/src/test/java/org/commanderlab/xmage" / f"{name}.java"
-            if not source.is_file():
-                continue
-            for raw in sorted(set(pattern.findall(source.read_text(errors="replace")))):
-                fixture = raw.rstrip("-")
-                if fixture in denominator:
-                    out.setdefault(fixture, {}).setdefault("xmage", [])
-                    if name not in out[fixture]["xmage"]:
-                        out[fixture]["xmage"].append(name)
-
-    if FORGE_NATIVE_BINDING_PATH.is_file():
-        mapping = load(FORGE_NATIVE_BINDING_PATH)
-        direct_classes = NATIVE_RUNS["forge"]["direct"]["classes"]
-        for row in mapping["rows"]:
-            fixture = row["fixture_id"]
-            if fixture not in denominator:
-                continue
-            pointer = str(row.get("forge_evidence_pointer", ""))
-            hit = [c for c in direct_classes if c in pointer]
-            if hit:
-                out.setdefault(fixture, {}).setdefault("forge", [])
-                for name in hit:
-                    if name not in out[fixture]["forge"]:
-                        out[fixture]["forge"].append(name)
+    for candidate in ("xmage", "forge"):
+        commit = identity[candidate].get("engine_candidate_commit", "")
+        credited = receipt_mod.positive_fixture_credit(
+            receipts, candidate=candidate, expected_commit=commit, denominator=denominator
+        )
+        for fixture, tests in credited.items():
+            out.setdefault(fixture, {})[candidate] = tests
     return out
+
+
+def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
+    """Native-suite credit for one candidate, from receipts only."""
+    receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
+    credit = receipt_mod.native_suite_credit(
+        receipts, candidate=candidate, expected_commit=expected_commit
+    )
+    return {
+        "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
+        **credit,
+        "absent_receipts_yield_no_credit": True,
+    }
 
 
 def assemble() -> None:
@@ -211,12 +132,14 @@ def assemble() -> None:
         results["rows"] = [rows[row["fixture_id"]] for row in results["rows"]]
         results["counts"] = counts
         results["native_promotions"] = promoted
-        results["native_runs"] = NATIVE_RUNS[candidate]
+        results["native_runs"] = native_credit(
+            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+        )
         write(f"FULL107_{candidate.upper()}_RESULTS.json", results)
         per_candidate[candidate] = {
             "rows": rows,
             "counts": counts,
-            "native_runs": NATIVE_RUNS[candidate],
+            "native_runs": results["native_runs"],
         }
 
     # ---- AF00-AF11 matrix ------------------------------------------------
