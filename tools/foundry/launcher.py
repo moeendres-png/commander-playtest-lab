@@ -545,7 +545,16 @@ def resolve_environment(
         for spec in workspace_access
         if spec["access"] == "owned-write"
     }
-    denies = sibling_denies(worktree, writable_roots)
+    authoritative_roots = {os.path.realpath(worktree)}
+    authoritative_roots.update(
+        os.path.realpath(ref.get("source_root", ref["root"])) for ref in references
+    )
+    authoritative_roots.update(
+        os.path.realpath(spec.get("source_root", spec["root"])) for spec in workspace_access
+    )
+    denies: list[str] = []
+    for repo_root in sorted(authoritative_roots):
+        denies.extend(sibling_denies(repo_root, writable_roots))
     static_denies = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
         "permission"
     ]["external_directory"]
@@ -590,6 +599,17 @@ def resolve_environment(
         for pattern in _root_patterns(root):
             ext[pattern] = "allow"
             edit[pattern] = "allow" if spec["access"] == "owned-write" else "deny"
+    # Root-specific allows are intentionally broad, so canonical sensitive-file
+    # edit denials must be reinserted LAST (OpenCode permission matching is
+    # last-match-wins). Reinsert rather than overwrite to move ordering.
+    canonical_edit = json.loads(
+        (canonical / "opencode.json").read_text(encoding="utf-8")
+    )["permission"]["edit"]
+    for pattern, action in canonical_edit.items():
+        if action != "deny":
+            continue
+        edit.pop(pattern, None)
+        edit[pattern] = "deny"
     env = dict(os.environ)
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
@@ -690,11 +710,27 @@ def init(
         return {"verdict": "LAUNCH_REFUSED", "error": f"unknown ui_mode {ui_mode!r}"}
     canonical = os.path.realpath(os.path.abspath(worktree))
     parsed_refs: list[dict] = []
+    seen_labels: set[str] = set()
+    seen_reference_roots: set[str] = set()
     for raw in references or []:
         try:
-            parsed_refs.append(reference_mod.parse_spec(raw))
+            ref = reference_mod.parse_spec(raw)
         except reference_mod.ReferenceError as exc:
             return {"verdict": "LAUNCH_REFUSED", "error": f"reference: {exc}"}
+        root = os.path.realpath(os.path.abspath(ref["root"]))
+        if ref["label"] in seen_labels:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate declared workspace label {ref['label']!r}",
+            }
+        if root in seen_reference_roots:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate --reference root {root!r}",
+            }
+        seen_labels.add(ref["label"])
+        seen_reference_roots.add(root)
+        parsed_refs.append(ref)
     parsed_access: list[dict] = []
     seen_access_roots: set[str] = set()
     for raw in workspace_access or []:
@@ -708,12 +744,26 @@ def init(
                 "verdict": "LAUNCH_REFUSED",
                 "error": "workspace-access must not redeclare the primary worktree",
             }
+        if spec["label"] in seen_labels:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate declared workspace label {spec['label']!r}",
+            }
+        if root in seen_reference_roots:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": (
+                    f"workspace root {root!r} cannot be both --reference and "
+                    "--workspace-access"
+                ),
+            }
         if root in seen_access_roots:
             return {
                 "verdict": "LAUNCH_REFUSED",
                 "error": f"duplicate --workspace-access root {root!r}",
             }
         seen_access_roots.add(root)
+        seen_labels.add(spec["label"])
         reasons = workspace_access_mod.verify(spec)
         if reasons:
             return {
@@ -898,6 +948,46 @@ def init(
     }
 
 
+def _revalidate_locked_surfaces(
+    plan: dict, worktree: str, workstream: str, env: dict
+) -> str | None:
+    """Recheck exact writable identities and foreign-process occupancy under locks."""
+    try:
+        live_branch = _git(["branch", "--show-current"], worktree)
+        live_head = _git(["rev-parse", "HEAD"], worktree)
+    except RuntimeError:
+        return "primary worktree identity unreadable after writer lock acquisition"
+    if live_branch != env.get("FOUNDRY_BRANCH", ""):
+        return (
+            f"primary branch changed after init: {live_branch!r} != "
+            f"{env.get('FOUNDRY_BRANCH', '')!r}"
+        )
+    if live_head != plan.get("live_head"):
+        return f"primary HEAD changed after init: {live_head[:12]} != {str(plan.get('live_head'))[:12]}"
+
+    for spec in plan.get("workspace_access", []):
+        if spec.get("access") != "owned-write":
+            continue
+        if spec.get("ownership") != workstream:
+            return (
+                f"owned-write surface {spec.get('label')!r} ownership "
+                f"{spec.get('ownership')!r} != current workstream {workstream!r}"
+            )
+        procs = writer_lock_mod.scan_cwd_processes(spec["root"])
+        if procs:
+            return (
+                f"owned-write surface {spec.get('label')!r} has foreign/unknown "
+                f"same-CWD OpenCode occupancy; refusing competing writer"
+            )
+        reasons = workspace_access_mod.verify(spec)
+        if reasons:
+            return (
+                f"owned-write surface {spec.get('label')!r} changed after init: "
+                f"{reasons[0]}"
+            )
+    return None
+
+
 def launch(
     plan: dict,
     argv_extra: list[str],
@@ -953,6 +1043,10 @@ def launch(
             return writer_lock_mod.HELD_EXIT
         locks.append(lock)
     try:
+        stale = _revalidate_locked_surfaces(plan, worktree, workstream, env)
+        if stale is not None:
+            print(f"LAUNCH_REFUSED: {stale}", file=sys.stderr)
+            return 1
         return _launch_locked(plan, argv_extra, worktree, workstream, effort, mode, execution)
     finally:
         for lock in reversed(locks):
