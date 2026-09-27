@@ -11,9 +11,7 @@ from commander_lab.meta_qualification import run_meta_verification
 def test_real_xmage_replay_mutations_are_killed_and_not_run_is_visible(
     repo_root: Path,
 ) -> None:
-    tape_path = (
-        repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
-    )
+    tape_path = repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
     tape = json.loads(tape_path.read_text())
     report = run_meta_verification(tape, source_tape=str(tape_path.relative_to(repo_root)))
 
@@ -31,9 +29,7 @@ def test_real_xmage_replay_mutations_are_killed_and_not_run_is_visible(
 
 
 def test_meta_verification_report_validates_against_schema(repo_root: Path) -> None:
-    tape_path = (
-        repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
-    )
+    tape_path = repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
     tape = json.loads(tape_path.read_text())
     report = run_meta_verification(tape, source_tape=str(tape_path.relative_to(repo_root)))
     schema_path = (
