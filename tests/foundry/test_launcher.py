@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -23,6 +24,7 @@ TOOLS = ROOT / "tools" / "foundry"
 sys.path.insert(0, str(ROOT / "tools"))
 
 from foundry import bootstrap as bootstrap_mod  # noqa: E402
+from foundry import fs_sandbox as fs_sandbox_mod  # noqa: E402
 from foundry import launcher as launcher_mod  # noqa: E402
 from foundry import opencode_cli_version as version_mod  # noqa: E402
 from foundry import permission_battery as permission_battery_mod  # noqa: E402
@@ -1134,7 +1136,8 @@ def _workspace_surface(tmp_path: Path, *, ownership: str = "TEST-WS") -> tuple[P
     _git(["checkout", "-b", "project/side"], root, env)
     head = _git(["rev-parse", "HEAD"], root, env)
     tree = _git(["rev-parse", "HEAD^{tree}"], root, env)
-    state_path = tmp_path / "side-state.yaml"
+    state_path = root / ".foundry" / "WORKSTREAM_STATE.yaml"
+    state_path.parent.mkdir(parents=True)
     state = {
         "schema_version": "2.0",
         "repository": CPL_SLUG,
@@ -1369,9 +1372,7 @@ def test_owned_write_rejects_lookalike_remote_identity(
     assert "remote identity" in str(plan.get("error", ""))
 
 
-def test_duplicate_reference_label_fails_closed(
-    target: dict, canon: Path, tmp_path: Path
-) -> None:
+def test_duplicate_reference_label_fails_closed(target: dict, canon: Path, tmp_path: Path) -> None:
     root, _, owned = _workspace_surface(tmp_path)
     ref = {
         "label": "dup",
@@ -1488,7 +1489,98 @@ def test_owned_write_rejects_foreign_same_cwd_opencode(
         occupant.wait()
 
 
-def test_cross_workspace_launch_is_wrapped_in_landlock(
+def test_cross_workspace_requires_standalone_primary_checkout(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    linked = tmp_path / "linked-primary"
+    _git(["worktree", "add", str(linked), "-b", "project/linked-primary"], target["wt"], target["env"])
+    head = _git(["rev-parse", "HEAD"], linked, target["env"])
+    state_path = linked / ".foundry" / "WORKSTREAM_STATE.yaml"
+    state_path.parent.mkdir(parents=True)
+    state = yaml.safe_load(target["state"].read_text(encoding="utf-8"))
+    state.update(
+        {
+            "worktree": str(linked),
+            "branch": "project/linked-primary",
+            "audit_base_sha": head,
+            "state_written_against_head": head,
+            "validated_head": head,
+        }
+    )
+    state_path.write_text(yaml.safe_dump(state), encoding="utf-8")
+    root, _, spec = _workspace_surface(tmp_path)
+    plan = launcher_mod.init(
+        profile="cpl",
+        worktree=str(linked),
+        workstream="TEST-WS",
+        branch="project/linked-primary",
+        audit_base_sha=head,
+        effort="high",
+        mode="writer",
+        session="",
+        state_path=str(state_path),
+        canonical_root=str(canon),
+        allow_same_cwd_pids=False,
+        allow_suppressed_routing=False,
+        install_pre_push_hook=False,
+        run_dir=str(tmp_path / "cross-run"),
+        workspace_access=[json.dumps(spec)],
+    )
+    assert root.is_dir()
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "standalone" in str(plan.get("error", ""))
+
+
+def test_cross_workspace_state_must_be_inside_owned_surface(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, state_path, spec = _workspace_surface(tmp_path)
+    outside = tmp_path / "outside-state.yaml"
+    outside.write_text(state_path.read_text(encoding="utf-8"), encoding="utf-8")
+    spec["state_path"] = str(outside)
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert root.is_dir()
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "ROOT/.foundry" in str(plan.get("error", ""))
+
+
+def test_cross_workspace_run_dir_cannot_overlap_workspace(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    plan = _plan(
+        target,
+        canon,
+        workspace_access=[json.dumps(spec)],
+        run_dir=str(root / "runtime"),
+    )
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "run-dir" in str(plan.get("error", ""))
+
+
+def test_cross_workspace_init_reserves_unique_runtime_snapshots(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, owned = _workspace_surface(tmp_path)
+    ref = {
+        "label": "unique",
+        "root": str(root),
+        "repo_slug": CPL_SLUG,
+        "commit": owned["commit"],
+        "tree": owned["tree"],
+        "cleanliness": "clean",
+        "intent": "read-only",
+    }
+    first = _plan(target, canon, references=[json.dumps(ref)])
+    second = _plan(target, canon, references=[json.dumps(ref)])
+    assert first["verdict"] == second["verdict"] == "LAUNCH_READY"
+    assert first["run_dir"] != second["run_dir"]
+    assert first["references"][0]["root"] != second["references"][0]["root"]
+    assert Path(first["references"][0]["root"]).is_dir()
+    assert Path(second["references"][0]["root"]).is_dir()
+
+
+def test_cross_workspace_launch_is_wrapped_in_mount_sandbox(
     target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _, _, spec = _workspace_surface(tmp_path)
@@ -1516,20 +1608,48 @@ def test_cross_workspace_launch_is_wrapped_in_landlock(
     assert "--" in argv
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Landlock is Linux-only")
-def test_landlock_wrapper_blocks_out_of_scope_write(tmp_path: Path) -> None:
+def test_bubblewrap_command_uses_read_only_root_and_explicit_writable_bind(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    monkeypatch.setattr(fs_sandbox_mod.shutil, "which", lambda name: "/usr/bin/bwrap")
+    argv = fs_sandbox_mod.build_bwrap_argv(["child", "--flag"], [str(allowed)])
+    assert argv[:7] == [
+        "/usr/bin/bwrap",
+        "--die-with-parent",
+        "--new-session",
+        "--ro-bind",
+        "/",
+        "/",
+        "--dev-bind",
+    ]
+    assert ["--bind", str(allowed), str(allowed)] == argv[-6:-3]
+    assert argv[-3:] == ["--", "child", "--flag"]
+
+
+@pytest.mark.skipif(
+    sys.platform != "linux" or shutil.which("bwrap") is None,
+    reason="Bubblewrap runtime unavailable",
+)
+def test_bubblewrap_wrapper_blocks_content_and_metadata_outside_scope(tmp_path: Path) -> None:
     allowed = tmp_path / "allowed"
     blocked = tmp_path / "blocked"
     allowed.mkdir()
     blocked.mkdir()
+    blocked_file = blocked / "protected.txt"
+    blocked_file.write_text("protected", encoding="utf-8")
+    original_mode = blocked_file.stat().st_mode & 0o777
     wrapper = TOOLS / "fs_sandbox.py"
     code = (
-        "from pathlib import Path; "
+        "import os; from pathlib import Path; "
         f"Path({str(allowed / 'ok.txt')!r}).write_text('ok'); "
-        "blocked=False; "
+        "content_blocked=False; metadata_blocked=False; "
         f"\ntry:\n Path({str(blocked / 'no.txt')!r}).write_text('no')\n"
-        "except PermissionError:\n blocked=True\n"
-        "raise SystemExit(0 if blocked else 9)"
+        "except OSError:\n content_blocked=True\n"
+        f"\ntry:\n os.chmod({str(blocked_file)!r}, 0)\n"
+        "except OSError:\n metadata_blocked=True\n"
+        "raise SystemExit(0 if content_blocked and metadata_blocked else 9)"
     )
     proc = subprocess.run(
         [
@@ -1549,6 +1669,7 @@ def test_landlock_wrapper_blocks_out_of_scope_write(tmp_path: Path) -> None:
     assert proc.returncode == 0, proc.stderr
     assert (allowed / "ok.txt").read_text(encoding="utf-8") == "ok"
     assert not (blocked / "no.txt").exists()
+    assert (blocked_file.stat().st_mode & 0o777) == original_mode
 
 
 if __name__ == "__main__":
