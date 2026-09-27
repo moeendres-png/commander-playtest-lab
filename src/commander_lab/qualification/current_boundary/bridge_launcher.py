@@ -106,7 +106,8 @@ class BridgeProcess:
         except json.JSONDecodeError as exc:
             raise BridgeLaunchError(f"non-JSON provider response: {raw[:200]!r}") from exc
         self.transcript.append({"direction": "response", "received": response, "request": envelope})
-        return response
+        payload: dict[str, Any] = response
+        return payload
 
     def close(self, *, timeout_s: float = 20.0) -> None:
         """Best-effort graceful shutdown; never raises on an already-dead bridge."""

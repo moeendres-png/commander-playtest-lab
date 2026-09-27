@@ -49,7 +49,8 @@ class EffectiveMaterialization:
     def record(self, fixture_id: str) -> dict[str, Any]:
         for item in self.bundle["records"]:
             if item["fixture_id"] == fixture_id:
-                return item
+                record: dict[str, Any] = item
+                return record
         raise KeyError(f"fixture not in effective materialization: {fixture_id}")
 
     def records(self) -> list[dict[str, Any]]:

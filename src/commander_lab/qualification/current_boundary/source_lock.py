@@ -118,4 +118,5 @@ def load_contract(root: Path | None = None) -> dict[str, Any]:
     """Load the current pre-Freeze contract document."""
     resolved_root = root or repo_root()
     path = resolved_root / CONTRACT_PATHS["current_pre_freeze_contract"]
-    return json.loads(path.read_text(encoding="utf-8"))
+    document: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    return document

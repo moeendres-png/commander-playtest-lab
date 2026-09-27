@@ -65,7 +65,7 @@ class GameObservation:
 # execution on the shared Protocol-2 surface. Recorded, not normalized away.
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
-DECISION_IDENTITY_SHAPES = {
+DECISION_IDENTITY_SHAPES: dict[str, dict[str, Any]] = {
     "xmage": {
         "field": "decision_id",
         "type": "sha256_hex",
@@ -90,7 +90,8 @@ def decision_identity_params(candidate: str, frame: dict[str, Any]) -> dict[str,
     shape = DECISION_IDENTITY_SHAPES[candidate]
     decision = frame["decision"]
     params: dict[str, Any] = {}
-    for key in (shape["field"], *shape["pass_extra"]):
+    decision_keys: list[str] = [shape["field"], *shape["pass_extra"]]
+    for key in decision_keys:
         if key == "action_id":
             for action in frame["actions"]:
                 if action.get("action_type") == "pass_priority":
