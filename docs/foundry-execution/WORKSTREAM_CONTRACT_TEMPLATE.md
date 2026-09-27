@@ -66,9 +66,10 @@ Technical-decision authority defaults to autonomous-within-contract.
 
 Default: `AUTONOMOUS_WITHIN_CONTRACT`
 
-Muse owns technical in-scope decisions: inspect authoritative evidence, form and
-challenge hypotheses, run the smallest permitted validation, adjudicate within
-already-defined project policy, persist the decision and evidence, continue.
+The selected OpenCode executor owns technical in-scope decisions. Space Bunny MAX is
+the default and preferred executor. Muse may be selected only at XHIGH. Inspect
+authoritative evidence, challenge hypotheses, run the smallest discriminating validation,
+adjudicate within project policy, persist the decision/evidence, and continue.
 Reaching and persisting a technical root cause is the job, not an escalation.
 
 ## AUTHORITY_GATES
@@ -80,10 +81,11 @@ Explicit questions reserved for Sol High (empty only with justification):
 
 ## ESCALATION
 
-HIGH may determine the task has become nonlocal or ambiguous and requires XHIGH
-(technical adjudication tier). HIGH→XHIGH escalation is not failure. Persist
-state (HEAD, validated gates, current hypothesis, remaining scope, exact next
-action) before changing sessions or effort where necessary.
+Use Space Bunny MAX by default. A deliberate handoff to Muse XHIGH is allowed for
+cross-model challenge, continuation, or difficult technical adjudication. Muse HIGH and
+Space Bunny non-MAX variants are not valid active-work configurations. Persist state
+(HEAD, validated gates, current hypothesis, remaining scope, exact next action) before
+changing executors.
 
 ## Persistence
 
