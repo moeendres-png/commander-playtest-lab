@@ -32,5 +32,24 @@
     "engine_implementation": "OUT_OF_SCOPE",
     "provider_selection": "OUT_OF_SCOPE",
     "architecture_freeze": "OUT_OF_SCOPE"
+  },
+  "integration_rebase": {
+    "main_commit": "586914ea10caf1ede3e509908a6b177c4a20d5e7",
+    "main_tree": "6d2aab11a5bf432207a96977c9009fb11906c0d0",
+    "main_advance": "PR #257 — Space Bunny Max Foundry execution profile",
+    "impact_classification": "NON_IMPACTING_IMPLEMENTATION_SURFACE_GOVERNANCE_REVIEWED",
+    "changed_paths": [
+      "AGENTS.md",
+      "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
+      "docs/foundry-execution/README.md",
+      "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+      "tests/foundry/test_launcher.py",
+      "tests/foundry/test_telemetry.py",
+      "tools/foundry/launcher.py",
+      "tools/foundry/metrics.py"
+    ],
+    "overlap_with_owned_paths": [],
+    "governance_note": "AGENTS.md changed and was treated as governance drift; no new instruction conflicts with this bounded contract-normalization scope.",
+    "merge_commit": "add963b9f57f3910d1a80912cac1a7dc89163843"
   }
 }
