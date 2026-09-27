@@ -25,8 +25,9 @@
     "rule": "103.8a",
     "requirement": "In a two-player game, the starting player skips the entire draw step of the first turn; the successor fixture must not require priority or any observation inside that skipped step.",
     "semantic_basis_effective_date": "2026-08-07",
-    "current_authority_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
-    "current_authority_receipt_required": true
+    "current_authority_status": "CURRENT_OFFICIAL_AUTHORITY_VERIFIED",
+    "current_authority_receipt_required": true,
+    "freshness_adjudication": "FRESHNESS_CONFLICT_RESOLVED"
   },
   "record_successors": [
     {
