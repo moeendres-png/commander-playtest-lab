@@ -13,18 +13,23 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 ## Execution paths
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
-2. OpenCode Go with `opencode-go/muse-spark-1.3-contributor` — primary execution tier.
+2. OpenCode Foundry — primary execution tier with one explicit executor per run:
+   - default `muse`: `opencode-go/muse-spark-1.3-contributor`;
+   - operator-selected `space-bunny`: `opencode-go/space-bunny-free`, pinned to native
+     `max` reasoning by the run-specific injected config.
 3. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
-`muse-spark-1.3-contributor` is one model identity. Never split it into separate
-Muse and Spark routings, and never substitute another provider or model without an
-explicit user instruction and a matching policy and config update.
+Executor choice is explicit and auditable. The launcher never changes model because of
+quota, credentials, child failure, or retry. A completed/terminated writer releases the
+existing writer lock, after which the other profile may resume the same workstream from
+the same branch + explicit state + evidence. Concurrent writers on the same worktree,
+branch, or semantic surface remain forbidden; parallel profiles require independent
+worktrees/ownership.
 
-An operator-authorized invocation may explicitly select `--execution-provider zen`
-in the Foundry launcher. This substitutes only that execution with
-`opencode/muse-spark-1.3-contributor-free`; no automatic fallback or canonical
-default change. HIGH/XHIGH remains the requested project tier, not a claim of
-equivalent provider variants. See `EXECUTION_PROVIDER_OVERRIDE.md` for resolution.
+The existing `--execution-provider zen` remains a compatibility override for
+`opencode/muse-spark-1.3-contributor-free`. It is separate from
+`--execution-profile space-bunny`; conflicting selections fail closed. See
+`EXECUTION_PROVIDER_OVERRIDE.md` for exact resolution.
 
 ## Effort policy
 
@@ -42,11 +47,14 @@ Never use `medium`, `low`, `minimal`, `none`, or `off` for active project work.
 Do not use XHIGH merely because a task is large. Do not restart valid work solely to
 change effort. Preserve Source Lock and durable state across escalation.
 
-Machine enforcement: root `opencode.json` disables the `none`, `off`, `minimal`,
-`low`, and `medium` variants, sets the model default reasoning effort to `high`,
-pins the `build` agent variant to `high`, and restricts providers to `opencode-go`.
-The GitHub lane (`.github/workflows/opencode.yml`) runs at `VARIANT: high` by default;
-per-run escalation to `xhigh` remains available with a recorded justification.
+Machine enforcement: root `opencode.json` remains Muse-default, disables the
+`none`, `off`, `minimal`, `low`, and `medium` variants, sets Muse default reasoning
+to `high`, and restricts providers to `opencode-go`. The launcher may construct a
+run-specific, single-model `space-bunny` bundle that pins
+`opencode-go/space-bunny-free` to native `max`; it does not widen the committed
+canonical allowlist or create fallback behavior. The GitHub lane
+(`.github/workflows/opencode.yml`) remains Muse HIGH by default unless separately
+changed and qualified.
 
 ## Technical decision authority
 

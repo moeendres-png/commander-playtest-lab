@@ -88,11 +88,15 @@ requalification.
 - GPT-5.6 Sol High (normal chat): Coordinator and adjudication tier — architecture, Source
   Truth, MTG Rules adjudication, GitHub research, difficult review, qualification design,
   evidence promotion, cross-workstream integration, gate decisions, Architecture Freeze.
-- OpenCode Go + `opencode-go/muse-spark-1.3-contributor`: primary execution tier —
-  implementation, repository edits, builds, tests, debugging, CI, qualification execution,
-  evidence generation, deterministic tooling, long autonomous workstreams.
+- OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
+  tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
+  and long autonomous workstreams. The default executor profile is
+  `opencode-go/muse-spark-1.3-contributor`. An explicit operator-selected
+  `space-bunny` profile may instead run `opencode-go/space-bunny-free` at native
+  `max` reasoning. Executor selection is per-run, recorded, never inferred from quota or
+  failure, and never falls back silently.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode+Muse insufficient; genuinely
+  capability identified; Sol High insufficient; OpenCode Foundry insufficient; genuinely
   required; smallest necessary scope). Never the normal engineering path.
 
 Technical autonomy within those tiers is defined in §8.
@@ -105,15 +109,17 @@ and build-test-fix loops. `xhigh` is escalation for difficult nonlocal reasoning
 unclear engine-vs-provider-vs-harness-vs-fixture causality, complex multi-subsystem
 remediation, deep debugging chains, identity/state/lifecycle problems, and
 architecture-adjacent implementation. Never use `medium`, `low`, `minimal`, `none`, or
-`off` for active project work. Do not use XHIGH merely because a task is large; do not
-restart valid work solely to change effort. Preserve Source Lock and durable state
-across escalation. HIGH→XHIGH escalation is not failure.
+`off` as project effort for active work. The `space-bunny` execution profile deliberately
+maps either allowed project effort to its verified native `max` variant and records that
+mapping; this changes compute allocation, not authority. Do not use XHIGH merely because a
+task is large; do not restart valid work solely to change effort. Preserve Source Lock and
+durable state across model/profile handoff. HIGH→XHIGH escalation is not failure.
 
 ## 8. Technical decision authority
 
 `TECHNICAL_DECISION_AUTHORITY = AUTONOMOUS_WITHIN_CONTRACT`
 
-OpenCode/Muse workers do not stop or ask the Coordinator for routine technical
+OpenCode Foundry workers do not stop or ask the Coordinator for routine technical
 decisions that can be resolved from authoritative repository source, tests,
 artifacts, logs, contracts, or bounded experimentation. They must not stop or
 escalate merely because a difficult technical decision exists when those sources
@@ -138,7 +144,7 @@ continues. Sol High is an authority and gate tier, not a routine engineering
 micro-manager; the full delegation is recorded in
 `docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`.
 
-For in-scope technical ambiguity, Muse must:
+For in-scope technical ambiguity, the selected Foundry worker must:
 
 1. inspect authoritative evidence;
 2. form one or more hypotheses;

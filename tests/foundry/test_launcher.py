@@ -992,3 +992,112 @@ def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+# --- explicit Space Bunny execution profile ---------------------------------
+
+
+def test_space_bunny_profile_pins_go_model_and_native_max(target, canon):
+    before = (canon / "opencode.json").read_bytes()
+    plan = _plan(target, canon, execution_profile="space-bunny")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    execution = plan["execution"]
+    assert execution == {
+        "profile": "space-bunny",
+        "override": "space-bunny",
+        "provider": "opencode-go",
+        "model": "opencode-go/space-bunny-free",
+        "requested_effort": "high",
+        "variant_resolution": "native_max",
+        "native_variant": "max",
+    }
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    assert bundle["model"] == "opencode-go/space-bunny-free"
+    assert bundle["small_model"] == "opencode-go/space-bunny-free"
+    assert bundle["enabled_providers"] == ["opencode-go"]
+    assert bundle["provider"]["opencode-go"]["whitelist"] == ["space-bunny-free"]
+    model = bundle["provider"]["opencode-go"]["models"]["space-bunny-free"]
+    assert model["options"] == {"reasoningEffort": "max"}
+    assert model["variants"] == {"max": {}}
+    assert all(
+        agent == {"model": "opencode-go/space-bunny-free", "variant": "max"}
+        for agent in bundle["agent"].values()
+    )
+    assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == "space-bunny"
+    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
+    context = json.loads(Path(plan["context_path"]).read_text())
+    assert context["execution"] == execution
+    assert (canon / "opencode.json").read_bytes() == before
+
+
+def test_space_bunny_profile_rejects_conflicting_zen_override(target, canon):
+    plan = _plan(
+        target,
+        canon,
+        execution_profile="space-bunny",
+        execution_provider="zen",
+    )
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "cannot select different executors" in plan["error"]
+
+
+def test_space_bunny_profile_rejects_unknown_api_profile(target, canon):
+    plan = _plan(target, canon, execution_profile="other")
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "unknown execution profile" in plan["error"]
+
+
+def test_space_bunny_launch_uses_explicit_model_and_no_fallback(
+    target, canon, monkeypatch
+):
+    plan = _plan(target, canon, execution_profile="space-bunny")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    real_run = subprocess.run
+    calls = []
+
+    def child(args, **kwargs):
+        if args[0] == "git":
+            return real_run(args, **kwargs)
+        calls.append(args)
+        return subprocess.CompletedProcess(args, 7)
+
+    monkeypatch.setattr(launcher_mod.subprocess, "run", child)
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 7
+    assert len(calls) == 1
+    assert calls[0][3:5] == ["--model", launcher_mod.SPACE_BUNNY_MODEL]
+    records = [
+        json.loads(s)
+        for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
+    ]
+    assert {record["model"] for record in records} == {launcher_mod.SPACE_BUNNY_MODEL}
+    assert {record["execution_override"] for record in records} == {"space-bunny"}
+    assert {record["variant_resolution"] for record in records} == {"native_max"}
+
+
+def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
+    captured = {}
+
+    def fake_init(**kwargs):
+        captured.update(kwargs)
+        return {"verdict": "LAUNCH_READY"}
+
+    monkeypatch.setattr(launcher_mod, "init", fake_init)
+    rc = launcher_mod.main(
+        [
+            "init",
+            *_cli_base(target),
+            "--state",
+            str(target["state"]),
+            "--profile",
+            "cpl",
+            "--canonical-root",
+            str(canon),
+            "--execution-profile",
+            "space-bunny",
+            "--run-dir",
+            str(target["wt"].parent / "cli-space-bunny"),
+        ]
+    )
+    assert rc == 0
+    assert captured["execution_profile"] == "space-bunny"

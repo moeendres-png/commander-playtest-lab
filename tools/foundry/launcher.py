@@ -37,7 +37,7 @@ WS75 hardening:
 - Runtime telemetry lives under ``run_dir`` (outside the Git worktree);
   launcher execution leaves the worktree clean.
 - The exact ``--state`` path plus worktree/branch/workstream/run-dir/
-  mode/effort reach Muse as ``FOUNDRY_*`` env (no secrets) and as
+  mode/effort reach the selected worker as ``FOUNDRY_*`` env (no secrets) and as
   ``run_dir/launch-context.json``.
 - Declared read-only reference roots (``--reference`` JSON, repeatable)
   are verified at bootstrap and exposed as ``FOUNDRY_REFERENCE_ROOTS``.
@@ -69,26 +69,56 @@ import writer_lock as writer_lock_mod
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
 CANONICAL_PROVIDER = "opencode-go"
 ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
+SPACE_BUNNY_MODEL = "opencode-go/space-bunny-free"
+EXECUTION_PROFILES = ("muse", "space-bunny")
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
 UI_MODES = ("headless", "tui")
 
 
-def execution_identity(override: str | None, effort: str) -> dict:
-    """Operator selection, never inferred from quota, credentials or environment."""
+def execution_identity(
+    override: str | None, effort: str, execution_profile: str | None = None
+) -> dict:
+    """Resolve one explicit executor; never infer/fallback from quota or failures."""
     if override not in (None, "zen"):
         raise ValueError(f"unknown execution provider override {override!r}")
+    if execution_profile not in (None, *EXECUTION_PROFILES):
+        raise ValueError(f"unknown execution profile {execution_profile!r}")
     if effort not in ALLOWED_EFFORTS:
         raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
+    if override and execution_profile not in (None, "muse"):
+        raise ValueError("execution profile and provider override cannot select different executors")
+
+    profile = execution_profile or "muse"
+    if override == "zen":
+        return {
+            "profile": "muse-free-zen",
+            "override": "zen",
+            "provider": "opencode",
+            "model": ZEN_MODEL,
+            "requested_effort": effort,
+            "variant_resolution": "provider_default_unverified",
+            "native_variant": None,
+        }
+    if profile == "space-bunny":
+        return {
+            "profile": "space-bunny",
+            "override": "space-bunny",
+            "provider": CANONICAL_PROVIDER,
+            "model": SPACE_BUNNY_MODEL,
+            "requested_effort": effort,
+            "variant_resolution": "native_max",
+            "native_variant": "max",
+        }
     return {
-        "override": override or "canonical",
-        "provider": "opencode" if override else CANONICAL_PROVIDER,
-        "model": ZEN_MODEL if override else CANONICAL_MODEL,
+        "profile": "muse",
+        "override": "canonical",
+        "provider": CANONICAL_PROVIDER,
+        "model": CANONICAL_MODEL,
         "requested_effort": effort,
-        "variant_resolution": "provider_default_unverified"
-        if override
-        else "canonical_agent_variant",
+        "variant_resolution": "canonical_agent_variant",
+        "native_variant": effort,
     }
 
 
@@ -217,11 +247,14 @@ def _validated_tool_output(value: object) -> dict:
 
 
 def build_content_bundle(
-    canonical_root: str, extra_denies: list[str], execution_provider: str | None = None
+    canonical_root: str,
+    extra_denies: list[str],
+    execution_provider: str | None = None,
+    execution_profile: str | None = None,
 ) -> dict:
-    """Canonical model/permission lock for OPENCODE_CONFIG_CONTENT."""
+    """Canonical permissions with one explicitly selected execution model."""
     config_path = Path(canonical_root) / "opencode.json"
-    execution = execution_identity(execution_provider, "high")
+    execution = execution_identity(execution_provider, "high", execution_profile)
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
@@ -268,7 +301,31 @@ def build_content_bundle(
     bundle["experimental"] = experimental
     if "default_agent" in config:
         bundle["default_agent"] = config["default_agent"]
-    if execution_provider == "zen":
+    if execution_profile == "space-bunny":
+        bundle["model"] = SPACE_BUNNY_MODEL
+        bundle["small_model"] = SPACE_BUNNY_MODEL
+        bundle["enabled_providers"] = [CANONICAL_PROVIDER]
+        short = SPACE_BUNNY_MODEL.split("/", 1)[1]
+        bundle["provider"] = {
+            CANONICAL_PROVIDER: {
+                "whitelist": [short],
+                "models": {
+                    short: {
+                        "options": {"reasoningEffort": "max"},
+                        "variants": {"max": {}},
+                    }
+                },
+            }
+        }
+        # The canonical Markdown agent definitions stay Muse-specific on disk.
+        # Inline run config wins and pins every reachable agent to Space Bunny Max.
+        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
+        names.update(config.get("agent", {}))
+        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
+        bundle["agent"] = {
+            name: {"model": SPACE_BUNNY_MODEL, "variant": "max"} for name in sorted(names)
+        }
+    elif execution_provider == "zen":
         bundle["model"] = ZEN_MODEL
         bundle["small_model"] = ZEN_MODEL
         bundle["enabled_providers"] = ["opencode"]
@@ -335,6 +392,7 @@ def resolve_environment(
     references: list[dict],
     opencode_binary: str,
     execution_provider: str | None = None,
+    execution_profile: str | None = None,
 ) -> dict:
     """Build the child environment. Raises ValueError fail-closed."""
     if effort in BELOW_HIGH or effort not in ALLOWED_EFFORTS:
@@ -347,7 +405,10 @@ def resolve_environment(
         "permission"
     ]["external_directory"]
     denies += [k for k, v in static_denies.items() if v == "deny"]
-    bundle = build_content_bundle(canonical_root, sorted(set(denies)), execution_provider)
+    execution = execution_identity(execution_provider, effort, execution_profile)
+    bundle = build_content_bundle(
+        canonical_root, sorted(set(denies)), execution_provider, execution_profile
+    )
     env = dict(os.environ)
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
@@ -364,9 +425,12 @@ def resolve_environment(
     env["FOUNDRY_BRANCH"] = branch
     env["FOUNDRY_SESSION"] = session
     env["FOUNDRY_EFFORT"] = effort
+    env["FOUNDRY_EXECUTION_PROFILE"] = execution["profile"]
+    if execution["native_variant"]:
+        env["FOUNDRY_NATIVE_VARIANT"] = execution["native_variant"]
     # WS75 state-path context, hardened by ROOT_STATE_SEMANTICS: the exact
     # explicit launcher state path is mandatory. There is no implicit active
-    # repository-root state and no silent fallback, so Muse never guesses
+    # repository-root state and no silent fallback, so the worker never guesses
     # `.foundry/WORKSTREAM_STATE.yaml`.
     # Values are paths/identities only — never secrets.
     if not state_path:
@@ -419,10 +483,11 @@ def init(
     version_audit_mode: bool = False,
     worktree_states: list[str] | None = None,
     execution_provider: str | None = None,
+    execution_profile: str | None = None,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
     try:
-        execution = execution_identity(execution_provider, effort)
+        execution = execution_identity(execution_provider, effort, execution_profile)
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "error": str(exc)}
     if not state_path:
@@ -514,6 +579,7 @@ def init(
             references=parsed_refs,
             opencode_binary=binary,
             execution_provider=execution_provider,
+            execution_profile=execution_profile,
         )
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": str(exc)}
@@ -660,9 +726,13 @@ def _launch_locked(
         print(f"LAUNCH_WARN: telemetry start not recorded: {exc}", file=sys.stderr)
     binary = plan.get("opencode_binary") or env.get(OPENCODE_BIN_ENV, "opencode")
     try:
-        # CLI selection outranks persisted session/model history on an explicit
-        # Zen launch. Caller model flags were rejected before taking the lock.
-        selected = ["--model", execution["model"]] if execution["override"] == "zen" else []
+        # CLI model selection outranks persisted session/model history on every
+        # explicit non-default executor. Caller model flags are rejected.
+        selected = (
+            ["--model", execution["model"]]
+            if execution["override"] != "canonical"
+            else []
+        )
         argv = build_argv(binary, mode, [*selected, *argv_extra])
     except ValueError as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
@@ -736,10 +806,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--audit-base-sha", required=True)
     parser.add_argument("--effort", default="high")
     parser.add_argument(
+        "--execution-profile",
+        choices=EXECUTION_PROFILES,
+        default=None,
+        help=(
+            "Explicit OpenCode Go executor profile. Omitted or 'muse' keeps Muse; "
+            "'space-bunny' pins Space Bunny Free at native max reasoning."
+        ),
+    )
+    parser.add_argument(
         "--execution-provider",
         choices=("zen",),
         default=None,
-        help="Explicit operator-authorized Zen execution only; omitted keeps OpenCode Go.",
+        help="Legacy explicit Zen Muse override; cannot be combined with space-bunny.",
     )
     parser.add_argument("--mode", default="writer", choices=("writer", "reader"))
     parser.add_argument("--session", default="")
@@ -808,6 +887,7 @@ def main(argv: list[str] | None = None) -> int:
         version_audit_mode=args.version_audit_mode,
         worktree_states=args.worktree_state,
         execution_provider=args.execution_provider,
+        execution_profile=args.execution_profile,
     )
     printable = {k: v for k, v in plan.items() if k != "_env"}
     print(json.dumps(printable, indent=2, sort_keys=True, default=str))

@@ -1,7 +1,36 @@
-# Explicit execution-provider override
+# Explicit execution profile and provider overrides
 
-The default remains `opencode-go/muse-spark-1.3-contributor`. For an
-operator-authorized workstream, add `--execution-provider zen` to its existing
+The committed default remains `opencode-go/muse-spark-1.3-contributor`.
+
+## Space Bunny Max profile
+
+For an operator-selected run, add `--execution-profile space-bunny` to the existing
+Foundry `init` or `launch` invocation:
+
+```text
+python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile space-bunny
+```
+
+This selects `opencode-go/space-bunny-free` and pins every injected agent to native
+`max` reasoning. The project-level `--effort high|xhigh` field remains required and
+continues to describe task/authority routing; for this profile it does not reduce the
+native Space Bunny reasoning level. The selected profile/model/native variant are
+recorded in launch context/environment and existing model/provider telemetry.
+
+No automatic model fallback exists. Space Bunny failure, quota/auth failure, or child
+exit ends that run. A later Muse run may resume the same branch and explicit workstream
+state only after the first writer exits/releases the lock. Parallel Muse + Space Bunny
+writers are allowed only on independently owned worktrees/surfaces under the normal
+Foundry ownership gates.
+
+The committed `opencode.json` remains Muse-only by default. The Space Bunny model is
+narrowed into a run-specific `OPENCODE_CONFIG_CONTENT` bundle, so enabling the profile
+does not make both models simultaneously selectable inside a session. Caller
+`--model`/`--variant` flags remain refused.
+
+## Legacy Zen Muse override
+
+For an operator-authorized workstream, add `--execution-provider zen` to its existing
 Foundry `init` or `launch` invocation. All existing required arguments,
 especially `--state`, source lock and ownership, remain required.
 
@@ -9,8 +38,9 @@ especially `--state`, source lock and ownership, remain required.
 python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-provider zen
 ```
 
-Omit the option for canonical Go. `zen` is the only accepted override value;
-unknown values fail closed. This flag is the explicit operator choice for this
+Omit both override/profile options for canonical Muse on Go. Unknown values fail
+closed, and `--execution-provider zen` cannot be combined with
+`--execution-profile space-bunny`. This flag is the explicit operator choice for this
 invocation. Quota, errors and credentials never select it. No committed config
 edit is necessary. It is unrelated to Rules providers or Production Provider selection.
 
