@@ -299,15 +299,18 @@ def test_compaction_prune_stays_default(repo_root: Path):
 
 def test_safety_permissions_intact(repo_root: Path):
     permission = _config(repo_root)["permission"]
-    assert permission["bash"]["*"] == "ask"
-    assert permission["bash"]["git push*"] == "deny"
+    assert permission["bash"]["*"] == "allow"
+    assert permission["bash"]["git push*"] == "allow"
+    assert permission["bash"]["gh api -X POST*"] == "allow"
+    assert permission["bash"]["git checkout main"] == "deny"
+    assert permission["bash"]["gh auth*"] == "deny"
     assert permission["doom_loop"] == "deny"
     assert permission["edit"]["*.env"] == "deny"
 
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert config["model"] == "opencode-go/space-bunny-free"
     assert config["enabled_providers"] == ["opencode-go"]
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
@@ -332,7 +335,7 @@ def test_policy_layers_kept(repo_root: Path):
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
-    assert "Do not push" in implementer
+    assert "Project-scoped Git/GitHub operations are pre-authorized" in implementer
     assert "saved full output" in implementer, (
         "C: agent must prefer reading saved full output over rerunning commands"
     )
@@ -349,7 +352,7 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
         sys.path.remove(str(repo_root / "tools" / "foundry"))
     bundle = launcher_mod.build_content_bundle(str(repo_root), [])
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert bundle["model"] == "opencode-go/space-bunny-free"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):
@@ -358,27 +361,12 @@ def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path
         import launcher as launcher_mod
     finally:
         sys.path.remove(str(repo_root / "tools" / "foundry"))
+    base = _config(repo_root)
     config = {
-        "model": "opencode-go/muse-spark-1.3-contributor",
-        "share": "disabled",
-        "enabled_providers": ["opencode-go"],
-        "provider": {
-            "opencode-go": {
-                "models": {
-                    "muse-spark-1.3-contributor": {
-                        "variants": {
-                            "none": {"disabled": True},
-                            "off": {"disabled": True},
-                            "minimal": {"disabled": True},
-                            "low": {"disabled": True},
-                            "medium": {"disabled": True},
-                            "high": {},
-                            "xhigh": {},
-                        }
-                    }
-                }
-            }
-        },
+        "model": base["model"],
+        "share": base["share"],
+        "enabled_providers": base["enabled_providers"],
+        "provider": base["provider"],
         "permission": {},
         "tool_output": {"max_lines": -5, "max_bytes": 51200},
     }
