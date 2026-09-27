@@ -26,6 +26,8 @@
    candidate AF01 or Freeze credit.
 7. Added regression tests for exact change accounting, START-2 semantics/digest,
    unchanged non-START2 records, protocol binding and historical preservation.
+8. Removed stale predecessor materialization/obligation/supersession digests from the
+   effective START-2 record and retained them only under `historical_digests`.
 
 ## START-2 Authority Correction
 
@@ -48,13 +50,15 @@ The successor therefore requires:
 - no draw-step-start or draw-step-draw event occurs for P1 on turn 1;
 - there is no priority checkpoint inside the skipped draw step;
 - the first post-skip observation is P1's precombat main priority;
-- P1 hand/library counts remain unchanged by a draw step.
+- P1 hand/library counts remain unchanged by a draw step;
+- the inherited actor-aware observation wording is rebound to the candidate-neutral
+  current qualification boundary rather than the historical RSP name.
 
 Predecessor requested-state digest:
 `2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312`
 
 Successor requested-state digest:
-`f9a753ae652f0f84830308f585d339f49cdf40a8115c091615f67c4beb72b6f2`
+`bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342`
 
 Evidence survival:
 
