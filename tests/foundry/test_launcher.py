@@ -1236,6 +1236,57 @@ def test_legacy_reference_uses_disposable_snapshot(
         assert bundle["permission"]["edit"][pattern] == "deny"
 
 
+def test_workspace_access_read_only_rejects_lookalike_remote(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, owned = _workspace_surface(tmp_path)
+    _git(
+        [
+            "config",
+            "remote.origin.url",
+            "https://github.com/moeendres-png/commander-playtest-lab-copy.git",
+        ],
+        root,
+        target["env"],
+    )
+    spec = {
+        key: value
+        for key, value in owned.items()
+        if key not in {"branch", "state_path", "ownership"}
+    }
+    spec["access"] = "read-only"
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "exact fetch identity" in str(plan.get("error", ""))
+
+
+def test_legacy_reference_rejects_lookalike_remote(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, owned = _workspace_surface(tmp_path)
+    _git(
+        [
+            "config",
+            "remote.origin.url",
+            "https://github.com/moeendres-png/commander-playtest-lab-copy.git",
+        ],
+        root,
+        target["env"],
+    )
+    ref = {
+        "label": "side-ref",
+        "root": str(root),
+        "repo_slug": CPL_SLUG,
+        "commit": owned["commit"],
+        "tree": owned["tree"],
+        "cleanliness": "allow-ignored-build-outputs",
+        "intent": "read-only",
+    }
+    plan = _plan(target, canon, references=[json.dumps(ref)])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "exact fetch identity" in str(plan.get("error", ""))
+
+
 def test_workspace_access_owned_write_requires_matching_state_and_injects_write(
     target: dict, canon: Path, tmp_path: Path
 ) -> None:
