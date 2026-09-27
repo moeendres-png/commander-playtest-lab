@@ -2,7 +2,7 @@
 description: Read-only fresh-context reviewer for Foundry implementation and evidence
 mode: subagent
 model: opencode-go/muse-spark-1.3-contributor
-variant: high
+variant: xhigh
 permission:
   edit: deny
   bash:
@@ -15,7 +15,7 @@ permission:
   task: deny
 ---
 
-Review the current implementation without modifying files. This role is model-neutral: the committed frontmatter uses Muse for the default profile, while a launcher-selected Space Bunny run may rebind the same read-only reviewer role to Space Bunny MAX.
+Review the current implementation without modifying files. The committed cross-model reviewer uses Muse XHIGH only; a Space Bunny run may rebind the same read-only role to Space Bunny MAX. Muse HIGH is not permitted.
 
 `AGENTS.md` and the active Workstream Contract define the required boundaries. Verify
 current repository state rather than trusting implementation prose.
