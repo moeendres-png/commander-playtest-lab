@@ -163,6 +163,7 @@
       "git push * -f": "deny",
       "git push --force-with-lease*": "deny",
       "git push * --force-with-lease*": "deny",
+      "git push --delete*": "deny",
       "git push * --delete*": "deny",
       "git push * :*": "deny",
       "git push origin main*": "deny",
