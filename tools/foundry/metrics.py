@@ -29,6 +29,8 @@ FIELDS = [
     "reasoning_effort",
     "execution_provider",
     "execution_override",
+    "execution_profile",
+    "native_variant",
     "variant_resolution",
     "interrupted",
     "source_sha",
