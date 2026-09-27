@@ -74,6 +74,9 @@ class XmageFullGameWs05MulliganTest {
 
         FixtureLog log = new FixtureLog();
         boolean p1Mulliganed = false;
+        // The viewing principal for the post-loop zone read is whoever last held
+        // a decision, so the projection is scoped to a real principal.
+        String lastActorId = null;
         // seat index of P1 (seat 1) among actors is unknown upfront; track by
         // resolving exactly one mulligan-take across the whole round-1 phase.
         for (int step = 0; step < 24; step++) {
@@ -85,6 +88,7 @@ class XmageFullGameWs05MulliganTest {
             String decisionClass = pending.get("decision_class").getAsString();
             JsonObject legal = session.legalActionsPayload();
             String actorId = legal.get("actor_id").getAsString();
+            lastActorId = actorId;
             if ("choose_object".equals(decisionClass)
                     && pending.has("prompt") && !pending.get("prompt").isJsonNull()
                     && pending.get("prompt").getAsString().contains("starting player")) {
@@ -133,10 +137,10 @@ class XmageFullGameWs05MulliganTest {
             } else {
                 log.events.add("keep:" + actorId.substring(0, 8));
             }
-            log.events.add("zones:" + zoneSummary(session));
+            log.events.add("zones:" + zoneSummary(session, lastActorId));
         }
         assertTrue(p1Mulliganed, "P1 must take exactly one mulligan, log=" + log.events);
-        JsonObject zones = session.zoneCountsPayload();
+        JsonObject zones = session.zoneCountsPayload(java.util.UUID.fromString(lastActorId));
         JsonObject post = session.pendingDecisionPayload();
         if (!post.get("decision").isJsonNull()) {
             JsonObject pd = post.getAsJsonObject("decision");
@@ -193,8 +197,8 @@ class XmageFullGameWs05MulliganTest {
         throw new AssertionError("chosen bottom target not offered");
     }
 
-    private static String zoneSummary(XmageFullGameSession session) {
-        JsonObject zones = session.zoneCountsPayload();
+    private static String zoneSummary(XmageFullGameSession session, String actorId) {
+        JsonObject zones = session.zoneCountsPayload(java.util.UUID.fromString(actorId));
         StringBuilder sb = new StringBuilder();
         for (JsonElement element : zones.getAsJsonArray("seats")) {
             JsonObject item = element.getAsJsonObject();
