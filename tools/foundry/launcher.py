@@ -43,8 +43,9 @@ WS75 hardening:
 - Explicit ``--workspace-access`` surfaces may be read-only or owned-write; writable
   surfaces bind repo/branch/HEAD/tree/state/ownership and are multi-locked for the
   complete child lifetime.
-- Any run with cross-workstream references/access is executed under an unprivileged
-  Linux Landlock write boundary. Only the primary worktree, explicit owned-write roots,
+- Any run with cross-workstream references/access is executed under a fail-closed
+  Bubblewrap read-only-root mount namespace. Only the primary standalone checkout,
+  explicit standalone owned-write roots,
   run/temp state and narrow tool caches are writable; sandbox setup failure refuses launch.
 - The installed OpenCode CLI must equal the canonical qualified version
   (``tools/foundry/opencode_cli_version.py``) unless explicit
