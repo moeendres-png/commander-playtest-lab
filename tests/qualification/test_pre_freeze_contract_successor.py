@@ -12,8 +12,7 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT
-    / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
 )
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
@@ -43,8 +42,7 @@ def test_current_authority_preserves_history_and_changes_only_start2() -> None:
     assert authority["full107"]["changed_fixture_ids"] == ["WS05-CMD-START-2"]
     assert authority["full107"]["unchanged_fixture_count"] == 106
     assert (
-        authority["full107"]["evidence_survival"]["WS05-CMD-START-2"]
-        == "REQUALIFICATION_REQUIRED"
+        authority["full107"]["evidence_survival"]["WS05-CMD-START-2"] == "REQUALIFICATION_REQUIRED"
     )
     assert "PROVIDER_SELECTION" in authority["forbidden_claims"]
     assert "ARCHITECTURE_FREEZE" in authority["forbidden_claims"]
@@ -137,9 +135,7 @@ def test_af01_uses_current_candidate_neutral_protocol_boundary() -> None:
         is True
     )
     assert (
-        boundary["rules_authority_invariants"][
-            "adapter_or_pilot_legality_reconstruction_forbidden"
-        ]
+        boundary["rules_authority_invariants"]["adapter_or_pilot_legality_reconstruction_forbidden"]
         is True
     )
     assert boundary["fail_closed_invariants"][
@@ -163,8 +159,7 @@ def test_freeze_schema_binds_current_boundary_without_claiming_freeze() -> None:
     Draft202012Validator.check_schema(schema)
     props = schema["properties"]
     assert (
-        props["qualification_boundary"]["const"]
-        == "commander-lab.pre-freeze-qualification/2.0.0"
+        props["qualification_boundary"]["const"] == "commander-lab.pre-freeze-qualification/2.0.0"
     )
     assert props["transport_protocol_version"]["const"] == "2.0.0"
     assert props["architecture_winner"]["const"] is False
@@ -172,8 +167,7 @@ def test_freeze_schema_binds_current_boundary_without_claiming_freeze() -> None:
     assert "evidence_refs" in props["gate_results"]["items"]["required"]
 
     legacy = _json(
-        REPO_ROOT
-        / "qualification/protocol/ws10r/architecture_freeze_gate_catalog_v1.json"
+        REPO_ROOT / "qualification/protocol/ws10r/architecture_freeze_gate_catalog_v1.json"
     )
     assert legacy["protocol"] == "commander-lab.rules-service/1.1.0"
 
