@@ -197,6 +197,9 @@ def assemble() -> None:
             "rows": rows,
             "counts": counts,
             "native_runs": results["native_runs"],
+            # Bound here so the AF matrix can never read another candidate's
+            # identity through a leaked loop variable.
+            "results_runtime_identity": results["runtime_identity"],
         }
 
     # ---- AF00-AF11 matrix ------------------------------------------------
@@ -204,12 +207,13 @@ def assemble() -> None:
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
         extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        # Receipt-derived, never the retired NATIVE_RUNS literal. The summary
+        # counts only what a verified receipt observed, and it is empty when no
+        # receipt exists, so the gate cannot inherit a historical count.
         native = data["native_runs"]
-        native_tests = sum(group["tests"] for group in native.values())
-        native_green = all(
-            group["returncode"] == 0 and group["failures"] == 0 and group["errors"] == 0
-            for group in native.values()
-        )
+        native_groups = native.get("groups", [])
+        native_tests = int(native.get("tests", 0))
+        native_green = bool(native_groups) and not native.get("failed") and not native.get("errors")
         cardinality = load(OUT / f"PLAYER_CARDINALITY_{candidate.upper()}.json")
         # All-or-nothing. This previously counted any run with a non-empty
         # steps_completed list, so a lifecycle that only imported decks and
@@ -217,8 +221,12 @@ def assemble() -> None:
         # prefixes earned AF02 PASS. A shortfall is UNKNOWN, not FAIL: an
         # unestablished count is an evidence gap, not a refutation.
         cardinality_assessment = lifecycle_mod.cardinality_verdict(cardinality["results"])
-        # The commit this evidence is required to be about, as recorded by the run.
-        expected_engine_commit = results["runtime_identity"].get("engine_candidate_commit", "")
+        # The commit THIS candidate's evidence is required to be about, read from
+        # this candidate's own results. It used to be a variable assigned in the
+        # earlier per-candidate loop, so by the time the AF matrix ran it held the
+        # LAST candidate's commit. XMage's AF00 was therefore compared against
+        # Forge's expected commit and reported FAIL for the wrong reason.
+        expected_engine_commit = data["results_runtime_identity"].get("engine_candidate_commit", "")
         matrix = [
             {
                 # AF00 was a literal PASS. Its evidence merely printed the commit

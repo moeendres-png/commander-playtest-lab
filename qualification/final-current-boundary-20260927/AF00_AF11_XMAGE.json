@@ -2,13 +2,13 @@
  "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
  "candidate": "xmage",
  "full107_counts": {
-  "BLOCKED": 33,
+  "BLOCKED": 44,
   "CRASH": 0,
   "FAIL": 0,
-  "PASS": 30,
+  "PASS": 4,
   "PROTOCOL_FAILURE": 0,
   "TIMEOUT": 0,
-  "UNKNOWN": 44
+  "UNKNOWN": 59
  },
  "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
  "gates": [
@@ -16,6 +16,7 @@
    "blocking_rows": [],
    "evidence": [
     "candidate commit reported by the provider at handshake: b19596980f2734496ea1896504253e1bdd2756dd",
+    "commit the evidence is required to be about: b19596980f2734496ea1896504253e1bdd2756dd",
     "engine_commit provenance: file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
     "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
    ],
@@ -36,15 +37,118 @@
     "the generic compatibility lane reports seed_supported=false, so the Rules-RNG invariant is UNKNOWN on that lane; the full-game lane reports seed_supported=true and AF01 PASS",
     "full-game lane AF01 verdict: PASS"
    ],
-   "verdict": "UNKNOWN"
+   "verdict": "FAIL"
   },
   {
+   "all_or_nothing": true,
    "blocking_rows": [],
    "evidence": [
-    "independent live lifecycles executed at ['2P', '3P', '4P', '5P']",
-    "bounded 6P lifecycle also executed: True"
+    "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "counts with a complete lifecycle: [2, 3, 4, 5]",
+    "counts without one: []",
+    "bounded 6P lifecycle recorded: True"
    ],
    "gate": "AF02",
+   "lifecycle_assessment": {
+    "all_or_nothing": true,
+    "complete_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "detail": {
+     "2P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "3P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "4P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "5P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     }
+    },
+    "incomplete_counts": [],
+    "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "required_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "verdict": "PASS"
+   },
    "name": "PLAYER_CARDINALITY",
    "nonblocking_limitations": [
     "6P is bounded secondary evidence; 7P is not attempted on this boundary"
@@ -52,16 +156,21 @@
    "verdict": "PASS"
   },
   {
+   "authority": "ENGINE_ONLY",
    "blocking_rows": [],
    "evidence": [
-    "the engine rejected an illegal Commander colour identity during deck import (proving the engine owns deck legality, not the harness)",
-    "the engine rejected unknown card names by name",
-    "out-of-scope submissions produced no fabricated legal option",
-    "runner contains no legality reconstruction"
+    "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
    ],
    "gate": "AF03",
    "name": "RULES_AUTHORITY",
-   "nonblocking_limitations": [],
+   "nonblocking_limitations": [
+    "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+   ],
+   "observed_probe_count": 5,
    "verdict": "PASS"
   },
   {
@@ -81,6 +190,7 @@
   {
    "blocking_rows": [
     "HIDDEN_01",
+    "HIDDEN_02",
     "HIDDEN_03",
     "HIDDEN_04",
     "HIDDEN_05",
@@ -103,7 +213,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_XMAGE.json",
-    "native hidden/replay suites green: 168 tests"
+    "native hidden/replay suites green: 169 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -129,6 +239,12 @@
     "MICRO_STATE_BASED_ACTIONS",
     "MICRO_TRIGGERS",
     "MICRO_ZONE_CHANGES",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
     "WS05-CMD-ZONE-EXILE-NO",
     "WS05-CMD-ZONE-EXILE-YES",
     "WS05-CMD-ZONE-GY-NO",
@@ -136,20 +252,25 @@
     "WS05-CMD-ZONE-HAND-NO",
     "WS05-CMD-ZONE-HAND-YES",
     "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
     "WS05-MP-BLOCK-4",
     "WS05-MP-COMBAT-4",
     "WS05-MP-COMBAT-5",
     "WS05-MP-ELIM-5",
     "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
     "WS05-MP-ELIM-PRIO-3",
     "WS05-MP-ELIM-STACK-3",
     "WS05-MP-ELIM-TURN-3",
     "WS05-MP-PRIO-3",
     "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
     "WS05-MP-TURN-5"
    ],
    "evidence": [
-    "30 of 107 rows PASS under the effective v1.0.6 contract; 33 BLOCKED; 44 UNKNOWN"
+    "4 of 107 rows PASS under the effective v1.0.6 contract; 44 BLOCKED; 59 UNKNOWN"
    ],
    "gate": "AF06",
    "name": "GENERAL_RULES_CORRECTNESS",
@@ -173,6 +294,10 @@
   },
   {
    "blocking_rows": [
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
     "WS05-CMD-ZONE-EXILE-NO",
     "WS05-CMD-ZONE-EXILE-YES",
     "WS05-CMD-ZONE-GY-NO",
@@ -180,16 +305,21 @@
     "WS05-CMD-ZONE-HAND-NO",
     "WS05-CMD-ZONE-HAND-YES",
     "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
     "WS05-MP-BLOCK-4",
     "WS05-MP-COMBAT-4",
     "WS05-MP-COMBAT-5",
     "WS05-MP-ELIM-5",
     "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
     "WS05-MP-ELIM-PRIO-3",
     "WS05-MP-ELIM-STACK-3",
     "WS05-MP-ELIM-TURN-3",
     "WS05-MP-PRIO-3",
     "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
     "WS05-MP-TURN-5"
    ],
    "evidence": [
@@ -227,7 +357,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 168 tests, all green"
+    "native suites: 169 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -250,46 +380,48 @@
   }
  ],
  "native_runs": {
-  "direct": {
-   "classes": [
-    "XmageFull107ResidualRequalificationTest",
-    "XmageDigestCreditTest",
-    "XmageFullGameWs05MulliganTest",
-    "XmageFullGameTaxExecutionTest",
-    "XmageFullGamePartnerExecutionTest",
-    "XmageFullGameCard02ExecutionTest",
-    "XmageFullGameMicroExecutionTest",
-    "XmageFullGameTrigExecutionTest",
-    "XmageFullGameDecisionExecutionTest"
-   ],
-   "errors": 0,
-   "failures": 0,
-   "returncode": 0,
-   "tests": 34
+  "absent_receipts_yield_no_credit": true,
+  "errors": 0,
+  "failed": 0,
+  "groups": [
+   {
+    "candidate": "xmage",
+    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+    "errors": 0,
+    "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+    "failed": 0,
+    "group": "direct",
+    "passed": 34,
+    "receipt_digest": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
+    "returncode": 0,
+    "tests": 34
+   },
+   {
+    "candidate": "xmage",
+    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+    "errors": 0,
+    "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+    "failed": 0,
+    "group": "mechanism",
+    "passed": 135,
+    "receipt_digest": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223",
+    "returncode": 0,
+    "tests": 135
+   }
+  ],
+  "groups_credited": [
+   "xmage:direct",
+   "xmage:mechanism"
+  ],
+  "passed": 169,
+  "receipt_digests": {
+   "xmage:direct": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
+   "xmage:mechanism": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223"
   },
-  "mechanism": {
-   "classes": [
-    "XmageNativeStateRestorationTest",
-    "XmageTemporalProgressionDriverTest",
-    "XmageTemporalAdvancedProgressionTest",
-    "XmageCausalStackReconstructionTest",
-    "XmageCausalStackMechanicsTest",
-    "XmageControlDivergenceReconstructionTest",
-    "XmageCausalEliminationReconstructionTest",
-    "XmageHiddenReplayIntegrationTest",
-    "XmageCommanderDamageRestorationTest",
-    "XmageFullGameHiddenInformationTest",
-    "XmageFullGamePlayerCountTest",
-    "XmageVariablePlayerLifecycleTest",
-    "XmageFullGameCombatDamageTest",
-    "XmageDecisionRejectionWs229Test",
-    "XmageFullGameRulesSeedBindingTest"
-   ],
-   "errors": 0,
-   "failures": 0,
-   "returncode": 0,
-   "tests": 134
-  }
+  "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
+  "tests": 169
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af-matrix/1.0.0"

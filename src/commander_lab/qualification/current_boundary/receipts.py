@@ -382,8 +382,14 @@ def load_native_receipt(path: Path) -> dict[str, Any]:
     ):
         if field_name not in doc:
             raise ReceiptError(f"{_NO_CREDIT}: native receipt missing {field_name!r}")
-    stated = doc.pop("receipt_digest")
-    if _digest(doc) != stated:
+    # The digest is verified against a copy so the verified value SURVIVES into
+    # the returned document. Popping it meant the assembler, which records the
+    # receipt digests as its evidence provenance, raised KeyError on the very
+    # receipts it had just verified. A verified digest is the strongest fact a
+    # receipt carries and must remain available to consumers.
+    stated = doc["receipt_digest"]
+    recomputed = {key: value for key, value in doc.items() if key != "receipt_digest"}
+    if _digest(recomputed) != stated:
         raise ReceiptError(f"{_NO_CREDIT}: native receipt digest mismatch (tampered or truncated)")
     if doc["returncode"] != 0:
         raise ReceiptError(f"{_NO_CREDIT}: native suite exited {doc['returncode']}; no PASS credit")
@@ -412,6 +418,26 @@ def native_suite_credit(
         credited.append(doc)
     return {
         "groups_credited": [f"{d['candidate']}:{d['group']}" for d in credited],
+        # Per-group detail so a consumer can see WHICH suite contributed which
+        # count, and cannot mistake a total for a whole-candidate claim.
+        "groups": [
+            {
+                "candidate": d["candidate"],
+                "group": d["group"],
+                "tests": int(d["tests"]),
+                "passed": int(d["passed"]),
+                "failed": int(d["failed"]),
+                "errors": int(d["errors"]),
+                "returncode": d["returncode"],
+                "candidate_commit": d["candidate_commit"],
+                "executed_commit": d.get("executed_commit", ""),
+                "engine_identity_justification": d.get("engine_identity_proof", {}).get(
+                    "justification", "UNKNOWN"
+                ),
+                "receipt_digest": d["receipt_digest"],
+            }
+            for d in credited
+        ],
         "tests": sum(int(d["tests"]) for d in credited),
         "passed": sum(int(d["passed"]) for d in credited),
         "failed": sum(int(d["failed"]) for d in credited),
