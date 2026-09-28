@@ -1,0 +1,23 @@
+{
+  "branch": "sbmax/final-pre-freeze-20260928",
+  "pr": "https://github.com/moeendres-png/commander-playtest-lab/pull/289",
+  "pr_state": "OPEN draft",
+  "base_main": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+  "established": {
+    "xmage_fresh_baseline": "PASS 5 / FAIL 0 / UNKNOWN 58 / BLOCKED 44 / 107",
+    "forge_baseline_merged_pr286": "PASS 5 / FAIL 0 / UNKNOWN 58 / BLOCKED 44 / 107",
+    "xmage_hidden_info_after_283": "PRINCIPAL_SCOPED, 4 distinct views, 0 findings, credible",
+    "start2": "PASS on both candidates, bound by LIVE_ENGINE_ENVELOPE, no engine UUID persisted"
+  },
+  "defects_found_and_repaired": [
+    "Committed XMage column was produced by a runner predating merged #283; re-executed against merged source",
+    "Acting principal was read from the engine's live actor UUID instead of the Lab frame seat, so every principal-scoped observation failed closed after #283 and a live engine identity reached Lab evidence",
+    "Main's runner never wrote native_runs though its committed evidence carried them; ported, filtered per candidate",
+    "A test pinned the pre-#283 leak as a permanent property"
+  ],
+  "remaining_blocked": {
+    "44_BLOCKED_starting_state": "PB-03 transport. PR #284 is an active writer on the overlapping bridge and receipt surfaces and records generic_starting_state_capability_promoted=false, so this is not being built there; not raced.",
+    "58_UNKNOWN": "20 PB-06 per-scenario hidden info, 15 decision families, 11 no-execution-path, 7 per-shortcut negative, 5 replay/RNG"
+  },
+  "not_claimed": ["PRODUCTION_PROVIDER", "ARCHITECTURE_FREEZE"]
+}
