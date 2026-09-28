@@ -664,22 +664,41 @@ def drive_commander_game(
             # absence of a decision checkpoint. A checkpoint is not the same
             # thing as a draw: an engine could skip the checkpoint and still draw
             # the card, and only the counts can tell the difference.
-            actor_seat = frame["seat"] if "frame" in dir() else None
+            #
+            # The principal-scoped read names the acting principal through
+            # `observer_player_id`, and the response marks the principal it was
+            # projected for (`is_actor`). Counts are derived from that marked
+            # entry only, so the observation is principal-scoped and identity is
+            # never inferred from which seat happens to hold visible cards.
+            actor_id = (
+                (frame.get("decision", {}).get("actor") or frame.get("seat"))
+                if "frame" in dir()
+                else None
+            )
             try:
                 observed = proc.request(
-                    "get_game_state", {"actor": actor_seat}, game_id=result.game_id
+                    "get_game_state",
+                    {"observer_player_id": actor_id},
+                    game_id=result.game_id,
+                    timeout_s=60.0,
                 )
-                seats = _payload(observed).get("players")
-                mine = [
-                    {
-                        "seat": entry.get("seat"),
-                        "hand_count": entry.get("hand_count"),
-                        "library_count": entry.get("library_count"),
-                        "is_actor": entry.get("is_actor"),
-                    }
-                    for entry in (seats or [])
-                    if isinstance(entry, dict) and entry.get("is_actor") is True
-                ]
+                state = _payload(observed).get("state")
+                seats = state.get("players") if isinstance(state, dict) else None
+                mine = []
+                for entry in seats or []:
+                    if not isinstance(entry, dict) or entry.get("is_actor") is not True:
+                        continue
+                    raw_zones = entry.get("zones")
+                    zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else {}
+                    hand = zones.get("hand")
+                    mine.append(
+                        {
+                            "seat": entry.get("seat"),
+                            "hand_count": len(hand) if isinstance(hand, list) else None,
+                            "library_count": zones.get("library_size"),
+                            "is_actor": True,
+                        }
+                    )
                 result.terminal_facts["observed_actor_zone_counts"] = mine
                 result.terminal_facts["observed_zone_count_source"] = (
                     "ENGINE_REPORTED_PRINCIPAL_SCOPED"
