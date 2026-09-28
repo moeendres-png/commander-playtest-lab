@@ -1,0 +1,68 @@
+{
+  "artifacts": [
+    {
+      "path": "final_completion_20260928/060c7241d24292f208fc20eeabc16c6b55114b08f66476e9bfb02472be730961.json",
+      "sha256": "f1817c396ea8e09dac4f770a756beb6e3bbe38f2b78f0a726c4073ac6f6e960f"
+    },
+    {
+      "path": "final_completion_20260928/23defe07c35a25003aeecad387737f96417a801c71788caedf26b3d9765f714a.json",
+      "sha256": "1759c7766191dfb15c9c94c0535cf0984ef693211683cc86b8f554f860255362"
+    },
+    {
+      "path": "final_completion_20260928/597fb6ecfc77d5728868402fc49a9bcb620cbe3982d392d4940d3ff8dde55102.json",
+      "sha256": "56719369306443b2711ec673f030f7f97a947366022c8542e057152b7d5ab44d"
+    },
+    {
+      "path": "final_completion_20260928/6d57b06b16977a9934d81b9cbce0802d07418dd9a41a792da10400cd876c143c.json",
+      "sha256": "ea7395c21cdb7a46c8f1cb526e7894e9e362ce50e833c49fca6935a1a68ec77a"
+    },
+    {
+      "path": "final_completion_20260928/bd0355dd880a65507922d40e85ebc40b7f14696055a11f4421a9f05b7b9786c3.json",
+      "sha256": "a4dc172a89e3177ce0824802f4f591baf086c744768c2dda2365e51f0838f8b6"
+    },
+    {
+      "path": "final_completion_20260928/f1d2460ef0a7f8bfa1d0c8f2b1b8272ef680ff54f0c773cdce51f08b8b1728df.json",
+      "sha256": "dbbcccb0d6b2c5f6c70dd9370b371afc9d4ddc9fa9252773c37ea92c6f766765"
+    },
+    {
+      "path": "final_completion_20260928/replay_twin_20260923.json",
+      "sha256": "3c06a04d28f3325254aac98340e000f3242d89223226089bbb61a8a234adf262"
+    },
+    {
+      "path": "final_completion_20260928/terminal_single_20260923.json",
+      "sha256": "1a66149ac88fbbf331bd17bbaa69bbb807d0b5152c7627b8652429ca868a4108"
+    }
+  ],
+  "authority": {
+    "architecture_freeze": "NOT CLAIMED",
+    "production_provider": "NOT SELECTED"
+  },
+  "bridge": {
+    "artifact_sha256": "98c27030186d70230f3fc983f39938d47aa495b66ab1e4e9b43003121a7579f0",
+    "tests": "mvn verify: 314 run, 0 failures, 1 skipped"
+  },
+  "classification": "DIRECTLY_VERIFIED (runtime, pinned engine, real external process, Lab external pilots only)",
+  "engine": {
+    "artifact_sha256_mage_jar": "bccb4031a586feb3e6636f1c7f11f3bbd3f35deb6ef4361daa005b7ad4695961",
+    "pin": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "provenance_note": "All 34 org.mage artifact hashes changed when rebuilt from the pinned tree, so the pre-existing local 1.4.61 was not the pin. Version equality is not identity.",
+    "provider": "xmage",
+    "unpinned_pre_existing_artifact_sha256": "1c347a65bc257b3c1488d680bdccf98f3b68f4e2827628c0386884f08d83cfa1",
+    "version": "1.4.61"
+  },
+  "generated_for": "final-completion-space-bunny-max",
+  "lab": {
+    "branch": "sbmax/full-completion",
+    "evidence_capture_head": "19a1ba132dfc6d84b7b5847606a44838054e4095",
+    "repository": "moeendres-png/commander-playtest-lab"
+  },
+  "not_claimed": [
+    "PRODUCTION_PROVIDER selection",
+    "ARCHITECTURE_FREEZE",
+    "bit-exact replay",
+    "any AF06/AF07/AF08/AF09 verdict (no 107-row execution on this lineage)",
+    "globally free-standing legal_actions_supported / action_submission_supported",
+    "card-mechanism coverage beyond the 10 observed decision classes"
+  ],
+  "schema_version": "lab.final-completion-evidence/1.0.0"
+}

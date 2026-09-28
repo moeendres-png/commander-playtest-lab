@@ -1,0 +1,89 @@
+{
+  "bit_exact_replay_validated": false,
+  "gate": "REAL_CARD_TECHNICAL_USABILITY_GATE",
+  "raw_result_match": false,
+  "runs": [
+    {
+      "candidate_id": "rogshai/seat-1",
+      "consumed_gameplay_evidence": false,
+      "decision_authority": true,
+      "decision_count": 10826,
+      "engine_version": "1.4.61",
+      "evidence_class": "technical_conformance_only",
+      "fallback_used": false,
+      "gate": "REAL_CARD_TECHNICAL_USABILITY_GATE",
+      "hidden_information_actor_scoped": true,
+      "holdout_consumed": false,
+      "observed_decision_classes": [
+        "choice",
+        "choose_object",
+        "choose_use",
+        "declare_attacker",
+        "mana_payment",
+        "mode",
+        "mulligan",
+        "priority",
+        "target",
+        "target_amount"
+      ],
+      "opponent_deck_ids": [
+        "kaervek/seat-2",
+        "rogshai/seat-3",
+        "kaervek/seat-4"
+      ],
+      "player_count": 4,
+      "raw_result_sha256": "909e42f863fb8d21bbeca5d5f9a8c75262ee64a00865c4e01454b7e58b5552cf",
+      "rules_authority": true,
+      "scenario_id": "real-deck-technical-gate-4p-20260923",
+      "seed": 20260923,
+      "semantic_transcript_sha256": "3de9c52095cbfd091ff445bb17ee9b39e65a2cf66678194ebb624e026e559c4d",
+      "terminal": true,
+      "winner_seats": [
+        2
+      ],
+      "xmage_commit": "b19596980f2734496ea1896504253e1bdd2756dd"
+    },
+    {
+      "candidate_id": "rogshai/seat-1",
+      "consumed_gameplay_evidence": false,
+      "decision_authority": true,
+      "decision_count": 10826,
+      "engine_version": "1.4.61",
+      "evidence_class": "technical_conformance_only",
+      "fallback_used": false,
+      "gate": "REAL_CARD_TECHNICAL_USABILITY_GATE",
+      "hidden_information_actor_scoped": true,
+      "holdout_consumed": false,
+      "observed_decision_classes": [
+        "choice",
+        "choose_object",
+        "choose_use",
+        "declare_attacker",
+        "mana_payment",
+        "mode",
+        "mulligan",
+        "priority",
+        "target",
+        "target_amount"
+      ],
+      "opponent_deck_ids": [
+        "kaervek/seat-2",
+        "rogshai/seat-3",
+        "kaervek/seat-4"
+      ],
+      "player_count": 4,
+      "raw_result_sha256": "b5867158340f02cfbe6827b3224196a008fe6c5ceba228bd60860f2e6403ec1c",
+      "rules_authority": true,
+      "scenario_id": "real-deck-technical-gate-4p-20260923",
+      "seed": 20260923,
+      "semantic_transcript_sha256": "3de9c52095cbfd091ff445bb17ee9b39e65a2cf66678194ebb624e026e559c4d",
+      "terminal": true,
+      "winner_seats": [
+        2
+      ],
+      "xmage_commit": "b19596980f2734496ea1896504253e1bdd2756dd"
+    }
+  ],
+  "seed": 20260923,
+  "semantic_replay_match": true
+}
