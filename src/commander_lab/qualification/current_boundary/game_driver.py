@@ -66,6 +66,46 @@ class GameObservation:
 # execution on the shared Protocol-2 surface. Recorded, not normalized away.
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
+def _declares_seed_support(proc: BridgeProcess) -> bool:
+    """Whether the provider declares that it accepts an authoritative seed.
+
+    Absent or unparsable capability data is treated as "does not support", so an
+    unknown provider never receives a seed it may reject. The converse mistake
+    would be to assume support and fail the whole run.
+    """
+    try:
+        response = proc.request("get_capabilities", {}, timeout_s=60.0)
+    except Exception:
+        return False
+    capabilities = _payload(response).get("capabilities")
+    if not isinstance(capabilities, dict):
+        return False
+    return capabilities.get("seed_supported") is True
+
+
+def _create_request(
+    game_id: str, handles: list[str], seed: int, seed_supported: bool
+) -> dict[str, Any]:
+    """The authoritative create-game request, with the seed only when supported.
+
+    The seed must reach the provider's authoritative request when the provider
+    accepts one, because a requested seed that never left the harness is the
+    original defect. When the provider does not declare support, the seed is
+    omitted rather than forced, and the run is honestly uncontrolled.
+    """
+    request: dict[str, Any] = {
+        "game_id": game_id,
+        "deck_handles": handles,
+        "format": "commander",
+        "external_control": True,
+    }
+    if seed_supported:
+        request["seed"] = seed
+        request["rules_seed"] = seed
+        request["options"] = {"seed": seed, "rules_seed": seed}
+    return {"request": request}
+
+
 def _acknowledged_seed(response: Any) -> Any:
     """Extract whatever seed the provider actually acknowledged, if anything.
 
@@ -186,9 +226,33 @@ def _payload(response: dict[str, Any]) -> dict[str, Any]:
 
 
 def _require_ok(response: dict[str, Any], step: str) -> dict[str, Any]:
+    """Unwrap a payload, raising with the provider's own error detail preserved.
+
+    Reporting only the status made every provider rejection indistinguishable, and
+    a rejected create request is not a diagnosable failure without its code and
+    message. The detail is carried into the error text and, through the driver's
+    failure record, into the evidence.
+    """
     if not _first_ok(response):
-        raise GameDriveError(f"{step} failed: status={response.get('status')!r}")
+        raise GameDriveError(f"{step} failed: {_failure_detail(response)}")
     return _payload(response)
+
+
+def _failure_detail(response: dict[str, Any]) -> str:
+    """A compact, faithful rendering of why the provider refused."""
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors:
+        parts = []
+        for entry in errors:
+            if isinstance(entry, dict):
+                code = entry.get("code", "UNKNOWN")
+                message = entry.get("message", "")
+                parts.append(f"{code}: {message}" if message else str(code))
+            else:
+                parts.append(str(entry))
+        return "; ".join(parts)
+    status = response.get("status")
+    return f"status={status!r} with no error detail from the provider"
 
 
 def build_deck(deck_id: str) -> dict[str, Any]:
@@ -363,23 +427,22 @@ def drive_commander_game(
             handles.append(str(handle_id))
         result.steps_completed.append("import_deck")
 
+        # Whether the seed may be sent is a declared provider capability, not a
+        # harness preference. The XMage generic B4-D lane reports
+        # seed_supported=false and rejects a create request carrying a seed with
+        # `unsupported_game_option`, which turned an honestly uncontrolled run
+        # into a hard failure. Ask the provider, then send the seed only if it
+        # declares support. When it does not, the run proceeds with no seed and
+        # the binding below is UNCONTROLLED_ENGINE_RNG, which earns no RNG or
+        # replay credit. That is the correct outcome, not a workaround.
+        seed_supported = _declares_seed_support(proc)
+        result.terminal_facts["provider_seed_supported"] = seed_supported
+        result.terminal_facts["seed_sent_to_provider"] = bool(seed_supported)
+
         created = _require_ok(
             proc.request(
                 "create_commander_game",
-                {
-                    "request": {
-                        "game_id": game_id,
-                        "deck_handles": handles,
-                        "format": "commander",
-                        "external_control": True,
-                        # The seed must reach the provider's authoritative
-                        # request. Recording a requested seed that never left
-                        # the harness is the Gate 3 defect.
-                        "seed": seed,
-                        "rules_seed": seed,
-                        "options": {"seed": seed, "rules_seed": seed},
-                    }
-                },
+                _create_request(game_id, handles, seed, seed_supported),
                 game_id=game_id,
                 timeout_s=300.0,
             ),

@@ -105,10 +105,14 @@ def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
     assert "UNCONTROLLED_ENGINE_RNG" in receipts
     assert "REQUESTED_SEED" in receipts
 
-    # The seed must actually reach the provider request.
-    create = driver.split('"create_commander_game",', 1)[1].split("},", 1)[0]
-    assert '"seed": seed' in create
-    assert '"rules_seed": seed' in create
+    # The seed must actually reach the provider request. It is built in
+    # _create_request, which sends it only when the provider declares support;
+    # the behaviour itself is pinned in test_current_boundary_seed_capability.
+    create_helper = driver[driver.index("def _create_request(") :]
+    create_helper = create_helper[: create_helper.index("\n\ndef ")]
+    assert 'request["seed"] = seed' in create_helper
+    assert 'request["rules_seed"] = seed' in create_helper
+    assert "if seed_supported:" in create_helper
 
     # And the derived binding is what the evidence records.
     assert '"rules_rng_binding"' in driver
