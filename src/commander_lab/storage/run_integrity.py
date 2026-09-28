@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -98,6 +99,13 @@ def _invalid_constant(value: str) -> None:
     raise ValueError("non-finite JSON value")
 
 
+def _finite_float(value: str) -> float:
+    parsed = float(value)
+    if not math.isfinite(parsed):
+        raise ValueError("non-finite JSON value")
+    return parsed
+
+
 def _validate_manifest(manifest: Any) -> dict[str, Any]:
     if not isinstance(manifest, dict):
         raise ValueError("manifest must be an object")
@@ -181,6 +189,7 @@ def verify_run(run_directory: str | Path) -> RunVerification:
             manifest_path.read_text(encoding="utf-8"),
             object_pairs_hook=_unique_object,
             parse_constant=_invalid_constant,
+            parse_float=_finite_float,
         )
         files = _validate_manifest(manifest)
         inventory = _artifact_paths(root)
