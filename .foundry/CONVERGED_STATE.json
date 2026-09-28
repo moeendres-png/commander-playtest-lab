@@ -22,6 +22,18 @@
     "xmage_principal_scoping": "consumed from merged PR #283, not re-run"
   },
   "phase": "CONVERGED_SHARED_PROJECT_WORK + PB03_TRANSPORT_CLOSED",
+  "published": {
+    "branch": "sbmax/full-completion",
+    "ci_at_open": "11 checks pending: build-and-integrate, conformance x2, decision-workflow-contract, infrastructure, mutation-detection, preflight, quality, real-4p-smoke, security, windows-runtime",
+    "local_equals_remote": true,
+    "mergeable": "MERGEABLE",
+    "pr_draft": true,
+    "pr_number": 285,
+    "pr_state": "OPEN",
+    "pr_url": "https://github.com/moeendres-png/commander-playtest-lab/pull/285",
+    "publication_path": "tools/foundry/safe_push.py under a genuinely held writer lock (writer_lock.hold_and_exec, recording this session's live PID). No --no-verify, no force, no lock fabrication. audit_base was the previously published remote head, so the push was a strict fast-forward.",
+    "remote_head": "4a56d17981e72c5afececd4b88d91a7eba67e379"
+  },
   "tree": "249dbb73806c802004dc84d416a46ca87d2682bb",
   "updated": "2026-09-28T20:07:14.305590+02:00",
   "validation": {
