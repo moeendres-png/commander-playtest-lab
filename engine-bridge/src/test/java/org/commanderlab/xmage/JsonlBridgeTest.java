@@ -492,17 +492,17 @@ class JsonlBridgeTest {
         JsonArray ownLibrary = p1Players.get(0).getAsJsonObject()
                 .getAsJsonObject("zones").getAsJsonArray("library");
         assertEquals(7, ownHand.size());
-        assertTrue(ownHand.asList().stream().noneMatch(
-                element -> "<hidden>".equals(element.getAsString())
-        ));
+        for (var element : ownHand) {
+            assertNotEquals("<hidden>", element.getAsString());
+        }
         assertEquals(7, opponentHand.size());
-        assertTrue(opponentHand.asList().stream().allMatch(
-                element -> "<hidden>".equals(element.getAsString())
-        ));
+        for (var element : opponentHand) {
+            assertEquals("<hidden>", element.getAsString());
+        }
         assertEquals(91, ownLibrary.size());
-        assertTrue(ownLibrary.asList().stream().allMatch(
-                element -> "<hidden>".equals(element.getAsString())
-        ));
+        for (var element : ownLibrary) {
+            assertEquals("<hidden>", element.getAsString());
+        }
 
         JsonObject unknown = JsonParser.parseString(
                 bridge.handle(
