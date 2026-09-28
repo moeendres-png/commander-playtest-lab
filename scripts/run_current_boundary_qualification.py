@@ -473,7 +473,11 @@ def _no_credit_receipt(
         "failed": 0,
         "errors": 0,
         "skipped": 0,
-        "runner": {"commit": runner.commit, "tree": runner.tree, "branch": runner.branch},
+        # The FULL runner identity, not a three-field summary. A refused suite is
+        # still an observation about which code ran, and a receipt that carried
+        # weaker provenance precisely when it refused credit would let a reader
+        # treat "no credit" as "nothing was recorded".
+        "runner": runner.to_document(),
     }
     document["receipt_digest"] = receipt_mod._digest(document)
     path = RECEIPT_DIR / f"native-{candidate}-{group}.json"

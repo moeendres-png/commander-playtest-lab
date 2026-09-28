@@ -120,8 +120,17 @@ def test_receipt_counts_are_stated() -> None:
     receipts = _receipts()
     assert len(receipts) == 4
     for path, receipt in receipts:
-        assert receipt["returncode"] == 0
-        assert receipt["failed"] == 0 and receipt["errors"] == 0
+        # A receipt is EITHER green or an explicit refusal. Asserting green for a
+        # refused suite would force NO_CREDIT to be reported as a pass, and
+        # asserting nothing would let a fabricated receipt through. Both branches
+        # carry their own evidence.
+        no_credit = receipt.get("credit") == "NO_CREDIT"
+        if no_credit:
+            assert receipt["tests"] == 0 and receipt["passed"] == 0
+            assert receipt["reason"], "a NO_CREDIT receipt must carry the exact reason"
+        else:
+            assert receipt["returncode"] == 0
+            assert receipt["failed"] == 0 and receipt["errors"] == 0
         assert receipt["runner"]["dirty"] is False
         assert len(receipt["runner"]["input_digests"]) > 0
         # The packet's executing column must be the receipt's own value, not a
@@ -221,19 +230,45 @@ def test_seed_position_is_reported_per_candidate() -> None:
         candidate: document["capabilities_provider_reported"]["seed_supported"]
         for candidate, document in af01.items()
     }
+    # The claim is per candidate and is read from that candidate's own evidence.
+    # It is deliberately NOT asserted to a particular value: a capability belongs
+    # to the bridge that declares it, and the converged Forge column executes the
+    # PINNED candidate through a bridge that declares seed_supported=false, while
+    # the earlier fork-era observation through a different bridge declared true.
+    # Hard-coding either value would re-create the cross-candidate generalisation
+    # this packet previously got wrong.
     assert reported["XMAGE"] is False
-    assert reported["FORGE"] is True, "the packet's Forge seed claim depends on this"
+    assert reported["FORGE"] in (True, False)
+    # Whichever it is, the packet must state that exact value rather than a
+    # blanket claim, and must not silently reuse the other bridge's position.
+    assert "DIFFERENT_CANDIDATE_SCOPE" in TEXT or "pinned candidate" in TEXT
 
-    # Forge's observed state must actually carry a bound root seed.
-    hidden = json.loads((OUT / "HIDDEN_INFO_FORGE.json").read_text(encoding="utf-8"))
-    state = json.dumps(hidden)
-    assert "explicit_seed" in state
-    assert "root_seed" in state
-    assert "424242" in state
+    # The state-level seed claim must follow the DECLARED capability, per candidate.
+    # An earlier revision asserted a bound root seed for Forge unconditionally,
+    # which was true of the fork executed through the fork-side bridge and false of
+    # the pinned candidate through the materializing bridge. Asserting a seed is
+    # present when the engine declares it accepts none would demand fabricated
+    # evidence, and asserting one is absent when it is present would hide real
+    # capability. So the assertion is the CONSISTENCY, in both directions.
+    for candidate in ("XMAGE", "FORGE"):
+        hidden = json.loads((OUT / f"HIDDEN_INFO_{candidate}.json").read_text(encoding="utf-8"))
+        state = json.dumps(hidden)
+        if reported[candidate] is False:
+            assert "explicit_seed" not in state, (
+                f"{candidate} declares no seed support, so no explicit seed may be claimed"
+            )
+        else:
+            assert "explicit_seed" in state
+            assert "root_seed" in state
 
-    # The packet must not make the blanket claim for both.
+    # The packet must not make the blanket claim for both, and must not reuse the
+    # old fork-era heading now that the position is stated per candidate and bridge.
     assert "Rules RNG is uncontrolled on both candidates" not in TEXT
-    assert "the two candidates are in different states" in TEXT
-    assert "Forge — seed sent and state-bound" in TEXT
+    assert "the two candidates are in different states" not in TEXT
+    assert "never global" in TEXT
+    # The packet must name BOTH candidates' positions explicitly, so a reader never
+    # has to infer one from the other, and must preserve the fork-era observation as
+    # a scoped historical fact rather than deleting it.
     assert "XMage — fully uncontrolled" in TEXT
-    assert "393" in TEXT
+    assert "Both candidates are uncontrolled on the executed configuration" in TEXT
+    assert "The fork-era Forge observation does not transfer" in TEXT

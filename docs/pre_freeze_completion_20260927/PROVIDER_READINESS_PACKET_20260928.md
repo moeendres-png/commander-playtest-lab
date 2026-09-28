@@ -16,16 +16,17 @@ Rules Correctness, for reasons that are recorded per candidate below.
 
 | Item | Identity |
 |---|---|
-| Commander-Lab main after #278 | `f96bc7ec6b7ea07c73f74282c16dcaf73daaad40`, tree `c60a0ce2ffff404efcff9ada2b7979ec0cdc9346` |
+| Converged tree | convergence merge of canonical main `933d5df564b5dc77d678935bc79c6554459c347b` into the Space Bunny independent baseline; both parents preserved, no rebase and no history rewrite |
 | Qualification boundary | `commander-lab.pre-freeze-qualification/2.0.0` |
 | Transport protocol | `2.0.0` |
 | Rules authority | `MagicCompRules 20260925.txt`, effective `2026-09-25`, SHA-256 `8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca` |
 | Rules clause in scope | 103.8a |
 | XMage candidate | `moeendres-png/mage@b19596980f2734496ea1896504253e1bdd2756dd`, bridge `xmage-engine-bridge 0.1.0-SNAPSHOT`, xmage `1.4.61` |
-| Forge Rules Core (`COMMANDER_LAB_FORGE_FORK`) | `moeendres-png/forge@ef958ee91ac6c9ce0152189f2654bf6e05abf273`, tree `fc3387bf37aab19d780b2939a235309ed32b0492` |
-| Forge bridge / evidence head | `moeendres-png/forge@d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa`, tree `575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9`, PR #4, Draft, deliberately not merged to Forge master |
-| Forge Lab bridge-source pin of record | `4753bb7c72ea60d653121e0bab989077b4009f9c` |
-| Upstream Forge baseline (`UPSTREAM_FORGE_BASELINE`) | `Card-Forge/forge@a37a865a53280dd8ad6fad3384d69611e8c5a42f` — ancestry only, **not** verified pristine, upstream behaviour **not** observed |
+| Forge candidate of record, and the engine that **executes** | `Card-Forge/forge@a37a865a53280dd8ad6fad3384d69611e8c5a42f`, tree `4471ff068dd23127fc5878bdffa0c0e6de8e6c28` — **verified pristine and executed live** under the materializing bridge below |
+| Forge Lab fork — **NOT a candidate** | `moeendres-png/forge@ef958ee91ac6c9ce0152189f2654bf6e05abf273`, tree `fc3387bf37aab19d780b2939a235309ed32b0492`. Lab-modified Rules Core. It produced all earlier Forge evidence, which remains valid evidence **about the fork** and is never evidence about the pin. |
+| Fork-side bridge / evidence head (a **second, distinct** bridge) | `moeendres-png/forge@d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa`, tree `575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9`, PR #4, Draft. It carries the PB-05 build-provenance repair and is **not** the bridge that materialized the pin. |
+| Forge materializing bridge (the one that built the candidate above) | `4753bb7c72ea60d653121e0bab989077b4009f9c` |
+| PB-09 status | The factual question this packet previously recorded as open — whether pristine upstream behaviour had ever been observed — is **resolved by execution**: it has, at `a37a865a`, with a live H4-F receipt. `PRODUCTION_PROVIDER` selection and `ARCHITECTURE_FREEZE` remain Coordinator-owned and are **not claimed**. |
 
 The Forge Rules Core, the Forge bridge/evidence head, the Lab bridge-source pin
 and the upstream baseline are four distinct commits. None is collapsed into a
@@ -46,12 +47,19 @@ on every run and refuses credit if any differ.
 Produced by `scripts/run_current_boundary_qualification.py` from a clean committed
 tree, against live engines. Four verified native-suite receipts:
 
-| Receipt | Candidate | Group | Tests | Passed | Executed at | Engine identity |
-|---|---|---|---|---|---|---|
-| `native-forge-direct.json` | forge | direct | 150 | 150 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1c8de8e3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 135 | 135 | Lab `1c8de8e3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+Every bound native suite is **NO_CREDIT** in this run, with the reason recorded
+verbatim in the receipt. None of them is a pass, and none is a failure.
+
+| Receipt | Candidate | Group | Credit | Reason |
+|---|---|---|---|---|
+| `native-forge-direct.json` | forge | direct | **NO_CREDIT** | materialization export has no git metadata, so no executing HEAD and no per-module tree proof exist |
+| `native-forge-mechanism.json` | forge | mechanism | **NO_CREDIT** | same |
+| `native-xmage-direct.json` | xmage | direct | **NO_CREDIT** | same |
+| `native-xmage-mechanism.json` | xmage | mechanism | **NO_CREDIT** | same |
+
+The bridge's own test suite was separately executed against the rebuilt converged
+artifacts and is green (327 run, 0 failures, 1 skipped), but that is a build-time
+result and not a qualification receipt, so it earns no credit here.
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is
@@ -84,7 +92,12 @@ reduction, no carry-forward across changed evidence semantics.
 | Candidate | PASS | FAIL | UNKNOWN | BLOCKED | CRASH | TIMEOUT | PROTOCOL_FAILURE | total |
 |---|---|---|---|---|---|---|---|---|
 | XMage | 4 | 0 | 59 | 44 | 0 | 0 | 0 | **107** |
-| Forge | 4 | 0 | 59 | 44 | 0 | 0 | 0 | **107** |
+| Forge | 1 | 0 | 58 | 48 | 0 | 0 | 0 | **107** |
+
+The Forge column differs from XMage's because the pinned Forge bridge qualifies
+**exactly four players** and advertises no minimum, so 2P and 3P are refused by the
+engine itself. Those refusals are recorded as evidence with the engine's verbatim
+reason; a refused count is unavailable, not wrong, and it earns no credit.
 
 The historical figures were XMage `30 PASS` and Forge `79 PASS`. They were upper
 bounds over a PASS set that was substantially unobserved. The repaired pipeline
@@ -185,68 +198,38 @@ credit on either candidate. The full-game lane uses a different protocol and is
 properly scoped through `XmageFullGameStateRedactor`, which this workstream
 repaired to emit seat-derived opaque tokens for every non-viewer principal.
 
-### 6.3 Rules RNG — the two candidates are in different states, not the same
+### 6.3 Rules RNG — the position is per CANDIDATE and per BRIDGE, never global
 
-An earlier revision of this packet said "no seed is sent" for both candidates. That
-is false for Forge. They are separate gaps of different widths.
+An earlier revision of this packet generalised from one Forge observation. That was
+a category error, and the convergence exposed it: the Forge position depends on
+WHICH Forge executes, because the two bridges declare different capabilities.
 
-**XMage — fully uncontrolled.** `AF01_XMAGE.json` reports `seed_supported: false`.
-The driver reads that capability and therefore does not send a seed, the create
-response acknowledges none, and the binding is `UNCONTROLLED_ENGINE_RNG` with
-`rng_credit: false`. Nothing about the run's randomness is under Lab or engine
-control. Closing this needs a seed-capable generic lane or an engine-level
-binding.
+**Both candidates are uncontrolled on the executed configuration.** Each candidate's
+position is read from that candidate's own `AF01_<CANDIDATE>.json`, never asserted
+for all candidates at once:
 
-**Forge — seed sent and state-bound, but the create response does not echo it.**
-`AF01_FORGE.json` reports `seed_supported: true`, `_probes_forge.json` records
-`provider_seed_supported: true` and `seed_sent_to_provider: true`, and the observed
-game state carries:
+| Candidate | `seed_supported` reported | Consequence |
+|---|---|---|
+| XMage | `false` | driver sends no seed; binding `UNCONTROLLED_ENGINE_RNG`, `rng_credit: false` |
+| Forge, pinned candidate `a37a865a` via bridge `4753bb7c` | `false` | same: no seed sent, no RNG credit |
 
-```
-rng_binding: {explicit_seed: true, require_explicit_seed: true,
-              root_seed: 424242, rules_root_seed: 424242, rules_calls: 393}
-```
+**The fork-era Forge observation does not transfer.** An earlier revision recorded
+`seed_supported: true` for Forge with a state-level `root_seed` and a Rules call
+count, on the fork executed through the fork-side bridge. That was a real
+observation *about that configuration*, and it is not wrong; it simply does not
+apply to the pinned candidate, whose materializing bridge declares no seed support.
+A capability belongs to the bridge that declares it, so this is
+`DIFFERENT_CANDIDATE_SCOPE`, not a correction of the earlier reading.
 
-That is real evidence: the seed was delivered, the engine requires it, and 393
-Rules calls were drawn from that root seed. What is missing is narrower — the
-`create_commander_game` response does not acknowledge the seed, so
-`acknowledged_seed` is `null` and the binding classifies as
-`UNCONTROLLED_ENGINE_RNG` on the create-response channel.
+**PB-05 compounds it.** The fork-side bridge (`d5bd22d1`) emits `engine_build_*` and
+`engine_commit_verified`; the materializing bridge does not. Those fields are
+consumed fail-closed, so their absence withholds PB-05 credit for the pinned column
+rather than granting it by inference. Withholding is the correct outcome here, and
+it is a fact about the bridge, not a verdict on the Rules Core.
 
-So Forge is not "no seed". It is a candidate whose seed binding is observable at
-state level but not echoed at creation, and whether state-level binding alone
-satisfies AF09 is an adjudication this packet does not make. Prescribing a
-seed-capable lane for both candidates would have been wrong on Forge's evidence.
-
-The earlier literal `engine_owned: true` no longer appears in any production source
-or artifact on either side.
-
-### 6.4 Actual-card corpus is not executed — PB-07 open
-
-Both artifacts declare 12 card names against 29 required, `complete: false`.
-`CARD_02` is `UNKNOWN` on both sides, so no card has behaviourally executed and the
-executed set is empty. Four decks are imported at runtime, which proves import and
-engine-side rejection of unknown names, not card behaviour. Import, parsing,
-construction and lookup are not counted as runtime card behaviour.
-
-Completion is derived from the behaviourally executed set, never from the declared
-list. An earlier version computed `complete` from the number of names in the
-artifact, so simply appending 29 names would have advertised a complete runtime
-corpus with no probe behind it, and it also counted `len(deck_identity)`, which is
-a per-seat deck count and says nothing about cards.
-
-The Forge-side ceiling recorded on Forge PR #4 is 28 runtime-qualified with one
-documented engine gap, `Find // Finality` (the Aftermath back-half legal ability
-discovery). That 28/29 is Forge-local and is **not** consumed as Lab credit here.
-
-### 6.5 Both denominators are shaped by Lab work
-
-PB-03 showed the XMage column is shaped by a Lab harness shortcut; PB-09 shows the
-Forge column is shaped by Lab engine modification. Neither column is a clean
-candidate measurement. This is recorded rather than resolved, because which
-artifact is the Forge candidate is a Coordinator provider decision.
-
----
+Neither candidate earns AF09 RNG credit on this configuration. Whether Forge's
+state-level binding alone would satisfy AF09 is an adjudication this packet does not
+make.
 
 ## 7. Blocker register
 
