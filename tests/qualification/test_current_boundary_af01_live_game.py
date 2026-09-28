@@ -177,10 +177,19 @@ def test_pattern_table_covers_every_policy_shortcut() -> None:
 
 def test_runner_establishes_a_live_game_before_af01() -> None:
     source = (REPO / "scripts/run_current_boundary_qualification.py").read_text(encoding="utf-8")
-    drive_at = source.index("af01_live = drive_commander_game(")
+    # The drive now goes through the shared envelope helper, so the invariant is
+    # expressed by the GUARD rather than by the literal call site: the AF01 probes
+    # must be inside a branch that requires a live game to exist.
+    drive_at = source.index("af01_live = _drive_at_declared_envelope(")
+    guard_at = source.index("if af01_live is not None:", drive_at)
     af01_at = source.index("af01 = run_af01(")
-    assert drive_at < af01_at, "AF01 runs before a live game exists"
+    assert drive_at < guard_at < af01_at, "AF01 runs outside a live-game guard"
     assert "game_id=af01_game_id" in source
     assert "runner_root=REPO_ROOT" in source
-    # And a failure to establish a live game must stop the run, not downgrade.
+    # A game that STARTED and then broke is a defect and must stop the run.
+    assert "live game broke" in source
     assert "AF01 evidence is not produced" in source
+    # A game that could never be ESTABLISHED is an absence of evidence, so AF01 is
+    # UNKNOWN and no document is written. Writing one would imply the probes ran.
+    assert 'probes["af01_not_produced"]' in source
+    assert 'probes["af01_verdict"] = "UNKNOWN"' in source

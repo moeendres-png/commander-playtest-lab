@@ -565,6 +565,79 @@ def _record_envelope_row(
     )
 
 
+def _drive_at_declared_envelope(
+    proc,
+    candidate: str,
+    *,
+    player_count: int,
+    seed: int,
+    drive_to: str,
+    declared_max: int | None,
+    probes: dict[str, Any],
+    purpose: str,
+    **kwargs: Any,
+):
+    """Drive a live game at a count the engine actually qualifies, or record why not.
+
+    Every live probe in this runner goes through here. The count is a HARNESS
+    choice, so it must never be presented as a candidate capability result: if the
+    engine refuses the count, the refusal is recorded on ``probes`` under
+    ``purpose`` and the caller skips that probe instead of aborting the column.
+
+    Centralising this is deliberate. Each call site that discovers the refusal on
+    its own is a place where one unavailable count silently destroys the evidence
+    for everything else, which is exactly what happened three times before this
+    helper existed.
+    """
+    requested = player_count
+    driven = player_count
+    refusals: list[dict[str, Any]] = []
+    while True:
+        try:
+            result = drive_commander_game(
+                proc,
+                candidate=candidate,
+                player_count=driven,
+                seed=seed,
+                drive_to=drive_to,
+                **kwargs,
+            )
+            break
+        except UnsupportedPlayerCount as exc:
+            refusals.append(
+                {
+                    "requested_player_count": driven,
+                    "engine_reason": str(exc),
+                    "attempted_beyond_handshake": False,
+                }
+            )
+            fallback = declared_max if isinstance(declared_max, int) else None
+            if (
+                fallback is None
+                or fallback == driven
+                or fallback in {item["requested_player_count"] for item in refusals}
+            ):
+                probes[f"{purpose}_player_count_refusal"] = {
+                    "requested_player_count": requested,
+                    "outcome": "ENGINE_REFUSED_COUNT",
+                    "engine_reason": str(exc),
+                    "detail": (
+                        "this live probe could not be established because the engine does "
+                        "not qualify the requested player count, and no declared maximum is "
+                        "available to adapt to. The probe is UNKNOWN, not FAIL: no engine "
+                        "behaviour was observed at that count."
+                    ),
+                }
+                return None
+            driven = fallback
+    probes[f"{purpose}_player_count"] = {
+        "requested": requested,
+        "driven": driven,
+        "refusals": refusals,
+    }
+    return result
+
+
 def run_all_native_suites(runner: receipt_mod.RunnerIdentity) -> list[dict[str, Any]]:
     """Execute every bound native suite; return only the persisted receipts.
 
@@ -677,85 +750,95 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # The engine, not the harness, decides which counts it qualifies. If it
         # refuses the requested count by contract, that refusal is RECORDED and
         # the drive is retried at the engine's own declared maximum. This is an
-        # explicit, evidenced adaptation: the refused count, the engine's reason
+        # explicit, evidenced adaptation: the requested count, the engine's reason
         # and the count actually driven all appear in the evidence, so no reader
         # can assume a surface the engine never ran.
-        refusals: list[dict[str, Any]] = []
-        af01_player_count_driven = af01_player_count
-        while True:
-            try:
-                af01_live = drive_commander_game(
-                    proc,
-                    candidate=candidate,
-                    player_count=af01_player_count_driven,
-                    seed=int(identity.get("af01_probe_seed", 20260927)),
-                    drive_to="priority",
+        af01_live = _drive_at_declared_envelope(
+            proc,
+            candidate,
+            player_count=af01_player_count,
+            seed=int(identity.get("af01_probe_seed", 20260927)),
+            drive_to="priority",
+            declared_max=declared_max,
+            probes=probes,
+            purpose="af01_live",
+        )
+        if af01_live is None:
+            # No live game could be established at any qualified count, so the
+            # decision-time AF01 invariants cannot be observed. That is UNKNOWN,
+            # not FAIL: fail-closed submission behaviour is only meaningful
+            # against a real game, and no game means nothing was observed.
+            probes["af01_live_game"] = {
+                "established": False,
+                "detail": "no live Commander game could be established at any player count "
+                "this engine qualifies, so the decision-time AF01 invariants were not "
+                "observed and are UNKNOWN for this candidate rather than PASS or FAIL.",
+            }
+            af01_game_id = None
+        else:
+            af01_game_id = af01_live.game_id
+            probes["af01_live_game"] = {
+                "established": True,
+                "game_id": af01_game_id,
+                "player_count": af01_live.player_count,
+                "steps_completed": list(af01_live.steps_completed),
+                "decisions_observed": len(af01_live.decision_tape),
+                "failure": af01_live.failure,
+            }
+            if af01_live.failure is not None or not af01_live.steps_completed:
+                # A game that STARTED and then broke is a real observation, and it
+                # is a defect to diagnose rather than an absence of evidence. Only a
+                # game that could never be established is UNKNOWN.
+                raise SystemExit(
+                    "AF01 requires a live game to probe decision-time invariants, and the "
+                    f"live game broke: failure={af01_live.failure!r} "
+                    f"steps={af01_live.steps_completed!r}. AF01 evidence is not produced."
                 )
-                break
-            except UnsupportedPlayerCount as exc:
-                refusals.append(
-                    {
-                        "requested_player_count": af01_player_count_driven,
-                        "engine_reason": str(exc),
-                        "attempted_beyond_handshake": False,
-                    }
-                )
-                fallback = declared_max if isinstance(declared_max, int) else None
-                if (
-                    fallback is None
-                    or fallback == af01_player_count_driven
-                    or fallback in {r["requested_player_count"] for r in refusals}
-                ):
-                    raise
-                af01_player_count_driven = fallback
-        probes["af01_live_player_count_driven"] = af01_player_count_driven
-        probes["af01_live_player_count_refusals"] = refusals
-        af01_game_id = af01_live.game_id
-        af01_game_id = af01_live.game_id
-        probes["af01_live_game"] = {
-            "game_id": af01_game_id,
-            "player_count": af01_live.player_count,
-            "steps_completed": list(af01_live.steps_completed),
-            "decisions_observed": len(af01_live.decision_tape),
-            "failure": af01_live.failure,
-        }
-        if af01_live.failure is not None or not af01_live.steps_completed:
-            raise SystemExit(
-                "AF01 requires a live game to probe decision-time invariants, and no live "
-                f"game was established: failure={af01_live.failure!r} "
-                f"steps={af01_live.steps_completed!r}. AF01 evidence is not produced."
-            )
 
         # ---- AF01 v2 -----------------------------------------------------
-        af01 = run_af01(
-            proc,
-            candidate=candidate,
-            expected_commit=plan.expected_engine_commit,
-            runner_commit=identity["runner_commit"],
-            runner_tree=identity["runner_tree"],
-            game_id=af01_game_id,
-            runner_root=REPO_ROOT,
-        )
-        af01_doc = af01.to_document()
-        af01_doc["decision_probe_game"] = {
-            "game_id": af01_game_id,
-            "player_count": af01_live.player_count,
-            "steps_completed": list(af01_live.steps_completed),
-            "decisions_observed": len(af01_live.decision_tape),
-            "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
-        }
-        write(f"AF01_{candidate.upper()}.json", af01_doc)
-        probes["af01_verdict"] = af01.verdict
-        # Carry the provider's DECLARED capabilities into the run identity. Block
-        # attribution must consult what this candidate says it supports, not a
-        # hard-coded statement about one candidate applied to all of them.
-        declared = af01_doc.get("capabilities_provider_reported") or {}
-        identity["starting_state_injection_supported"] = declared.get(
-            "starting_state_injection_supported"
-        )
-        identity["scenario_injection_supported"] = declared.get("scenario_injection_supported")
-        identity["seed_supported"] = declared.get("seed_supported")
-        identity["capabilities_provider_reported"] = declared
+        if af01_live is not None:
+            af01 = run_af01(
+                proc,
+                candidate=candidate,
+                expected_commit=plan.expected_engine_commit,
+                runner_commit=identity["runner_commit"],
+                runner_tree=identity["runner_tree"],
+                game_id=af01_game_id,
+                runner_root=REPO_ROOT,
+            )
+            af01_doc = af01.to_document()
+            af01_doc["decision_probe_game"] = {
+                "game_id": af01_game_id,
+                "player_count": af01_live.player_count,
+                "steps_completed": list(af01_live.steps_completed),
+                "decisions_observed": len(af01_live.decision_tape),
+                "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+            }
+            write(f"AF01_{candidate.upper()}.json", af01_doc)
+            probes["af01_verdict"] = af01.verdict
+            # Carry the provider's DECLARED capabilities into the run identity. Block
+            # attribution must consult what this candidate says it supports, not a
+            # hard-coded statement about one candidate applied to all of them.
+            declared = af01_doc.get("capabilities_provider_reported") or {}
+            identity["starting_state_injection_supported"] = declared.get(
+                "starting_state_injection_supported"
+            )
+            identity["scenario_injection_supported"] = declared.get("scenario_injection_supported")
+            identity["seed_supported"] = declared.get("seed_supported")
+            identity["capabilities_provider_reported"] = declared
+        else:
+            # No live game means the decision-time invariants were not observed.
+            # AF01 is UNKNOWN for this candidate, and no AF01 document is written
+            # at all, because writing one would imply the probes ran.
+            probes["af01_verdict"] = "UNKNOWN"
+            probes["af01_not_produced"] = {
+                "reason": "NO_LIVE_GAME",
+                "detail": "no live Commander game could be established at any player count "
+                "this engine qualifies, so AF01's decision-time invariants were not probed. "
+                "No AF01 document is written, because producing one would imply the probes "
+                "ran. AF01 is UNKNOWN for this candidate.",
+            }
+            identity.setdefault("capabilities_provider_reported", {})
 
         # ---- AF03 RULES_AUTHORITY: negative deck-import probes ----------
         af03 = run_af03(
@@ -875,27 +958,46 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- hidden-information principal probe ---------------------------
-        hidden_game = drive_commander_game(
+        hidden_game = _drive_at_declared_envelope(
             proc,
-            candidate=candidate,
-            player_count=4,
-            seed=424242,
+            candidate,
+            player_count=int(identity.get("hidden_probe_player_count", 4)),
+            seed=int(identity.get("hidden_probe_seed", 20260928)),
             drive_to="priority",
-            max_steps=60,
+            declared_max=declared_max,
+            probes=probes,
+            purpose="hidden_info",
         )
         seats = ("p1", "p2", "p3", "p4")
-        observations = {
-            seat: observe_principal_state(proc, hidden_game.game_id, seat=seat) for seat in seats
-        }
-        # Validate that each observation is genuinely scoped to the seat that
-        # asked before persisting it as principal-scoped evidence. Masking
-        # identifiers at the provider is not sufficient: a provider can return
-        # one unscoped payload to every caller, and the committed XMage run
-        # returned byte-identical payloads for all four seats.
-        scoping = validate_principal_scoping(observations, requested_seats=seats)
-        probes["hidden_game"] = hidden_game.to_document()
-        probes["hidden_game_seed_binding"] = hidden_game.seed_binding
-        probes["hidden_observations"] = observations
+        if hidden_game is None:
+            # The engine qualifies no count this probe could use, so there is no
+            # live game to observe. Record that and continue: principal scoping
+            # stays UNKNOWN for this candidate, which is NOT a FAIL, because no
+            # observation was made at all.
+            observations = {}
+            scoping = {
+                "verdict": "SCOPING_NOT_ESTABLISHED",
+                "attribution": "NOT_OBSERVED",
+                "credible_as_principal_scoped_evidence": False,
+                "findings": [],
+                "detail": "no live game could be established at any player count this engine "
+                "qualifies, so no principal observation was made and principal scoping is "
+                "UNKNOWN for this candidate rather than demonstrated either way.",
+            }
+        else:
+            observations = {
+                seat: observe_principal_state(proc, hidden_game.game_id, seat=seat)
+                for seat in seats
+            }
+            # Validate that each observation is genuinely scoped to the seat that
+            # asked before persisting it as principal-scoped evidence. Masking
+            # identifiers at the provider is not sufficient: a provider can return
+            # one unscoped payload to every caller, and the committed XMage run
+            # returned byte-identical payloads for all four seats.
+            scoping = validate_principal_scoping(observations, requested_seats=seats)
+            probes["hidden_game"] = hidden_game.to_document()
+            probes["hidden_game_seed_binding"] = hidden_game.seed_binding
+            probes["hidden_observations"] = observations
         probes["hidden_scoping"] = scoping
         if not scoping["credible_as_principal_scoped_evidence"]:
             # Do not write the observations as hidden-information evidence.
