@@ -538,8 +538,10 @@ def execute_xmage_pb03_admission(
         }
         try:
             with launch(plan) as proc:
+                handshake: dict[str, dict[str, Any]] = {}
                 for message in ("start_engine", "get_provider_version", "get_capabilities"):
                     response = proc.request(message, {})
+                    handshake[message] = response
                     if response.get("success") is not True:
                         code, detail = _provider_error(response)
                         rows.append(
@@ -554,7 +556,7 @@ def execute_xmage_pb03_admission(
                         )
                         break
                 else:
-                    capabilities_response = proc.request("get_capabilities", {})
+                    capabilities_response = handshake["get_capabilities"]
                     capabilities_payload = capabilities_response.get("payload")
                     capabilities_payload = (
                         capabilities_payload if isinstance(capabilities_payload, dict) else {}
@@ -592,7 +594,7 @@ def execute_xmage_pb03_admission(
                         continue
                     evidence["terminal_facts"]["state_restoration_dimensions"] = dimensions
 
-                    game_id = f"pb03-{fixture_id.lower()}-{abs(hash(fixture_id)) % 1_000_000:06d}"
+                    game_id = "pb03-" + fixture_id.lower().replace("_", "-")
                     created = proc.request(
                         "create_native_state_game",
                         {
