@@ -1115,7 +1115,9 @@
   "forge_successor_branch": {
    "name": "sol/final-candidate-successor-20260929",
    "head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
-   "relationship": "descends from the PR #5 bridge head e15f37d6; transplants the DeepSeek Aftermath fix verbatim (49bcaed6517), the DeepSeek regression test (6ea3d95357c) and adds a bridge-level Finality resolution requirement (6f70e32e810)"
+   "relationship": "descends from the PR #5 bridge head e15f37d6; transplants the DeepSeek Aftermath fix verbatim (49bcaed6517), the DeepSeek regression test (6ea3d95357c) and adds a bridge-level Finality resolution requirement (6f70e32e810)",
+   "pr": 6,
+   "pr_state": "OPEN_DRAFT"
   }
  },
  "successor_verification": {
@@ -1127,6 +1129,17 @@
    "minimal_repair": "13 lines in answerCommon: on COPY_CHOICE take the first entity option (confirmValue == null)",
    "after_repair": "16/16 pass; mapped assertions (Serra survives, Grizzly Bears dies, Finality exiled) reachable",
    "patch_artifact": "/tmp/opencode/deepseek-successor-finality-harness-fix.patch (24 lines unified diff; not pushed to any foreign branch)"
+  },
+  "byte_identity": {
+   "card_java": "IDENTICAL to donor 52cfd9a24ba",
+   "regression_test": "IDENTICAL to donor 52cfd9a24ba"
+  },
+  "engine_test_at_successor_head": {
+   "command": "mvn -o -pl forge-gui-desktop -am test -Dtest=DeepseekAftermathDiscoveryTest",
+   "result": "6 tests, 0 failures, 0 errors"
+  },
+  "notification": {
+   "forge_pr_6_comment": "https://github.com/moeendres-png/forge/pull/6#issuecomment-5880329119"
   }
  }
 }

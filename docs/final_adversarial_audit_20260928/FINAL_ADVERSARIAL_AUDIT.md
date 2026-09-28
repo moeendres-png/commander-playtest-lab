@@ -316,3 +316,13 @@ Independent verification in a detached read-only worktree at `6f70e32e810`:
 
 Product behavior is correct; the harness as committed is not. PB-07 Lab credit remains **0/29** and
 still requires a pinned Lab runtime rerun after the successor line carries this repair.
+
+### Successor verification closure
+
+- `Card.java` and `DeepseekAftermathDiscoveryTest.java` at successor head `6f70e32e810` are
+  **byte-identical** to the DeepSeek donor `52cfd9a24ba` (verified with `diff` over `git show`).
+- `DeepseekAftermathDiscoveryTest` at the successor head: **6/6 pass**.
+- DS-07 reported to the successor's own Draft PR #6 with the validated 13-line repair:
+  https://github.com/moeendres-png/forge/pull/6#issuecomment-5880329119
+- Donor status: `REUSE / INTEGRATED_ELSEWHERE`; no duplicate implementation. PB-07 Lab credit
+  remains **0/29** pending the pinned Lab rerun.
