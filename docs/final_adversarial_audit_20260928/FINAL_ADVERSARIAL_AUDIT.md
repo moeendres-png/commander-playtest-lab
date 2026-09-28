@@ -284,3 +284,35 @@ Evidence impact: none on canonical main. The audit conclusions survive; PB-07 `L
 
 Exact next action: **WAIT_FOR_INTEGRATION** — re-adjudicate when #284/#289 merge, then run the
 29-card denominator at the pinned candidate head with the Aftermath fix integrated.
+
+---
+
+## Successor Verification (2026-09-29 refresh)
+
+Fresh state: canonical Lab main unchanged (`3910040b` / tree `a28d98b2`); Forge PR #5 unchanged
+(`e15f37d6`, DRAFT). New open items: #290 (quarantine paths, NON_OVERLAPPING), #291 (Muse PB-03
+dimension discriminator, NON_OVERLAPPING), #284 advanced to `46e971c0`, #289 advanced to `122e0eb7`.
+
+**Donor status changed: `REUSE / INTEGRATED_ELSEWHERE`.** The Forge successor branch
+`sol/final-candidate-successor-20260929` transplanted the DeepSeek Aftermath fix verbatim
+(`49bcaed6517` engine, `6ea3d95357c` regression) and added a bridge-level Finality resolution
+requirement (`6f70e32e810`). Do not duplicate the fix.
+
+**New finding DS-07 (P1): the successor's added test is red at its own head.**
+Independent verification in a detached read-only worktree at `6f70e32e810`:
+
+- `mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest …`
+  → **16 tests, 1 failure**: `testFindAndAftermath` → `unexpected COPY_CHOICE for p1`
+  (`answerCommon:130` via `drainToResolution:227` at `testFindAndAftermath:676`), deterministic.
+- Root cause: Finality's optional `PutCounter` (`Choices$ Creature.YouCtrl`, `ChoiceOptional$ True`)
+  parks the engine's `chooseSingleEntityForEffect` decision; the bridge kinds it `COPY_CHOICE` and
+  offers entity options plus a decline option. The test helper does not handle that kind, so the
+  test can never reach its assertions.
+- Validated minimal repair: 13 lines in `answerCommon` selecting the first entity option
+  (`confirmValue == null`) on `COPY_CHOICE`. After the repair the class is **16/16 green** and the
+  mapped assertions (Serra Angel survives 2 counters then -4/-4, Grizzly Bears dies, Finality is
+  exiled) are reached. Unified diff captured at
+  `/tmp/opencode/deepseek-successor-finality-harness-fix.patch`; not pushed to any foreign branch.
+
+Product behavior is correct; the harness as committed is not. PB-07 Lab credit remains **0/29** and
+still requires a pinned Lab runtime rerun after the successor line carries this repair.

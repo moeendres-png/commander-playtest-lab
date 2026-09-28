@@ -560,7 +560,7 @@
     "candidate": "forge",
     "claimed_behavior_obligation": "probe: front-face Find returns both creatures (runtime); aftermath Finality unoffered though engine grant index surfaces the card and enumerates zero abilities",
     "exact_runtime_test": "probe: front-face Find returns both creatures (runtime); aftermath Finality unoffered though engine grant index surfaces the card and enumerates zero abilities",
-    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "exact_receipt": "sol/final-candidate-successor-20260929 @ 6f70e32e810 (needs the validated COPY_CHOICE harness repair to be green)",
     "candidate_source_identity": {
      "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
      "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
@@ -568,7 +568,7 @@
     },
     "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
     "affected_by_current_candidate_changes": true,
-    "reuse_disposition": "REQUIRES_TARGETED_RERUN_NOW_REMEDIABLE",
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN_SUCCESSOR_INTEGRATION_NOW_READY",
     "recorded_status": "RUNTIME_QUALIFIED_FRONT_PLUS_ENGINE_GAP"
    },
    {
@@ -977,6 +977,14 @@
    "title": "No Lab top-level LICENSE file",
    "detail": "Only a provenance policy document and a license schema exist; AF11 legal questions depend on the distribution license.",
    "status": "NOTE"
+  },
+  {
+   "id": "DS-07",
+   "severity": "P1",
+   "title": "Successor PB-07 Finality runtime test is red at its own head",
+   "detail": "At sol/final-candidate-successor-20260929 head 6f70e32e810, WsR24Pb07MechanicProbesTest#testFindAndAftermath fails deterministically with 'unexpected COPY_CHOICE for p1' because the harness does not answer the optional single-entity choice Finality's PutCounter requires. A validated 13-line harness repair makes the class 16/16. Product behavior is correct; the test as committed is not.",
+   "status": "OPEN_ON_SUCCESSOR_BRANCH",
+   "owner": "sol/final-candidate-successor-20260929"
   }
  ],
  "candidate_specific_facts": {
@@ -1042,6 +1050,83 @@
   "PROVIDER_COMPARISON_COMPLETE": "NO",
   "DECISION_CRITICAL_UNKNOWN_REMAINS": "YES",
   "PROVIDER_SELECTION_READY": "NO",
-  "ARCHITECTURE_FREEZE_READY_FOR_COORDINATOR": "NO"
+  "ARCHITECTURE_FREEZE_READY_FOR_COORDINATOR": "NO",
+  "DONOR_STATUS": "REUSE_INTEGRATED_ELSEWHERE",
+  "WAIT_FOR_INTEGRATION": true
+ },
+ "drift_refresh": {
+  "refreshed_at_utc": "2026-09-28T23:05:26Z",
+  "LAST_REFRESHED_MAIN_SHA": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+  "LAST_REFRESHED_MAIN_TREE": "a28d98b29c84342056e5658f8f4423f927999108",
+  "prior_lock_main": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+  "main_drift": "NONE",
+  "relevant_merged_since_lock": [],
+  "open_dependencies": [
+   {
+    "pr": 284,
+    "title": "Final integration: salvage donors and close pre-Freeze provider gaps",
+    "head": "46e971c0be3b",
+    "classification": "WAIT_FOR_MERGE",
+    "note": "advanced since last refresh; PB-03 integration writer; not raced"
+   },
+   {
+    "pr": 289,
+    "title": "Final pre-Freeze completion: fresh XMage baseline on merged #283, START-2 repaired",
+    "head": "122e0eb7b3ae",
+    "classification": "WAIT_FOR_MERGE",
+    "note": "advanced since last refresh; changes the audit basis on merge"
+   },
+   {
+    "pr": 288,
+    "title": "Reject Windows junctions in run-manifest artifact inventories",
+    "head": "5cc7b43865ff",
+    "classification": "NON_OVERLAPPING"
+   },
+   {
+    "pr": 290,
+    "title": "Validate run quarantine paths before filesystem mutation",
+    "head": "72913be34154",
+    "classification": "NON_OVERLAPPING"
+   },
+   {
+    "pr": 291,
+    "title": "Muse final salvage: integrate PB-03 dimension discriminator and terminal disposition ledge",
+    "head": "2e352c92cffa",
+    "classification": "NON_OVERLAPPING_PB03_LANE"
+   },
+   {
+    "pr": 287,
+    "title": "INDEPENDENT DEEPSEEK COMPLETION CANDIDATE \u2014 DO NOT AUTO-MERGE",
+    "head": "08b6b5a9543d",
+    "classification": "OWN_DRAFT"
+   }
+  ],
+  "ownership_result": "no co-editing of the #284/#289 surfaces; independent falsification lane preserved",
+  "evidence_impact": "none on canonical main; audit conclusions survive unchanged; PB-07 LAB_CREDIT remains 0/29",
+  "donor_status": {
+   "branch": "deepseek/finality-aftermath-20260928",
+   "head": "52cfd9a24bac4df152bb26a506a109724a2ef20d",
+   "classification": "REUSE_INTEGRATED_ELSEWHERE",
+   "integrated_elsewhere": true,
+   "integration": "transplanted verbatim into sol/final-candidate-successor-20260929 at 49bcaed6517 (engine) and 6ea3d95357c (test)",
+   "successor_caveat": "the successor's added bridge-level test 6f70e32e810 is red at its own head; see DS-07 and the validated minimal harness repair"
+  },
+  "exact_next_action": "WAIT_FOR_INTEGRATION: the successor line needs the validated 13-line COPY_CHOICE harness repair (see successor_verification) before its PB-07 Finality test is green; then the 29-card denominator rerun at a pinned Lab head",
+  "forge_successor_branch": {
+   "name": "sol/final-candidate-successor-20260929",
+   "head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
+   "relationship": "descends from the PR #5 bridge head e15f37d6; transplants the DeepSeek Aftermath fix verbatim (49bcaed6517), the DeepSeek regression test (6ea3d95357c) and adds a bridge-level Finality resolution requirement (6f70e32e810)"
+  }
+ },
+ "successor_verification": {
+  "verification": {
+   "worktree": "/home/moeen/code/deepseek-verify-successor-20260929 (detached at 6f70e32e810, read-only)",
+   "command": "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+   "as_committed": "16 tests, 1 failure: testFindAndAftermath -> unexpected COPY_CHOICE for p1 (answerCommon:130 via drainToResolution:227 at testFindAndAftermath:676); deterministic across two runs",
+   "root_cause": "Finality's optional PutCounter (Choices$ Creature.YouCtrl, ChoiceOptional$ True) parks the engine's chooseSingleEntityForEffect decision; the bridge kinds it COPY_CHOICE with entity options plus a decline option; the test helper answerCommon does not handle COPY_CHOICE",
+   "minimal_repair": "13 lines in answerCommon: on COPY_CHOICE take the first entity option (confirmValue == null)",
+   "after_repair": "16/16 pass; mapped assertions (Serra survives, Grizzly Bears dies, Finality exiled) reachable",
+   "patch_artifact": "/tmp/opencode/deepseek-successor-finality-harness-fix.patch (24 lines unified diff; not pushed to any foreign branch)"
+  }
  }
 }
