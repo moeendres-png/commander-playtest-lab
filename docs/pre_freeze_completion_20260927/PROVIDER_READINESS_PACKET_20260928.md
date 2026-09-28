@@ -50,15 +50,18 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `4291377e` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 135 | 135 | Lab `4291377e` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1c8de8e3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 135 | 135 | Lab `1c8de8e3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is
 the Lab's. The engine identity is the provider's reported commit, verified at AF00.
 These two figures were previously hand-written and had drifted from the receipts
-they summarise; the executing column is now checked against
-`receipt["executed_commit"]` by `test_receipt_counts_are_stated`.
+they summarise. `test_receipt_counts_are_stated` now requires the packet's stated
+value to be a prefix of `receipt["executed_commit"]`, and it caught the drift twice
+while this workstream was in flight — which is the behaviour it is for. The value
+moves whenever the pipeline is re-run, because each run records the commit it
+executed from.
 
 Each receipt binds the executing runner commit and tree, `dirty: false`, 28
 per-input sha256 digests, a runner digest, the exact command, build identity,
