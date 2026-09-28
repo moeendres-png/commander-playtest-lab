@@ -1,0 +1,343 @@
+{
+  "observed_at": "2026-09-28T09:38:46.467164+00:00",
+  "phase": "PRE_PUBLICATION",
+  "main": "f96bc7ec6b7ea07c73f74282c16dcaf73daaad40",
+  "tree": "c60a0ce2ffff404efcff9ada2b7979ec0cdc9346",
+  "branch": "astra/project-integrity-20260928",
+  "checkpoint": "a7ae8dbedd887f83b9e4d90eafb0d4a37823d63e",
+  "open_prs": [
+    {
+      "headRefName": "wsr26/final-provider-readiness-20260928",
+      "headRefOid": "b3bb44f0232a737a8d3907e3f8bfdc2714be3849",
+      "number": 279,
+      "title": "Remove a live false credit and publish the provider-readiness packet",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/279"
+    },
+    {
+      "headRefName": "chore/foundry-dual-lane-execution",
+      "headRefOid": "ebc318b3e90a92938e94da8067a78647ac7d304f",
+      "number": 165,
+      "title": "chore: add dual-lane Work and Muse execution workflow",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/165"
+    },
+    {
+      "headRefName": "ws49/xmage-v1.0.5-successor-qualification",
+      "headRefOid": "7c3e3d2af474cbf9cdda6f9dd694f68e5cdb2c10",
+      "number": 164,
+      "title": "WS-49: XMage v1.0.5 successor provider qualification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/164"
+    },
+    {
+      "headRefName": "ws48/forge-v1.0.5-successor-qualification",
+      "headRefOid": "f8bd8b2d582627202a462ae7c7adf9fd5af83a57",
+      "number": 163,
+      "title": "WS-48: Forge v1.0.5 successor provider qualification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/163"
+    },
+    {
+      "headRefName": "ws46/xmage-v1.0.4-successor-qualification",
+      "headRefOid": "86c2e74ecd063a761a28809e2aad62906ef52141",
+      "number": 160,
+      "title": "WS-46: SUPERSEDED \u2014 XMage v1.0.4 qualification preserved as provenance",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/160"
+    },
+    {
+      "headRefName": "ws45/forge-v1.0.4-successor-qualification",
+      "headRefOid": "9e43341f6f0e41bc1216f97e36b60bab895b0b67",
+      "number": 159,
+      "title": "WS-45: TERMINAL \u2014 Forge v1.0.4 blocked by immutable WS44 contract conflict",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/159"
+    },
+    {
+      "headRefName": "ws44/v1.0.4-authority-reconciliation-freeze",
+      "headRefOid": "9d91b2a191344611c601746b346df7272871d7d2",
+      "number": 158,
+      "title": "WS-44: COMPLETE \u2014 freeze successor contract v1.0.4",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/158"
+    },
+    {
+      "headRefName": "ws43/successor-contract-v1.0.4-freeze",
+      "headRefOid": "a96f0db9a4d2cb8ef646281ab5bf0ee351d0a52e",
+      "number": 157,
+      "title": "WS-43: successor contract v1.0.4 referential-integrity freeze",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/157"
+    },
+    {
+      "headRefName": "ws42/xmage-v1.0.3-successor-qualification",
+      "headRefOid": "a455f596389fde2d61703a0e6918415db2fd18c2",
+      "number": 156,
+      "title": "WS-42: TERMINAL \u2014 XMage v1.0.3 blocked by immutable contract defect",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/156"
+    },
+    {
+      "headRefName": "ws41/successor-contract-v1.0.3-freeze",
+      "headRefOid": "de478cf084529067776866aefb04d5c92efafeea",
+      "number": 155,
+      "title": "WS-41: freeze successor semantic contract v1.0.3",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/155"
+    },
+    {
+      "headRefName": "ws40/forge-core-remediation-requalification",
+      "headRefOid": "87b0a571cb3f9d18378150e3546fbe8fac4b6366",
+      "number": 154,
+      "title": "WS-40: TERMINAL \u2014 Forge v1.0.3 blocked by immutable MICRO target defect",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/154"
+    },
+    {
+      "headRefName": "ws39/xmage-engine-remediation-requalification",
+      "headRefOid": "c1e30d18c3312c4a8c77d15572ac6f0d2b4c3f51",
+      "number": 153,
+      "title": "WS-39: XMage commander-history remediation and successor requalification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/153"
+    },
+    {
+      "headRefName": "ws37/actual-card-authority-curation",
+      "headRefOid": "234849183d35902c0c55d1397d558c2727c79708",
+      "number": 152,
+      "title": "WS-37: curate Actual-Card-29 heuristic obligations against current authority",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/152"
+    },
+    {
+      "headRefName": "ws36/xmage-successor-provider-remediation",
+      "headRefOid": "b23888a38a4f898bc4cd97e86abfbf2fe0615566",
+      "number": 151,
+      "title": "WS-36: XMage successor remediation \u2014 terminal fail-closed",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/151"
+    },
+    {
+      "headRefName": "ws35/actual-card-29-runtime-qualification",
+      "headRefOid": "1d7f0d9ab21610ad03c5f3614033b7c64d8b2679",
+      "number": 150,
+      "title": "WS-35: COMPLETE \u2014 Actual-Card-29 terminal qualification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/150"
+    },
+    {
+      "headRefName": "ws34/xmage-successor-provider-prep",
+      "headRefOid": "b370c044e6410504eb92547a35ea55cdfa2b291b",
+      "number": 149,
+      "title": "WS-34: XMage successor qualification \u2014 COMPLETE / NOT QUALIFIED",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/149"
+    },
+    {
+      "headRefName": "program/finalist-convergence-forge",
+      "headRefOid": "8fb95d53d168228a3785f6270f33d5785df989a3",
+      "number": 148,
+      "title": "Finalist convergence: Forge corrected Starter-18 + exact differential",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/148"
+    },
+    {
+      "headRefName": "program/finalist-convergence-xmage",
+      "headRefOid": "e5e4ec66d9bbeab4eb2cbd08fdf244e4bea24283",
+      "number": 147,
+      "title": "Finalist convergence: XMage canonical Starter-18",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/147"
+    },
+    {
+      "headRefName": "program/finalist-convergence-contract",
+      "headRefOid": "9a8b8f5f5961466514eae6103be2d227324a27a8",
+      "number": 146,
+      "title": "Finalist convergence: semantic materialization v1.0.1",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/146"
+    },
+    {
+      "headRefName": "ws31/full-actual-card-oracle-domain",
+      "headRefOid": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e",
+      "number": 145,
+      "title": "WS-31: authoritative full actual-card Oracle domain expansion",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/145"
+    },
+    {
+      "headRefName": "ws30/canonical-semantic-fixture-materialization",
+      "headRefOid": "31f4aa2378338f104eeec4659e6379ee9c61b92c",
+      "number": 144,
+      "title": "WS-30: freeze canonical provider-neutral semantic fixtures",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/144"
+    },
+    {
+      "headRefName": "ws28/finalist-differential",
+      "headRefOid": "525bbe141ac2d6266c2278acc436c3a8576a0f8b",
+      "number": 143,
+      "title": "WS-28: finalist differential and cross-materialization",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/143"
+    },
+    {
+      "headRefName": "ws29/canonical-authority-closure",
+      "headRefOid": "362d9351f749b6f49d67cd1ef4eed298b8922b68",
+      "number": 142,
+      "title": "WS-29: canonical CR + 29-card authority closure",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/142"
+    },
+    {
+      "headRefName": "ws26/xmage-scenario-replay-viability",
+      "headRefOid": "c4169f4740c69f96088b5aac70d48a0fd8dda4e9",
+      "number": 141,
+      "title": "WS-26: XMage deterministic scenario injection and semantic replay viability",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/141"
+    },
+    {
+      "headRefName": "ws25/forge-broad-behavioral-qualification",
+      "headRefOid": "09cfad8a24be12a87761e6645c48577387f0521b",
+      "number": 140,
+      "title": "WS-25: Forge broad behavioral qualification expansion",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/140"
+    },
+    {
+      "headRefName": "ws23/forge-production-provider",
+      "headRefOid": "a059dd3008ace091fd20965a709d8b0fe245e331",
+      "number": 139,
+      "title": "WS-23: Forge production Rules-Service vertical slice",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/139"
+    },
+    {
+      "headRefName": "ws22/xmage-semantic-qualification-closure",
+      "headRefOid": "99cdc2372a6d87a4a09bba2d4f3c23713f53a444",
+      "number": 138,
+      "title": "[WS-22] XMage semantic qualification closure",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/138"
+    },
+    {
+      "headRefName": "ws18/xmage-remediation-requalification-v2",
+      "headRefOid": "b48c5ff3e54b492f172760d66a669156b85bc037",
+      "number": 137,
+      "title": "WS-18: XMage remediation and WS-10R requalification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/137"
+    },
+    {
+      "headRefName": "ws20/phase-rs-remediation-requalification-v2",
+      "headRefOid": "d9bffcae6f947b8f9045c4e6ab4a2bb03bd9d719",
+      "number": 136,
+      "title": "WS-20 v2: phase.rs remediation + post-WS17R requalification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/136"
+    },
+    {
+      "headRefName": "ws19/forge-isolated-provider-requalification-v2",
+      "headRefOid": "5822250fb865351d457f8970a00fc1f23083fd3c",
+      "number": 135,
+      "title": "WS-19: Forge isolated provider requalification (post-WS17R)",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/135"
+    },
+    {
+      "headRefName": "ws19/forge-isolated-provider-requalification",
+      "headRefOid": "3e4e5b4da27c46638dfbf14bba9c03bcca3ddefd",
+      "number": 132,
+      "title": "WS-19: Forge isolated provider implementation + requalification",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/132"
+    },
+    {
+      "headRefName": "engine/xmage-deckstrength-readiness-20260825",
+      "headRefOid": "94f00aad636d310a3880a0bb3ef4bc731bf4cfa2",
+      "number": 128,
+      "title": "Add fail-closed XMage deckstrength readiness gate",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/128"
+    },
+    {
+      "headRefName": "fix/structural-seat-symmetry-20260825",
+      "headRefOid": "f0cbfa41e589b8106c114237565387aa578b27fa",
+      "number": 126,
+      "title": "Audit and fix Structural seat symmetry",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/126"
+    },
+    {
+      "headRefName": "validation/official-fresh-run-63d48bc-20260823",
+      "headRefOid": "bfc01c212106c7b38aa31496f6fd763ec92ed14a",
+      "number": 122,
+      "title": "Validation only: official fresh RogShai optimizer run",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/pull/122"
+    }
+  ],
+  "open_issues": [
+    {
+      "number": 255,
+      "title": "Final pre-Freeze critical path: XMage vs Forge provider adjudication",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/255"
+    },
+    {
+      "number": 205,
+      "title": "Forge WS236-S1: authorize canonical publisher runtime and publish sealed local branch",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/205"
+    },
+    {
+      "number": 196,
+      "title": "WS196 \u2014 cross-repo Foundry tool-path authority and tool-call routing",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/196"
+    },
+    {
+      "number": 193,
+      "title": "WS93 COMPLETE handoff \u2014 Forge RQC3 first-wave blocker census",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/193"
+    },
+    {
+      "number": 192,
+      "title": "Cleanup: revert accidental WS190 evidence commit from main",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/192"
+    },
+    {
+      "number": 191,
+      "title": "WS78B \u2014 OpenCode Go quota-efficiency benchmark and session-rotation policy",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/191"
+    },
+    {
+      "number": 190,
+      "title": "WS-FOUNDRY-LONG-TURN-RESILIENCE \u2014 bounded timeout recovery and token-efficient continuation",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/issues/190"
+    }
+  ],
+  "main_rules": [
+    {
+      "type": "non_fast_forward",
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "moeendres-png/commander-playtest-lab",
+      "ruleset_id": 23547579
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "require_extra_approval_for_unattributed_changes": false,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      },
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "moeendres-png/commander-playtest-lab",
+      "ruleset_id": 23547579
+    },
+    {
+      "type": "deletion",
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "moeendres-png/commander-playtest-lab",
+      "ruleset_id": 23547579
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "quality",
+            "integration_id": 15368
+          },
+          {
+            "context": "security",
+            "integration_id": 15368
+          },
+          {
+            "context": "infrastructure",
+            "integration_id": 15368
+          }
+        ]
+      },
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "moeendres-png/commander-playtest-lab",
+      "ruleset_id": 23547579
+    }
+  ]
+}

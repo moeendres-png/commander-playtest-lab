@@ -3,57 +3,85 @@
   "issues": [
     {
       "number": 267,
-      "title": "WSR24 — Architecture Freeze and production bootstrap readiness",
+      "title": "WSR24 \u00e2\u20ac\u201d Architecture Freeze and production bootstrap readiness",
       "classification": "RESOLVED_CLOSE",
-      "reason": "Readiness/bootstrap preparation integrated through #274, merge 22985e5955b615551fce0af93c37717f3d665d47. Closure concerns delivery of provider-neutral templates/validators only, not eligibility, provider choice or Architecture Freeze."
+      "reason": "Readiness/bootstrap preparation integrated through #274, merge 22985e5955b615551fce0af93c37717f3d665d47. Closure concerns delivery of provider-neutral templates/validators only, not eligibility, provider choice or Architecture Freeze. Already closed by Coordinator; no duplicate closure.",
+      "observed_state": "CLOSED",
+      "closed_at": "2026-09-28T04:25:27Z",
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/267#issuecomment-5863328985"
     },
     {
       "number": 255,
       "title": "Final pre-Freeze critical path: XMage vs Forge provider adjudication",
       "classification": "ACTIVE",
-      "reason": "Foreign provider-adjudication lane. No qualification verdict reinterpreted or issue closed."
+      "reason": "Foreign provider-adjudication lane. No qualification verdict reinterpreted or issue closed.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/255#issuecomment-5862736913"
     },
     {
       "number": 205,
       "title": "Forge WS236-S1: authorize canonical publisher runtime and publish sealed local branch",
       "classification": "PARTIALLY_RESOLVED_UPDATE",
-      "reason": "Exact terminal Forge 07c0eec5992b1902183e39a141b19e32641ace92 is published on the named branch. #204 remediation is integrated. No retrospective assertion of launcher-held publication procedure or local evidence; Forge owner decides residual receipt closure."
+      "reason": "Exact terminal Forge 07c0eec5992b1902183e39a141b19e32641ace92 is published on the named branch. #204 remediation is integrated. No retrospective assertion of launcher-held publication procedure or local evidence; Forge owner decides residual receipt closure.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/205#issuecomment-5863340156"
     },
     {
       "number": 204,
       "title": "Foundry safe_push: qualify effective push-target identity independently of Source Lock",
       "classification": "RESOLVED_CLOSE",
-      "reason": "Current safe_push and 57 effective-target controls were reintegrated by merged #253, e55b1d0e; fresh hermetic tests required before closure."
+      "reason": "Effective-target remediation integrated through #253; 57 effective-target regression cases included in fresh passing Foundry suite. Already closed by Coordinator; no duplicate closure.",
+      "observed_state": "CLOSED",
+      "closed_at": "2026-09-28T04:25:23Z",
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/204#issuecomment-5863328357"
     },
     {
       "number": 196,
-      "title": "WS196 — cross-repo Foundry tool-path authority and tool-call routing",
+      "title": "WS196 \u00e2\u20ac\u201d cross-repo Foundry tool-path authority and tool-call routing",
       "classification": "PARTIALLY_RESOLVED_UPDATE",
-      "reason": "Mandatory safe_push-only publication authority superseded by current delegated Git policy. Optional canonical tool-discovery capability is not implemented (no FOUNDRY_CANONICAL_ROOT/FOUNDRY_SAFE_PUSH_TOOL in launcher). Preserve remaining capability; no permission bypass."
+      "reason": "Mandatory safe_push-only publication authority superseded by current delegated Git policy. Optional canonical tool-discovery capability is not implemented (no FOUNDRY_CANONICAL_ROOT/FOUNDRY_SAFE_PUSH_TOOL in launcher). Preserve remaining capability; no permission bypass.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/196#issuecomment-5656589067"
     },
     {
       "number": 193,
-      "title": "WS93 COMPLETE handoff — Forge RQC3 first-wave blocker census",
+      "title": "WS93 COMPLETE handoff \u00e2\u20ac\u201d Forge RQC3 first-wave blocker census",
       "classification": "PARTIALLY_RESOLVED_UPDATE",
-      "reason": "Forge remote branch now exists at eb66d65a32b0ce845c6b1eda4060b43e06b3c780; technical 48daaf9b79929f80f0bd32bfc2bb50e97137f65b also resolves remotely. Local-only diagnosis superseded; Forge content/merge adjudication remains outside this workstream."
+      "reason": "Forge remote branch now exists at eb66d65a32b0ce845c6b1eda4060b43e06b3c780; technical 48daaf9b79929f80f0bd32bfc2bb50e97137f65b also resolves remotely. Local-only diagnosis superseded; Forge content/merge adjudication remains outside this workstream.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/193#issuecomment-5859039820"
     },
     {
       "number": 192,
       "title": "Cleanup: revert accidental WS190 evidence commit from main",
       "classification": "COORDINATOR_DECISION_REQUIRED",
-      "reason": "Historical direct-main evidence removal/acceptance is an explicit reserved decision; file/provenance preserved, no history rewrite."
+      "reason": "Historical direct-main evidence removal/acceptance is an explicit reserved decision; file/provenance preserved, no history rewrite.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/192#issuecomment-5859040022"
     },
     {
       "number": 191,
-      "title": "WS78B — OpenCode Go quota-efficiency benchmark and session-rotation policy",
+      "title": "WS78B \u00e2\u20ac\u201d OpenCode Go quota-efficiency benchmark and session-rotation policy",
       "classification": "ACTIVE",
-      "reason": "Natural-session benchmark and rotation thresholds remain unmeasured. Session-stats integrity is repaired here; historic prices are dated provenance, not current economics. No paid benchmark or raw export collection."
+      "reason": "Natural-session benchmark and rotation thresholds remain unmeasured. Session-stats integrity is repaired here; historic prices are dated provenance, not current economics. No paid benchmark or raw export collection.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/191#issuecomment-5656343527"
     },
     {
       "number": 190,
-      "title": "WS-FOUNDRY-LONG-TURN-RESILIENCE — bounded timeout recovery and token-efficient continuation",
+      "title": "WS-FOUNDRY-LONG-TURN-RESILIENCE \u00e2\u20ac\u201d bounded timeout recovery and token-efficient continuation",
       "classification": "PARTIALLY_RESOLVED_UPDATE",
-      "reason": "Launcher interruption/telemetry and session statistics exist; no bounded no-progress watchdog found. Retire Muse HIGH guidance; real long-turn measurements remain required."
+      "reason": "Launcher interruption/telemetry and session statistics exist; no bounded no-progress watchdog found. Retire Muse HIGH guidance; real long-turn measurements remain required.",
+      "observed_state": "OPEN",
+      "closed_at": null,
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/190#issuecomment-5656506832"
     }
-  ]
+  ],
+  "verified_main": "f96bc7ec6b7ea07c73f74282c16dcaf73daaad40"
 }

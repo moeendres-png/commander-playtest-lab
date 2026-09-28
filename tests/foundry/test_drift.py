@@ -109,11 +109,14 @@ def test_wrong_repo_identity_fails(enginerepo: Path) -> None:
     assert result["verdict"] == "DRIFT_FAIL"
 
 
-@pytest.mark.parametrize("remote", [
-    "https://github.com/other/moeendres-png/mage.git",
-    "https://not-github.invalid/moeendres-png/mage.git",
-    "https://github.com/moeendres-png/mage-lookalike.git",
-])
+@pytest.mark.parametrize(
+    "remote",
+    [
+        "https://github.com/other/moeendres-png/mage.git",
+        "https://not-github.invalid/moeendres-png/mage.git",
+        "https://github.com/moeendres-png/mage-lookalike.git",
+    ],
+)
 def test_drift_identity_reuses_exact_source_lock_contract(enginerepo, remote):
     _git(["config", "remote.origin.url", remote], enginerepo)
     result = drift_mod.check(str(enginerepo), _profile("mage"), "")
@@ -122,7 +125,9 @@ def test_drift_identity_reuses_exact_source_lock_contract(enginerepo, remote):
 
 
 def test_drift_rejects_multiple_remote_records(enginerepo):
-    _git(["config", "--add", "remote.origin.url", f"https://github.com/{MAGE_SLUG}.git"], enginerepo)
+    _git(
+        ["config", "--add", "remote.origin.url", f"https://github.com/{MAGE_SLUG}.git"], enginerepo
+    )
     result = drift_mod.check(str(enginerepo), _profile("mage"), "")
     assert result["verdict"] == "DRIFT_FAIL"
 

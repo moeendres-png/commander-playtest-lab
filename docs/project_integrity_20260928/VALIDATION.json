@@ -1,0 +1,19 @@
+{
+  "base": "f96bc7ec6b7ea07c73f74282c16dcaf73daaad40",
+  "python": "3.14.4 in isolated WSL venv; CI independently uses 3.12",
+  "focused_donor_tests": {
+    "passed": 119
+  },
+  "final_foundry_and_wsr24_shape": {
+    "passed": 631,
+    "skipped": 1,
+    "skip_reason": "no live export snapshot present",
+    "seconds": 66.53
+  },
+  "ruff_check": "PASS",
+  "ruff_format": "PASS (1046 files)",
+  "strict_mypy": "PASS (274 source files)",
+  "compileall_tools_foundry_tests_foundry": "PASS",
+  "provider_runtime": "NOT_RUN_OUT_OF_SCOPE",
+  "launcher_native_enforcement": "BLOCKED_FOREIGN_OWNER"
+}

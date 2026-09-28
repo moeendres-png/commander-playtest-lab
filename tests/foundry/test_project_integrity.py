@@ -26,12 +26,19 @@ def test_config_ci_agents_and_durable_state_agree():
         assert launcher.AUTHORIZED_NATIVE_VARIANT[short] == native
         assert native in state.REASONING_TIERS
         assert native in schema["properties"]["current_reasoning_tier"]["enum"]
-        assert [v for v, opts in models[short]["variants"].items() if not opts.get("disabled")] == [native]
+        assert [v for v, opts in models[short]["variants"].items() if not opts.get("disabled")] == [
+            native
+        ]
     assert config["model"] == config["small_model"] == launcher.CANONICAL_MODEL
     workflow = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text())
-    step = next(s for s in workflow["jobs"]["opencode"]["steps"] if s.get("run") == "opencode github run")
+    step = next(
+        s for s in workflow["jobs"]["opencode"]["steps"] if s.get("run") == "opencode github run"
+    )
     assert step["env"]["MODEL"] == config["model"]
-    assert step["env"]["VARIANT"] == models[config["model"].split("/", 1)[1]]["options"]["reasoningEffort"]
+    assert (
+        step["env"]["VARIANT"]
+        == models[config["model"].split("/", 1)[1]]["options"]["reasoningEffort"]
+    )
     for path in (ROOT / ".opencode/agents").glob("*.md"):
         front = yaml.safe_load(path.read_text().split("---", 2)[1])
         short = front["model"].split("/", 1)[1]
@@ -39,7 +46,9 @@ def test_config_ci_agents_and_durable_state_agree():
 
 
 def test_launcher_native_pair_gap_has_an_explicit_foreign_owner():
-    deferred = json.loads((ROOT / "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json").read_text())
+    deferred = json.loads(
+        (ROOT / "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json").read_text()
+    )
     assert deferred["disposition"] == "FOREIGN_ACTIVE_DO_NOT_EDIT"
     assert "tools/foundry/launcher.py" in deferred["paths"]
     assert deferred["observed_head"] and deferred["exact_next_action"]
@@ -65,5 +74,11 @@ def test_active_documented_launcher_examples_resolve():
 def test_external_content_boundary_survives_policy_edits():
     agents = (ROOT / "AGENTS.md").read_text()
     boundary = agents.split("### External-content boundary", 1)[1].split("## 4.", 1)[0]
-    for concept in ("DATA/EVIDENCE", "not instructions", "configured permissions", "secrets", "Workstream"):
+    for concept in (
+        "DATA/EVIDENCE",
+        "not instructions",
+        "configured permissions",
+        "secrets",
+        "Workstream",
+    ):
         assert concept in boundary

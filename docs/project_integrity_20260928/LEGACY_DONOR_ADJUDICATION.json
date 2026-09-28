@@ -35,7 +35,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "cpl/astra-capsule-intake-20260917",
@@ -47,7 +47,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "cpl/astra-failure-cluster-intake-20260916",
@@ -59,7 +59,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "cpl/astra-session-stats-intake-20260916",
@@ -71,7 +71,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "cpl/astra-test-impact-intake-20260916",
@@ -83,7 +83,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "cpl/astra-triport-integration-20260917",
@@ -119,7 +119,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "review/astra-capsule-privacy-20260917",
@@ -131,7 +131,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "review/astra-session-stats-20260916",
@@ -143,7 +143,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "review/astra-test-impact-20260916",
@@ -155,7 +155,7 @@
       ],
       "classification": "STILL_VALUABLE_PORT",
       "object_available": true,
-      "reason": "Recovered as minimal Foundry-only delta; see LEGACY_PORT_RECEIPTS. Fresh tests required."
+      "reason": "Minimal helper/test/doc delta recovered and all 119 donor regression tests pass. See LEGACY_PORT_RECEIPTS and BASELINE_REGRESSION_RECEIPT; not a provider verdict."
     },
     {
       "branch": "review/csn-r4-foundry-successor-impact-20260917",
@@ -189,9 +189,9 @@
       "recorded_worktrees": [
         "/home/moeen/code/ws-csn-r4-forge-s2s3-audit"
       ],
-      "classification": "INACCESSIBLE_NEEDS_LOCAL_RECOVERY",
-      "object_available": false,
-      "reason": "Exact object not in this isolated audit clone; no reconstruction from handoff. Refer to recorded origin path/SHA."
+      "classification": "PROVENANCE_ONLY",
+      "object_available": true,
+      "reason": "Exact sealed commit freshly resolves in recorded /home/moeen/code/forge. Forge S2/S3 review provenance retained in place; outside operating-layer recovery scope. No Forge implementation imported."
     }
   ],
   "noninterference": "Only named sealed legacy objects imported read-only. No active campaign uncommitted bytes read or changed."

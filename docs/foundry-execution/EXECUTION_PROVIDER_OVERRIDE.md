@@ -11,9 +11,9 @@ Foundry `init` or `launch` invocation:
 python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort max --execution-profile space-bunny
 ```
 
-This selects `opencode-go/space-bunny-free` and pins every injected agent to native
-`max` reasoning. The launcher requires `--effort max` for this profile; no HIGH/XHIGH alias is accepted. This preserves the
-native Space Bunny reasoning level. The selected profile/model/native variant are
+The required policy selects `opencode-go/space-bunny-free` at native `max`.
+The command above specifies the intended contract, but is currently blocked by
+the launcher implementation gap described below. Do not substitute HIGH/XHIGH. The selected profile/model/native variant are
 recorded in launch context/environment and existing model/provider telemetry.
 
 No automatic model fallback exists. Space Bunny failure, quota/auth failure, or child
@@ -52,8 +52,9 @@ Muse is an explicit alternate only:
 --execution-profile muse --effort xhigh
 ```
 
-This selects `opencode-go/muse-spark-1.3-contributor` and pins the main model,
-small model and reachable injected agents to native `xhigh`. Muse HIGH is rejected.
+The authorized Muse identity is `opencode-go/muse-spark-1.3-contributor` with
+main model, small model and reachable agents at native `xhigh`. Muse HIGH is
+prohibited by policy; the launcher rejection still requires the deferred repair.
 There is no silent fallback from Space Bunny MAX to Muse XHIGH or vice versa.
 
 
