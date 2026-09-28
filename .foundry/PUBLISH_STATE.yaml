@@ -1,0 +1,44 @@
+schema_version: "2.0"
+repository: "https://github.com/moeendres-png/commander-playtest-lab"
+worktree: "/home/moeen/code/csn-final-bakeoff/space-bunny/lab"
+branch: "sbmax/full-completion"
+
+# The previously published remote head. A strict ancestor of current_head, so the
+# checkpoint push is a fast-forward with no history rewrite and no force.
+audit_base_sha: "55d35dec6cc0258f7b1ae12e90e1554537d86b0c"
+audit_base_tree: "3c2997c07504a69a1fdff96369dba3fc9dd3bedb"
+state_written_against_head: "2c34a6c7ad74ca0880a1e37ca6e465523db82c7e"
+validated_head: "2c34a6c7ad74ca0880a1e37ca6e465523db82c7e"
+
+objective: >-
+  Converge the Space Bunny independent campaign into current canonical Commander-Lab
+  main, then close the PB-03 transport seam so blocked starting-state rows become
+  executable. Engineering evidence for Coordinator Production-Provider selection and
+  Architecture-Freeze adjudication.
+
+in_scope:
+  - "Controlled merge of canonical origin/main into the owned campaign branch"
+  - "Semantic reconciliation of overlapping qualification, Foundry and evidence surfaces"
+  - "PB-03 transport to the engine's existing native state-restoration mechanism"
+  - "Impact adjudication and evidence-survival recording"
+  - "Publishing the owned campaign branch and its single primary PR"
+
+out_of_scope:
+  - "Forge PR #5 Commander-Lab runtime requalification (owned by the DeepSeek workstream)"
+  - "XMage principal-scoping remediation (already merged as PR #283, runtime-verified)"
+  - "Provider selection or provider ranking"
+  - "Architecture Freeze claim"
+  - "Any mutation of a foreign writer's branch or worktree"
+
+ownership: "final-completion-space-bunny-max"
+status: "ACTIVE"
+exact_next_action: >-
+  Re-execute the currently BLOCKED starting-state rows on a surface this campaign owns,
+  comparing the engine readback against each frozen fixture. Forge PR #5 runtime evidence
+  is owned by another workstream and must not be raced.
+
+notes: >-
+  ARCHITECTURE_FREEZE = NOT CLAIMED. PRODUCTION_PROVIDER = NOT SELECTED.
+  Independent Space Bunny lineage is preserved, not rewritten: seals at
+  .foundry/SB_INDEPENDENT_BASELINE.json (tag sb-independent-baseline-20260928) and
+  .foundry/SB_INDEPENDENT_BASELINE_FINAL.json.
