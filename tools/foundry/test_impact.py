@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -169,37 +170,87 @@ RULES: list[tuple[str, list[str], list[str], list[str], str]] = [
 KNOWN_TOP_DIRS = ("tools", "tests", ".foundry", ".opencode", "docs", ".github")
 
 
-def _run(args: list[str], cwd: str) -> str:
-    proc = subprocess.run(args, cwd=cwd, capture_output=True, text=True, check=False)
+GIT_TIMEOUT_SECONDS = 15
+
+
+def _git(args: list[str], cwd: str) -> bytes:
+    """No partial evidence or raw Git diagnostics escape a failed command."""
+    operation = args[0]
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            capture_output=True,
+            check=False,
+            timeout=GIT_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.SubprocessError, UnicodeError) as exc:
+        raise ValueError(
+            f"Git {operation} unavailable ({type(exc).__name__}); inspect the checkout and retry"
+        ) from exc
     if proc.returncode != 0:
-        raise RuntimeError(f"{' '.join(args)} failed: {proc.stderr.strip()[:200]}")
-    return proc.stdout.strip()
+        raise ValueError(
+            f"Git {operation} failed (exit {proc.returncode}); no impact plan produced"
+        )
+    return proc.stdout
+
+
+def _commit(workdir: str, ref: str) -> str:
+    raw = _git(["rev-parse", "--verify", "--end-of-options", ref + "^{commit}"], workdir)
+    if not re.fullmatch(rb"(?:[0-9a-f]{40}|[0-9a-f]{64})\n", raw):
+        raise ValueError("Git returned an invalid commit identity; no impact plan produced")
+    return raw[:-1].decode("ascii")
+
+
+def _paths(raw: bytes) -> set[str]:
+    if not raw:
+        return set()
+    if not raw.endswith(b"\0"):
+        raise ValueError("Git path output lacks NUL framing; no impact plan produced")
+    paths = set()
+    for record in raw[:-1].split(b"\0"):
+        # Surrogate escapes retain otherwise undecodable Git pathname bytes in JSON.
+        path = record.decode("utf-8", errors="surrogateescape")
+        if not path or any(part in ("", ".", "..") for part in path.split("/")):
+            raise ValueError(
+                "Git returned an incomplete/invalid path (possibly a nested repository); "
+                "inspect the checkout before retrying"
+            )
+        paths.add(path)
+    return paths
+
+
+def _inventory(workdir: str, base: str) -> tuple[str, str, list[str]]:
+    try:
+        resolved_base = _commit(workdir, base)
+    except ValueError as exc:
+        raise ValueError(f"cannot diff against base: {exc}") from exc
+    if _git(["rev-parse", "--show-prefix"], workdir) != b"\n":
+        raise ValueError("--workdir must be the checkout root; subdirectories omit sibling changes")
+    head = _commit(workdir, "HEAD")
+    diff = [
+        "diff",
+        "--no-ext-diff",
+        "--no-textconv",
+        "--no-renames",
+        "--ignore-submodules=none",
+        "--name-only",
+        "-z",
+    ]
+    files: set[str] = set()
+    # Keep both sides of renames and dirty index/worktree changes even when they
+    # cancel relative to the base. No human-oriented status parsing is needed.
+    for revisions in ([resolved_base], ["--cached", head], []):
+        files.update(_paths(_git([*diff, *revisions, "--"], workdir)))
+    files.update(_paths(_git(["ls-files", "--others", "--exclude-standard", "-z", "--"], workdir)))
+    if _commit(workdir, "HEAD") != head:
+        raise ValueError("HEAD changed during collection; stop concurrent writes and retry")
+    return resolved_base, head, sorted(files)
 
 
 def changed_files(workdir: str, base: str) -> list[str]:
-    """Tracked changes vs base (committed + dirty) plus untracked entries."""
-    try:
-        diff = _run(["git", "diff", "--name-only", base], workdir)
-    except RuntimeError as exc:
-        raise ValueError(f"cannot diff against base {base!r}: {exc}") from exc
-    # Porcelain XY columns are positional: never strip leading whitespace
-    # (a stripped first line loses a blank X and corrupts the path slice).
-    proc = subprocess.run(
-        ["git", "status", "--porcelain"],
-        cwd=workdir,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    porcelain = proc.stdout.strip("\n") if proc.returncode == 0 else ""
-    files: set[str] = set(diff.split())
-    for line in porcelain.splitlines():
-        entry = line[3:].strip().strip('"')
-        if " -> " in entry:
-            entry = entry.split(" -> ", 1)[1]
-        if entry:
-            files.add(entry)
-    return sorted(files)
+    """Complete tracked/dirty/untracked path inventory in a quiescent checkout."""
+    return _inventory(workdir, base)[2]
 
 
 def is_docs_only(path: str) -> bool:
@@ -263,15 +314,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", default=None)
     args = parser.parse_args(argv)
     try:
-        changed = changed_files(args.workdir, args.base)
+        resolved_base, head, changed = _inventory(args.workdir, args.base)
     except ValueError as exc:
         print(f"TEST_IMPACT_ERROR: {exc}", file=sys.stderr)
         return 1
-    try:
-        head = _run(["git", "rev-parse", "HEAD"], args.workdir)
-    except RuntimeError:
-        head = "UNKNOWN"
-    result = {"base": args.base, "head": head, **plan(changed)}
+    result = {"base": args.base, "resolved_base": resolved_base, "head": head, **plan(changed)}
     text = json.dumps(result, indent=2, sort_keys=True)
     if args.output:
         Path(args.output).write_text(text + "\n", encoding="utf-8")

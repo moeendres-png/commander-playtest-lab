@@ -1,0 +1,170 @@
+[
+  {
+    "donor": "47f591e5c6178c72fdbe83b023faf41cd743ac30",
+    "files": [
+      {
+        "path": "tools/foundry/evidence.py",
+        "donor_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "repaired_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/context_capsule.py",
+        "donor_blob": "ede1e402835ca64e18727af6d19c5ecd442b29af",
+        "repaired_blob": "ede1e402835ca64e18727af6d19c5ecd442b29af",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/cluster_failures.py",
+        "donor_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "repaired_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/session_stats.py",
+        "donor_blob": "993c82ee07d76f18b2be7e94306d38a4a99aa3b3",
+        "repaired_blob": "a5a7010e856b895d36d5408e6d94cc9fa72c611b",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/test_impact.py",
+        "donor_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "repaired_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/safe_push.py",
+        "donor_blob": "9f1f22222940222169e75dcb033f55ea17f67f86",
+        "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
+        "identical": false
+      }
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
+  },
+  {
+    "donor": "11822e99b048ceccf804eb334452ce3ac8fa1474",
+    "files": [
+      {
+        "path": "tools/foundry/evidence.py",
+        "donor_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "repaired_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/context_capsule.py",
+        "donor_blob": "fb689ef32c0d28c702689ad3071dbeadd6bfe245",
+        "repaired_blob": "ede1e402835ca64e18727af6d19c5ecd442b29af",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/cluster_failures.py",
+        "donor_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "repaired_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/session_stats.py",
+        "donor_blob": "993c82ee07d76f18b2be7e94306d38a4a99aa3b3",
+        "repaired_blob": "a5a7010e856b895d36d5408e6d94cc9fa72c611b",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/test_impact.py",
+        "donor_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "repaired_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/safe_push.py",
+        "donor_blob": "9f1f22222940222169e75dcb033f55ea17f67f86",
+        "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
+        "identical": false
+      }
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
+  },
+  {
+    "donor": "b048d682a59dda4623811738694f96028c96039d",
+    "files": [
+      {
+        "path": "tools/foundry/evidence.py",
+        "donor_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "repaired_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/context_capsule.py",
+        "donor_blob": "f2bbc4ed04e1d86e11710d07b15321ad04973df2",
+        "repaired_blob": "ede1e402835ca64e18727af6d19c5ecd442b29af",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/cluster_failures.py",
+        "donor_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "repaired_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/session_stats.py",
+        "donor_blob": "a5a7010e856b895d36d5408e6d94cc9fa72c611b",
+        "repaired_blob": "a5a7010e856b895d36d5408e6d94cc9fa72c611b",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/test_impact.py",
+        "donor_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "repaired_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "identical": true
+      },
+      {
+        "path": "tools/foundry/safe_push.py",
+        "donor_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
+        "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
+        "identical": true
+      }
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
+  },
+  {
+    "donor": "0b6649edc4bf7cd95bed13cbaf382235b4f31483",
+    "files": [
+      {
+        "path": "tools/foundry/evidence.py",
+        "donor_blob": "f275e4c267a6721c8f08df87c3218c7aaf786239",
+        "repaired_blob": "ed4c8da9a0271714ea02bcb1105296465812c07f",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/context_capsule.py",
+        "donor_blob": "fb689ef32c0d28c702689ad3071dbeadd6bfe245",
+        "repaired_blob": "ede1e402835ca64e18727af6d19c5ecd442b29af",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/cluster_failures.py",
+        "donor_blob": "8a1b540a1108f8b4e6dbea73d4eabbe8dd84dc49",
+        "repaired_blob": "7fe876aeadae7443fc80202f09da3fe3fb2ccc77",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/session_stats.py",
+        "donor_blob": "993c82ee07d76f18b2be7e94306d38a4a99aa3b3",
+        "repaired_blob": "a5a7010e856b895d36d5408e6d94cc9fa72c611b",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/test_impact.py",
+        "donor_blob": "f15d270283b2b35c04fe6744fe02dfc3da2cdf2b",
+        "repaired_blob": "e016b80d8860760ade296e72fa66fc242f5ae7fe",
+        "identical": false
+      },
+      {
+        "path": "tools/foundry/safe_push.py",
+        "donor_blob": "8a4ba070ed1346fcef6f8de81706f00b5ff10ab4",
+        "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
+        "identical": false
+      }
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
+  }
+]

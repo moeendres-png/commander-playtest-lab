@@ -1,0 +1,406 @@
+{
+  "main": "e91819ae18166a9f91ca52d101a72c8cb8eddade",
+  "tree": "3568047a171e84e8f57b3b8b6c013a92b05c9f0d",
+  "files": [
+    {
+      "path": ".foundry/WORKSTREAM_STATE.schema.json",
+      "blob": "63cd5b30721707cc8d4f8f516823d213b3eaa765"
+    },
+    {
+      "path": ".foundry/conformance-ledger-2026-09-10.json",
+      "blob": "d595a9685392f2ec77ad92f8baf790ff0d0e3696"
+    },
+    {
+      "path": ".foundry/repo-profiles/cpl.json",
+      "blob": "125b77b282cc40668ad740a5961d288e1fd8e37b"
+    },
+    {
+      "path": ".foundry/repo-profiles/forge.json",
+      "blob": "c418a85fccde273d71f25309f5a237b913cc23f5"
+    },
+    {
+      "path": ".foundry/repo-profiles/mage.json",
+      "blob": "a6582151d47bb1ab51bac6e513002c562e35e9e6"
+    },
+    {
+      "path": ".foundry/safe-auto-battery-2026-09-10.json",
+      "blob": "6edda20b2a6d72fb5817460d951004f7bfad9c07"
+    },
+    {
+      "path": ".foundry/wsr24-freeze-production-bootstrap-readiness-20260927.json",
+      "blob": "ec08ccbd61faa310ff967c700f817996db658811"
+    },
+    {
+      "path": ".github/workflows/candidate-lossless-handoff.yml",
+      "blob": "5dccc490d774825b1c96b1fb831b738ae0403347"
+    },
+    {
+      "path": ".github/workflows/candidate-paired-triage.yml",
+      "blob": "b73e102c9ac9147b9ccdd6097b469ef79ebbaff7"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "blob": "62ba4a4bf4ef9cc49b028ba1a9ecbb7665d63d3c"
+    },
+    {
+      "path": ".github/workflows/core-workflow-acceptance.yml",
+      "blob": "5a64dc3f3fba0330a3874b5fa44d969e44a5d076"
+    },
+    {
+      "path": ".github/workflows/decision-support-regression.yml",
+      "blob": "436979f78c0b2e645ce710f105a9992f6c3a0d76"
+    },
+    {
+      "path": ".github/workflows/exact-main-recovery.yml",
+      "blob": "11819e96c287ded6083f9caab88cba89e0491f2f"
+    },
+    {
+      "path": ".github/workflows/external-engine-integration.yml",
+      "blob": "8e4028f6d877c550912c23b6dad85553e0eaabdc"
+    },
+    {
+      "path": ".github/workflows/h4-docker-materialization.yml",
+      "blob": "79460070b258741ad65a637ec37af2e114aab835"
+    },
+    {
+      "path": ".github/workflows/meta-qualification.yml",
+      "blob": "732aefb2d6e4cbc7bd6a7a065b8cccf11c8aa7a2"
+    },
+    {
+      "path": ".github/workflows/model-resolution-measurement.yml",
+      "blob": "64790ff6d06e1b8d95b0266c5a54b053ff79bf2a"
+    },
+    {
+      "path": ".github/workflows/opencode.yml",
+      "blob": "f9f58a2e3f71face66d5a6569d4415d703e7b025"
+    },
+    {
+      "path": ".github/workflows/optimizer-v2-acceptance.yml",
+      "blob": "56202118557fb819eea0700d57a3c486065e4bdb"
+    },
+    {
+      "path": ".github/workflows/optimizer-v2-benchmark.yml",
+      "blob": "0e2d7821ca33b731763ddffa1305abb87aa794d1"
+    },
+    {
+      "path": ".github/workflows/production-qualification.yml",
+      "blob": "e4fe6cd0cda72a706412ce5bca54abe22b34cc92"
+    },
+    {
+      "path": ".github/workflows/release-artifacts.yml",
+      "blob": "c7530487af9eed0b6c89b70f9ae17a1f449d668e"
+    },
+    {
+      "path": ".github/workflows/windows-runtime.yml",
+      "blob": "0b2b5d9f93e543d0c1dfa138b42d56c74891655f"
+    },
+    {
+      "path": ".github/workflows/xmage-full-game-conformance.yml",
+      "blob": "af662772270e16f90f8aa008531c2af1fd374068"
+    },
+    {
+      "path": ".github/workflows/xmage-real-4p-smoke.yml",
+      "blob": "bf21d1cef428f3178b31e3091c68cd875f56d3e2"
+    },
+    {
+      "path": ".opencode/agents/foundry-adjudicator.md",
+      "blob": "09559cd77e3cffb08716479046e5723e96ba4f62"
+    },
+    {
+      "path": ".opencode/agents/foundry-implementer.md",
+      "blob": "127f16755235264dd0a3282cc0d46d5cb481a6b9"
+    },
+    {
+      "path": ".opencode/agents/foundry-reviewer.md",
+      "blob": "34b8ed3823669dd391df4b7722d41e9c5fa89b9c"
+    },
+    {
+      "path": ".opencode/commands/work.md",
+      "blob": "0301f9bd4aaef4bca457ecceb3780b4f95fdd45f"
+    },
+    {
+      "path": ".opencode/skills/component-change-review/SKILL.md",
+      "blob": "fdfc13ef07e55f1ad033fbfb6921bef824459a6f"
+    },
+    {
+      "path": ".opencode/skills/continuation/SKILL.md",
+      "blob": "89c95b540836102c778690c0856d5a4a896cd04b"
+    },
+    {
+      "path": ".opencode/skills/evidence-seal/SKILL.md",
+      "blob": "a5d23626708fbc2eb7b7f00a8acfc3ed4a58c751"
+    },
+    {
+      "path": ".opencode/skills/failure-classification/SKILL.md",
+      "blob": "4fca63003060a74cca4dbd28561bc5bd9e82299a"
+    },
+    {
+      "path": ".opencode/skills/rules-authority-escalation/SKILL.md",
+      "blob": "3b9e8032ebf6c591321230f5deec72a58b2ab6e4"
+    },
+    {
+      "path": ".opencode/skills/test-impact/SKILL.md",
+      "blob": "97c1d0507c4f0b4a1fca1dc378e6cf358c47ee49"
+    },
+    {
+      "path": ".opencode/skills/workstream-bootstrap/SKILL.md",
+      "blob": "62ffdb33d0267901f89a2d33e05c7160ab9d5979"
+    },
+    {
+      "path": "AGENTS.md",
+      "blob": "94dca136180e0b7c54eec9899534c4d2dae227b0"
+    },
+    {
+      "path": "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+      "blob": "c27b739b990654e774ecca2eaf53361cfba44611"
+    },
+    {
+      "path": "docs/REPOSITORY_TRIAGE_INDEX.md",
+      "blob": "790cf6ac39e39b094d0b980f44cd9e26f542b9a2"
+    },
+    {
+      "path": "docs/foundry-execution/CLI_COMPACTION_REQUALIFICATION_2026-09-10.md",
+      "blob": "e597ffe340acf7d716d8bd7573cea8cde57ce6e9"
+    },
+    {
+      "path": "docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md",
+      "blob": "28dea2f55f23c1580319a69814c7b62d052aba27"
+    },
+    {
+      "path": "docs/foundry-execution/CROSS_REPO_CONFORMANCE_BASELINE_2026-09-10.md",
+      "blob": "36ba6a8b3a850727d69b03d5832b176df3885a01"
+    },
+    {
+      "path": "docs/foundry-execution/CROSS_REPO_MUSE_OPERATING_LAYER_QUALIFICATION_2026-09-10.md",
+      "blob": "40ff46bb94938a312a27cac5a605040eb25a6a60"
+    },
+    {
+      "path": "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
+      "blob": "98fafd0260019c0b2b5df9712532891799d55424"
+    },
+    {
+      "path": "docs/foundry-execution/FULL_PROJECT_EXECUTION_AUTHORITY_2026-09-27.md",
+      "blob": "44659f4d1d49e4702638dcdc935e7028a36c5928"
+    },
+    {
+      "path": "docs/foundry-execution/GITHUB_REMOTE_GATES.md",
+      "blob": "24ce7c76fb3c33c8fb682cb1959c810b032da5de"
+    },
+    {
+      "path": "docs/foundry-execution/GOVERNANCE_PROPAGATION.md",
+      "blob": "3763a58953363d2424319abc2d48c3234f6f9bb4"
+    },
+    {
+      "path": "docs/foundry-execution/GOVERNANCE_SUPERSESSION.md",
+      "blob": "d336bdc3aa26efef4f0806ca4f994127c62ad803"
+    },
+    {
+      "path": "docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md",
+      "blob": "29e567ff44135ef68df1077249f99b5f78850927"
+    },
+    {
+      "path": "docs/foundry-execution/METRICS.md",
+      "blob": "b7d0f3418f1352b865f2f14fe588876efe3e17a1"
+    },
+    {
+      "path": "docs/foundry-execution/README.md",
+      "blob": "75bb677e74adaf130f4df822f5cfb381f3d53a95"
+    },
+    {
+      "path": "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+      "blob": "22816978e0167ad5711f78aa6272e21f9232d733"
+    },
+    {
+      "path": "docs/foundry-execution/SAFE_AUTO_THREAT_MODEL_2026-09-10.md",
+      "blob": "d8b47a48fb0b4ba568f49d1cfc92fc3184718749"
+    },
+    {
+      "path": "docs/foundry-execution/SOURCE_LOCK_REMOTE_EVIDENCE.md",
+      "blob": "25c44eb49097e70a19fd14a05c3f8a92286d33e9"
+    },
+    {
+      "path": "docs/foundry-execution/TOKEN_ECONOMY.md",
+      "blob": "a7b9180ee5658ec0ad9c235997625dfdba6fae5c"
+    },
+    {
+      "path": "docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md",
+      "blob": "bf6f776aa31ad1ba45235fb9950cbadd86bcaaf8"
+    },
+    {
+      "path": "docs/foundry-execution/WS240_SOURCE_LOCK_MULTIVALUE_IDENTITY_EVIDENCE.md",
+      "blob": "3bf3fee86be78683dd888d22acbdca298d8c2fa7"
+    },
+    {
+      "path": "docs/foundry-execution/WS241_SAFE_PUSH_EFFECTIVE_TARGET_EVIDENCE.md",
+      "blob": "8c66871d0e340c3558d68998a8693cc7f63646cb"
+    },
+    {
+      "path": "opencode.json",
+      "blob": "88fac309fa3cd0ea030f3ee391aeabc7734063d6"
+    },
+    {
+      "path": "tools/foundry/__init__.py",
+      "blob": "91a16a8deae8121a0354e65db38ed8a4c8af2a31"
+    },
+    {
+      "path": "tools/foundry/bootstrap.py",
+      "blob": "122922261c11ec5a394e9b2ced251ee8851dd92c"
+    },
+    {
+      "path": "tools/foundry/cluster_failures.py",
+      "blob": "8a1b540a1108f8b4e6dbea73d4eabbe8dd84dc49"
+    },
+    {
+      "path": "tools/foundry/context_capsule.py",
+      "blob": "fb689ef32c0d28c702689ad3071dbeadd6bfe245"
+    },
+    {
+      "path": "tools/foundry/drift_check.py",
+      "blob": "b52f99b91eaccd177a2581ca4416c14864a9f7b6"
+    },
+    {
+      "path": "tools/foundry/evidence.py",
+      "blob": "f275e4c267a6721c8f08df87c3218c7aaf786239"
+    },
+    {
+      "path": "tools/foundry/fs_sandbox.py",
+      "blob": "f38d2e23f1077896148a295a526ec9f6d2c1b82c"
+    },
+    {
+      "path": "tools/foundry/launcher.py",
+      "blob": "79f036a35cbd0535aad7ed954124de5ae30000a1"
+    },
+    {
+      "path": "tools/foundry/metrics.py",
+      "blob": "2fd7e8584cecd5730d8034e33549efbe402f6e51"
+    },
+    {
+      "path": "tools/foundry/opencode_cli_version.py",
+      "blob": "3126f8d1f6d06b731e499a906c7aa9477b3a2af1"
+    },
+    {
+      "path": "tools/foundry/permission_battery.py",
+      "blob": "3ce5d1e88cae2a5bd3ee5a253baa4a8aeee4a2ba"
+    },
+    {
+      "path": "tools/foundry/reference_roots.py",
+      "blob": "445403e35fd2844732a7f70a339806faf39f9adb"
+    },
+    {
+      "path": "tools/foundry/safe_push.py",
+      "blob": "78f28f87994604f69f76f2a494ca9a93f92fc979"
+    },
+    {
+      "path": "tools/foundry/session_stats.py",
+      "blob": "993c82ee07d76f18b2be7e94306d38a4a99aa3b3"
+    },
+    {
+      "path": "tools/foundry/source_lock.py",
+      "blob": "ab00cf088fa13de78fa2c8c3107afee5ebab3cb8"
+    },
+    {
+      "path": "tools/foundry/state.py",
+      "blob": "855491d11c67134fa9c17cea64cfaebd7e60bcd4"
+    },
+    {
+      "path": "tools/foundry/test_impact.py",
+      "blob": "f15d270283b2b35c04fe6744fe02dfc3da2cdf2b"
+    },
+    {
+      "path": "tools/foundry/workspace_access.py",
+      "blob": "359d9bf56f0b0681ce4eedde3673f22c283c8fd2"
+    },
+    {
+      "path": "tools/foundry/worktree_inventory.py",
+      "blob": "5fbba24d9c16564aa525114c5a44fd2746c2878d"
+    },
+    {
+      "path": "tools/foundry/writer_lock.py",
+      "blob": "4436770eba00f3edea904cc58680d258ee2c743d"
+    }
+  ],
+  "foreign_pr_278": {
+    "files": [
+      ".gitignore",
+      "WS17_SHA256SUMS",
+      "config/rules_engines.json",
+      "docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json",
+      "docs/architecture_freeze_readiness_20260927/XMAGE_FREEZE_READINESS.json",
+      "docs/pre_freeze_completion_20260927/WORKSTREAM_STATE.yaml",
+      "docs/pre_freeze_completion_20260927/WSR22_EVIDENCE_INTEGRITY.md",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/ActorSafeIdentity.java",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java",
+      "engine-bridge/src/test/java/org/commanderlab/xmage/ActorSafeIdentityTest.java",
+      "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameNameCanaryTest.java",
+      "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
+      "engine-bridge/src/test/java/org/commanderlab/xmage/XmageHiddenReplayIntegrationTest.java",
+      "engine-bridge/src/test/java/org/commanderlab/xmage/XmageVariablePlayerLifecycleTest.java",
+      "qualification/SHA256SUMS",
+      "qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json",
+      "qualification/final-current-boundary-20260927/ACTUAL_CARD_XMAGE.json",
+      "qualification/final-current-boundary-20260927/AF00_AF11_FORGE.json",
+      "qualification/final-current-boundary-20260927/AF00_AF11_XMAGE.json",
+      "qualification/final-current-boundary-20260927/AF01_FORGE.json",
+      "qualification/final-current-boundary-20260927/AF01_XMAGE.json",
+      "qualification/final-current-boundary-20260927/AF01_XMAGE_FULLGAME_LANE.json",
+      "qualification/final-current-boundary-20260927/CURRENT_BOUNDARY_COMPARISON.json",
+      "qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json",
+      "qualification/final-current-boundary-20260927/DIVERGENCE_PACKET.json",
+      "qualification/final-current-boundary-20260927/EFFECTIVE_FULL107_MANIFEST.json",
+      "qualification/final-current-boundary-20260927/FINAL_HANDOFF.md",
+      "qualification/final-current-boundary-20260927/FULL107_FORGE_RESULTS.json",
+      "qualification/final-current-boundary-20260927/FULL107_FORGE_RUNTIME_LOG_INDEX.json",
+      "qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json",
+      "qualification/final-current-boundary-20260927/FULL107_XMAGE_RUNTIME_LOG_INDEX.json",
+      "qualification/final-current-boundary-20260927/HIDDEN_INFO_FORGE.json",
+      "qualification/final-current-boundary-20260927/HIDDEN_INFO_XMAGE.json",
+      "qualification/final-current-boundary-20260927/PLAYER_CARDINALITY_FORGE.json",
+      "qualification/final-current-boundary-20260927/PLAYER_CARDINALITY_XMAGE.json",
+      "qualification/final-current-boundary-20260927/PROVIDER_BLOCKERS.json",
+      "qualification/final-current-boundary-20260927/RNG_REPLAY_FORGE.json",
+      "qualification/final-current-boundary-20260927/RNG_REPLAY_XMAGE.json",
+      "qualification/final-current-boundary-20260927/SELF_REVIEW.md",
+      "qualification/final-current-boundary-20260927/SOURCE_LOCK.json",
+      "qualification/final-current-boundary-20260927/SUCCESSOR_INHERITANCE_PROOF.json",
+      "qualification/final-current-boundary-20260927/VALIDATION.md",
+      "qualification/final-current-boundary-20260927/WORKSTREAM_CONTRACT.md",
+      "qualification/final-current-boundary-20260927/WORKSTREAM_STATE.yaml",
+      "qualification/final-current-boundary-20260927/wsr20-ingest/FULL107_FORGE_MAPPING.json",
+      "qualification/final-current-boundary-20260927/xmage_native_fixture_bindings.json",
+      "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+      "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+      "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
+      "qualification/pre-freeze-successor/SOURCE_LOCK.json",
+      "scripts/assemble_current_boundary_evidence.py",
+      "scripts/run_current_boundary_qualification.py",
+      "src/commander_lab/qualification/current_boundary/__init__.py",
+      "src/commander_lab/qualification/current_boundary/af01.py",
+      "src/commander_lab/qualification/current_boundary/af03.py",
+      "src/commander_lab/qualification/current_boundary/bridge_launcher.py",
+      "src/commander_lab/qualification/current_boundary/full107.py",
+      "src/commander_lab/qualification/current_boundary/game_driver.py",
+      "src/commander_lab/qualification/current_boundary/lifecycle.py",
+      "src/commander_lab/qualification/current_boundary/materialization.py",
+      "src/commander_lab/qualification/current_boundary/receipts.py",
+      "src/commander_lab/qualification/current_boundary/semantic.py",
+      "src/commander_lab/qualification/current_boundary/source_lock.py",
+      "tests/qualification/test_current_boundary_af01_live_game.py",
+      "tests/qualification/test_current_boundary_af02_lifecycle.py",
+      "tests/qualification/test_current_boundary_af03.py",
+      "tests/qualification/test_current_boundary_assembler_integrity.py",
+      "tests/qualification/test_current_boundary_bridge_deadline.py",
+      "tests/qualification/test_current_boundary_pb03_starting_state.py",
+      "tests/qualification/test_current_boundary_pb09_engine_identity.py",
+      "tests/qualification/test_current_boundary_principal_scoping.py",
+      "tests/qualification/test_current_boundary_receipts.py",
+      "tests/qualification/test_current_boundary_semantic_comparison.py",
+      "tests/qualification/test_current_boundary_start2_observed_state.py",
+      "tests/qualification/test_pre_freeze_contract_successor.py",
+      "tests/qualification/test_wsr22_current_boundary.py"
+    ],
+    "head": "cf06bc3489af427a5faa4b9b82dbf92c42ac9cd9"
+  },
+  "scope": "Operating surfaces inventoried by exact main blob; historical snapshots are not live state."
+}
