@@ -1,0 +1,45 @@
+{
+  "branch": "sbmax/full-completion",
+  "demonstrated_candidate_defect": {
+    "forge_hidden_information": "SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT - not accused, because without actor marking the validator cannot tell whose content it saw.",
+    "xmage_hidden_information": "ENGINE_CANDIDATE_DEFECT - all four principals received a byte-identical state view (distinct_state_views=1). Demonstrated, not unestablished, because the monotonic observation offset is excluded from the comparison."
+  },
+  "evidence": {
+    "forge": "PASS 1 / FAIL 0 / UNKNOWN 58 / BLOCKED 48 (107)",
+    "note": "both candidate columns are complete denominators with ZERO rules failures",
+    "xmage": "PASS 4 / FAIL 0 / UNKNOWN 59 / BLOCKED 44 (107)"
+  },
+  "exact_next_action": "Close the PB-03 transport seam: add the protocol message that reaches the native state-restoration path, which unblocks 30 rows per candidate and is the single largest remaining item. It is Lab-side and identical for both candidates.",
+  "head": "79c11f8d99cd4f60cd7b0d941ed8fb6016209ad5",
+  "identity": {
+    "forge_candidate_PINNED_UPSTREAM": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "forge_fork_NON_CANDIDATE": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "forge_fork_side_bridge": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+    "forge_materializing_bridge": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+    "xmage_candidate": "b19596980f2734496ea1896504253e1bdd2756dd"
+  },
+  "not_claimed": [
+    "PRODUCTION_PROVIDER",
+    "ARCHITECTURE_FREEZE"
+  ],
+  "phase": "CONVERGED_SHARED_PROJECT_WORK",
+  "publication_blocker": "launcher writer lock names DEAD pid 1001168 and no FOUNDRY_* vars are present, so safe_push cannot verify an ancestor-held live flock. No bypass attempted.",
+  "remaining_blockers_all_lab_side": [
+    "PB-03 transport seam: 30 rows/candidate. The engine's OWN manifest declares every needed dimension SUPPORTED, so this is a Lab execution-path gap, not a candidate gap.",
+    "per-scenario hidden-information probes: 20 UNKNOWN/candidate, need channel instrumentation",
+    "engine-offered decision families: 15 UNKNOWN/candidate, need more Decision Option surfaces",
+    "micro-rules mechanism rows: 14 BLOCKED/candidate, need a native micro-rules harness",
+    "PB-05: the materializing bridge emits no engine_build_* provenance, so credit is withheld",
+    "PB-07 corpus: 0 of 29 frozen identities executed on either candidate"
+  ],
+  "sb_independent_baseline_tag": "sb-independent-baseline-20260928",
+  "tree": "ac216a8ae00b2d37bb940f8e9a52a60eb09ac9d6",
+  "updated": "2026-09-28T18:38:42.397785+02:00",
+  "validation": {
+    "bridge": "327 run, 0 failures, 1 skipped",
+    "full": "2044 passed, 5 skipped",
+    "mypy": "clean",
+    "qualification": "393 passed, 2 skipped",
+    "ruff": "clean"
+  }
+}
