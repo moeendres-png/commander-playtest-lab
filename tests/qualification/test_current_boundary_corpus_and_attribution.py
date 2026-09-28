@@ -30,8 +30,10 @@ PACKET_TEXT = PACKET.read_text(encoding="utf-8")
 def test_corpus_completion_is_not_derived_from_the_name_count() -> None:
     assert '"complete": not (set(frozen_corpus) - covered_corpus)' in SOURCE
     assert '"missing_identities": sorted(set(frozen_corpus) - covered_corpus)' in SOURCE
-    # Only identities the frozen contract requires may count toward completion.
-    assert "behaviourally_executed_cards & set(frozen_corpus)" in SOURCE
+    # An identity is covered only when ITS OWN mandatory fixture row passed.
+    assert "def card_fixture_identities() -> dict[str, str]:" in SOURCE
+    assert "COMMON_FIXTURE_MANIFEST" in SOURCE
+    assert "if fixture_id in passed_rows" in SOURCE
 
 
 def test_corpus_does_not_count_decks_as_cards() -> None:
@@ -42,12 +44,19 @@ def test_corpus_does_not_count_decks_as_cards() -> None:
     assert '"behaviorally_executed_count": len(covered_corpus)' in SOURCE
 
 
-def test_executed_cards_come_from_a_passing_probe_not_a_list() -> None:
-    assert 'card_result.outcome == "PASS"' in SOURCE
-    assert 'card_result.evidence or {}).get("executed_cards")' in SOURCE
-    # It must read the row RESULT. by_id holds materialization records, which
-    # carry no outcome, so reading it there raises KeyError at runtime.
-    assert 'row.fixture_id == "CARD_02"' in SOURCE
+def test_coverage_comes_from_individual_rows_not_one_result() -> None:
+    """The frozen corpus is 29 separate mandatory fixtures, not one obligation.
+
+    Reading a single CARD_02 result and trusting an executed_cards list attached
+    to it would let one row claim the corpus while the other 28 stayed
+    unexecuted.
+    """
+    assert 'row.outcome == "PASS"' in SOURCE
+    assert 'passed_rows = {row.fixture_id for row in rows if row.outcome == "PASS"}' in SOURCE
+    # No single result may be trusted to carry the corpus.
+    assert 'row.fixture_id == "CARD_02"' not in SOURCE
+    assert '"unexecuted_card_fixtures": unexecuted_card_rows' in SOURCE
+    assert '"card_fixtures": len(card_identities)' in SOURCE
 
 
 def test_block_attribution_reads_the_candidate_capability() -> None:

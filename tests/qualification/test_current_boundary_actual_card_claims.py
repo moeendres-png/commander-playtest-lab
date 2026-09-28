@@ -65,13 +65,16 @@ def test_corpus_shortfall_is_a_number_not_a_prose_pointer() -> None:
     assert "ACTUAL_CARD_DOMAIN_MANIFEST" in source
     assert "regression_corpus_29" in source
     assert '"required_count": len(frozen_corpus),' in source
-    # Completion is measured against the frozen identities. An earlier version
-    # compared the declared NAME count, so appending 29 names would have
-    # advertised a complete runtime corpus with no probe behind it.
+    # Completion is measured against the frozen identities, and each identity is
+    # covered only by its own mandatory fixture row. An earlier version compared
+    # the declared NAME count, so appending 29 names would have advertised a
+    # complete runtime corpus with no probe behind it; a later version read one
+    # row's list, which one passing fixture could have used to claim all 29.
     assert '"complete": not (set(frozen_corpus) - covered_corpus)' in source
     assert '"missing_identities": sorted(set(frozen_corpus) - covered_corpus)' in source
-    assert "behaviourally_executed_cards & set(frozen_corpus)" in source
     assert '"behaviorally_executed_count": len(covered_corpus)' in source
+    assert "def card_fixture_identities() -> dict[str, str]:" in source
+    assert "COMMON_FIXTURE_MANIFEST" in source
 
 
 def test_card_list_is_declared_once() -> None:

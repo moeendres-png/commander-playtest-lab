@@ -217,6 +217,31 @@ ACTUAL_CARD_NAMES: tuple[str, ...] = (
 # shares ZERO members with the frozen 29, so a count derived from it measured
 # nothing.
 ACTUAL_CARD_DOMAIN_MANIFEST = REPO_ROOT / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
+COMMON_FIXTURE_MANIFEST = REPO_ROOT / "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json"
+
+
+def card_fixture_identities() -> dict[str, str]:
+    """Map each CARD_nn fixture to the card identity it is required to exercise.
+
+    The frozen corpus is not one obligation. It is twenty-nine separate mandatory
+    fixtures, each with its own identity, and coverage must come from each of
+    those rows passing. Reading a single CARD_02 result and trusting an
+    `executed_cards` list attached to it would let one row claim the corpus while
+    the other twenty-eight remained unexecuted.
+    """
+    document = json.loads(COMMON_FIXTURE_MANIFEST.read_text(encoding="utf-8"))
+    mapping: dict[str, str] = {}
+    for fixture in document["fixtures"]:
+        fixture_id = str(fixture.get("fixture_id") or "")
+        identity = fixture.get("card_identity")
+        if fixture_id.startswith("CARD_") and identity:
+            mapping[fixture_id] = str(identity)
+    if not mapping:
+        raise SystemExit(
+            f"{COMMON_FIXTURE_MANIFEST} assigns no card identity to any CARD_ fixture; "
+            "corpus coverage cannot be derived"
+        )
+    return mapping
 
 
 def frozen_actual_card_corpus() -> tuple[str, ...]:
@@ -642,17 +667,21 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # ---- actual-card probe -------------------------------------------
         # Cards whose behaviour was EXERCISED this run, derived from the
         # actual-card row outcomes. Naming or importing a card is not execution.
-        behaviourally_executed_cards: set[str] = set()
         # Read the ACTUAL row result, not the materialization record: only a row
         # that executed and passed can contribute executed cards.
         frozen_corpus = frozen_actual_card_corpus()
-        card_result = next((row for row in rows if row.fixture_id == "CARD_02"), None)
-        if card_result is not None and card_result.outcome == "PASS":
-            executed = (card_result.evidence or {}).get("executed_cards")
-            if isinstance(executed, list):
-                behaviourally_executed_cards = {str(name) for name in executed}
-        # Only identities the frozen contract actually requires can count.
-        covered_corpus = behaviourally_executed_cards & set(frozen_corpus)
+        # An identity is covered only when ITS OWN mandatory fixture row passed.
+        # No list attached to any other row can claim it.
+        card_identities = card_fixture_identities()
+        passed_rows = {row.fixture_id for row in rows if row.outcome == "PASS"}
+        covered_corpus = {
+            identity
+            for fixture_id, identity in card_identities.items()
+            if fixture_id in passed_rows
+        }
+        unexecuted_card_rows = sorted(
+            fixture_id for fixture_id in card_identities if fixture_id not in passed_rows
+        )
 
         write(
             f"ACTUAL_CARD_{candidate.upper()}.json",
@@ -689,10 +718,13 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                     "behaviorally_executed_cards": sorted(covered_corpus),
                     "behaviorally_executed_count": len(covered_corpus),
                     "missing_identities": sorted(set(frozen_corpus) - covered_corpus),
+                    "card_fixtures": len(card_identities),
+                    "card_fixtures_passed": len(card_identities) - len(unexecuted_card_rows),
+                    "unexecuted_card_fixtures": unexecuted_card_rows,
                     "complete": not (set(frozen_corpus) - covered_corpus),
                     "statement": (
                         f"{len(covered_corpus)} of the {len(frozen_corpus)} frozen corpus "
-                        "identities have individually passing behavioural evidence; the corpus "
+                        "identities have their own mandatory fixture row passing; the corpus "
                         "is "
                         + (
                             "complete"

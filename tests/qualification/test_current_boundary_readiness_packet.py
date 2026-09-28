@@ -203,3 +203,37 @@ def test_packet_states_the_pb_classifications() -> None:
         assert marker in TEXT, marker
     assert "RESOLVED" in TEXT
     assert "OPEN — RESERVED" in TEXT or "OPEN - RESERVED" in TEXT
+
+
+def test_seed_position_is_reported_per_candidate() -> None:
+    """A blanket "no seed was sent" was false for Forge.
+
+    XMage reports `seed_supported: false` and genuinely sends nothing. Forge
+    reports `seed_supported: true`, the driver sends the seed, and the observed
+    state carries `rng_binding.root_seed` with the Rules call count. Forge's gap
+    is the missing create-response echo, which is a narrower and different gap.
+    """
+    af01 = {
+        candidate: json.loads((OUT / f"AF01_{candidate}.json").read_text(encoding="utf-8"))
+        for candidate in ("XMAGE", "FORGE")
+    }
+    reported = {
+        candidate: document["capabilities_provider_reported"]["seed_supported"]
+        for candidate, document in af01.items()
+    }
+    assert reported["XMAGE"] is False
+    assert reported["FORGE"] is True, "the packet's Forge seed claim depends on this"
+
+    # Forge's observed state must actually carry a bound root seed.
+    hidden = json.loads((OUT / "HIDDEN_INFO_FORGE.json").read_text(encoding="utf-8"))
+    state = json.dumps(hidden)
+    assert "explicit_seed" in state
+    assert "root_seed" in state
+    assert "424242" in state
+
+    # The packet must not make the blanket claim for both.
+    assert "Rules RNG is uncontrolled on both candidates" not in TEXT
+    assert "the two candidates are in different states" in TEXT
+    assert "Forge — seed sent and state-bound" in TEXT
+    assert "XMage — fully uncontrolled" in TEXT
+    assert "393" in TEXT

@@ -185,13 +185,41 @@ credit on either candidate. The full-game lane uses a different protocol and is
 properly scoped through `XmageFullGameStateRedactor`, which this workstream
 repaired to emit seat-derived opaque tokens for every non-viewer principal.
 
-### 6.3 Rules RNG is uncontrolled on both candidates
+### 6.3 Rules RNG — the two candidates are in different states, not the same
 
-Both artifacts record `UNCONTROLLED_ENGINE_RNG`, `controlled: false`,
-`rng_credit: false`, `acknowledged_seed: null`. The generic B4-D lane reports
-`seed_supported: false`, so no seed is sent and none is acknowledged. The earlier
-literal `engine_owned: true` no longer appears in any production source or artifact.
-AF09 cannot be established for either candidate as a result.
+An earlier revision of this packet said "no seed is sent" for both candidates. That
+is false for Forge. They are separate gaps of different widths.
+
+**XMage — fully uncontrolled.** `AF01_XMAGE.json` reports `seed_supported: false`.
+The driver reads that capability and therefore does not send a seed, the create
+response acknowledges none, and the binding is `UNCONTROLLED_ENGINE_RNG` with
+`rng_credit: false`. Nothing about the run's randomness is under Lab or engine
+control. Closing this needs a seed-capable generic lane or an engine-level
+binding.
+
+**Forge — seed sent and state-bound, but the create response does not echo it.**
+`AF01_FORGE.json` reports `seed_supported: true`, `_probes_forge.json` records
+`provider_seed_supported: true` and `seed_sent_to_provider: true`, and the observed
+game state carries:
+
+```
+rng_binding: {explicit_seed: true, require_explicit_seed: true,
+              root_seed: 424242, rules_root_seed: 424242, rules_calls: 393}
+```
+
+That is real evidence: the seed was delivered, the engine requires it, and 393
+Rules calls were drawn from that root seed. What is missing is narrower — the
+`create_commander_game` response does not acknowledge the seed, so
+`acknowledged_seed` is `null` and the binding classifies as
+`UNCONTROLLED_ENGINE_RNG` on the create-response channel.
+
+So Forge is not "no seed". It is a candidate whose seed binding is observable at
+state level but not echoed at creation, and whether state-level binding alone
+satisfies AF09 is an adjudication this packet does not make. Prescribing a
+seed-capable lane for both candidates would have been wrong on Forge's evidence.
+
+The earlier literal `engine_owned: true` no longer appears in any production source
+or artifact on either side.
 
 ### 6.4 Actual-card corpus is not executed — PB-07 open
 
@@ -228,7 +256,7 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | PB-05 build provenance | forge | **RESOLVED** | Forge PR #4 repairs the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
 | PB-06 per-scenario hidden channels | both | **BLOCKED** | no principal-scoped observation is credible. XMage's generic lane returns one shared state view to every observer (a demonstrated leak); Forge redacts but does not mark the observing principal, so scoping cannot be established either way. No per-scenario channel was executed (§6.2) |
 | PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4) |
-| PB-08 clean-process replay twin | both | **BLOCKED** | Rules RNG is uncontrolled on both candidates, so a same-seed twin proves nothing |
+| PB-08 clean-process replay twin | both | **BLOCKED**, for different reasons | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge binds the seed at state level but does not echo it at creation, so whether a twin is meaningful is an AF09 adjudication, not a settled fact |
 | PB-09 Forge candidate identity | coordinator | **OPEN — RESERVED** | which artifact is the candidate: pinned upstream `a37a865a` or the Lab fork `ef958ee9`. Not a coding question |
 | Aftermath `Find // Finality` | forge | **NON_BLOCKING_CAPABILITY_GAP** | not decision- or release-blocking on current evidence; recorded, no engine mutation opened |
 
@@ -244,7 +272,7 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | Bounded 6P | attempted, not separately credited | attempted, not separately credited |
 | Commander deck legality at import (AF03) | PASS | **FAIL** |
 | Principal-scoped hidden information | **FAIL — demonstrated engine defect** | **UNKNOWN — redacted correctly, scoping unestablished** |
-| Rules RNG control (AF09) | **UNCONTROLLED** | **UNCONTROLLED** |
+| Rules RNG control (AF09) | **UNCONTROLLED** — no seed sent, `seed_supported: false` | **PARTIAL** — seed sent and state-bound (`root_seed: 424242`, 393 rules calls), create response does not echo it |
 | Semantic replay | UNKNOWN | UNKNOWN |
 | Actual-card runtime behaviour | UNKNOWN | UNKNOWN |
 | Mid-game starting-state materialization | BLOCKED, 44 rows | BLOCKED, 44 rows |
@@ -270,8 +298,10 @@ sit inside the 59 `UNKNOWN` and 44 `BLOCKED` rows.
    qualify the full-game lane only. XMage additionally needs its projection fixed;
    Forge needs the observing principal marked so its correct redaction can be
    verified rather than merely trusted. This unblocks PB-06 and AF05.
-3. A seed-capable generic lane, or an engine-level RNG binding. This unblocks
-   PB-08 and AF09.
+3. For XMage, a seed-capable generic lane or an engine-level RNG binding. For
+   Forge, a ruling on whether state-level seed binding satisfies AF09 without a
+   create-response acknowledgement. These are different work, and PB-08 and AF09
+   are blocked on each respectively.
 4. Execution of the 29-card corpus under the actual-behaviour standard. This
    unblocks PB-07 and AF07.
 5. A starting-state materialization seam. This unblocks the 44 `BLOCKED` rows and

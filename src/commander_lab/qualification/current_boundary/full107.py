@@ -637,8 +637,10 @@ def validate_principal_scoping(
             )
 
     # Each observation must mark exactly one actor, and it must be the requester.
+    established_requester: dict[str, bool] = {}
     for seat, payload in usable.items():
         players = _players_of(payload)
+        established_requester[seat] = False
         if not players:
             findings.append(
                 {
@@ -652,6 +654,13 @@ def validate_principal_scoping(
         actors = [
             entry for entry in players if isinstance(entry, dict) and entry.get("is_actor") is True
         ]
+        if len(actors) == 1 and _seat_index(requested_seats, seat) == actors[0].get("seat"):
+            # The provider named the observing principal AND it is the seat that
+            # asked. Only then does "a non-actor seat carries content" mean a
+            # leak, and only then can this observation support a demonstrated
+            # defect. The judgement is PER OBSERVATION: a sibling response that
+            # omitted its marker must not downgrade a leak proved here.
+            established_requester[seat] = True
         if len(actors) != 1:
             findings.append(
                 {
@@ -749,16 +758,18 @@ def validate_principal_scoping(
     identical_views = any(
         finding.get("check") == "observations_differ_per_principal" for finding in findings
     )
-    # True only when every observation DID mark exactly one actor. A finding under
-    # this check means the marker was ABSENT, which is the opposite: the provider
-    # gave no way to tell whose content we are looking at, so content on a
-    # "non-actor" seat may be the requester's own.
-    actor_marked_everywhere = not any(
-        finding.get("check") in {"actor_marked", "actor_is_the_requester"} for finding in findings
+    # A leaked-content finding is attributed to the observation that produced it.
+    # A batch-wide flag is wrong in both directions: one response missing its
+    # actor marker must not downgrade a demonstrated leak in every OTHER
+    # response, and one response carrying a leak must not upgrade the rest.
+    leaked_from_established = any(
+        finding.get("check") == "no_opponent_hidden_content"
+        and established_requester.get(str(finding.get("seat", "")), False)
+        for finding in findings
     )
     if not findings:
         attribution = "NONE"
-    elif identical_views or (exposed_keys and actor_marked_everywhere):
+    elif identical_views or leaked_from_established:
         attribution = "ENGINE_CANDIDATE_DEFECT"
     elif exposed_keys:
         attribution = "SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT"
@@ -774,6 +785,12 @@ def validate_principal_scoping(
         # declined to make.
         "engine_leak_indicators": exposed_keys if engine_leak else [],
         "zones_observed_on_unmarked_seats": exposed_keys,
+        "observations_with_established_requester": sorted(
+            seat for seat, ok in established_requester.items() if ok
+        ),
+        "observations_without_established_requester": sorted(
+            seat for seat, ok in established_requester.items() if not ok
+        ),
         "attribution_rule": "one shared state view across different requesters is a "
         "conclusive candidate defect, and real content for a KNOWN non-actor is too. Real "
         "content with no actor marking is unestablished, not a demonstrated leak, because "
