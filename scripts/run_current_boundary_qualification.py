@@ -499,6 +499,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # returned byte-identical payloads for all four seats.
         scoping = validate_principal_scoping(observations, requested_seats=seats)
         probes["hidden_game"] = hidden_game.to_document()
+        probes["hidden_game_seed_binding"] = hidden_game.seed_binding
         probes["hidden_observations"] = observations
         probes["hidden_scoping"] = scoping
         if not scoping["credible_as_principal_scoped_evidence"]:
@@ -541,12 +542,22 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "candidate": candidate,
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
-                "rules_rng_binding": {
-                    "requested_seed": 424242,
-                    "engine_owned": True,
-                    "harness_injected_outcomes": False,
-                    "provider_reported_seed_supported": True,
-                },
+                # Derived from what the engine acknowledged, never asserted from
+                # caller intent. This previously carried a literal
+                # engine_owned: true with a hard-coded requested seed, which is
+                # the original defect: it credited Rules RNG and replay control
+                # that no observation established. The probe game is the same
+                # driven game whose binding is recorded, so the value is real.
+                "rules_rng_binding": (
+                    probes["hidden_game_seed_binding"].to_document()
+                    if probes.get("hidden_game_seed_binding") is not None
+                    else {
+                        "control": "UNCONTROLLED_ENGINE_RNG",
+                        "detail": "no engine acknowledgement was observed for this run",
+                        "rng_credit": False,
+                    }
+                ),
+                "harness_injected_outcomes": False,
                 "semantic_replay": replay_payload,
                 "event_log": probes["event_log"],
                 "same_seed_twin": "see comparison packet; twin runs are executed per candidate",
