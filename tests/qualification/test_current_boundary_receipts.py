@@ -523,3 +523,57 @@ def test_ancestor_is_not_accepted_as_identity() -> None:
             actual_commit="18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
             recorded_label="forge fork",
         )
+
+# --- Gate 4: positive fixture credit is derived from exact JUnit cases ------- #
+
+
+def test_junit_positive_fixture_receipts_require_exact_passing_case(tmp_path: Path) -> None:
+    report = tmp_path / "TEST-org.commanderlab.xmage.XmagePb03Tier1RowsTest.xml"
+    report.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<testsuite tests="4" failures="1" errors="0" skipped="1">
+  <testcase classname="org.commanderlab.xmage.XmagePb03Tier1RowsTest"
+            name="pass_case" time="0.01" />
+  <testcase classname="org.commanderlab.xmage.XmagePb03Tier1RowsTest"
+            name="failed_case" time="0.01"><failure message="boom"/></testcase>
+  <testcase classname="org.commanderlab.xmage.XmagePb03Tier1RowsTest"
+            name="skipped_case" time="0.01"><skipped/></testcase>
+  <testcase classname="org.commanderlab.xmage.OtherTest"
+            name="wrong_class" time="0.01" />
+</testsuite>
+""",
+        encoding="utf-8",
+    )
+    cases = {
+        "pass_case": ("MICRO_COMBAT", "combat obligation", "combat assertion"),
+        "failed_case": ("MICRO_COSTS", "cost obligation", "cost assertion"),
+        "skipped_case": ("MICRO_MODES", "mode obligation", "mode assertion"),
+        "missing_case": ("MICRO_TRIGGERS", "trigger obligation", "trigger assertion"),
+        "wrong_class": ("MICRO_PREVENTION", "prevention obligation", "prevention assertion"),
+    }
+    rows = R.positive_fixture_receipts_from_junit_xml(
+        report,
+        candidate="xmage",
+        candidate_commit="d" * 40,
+        class_name="XmagePb03Tier1RowsTest",
+        cases=cases,
+    )
+    assert len(rows) == 1
+    assert rows[0]["fixture_id"] == "MICRO_COMBAT"
+    assert rows[0]["test_identity"] == "XmagePb03Tier1RowsTest.pass_case"
+    assert rows[0]["assertion_kind"] == "POSITIVE_BEHAVIOUR"
+    assert rows[0]["outcome"] == "PASS"
+
+
+def test_junit_positive_fixture_receipts_fail_closed_on_malformed_xml(tmp_path: Path) -> None:
+    report = tmp_path / "broken.xml"
+    report.write_text("<testsuite><testcase", encoding="utf-8")
+    rows = R.positive_fixture_receipts_from_junit_xml(
+        report,
+        candidate="xmage",
+        candidate_commit="d" * 40,
+        class_name="XmagePb03Tier1RowsTest",
+        cases={"pass_case": ("MICRO_COMBAT", "combat obligation", "combat assertion")},
+    )
+    assert rows == ()
+
