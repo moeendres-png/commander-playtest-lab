@@ -1,6 +1,7 @@
 package org.commanderlab.xmage;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.MageItem;
@@ -57,7 +58,17 @@ final class XmageGameManager {
             String gameId,
             String engineGameId,
             long stateObservationOffset,
+            String observerPlayerId,
+            String observerEnginePlayerId,
+            int observerSeat,
             JsonObject state
+    ) {
+    }
+
+    private record ObserverResolution(
+            String requestedId,
+            Player player,
+            int seat
     ) {
     }
 
@@ -545,18 +556,22 @@ final class XmageGameManager {
         }
     }
 
-    StateSnapshot snapshotState(String gameHandle) {
+    StateSnapshot snapshotState(String gameHandle, String observerPlayerId) {
         ManagedGame managed = requireManagedGame(gameHandle);
         synchronized (managed) {
             if (managed.lifecycle != Lifecycle.STARTED) {
                 throw new GameException("GAME_STATE_UNAVAILABLE: game must be started");
             }
+            ObserverResolution observer = resolveObserver(managed, observerPlayerId);
             managed.stateObservationOffset++;
             return new StateSnapshot(
                     managed.gameId,
                     managed.game.getId().toString(),
                     managed.stateObservationOffset,
-                    buildState(managed)
+                    observer.requestedId(),
+                    observer.player().getId().toString(),
+                    observer.seat(),
+                    buildPrincipalState(managed, observer.player())
             );
         }
     }
@@ -712,9 +727,167 @@ final class XmageGameManager {
     }
 
     private static String stateHash(ManagedGame managed) {
+        // This full internal state is hashed inside the JVM for audit transition
+        // identity only. It is never emitted as a principal observation.
         return XmageAuditEventLog.stateHash(buildState(managed));
     }
 
+    private static ObserverResolution resolveObserver(
+            ManagedGame managed,
+            String observerPlayerId
+    ) {
+        String requested = requireText(observerPlayerId, "observer_player_id");
+
+        if (requested.length() > 1 && requested.charAt(0) == 'p') {
+            try {
+                int oneBasedSeat = Integer.parseInt(requested.substring(1));
+                int seat = oneBasedSeat - 1;
+                if (seat >= 0 && seat < managed.players.size()) {
+                    return new ObserverResolution(requested, managed.players.get(seat), seat);
+                }
+            } catch (NumberFormatException ignored) {
+                // Fall through to exact live-principal resolution below.
+            }
+        }
+
+        for (int seat = 0; seat < managed.players.size(); seat++) {
+            Player player = managed.players.get(seat);
+            if (requested.equals(player.getId().toString())) {
+                return new ObserverResolution(requested, player, seat);
+            }
+        }
+
+        throw new GameException("UNKNOWN_OBSERVER_PLAYER_ID: " + requested);
+    }
+
+    /**
+     * Protocol-2 compatibility state derived from the same actor-scoped
+     * redactor used by the full-game lane.
+     *
+     * <p>This method is a schema adapter only. Hidden-information entitlement
+     * remains exclusively in {@link XmageFullGameStateRedactor#actorView}; this
+     * adapter never infers visibility from card names, ownership heuristics or
+     * caller wishes. Hidden zones are represented by count-preserving
+     * {@code <hidden>} placeholders so public counts remain observable without
+     * disclosing identity or library order.</p>
+     */
+    private static JsonObject buildPrincipalState(ManagedGame managed, Player actor) {
+        Game game = managed.game;
+        JsonObject view = XmageFullGameStateRedactor.actorView(game, actor);
+
+        JsonObject state = new JsonObject();
+        state.addProperty("game_id", managed.gameId);
+        state.add("seed", JsonNull.INSTANCE);
+        state.add("rng_counter", JsonNull.INSTANCE);
+        state.addProperty("status", game.hasEnded() ? "completed" : "in_progress");
+        state.addProperty("turn_number", view.get("turn_number").getAsInt());
+        state.add("active_player_id", view.get("active_player_id").deepCopy());
+        state.add("priority_player_id", view.get("priority_player_id").deepCopy());
+        state.add("phase", view.get("phase").deepCopy());
+        state.add("step", view.get("step").deepCopy());
+
+        JsonArray players = new JsonArray();
+        JsonArray projectedPlayers = view.getAsJsonArray("players");
+        for (int seat = 0; seat < projectedPlayers.size(); seat++) {
+            JsonObject projected = projectedPlayers.get(seat).getAsJsonObject();
+            JsonObject player = new JsonObject();
+            player.addProperty("player_id", projected.get("player_id").getAsString());
+            player.addProperty("seat", projected.get("seat").getAsInt());
+            player.addProperty("life", projected.get("life").getAsInt());
+            player.addProperty("poison_counters", projected.get("poison_counters").getAsInt());
+            player.add("commander_damage_received", new JsonObject());
+            player.add("commander_cast_count", new JsonObject());
+
+            if (projected.has("mana_pool")) {
+                player.add("mana_pool", projected.getAsJsonObject("mana_pool").deepCopy());
+            } else {
+                player.add("mana_pool", new JsonObject());
+            }
+
+            JsonObject zones = new JsonObject();
+            JsonArray grantedLibrary = projected.getAsJsonArray("granted_library");
+            zones.add(
+                    "library",
+                    grantedLibrary.isEmpty()
+                            ? hiddenArray(projected.get("library_count").getAsInt())
+                            : projectedIds(grantedLibrary)
+            );
+            zones.add(
+                    "hand",
+                    projected.has("hand")
+                            ? projectedIds(projected.getAsJsonArray("hand"))
+                            : hiddenArray(projected.get("hand_count").getAsInt())
+            );
+            zones.add("battlefield", projectedIds(projected.getAsJsonArray("battlefield")));
+            zones.add("graveyard", projectedIds(projected.getAsJsonArray("graveyard")));
+            zones.add(
+                    "exile",
+                    hiddenArray(projected.get("exile_count").getAsInt())
+            );
+            zones.add("command", projectedIds(projected.getAsJsonArray("command")));
+            player.add("zones", zones);
+
+            if (projected.has("land_plays_remaining")) {
+                player.addProperty(
+                        "land_plays_remaining",
+                        projected.get("land_plays_remaining").getAsInt()
+                );
+            } else {
+                Player subject = managed.players.get(seat);
+                player.addProperty(
+                        "land_plays_remaining",
+                        Math.max(0, subject.getLandsPerTurn() - subject.getLandsPlayed())
+                );
+            }
+            player.addProperty("has_lost", projected.get("has_lost").getAsBoolean());
+            players.add(player);
+        }
+        state.add("players", players);
+
+        state.add("stack", projectedIds(view.getAsJsonArray("stack")));
+        state.add("legal_actions", new JsonArray());
+
+        JsonArray winnerIds = new JsonArray();
+        for (JsonElement element : projectedPlayers) {
+            JsonObject projected = element.getAsJsonObject();
+            if (projected.get("has_won").getAsBoolean()) {
+                winnerIds.add(projected.get("player_id").getAsString());
+            }
+        }
+        state.add("winner_ids", winnerIds);
+        state.addProperty("event_sequence", managed.eventLog.latestOffset());
+        return state;
+    }
+
+    private static JsonArray projectedIds(JsonArray projectedItems) {
+        JsonArray result = new JsonArray();
+        for (JsonElement element : projectedItems) {
+            if (element.isJsonObject()) {
+                JsonObject item = element.getAsJsonObject();
+                if (item.has("object_id") && !item.get("object_id").isJsonNull()) {
+                    result.add(item.get("object_id").getAsString());
+                }
+            } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
+                result.add(element.getAsString());
+            }
+        }
+        return result;
+    }
+
+    private static JsonArray hiddenArray(int count) {
+        JsonArray result = new JsonArray();
+        for (int index = 0; index < count; index++) {
+            result.add("<hidden>");
+        }
+        return result;
+    }
+
+    /**
+     * Full internal state used only as input to audit state hashing. Never emit
+     * this object as an observation: it intentionally contains all engine ids
+     * and hidden zone object ids so transition hashes change when hidden engine
+     * state changes.
+     */
     private static JsonObject buildState(ManagedGame managed) {
         Game game = managed.game;
         TurnPhase turnPhase = game.getTurnPhaseType();
