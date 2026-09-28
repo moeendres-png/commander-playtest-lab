@@ -255,3 +255,32 @@ None.
 - `ARCHITECTURE_FREEZE = NOT CLAIMED`
 - `DECISION_CRITICAL_FINDINGS = 3` (1 P1, 2 P2)
 - `EXACT_NEXT_ACTION = Coordinator consumes audit alongside Space Bunny final handoff`
+
+---
+
+## Drift Refresh (post-audit checkpoint)
+
+| Field | Value |
+| --- | --- |
+| LAST_REFRESHED_MAIN_SHA | `3910040b3ca4eb276f8895fa4c9801af3550f123` |
+| LAST_REFRESHED_MAIN_TREE | `a28d98b29c84342056e5658f8f4423f927999108` |
+| Main drift vs prior lock | NONE (same commit/tree) |
+| Relevant merges since lock | none |
+| Worktrees | audit `ecf673f4` clean; donor `52cfd9a24ba` clean |
+
+Open dependencies (read-only, classification D):
+
+- **#284** (Sol salvage / PB-03 integration writer, head `27644c2b`) — `WAIT_FOR_MERGE`. Overlaps the runner, `receipts.py`, `bridge_launcher.py` and the receipts test. Not raced, not cherry-picked.
+- **#289** (Space Bunny final pre-Freeze, head `479c2ebb`) — `WAIT_FOR_MERGE`. On merge it changes the audit basis for XMage/START-2/packet surfaces; re-adjudicate then.
+- **#288** (Astra junction rejection) — `NON_OVERLAPPING`.
+- **#287** (this audit) — `OWN_DRAFT`, do not auto-merge.
+
+Donor status: `deepseek/finality-aftermath-20260928` @ `52cfd9a24ba` = **DONOR_CANDIDATE**, not
+integrated elsewhere. The Forge candidate relationship is unchanged: Rules Core `ef958ee9`,
+bridge/evidence PR #5 head `e15f37d6` (still DRAFT).
+
+Evidence impact: none on canonical main. The audit conclusions survive; PB-07 `LAB_CREDIT` remains
+**0/29**; the Aftermath fix remains a candidate-side donor pending a pinned Lab rerun.
+
+Exact next action: **WAIT_FOR_INTEGRATION** — re-adjudicate when #284/#289 merge, then run the
+29-card denominator at the pinned candidate head with the Aftermath fix integrated.
