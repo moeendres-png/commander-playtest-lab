@@ -454,3 +454,59 @@ def test_unsupported_player_count_is_distinct_from_a_drive_failure() -> None:
 
     assert issubclass(G.UnsupportedPlayerCount, G.GameDriveError)
     assert not issubclass(G.GameDriveError, G.UnsupportedPlayerCount)
+
+
+def test_capability_block_is_read_from_the_payload_not_the_transport_status() -> None:
+    """The capability block lives under "payload"; the top level is transport.
+
+    Reading the wrong level does not raise. It returns an empty block, which makes
+    a candidate that declared a full player envelope look like one that declared
+    nothing at all, and it silently empties the envelope the runner drives from.
+    That defect reached a real pinned run: Forge publishes max_players=4, the
+    runner read None, and the harness asked for 2 players. So the locator is
+    pinned here at both levels, and the wrapper shape is pinned too.
+    """
+    from commander_lab.qualification.current_boundary import game_driver as G
+
+    caps = {"min_players": 4, "max_players": 4, "seed_supported": False}
+    raw = {"success": True, "status": "ok", "payload": {"capabilities": caps}}
+    assert G.capability_block(raw) == caps
+    # An already-unwrapped payload is accepted as well, so the driver and the
+    # runner cannot drift into needing two different definitions.
+    assert G.capability_block(raw["payload"]) == caps
+    # The top level alone is NOT the capability block.
+    assert G.capability_block({"capabilities": caps}) == caps
+    assert G.capability_block({"success": True, "status": "ok", "payload": {}}) == {}
+    assert G.capability_block({}) == {}
+
+
+def test_a_missing_capability_block_is_not_an_empty_envelope() -> None:
+    """An unlocatable capability block must leave the envelope UNKNOWN, not empty.
+
+    The load-bearing property is narrow and must be exact: with no capability
+    block, both declared bounds stay None, so the declared-envelope refusal
+    cannot fire and no count can be called unsupported on the engine's behalf.
+    A harness that read the wrong level saw None bounds for an engine that had
+    published max_players=4, and that is how a pinned run ended up asking for a
+    count the engine never offered.
+    """
+    from commander_lab.qualification.current_boundary import game_driver as G
+
+    class _Proc:
+        def request(self, message: str, payload: dict, **_: object) -> dict:
+            if message == "get_capabilities":
+                return {"success": True, "status": "ok", "payload": {}}
+            return {"success": True, "status": "ok", "payload": {}}
+
+    result = G.drive_commander_game(
+        _Proc(),  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=2,
+        seed=1,
+    )
+    # No envelope was declared, so no envelope-based refusal may be claimed, and
+    # no count may be recorded as one the engine advertised as unsupported.
+    assert result.min_players is None
+    assert result.max_players is None
+    assert result.failure_kind != "UnsupportedPlayerCount"
+    assert result.declared_capabilities == {}

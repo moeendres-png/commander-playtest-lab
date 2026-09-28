@@ -238,6 +238,28 @@ def _require_ok(
     return _payload(response)
 
 
+def capability_block(response: dict[str, Any]) -> dict[str, Any]:
+    """Locate the engine's own capability block inside a capability response.
+
+    The bridge protocol nests capabilities under "payload" while the top level of
+    a response carries transport status, so reading the wrong level yields an
+    empty block. An empty block is not a harmless default: it makes a candidate
+    that declared plenty of capabilities look like one that declared none, and it
+    silently empties the player envelope, which is how a harness ends up asking an
+    engine for a count the engine never offered.
+
+    Accepts either a raw protocol envelope or an already-unwrapped payload, so
+    every caller shares one definition of where the block lives.
+    """
+    payload = response.get("payload")
+    if isinstance(payload, dict):
+        nested = payload.get("capabilities")
+        if isinstance(nested, dict):
+            return nested
+    block = response.get("capabilities")
+    return block if isinstance(block, dict) else {}
+
+
 def build_deck(deck_id: str) -> dict[str, Any]:
     """A real 100-card Commander deck of real cards (names only).
 
@@ -427,8 +449,7 @@ def drive_commander_game(
         for message in ("start_engine", "get_provider_version", "get_capabilities"):
             response = _require_ok(proc.request(message, {}), message)
             if message == "get_capabilities":
-                raw_caps = response.get("capabilities")
-                capabilities = raw_caps if isinstance(raw_caps, dict) else {}
+                capabilities = capability_block(response)
         result.steps_completed.append("handshake")
         result.declared_capabilities = dict(capabilities)
         declared_min = capabilities.get("min_players")

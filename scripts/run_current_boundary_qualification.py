@@ -497,6 +497,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # observed.
         restoration_manifest: dict[str, Any] | None = None
         restoration_manifest_error: str | None = None
+        capability_response: dict[str, Any] | None = None
         try:
             capability_response = proc.request("get_capabilities", {})
             if capability_response.get("success") is not True:
@@ -515,14 +516,22 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             restoration_manifest_error = str(exc)
         probes["restoration_manifest"] = restoration_manifest
         probes["restoration_manifest_error"] = restoration_manifest_error
-        try:
-            declared_caps = (capability_response or {}).get("capabilities") or {}
-        except NameError:  # pragma: no cover - only when the fetch raised
-            declared_caps = {}
+        declared_caps = game_driver.capability_block(capability_response or {})
+        envelope_error: str | None = None
+        if not declared_caps:
+            # An absent capability block is UNKNOWN, not an empty envelope. The
+            # difference decides whether the counts below are attempted and
+            # refused, or recorded as counts the engine never claimed to support.
+            envelope_error = (
+                "the engine published no capabilities block, so its player envelope "
+                "is unknown rather than empty; no count can be called unsupported "
+                "on this basis"
+            )
         probes["lane_player_envelope"] = {
             "min": declared_caps.get("min_players"),
             "max": declared_caps.get("max_players"),
         }
+        probes["lane_player_envelope_error"] = envelope_error
 
         # ---- a real live game for the decision-time invariants -----------
         # AF01's fail-closed decision probes were previously issued with no
