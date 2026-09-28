@@ -804,6 +804,26 @@ class XmageNativeStateRestorationTest {
         assertTrue(!dimensions.getAsJsonArray("unsupported_dimensions").isEmpty());
     }
 
+    /** Live protocol capability truth must expose bounded restoration dimensions. */
+    @Test
+    void dimensionsManifestIsPublishedOnTheFullGameCapabilityLane() {
+        JsonObject capabilities = XmageFullGameJsonlBridge.capabilitiesPayload();
+        JsonObject lane = capabilities.getAsJsonObject("full_game_lane");
+        assertTrue(lane.has("state_restoration_dimensions"),
+                "full-game lane must publish the state-restoration dimensions manifest");
+
+        JsonObject published = lane.getAsJsonObject("state_restoration_dimensions");
+        JsonObject nativeManifest = XmageNativeStateRestoration.dimensionsPayload();
+        assertEquals(nativeManifest, published);
+        assertEquals(
+                capabilities.getAsJsonObject("capabilities")
+                        .get("starting_state_injection_supported").getAsBoolean(),
+                published.get("starting_state_injection_supported").getAsBoolean());
+        assertFalse(published.getAsJsonArray("supported_dimensions").isEmpty());
+        assertFalse(published.getAsJsonArray("unsupported_dimensions").isEmpty());
+        assertTrue(published.has("schema_version"));
+    }
+
     @Test
     void residualCandidateOrderedLibraryRestorePrimitiveIsRuntimeReachable() {
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
