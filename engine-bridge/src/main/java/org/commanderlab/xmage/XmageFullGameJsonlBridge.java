@@ -445,7 +445,8 @@ final class XmageFullGameJsonlBridge {
         }
     }
 
-    private static JsonObject capabilitiesPayload() {
+    /** Package-private so the capability payload can be asserted directly in tests. */
+    static JsonObject capabilitiesPayload() {
         JsonObject capabilities = new JsonObject();
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
@@ -509,6 +510,9 @@ final class XmageFullGameJsonlBridge {
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("bit_exact_replay_validated", false);
+        // Itemised, live capability truth for bounded native state restoration.
+        // The global generic-injection flag deliberately remains false.
+        lane.add("state_restoration_dimensions", XmageNativeStateRestoration.dimensionsPayload());
 
         JsonObject result = new JsonObject();
         result.add("capabilities", capabilities);
