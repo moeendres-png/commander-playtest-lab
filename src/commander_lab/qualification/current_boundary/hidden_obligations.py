@@ -194,8 +194,7 @@ def _universal_absence_holds(
             if not (isinstance(value, (list, tuple)) and len(value) > 0):
                 return (
                     False,
-                    f"{seat}: the {zone_key} count is not visible, so identity "
-                    "absence is unproven",
+                    f"{seat}: the {zone_key} count is not visible, so identity absence is unproven",
                 )
         checked += 1
     if checked == 0:
