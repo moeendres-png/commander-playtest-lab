@@ -102,6 +102,12 @@ def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> Non
     """A Forge-only run must not regenerate XMage native receipts."""
     import importlib.util
 
+    # Importing the runner resolves each native suite's root from the
+    # environment and reads that root's tree at module level. Point the Forge
+    # root at this repository so the import works on a machine that does not
+    # have the historical reference checkout; the test only exercises candidate
+    # scoping, and the patched executor never runs a suite.
+    monkeypatch.setenv("FORGE_WORKSPACE", str(REPO))
     spec = importlib.util.spec_from_file_location("wsr_runner_mod", RUNNER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
