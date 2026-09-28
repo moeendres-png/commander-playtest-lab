@@ -48,8 +48,8 @@ tree, against live engines. Four verified native-suite receipts:
 
 | Receipt | Candidate | Group | Tests | Passed | Executed at | Engine identity |
 |---|---|---|---|---|---|---|
-| `native-forge-direct.json` | forge | direct | 150 | 150 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
+| `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
+| `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1c8de8e3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 | `native-xmage-mechanism.json` | xmage | mechanism | 135 | 135 | Lab `1c8de8e3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
@@ -84,7 +84,7 @@ reduction, no carry-forward across changed evidence semantics.
 | Candidate | PASS | FAIL | UNKNOWN | BLOCKED | CRASH | TIMEOUT | PROTOCOL_FAILURE | total |
 |---|---|---|---|---|---|---|---|---|
 | XMage | 4 | 0 | 59 | 44 | 0 | 0 | 0 | **107** |
-| Forge | 4 | 0 | 59 | 44 | 0 | 0 | 0 | **107** |
+| Forge | 5 | 0 | 58 | 44 | 0 | 0 | 0 | **107** |
 
 The historical figures were XMage `30 PASS` and Forge `79 PASS`. They were upper
 bounds over a PASS set that was substantially unobserved. The repaired pipeline
@@ -121,7 +121,7 @@ the Rules can observe preserved.
 | AF00 SOURCE_AND_BUILD_LOCK | **PASS** | **PASS** |
 | AF01 PROTOCOL_HANDSHAKE | **FAIL** | **PASS** |
 | AF02 PLAYER_CARDINALITY | **PASS** | **PASS** |
-| AF03 RULES_AUTHORITY | **PASS** | **FAIL** |
+| AF03 RULES_AUTHORITY | **PASS** | **PASS** |
 | AF04 LEGAL_ACTION_AND_DECISION_BOUNDARY | **FAIL** | UNKNOWN |
 | AF05 HIDDEN_INFORMATION | UNKNOWN | UNKNOWN |
 | AF06 GENERAL_RULES_CORRECTNESS | UNKNOWN | UNKNOWN |
@@ -132,26 +132,43 @@ the Rules can observe preserved.
 | AF11 INTEROP_LICENSE_TOPOLOGY | **FAIL** | **FAIL** |
 
 Every verdict is derived from an observation. No gate carries a historical
-auto-PASS. AF03, AF04, AF05, AF06, AF07, AF08, AF09 and AF11 are not established
-for either candidate, which is why no provider ranking is possible.
+auto-PASS. AF04, AF05, AF06, AF07, AF08, AF09 and AF11 are not established for
+at least one candidate, which is why no provider ranking is possible. AF03 is now
+established for Forge on the repaired head and remains `PASS` for XMage.
 
 ---
 
 ## 6. Decision-critical findings
 
-### 6.1 Forge accepts an illegal Commander deck — `AF03` FAIL, not masked
+### 6.1 Forge no longer accepts an illegal Commander deck — `AF03` repaired and requalified
 
-The real negative deck-import probe shows the executed Forge bridge **accepted**:
+The committed WSR22-era probe proved the defect: the executed Forge bridge
+**accepted** a deck whose commander was `Hill Giant`, a real card that is not a
+legal Commander, and a deck whose colour identity violated its commander. CR 2.3
+and the Commander format require both refusals. The same probe confirmed Forge
+refused an unknown card name, a short mainboard and an empty mainboard, so it was
+a specific gap in Commander-legality enforcement rather than a broken import path.
+It was recorded, not masked in the Lab: masking it in the harness would have been
+a second source of legality.
 
-- a deck whose commander is `Hill Giant`, a real card that is not a legal Commander;
-- a deck whose colour identity violates its commander (`Black Lotus` x99 under
-  `Isamaru, Hound of Konda`, which is `{W}{W}`).
+Forge PR #5 head `e15f37d6` repairs it at the provider boundary: `import_deck`
+delegates to the Rules Core's own `DeckFormat.Commander.getDeckConformanceProblem`
+and refuses with the distinct `deck_not_legal` code, so "the engine read this deck
+and refused it" stays distinguishable from "the deck could not be read". The fresh
+probe on the repaired head shows:
 
-CR 2.3 and the Commander format require both refusals. The same probe confirms
-Forge *does* refuse an unknown card name, a short mainboard and an empty mainboard,
-so this is a specific gap in Commander-legality enforcement rather than a broken
-import path. Recorded, not repaired in the Lab: masking it in the harness and
-awarding the gate would be a second source of legality.
+- the legal control deck (`Isamaru, Hound of Konda` + 99 `Plains`) is accepted;
+- `Hill Giant` as commander is refused by the engine's commander predicate
+  (`deck_not_legal`: "has an illegal commander");
+- the colour-identity probe (`Shivan Reef` x99 under a mono-white commander, a
+  non-basic, non-legendary card so the mutation isolates colour identity rather
+  than an incidental size or copy limit) is refused by the engine's colour-identity
+  rule (`deck_not_legal`: "do not match the commanders color identity");
+- unknown card, short mainboard and empty mainboard are refused as
+  `deck_import_failed`.
+
+AF03 is `PASS` for Forge on the repaired head, earned by the Rules Core's own
+conformance check rather than by a Lab-side filter.
 
 ### 6.2 Hidden information differs by candidate, and only one is a demonstrated leak
 
@@ -159,20 +176,28 @@ The two candidates are **not** in the same state, and an earlier revision of thi
 packet said they were. It accused Forge of a content leak that Forge does not
 commit. The corrected reading:
 
-**XMage — demonstrated engine defect.** `get_game_state` on the generic B4-D lane
-returns **byte-identical** state to every observer: one distinct state view across
-four different requesters, containing, for all four seats, the real `player_id`,
-the hand card object ids and the library contents. Because the requester differs
-while the payload does not, each caller necessarily sees every other seat's cards.
-Attribution `ENGINE_CANDIDATE_DEFECT`.
+**XMage — demonstrated engine defect (committed pre-remediation artifact).**
+`get_game_state` on the generic B4-D lane returns **byte-identical** state to
+every observer: one distinct state view across four different requesters,
+containing, for all four seats, the real `player_id`, the hand card object ids
+and the library contents. Because the requester differs while the payload does
+not, each caller necessarily sees every other seat's cards. Attribution
+`ENGINE_CANDIDATE_DEFECT`. This paragraph describes the committed
+current-boundary artifact, which was produced before PR #283; PR #283
+(`5db60757`, merged as `c9277b90`) carries the XMage remediation and its own
+exact-head runtime verification, and the Lab current-boundary XMage column is
+deliberately not regenerated in this Forge workstream.
 
-**Forge — unestablished, not defective.** The Forge bridge redacts correctly: it
+**Forge — established, not defective.** The Forge bridge redacts correctly: it
 returns **four distinct** state views, the requesting seat's real card names and
-`"<hidden>"` for every opponent card. That is proper redaction. What Forge does
-*not* do is mark the observing principal, so the Lab cannot confirm from the
-response alone which seat was the requester's. Attribution is
-`SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT`, and AF05 stays `UNKNOWN` for Forge
-rather than reporting a confirmed engine failure.
+`"<hidden>"` for every opponent card. Forge PR #5 head `e15f37d6` also marks the
+observation with the validated requester: the state names `observer_player_id`
+and exactly one player row carries `is_actor`. `HIDDEN_INFO_FORGE.json` records
+`PRINCIPAL_SCOPED`, attribution `NONE`, four established requesters and no
+findings, and the distinctness comparison is over observed content only, so
+changing the requester marker alone can never fabricate four distinct views. AF05
+stays `UNKNOWN` for a different reason: the per-scenario hidden rows remain
+unreachable on the generic surface, not because the projection is unproven.
 
 The distinction matters in both directions. A redaction placeholder is the
 *absence* of content, and counting a placeholder array as exposed hand content
@@ -197,26 +222,29 @@ response acknowledges none, and the binding is `UNCONTROLLED_ENGINE_RNG` with
 control. Closing this needs a seed-capable generic lane or an engine-level
 binding.
 
-**Forge — seed sent and state-bound, but the create response does not echo it.**
-`AF01_FORGE.json` reports `seed_supported: true`, `_probes_forge.json` records
-`provider_seed_supported: true` and `seed_sent_to_provider: true`, and the observed
-game state carries:
+**Forge — seed acknowledged from engine state at creation.** `AF01_FORGE.json`
+reports `seed_supported: true`, `_probes_forge.json` records
+`provider_seed_supported: true` and `seed_sent_to_provider: true`. Forge PR #5
+head `e15f37d6` installs the seed as part of `create_commander_game` and
+acknowledges it from the engine's own accepted state
+(`MyRandom.getRootSeed()/isExplicitSeed()`), never from the request value. The
+observed game state carries the engine binding:
 
 ```
 rng_binding: {explicit_seed: true, require_explicit_seed: true,
               root_seed: 424242, rules_root_seed: 424242, rules_calls: 393}
 ```
 
-That is real evidence: the seed was delivered, the engine requires it, and 393
-Rules calls were drawn from that root seed. What is missing is narrower — the
-`create_commander_game` response does not acknowledge the seed, so
-`acknowledged_seed` is `null` and the binding classifies as
-`UNCONTROLLED_ENGINE_RNG` on the create-response channel.
+`RNG_REPLAY_FORGE.json` records `classification: ACKNOWLEDGED_ENGINE_SEED`,
+`acknowledged_seed: 424242`, `controlled: true`, `rng_credit: true`, source
+`create_commander_game_response`. A rejected or divergent readback fails closed
+with `seed_unsupported` and registers no session, and an unseeded launch clears a
+stale explicit binding, so an uncontrolled run cannot silently inherit a seed.
 
-So Forge is not "no seed". It is a candidate whose seed binding is observable at
-state level but not echoed at creation, and whether state-level binding alone
-satisfies AF09 is an adjudication this packet does not make. Prescribing a
-seed-capable lane for both candidates would have been wrong on Forge's evidence.
+AF09 stays `UNKNOWN` because the clean-process replay twin rows remain blocking,
+not because the seed binding is unproven. What Forge now has is engine-accepted
+seed control at the creation transaction; prescribing a seed-capable lane for both
+candidates would have been wrong on Forge's evidence.
 
 The earlier literal `engine_owned: true` no longer appears in any production source
 or artifact on either side.
@@ -235,7 +263,7 @@ artifact, so simply appending 29 names would have advertised a complete runtime
 corpus with no probe behind it, and it also counted `len(deck_identity)`, which is
 a per-seat deck count and says nothing about cards.
 
-The Forge-side ceiling recorded on Forge PR #4 is 28 runtime-qualified with one
+The Forge-side ceiling recorded on Forge PR #5 is 28 runtime-qualified with one
 documented engine gap, `Find // Finality` (the Aftermath back-half legal ability
 discovery). That 28/29 is Forge-local and is **not** consumed as Lab credit here.
 
@@ -253,10 +281,10 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | Blocker | Side | Status after this workstream | Basis |
 |---|---|---|---|
 | PB-03 starting-state classification | both | **RESOLVED** (mechanism); block attribution now per candidate | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
-| PB-05 build provenance | forge | **RESOLVED** | Forge PR #4 repairs the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
-| PB-06 per-scenario hidden channels | both | **BLOCKED** | no principal-scoped observation is credible. XMage's generic lane returns one shared state view to every observer (a demonstrated leak); Forge redacts but does not mark the observing principal, so scoping cannot be established either way. No per-scenario channel was executed (§6.2) |
+| PB-05 build provenance | forge | **RESOLVED** | Forge PR #5 (continuing the PR #4 repair) removes the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
+| PB-06 per-scenario hidden channels | both | **SPLIT: Forge RESOLVED on this boundary; XMage historical** | Forge now marks the observing principal (`observer_player_id` + exactly one `players[].is_actor`); `HIDDEN_INFO_FORGE.json` is `PRINCIPAL_SCOPED`, attribution `NONE`, four established requesters, and the distinctness comparison is content-only. The committed XMage artifact remains the pre-#283 demonstrated leak; PR #283 carries the XMage remediation and its own exact-head runtime verification, and this workstream does not re-run it. Per-scenario channels remain unexecuted (§6.2) |
 | PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4) |
-| PB-08 clean-process replay twin | both | **BLOCKED**, for different reasons | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge binds the seed at state level but does not echo it at creation, so whether a twin is meaningful is an AF09 adjudication, not a settled fact |
+| PB-08 clean-process replay twin | both | **SPLIT: Forge seed acknowledgement RESOLVED; twin rows BLOCKED** | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge now acknowledges the accepted seed from engine state in the creation transaction (`ACKNOWLEDGED_ENGINE_SEED`, `rng_credit: true`); the clean-process twin half per fixture remains unproven and is what keeps AF09 `UNKNOWN` |
 | PB-09 Forge candidate identity | coordinator | **OPEN — RESERVED** | which artifact is the candidate: pinned upstream `a37a865a` or the Lab fork `ef958ee9`. Not a coding question |
 | Aftermath `Find // Finality` | forge | **NON_BLOCKING_CAPABILITY_GAP** | not decision- or release-blocking on current evidence; recorded, no engine mutation opened |
 
@@ -270,9 +298,9 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | External discretionary decisions bound to engine-offered options | PASS (4 PASS rows) | PASS (4 PASS rows) |
 | Player cardinality 2P/3P/4P/5P (AF02) | PASS | PASS |
 | Bounded 6P | attempted, not separately credited | attempted, not separately credited |
-| Commander deck legality at import (AF03) | PASS | **FAIL** |
-| Principal-scoped hidden information | **FAIL — demonstrated engine defect** | **UNKNOWN — redacted correctly, scoping unestablished** |
-| Rules RNG control (AF09) | **UNCONTROLLED** — no seed sent, `seed_supported: false` | **PARTIAL** — seed sent and state-bound (`root_seed: 424242`, 393 rules calls), create response does not echo it |
+| Commander deck legality at import (AF03) | PASS | **PASS** (repaired on PR #5 head `e15f37d6`) |
+| Principal-scoped hidden information | **FAIL — demonstrated engine defect in the committed pre-#283 artifact** | **PASS — established** (`PRINCIPAL_SCOPED`, four requesters, content-only distinctness) |
+| Rules RNG control (AF09) | **UNCONTROLLED** — no seed sent, `seed_supported: false` | **ACKNOWLEDGED_ENGINE_SEED** — create response acknowledges the engine-accepted root seed; twin rows keep AF09 `UNKNOWN` |
 | Semantic replay | UNKNOWN | UNKNOWN |
 | Actual-card runtime behaviour | UNKNOWN | UNKNOWN |
 | Mid-game starting-state materialization | BLOCKED, 44 rows | BLOCKED, 44 rows |
@@ -285,7 +313,7 @@ Legal actions, priority, mana and cost payment, targets/modes/choices, stack,
 triggers, replacement/prevention, continuous effects and layers, SBAs, zones,
 copy/control, combat, command zone, commander tax, commander damage, Partner and
 per-count multiplayer lifecycle are **not established for either candidate**: they
-sit inside the 59 `UNKNOWN` and 44 `BLOCKED` rows.
+sit inside the 58 `UNKNOWN` and 44 `BLOCKED` rows.
 
 ---
 
@@ -294,14 +322,16 @@ sit inside the 59 `UNKNOWN` and 44 `BLOCKED` rows.
 1. A Coordinator ruling on PB-09, which determines whether the Forge column means
    anything as a candidate measurement and whether AF11's licence posture is
    recomputed for a GPL-3.0 derivative.
-2. A principal-scoped observation surface for the generic lane, or a decision to
-   qualify the full-game lane only. XMage additionally needs its projection fixed;
-   Forge needs the observing principal marked so its correct redaction can be
-   verified rather than merely trusted. This unblocks PB-06 and AF05.
+2. For Forge this is done on the current boundary: the observing principal is
+   marked and the projection is `PRINCIPAL_SCOPED`. AF05 remains `UNKNOWN` only
+   because the per-scenario hidden rows are unreachable on the generic surface.
+   The XMage generic-lane projection was remediated by PR #283 on its own exact
+   head; requalifying the XMage current-boundary column is separate work this
+   packet does not claim.
 3. For XMage, a seed-capable generic lane or an engine-level RNG binding. For
-   Forge, a ruling on whether state-level seed binding satisfies AF09 without a
-   create-response acknowledgement. These are different work, and PB-08 and AF09
-   are blocked on each respectively.
+   Forge the creation-transaction acknowledgement now exists from engine state
+   (`ACKNOWLEDGED_ENGINE_SEED`); AF09 stays `UNKNOWN` on the clean-process twin
+   rows. PB-08's Forge half is closed on this boundary.
 4. Execution of the 29-card corpus under the actual-behaviour standard. This
    unblocks PB-07 and AF07.
 5. A starting-state materialization seam. This unblocks the 44 `BLOCKED` rows and
@@ -335,8 +365,10 @@ is now taken from each candidate's own reported capabilities.
 `SAME_SEMANTICS` is 0 of 107 and six required dimensions are unestablished for
 both candidates, so no capability ranking is admissible.
 
-`DECISION_CRITICAL_UNKNOWN_REMAINS = YES` — PB-09, PB-06, PB-07, PB-08, plus
-AF04–AF09 for at least one candidate on both sides.
+`DECISION_CRITICAL_UNKNOWN_REMAINS = YES` — PB-09, PB-07, the per-scenario
+hidden rows, the Forge clean-process twin rows, and AF04–AF09 for at least one
+candidate on both sides. The Forge requester binding and the Forge
+creation-seed acknowledgement are no longer among them.
 
 `PROVIDER_SELECTION_READY = NO`.
 

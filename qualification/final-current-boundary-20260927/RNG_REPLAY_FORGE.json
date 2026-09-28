@@ -4,17 +4,17 @@
  "event_log": {},
  "harness_injected_outcomes": false,
  "rules_rng_binding": {
-  "acknowledged_seed": null,
+  "acknowledged_seed": 424242,
   "acknowledgement_source": "create_commander_game_response",
-  "classification": "UNCONTROLLED_ENGINE_RNG",
-  "controlled": false,
+  "classification": "ACKNOWLEDGED_ENGINE_SEED",
+  "controlled": true,
   "requested_seed": 424242,
-  "rng_credit": false,
+  "rng_credit": true,
   "schema_version": "commander-lab.seed-binding/1.0.0"
  },
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-  "adapter_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+  "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": true,
@@ -56,8 +56,8 @@
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
-  "runner_tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410",
+  "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
+  "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
   "scenario_injection_supported": true,
   "seed_supported": true,
   "starting_state_injection_supported": true,

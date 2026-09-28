@@ -209,9 +209,10 @@ def test_seed_position_is_reported_per_candidate() -> None:
     """A blanket "no seed was sent" was false for Forge.
 
     XMage reports `seed_supported: false` and genuinely sends nothing. Forge
-    reports `seed_supported: true`, the driver sends the seed, and the observed
-    state carries `rng_binding.root_seed` with the Rules call count. Forge's gap
-    is the missing create-response echo, which is a narrower and different gap.
+    reports `seed_supported: true`, the driver sends the seed, the observed state
+    carries `rng_binding.root_seed` with the Rules call count, and the creation
+    transaction acknowledges the engine-accepted seed. The packet must state the
+    two positions separately.
     """
     af01 = {
         candidate: json.loads((OUT / f"AF01_{candidate}.json").read_text(encoding="utf-8"))
@@ -234,6 +235,6 @@ def test_seed_position_is_reported_per_candidate() -> None:
     # The packet must not make the blanket claim for both.
     assert "Rules RNG is uncontrolled on both candidates" not in TEXT
     assert "the two candidates are in different states" in TEXT
-    assert "Forge — seed sent and state-bound" in TEXT
+    assert "Forge — seed acknowledged from engine state at creation" in TEXT
     assert "XMage — fully uncontrolled" in TEXT
     assert "393" in TEXT
