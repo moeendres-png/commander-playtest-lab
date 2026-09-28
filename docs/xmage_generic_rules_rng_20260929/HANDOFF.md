@@ -59,7 +59,7 @@ Unseeded generic games are still accepted. They run on the engine's non-credited
 | B3, B4-A, B4-B, B4-C, B4-D process regressions (real bridge jar) | PASS | `DIRECTLY_VERIFIED` |
 | Phase-6 differential; B4-F replay, illegal-action, capability closeout, provider-pin validation | PASS (Phase-6: 2 passed, 1 skipped) | `DIRECTLY_VERIFIED` |
 | Python suites touching seed and capability surfaces (10 files + CI provider-truth set) | 186 passed | `DIRECTLY_VERIFIED` |
-| Full Python suite, attributed against an `origin/main` baseline worktree | see `PYTEST_ATTRIBUTION.md` | `DIRECTLY_VERIFIED` |
+| Full Python suite, attributed against an `origin/main` baseline worktree | see `PYTEST_ATTRIBUTION.md` (this directory) | `DIRECTLY_VERIFIED` |
 
 Engine-side audit at the pin (`CODE_DERIVED`): core Rules randomness in `Mage/` routes through `game.getRulesRandom()`. `Library.shuffle()` without an argument, which uses the global `RandomUtil`, is deprecated and has no production caller. The remaining `RandomUtil` calls in `Mage.Sets` are booster generation, plus `MagesContest`, which is an AI bid heuristic rather than a Rules outcome.
 
