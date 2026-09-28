@@ -12,6 +12,7 @@ import shlex
 import subprocess
 import threading
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, cast
@@ -221,6 +222,44 @@ class FullGameReplayGate(_StrictModel):
 class _RuntimePilot:
     binding: FullGamePilotBinding
     pilot: BasePilot
+
+
+def verify_starting_state_binding(requested: bool, created: Mapping[str, Any]) -> None:
+    """Fail closed unless the engine's restoration facts match what was asked.
+
+    PB-03. A requested state the engine quietly ignored is the worst possible
+    outcome, because the fixture would then claim a starting state it never
+    received. Equally, an unrequested restoration must report nothing, or a
+    provider could materialise state the Lab never asked for and still appear
+    compliant.
+
+    The Lab asserts only facts the ENGINE reports. It does not compare a readback
+    against a fixture here: one is a state snapshot and the other a semantic
+    record, and that comparison belongs to the qualification layer that owns the
+    fixture. What is checked is that both digests exist and are bound, which is
+    what makes any later comparison meaningful.
+    """
+    reported = created.get("starting_state_requested")
+    if requested:
+        if reported is not True:
+            raise FullGameConformanceError(
+                "a starting state was requested but the engine did not report restoring it"
+            )
+        if not created.get("observed_starting_state_digest"):
+            raise FullGameConformanceError(
+                "a starting state was requested but the engine produced no "
+                "authoritative readback to verify"
+            )
+        if not created.get("requested_starting_state_digest"):
+            raise FullGameConformanceError(
+                "a starting state was requested but no request digest was bound, so the "
+                "readback could not be tied to what was asked"
+            )
+        return
+    if reported is True:
+        raise FullGameConformanceError(
+            "the engine reported restoring a starting state that was never requested"
+        )
 
 
 class _RawFullGameClient:
@@ -2040,16 +2079,20 @@ class XmageFullGameRunner:
 
         game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
         player_count = scenario.player_count
-        created = client.request(
-            "create_full_game",
-            {
-                "game_id": game_id,
-                "deck_handles": handles,
-                "seed": scenario.seed,
-                "starting_player_seat": scenario.seed % player_count,
-                "starting_life": 40,
-            },
-        )
+        create_payload: dict[str, Any] = {
+            "game_id": game_id,
+            "deck_handles": handles,
+            "seed": scenario.seed,
+            "starting_player_seat": scenario.seed % player_count,
+            "starting_life": 40,
+        }
+        # PB-03: request the starting state only when the fixture asked for one.
+        # The engine owns interpretation, materialisation and readback.
+        starting_state_requested = scenario.starting_state is not None
+        if starting_state_requested:
+            create_payload["starting_state"] = scenario.starting_state
+        created = client.request("create_full_game", create_payload)
+        verify_starting_state_binding(starting_state_requested, created)
         if created.get("player_count") != player_count or created.get("seed") != scenario.seed:
             raise FullGameConformanceError(
                 "full-game creation did not preserve player-count/seed contract"

@@ -230,6 +230,13 @@ class FutureXmageScenario(StrictModel):
     pilot_identity: str = Field(min_length=1)
     pilot_version: str = Field(min_length=1)
     decision_policy_version: str = Field(min_length=1)
+    # PB-03: an OPTIONAL requested starting state, forwarded verbatim to the engine
+    # so the engine's own native restoration can assemble it. The Lab does not
+    # interpret Magic state and does not inject outcomes: it carries a frozen
+    # semantic record the fixture already owns, and the engine validates,
+    # materialises and reads it back. Absent means no starting state is requested
+    # and no restoration fact may be reported.
+    starting_state: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def cardinalities_agree(self) -> FutureXmageScenario:

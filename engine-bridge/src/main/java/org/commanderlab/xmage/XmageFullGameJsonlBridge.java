@@ -180,14 +180,148 @@ final class XmageFullGameJsonlBridge {
             int startingPlayerSeat = optionalInt(payload, "starting_player_seat", 0);
             int startingLife = optionalInt(payload, "starting_life", 40);
 
-            session = new XmageFullGameSession(
-                    gameId,
-                    new ArrayList<>(deckHandles),
-                    startingPlayerSeat,
-                    startingLife,
-                    seed,
-                    deckImporter
-            );
+            // PB-03: a REQUESTED starting state, not an injected outcome. The
+            // engine-native restoration engine already exists and assembles state
+            // through public engine APIs only; what was missing was any protocol
+            // verb that could reach it, so the mechanism existed but nothing could
+            // arrive. The request below is a frozen semantic record, which the
+            // engine validates, materialises natively, and then READS BACK. The
+            // Lab never interprets Magic state and never fabricates a post-state.
+            //
+            // Failure is closed at every step: an unsupported dimension, a plan the
+            // engine refuses, or a readback that does not match all abort game
+            // creation rather than leaving a partially materialised game.
+            XmageNativeStateRestoration restoration = null;
+            String requestedStartingStateDigest = null;
+            if (payload.has("starting_state")
+                    && !payload.get("starting_state").isJsonNull()) {
+                if (!payload.get("starting_state").isJsonObject()) {
+                    return error(
+                            requestId,
+                            "invalid_starting_state",
+                            "starting_state must be an object when present",
+                            false
+                    );
+                }
+                JsonObject frozenRecord = payload.getAsJsonObject("starting_state");
+                String planId = frozenRecord.has("plan_id")
+                                && frozenRecord.get("plan_id").isJsonPrimitive()
+                                && !frozenRecord.get("plan_id").getAsString().isBlank()
+                        ? frozenRecord.get("plan_id").getAsString()
+                        : "lab-requested";
+                XmageNativeStateRestoration.Plan plan;
+                try {
+                    plan = XmageNativeStateRestoration.planFromFrozenRecord(
+                            frozenRecord,
+                            planId,
+                            seed
+                    );
+                    XmageNativeStateRestoration.validatePlan(plan);
+                } catch (XmageNativeStateRestoration.RestorationException exc) {
+                    // The engine declined. Nothing has been materialised yet, so
+                    // this is a refusal, not a partial success.
+                    return error(
+                            requestId,
+                            "starting_state_unsupported",
+                            "the engine refused the requested starting state: "
+                                    + exc.getMessage(),
+                            false
+                    );
+                } catch (RuntimeException exc) {
+                    // A partially specified record currently makes the plan parser
+                    // throw an unchecked failure rather than report which field was
+                    // missing. It still must not be reported as a game-creation
+                    // failure, because the cause was the requested state, not the
+                    // game. The parser's unchecked throw is a robustness gap in the
+                    // engine and is recorded as such; it is contained here, not
+                    // silently absorbed.
+                    return error(
+                            requestId,
+                            "starting_state_unsupported",
+                            "the requested starting state was not accepted by the engine: "
+                                    + exc.getClass().getSimpleName()
+                                    + (exc.getMessage() == null ? "" : ": " + exc.getMessage()),
+                            false
+                    );
+                }
+                try {
+                    List<String> identities = plan.objects().stream()
+                            .map(XmageNativeStateRestoration.RequestedObject::cardIdentity)
+                            .toList();
+                    restoration = new XmageNativeStateRestoration(
+                            plan,
+                            XmageNativeStateRestoration.materializeCards(identities));
+                } catch (RuntimeException exc) {
+                    // Card materialisation is part of restoration. A refusal here is
+                    // a restoration refusal, and reporting it as a generic creation
+                    // failure would misattribute a capability gap to game creation.
+                    return error(
+                            requestId,
+                            "starting_state_unsupported",
+                            "the engine could not materialise the requested starting "
+                                    + "state: " + exc.getMessage(),
+                            false
+                    );
+                }
+                requestedStartingStateDigest =
+                        XmageNativeStateRestoration.digestJson(frozenRecord);
+            }
+
+            try {
+                session = new XmageFullGameSession(
+                        gameId,
+                        new ArrayList<>(deckHandles),
+                        startingPlayerSeat,
+                        startingLife,
+                        seed,
+                        deckImporter,
+                        restoration
+                );
+            } catch (RuntimeException exc) {
+                if (restoration != null) {
+                    // Pre-start assembly is part of restoration, so a failure here is
+                    // a restoration refusal rather than a deck or creation failure.
+                    session = null;
+                    return error(
+                            requestId,
+                            "starting_state_rejected_by_engine",
+                            "the engine rejected the requested starting state during "
+                                    + "pre-start assembly: " + exc.getMessage(),
+                            false
+                    );
+                }
+                throw exc;
+            }
+
+            // VERIFY, do not assume. The authoritative state is read back from the
+            // engine and digested. A mismatch means the engine did not materialise
+            // what was requested, which is a defect, not a partial pass.
+            String observedStartingStateDigest = null;
+            if (restoration != null) {
+                JsonObject readback = XmageNativeStateRestoration.readback(
+                        session.restorationGame(), session.restorationSeats());
+                observedStartingStateDigest =
+                        XmageNativeStateRestoration.digestJson(readback);
+                try {
+                    // Lets the engine accept its OWN materialised state. An illegal
+                    // materialisation throws here, which is how the engine refuses.
+                    // It does NOT compare against the request: the request is a frozen
+                    // semantic record and the readback is authoritative state, so
+                    // comparing them is the Lab's verification, using the fixture the
+                    // Lab already owns. Claiming a match here would be a check that
+                    // never ran.
+                    XmageNativeStateRestoration.revalidate(session.restorationGame());
+                } catch (RuntimeException exc) {
+                    session = null;
+                    return error(
+                            requestId,
+                            "starting_state_rejected_by_engine",
+                            "the engine rejected its own materialised state: "
+                                    + exc.getMessage(),
+                            false
+                    );
+                }
+            }
 
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", gameId);
@@ -196,6 +330,22 @@ final class XmageFullGameJsonlBridge {
             responsePayload.addProperty("starting_life", startingLife);
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);
+            // PB-03 binding. requested/observed digests are both present only when
+            // a starting state was actually requested and actually restored, so an
+            // absent pair can never be read as a successful restoration.
+            responsePayload.addProperty(
+                    "starting_state_requested", restoration != null);
+            responsePayload.addProperty(
+                    "requested_starting_state_digest", requestedStartingStateDigest);
+            responsePayload.addProperty(
+                    "observed_starting_state_digest", observedStartingStateDigest);
+            // True only when the ENGINE produced an authoritative readback. It does
+            // NOT mean the readback matches the request; that comparison belongs to
+            // the Lab, which owns the fixture, and is reported separately by the
+            // qualification layer rather than asserted here.
+            responsePayload.addProperty(
+                    "starting_state_readback_observed",
+                    restoration != null && observedStartingStateDigest != null);
             // WS213: binding proof is available immediately at creation: the
             // explicit seed is bound in the session constructor, before start.
             responsePayload.add("rules_seed_binding", session.rulesSeedBindingPayload());
@@ -577,6 +727,13 @@ final class XmageFullGameJsonlBridge {
         // qualifies, and is derived from the same restoration code that performs
         // the restore; it is never authored independently of that code.
         lane.add("state_restoration_dimensions", XmageNativeStateRestoration.dimensionsPayload());
+        // PB-03 transport reachability, published as its own fact rather than
+        // inferred from the dimension list. A dimension can be listed as supported
+        // while nothing can actually deliver it, which is exactly the seam this
+        // closes; the caller must be able to check reachability separately.
+        lane.addProperty("starting_state_request_supported", true);
+        lane.addProperty("starting_state_request_field", "starting_state");
+        lane.addProperty("starting_state_request_message", "create_full_game");
 
         JsonObject result = new JsonObject();
         result.add("capabilities", capabilities);
