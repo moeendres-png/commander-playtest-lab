@@ -808,7 +808,7 @@ final class XmageGameManager {
             JsonArray grantedLibrary = projected.getAsJsonArray("granted_library");
             zones.add(
                     "library",
-                    grantedLibrary.isEmpty()
+                    grantedLibrary.size() == 0
                             ? hiddenArray(projected.get("library_count").getAsInt())
                             : projectedIds(grantedLibrary)
             );
