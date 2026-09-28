@@ -129,12 +129,36 @@ the Rules can observe preserved.
 | AF08 MULTIPLAYER_COMMANDER | UNKNOWN | UNKNOWN |
 | AF09 RNG_REPLAY | UNKNOWN | UNKNOWN |
 | AF10 RUNTIME_EVIDENCE_RELIABILITY | **PASS** | **PASS** |
-| AF11 INTEROP_LICENSE_TOPOLOGY | **FAIL** | **FAIL** |
+| AF11 INTEROP_LICENSE_TOPOLOGY | UNKNOWN | UNKNOWN |
 
 Every verdict is derived from an observation. No gate carries a historical
 auto-PASS. AF04, AF05, AF06, AF07, AF08, AF09 and AF11 are not established for
 at least one candidate, which is why no provider ranking is possible. AF03 is now
 established for Forge on the repaired head and remains `PASS` for XMage.
+
+AF11 was previously a hard-coded `FAIL` whose prose did not address its own
+contract ("actual integration topology satisfies WS-09; Forge remains a genuine
+separate process/service"). A gate that observes nothing cannot be evidence in
+either direction, so it is now **computed** from the facts the Lab can actually
+measure: each candidate is driven through its own distinct external adapter
+(Forge `forge-protocol2-bridge`, XMage `engine-bridge/.../xmage`) by one and the
+same driver column; no adapter identity resolves to the Lab's in-tree engine
+package, so no engine code is embedded in the Lab process; both ran under the
+recorded `commander-lab.pre-freeze-qualification/2.0.0` boundary; and the recorded
+licence topology is XMage MIT / Forge GPL-3.0. Every one of those technical facts
+holds on current evidence.
+
+The residual question is **not** a Lab measurement: whether the candidate-scoped
+decision-identity shim and the GPL-3.0 process topology satisfy AF11/WS-09 under
+existing policy, and any licence/redistribution consequence, is recorded in both
+`XMAGE_FREEZE_READINESS.json` and `FORGE_FREEZE_READINESS.json` as reserved for
+Coordinator adjudication. AF11 is therefore `UNKNOWN`, not `PASS` — the Lab does
+not invent a pass it cannot measure, and it does not assert a topological failure
+it did not observe. This is not a loosening: freeze eligibility requires `PASS`,
+and `UNKNOWN` is already in `NON_PASS_VERDICTS`, so neither candidate is closer
+to eligible than before. The verdict becomes `FAIL` automatically if a technical
+fact is ever actually violated, and the AF11 contract is recorded in
+`architecture_freeze_gate_catalog_v2.json`.
 
 ---
 
@@ -319,9 +343,12 @@ sit inside the 58 `UNKNOWN` and 44 `BLOCKED` rows.
 
 ## 9. What would change the verdict
 
-1. A Coordinator ruling on PB-09, which determines whether the Forge column means
-   anything as a candidate measurement and whether AF11's licence posture is
-   recomputed for a GPL-3.0 derivative.
+1. A Coordinator ruling on the AF11 policy residual: whether the candidate-scoped
+   decision-identity shim plus the GPL-3.0 process topology satisfies AF11/WS-09
+   under existing policy, and any licence/redistribution consequence. The
+   technical half of AF11 is measured and holding; only this policy half is
+   open. (PB-09 identity split is resolved: the production Forge column is the
+   `ef958ee9` fork, and upstream `a37a865a` is attribution/control only.)
 2. For Forge this is done on the current boundary: the observing principal is
    marked and the projection is `PRINCIPAL_SCOPED`. AF05 remains `UNKNOWN` only
    because the per-scenario hidden rows are unreachable on the generic surface.

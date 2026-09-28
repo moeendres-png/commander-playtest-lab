@@ -207,7 +207,7 @@ def test_readiness_packets_match_wsr22_verdicts():
         "AF08": "UNKNOWN",
         "AF09": "UNKNOWN",
         "AF10": "PASS",
-        "AF11": "FAIL",
+        "AF11": "UNKNOWN",
     }
     assert forge == {
         "AF00": "PASS",
@@ -221,7 +221,7 @@ def test_readiness_packets_match_wsr22_verdicts():
         "AF08": "UNKNOWN",
         "AF09": "UNKNOWN",
         "AF10": "PASS",
-        "AF11": "FAIL",
+        "AF11": "UNKNOWN",
     }
 
 
