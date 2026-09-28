@@ -87,7 +87,7 @@ def test_artifact_reports_observed_refusals_when_present() -> None:
         assert "verdict" in evidence, candidate
         if evidence["verdict"] != "PASS":
             assert evidence["probes_failed"] or evidence["probes_unknown"], candidate
-            assert "does NOT refuse" in evidence["statement"], candidate
+            assert "did NOT refuse" in evidence["statement"], candidate
 
 
 def test_corpus_artifact_states_the_shortfall() -> None:

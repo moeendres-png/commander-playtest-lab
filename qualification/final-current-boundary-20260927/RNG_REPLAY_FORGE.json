@@ -18,8 +18,8 @@
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
-  "runner_tree": "c90366880cffb52b048a625a179bca1bc3c79dc5",
+  "runner_commit": "c2d9bafeb100e47e7bcc57ff02a8b83ed691d717",
+  "runner_tree": "babafbfb85d4067dbda1e359e0272cbc2beb18ea",
   "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
  },
  "same_seed_twin": "see comparison packet; twin runs are executed per candidate",

@@ -21,16 +21,35 @@
   "forge-wsr22-deck-3",
   "forge-wsr22-deck-4"
  ],
- "engine_validated": "the engine itself rejected an illegal colour identity and unknown card names during this run, proving the import is engine-validated rather than construction-only",
- "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
+ "engine_validated": {
+  "probes_failed": [
+   "deck_import_rejects_non_commander",
+   "deck_import_rejects_colour_identity_violation"
+  ],
+  "probes_passed": [
+   "deck_import_rejects_unknown_card",
+   "deck_import_rejects_wrong_deck_size",
+   "deck_import_rejects_empty_mainboard"
+  ],
+  "probes_unknown": [],
+  "statement": "the engine did NOT refuse every negative deck-import probe, so this run does not establish engine-validated import; see the failed probes",
+  "verdict": "FAIL"
+ },
+ "required_29_card_corpus": {
+  "complete": false,
+  "declared_in_this_artifact": 12,
+  "imported_at_runtime": 4,
+  "required_count": 29,
+  "statement": "this artifact names 12 cards and imported 4 at runtime; the 29-card corpus is NOT executed, so the actual-card obligation is unestablished and the row cannot be credited"
+ },
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
   "adapter_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
-  "runner_tree": "c90366880cffb52b048a625a179bca1bc3c79dc5",
+  "runner_commit": "c2d9bafeb100e47e7bcc57ff02a8b83ed691d717",
+  "runner_tree": "babafbfb85d4067dbda1e359e0272cbc2beb18ea",
   "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
  },
  "schema_version": "wsr22.actual-card/1.0.0"
