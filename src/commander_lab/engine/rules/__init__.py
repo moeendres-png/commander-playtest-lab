@@ -23,6 +23,7 @@ from .full_game_batch import (
     FullGameBatchReport,
     FullGameFailureClass,
     XmageFullGameBatchRunner,
+    classify_engine_failure,
 )
 from .manager import RulesEngineManager
 from .phase85 import PHASE85_VERSION, run_phase85_validation
@@ -72,6 +73,7 @@ __all__ = [
     "XmageFullGameRunner",
     "build_protocol_schema",
     "build_validation_registry",
+    "classify_engine_failure",
     "load_interaction_catalog",
     "load_project_rules_decks",
     "load_rules_deck_snapshot",

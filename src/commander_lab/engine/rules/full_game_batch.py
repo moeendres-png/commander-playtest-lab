@@ -31,6 +31,42 @@ class FullGameFailureClass(StrEnum):
     PROTOCOL = "protocol"
     CONFORMANCE = "conformance"
     ENGINE = "engine"
+    INFRASTRUCTURE = "infrastructure"
+
+
+# JVM-level faults reported through the engine-failure channel. These are
+# properties of the process/runtime, not of Magic Rules conformance, and must
+# never be recorded as a conformance result: a conformance classification
+# asserts something about the Rules Core's behaviour that this evidence cannot
+# support. Classifying by the Python exception type alone is wrong here because
+# every engine-reported failure arrives as one exception type.
+_INFRASTRUCTURE_FAULT_MARKERS = (
+    "NoClassDefFoundError",
+    "ClassNotFoundException",
+    "ClassNotFoundError",
+    "NoSuchMethodError",
+    "NoSuchFieldError",
+    "UnsatisfiedLinkError",
+    "OutOfMemoryError",
+    "StackOverflowError",
+    "InternalError",
+    "java.lang.UnsupportedClassVersionError",
+    "could not find or load main class",
+)
+
+
+def classify_engine_failure(failure_message: str) -> FullGameFailureClass:
+    """Classify an engine-reported failure by its actual cause.
+
+    A JVM linkage, class-loading, or resource fault is an infrastructure
+    failure. Everything else the engine reports about a game is a conformance
+    failure, because that is what the conformance channel asserts.
+    """
+    if any(
+        marker.casefold() in failure_message.casefold() for marker in _INFRASTRUCTURE_FAULT_MARKERS
+    ):
+        return FullGameFailureClass.INFRASTRUCTURE
+    return FullGameFailureClass.CONFORMANCE
 
 
 class FullGameBatchCase(_StrictModel):
@@ -172,11 +208,15 @@ class XmageFullGameBatchRunner:
             except FullGameProtocolError as exc:
                 record = self._failed(case, run_key, started, FullGameFailureClass.PROTOCOL, exc)
             except FullGameConformanceError as exc:
+                # Classify by cause, not by exception type: the conformance
+                # channel also carries JVM/runtime faults, and recording those
+                # as conformance would assert a Rules-behaviour conclusion this
+                # evidence cannot support.
                 record = self._failed(
                     case,
                     run_key,
                     started,
-                    FullGameFailureClass.CONFORMANCE,
+                    classify_engine_failure(str(exc)),
                     exc,
                 )
             except (OSError, ValueError) as exc:

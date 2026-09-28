@@ -13,6 +13,7 @@ from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     ExternalPilotDecisionPolicy,
+    FullGameConformanceError,
     FullGameConformanceResult,
     FullGamePilotBinding,
     FullGameProtocolError,
@@ -26,6 +27,7 @@ from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
     FullGameFailureClass,
     XmageFullGameBatchRunner,
+    classify_engine_failure,
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
@@ -424,3 +426,73 @@ def test_failed_batch_record_is_classified_and_not_silently_retried(tmp_path: Pa
     assert first.failed_cases == 1
     assert second.records[0].failure_class is FullGameFailureClass.PROTOCOL
     assert second.records[0].official_campaign_eligible is False
+
+
+class _ConformanceFailingRunner:
+    """Raises the conformance-channel error the engine-failure path produces."""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+        self.calls = 0
+
+    def run(self, **_kwargs: object) -> FullGameConformanceResult:
+        self.calls += 1
+        raise FullGameConformanceError(self.message)
+
+
+# Observed verbatim in a real batch run: a bridge jar replaced underneath a
+# running game made the JVM fail to link an engine class. Recording that as a
+# conformance failure would assert a Magic Rules conclusion the evidence cannot
+# support, so it must be classified as an infrastructure fault instead.
+_JVM_LINKAGE_FAILURE = (
+    'XMage full-game engine failed: {"message": "mage/game/command/Plane", '
+    '"type": "java.lang.NoClassDefFoundError"}'
+)
+
+
+def test_jvm_linkage_fault_is_not_recorded_as_a_rules_conformance_failure(tmp_path: Path) -> None:
+    decks = _decks()
+    case = FullGameBatchCase(
+        case_id="case-jvm-linkage",
+        scenario=_scenario(decks),
+        decks=decks,
+        pilots=tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 5)),  # type: ignore[arg-type]
+    )
+    batch = XmageFullGameBatchRunner(_ConformanceFailingRunner(_JVM_LINKAGE_FAILURE), tmp_path)  # type: ignore[arg-type]
+    report = batch.run((case,))
+    record = report.records[0]
+    assert record.failure_class is FullGameFailureClass.INFRASTRUCTURE
+    assert record.failure_class is not FullGameFailureClass.CONFORMANCE
+    assert record.official_campaign_eligible is False
+
+
+def test_genuine_engine_game_failure_is_still_recorded_as_conformance(tmp_path: Path) -> None:
+    """The reclassification must not swallow real conformance failures."""
+    message = (
+        'XMage full-game engine failed: {"message": "XMage full-game did not terminate", '
+        '"type": "engine"}'
+    )
+    assert classify_engine_failure(message) is FullGameFailureClass.CONFORMANCE
+    decks = _decks()
+    case = FullGameBatchCase(
+        case_id="case-real-conformance",
+        scenario=_scenario(decks),
+        decks=decks,
+        pilots=tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 5)),  # type: ignore[arg-type]
+    )
+    batch = XmageFullGameBatchRunner(_ConformanceFailingRunner(message), tmp_path)  # type: ignore[arg-type]
+    assert batch.run((case,)).records[0].failure_class is FullGameFailureClass.CONFORMANCE
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "java.lang.NoClassDefFoundError: mage/game/command/Plane",
+        "java.lang.ClassNotFoundException: mage.cards.Card",
+        "java.lang.OutOfMemoryError: Java heap space",
+        "Could not find or load main class org.commanderlab.xmage.Main",
+        "java.lang.UnsupportedClassVersionError",
+    ],
+)
+def test_infrastructure_fault_markers_are_classified_as_infrastructure(message: str) -> None:
+    assert classify_engine_failure(message) is FullGameFailureClass.INFRASTRUCTURE
