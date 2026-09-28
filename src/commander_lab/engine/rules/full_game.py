@@ -18,8 +18,6 @@ from typing import Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .base import resolve_engine_working_directory
-
 from commander_lab.agents import BasePilot, build_pilot
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import (
@@ -33,6 +31,8 @@ from commander_lab.models import (
     PilotStateView,
     RulesDeckInput,
 )
+
+from .base import resolve_engine_working_directory
 
 FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0"
 FULL_GAME_LANE = "xmage_full_game_external_pilots"
