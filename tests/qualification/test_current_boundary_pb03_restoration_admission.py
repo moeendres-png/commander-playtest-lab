@@ -456,6 +456,19 @@ def test_unsupported_player_count_is_distinct_from_a_drive_failure() -> None:
     assert not issubclass(G.GameDriveError, G.UnsupportedPlayerCount)
 
 
+def _runner_module():
+    """Import the qualification runner as a module, not as a subprocess."""
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "scripts" / "run_current_boundary_qualification.py"
+    spec = importlib.util.spec_from_file_location("cb_runner_under_test", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_capability_block_is_read_from_the_payload_not_the_transport_status() -> None:
     """The capability block lives under "payload"; the top level is transport.
 
@@ -510,3 +523,48 @@ def test_a_missing_capability_block_is_not_an_empty_envelope() -> None:
     assert result.max_players is None
     assert result.failure_kind != "UnsupportedPlayerCount"
     assert result.declared_capabilities == {}
+
+
+def test_an_engine_refused_count_is_recorded_not_fatal() -> None:
+    """A count the engine refuses must be recorded and must not abort the column.
+
+    The pinned Forge bridge qualifies exactly four players but advertises no
+    minimum, so a declared envelope cannot exclude 2 or 3 players and the sweep
+    has to ask. When the engine refuses, the row records what the engine said and
+    the run continues to the counts the engine does qualify. Aborting the whole
+    column on one unavailable count would destroy the evidence for every count
+    that was fine.
+    """
+    from commander_lab.qualification.current_boundary import game_driver as G
+
+    document = _runner_module()._observed_envelope_refusal(
+        "forge", 2, "this bridge qualifies exactly four players; got 2"
+    )
+    assert document["player_count"] == 2
+    assert document["attempted"] is True
+    assert document["outcome"] == "ENGINE_REFUSED_COUNT"
+    # The engine's own words survive verbatim, not a harness paraphrase.
+    assert "exactly four players" in document["engine_reason"]
+    # An unavailable count is not a Rules verdict against the engine.
+    assert "not evidence that the engine is wrong" in document["reason"]
+    assert issubclass(G.UnsupportedPlayerCount, G.GameDriveError)
+
+
+def test_a_declared_refusal_and_an_observed_refusal_stay_distinguishable() -> None:
+    """A skipped count and a refused count are different facts.
+
+    A declared refusal was never attempted; an observed refusal was attempted and
+    the engine answered. Collapsing them would make a reader believe a count the
+    engine never saw had been exercised, which is precisely the fabrication this
+    evidence exists to prevent.
+    """
+    module = _runner_module()
+    declared = module._envelope_refusal("forge", 3, 4, 4)
+    observed = module._observed_envelope_refusal("forge", 3, "qualifies exactly four")
+    assert declared["attempted"] is False
+    assert observed["attempted"] is True
+    assert declared["outcome"] != observed["outcome"]
+    assert declared["schema_version"] != observed["schema_version"]
+    # Neither may be mistaken for a pass or for a Rules failure.
+    for document in (declared, observed):
+        assert "PASS" not in document["reason"]

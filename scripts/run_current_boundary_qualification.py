@@ -422,6 +422,33 @@ def write(name: str, payload: Any) -> None:
     print(f"wrote {name}")
 
 
+def _observed_envelope_refusal(candidate: str, count: int, engine_reason: str) -> dict[str, Any]:
+    """Record a player count the engine actually refused, not one it declared.
+
+    Stronger than :func:`_envelope_refusal`: the engine was asked and answered.
+    The verbatim reason is preserved so a reader can see the engine's own words
+    rather than a harness paraphrase, and the attempt is marked as made so this
+    can never be confused with a count that was skipped.
+
+    It is still not a capability *result* for that count and never earns a PASS.
+    The count is unavailable, which is a different fact from the count being wrong.
+    """
+    return {
+        "schema_version": "current-boundary.observed-player-count-refusal/1.0.0",
+        "candidate": candidate,
+        "player_count": count,
+        "attempted": True,
+        "outcome": "ENGINE_REFUSED_COUNT",
+        "engine_reason": engine_reason,
+        "reason": (
+            f"the {candidate} engine was asked for {count} players and refused by "
+            f"contract: {engine_reason}. The count is therefore unavailable on this "
+            "candidate. This is not a Rules result for this count and must not be read "
+            "as one, and it is not evidence that the engine is wrong."
+        ),
+    }
+
+
 def _envelope_refusal(
     candidate: str, count: int, declared_min: int | None, declared_max: int | None
 ) -> dict[str, Any]:
@@ -664,9 +691,29 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                     cardinality[f"{count}P"],
                 )
                 continue
-            result = run_cardinality(
-                proc, candidate=candidate, player_count=count, runtime_identity=identity
-            )
+            try:
+                result = run_cardinality(
+                    proc, candidate=candidate, player_count=count, runtime_identity=identity
+                )
+            except game_driver.UnsupportedPlayerCount as exc:
+                # The engine refused this count by contract. A DECLARED envelope
+                # cannot catch this case, because the pinned Forge bridge
+                # qualifies exactly four players while advertising no minimum, so
+                # every count below four looks supported until the engine says
+                # otherwise. Record what the engine said and move on: a refused
+                # count is unavailable, not wrong, and one refusal must not abort
+                # the whole column.
+                document = _observed_envelope_refusal(candidate, count, str(exc))
+                cardinality[f"{count}P"] = document
+                _record_envelope_row(
+                    rows,
+                    by_id,
+                    f"PLAYER_COUNT_{count}P",
+                    candidate,
+                    identity,
+                    document,
+                )
+                continue
             document = result.to_document()
             cardinality[f"{count}P"] = document
             fixture = f"PLAYER_COUNT_{count}P"
