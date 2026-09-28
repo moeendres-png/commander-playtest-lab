@@ -89,6 +89,32 @@ class Ws92D1D2D3ProjectionTest {
             assertFalse(players.get(seat).getAsJsonObject().has("hand"));
         }
 
+        // Principal UUIDs are scoped exactly like private card knowledge:
+        // the actor may see its own native id, but no opponent native id may
+        // cross the actor view. A public replay view may contain none of them.
+        List<String> livePlayerIds = fixture.players().stream()
+                .map(player -> player.getId().toString())
+                .toList();
+        assertEquals(
+                livePlayerIds.get(0),
+                players.get(0).getAsJsonObject().get("player_id").getAsString()
+        );
+        for (int seat = 1; seat < 4; seat++) {
+            assertEquals(
+                    "op-" + seat,
+                    players.get(seat).getAsJsonObject().get("player_id").getAsString()
+            );
+            assertFalse(view.toString().contains(livePlayerIds.get(seat)));
+        }
+
+        JsonObject publicView = XmageFullGameStateRedactor.publicView(fixture.game());
+        for (String livePlayerId : livePlayerIds) {
+            assertFalse(
+                    publicView.toString().contains(livePlayerId),
+                    "public replay projection must not contain a live principal UUID"
+            );
+        }
+
         // D3: public commander facts for all four command pairings.
         JsonArray status = view.getAsJsonArray("commander_status");
         assertEquals(8, status.size());
