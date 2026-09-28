@@ -169,6 +169,17 @@ evidence:
 - 'DIRECTLY_VERIFIED (live, PB-04): the compatibility lane refuses any seed option with ''unsupported_game_option:
   B4-D does not support seed''. The driver always sent one, so game creation failed outright for a reason
   unrelated to Rules. Fixed by reading the lane''s declared seed_supported.'
+- 'DIRECTLY_VERIFIED (AF04 capability surface): the full-game lane now publishes, alongside the unchanged
+  false global flags, decision_scoped_legal_actions_supported=true, decision_scoped_action_submission_supported=true,
+  legal_action_global_enumeration_supported=false, legal_action_decision_classes (17) and legal_action_decision_class_count=17.
+  Verified over the real JSONL protocol. A build-failing test re-derives every decision_class the player
+  can request and fails if the published list omits one; verified discriminating by dropping ''priority''.'
+- 'DIRECTLY_VERIFIED (AF04 substance): 11 of the 17 enumerated decision classes have been observed answering
+  a real decision in this campaign''s own evidence (choice, choose_object, choose_use, declare_attacker,
+  declare_blocker, mana_payment, mode, mulligan, priority, target, target_amount). No observed class falls
+  outside the enumerated set. Six remain unobserved by this campaign: amount, announce_x, multi_amount,
+  pile, replacement_effect, trigger_order.'
+- 'DIRECTLY_VERIFIED (bridge): 318 tests, 0 failures, 1 skipped after the AF04 capability change.'
 artifacts:
 - 'qualification/final-current-boundary-20260927/ (executed current-boundary evidence: FULL107, AF01,
   AF03, cardinality, hidden-info, RNG/replay, actual-card, manifest, receipts)'
@@ -261,6 +272,15 @@ technical_decisions:
     found zero Forge modules, compared nothing, and failed closed for the wrong reason. The honest proof
     for a Lab-owned module is the Lab commit bound by the runner receipt plus the separately pinned, separately
     hashed engine artifact.
+- id: AF04-CAPABILITY-PRECISION
+  decision: Add explicitly named, lane-scoped capability fields for the decision-scoped decision surface
+    and the enumerated class list, and leave both global flags false.
+  reasoning: 'The global flags mean a free-standing legal-action API queryable at any time, which this
+    lane does not offer: get_legal_actions fails closed with STALE_DECISION when nothing is pending. But
+    publishing only those flags under-reported a real capability, since the engine does enumerate and
+    accept submissions for the decision it is currently asking about, across 17 enumerated classes. Precision
+    without promotion: the class list is guarded by a build-failing test re-derived from the player source
+    so it cannot drift.'
 hypotheses_rejected:
 - 'REJECTED: "the pre-existing ~/.m2 org.mage 1.4.61 is the pinned engine because the version matches."
   Refuted by rebuilding from the pin: all 34 artifact hashes changed. Version equality is not identity
@@ -283,6 +303,12 @@ hypotheses_rejected:
   one oversized artifact so a re-run cannot reintroduce it. No evidence claim changed and no raw bytes
   became unverifiable. History was not rewritten: force-push is denied and rewriting pushed history would
   be the wrong call regardless, so the correction is a forward commit and the size remains in the log.'
+- 'SELF-CORRECTED: I moved the XMage AF04 verdict from FAIL to UNKNOWN while recording the measured capability
+  surface. The project''s own test_readiness_packets_match_wsr22_verdicts pins the packet to the WSR22
+  verdict table and caught it. FAIL to UNKNOWN is a promotion toward less-negative, no adjudication had
+  occurred, and both verdicts block eligibility so the relaxation bought nothing. Verdict restored to
+  FAIL with the reason recorded; the evidence text was kept because it is a strict improvement that changes
+  no verdict.'
 authority_gates:
 - 'COORDINATOR_PROVIDER_SELECTION: which artifact is the Forge candidate — pinned upstream forge-2.0.14
   (a37a865a) or the Lab fork (ef958ee9) that the evidence executed. Reserved; not claimed. Emit COORDINATOR_PROVIDER_SELECTION_REQUIRED
@@ -303,11 +329,12 @@ first_failing_boundary: 'CORRECTED. The earlier claim that terminal state was th
   of a stall. The genuine current first failing boundary is QUAL-01 -> PB-03: the 33 XMage BLOCKED FULL107
   rows still rest on a MODELED projection from the bridge dimension manifest rather than an executed result,
   because nothing consumes that manifest for admission.'
-current_failure: The 14 rows the engine says it can restore remain unexecuted because the qualification
-  lane exposes no protocol message that reaches the native state-restoration path. The engine half of
-  PB-03 is done and proven; the remaining work is a Lab transport seam (a restoration verb on the full-game
-  lane) plus the Lab request model to drive it. Separately, AF09 cannot be closed on the compat lane because
-  that lane declares no seed support, so its Rules RNG is honestly UNCONTROLLED.
+current_failure: Provider evidence is not complete, so the Coordinator gate is not reached. Two concrete
+  blockers remain, both Lab-side and both now precisely scoped. (1) The 14 rows the engine says it can
+  restore are unexecuted because no protocol message reaches the native state-restoration path; the engine
+  half of PB-03 is done and proven, the transport seam is not. (2) The Forge column has not been re-executed
+  at the pinned candidate, and the current-boundary executor's Forge identity constant still names the
+  fork ef958ee9 while config/rules_engines.json pins upstream a37a865a.
 root_cause_class: UNKNOWN
 failure_class: UNKNOWN
 current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the transport seam is a thin
@@ -336,11 +363,15 @@ remaining_scope:
 - 'Forge full-game lane: none exists; full_game.py hardcodes the xmage lane.'
 - 'chooseRingBearer: an audited parent delegation, a genuinely discretionary Player callback the external
   pilot never sees. Needs a ruling, not a silent change.'
-next_action: AF04/capability truth, then the Forge pin re-execution, which is the longest pole on the
-  path to a Coordinator provider decision.
-exact_next_action: Settle AF04 capability truth for the XMage candidate by separating manifest under-reporting
-  from genuinely unsupported behaviour, using the full-game lane's observed 10 decision classes as the
-  measured surface, and recording the outcome in the readiness packet and the evidence.
+next_action: 'Forge pin re-execution: build a disposable pinned checkout at 4753bb7c, produce the classpath
+  manifest, and execute the Forge column so the comparison rests on the pinned candidate. This is the
+  longest remaining pole and the last substantive item before a provider decision.'
+exact_next_action: Create a disposable detached export of moeendres-png/forge at 4753bb7c outside both
+  existing Forge checkouts (which are a foreign unknown-owner surface and the campaign worktree), build
+  forge-protocol2-bridge with -am offline, write forge-protocol2-bridge/target/cp-wsr22.txt, then run
+  tests/integration/test_forge_bridge_h4f_live.py with FORGE_SOURCE_DIR pointed at it. That test already
+  pins FORGE_ENGINE_SHA=a37a865a and asserts the bridge reports it, so it is the existing qualified mechanism
+  for this and needs no new code.
 do_not_rerun:
 - Do not re-transplant the WSR22 evidence bundle qualification/final-current-boundary-20260927/*. It is
   WSR22's result artifact, it is stale against this HEAD, and adopting it would present another workstream's
