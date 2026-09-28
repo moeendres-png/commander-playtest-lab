@@ -1,0 +1,16 @@
+{
+  "workstream": "Astra project integrity",
+  "status": "PUBLISHED_PENDING_EXACT_HEAD_CI",
+  "initial_main": "e91819ae18166a9f91ca52d101a72c8cb8eddade",
+  "integration_base": "f96bc7ec6b7ea07c73f74282c16dcaf73daaad40",
+  "branch": "astra/project-integrity-20260928",
+  "owned_repairs": "validated",
+  "deferred": [
+    "foreign launcher enforcement",
+    "replay owner intake"
+  ],
+  "next_action": "Read current PR #280 state and terminal receipt first. If already merged, report its exact merge commit and stop this owned workstream. Otherwise wait for exact-head required CI, resolve review findings and integrate by normal merge only when all gates pass. Do not create or republish another PR.",
+  "architecture_freeze": "NOT CLAIMED",
+  "production_provider": "NOT SELECTED",
+  "pr": 280
+}

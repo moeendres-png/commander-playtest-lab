@@ -109,6 +109,29 @@ def test_wrong_repo_identity_fails(enginerepo: Path) -> None:
     assert result["verdict"] == "DRIFT_FAIL"
 
 
+@pytest.mark.parametrize(
+    "remote",
+    [
+        "https://github.com/other/moeendres-png/mage.git",
+        "https://not-github.invalid/moeendres-png/mage.git",
+        "https://github.com/moeendres-png/mage-lookalike.git",
+    ],
+)
+def test_drift_identity_reuses_exact_source_lock_contract(enginerepo, remote):
+    _git(["config", "remote.origin.url", remote], enginerepo)
+    result = drift_mod.check(str(enginerepo), _profile("mage"), "")
+    assert result["verdict"] == "DRIFT_FAIL"
+    assert remote not in json.dumps(result)
+
+
+def test_drift_rejects_multiple_remote_records(enginerepo):
+    _git(
+        ["config", "--add", "remote.origin.url", f"https://github.com/{MAGE_SLUG}.git"], enginerepo
+    )
+    result = drift_mod.check(str(enginerepo), _profile("mage"), "")
+    assert result["verdict"] == "DRIFT_FAIL"
+
+
 def test_cpl_target_with_canonical_surfaces_is_clean(tmp_path: Path) -> None:
     wt = tmp_path / "cpl"
     wt.mkdir()
@@ -153,3 +176,32 @@ def test_live_mage_worktree_drift_fails_read_only() -> None:
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+@pytest.mark.parametrize("scope", ["local", "global", "environment"])
+def test_drift_rejects_effective_url_rewrites(enginerepo, tmp_path, monkeypatch, scope):
+    key = "url.https://private-marker.invalid/.insteadOf"
+    if scope == "local":
+        _git(["config", key, "https://github.com/"], enginerepo)
+    elif scope == "global":
+        config = tmp_path / "global-gitconfig"
+        _git(["config", "--file", str(config), key, "https://github.com/"], enginerepo)
+        monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(config))
+    else:
+        monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+        monkeypatch.setenv("GIT_CONFIG_KEY_0", key)
+        monkeypatch.setenv("GIT_CONFIG_VALUE_0", "https://github.com/")
+    result = drift_mod.check(str(enginerepo), _profile("mage"), "")
+    assert result["verdict"] == "DRIFT_FAIL"
+    assert "private-marker" not in json.dumps(result)
+    assert any("EFFECTIVE_URL_REWRITE" in f["detail"] for f in result["findings"])
+
+
+def test_drift_fails_closed_if_rewrite_guard_is_unavailable(enginerepo, monkeypatch):
+    def unavailable(*args):
+        raise OSError("private-marker")
+
+    monkeypatch.setattr(drift_mod, "_no_url_rewrites", unavailable)
+    result = drift_mod.check(str(enginerepo), _profile("mage"), "")
+    assert result["verdict"] == "DRIFT_FAIL"
+    assert "private-marker" not in json.dumps(result)

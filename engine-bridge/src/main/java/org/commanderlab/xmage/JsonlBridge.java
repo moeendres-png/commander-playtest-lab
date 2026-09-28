@@ -323,12 +323,28 @@ final class JsonlBridge {
             JsonObject payload = optionalObjectPayload(request);
             String gameId = requestGameId(request, payload);
             String gameHandle = requireGameHandle(gameId);
+            String observerPlayerId = stringValue(payload, "observer_player_id").trim();
+            if (observerPlayerId.isBlank()) {
+                return error(
+                        requestId,
+                        "observer_player_id_required",
+                        "GET_GAME_STATE requires nonblank payload.observer_player_id",
+                        false
+                );
+            }
 
-            XmageGameManager.StateSnapshot snapshot = gameManager.snapshotState(gameHandle);
+            XmageGameManager.StateSnapshot snapshot =
+                    gameManager.snapshotState(gameHandle, observerPlayerId);
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", snapshot.gameId());
             responsePayload.addProperty("engine_game_id", snapshot.engineGameId());
             responsePayload.addProperty("state_observation_offset", snapshot.stateObservationOffset());
+            responsePayload.addProperty("observer_player_id", snapshot.observerPlayerId());
+            responsePayload.addProperty(
+                    "observer_engine_player_id",
+                    snapshot.observerEnginePlayerId()
+            );
+            responsePayload.addProperty("observer_seat", snapshot.observerSeat());
             responsePayload.addProperty("seed_controlled", false);
             responsePayload.addProperty("legal_actions_complete", false);
             responsePayload.addProperty("event_log_supported", true);
@@ -406,7 +422,8 @@ final class JsonlBridge {
                     preStateHash,
                     postStateHash
             );
-            XmageGameManager.StateSnapshot state = gameManager.snapshotState(gameHandle);
+            XmageGameManager.StateSnapshot state =
+                    gameManager.snapshotState(gameHandle, executed.actorId());
             XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
             JsonObject responsePayload = actionExecutionPayload(executed, state, after);
             responsePayload.addProperty("bounded_submission", true);
@@ -465,7 +482,8 @@ final class JsonlBridge {
                     preStateHash,
                     postStateHash
             );
-            XmageGameManager.StateSnapshot state = gameManager.snapshotState(gameHandle);
+            XmageGameManager.StateSnapshot state =
+                    gameManager.snapshotState(gameHandle, executed.actorId());
             XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
             JsonObject responsePayload = actionExecutionPayload(executed, state, after);
             responsePayload.addProperty("bounded_submission", true);
@@ -621,6 +639,9 @@ final class JsonlBridge {
             payload.addProperty("executed_source_name", executed.sourceName());
         }
         payload.addProperty("state_observation_offset", state.stateObservationOffset());
+        payload.addProperty("observer_player_id", state.observerPlayerId());
+        payload.addProperty("observer_engine_player_id", state.observerEnginePlayerId());
+        payload.addProperty("observer_seat", state.observerSeat());
         payload.add("state", state.state());
         payload.add("next_decision", legalActionsPayload(after));
         return payload;
