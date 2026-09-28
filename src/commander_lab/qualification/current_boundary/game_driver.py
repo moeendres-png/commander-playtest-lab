@@ -699,7 +699,7 @@ def drive_commander_game(
                         {
                             "seat": entry.get("seat"),
                             "hand_count": len(hand) if isinstance(hand, list) else None,
-                            "library_count": len(library) if isinstance(library, list) else None,
+                            "library_count": (len(library) if isinstance(library, list) else None),
                             "observer_player_id": payload.get("observer_player_id"),
                             "engine_id_matches_state_row": True,
                         }
