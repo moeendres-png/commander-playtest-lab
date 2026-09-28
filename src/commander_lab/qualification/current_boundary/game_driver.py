@@ -681,18 +681,29 @@ def drive_commander_game(
                 for entry in seats or []:
                     if not isinstance(entry, dict) or entry.get("seat") != actor_seat:
                         continue
-                    zones = entry.get("zones") if isinstance(entry.get("zones"), dict) else {}
+                    raw_zones = entry.get("zones")
+                    zones = raw_zones if isinstance(raw_zones, dict) else {}
                     hand = zones.get("hand")
                     library = zones.get("library")
+                    observer_engine_id = payload.get("observer_engine_player_id")
+                    engine_binding_matches = (
+                        isinstance(observer_engine_id, str)
+                        and bool(observer_engine_id)
+                        and entry.get("player_id") == observer_engine_id
+                    )
+                    if not engine_binding_matches:
+                        raise GameDriveError(
+                            "principal observation does not bind to the acting state row"
+                        )
                     mine.append(
                         {
                             "seat": entry.get("seat"),
                             "hand_count": len(hand) if isinstance(hand, list) else None,
-                            "library_count": len(library) if isinstance(library, list) else None,
-                            "observer_player_id": payload.get("observer_player_id"),
-                            "observer_engine_player_id": payload.get(
-                                "observer_engine_player_id"
+                            "library_count": (
+                                len(library) if isinstance(library, list) else None
                             ),
+                            "observer_player_id": payload.get("observer_player_id"),
+                            "engine_id_matches_state_row": True,
                         }
                     )
                 result.terminal_facts["observed_actor_zone_counts"] = mine
