@@ -446,6 +446,35 @@ final class XmageFullGameJsonlBridge {
     }
 
     /** Package-private so the capability payload can be asserted directly in tests. */
+    /**
+     * Every decision class the full-game lane can present to an external pilot.
+     *
+     * <p>This is the enumerated external decision surface, kept next to the
+     * capability payload that publishes it. It is verified against every
+     * {@code decision_class} literal {@link XmageFullGamePlayer} can actually
+     * request by {@code XmageFullGameDecisionSurfaceTest}, so a new class added
+     * to the player without being declared here fails the build instead of
+     * silently shrinking what the capability claims.
+     */
+    static final java.util.Set<String> LEGAL_ACTION_DECISION_CLASSES = java.util.Set.of(
+            "priority",
+            "target",
+            "choose_object",
+            "target_amount",
+            "mulligan",
+            "choose_use",
+            "choice",
+            "pile",
+            "mana_payment",
+            "announce_x",
+            "amount",
+            "multi_amount",
+            "replacement_effect",
+            "trigger_order",
+            "mode",
+            "declare_attacker",
+            "declare_blocker");
+
     static JsonObject capabilitiesPayload() {
         JsonObject capabilities = new JsonObject();
         capabilities.addProperty("commander_supported", true);
@@ -466,6 +495,35 @@ final class XmageFullGameJsonlBridge {
         // free-standing legal-actions API.
         capabilities.addProperty("legal_actions_supported", false);
         capabilities.addProperty("action_submission_supported", false);
+
+        // What IS actually implemented on this lane, named precisely so it can be
+        // consumed without overstating the global flags above.
+        //
+        // The engine enumerates the legal options for the decision it is
+        // currently asking about, and accepts a submission of exactly those
+        // options. That is a real, complete external decision surface for this
+        // lane, and it is NOT what the two global flags mean: they mean a
+        // free-standing legal-action API queryable at any time, which this lane
+        // does not offer (get_legal_actions fails closed with STALE_DECISION
+        // when no decision is pending). Both truths are published together and
+        // the drift between them is the point, not an inconsistency to hide.
+        //
+        // legal_action_decision_classes is the enumerated surface. It is
+        // asserted against every decision class XmageFullGamePlayer can
+        // actually request by XmageFullGameDecisionSurfaceTest, so the two
+        // cannot drift apart silently.
+        capabilities.addProperty("decision_scoped_legal_actions_supported", true);
+        capabilities.addProperty("decision_scoped_action_submission_supported", true);
+        capabilities.addProperty(
+                "legal_action_global_enumeration_supported", false);
+        com.google.gson.JsonArray declaredClasses = new com.google.gson.JsonArray();
+        for (String decisionClass : LEGAL_ACTION_DECISION_CLASSES) {
+            declaredClasses.add(decisionClass);
+        }
+        capabilities.add("legal_action_decision_classes", declaredClasses);
+        capabilities.addProperty(
+                "legal_action_decision_class_count", LEGAL_ACTION_DECISION_CLASSES.size());
+
         capabilities.addProperty("event_log_supported", false);
         capabilities.addProperty("replay_supported", false);
         capabilities.addProperty("stack_visible", true);
