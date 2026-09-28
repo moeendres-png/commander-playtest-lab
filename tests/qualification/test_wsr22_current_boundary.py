@@ -129,6 +129,18 @@ def test_full107_is_denominator_complete(candidate: str) -> None:
     assert provenance["absent_receipts_yield_no_credit"] is True
     for refused in provenance["no_credit_groups"]:
         assert refused["reason"], "a NO_CREDIT group must carry the exact reason"
+    # Native credit must be THIS candidate's and nobody else's. The receipt list
+    # spans every candidate, so an unfiltered loop once attached the other
+    # candidate's green suites to this document. A suite group carries its own
+    # candidate, and it must match the document.
+    for group in results["native_runs"].values():
+        assert group["candidate"] == candidate, (
+            f"{candidate} results carry a native group for {group['candidate']!r}"
+        )
+    for refused in provenance["no_credit_groups"]:
+        assert refused["group"].startswith(f"{candidate.lower()}:"), (
+            f"{candidate} results carry a NO_CREDIT group for {refused['group']!r}"
+        )
 
 
 @pytest.mark.parametrize("candidate", CANDIDATES)

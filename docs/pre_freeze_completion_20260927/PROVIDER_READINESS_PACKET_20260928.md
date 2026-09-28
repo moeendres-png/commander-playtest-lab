@@ -50,12 +50,25 @@ tree, against live engines. Four verified native-suite receipts:
 Every bound native suite is **NO_CREDIT** in this run, with the reason recorded
 verbatim in the receipt. None of them is a pass, and none is a failure.
 
-| Receipt | Candidate | Group | Credit | Reason |
-|---|---|---|---|---|
-| `native-forge-direct.json` | forge | direct | **NO_CREDIT** | materialization export has no git metadata, so no executing HEAD and no per-module tree proof exist |
-| `native-forge-mechanism.json` | forge | mechanism | **NO_CREDIT** | same |
-| `native-xmage-direct.json` | xmage | direct | **NO_CREDIT** | same |
-| `native-xmage-mechanism.json` | xmage | mechanism | **NO_CREDIT** | same |
+| Receipt | Candidate | Group | Tests | Passed | Executed at | Engine identity |
+|---|---|---|---|---|---|---|
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | `859646073119` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 136 | 136 | `859646073119` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-forge-direct.json` | forge | direct | 0 | 0 | — | **NO_CREDIT** |
+| `native-forge-mechanism.json` | forge | mechanism | 0 | 0 | — | **NO_CREDIT** |
+
+**XMage's suites are credited, and the credit is deliberately narrow.** The
+executing suite root is `engine-bridge/`, a module of THIS repository, so its HEAD
+identifies the Lab commit and not the XMage engine. No checkout identity is asserted
+for the engine at all; the engine's identity rests on the provider's own reported
+commit, verified fail-closed at the AF00 handshake. That is a weaker proof than a
+tree comparison and is recorded as `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` rather than
+being dressed up as equivalence.
+
+**Both Forge suites are NO_CREDIT.** The pinned Forge workspace is a materialization
+export with no repository anywhere above it, so there is no executing HEAD and no
+per-module tree proof. Credit is withheld rather than inferred from the supplied
+commit.
 
 The bridge's own test suite was separately executed against the rebuilt converged
 artifacts and is green (327 run, 0 failures, 1 skipped), but that is a build-time

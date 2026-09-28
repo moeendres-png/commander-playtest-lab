@@ -153,9 +153,12 @@ def test_receipt_counts_are_stated() -> None:
         # packet row says so. That row is still required, because omitting it would
         # let a reader infer the suite was never bound.
         if no_credit:
+            # The row must exist (omitting it would imply the suite was never
+            # bound) and must SAY NO_CREDIT somewhere in the row. Which cell holds
+            # it is a formatting choice; what it states is not.
             assert len(cells) >= 5, f"{path.name}: the packet row is malformed"
-            assert cells[3] == "NO_CREDIT", (
-                f"the packet must state NO_CREDIT for {path.name}, not {cells[3]!r}"
+            assert any("NO_CREDIT" in cell for cell in cells), (
+                f"the packet row for {path.name} does not state NO_CREDIT: {cells}"
             )
             continue
         stated = cells[5].replace("Lab ", "").strip().strip("`").strip()

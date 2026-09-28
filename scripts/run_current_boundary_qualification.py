@@ -1515,6 +1515,12 @@ def main() -> int:
         for receipt in native_receipts:
             if not isinstance(receipt, dict):
                 continue
+            # Only THIS candidate's groups. The receipt list spans every candidate,
+            # so an unfiltered loop attached the other candidate's green suites to
+            # this candidate's evidence. That is the same cross-candidate identity
+            # leak the AF00 fix addressed, in a different place.
+            if receipt.get("candidate") != candidate:
+                continue
             group_name = str(receipt.get("group") or "")
             if not group_name:
                 continue
