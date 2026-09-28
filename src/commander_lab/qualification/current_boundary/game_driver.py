@@ -700,15 +700,29 @@ def drive_commander_game(
             # fails closed. Counts come from that principal's row only, and no
             # live engine principal id is persisted.
             try:
+                # The acting principal is derived from the LAB's own decision frame
+                # seat, NOT from the engine's reported actor.
+                #
+                # The engine actor is a LIVE ENGINE IDENTITY, and after the merged
+                # #283 remediation it is a UUID. Treating it as a Lab principal made
+                # every principal-scoped observation fail closed, which is why
+                # WS05-CMD-START-2 was UNKNOWN with "the engine reported no
+                # principal-scoped zone counts" even though the engine reports
+                # principal-scoped state correctly and is now demonstrably scoped.
+                #
+                # The Lab's external namespace is the seat it published in the frame;
+                # the engine resolves that to its own live id, and the binding below
+                # proves the two agree. The live id is used transiently and never
+                # persisted.
                 decision = frame["decision"] if "frame" in dir() else {}
-                stated = decision.get("actor") if isinstance(decision, dict) else None
-                principal = str(stated) if stated else str(frame["seat"])
-                seats_known = _SEATS[:player_count]
-                if principal not in seats_known:
+                seat_index = frame.get("seat") if isinstance(frame, dict) else None
+                if isinstance(seat_index, bool) or not isinstance(seat_index, int):
+                    raise GameDriveError("the decision frame carries no Lab seat")
+                if not 0 <= seat_index < player_count:
                     raise GameDriveError(
-                        f"acting principal {principal!r} is not one of {seats_known}"
+                        f"the Lab seat {seat_index} is outside 0..{player_count - 1}"
                     )
-                seat_index = seats_known.index(principal)
+                principal = _SEATS[seat_index]
                 observed = proc.request(
                     "get_game_state",
                     {"observer_player_id": principal},

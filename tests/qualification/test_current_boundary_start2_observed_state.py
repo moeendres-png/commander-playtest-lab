@@ -72,9 +72,11 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     source = DRIVER.read_text(encoding="utf-8")
     block = source[source.index('if drive_to == "first_turn_draw_skip":') :]
     block = block[: block.index('result.terminal_facts["decision_identity_shape"]')]
-    # Explicit principal, stated by the engine frame; never inferred from cards.
+    # The principal named in the request is the LAB's external id for the acting
+    # seat, derived from the Lab's own frame. It is never inferred from visible
+    # cards, and it is never the engine's live actor identity.
     assert '{"observer_player_id": principal}' in block
-    assert 'decision.get("actor")' in block
+    assert "principal = _SEATS[seat_index]" in block
     # Counts come from the acting seat's row only.
     assert 'actor_row.get("seat") != seat_index' in block
     assert 'zones.get("library_size")' in block
@@ -162,7 +164,7 @@ def test_driver_observes_engine_reported_zone_counts() -> None:
 def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     """Record only the acting principal's counts; never persist another live principal id."""
     source = DRIVER.read_text(encoding="utf-8")
-    start = source.index("seat_index = seats_known.index(principal)")
+    start = source.index('seat_index = frame.get("seat")')
     end = source.index('result.terminal_facts["observed_zone_count_source"]')
     block = source[start:end]
     assert '{"observer_player_id": principal}' in block
@@ -175,3 +177,36 @@ def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     # be stored in the terminal-facts record.
     assert '"observer_engine_player_id"' not in helper
     assert '"player_id"' not in helper
+
+
+def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> None:
+    """The engine's actor is a LIVE identity and must never be a Lab principal.
+
+    This is the defect that made WS05-CMD-START-2 UNKNOWN after PR #283. The
+    driver took the acting principal from the engine's reported actor and then
+    checked it against the Lab's own seat namespace. Before #283 the engine
+    happened to answer with a seat label and the check passed by coincidence. After
+    #283 the engine answers with a live engine identity, a UUID, so the check failed
+    for every observation and the draw-skip postcondition could never be read, even
+    though the engine was reporting principal-scoped state correctly.
+
+    Using the engine actor as a Lab principal was wrong in both directions: it could
+    not work once the engine used live identities, and had it ever succeeded it would
+    have persisted a live engine identity into Lab evidence.
+    """
+    source = DRIVER.read_text(encoding="utf-8")
+
+    # The Lab seat is authoritative and is what the observer request names.
+    assert 'seat_index = frame.get("seat")' in source
+    assert "principal = _SEATS[seat_index]" in source
+    # The request still names the Lab external principal explicitly.
+    assert '"observer_player_id": principal' in source
+    # And the engine actor is never used as a Lab principal.
+    assert "principal = str(stated)" not in source, (
+        "the engine's live actor identity must not become the Lab principal"
+    )
+    assert (
+        'decision.get("actor")' not in source.split('drive_to == "first_turn_draw_skip"')[1][:3000]
+    ), "the engine actor must not be read as the acting principal at all"
+    # The live engine id may still be used to PROVE the binding, transiently.
+    assert "observer_engine_player_id" in source
