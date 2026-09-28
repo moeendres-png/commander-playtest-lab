@@ -105,10 +105,17 @@ def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
     assert "UNCONTROLLED_ENGINE_RNG" in receipts
     assert "REQUESTED_SEED" in receipts
 
-    # The seed must actually reach the provider request.
+    # The seed must actually reach the provider request. PB-04 made the request
+    # shape lane-dependent (a lane that declares no seed support must not be sent
+    # one), so the assertion follows the seed into the request builder instead of
+    # requiring it to be a literal inside the call site. The requirement is
+    # unchanged: when the lane accepts a seed, the seed goes out on the wire.
     create = driver.split('"create_commander_game",', 1)[1].split("},", 1)[0]
-    assert '"seed": seed' in create
-    assert '"rules_seed": seed' in create
+    assert "_create_request" in create, "game creation must go through the request builder"
+    request_builder = driver.split("def _create_request(", 1)[1].split("\ndef ", 1)[0]
+    assert '"seed": seed' in request_builder, "the seed must reach the provider request"
+    assert "lane_seed_supported" in request_builder, "the request must be lane-scoped"
+    assert '"rules_seed": seed' in request_builder
 
     # And the derived binding is what the evidence records.
     assert '"rules_rng_binding"' in driver

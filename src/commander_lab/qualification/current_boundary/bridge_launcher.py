@@ -18,6 +18,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
+from commander_lab.engine.rules.base import resolve_engine_working_directory
+
 from .source_lock import (
     CURRENT_TRANSPORT_PROTOCOL,
     FORGE_CANDIDATE_COMMIT,
@@ -254,7 +256,12 @@ def build_launch_plan(
             candidate=candidate,
             lane=resolved_lane,
             argv=argv,
-            cwd=workspace,
+            # NOT the workspace: XMage resolves its H2 card repository relative
+            # to the process working directory, so running the engine from the
+            # source tree materializes a multi-hundred-megabyte database inside
+            # the repository and dirties the runner. RUNTIME-01, same defect the
+            # production lane already had fixed.
+            cwd=Path(str(resolve_engine_working_directory(None))),
             env_overrides={},
             expected_engine_commit=XMAGE_CANDIDATE_COMMIT,
             build_identity={
@@ -284,7 +291,7 @@ def build_launch_plan(
             candidate=candidate,
             lane="protocol2-jsonl",
             argv=argv,
-            cwd=forge_workspace,
+            cwd=Path(str(resolve_engine_working_directory(None))),
             env_overrides={
                 "FORGE_ENGINE_SHA": FORGE_CANDIDATE_COMMIT,
                 "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),

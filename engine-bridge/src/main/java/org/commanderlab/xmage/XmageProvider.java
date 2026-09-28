@@ -101,6 +101,13 @@ final class XmageProvider {
 
         JsonObject result = new JsonObject();
         result.add("capabilities", capabilities);
+        // The native state-restoration manifest is a property of the restoration
+        // harness, not of the transport lane, so it is published on this lane as
+        // well as the full-game lane. A qualifier deciding whether one frozen
+        // mid-game obligation is admissible needs to know WHICH dimensions the
+        // engine can restore; a bare starting_state_injection_supported=false
+        // cannot answer that. Reported, not promoted: no capability value changes.
+        result.add("state_restoration_dimensions", XmageNativeStateRestoration.dimensionsPayload());
         return result;
     }
 }

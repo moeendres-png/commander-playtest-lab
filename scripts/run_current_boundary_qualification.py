@@ -36,6 +36,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     REPLAY_ROWS,
     XMAGE_CANDIDATE_COMMIT,
     XMAGE_LAB_RUNTIME_AUTHORITY,
+    ManifestUnavailableError,
+    RestorationManifest,
+    admit,
     boundary_receipt,
     build_deck,
     build_launch_plan,
@@ -46,10 +49,14 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     load_effective_materialization,
     non_executed_row,
     observe_principal_state,
+    parse_manifest,
     run_af01,
     run_af03,
     start2_row,
     validate_principal_scoping,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    materialization as materialization_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
@@ -342,6 +349,32 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     probes: dict[str, Any] = {}
 
     with launch(plan) as proc:
+        # ---- PB-03: the engine's OWN restoration manifest ------------------
+        # Read it from the live candidate, not from a Lab projection. A missing
+        # or malformed manifest fails closed: it must never be treated as "the
+        # engine supports nothing", which would be an incapability nobody
+        # observed.
+        restoration_manifest: dict[str, Any] | None = None
+        restoration_manifest_error: str | None = None
+        try:
+            capability_response = proc.request("get_capabilities", {})
+            if capability_response.get("success") is not True:
+                restoration_manifest_error = (
+                    f"get_capabilities failed: {capability_response.get('status')}"
+                )
+            else:
+                manifest = parse_manifest(capability_response.get("payload") or {})
+                restoration_manifest = {
+                    "schema_version": manifest.schema_version,
+                    "starting_state_injection_supported": manifest.starting_state_injection_supported,
+                    "supported": list(manifest.supported),
+                    "unsupported": list(manifest.unsupported),
+                }
+        except ManifestUnavailableError as exc:
+            restoration_manifest_error = str(exc)
+        probes["restoration_manifest"] = restoration_manifest
+        probes["restoration_manifest_error"] = restoration_manifest_error
+
         # ---- a real live game for the decision-time invariants -----------
         # AF01's fail-closed decision probes were previously issued with no
         # game at all. A provider asked to fail closed on a submission for a
@@ -541,7 +574,79 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             },
         )
 
-    return {"rows": rows, "probes": probes, "identity": identity, "plan": plan.lane}
+    return {
+        "rows": rows,
+        "probes": probes,
+        "identity": identity,
+        "plan": plan.lane,
+        "restoration_manifest": probes.get("restoration_manifest"),
+        "restoration_manifest_error": probes.get("restoration_manifest_error"),
+    }
+
+
+def _starting_state_reason(
+    candidate: str,
+    mechanisms: list[str],
+    restoration_manifest: dict[str, Any] | None,
+    restoration_manifest_error: str | None,
+) -> str:
+    """Explain a frozen mid-game row using the ENGINE's own manifest.
+
+    PB-03 replaced the previous Lab projection. The old text asserted that the
+    mechanisms were unreachable because the bridge reported
+    ``starting_state_injection_supported=false``; a bare boolean cannot support
+    that, because it does not say which dimensions the engine can restore. The
+    manifest does, so the reason now quotes the engine.
+
+    Three outcomes are possible and all are explicit:
+
+    * the engine declares every needed dimension supported: the mechanism is NOT
+      an engine limitation, and the remaining blocker is the Lab transport seam;
+    * the engine declares one unsupported: an engine-declared limitation, with
+      the engine's own words;
+    * no declared mapping, or no manifest: fail closed and say so.
+    """
+    families = tuple(sorted(set(mechanisms)))
+    head = (
+        "no current-boundary execution seam: the effective obligation requires a frozen "
+        f"mid-game starting state because it requires the mid-game mechanisms {list(families)}. "
+    )
+    if restoration_manifest_error:
+        return head + (
+            "Admissibility could not be settled from the engine's own restoration manifest "
+            f"because it was not available ({restoration_manifest_error}), so this row fails "
+            "closed rather than inheriting a Lab projection. No credit is transferred."
+        )
+    if restoration_manifest is None:
+        return head + (
+            "Admissibility was not settled from the engine's own restoration manifest, so this "
+            "row fails closed. No credit is transferred."
+        )
+    manifest = RestorationManifest(
+        schema_version=str(restoration_manifest.get("schema_version", "")),
+        starting_state_injection_supported=bool(
+            restoration_manifest.get("starting_state_injection_supported")
+        ),
+        supported=tuple(str(item) for item in restoration_manifest.get("supported", ())),
+        unsupported=tuple(str(item) for item in restoration_manifest.get("unsupported", ())),
+    )
+    verdict = admit(manifest, {}, families=families)
+    per_family = " ".join(f"[{f.family}: {f.state}] {f.detail}" for f in verdict.families)
+    if verdict.admitted:
+        return head + (
+            f"The {candidate} engine itself declares every dimension this obligation needs "
+            f"SUPPORTED, so the mechanism is NOT an engine limitation. {per_family} It is "
+            "still not executed here: the qualification lane exposes no protocol message that "
+            "reaches the native state-restoration path, so the remaining blocker is a Lab "
+            "transport seam, not a Rules or engine capability gap. The obligation also names "
+            "fixture-specific objects, so driving a longer real game would not satisfy it; "
+            "substituting a different object would be mechanism-equivalent evidence and needs "
+            "a Coordinator ruling. No credit is transferred."
+        )
+    return head + (
+        f"Admissibility settled against the {candidate} engine's own restoration manifest: "
+        f"{per_family} No credit is transferred."
+    )
 
 
 def classify_remaining(
@@ -550,6 +655,8 @@ def classify_remaining(
     *,
     candidate: str,
     identity: dict[str, Any],
+    restoration_manifest: dict[str, Any] | None = None,
+    restoration_manifest_error: str | None = None,
 ) -> list[RowResult]:
     """Give every not-yet-executed denominator row an explicit outcome."""
     rows: list[RowResult] = []
@@ -557,17 +664,19 @@ def classify_remaining(
         fixture_id = record["fixture_id"]
         if fixture_id in executed:
             continue
-        # PB-03: decide from the obligation's mechanisms, not from the row name.
-        mechanisms = materialization.mid_game_mechanisms(record)
+        # PB-03: decide from the obligation's mechanisms, not from the row name,
+        # and settle admissibility from the ENGINE's own restoration manifest
+        # rather than from a Lab projection.
+        # mid_game_mechanisms/requires_starting_state are module-level
+        # functions, not EffectiveMaterialization methods. Calling them on
+        # the instance raised AttributeError and aborted the whole run.
+        mechanisms = materialization_mod.mid_game_mechanisms(record)
         if mechanisms:
-            reason = (
-                "no current-boundary execution seam: the effective obligation requires a "
-                "frozen mid-game starting state because it requires the mid-game mechanisms "
-                f"{sorted(mechanisms)}, and the Lab execution path does not expose generic "
-                "starting-state injection (the XMage bridge reports "
-                "starting_state_injection_supported=false). Native causal-reconstruction "
-                "harnesses exist for adjacent mechanisms but are not the same obligation; "
-                "no credit is transferred."
+            reason = _starting_state_reason(
+                candidate,
+                mechanisms,
+                restoration_manifest,
+                restoration_manifest_error,
             )
             rows.append(
                 non_executed_row(
@@ -715,7 +824,12 @@ def main() -> int:
         identity = outcome["identity"]
         executed = {row.fixture_id for row in outcome["rows"]}
         rows = outcome["rows"] + classify_remaining(
-            materialization, executed, candidate=candidate, identity=identity
+            materialization,
+            executed,
+            candidate=candidate,
+            identity=identity,
+            restoration_manifest=outcome.get("restoration_manifest"),
+            restoration_manifest_error=outcome.get("restoration_manifest_error"),
         )
         by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
         documents = [row.to_document(by_id[row.fixture_id]) for row in rows]

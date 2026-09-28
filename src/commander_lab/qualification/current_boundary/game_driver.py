@@ -142,6 +142,9 @@ class CommandedGameResult:
     failure: str | None = None
     failure_kind: str | None = None
     seed_binding: Any = None
+    # What the lane actually advertised, so a reader can see that seed control
+    # was taken from the provider's own capability surface and not assumed.
+    declared_capabilities: dict[str, Any] = field(default_factory=dict)
 
     def to_document(self) -> dict[str, Any]:
         return {
@@ -151,6 +154,7 @@ class CommandedGameResult:
             "candidate": self.candidate,
             "player_count": self.player_count,
             "deck_identity": self.deck_identity,
+            "declared_capabilities": self.declared_capabilities,
             "game_id": self.game_id,
             "steps_completed": self.steps_completed,
             "decision_tape": [
@@ -317,6 +321,36 @@ def _action_kind(action: dict[str, Any]) -> str:
     return str(action.get("action_type", ""))
 
 
+def _create_request(
+    game_id: str,
+    handles: list[str],
+    seed: int,
+    lane_seed_supported: bool,
+) -> dict[str, Any]:
+    """Shape create_commander_game from the lane's DECLARED seed capability.
+
+    The seed must reach the provider's authoritative request on a lane that
+    accepts one; recording a requested seed that never left the harness is the
+    Gate 3 defect. But sending a seed to a lane that has declared it cannot
+    accept one is equally wrong: the provider refuses game creation outright,
+    which would be recorded as a game failure for a reason unrelated to Rules.
+    """
+    request: dict[str, Any] = {
+        "game_id": game_id,
+        "deck_handles": handles,
+        "format": "commander",
+        # Required for the generic lane to expose an external decision surface
+        # at all; without it get_legal_actions fails closed with
+        # LEGAL_ACTIONS_UNAVAILABLE and the engine would self-play (PB-01).
+        "external_control": True,
+    }
+    if lane_seed_supported:
+        request["seed"] = seed
+        request["rules_seed"] = seed
+        request["options"] = {"seed": seed, "rules_seed": seed}
+    return request
+
+
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -346,9 +380,26 @@ def drive_commander_game(
     try:
         # Canonical Protocol-2 handshake before any game traffic. No legacy
         # alias is used and no capability is inferred.
+        capabilities: dict[str, Any] = {}
         for message in ("start_engine", "get_provider_version", "get_capabilities"):
-            _require_ok(proc.request(message, {}), message)
+            response = _require_ok(proc.request(message, {}), message)
+            if message == "get_capabilities":
+                raw_caps = response.get("capabilities")
+                capabilities = raw_caps if isinstance(raw_caps, dict) else {}
         result.steps_completed.append("handshake")
+        result.declared_capabilities = dict(capabilities)
+
+        # PB-04: seed support is LANE-scoped, and must be read from the lane
+        # rather than assumed. The generic compatibility lane truthfully reports
+        # seed_supported=false and refuses any seed option with
+        # `unsupported_game_option`; the full-game lane binds an explicit Rules
+        # seed and reports true. Sending a seed the lane has declared it cannot
+        # accept makes game creation fail for a reason that has nothing to do
+        # with Rules behaviour, so the request is shaped from what the lane
+        # actually advertised. When the lane cannot take a seed, the Rules RNG
+        # binding is recorded as UNCONTROLLED by classify_seed_binding below and
+        # earns no RNG or replay credit, which is the honest outcome.
+        lane_seed_supported = capabilities.get("seed_supported") is True
 
         handles: list[str] = []
         for deck_id in result.deck_identity:
@@ -367,18 +418,12 @@ def drive_commander_game(
             proc.request(
                 "create_commander_game",
                 {
-                    "request": {
-                        "game_id": game_id,
-                        "deck_handles": handles,
-                        "format": "commander",
-                        "external_control": True,
-                        # The seed must reach the provider's authoritative
-                        # request. Recording a requested seed that never left
-                        # the harness is the Gate 3 defect.
-                        "seed": seed,
-                        "rules_seed": seed,
-                        "options": {"seed": seed, "rules_seed": seed},
-                    }
+                    "request": _create_request(
+                        game_id,
+                        handles,
+                        seed,
+                        lane_seed_supported,
+                    ),
                 },
                 game_id=game_id,
                 timeout_s=300.0,
