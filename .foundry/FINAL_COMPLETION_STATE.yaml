@@ -4,11 +4,11 @@ worktree: /home/moeen/code/csn-final-bakeoff/space-bunny/lab
 branch: sbmax/full-completion
 audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
 audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
-state_written_against_head: 58c1c24400b66ea3d70e49d80bfa6ab7e19040da
-validated_head: 58c1c24400b66ea3d70e49d80bfa6ab7e19040da
-objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification,
-  remediation, freeze readiness, production implementation, real full games, replay,
-  hidden information, multiplayer, batch execution, and operational completion.'
+state_written_against_head: 74326d594c23de44ca9153e25e63f8628efa594b
+validated_head: 74326d594c23de44ca9153e25e63f8628efa594b
+objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification, remediation,
+  freeze readiness, production implementation, real full games, replay, hidden information, multiplayer,
+  batch execution, and operational completion.'
 in_scope:
 - full technically achievable Commander Simulator Next completion campaign
 out_of_scope:
@@ -16,219 +16,279 @@ out_of_scope:
 - Architecture Freeze decision by the executor
 ownership: final-completion-space-bunny-max
 status: ACTIVE
-
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: max
-
 hard_gates:
-- 'Rules Core is the sole Magic legality and Rules-semantics authority; no second hidden
-  Rules Engine in any pilot, adapter, harness, replay or qualification helper.'
-- 'Unsupported production-reachable paths fail closed. No first-option, random, default
-  yes/no, silent skip, parent-class fallback, or requested-option legality reconstruction.'
-- 'Hidden information is principal-scoped in observations, errors, logs, evidence and replay.'
-- 'All Rules randomness originates in the Rules Core with explicit seed authority.'
-- 'Evidence is classified; UNKNOWN != PASS, PARTIAL != FULL, NOT_RUN != PASS, CODE_DERIVED
-  != RUNTIME_VERIFIED.'
-- 'No test, denominator, assertion, immutable materialization or expected semantics is
-  weakened to obtain green.'
-- 'PRODUCTION_PROVIDER selection and ARCHITECTURE_FREEZE are Coordinator decisions and are
-  never claimed by this executor.'
-
+- Rules Core is the sole Magic legality and Rules-semantics authority; no second hidden Rules Engine in
+  any pilot, adapter, harness, replay or qualification helper.
+- Unsupported production-reachable paths fail closed. No first-option, random, default yes/no, silent
+  skip, parent-class fallback, or requested-option legality reconstruction.
+- Hidden information is principal-scoped in observations, errors, logs, evidence and replay.
+- All Rules randomness originates in the Rules Core with explicit seed authority.
+- Evidence is classified; UNKNOWN != PASS, PARTIAL != FULL, NOT_RUN != PASS, CODE_DERIVED != RUNTIME_VERIFIED.
+- No test, denominator, assertion, immutable materialization or expected semantics is weakened to obtain
+  green.
+- PRODUCTION_PROVIDER selection and ARCHITECTURE_FREEZE are Coordinator decisions and are never claimed
+  by this executor.
 forbidden_shortcuts:
-- 'Rebuilding a general Rules Core instead of qualifying the pinned engine.'
-- 'Editing config/rules_engines.json to make evidence consistent (would launder a Lab
-  Rules-Core fork into a provider pin).'
-- 'Editing an executed commit into any provenance or evidence field.'
-- 'Promoting one candidate PASS to fill the other candidate UNKNOWN.'
-- 'Reading a modeled projection as an executed result.'
-- 'Mutating canonical data or weakening the stale-canonical-input guard to get green.'
-
+- Rebuilding a general Rules Core instead of qualifying the pinned engine.
+- Editing config/rules_engines.json to make evidence consistent (would launder a Lab Rules-Core fork into
+  a provider pin).
+- Editing an executed commit into any provenance or evidence field.
+- Promoting one candidate PASS to fill the other candidate UNKNOWN.
+- Reading a modeled projection as an executed result.
+- Mutating canonical data or weakening the stale-canonical-input guard to get green.
 dependencies:
-- 'ENV: lock-faithful venv at <repo>/.venv (pip --require-hashes -r requirements/lock.txt,
-  plus pip install -e . --no-deps). Required before ANY test or evidence run.'
-- 'ENV: CLEAN TRACKED TREE required to run the suite. tools/service.py rejects canonical
-  inputs when tracked_worktree_dirty and yields ~52 spurious failures.'
-- 'ENGINE: org.mage:mage:1.4.61 must be built from the exact pin b1959698, not from the
-  mage worktree HEAD. Build the engine tree with MAVEN_OPTS=-Djava.io.tmpdir=<writable>,
-  because /tmp is read-only in the Foundry sandbox.'
-- 'BRIDGE: engine-bridge mvn package produces the shaded xmage-engine-bridge jar consumed via
-  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD (absolute jar path).'
-- 'PB-09 depends on a Coordinator decision and therefore does NOT gate executable work.'
-
+- 'ENV: lock-faithful venv at <repo>/.venv (pip --require-hashes -r requirements/lock.txt, plus pip install
+  -e . --no-deps). Required before ANY test or evidence run.'
+- 'ENV: CLEAN TRACKED TREE required to run the suite. tools/service.py rejects canonical inputs when tracked_worktree_dirty
+  and yields ~52 spurious failures.'
+- 'ENGINE: org.mage:mage:1.4.61 must be built from the exact pin b1959698, not from the mage worktree
+  HEAD. Build the engine tree with MAVEN_OPTS=-Djava.io.tmpdir=<writable>, because /tmp is read-only in
+  the Foundry sandbox.'
+- 'BRIDGE: engine-bridge mvn package produces the shaded xmage-engine-bridge jar consumed via COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD
+  (absolute jar path).'
+- PB-09 depends on a Coordinator decision and therefore does NOT gate executable work.
 files_modified:
-- '.env.example'
-- 'src/commander_lab/engine/rules/base.py'
-- 'src/commander_lab/engine/rules/bridge.py'
-- 'src/commander_lab/engine/rules/full_game.py'
-- 'tests/architecture/test_engine_runtime_state_isolation.py'
-- 'tests/foundry/test_launcher.py'
-- 'tools/foundry/launcher.py'
-- 'scripts/run_external_b3_regression.py'
-- 'scripts/run_external_b4a_regression.py'
-- 'scripts/run_external_b4b_regression.py'
-- 'scripts/run_external_b4c_regression.py'
-- 'scripts/run_external_b4d_regression.py'
-- 'scripts/run_external_b4f_capability_closeout.py'
-- 'scripts/run_external_b4f_illegal_action_regression.py'
-- 'scripts/run_external_b4f_provider_pin_validation.py'
-- 'scripts/run_external_full_game_conformance.py'
-- 'scripts/run_real_4p_full_game_smoke.py'
-- 'scripts/run_real_deck_gate.py'
-
+- .env.example
+- src/commander_lab/engine/rules/base.py
+- src/commander_lab/engine/rules/bridge.py
+- src/commander_lab/engine/rules/full_game.py
+- tests/architecture/test_engine_runtime_state_isolation.py
+- tests/foundry/test_launcher.py
+- tools/foundry/launcher.py
+- scripts/run_external_b3_regression.py
+- scripts/run_external_b4a_regression.py
+- scripts/run_external_b4b_regression.py
+- scripts/run_external_b4c_regression.py
+- scripts/run_external_b4d_regression.py
+- scripts/run_external_b4f_capability_closeout.py
+- scripts/run_external_b4f_illegal_action_regression.py
+- scripts/run_external_b4f_provider_pin_validation.py
+- scripts/run_external_full_game_conformance.py
+- scripts/run_real_4p_full_game_smoke.py
+- scripts/run_real_deck_gate.py
+- config/rules_engines.json
+- docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json
+- docs/architecture_freeze_readiness_20260927/XMAGE_FREEZE_READINESS.json
+- engine-bridge/pom.xml
+- src/commander_lab/engine/rules/__init__.py
+- src/commander_lab/engine/rules/full_game_batch.py
+- src/commander_lab/qualification/current_boundary/ (11 modules, transplanted)
+- scripts/run_current_boundary_qualification.py (transplanted)
+- scripts/assemble_current_boundary_evidence.py (transplanted)
+- tests/qualification/test_current_boundary_*.py (11 families, transplanted)
 tests_run:
-- 'pytest -q (full suite): 1699 passed / 1 failed / 5 skipped on the clean audit base; the
-  single failure was FOUNDRY-01 and is now repaired.'
-- 'pytest -q tests/foundry/test_launcher.py: 101 passed; the 5 new nested-launch tests were
-  verified FAILING with the repair reverted, so they discriminate.'
+- 'pytest -q (full suite): 1699 passed / 1 failed / 5 skipped on the clean audit base; the single failure
+  was FOUNDRY-01 and is now repaired.'
+- 'pytest -q tests/foundry/test_launcher.py: 101 passed; the 5 new nested-launch tests were verified FAILING
+  with the repair reverted, so they discriminate.'
 - 'pytest -q tests/architecture/test_engine_runtime_state_isolation.py: 6 passed.'
 - 'ruff check .: clean. ruff format --check .: 999 files already formatted.'
 - 'mypy src/commander_lab: Success, no issues found in 263 source files.'
 - 'mvn -DskipTests install on the extracted pin b1959698: BUILD SUCCESS.'
 - 'mvn -DskipTests package in engine-bridge: BUILD SUCCESS.'
 - 'scripts/run_real_4p_full_game_smoke.py --smoke-decisions 40: status PASS, 40 decisions.'
-
+- 'pytest -q (full suite) at 74326d59: 1882 passed / 6 skipped / 0 failed.'
+- 'pytest -q tests/qualification: 231 passed / 3 skipped.'
+- 'ruff check .: clean. ruff format --check .: 1023 files already formatted.'
+- 'mypy src/commander_lab: Success, no issues found in 274 source files.'
+- 'Discriminating check: the 3 new selection-bound tests and the launcher nested-launch tests were each
+  verified FAILING with their repair reverted.'
 evidence:
-- 'DIRECTLY_VERIFIED: pinned xmage b1959698 rebuilt from the exact git archive; all 34
-  org.mage artifact sha256 values differ from the pre-existing ~/.m2 set, proving the prior
-  local install was NOT the pin. CI is unaffected because it checks out the pin and verifies
-  HEAD before every build.'
-- 'DIRECTLY_VERIFIED: canonical xmage pin b1959698 is NOT an ancestor of origin/master and
-  NOT an ancestor of the campaign mage worktree HEAD 2312a666; it exists only on
-  origin/sol/rg06-hidden-state-restore-20260924 and origin/sol/rg06b-restored-morph-ability-suppression-20260926.
-  pin..HEAD diverges by 90 src/main/java files (365 insertions, 1729 deletions) including
-  deleted CommanderPlaysCountState/CommanderPlaysCountWatcher.'
-- 'DIRECTLY_VERIFIED (runtime): real 4P bounded smoke at the true pin — 4 real 100-card
-  decks imported by XMage, 40 external-pilot decisions, decision classes
-  [choose_object, mulligan, target, priority], clean shutdown, xmage_commit b1959698.'
-- 'DIRECTLY_VERIFIED: engine runtime state no longer lands in the Git worktree; after the
-  repair `db/` does not appear in the worktree and engine state is in gitignored
-  .runtime/engine/db.'
-- 'CODE_DERIVED: src/commander_lab/qualification/ does not exist on this lineage. The whole
-  107-row current-boundary executor and all 107x2 runtime evidence exist only on unmerged
-  WSR22 branches, so AF06/AF07/AF08/AF09 cannot currently be recomputed.'
-- 'CODE_DERIVED: nothing consumes the bridge dimension manifest at
-  XmageNativeStateRestoration.java:1026-1065, so the PB-03 admission fix is unimplemented
-  even on its own branch and 33 XMage rows remain BLOCKED on a MODELED projection.'
-
+- 'DIRECTLY_VERIFIED: pinned xmage b1959698 rebuilt from the exact git archive; all 34 org.mage artifact
+  sha256 values differ from the pre-existing ~/.m2 set, proving the prior local install was NOT the pin.
+  CI is unaffected because it checks out the pin and verifies HEAD before every build.'
+- 'DIRECTLY_VERIFIED: canonical xmage pin b1959698 is NOT an ancestor of origin/master and NOT an ancestor
+  of the campaign mage worktree HEAD 2312a666; it exists only on origin/sol/rg06-hidden-state-restore-20260924
+  and origin/sol/rg06b-restored-morph-ability-suppression-20260926. pin..HEAD diverges by 90 src/main/java
+  files (365 insertions, 1729 deletions) including deleted CommanderPlaysCountState/CommanderPlaysCountWatcher.'
+- 'DIRECTLY_VERIFIED (runtime): real 4P bounded smoke at the true pin — 4 real 100-card decks imported
+  by XMage, 40 external-pilot decisions, decision classes [choose_object, mulligan, target, priority],
+  clean shutdown, xmage_commit b1959698.'
+- 'DIRECTLY_VERIFIED: engine runtime state no longer lands in the Git worktree; after the repair `db/`
+  does not appear in the worktree and engine state is in gitignored .runtime/engine/db.'
+- 'CODE_DERIVED: src/commander_lab/qualification/ does not exist on this lineage. The whole 107-row current-boundary
+  executor and all 107x2 runtime evidence exist only on unmerged WSR22 branches, so AF06/AF07/AF08/AF09
+  cannot currently be recomputed.'
+- 'CODE_DERIVED: nothing consumes the bridge dimension manifest at XmageNativeStateRestoration.java:1026-1065,
+  so the PB-03 admission fix is unimplemented even on its own branch and 33 XMage rows remain BLOCKED
+  on a MODELED projection.'
+- 'DIRECTLY_VERIFIED (runtime, terminal): real-deck 4P gate, seed 20260923, four real 100-card decks,
+  10826 external-pilot decisions, terminal=true, winner seat 2, 10 observed decision classes, hidden_information_actor_scoped=true,
+  fallback_used=false, at pin b1959698. The same run reproduces the historical WSR23 record (10826 decisions,
+  winner 2) at the current pin.'
+- 'DIRECTLY_VERIFIED (replay): two fresh processes, same seed: semantic_replay_match=true, raw_result_match=false,
+  bit_exact_replay_validated=false. Deterministic SEMANTIC reproduction is demonstrated; bit-exactness
+  is correctly still not claimed.'
+- 'DIRECTLY_VERIFIED (impact adjudication of this campaign''s own production-path change): the engine
+  working-directory change is semantically neutral. Pre-change code and post-change code both produce
+  semantic_transcript_sha256=3de9c52095cbfd091ff445bb17ee9b39e65a2cf66678194ebb624e026e559c4d over 10826
+  decisions. raw_result_sha256 differs, as expected, because raw embeds per-process identities that the
+  semantic normalizer strips.'
+- 'DIRECTLY_VERIFIED (player count, current pin, real engine): 2P 12484 decisions, 3P 2071, 4P 4476, 5P
+  5953, 6P 7284, all status PASS with 8 observed decision classes each; 7P returns status=FAIL_CLOSED.
+  The 6P conformance run reached terminal=true and is the first observed declare_blocker evidence on this
+  lineage.'
+- 'DIRECTLY_VERIFIED (failure classification defect): a live batch run recorded java.lang.NoClassDefFoundError
+  as failure_class=conformance. Root cause was a bridge jar replaced underneath a running game, i.e. an
+  infrastructure fault, now classified as INFRASTRUCTURE by cause.'
+- 'DIRECTLY_VERIFIED (governance defect): main''s FORGE_FREEZE_READINESS.json omitted PB-09 from freeze_eligibility.prevented_by
+  while the prose records PB-09 as open and ranked ahead of PB-03. Now corrected, with the reviewed engine_identity_pb09
+  block added to both packets so the pair stays structurally symmetric.'
+- 'DIRECTLY_VERIFIED (donor defect): the WSR22 branch head cannot import its own package; scripts/run_current_boundary_qualification.py
+  imports build_deck and validate_principal_scoping, which current_boundary/__init__.py did not export.'
+- 'DIRECTLY_VERIFIED (build identity): nothing in the repository produced the engine-bridge/target/cp-wsr22.txt
+  classpath manifest that bridge_launcher requires and fails closed without, so the recorded build identity
+  was unprovable. Now a real maven-dependency-plugin build-classpath output.'
 artifacts:
-- '.foundry/FINAL_COMPLETION_STATE.yaml'
-- 'artifacts/xmage-full-game/REAL_4P_PREFLIGHT.json (generated, untracked)'
-- 'artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json (generated, untracked)'
-
+- .foundry/FINAL_COMPLETION_STATE.yaml
+- artifacts/xmage-full-game/REAL_4P_PREFLIGHT.json (generated)
+- artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json (generated)
+- artifacts/xmage-full-game/XMAGE_FULL_GAME_CONFORMANCE.json (generated; terminal 6P)
+- artifacts/xmage-full-game/XMAGE_FULL_GAME_REPLAY_GATE.json (generated; semantic_replay_match=true)
+- artifacts/xmage-full-game/XMAGE_FULL_GAME_FAIL_CLOSED_7P.json (generated; status FAIL_CLOSED)
+- artifacts/xmage-full-game/HIDDEN_INFORMATION_BOUNDARY_REPORT.json (generated; status PASS)
 technical_decisions:
 - id: EXEC-IDENTITY
-  decision: >-
-    Accept built-in explore/general as the conformant Space Bunny MAX child path and fail
-    closed on the two committed Muse XHIGH subagent roles.
-  reasoning: >-
-    .opencode/agents/foundry-adjudicator.md and foundry-reviewer.md are pinned to
-    opencode-go/muse-spark-1.3-contributor at xhigh. The campaign contract forbids invoking
-    Muse, and requires every child to remain Space Bunny MAX. Built-in agents inherit the
-    session model, which launch-context.json confirms is space-bunny-free at
-    variant_resolution=native_max. No child can therefore run below MAX or on another model.
-  rejected_alternative: invoking the committed Muse roles because they are the natural
-    review roles; rejected as a direct contract violation.
+  decision: Accept built-in explore/general as the conformant Space Bunny MAX child path and fail closed
+    on the two committed Muse XHIGH subagent roles.
+  reasoning: .opencode/agents/foundry-adjudicator.md and foundry-reviewer.md are pinned to opencode-go/muse-spark-1.3-contributor
+    at xhigh. The campaign contract forbids invoking Muse, and requires every child to remain Space Bunny
+    MAX. Built-in agents inherit the session model, which launch-context.json confirms is space-bunny-free
+    at variant_resolution=native_max. No child can therefore run below MAX or on another model.
+  rejected_alternative: invoking the committed Muse roles because they are the natural review roles; rejected
+    as a direct contract violation.
 - id: PB09-ORDERING
-  decision: >-
-    REVERSE the recorded ordering "PB-09 before PB-03" for execution purposes. Execute
-    PB-03, the capability gap and terminal-state reachability first; prepare PB-09 only as
-    Coordinator decision input.
-  reasoning: >-
-    PB09_FORGE_CANDIDATE_IDENTITY.md section 6 states the open question is which artifact is
-    the Forge candidate for Architecture Freeze, and that the Coordinator owns provider and
-    candidate identity. This executor cannot resolve it, so it cannot gate executable work.
-    It invalidates the Forge column of a cross-candidate comparison, not primary-engine
-    progress. The admissible half that IS executable without the decision is to re-execute
-    the Forge column at pinned upstream a37a865a with pinned bridge 4753bb7c, which is
-    evidence generation, not selection. PB-03 is entirely Lab-owned, needs no reserved
+  decision: REVERSE the recorded ordering "PB-09 before PB-03" for execution purposes. Execute PB-03,
+    the capability gap and terminal-state reachability first; prepare PB-09 only as Coordinator decision
+    input.
+  reasoning: PB09_FORGE_CANDIDATE_IDENTITY.md section 6 states the open question is which artifact is
+    the Forge candidate for Architecture Freeze, and that the Coordinator owns provider and candidate
+    identity. This executor cannot resolve it, so it cannot gate executable work. It invalidates the Forge
+    column of a cross-candidate comparison, not primary-engine progress. The admissible half that IS executable
+    without the decision is to re-execute the Forge column at pinned upstream a37a865a with pinned bridge
+    4753bb7c, which is evidence generation, not selection. PB-03 is entirely Lab-owned, needs no reserved
     authority, and its designed fix is unimplemented even on its own branch.
-  contract_basis: 'Workstream contract section 13 explicitly requires revalidating this ordering.'
+  contract_basis: Workstream contract section 13 explicitly requires revalidating this ordering.
 - id: ENGINE-CWD
-  decision: >-
-    Resolve the external engine process working directory to a single shared, configurable,
-    absolute runtime-state directory (.runtime/engine by default, ENGINE_RUNTIME_DIRECTORY
-    to override) instead of inheriting the caller CWD; remove all 13 engine-lane cwd=ROOT
-    pins; honour an explicit cwd; fail closed if the directory cannot be created.
-  reasoning: >-
-    XMage hardcodes jdbc:h2:file:./db/cards.h2 relative to the process CWD, so the first real
-    game wrote a ~254MB untracked database into the Git worktree. .env.example already
-    declares the intended policy ("Mutable engine state and bridge logs are local runtime
-    data" at .runtime/engine), so the code contradicted its own declared policy. An absolute
-    pinned path removes the CWD coupling entirely rather than only moving the default.
+  decision: Resolve the external engine process working directory to a single shared, configurable, absolute
+    runtime-state directory (.runtime/engine by default, ENGINE_RUNTIME_DIRECTORY to override) instead
+    of inheriting the caller CWD; remove all 13 engine-lane cwd=ROOT pins; honour an explicit cwd; fail
+    closed if the directory cannot be created.
+  reasoning: XMage hardcodes jdbc:h2:file:./db/cards.h2 relative to the process CWD, so the first real
+    game wrote a ~254MB untracked database into the Git worktree. .env.example already declares the intended
+    policy ("Mutable engine state and bridge logs are local runtime data" at .runtime/engine), so the
+    code contradicted its own declared policy. An absolute pinned path removes the CWD coupling entirely
+    rather than only moving the default.
   classification_of_defect: RUNTIME pollution of the Git worktree by the production run path.
-
+- id: DONOR-VERIFY
+  decision: Verify a donor branch before transplanting it; do not trust its own pre-authorization note.
+    The RESUMPTION_KIT described a whole-file transplant as pre-authorized, but the donor branch head
+    is internally inconsistent and would not import.
+  evidence: origin/wsr22-successor/current-boundary-freeze-20260927 head cf06bc34. Its scripts/run_current_boundary_qualification.py
+    imports build_deck and validate_principal_scoping from the package; its current_boundary/__init__.py
+    exports neither. The transplanted runner raised ImportError until both re-exports were added.
+  rejected_alternative: Transplanting the donor verbatim because a prior note called it pre-authorized;
+    rejected because a pre-authorization is not a correctness proof.
+- id: EVIDENCE-BOUNDARY
+  decision: Transplant the current-boundary EXECUTOR and its code-level tests, but not the WSR22 evidence
+    bundle, and not the tests whose subject is that bundle.
+  reasoning: qualification/final-current-boundary-20260927/* is WSR22's result artifact. Adopting it here
+    would present another workstream's results as current, and they are stale against this HEAD regardless.
+    tests/qualification/test_wsr22_current_boundary.py is that bundle's integrity guard and travels with
+    it; four PB-03 guards in test_current_boundary_pb03_starting_state.py read the same manifest and were
+    split out and named in the file header. The PB-03 classifier they protect IS transplanted and guarded
+    here.
+- id: FAILURE-CLASS-BY-CAUSE
+  decision: Classify engine-reported batch failures by cause, not by the Python exception type, and add
+    an INFRASTRUCTURE failure class.
+  reasoning: A live batch run recorded java.lang.NoClassDefFoundError as failure_class=conformance because
+    every engine-reported failure arrives as FullGameConformanceError. That asserts a Magic Rules conclusion
+    the evidence cannot support. Linkage, class-loading and resource faults are now INFRASTRUCTURE; genuine
+    game failures remain CONFORMANCE.
+  note: 'The triggering NoClassDefFoundError was self-inflicted: the bridge jar was rebuilt while the
+    batch was running. The operational lesson is recorded separately.'
 hypotheses_rejected:
-- 'REJECTED: "the pre-existing ~/.m2 org.mage 1.4.61 is the pinned engine because the version
-  matches." Refuted by rebuilding from the pin: all 34 artifact hashes changed. Version
-  equality is not identity equality; this is exactly the PB-09 reasoning error applied to
-  XMage locally.'
-- 'REJECTED: "the mage worktree HEAD can be built as the canonical pinned engine." Refuted:
-  the pin is not an ancestor of HEAD and the trees diverge by 90 engine source files.'
-- 'REJECTED: "the 52 full-suite failures after editing were caused by the edits." Refuted:
-  they are the documented stale-canonical-input guard, which rejects canonical inputs when
-  tracked_worktree_dirty. Confirmed by reading tools/service.py:752 and by re-running on a
-  committed clean tree.'
-- 'REJECTED: "the untracked 254MB db/ directory breaks the test suite." Refuted: the guard
-  tests TRACKED dirtiness only. The harm is worktree pollution and accidental-commit hazard,
-  which is still a real defect but was initially overstated as a functional break.'
-- 'REJECTED: "PB-09 must be resolved before any other work because it is the highest-priority
-  item." Refuted as an execution constraint: it is Coordinator-reserved, so it can only gate
-  executable work by making the campaign wait, which the contract forbids.'
-
+- 'REJECTED: "the pre-existing ~/.m2 org.mage 1.4.61 is the pinned engine because the version matches."
+  Refuted by rebuilding from the pin: all 34 artifact hashes changed. Version equality is not identity
+  equality; this is exactly the PB-09 reasoning error applied to XMage locally.'
+- 'REJECTED: "the mage worktree HEAD can be built as the canonical pinned engine." Refuted: the pin is
+  not an ancestor of HEAD and the trees diverge by 90 engine source files.'
+- 'REJECTED: "the 52 full-suite failures after editing were caused by the edits." Refuted: they are the
+  documented stale-canonical-input guard, which rejects canonical inputs when tracked_worktree_dirty.
+  Confirmed by reading tools/service.py:752 and by re-running on a committed clean tree.'
+- 'REJECTED: "the untracked 254MB db/ directory breaks the test suite." Refuted: the guard tests TRACKED
+  dirtiness only. The harm is worktree pollution and accidental-commit hazard, which is still a real defect
+  but was initially overstated as a functional break.'
+- 'REJECTED: "PB-09 must be resolved before any other work because it is the highest-priority item." Refuted
+  as an execution constraint: it is Coordinator-reserved, so it can only gate executable work by making
+  the campaign wait, which the contract forbids.'
 authority_gates:
-- 'COORDINATOR_PROVIDER_SELECTION: which artifact is the Forge candidate — pinned upstream
-  forge-2.0.14 (a37a865a) or the Lab fork (ef958ee9) that the evidence executed. Reserved;
-  not claimed. Emit COORDINATOR_PROVIDER_SELECTION_REQUIRED only when provider evidence is
-  genuinely complete.'
+- 'COORDINATOR_PROVIDER_SELECTION: which artifact is the Forge candidate — pinned upstream forge-2.0.14
+  (a37a865a) or the Lab fork (ef958ee9) that the evidence executed. Reserved; not claimed. Emit COORDINATOR_PROVIDER_SELECTION_REQUIRED
+  only when provider evidence is genuinely complete.'
 - 'COORDINATOR_ARCHITECTURE_FREEZE: not claimed.'
-
-first_failing_boundary: >-
-  For the end product, the first boundary that cannot yet be crossed is terminal state: a
-  real 100-card Commander game has not been driven to a terminal state. Full-game conformance
-  reaches game-over only with a synthetic technical deck (Isamaru + 99 Plains), and the real
-  4-deck 100-card smoke stops at 40 decisions with terminal_reached=false.
-root_cause_class: >-
-  UNKNOWN
+first_failing_boundary: 'CORRECTED. The earlier claim that terminal state was the first failing boundary
+  was FALSIFIED. Real 100-card Commander games DO reach terminal state at the current pin through the
+  production path: seed 20260923, four real decks, 10826 decisions, winner seat 2, terminal=true. terminal_reached=false
+  from run_smoke only means the bounded decision target was reached before the game ended; it is not evidence
+  of a stall. The genuine current first failing boundary is QUAL-01 -> PB-03: the 33 XMage BLOCKED FULL107
+  rows still rest on a MODELED projection from the bridge dimension manifest rather than an executed result,
+  because nothing consumes that manifest for admission.'
+current_failure: PB-03 admission is still a projection rather than an execution. The bridge publishes
+  its dimension manifest (XmageNativeStateRestoration.java:1026-1065, 11 supported / 11 unsupported dimensions,
+  starting_state_injection_supported=false) and the transplanted classifier reasons by mechanism family,
+  but no code consumes the live manifest to decide admission. So a row cannot be promoted from BLOCKED
+  on evidence, and the 33 XMage blocked rows stay MODELED.
+root_cause_class: UNKNOWN
 failure_class: UNKNOWN
-current_failure: >-
-  A real 100-card Commander game does not reach a terminal state through the production
-  path. The real 4-deck bounded smoke stops at 40 decisions with terminal_reached=false,
-  and full-game conformance reaches game-over only with a synthetic technical deck
-  (Isamaru + 99 Plains). Not yet root-caused: it is not established whether the limit is
-  pilot decision quality, an unhandled decision class, decision-loop throughput, or a
-  genuine engine-side blocker. Diagnose before repairing.
-current_hypothesis: >-
-  Leading hypothesis, to be tested rather than assumed: the external pilot policy is
-  correct but not game-completing, so games stall rather than misbehave. The strongest
-  discriminator is a long real-deck run with per-decision class/option logging to find the
-  first decision the policy cannot answer or the first turn on which no progress is made.
-  Competing hypotheses to falsify: an unhandled decision class fails closed mid-game
-  (would raise, not stall); a per-decision legal-action ceiling blocks mandatory
-  progression; or the seed/deck combination produces an unwinnable early board.
-
-
+current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the 33 blocked rows need an
+  execution seam, not a better classifier. If the bridge can load a frozen mid-game position through its
+  native state-restoration surface, admission should follow the live manifest and the rows become executable.
+  Competing hypotheses to falsify: the native restore surface covers fewer dimensions than the rows need,
+  in which case the rows stay blocked for a real capability reason and PB-03 must be reclassified as an
+  engine/bridge capability limit rather than a Lab harness defect; or the manifest is correct but no verb
+  exposes it to the qualifier, which is a bridge reporting gap.'
 remaining_scope:
-- 'Land the current-boundary 107-row executor on this lineage (transplant whole files from the
-  WSR22 branch) and regenerate qualification/SHA256SUMS + WS17_SHA256SUMS rather than
-  transplanting them.'
-- 'PB-03: implement real dimension-manifest admission from the bridge, then execute the 33
-  blocked XMage rows to obtain executed outcomes instead of a MODELED projection.'
-- 'CAP: resolve legal_actions_supported and action_submission_supported (AF04 currently FAIL
-  on XMage; the generic lane fails closed with LEGAL_ACTIONS_UNAVAILABLE unless
-  external_control=true).'
-- 'TERM: drive a real 100-card Commander game to a terminal state through the production
-  path, for 2P, 3P, 4P and 5P independently.'
-- 'PB-06 per-scenario hidden channels, PB-07 effective 29-card corpus, PB-08 per-fixture
-  clean-process replay twin — all both-sided.'
-- 'PB-09: re-execute the Forge column at pinned upstream a37a865a + bridge 4753bb7c as
-  Coordinator decision input.'
-- 'Then COORDINATOR_PROVIDER_SELECTION_REQUIRED, then COORDINATOR_ARCHITECTURE_FREEZE_REQUIRED.'
-
-next_action: >-
-  Commit M1, re-run the full suite on the clean tree to confirm zero failures, then
-  transplant the current-boundary executor.
-exact_next_action: >-
-  Commit the M1 milestone (launcher nested-launch identity repair + engine runtime-state
-  isolation + regression tests), re-run `pytest -q` against the now-clean tracked tree to
-  confirm 0 failures, and only then begin the QUAL-01 transplant from
-  origin/wsr22-successor/current-boundary-freeze-20260927.
+- 'PB-03: consume the bridge dimension manifest for per-row admission, then EXECUTE the 33 blocked XMage
+  rows so their outcomes are observed rather than MODELED. This is the current first failing boundary.'
+- 'CAP/AF04: legal_actions_supported and action_submission_supported are still false. PB-01 is a contract-documentation
+  gap (the generic lane needs external_control=true) and PB-04 is a lane-inconsistent seed_supported report.
+  Both are repairable without an XMage change.'
+- 'PB-08: a per-fixture clean-process replay twin now exists for the real-deck 4P gate (semantic_replay_match=true,
+  two fresh processes) and must be extended across the corpus.'
+- 'PB-06 per-scenario hidden channels and PB-07 effective 29-card corpus: no execution path exists on
+  either candidate.'
+- 'PB-09: re-execute the Forge column at pinned upstream a37a865a with pinned bridge 4753bb7c. This is
+  the admissible half that needs no Coordinator decision and unblocks the comparison.'
+- 'Forge full-game lane: src/commander_lab/engine/rules/full_game.py hardcodes FULL_GAME_LANE=''xmage_full_game_external_pilots'',
+  so there is no provider-neutral full-game lane and no Forge full-game evidence at all.'
+- 'chooseRingBearer is an audited parent delegation: a genuinely discretionary Player callback that the
+  external pilot never sees. Adjudicated safe by the project and guarded by a test, but seat 3 of the
+  real 4P setup plays a ring-bearer deck (Sauron), so the path is plausibly live. Needs a ruling, not
+  a silent change.'
+- Then COORDINATOR_PROVIDER_SELECTION_REQUIRED, then COORDINATOR_ARCHITECTURE_FREEZE_REQUIRED.
+next_action: Run the final clean evidence campaign on this HEAD, commit the runtime evidence with a receipt,
+  and push the campaign branch.
+exact_next_action: Re-run scripts/run_real_deck_gate.py batch (6 fresh-process seeds) with NO concurrent
+  bridge rebuild, then commit the resulting evidence plus .foundry/FINAL_COMPLETION_STATE.yaml and push
+  sbmax/full-completion. Then start PB-03 dimension-manifest admission.
+do_not_rerun:
+- Do not re-transplant the WSR22 evidence bundle qualification/final-current-boundary-20260927/*. It is
+  WSR22's result artifact, it is stale against this HEAD, and adopting it would present another workstream's
+  results as current.
+- Do not re-run the WSR25/PB-09 prose reconciliation; the machine-readable packet now carries engine_identity_pb09
+  and the PB-09 prevented_by entry.
+invalidated_gates:
+- 'AF06/AF07/AF08/AF09 remain UNKNOWN for both candidates: the current-boundary executor is now on this
+  lineage but NO 107-row execution has been run here yet, so nothing has been recomputed.'
+- The WSR22 107x2 results are not inherited. They were produced at a different HEAD, before this campaign's
+  engine-CWD and pilot-policy changes, and are impact-adjudicated only for the engine-CWD change (semantic
+  transcript identical).
+validated_gates:
+- 'AF02 PLAYER_CARDINALITY: re-executed at the current pin for 2P/3P/4P/5P/6P with a 7P fail-closed probe.
+  All DIRECTLY_VERIFIED runtime at this HEAD.'
+- 'AF03 RULES_AUTHORITY: unchanged and still satisfied; no adapter or pilot legality was introduced.'
+- 'AF10 RUNTIME_EVIDENCE_RELIABILITY: this campaign''s own batch run exposed a misclassification (infrastructure
+  fault recorded as conformance), now repaired by cause.'
