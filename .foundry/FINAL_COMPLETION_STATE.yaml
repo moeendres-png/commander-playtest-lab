@@ -4,8 +4,8 @@ worktree: /home/moeen/code/csn-final-bakeoff/space-bunny/lab
 branch: sbmax/full-completion
 audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
 audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
-state_written_against_head: 74326d594c23de44ca9153e25e63f8628efa594b
-validated_head: 74326d594c23de44ca9153e25e63f8628efa594b
+state_written_against_head: 17b2949b
+validated_head: 17b2949b
 objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification, remediation,
   freeze readiness, production implementation, real full games, replay, hidden information, multiplayer,
   batch execution, and operational completion.'
@@ -141,14 +141,25 @@ evidence:
 - 'DIRECTLY_VERIFIED (build identity): nothing in the repository produced the engine-bridge/target/cp-wsr22.txt
   classpath manifest that bridge_launcher requires and fails closed without, so the recorded build identity
   was unprovable. Now a real maven-dependency-plugin build-classpath output.'
+- 'DIRECTLY_VERIFIED (process isolation, batch): 6 fresh-process real-deck 4P games, seeds 20260923-20260928,
+  6/6 completed, 6/6 terminal=true, zero failures, decision counts 5896/6481/8213/10546/10826/13883, winners
+  spanning all four seats. One game per process, so a failing or corrupt game cannot contaminate a sibling.'
+- 'DIRECTLY_VERIFIED (bridge, 314 tests): mvn verify on engine-bridge: 314 run, 0 failures, 1 skipped.
+  The 9 Phase6DifferentialAdapterValidationTest errors on a first run were the read-only /tmp sandbox,
+  not a defect: surefire forks a JVM needing its own java.io.tmpdir, and MAVEN_OPTS reaches only the Maven
+  JVM. Re-run with -DargLine=-Djava.io.tmpdir=<writable>.'
+- 'DIRECTLY_VERIFIED (PB-03 half 1): the state-restoration dimensions manifest (native-state-restoration-dimensions-1.1.0,
+  11 supported / 11 unsupported) is now observable over the real JSONL protocol on full_game_lane.state_restoration_dimensions
+  and agrees with starting_state_injection_supported in both directions. Before this it was computed and
+  never left the JVM, so it could inform no admission decision.'
 artifacts:
+- docs/final_completion_20260928/RECEIPT.md (human-readable evidence receipt + reproduction)
+- docs/final_completion_20260928/RECEIPT.json (machine-readable, binds all 8 evidence artifacts)
+- docs/final_completion_20260928/terminal_single_20260923.json (real-deck 4P terminal game)
+- docs/final_completion_20260928/replay_twin_20260923.json (clean-process semantic replay twin)
+- docs/final_completion_20260928/*.json (6 fresh-process batch records)
+- artifacts/xmage-full-game/EVIDENCE_RECEIPT_20260928.json (cardinality, conformance, hidden-info)
 - .foundry/FINAL_COMPLETION_STATE.yaml
-- artifacts/xmage-full-game/REAL_4P_PREFLIGHT.json (generated)
-- artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json (generated)
-- artifacts/xmage-full-game/XMAGE_FULL_GAME_CONFORMANCE.json (generated; terminal 6P)
-- artifacts/xmage-full-game/XMAGE_FULL_GAME_REPLAY_GATE.json (generated; semantic_replay_match=true)
-- artifacts/xmage-full-game/XMAGE_FULL_GAME_FAIL_CLOSED_7P.json (generated; status FAIL_CLOSED)
-- artifacts/xmage-full-game/HIDDEN_INFORMATION_BOUNDARY_REPORT.json (generated; status PASS)
 technical_decisions:
 - id: EXEC-IDENTITY
   decision: Accept built-in explore/general as the conformant Space Bunny MAX child path and fail closed
@@ -209,6 +220,14 @@ technical_decisions:
     game failures remain CONFORMANCE.
   note: 'The triggering NoClassDefFoundError was self-inflicted: the bridge jar was rebuilt while the
     batch was running. The operational lesson is recorded separately.'
+- id: PB03-MANIFEST-EXPOSURE
+  decision: Publish the state-restoration dimensions manifest on the full-game capability payload, verbatim
+    from the restoration code, changing only what the lane reports.
+  reasoning: 'XmageNativeStateRestoration.dimensionsPayload() computed an itemised 11/11 supported/unsupported
+    manifest that only a unit test called. Dead code, so it could inform no admission decision, which
+    is the concrete reason the designed PB-03 fix was never implemented. A bare starting_state_injection_supported=false
+    cannot support per-obligation admission. This changes reporting only: no game semantics, no capability
+    promotion, no pin.'
 hypotheses_rejected:
 - 'REJECTED: "the pre-existing ~/.m2 org.mage 1.4.61 is the pinned engine because the version matches."
   Refuted by rebuilding from the pin: all 34 artifact hashes changed. Version equality is not identity
@@ -236,20 +255,22 @@ first_failing_boundary: 'CORRECTED. The earlier claim that terminal state was th
   of a stall. The genuine current first failing boundary is QUAL-01 -> PB-03: the 33 XMage BLOCKED FULL107
   rows still rest on a MODELED projection from the bridge dimension manifest rather than an executed result,
   because nothing consumes that manifest for admission.'
-current_failure: PB-03 admission is still a projection rather than an execution. The bridge publishes
-  its dimension manifest (XmageNativeStateRestoration.java:1026-1065, 11 supported / 11 unsupported dimensions,
-  starting_state_injection_supported=false) and the transplanted classifier reasons by mechanism family,
-  but no code consumes the live manifest to decide admission. So a row cannot be promoted from BLOCKED
-  on evidence, and the 33 XMage blocked rows stay MODELED.
+current_failure: 'PB-03 admission is still a projection rather than an execution. Half of the fix is now
+  in place: the bridge publishes its live dimension manifest over the protocol. The executor half is not:
+  nothing in commander_lab.qualification.current_boundary reads state_restoration_dimensions, so the 33
+  blocked XMage rows still cannot be promoted from BLOCKED on evidence and remain MODELED.'
 root_cause_class: UNKNOWN
 failure_class: UNKNOWN
-current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the 33 blocked rows need an
-  execution seam, not a better classifier. If the bridge can load a frozen mid-game position through its
-  native state-restoration surface, admission should follow the live manifest and the rows become executable.
-  Competing hypotheses to falsify: the native restore surface covers fewer dimensions than the rows need,
-  in which case the rows stay blocked for a real capability reason and PB-03 must be reclassified as an
-  engine/bridge capability limit rather than a Lab harness defect; or the manifest is correct but no verb
-  exposes it to the qualifier, which is a bridge reporting gap.'
+current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the manifest is sufficient
+  for per-obligation admission. MID_GAME_MECHANISM_FAMILIES already names the seven mechanisms, and each
+  maps onto manifest dimensions (for example stack_response onto ''stack spells'', which is unsupported,
+  and combat_declaration onto the qualified turn-1 allow-list, which is supported). Design constraint
+  that must hold: the manifest may decide ADMISSIBILITY only. It must never decide OUTCOME. A row whose
+  dimensions are all supported becomes attemptable, and its outcome is whatever execution reports. Competing
+  hypotheses to falsify: some family has no clean dimension mapping, in which case admission must fail
+  closed for that family rather than guess; or the supported dimensions are sufficient but the native
+  restore path still cannot construct the position, in which case the rows stay blocked for a real capability
+  reason and PB-03 must be reclassified from a Lab harness defect to an engine/bridge capability limit.'
 remaining_scope:
 - 'PB-03: consume the bridge dimension manifest for per-row admission, then EXECUTE the 33 blocked XMage
   rows so their outcomes are observed rather than MODELED. This is the current first failing boundary.'
@@ -269,11 +290,13 @@ remaining_scope:
   real 4P setup plays a ring-bearer deck (Sauron), so the path is plausibly live. Needs a ruling, not
   a silent change.'
 - Then COORDINATOR_PROVIDER_SELECTION_REQUIRED, then COORDINATOR_ARCHITECTURE_FREEZE_REQUIRED.
-next_action: Run the final clean evidence campaign on this HEAD, commit the runtime evidence with a receipt,
-  and push the campaign branch.
-exact_next_action: Re-run scripts/run_real_deck_gate.py batch (6 fresh-process seeds) with NO concurrent
-  bridge rebuild, then commit the resulting evidence plus .foundry/FINAL_COMPLETION_STATE.yaml and push
-  sbmax/full-completion. Then start PB-03 dimension-manifest admission.
+next_action: PB-03 executor half, then the pinned-Forge re-execution (PB-09 decision input), then the
+  capability flags (AF04/PB-01/PB-04).
+exact_next_action: 'Implement the PB-03 executor half: read full_game_lane.state_restoration_dimensions
+  from the live bridge capability payload, declare an explicit mechanism-family -> dimension mapping,
+  and let it decide admissibility ONLY (never outcome), failing closed for any family without a declared
+  mapping. Then execute the newly admissible rows so their outcomes are observed rather than MODELED.
+  See docs/final_completion_20260928/RECEIPT.md for the reproduction commands.'
 do_not_rerun:
 - Do not re-transplant the WSR22 evidence bundle qualification/final-current-boundary-20260927/*. It is
   WSR22's result artifact, it is stale against this HEAD, and adopting it would present another workstream's
@@ -287,8 +310,8 @@ invalidated_gates:
   engine-CWD and pilot-policy changes, and are impact-adjudicated only for the engine-CWD change (semantic
   transcript identical).
 validated_gates:
-- 'AF02 PLAYER_CARDINALITY: re-executed at the current pin for 2P/3P/4P/5P/6P with a 7P fail-closed probe.
-  All DIRECTLY_VERIFIED runtime at this HEAD.'
-- 'AF03 RULES_AUTHORITY: unchanged and still satisfied; no adapter or pilot legality was introduced.'
-- 'AF10 RUNTIME_EVIDENCE_RELIABILITY: this campaign''s own batch run exposed a misclassification (infrastructure
-  fault recorded as conformance), now repaired by cause.'
+- 'AF02 PLAYER_CARDINALITY: re-executed at the current pin, 2P/3P/4P/5P/6P PASS with a 7P FAIL_CLOSED
+  probe. All DIRECTLY_VERIFIED runtime at this HEAD.'
+- 'AF03 RULES_AUTHORITY: unchanged and still satisfied; no adapter or pilot legality introduced.'
+- 'AF10 RUNTIME_EVIDENCE_RELIABILITY: this campaign''s own batch run exposed a misclassification (an infrastructure
+  fault recorded as conformance), now repaired by cause, and the six-seed batch then ran 6/6 clean.'
