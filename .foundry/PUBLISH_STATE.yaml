@@ -1,0 +1,37 @@
+schema_version: "2.0"
+repository: "https://github.com/moeendres-png/commander-playtest-lab"
+worktree: "/home/moeen/code/csn-final-bakeoff/space-bunny/lab"
+branch: "sbmax/final-pre-freeze-20260928"
+
+# A fresh branch created from canonical main, so the push is a creation rather
+# than a rewrite: there is no pre-existing remote ref for this branch.
+audit_base_sha: "3910040b3ca4eb276f8895fa4c9801af3550f123"
+audit_base_tree: "a28d98b29c84342056e5658f8f4423f927999108"
+state_written_against_head: "25226fc4f54844c3409ef5cb5de22dc367a2e4d2"
+validated_head: "25226fc4f54844c3409ef5cb5de22dc367a2e4d2"
+
+objective: >-
+  Final pre-Freeze engineering campaign: drive Commander Simulator Next from the
+  integrated pre-Freeze state to the point where the Coordinator can select the
+  Production Provider and adjudicate Architecture Freeze without guessing.
+
+in_scope:
+  - "Fresh XMage current-boundary requalification on merged PR #283"
+  - "Repairing candidate-neutral qualification defects surfaced by that run"
+  - "PB-03 transport to engine-native state restoration, subject to ownership"
+  - "PB-06 per-scenario hidden information, decision families, micro-rules"
+  - "PB-07 actual-card corpus, PB-08 RNG/replay"
+  - "Final FULL107, semantic comparison, AF00-AF11, provider-readiness packet"
+
+out_of_scope:
+  - "Provider selection or ranking"
+  - "Architecture Freeze claim"
+  - "Mutating a foreign active writer's branch or worktree"
+
+ownership: "final-completion-space-bunny-max"
+status: "ACTIVE"
+exact_next_action: >-
+  Continue on the unowned denominator: the 58 remaining UNKNOWN rows, principally
+  PB-06 per-scenario hidden information, which the merged #283 remediation has made
+  reachable. PB-03 transport stays out of scope while PR #284 is an active writer on
+  the overlapping bridge and receipt surfaces.
