@@ -1,7 +1,15 @@
 # Final-completion evidence receipt — Space Bunny MAX, 2026-09-28
 
 Machine-readable companions: `RECEIPT.json` (this directory) and
-`artifacts/xmage-full-game/EVIDENCE_RECEIPT_20260928.json`.
+`EVIDENCE_SUMMARY.json`. `artifacts/xmage-full-game/EVIDENCE_RECEIPT_20260928.json`
+covers the cardinality, conformance and hidden-information artifacts.
+
+**Raw artifacts are not committed.** The per-decision engine transcripts are
+8–15 MB each (~57 MB total). They are deterministic outputs of the recorded
+commands and seeds, so this directory keeps compact summaries carrying every
+evidentiary field, plus each raw file's exact `sha256` in
+`EVIDENCE_SUMMARY.json#/raw_artifacts_sha256`, so a regenerated artifact can be
+verified byte-for-byte.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`. `PRODUCTION_PROVIDER = NOT SELECTED`.
 

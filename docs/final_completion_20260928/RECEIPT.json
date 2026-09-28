@@ -1,36 +1,8 @@
 {
   "artifacts": [
     {
-      "path": "final_completion_20260928/060c7241d24292f208fc20eeabc16c6b55114b08f66476e9bfb02472be730961.json",
-      "sha256": "f1817c396ea8e09dac4f770a756beb6e3bbe38f2b78f0a726c4073ac6f6e960f"
-    },
-    {
-      "path": "final_completion_20260928/23defe07c35a25003aeecad387737f96417a801c71788caedf26b3d9765f714a.json",
-      "sha256": "1759c7766191dfb15c9c94c0535cf0984ef693211683cc86b8f554f860255362"
-    },
-    {
-      "path": "final_completion_20260928/597fb6ecfc77d5728868402fc49a9bcb620cbe3982d392d4940d3ff8dde55102.json",
-      "sha256": "56719369306443b2711ec673f030f7f97a947366022c8542e057152b7d5ab44d"
-    },
-    {
-      "path": "final_completion_20260928/6d57b06b16977a9934d81b9cbce0802d07418dd9a41a792da10400cd876c143c.json",
-      "sha256": "ea7395c21cdb7a46c8f1cb526e7894e9e362ce50e833c49fca6935a1a68ec77a"
-    },
-    {
-      "path": "final_completion_20260928/bd0355dd880a65507922d40e85ebc40b7f14696055a11f4421a9f05b7b9786c3.json",
-      "sha256": "a4dc172a89e3177ce0824802f4f591baf086c744768c2dda2365e51f0838f8b6"
-    },
-    {
-      "path": "final_completion_20260928/f1d2460ef0a7f8bfa1d0c8f2b1b8272ef680ff54f0c773cdce51f08b8b1728df.json",
-      "sha256": "dbbcccb0d6b2c5f6c70dd9370b371afc9d4ddc9fa9252773c37ea92c6f766765"
-    },
-    {
-      "path": "final_completion_20260928/replay_twin_20260923.json",
-      "sha256": "3c06a04d28f3325254aac98340e000f3242d89223226089bbb61a8a234adf262"
-    },
-    {
-      "path": "final_completion_20260928/terminal_single_20260923.json",
-      "sha256": "1a66149ac88fbbf331bd17bbaa69bbb807d0b5152c7627b8652429ca868a4108"
+      "path": "docs/final_completion_20260928/EVIDENCE_SUMMARY.json",
+      "role": "compact evidence summary (every evidentiary field, no raw transcript)"
     }
   ],
   "authority": {
@@ -64,5 +36,10 @@
     "globally free-standing legal_actions_supported / action_submission_supported",
     "card-mechanism coverage beyond the 10 observed decision classes"
   ],
+  "raw_artifacts": {
+    "regenerate_with": "see docs/final_completion_20260928/RECEIPT.md",
+    "sha256_recorded_in": "docs/final_completion_20260928/EVIDENCE_SUMMARY.json#/raw_artifacts_sha256",
+    "status": "Raw run artifacts embed the full per-decision engine transcript (8-15MB each, ~57MB total) and are NOT committed. They are deterministic outputs of the recorded commands and seeds; EVIDENCE_SUMMARY.json records each raw file's exact sha256 so a regenerated artifact can be verified byte-for-byte."
+  },
   "schema_version": "lab.final-completion-evidence/1.0.0"
 }

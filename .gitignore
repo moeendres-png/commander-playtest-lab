@@ -31,3 +31,11 @@ release/
 # Generated Phase-10 demo evidence
 artifacts/phase10/*.json
 artifacts/engine_setup/logs/.*.process-state.json.*
+
+# The full-game conformance artifact embeds the complete per-decision engine
+# transcript (~6MB) and is a deterministic output of a recorded command and seed,
+# so it is not source. Its evidentiary fields and its exact sha256 are recorded in
+# docs/final_completion_20260928/EVIDENCE_SUMMARY.json and
+# artifacts/xmage-full-game/EVIDENCE_RECEIPT_20260928.json. The compact sibling
+# artifacts in this directory stay tracked.
+artifacts/xmage-full-game/XMAGE_FULL_GAME_CONFORMANCE.json
