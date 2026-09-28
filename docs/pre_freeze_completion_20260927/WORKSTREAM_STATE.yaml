@@ -175,14 +175,15 @@ validated_gates:
   WS17 manifest gate
 - FULL107 denominator preserved at exactly 107; no row removed or duplicated
 - Strict mypy, ruff, compileall, invariant audit, STATE_OK all clean
-validated_head: 6784d9c568b40887e51d9283120431b07036eb8c
+validated_head: 933d5df564b5dc77d678935bc79c6554459c347b
 worktree: /home/moeen/code/wsr22-successor-current-boundary
 evidence_integrity_remediation:
-  status: FIRST_BOUND_SOURCE_EVIDENCE_GENERATED__PIPELINE_GREEN__DECISION_CRITICAL_GAPS_REMAIN
-  validated_head: 6784d9c568b40887e51d9283120431b07036eb8c
-  validated_tree: 1d1652150d88d9ad52b9dbb9c32c02245f130daf
+  status: CAMPAIGN_COMPLETE__PR278_AND_PR279_MERGED__EVIDENCE_READY_FOR_COORDINATOR
+  validated_head: 933d5df564b5dc77d678935bc79c6554459c347b
+  validated_tree: 3eee0692ff075dc5175795aea8da9f1e86696dfb
   evidence_gates_complete: 11 of 11 (gates 1-11)
-  runtime_evidence: FIRST_BOUND_SOURCE_RUN_COMPLETE
+  runtime_evidence: BOUND_SOURCE_RUN_COMPLETE_AND_MERGED
+  github: PR
   adjudication_blockers_closed: PB-03
   adjudication_blockers_still_open: PB-09 (Coordinator-owned; see below)
   pre_remediation_checkpoint: b1a5c2b4095a831a28c699ae5111c0e6c2625918
@@ -264,15 +265,17 @@ evidence_integrity_remediation:
     head, so no current PASS count may be claimed for either candidate.
   - PB-09 and PB-03 remain open. Provider comparison is not decision-grade.
   - ARCHITECTURE_FREEZE = NOT CLAIMED. PRODUCTION_PROVIDER = NOT SELECTED.
-last_verified_summary: 'First complete bound-source runtime evidence set generated
-  and green. The repaired pipeline ran end to end from a clean committed tree against
-  live XMage and Forge PR #4 head d5bd22d1, producing four verified native-suite receipts
-  (forge 150+67 pass, xmage 34+135 pass), FULL107 107 accounted rows per candidate
-  (PASS 4, UNKNOWN 59, BLOCKED 44, FAIL 0), a derived AF00-AF11 matrix, a semantic
-  comparison with zero SAME_SEMANTICS, and resealed manifests. Python 1949 passed
-  / 5 skipped / 0 failed; Java bridge 322 tests, 0 failures. Two decision-critical
-  findings are recorded and NOT masked: Forge AF03 FAIL because the engine accepted
-  a non-Commander commander and a colour-identity violation, and the XMage generic
-  B4-D lane is not principal-scoped, returning byte-identical state with every seat''s
-  player_id, hand and library to every observer. Both candidates are UNCONTROLLED_ENGINE_RNG.
-  PB-09 remains an open Coordinator provider decision.'
+last_verified_summary: 'Campaign complete. PR #278 merged at f96bc7ec and PR #279
+  at 933d5df5, both with exact-head CI green and zero unresolved review threads; PR
+  #269 superseded and closed with preservation proven. All eleven evidence-integrity
+  gates plus PB-03 and PB-05 are implemented, and the first complete bound-source
+  run against live XMage and Forge PR #4 head d5bd22d1 produced four verified native-suite
+  receipts, 107 accounted rows per candidate, a derived AF00-AF11 matrix, a semantic
+  comparison and resealed manifests. FULL107 is PASS 4 / UNKNOWN 59 / BLOCKED 44 on
+  both candidates, against historical upper bounds of 30 and 79 over a largely unobserved
+  PASS set. Nine review findings were adjudicated against evidence: three false credits
+  removed, three false accusations withdrawn, three vacuous or candidate-blind checks
+  tightened. pytest 1987 passed / 5 skipped / 0 failed; Java bridge 322 tests, 0 failures.
+  PROVIDER_COMPARISON_COMPLETE = NO: SAME_SEMANTICS is 0 of 107 and six required dimensions
+  are unestablished for both candidates. PRODUCTION_PROVIDER = NOT SELECTED. ARCHITECTURE_FREEZE
+  = NOT CLAIMED.'
