@@ -1,0 +1,100 @@
+{
+ "candidate": "xmage",
+ "counts": {
+  "NOT_OBSERVABLE_ON_CURRENT_SURFACE": 5,
+  "SEED_ACKNOWLEDGED_CAPABILITY_OBSERVED": 0,
+  "total": 5
+ },
+ "dispositions": {
+  "REPLAY_CLEAN_PROCESS": {
+   "description": "Clean-process semantic replay under same manifest/checkpoints",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "REPLAY_DECISION_TAPE": {
+   "description": "DecisionTape records exact discretionary selections",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "REPLAY_EVENT_TAPE": {
+   "description": "Semantic EventTape records meaningful changes",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "REPLAY_STATE_HASHES": {
+   "description": "Privileged/public/actor-scoped semantic hashes exclude process-local identity",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "RNG_RULES_TAPE": {
+   "description": "RulesRngTape records semantic random operations",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "the engine did not acknowledge the requested seed 424242 (classification UNCONTROLLED_ENGINE_RNG); without an acknowledged root seed no RulesRngTape can be bound to the engine's randomness, so this candidate cannot demonstrate the obligation on this surface"
+  }
+ },
+ "promotion_note": "A disposition here reports what the run observed about the seed acknowledgement and the replay export seam. It never turns a fail-closed refusal into a pass, and it does not itself flip a FULL107 row: row outcomes belong to scripts/run_current_boundary_qualification.py under an active owner.",
+ "replay_export_seam": {
+  "detail": "engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay",
+  "refused": true
+ },
+ "runtime_identity": {
+  "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+  "adapter_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": false,
+   "commander_supported": true,
+   "commander_tax_visible": false,
+   "concede_supported": false,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": true,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 5,
+   "mode_selection_supported": false,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap",
+    "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process",
+    "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable",
+    "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized",
+    "NO_PROVIDER_READY remains in force"
+   ],
+   "partner_supported": true,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": false,
+   "seed_supported": false,
+   "stack_visible": true,
+   "starting_state_injection_supported": false,
+   "target_selection_supported": false,
+   "trigger_order_supported": false
+  },
+  "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+  "lane": "generic protocol-2 compatibility lane",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b",
+  "runner_tree": "5c00c734c81840cda858298551718e6e30d65b83",
+  "scenario_injection_supported": false,
+  "seed_supported": false,
+  "starting_state_injection_supported": false
+ },
+ "schema_version": "commander-lab.replay-obligation-disposition/1.0.0",
+ "seed_binding": {
+  "acknowledged_seed": null,
+  "classification": "UNCONTROLLED_ENGINE_RNG",
+  "controlled": false,
+  "requested_seed": 424242
+ }
+}

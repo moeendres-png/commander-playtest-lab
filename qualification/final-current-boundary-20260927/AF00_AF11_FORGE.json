@@ -347,13 +347,19 @@
     "RNG_RULES_TAPE"
    ],
    "evidence": [
-    "replay export executed in a live game (RNG_REPLAY_FORGE.json)",
-    "native replay/semantic suites green"
+    "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json)",
+    "native replay/semantic suites green",
+    "per-obligation PB-08 disposition: 1 precondition(s) observed, 4 of 5 unestablished; replay export seam refused=True"
    ],
    "gate": "AF09",
    "name": "RNG_REPLAY",
    "nonblocking_limitations": [
-    "the clean-process twin half of each replay obligation is not proven per fixture"
+    "the clean-process twin half of each replay obligation is not proven per fixture",
+    "REPLAY_CLEAN_PROCESS: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail",
+    "REPLAY_DECISION_TAPE: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail",
+    "REPLAY_EVENT_TAPE: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail",
+    "REPLAY_STATE_HASHES: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail",
+    "A fail-closed export refusal is an absent capability, never a satisfied obligation, and an acknowledged seed is a precondition for RNG control rather than a demonstrated RulesRngTape"
    ],
    "verdict": "UNKNOWN"
   },

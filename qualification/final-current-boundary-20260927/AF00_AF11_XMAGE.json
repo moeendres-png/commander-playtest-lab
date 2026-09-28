@@ -348,13 +348,20 @@
     "RNG_RULES_TAPE"
    ],
    "evidence": [
-    "replay export executed in a live game (RNG_REPLAY_XMAGE.json)",
-    "native replay/semantic suites green"
+    "replay export attempted in a live game and refused by the engine (RNG_REPLAY_XMAGE.json)",
+    "native replay/semantic suites green",
+    "per-obligation PB-08 disposition: 0 precondition(s) observed, 5 of 5 unestablished; replay export seam refused=True"
    ],
    "gate": "AF09",
    "name": "RNG_REPLAY",
    "nonblocking_limitations": [
-    "the clean-process twin half of each replay obligation is not proven per fixture"
+    "the clean-process twin half of each replay obligation is not proven per fixture",
+    "REPLAY_CLEAN_PROCESS: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fa",
+    "REPLAY_DECISION_TAPE: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fa",
+    "REPLAY_EVENT_TAPE: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fa",
+    "REPLAY_STATE_HASHES: this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unsupported_message): Current XMage bridge does not support message type: export_replay. A fa",
+    "RNG_RULES_TAPE: the engine did not acknowledge the requested seed 424242 (classification UNCONTROLLED_ENGINE_RNG); without an acknowledged root seed no RulesRngTape can be bound to the engine's randomness, so this candidate cannot demon",
+    "A fail-closed export refusal is an absent capability, never a satisfied obligation, and an acknowledged seed is a precondition for RNG control rather than a demonstrated RulesRngTape"
    ],
    "verdict": "UNKNOWN"
   },

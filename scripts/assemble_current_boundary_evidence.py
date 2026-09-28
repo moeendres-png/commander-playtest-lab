@@ -28,6 +28,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     provider_binding as binding_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    replay_obligations as replay_mod,
+)
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
@@ -370,6 +373,19 @@ def _af11_measure(
     return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
 
 
+def _replay_summary(replay_dispositions: dict[str, Any], candidate: str) -> str:
+    entry = replay_dispositions.get(candidate) or {}
+    counts = entry.get("counts") or {}
+    seam = entry.get("replay_export_seam") or {}
+    if not counts:
+        return "no RNG/replay evidence was available for this candidate"
+    return (
+        f"{counts.get(replay_mod.ACKNOWLEDGED, 0)} precondition(s) observed, "
+        f"{counts.get(replay_mod.UNACKNOWLEDGED, 0)} of {counts.get('total', 0)} unestablished; "
+        f"replay export seam refused={seam.get('refused')}"
+    )
+
+
 def _binding_summary(provider_bindings: dict[str, Any], candidate: str) -> str:
     """One-line, readable candidate-head binding summary for a gate row."""
     entries = provider_bindings["bindings"].get(candidate) or {}
@@ -510,6 +526,28 @@ def assemble() -> None:
         binding_inputs, PUBLISHED_CANDIDATE_HEADS
     )
     write("PROVIDER_EVIDENCE_BINDING.json", provider_bindings)
+
+    # ---- PB-08 per-obligation replay/RNG disposition ------------------------
+    # Seed acknowledgement and the replay export seam are different obligations
+    # with different evidence, and a fail-closed refusal is an absent capability
+    # rather than a satisfied one. Classifying per obligation names which seam is
+    # missing instead of attributing it to the whole family.
+    replay_dispositions: dict[str, Any] = {}
+    for cand in per_candidate:
+        rng_path = OUT / f"RNG_REPLAY_{cand.upper()}.json"
+        if not rng_path.exists():
+            continue
+        replay_dispositions[cand] = replay_mod.assess_replay_obligations(
+            binding_mod.load_json(rng_path), catalog=hidden_catalog
+        )
+        write(
+            f"PB08_REPLAY_OBLIGATIONS_{cand.upper()}.json",
+            {
+                **replay_dispositions[cand],
+                "candidate": cand,
+                "runtime_identity": per_candidate[cand]["results_runtime_identity"],
+            },
+        )
 
     # ---- AF00-AF11 matrix ------------------------------------------------
     af11_by_candidate = {
@@ -752,8 +790,14 @@ def assemble() -> None:
                 "name": "RNG_REPLAY",
                 "verdict": "UNKNOWN",
                 "evidence": [
-                    f"replay export executed in a live game (RNG_REPLAY_{candidate.upper()}.json)",
+                    # Wording matters here: the live attempt REFUSED the export, so
+                    # claiming it "executed" would assert a capability the run
+                    # itself contradicts.
+                    f"replay export attempted in a live game and refused by the engine "
+                    f"(RNG_REPLAY_{candidate.upper()}.json)",
                     "native replay/semantic suites green",
+                    "per-obligation PB-08 disposition: "
+                    + _replay_summary(replay_dispositions, candidate),
                 ],
                 "blocking_rows": sorted(
                     r
@@ -763,7 +807,19 @@ def assemble() -> None:
                 ),
                 "nonblocking_limitations": [
                     "the clean-process twin half of each replay "
-                    "obligation is not proven per fixture"
+                    "obligation is not proven per fixture",
+                    *[
+                        f"{obligation_id}: {entry['reason'][:220]}"
+                        for obligation_id, entry in sorted(
+                            (replay_dispositions.get(candidate) or {})
+                            .get("dispositions", {})
+                            .items()
+                        )
+                        if entry["disposition"] == replay_mod.UNACKNOWLEDGED
+                    ],
+                    "A fail-closed export refusal is an absent capability, never a satisfied "
+                    "obligation, and an acknowledged seed is a precondition for RNG control "
+                    "rather than a demonstrated RulesRngTape",
                 ],
             },
             {

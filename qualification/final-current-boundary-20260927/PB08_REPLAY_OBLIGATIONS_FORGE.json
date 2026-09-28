@@ -1,0 +1,103 @@
+{
+ "candidate": "forge",
+ "counts": {
+  "NOT_OBSERVABLE_ON_CURRENT_SURFACE": 4,
+  "SEED_ACKNOWLEDGED_CAPABILITY_OBSERVED": 1,
+  "total": 5
+ },
+ "dispositions": {
+  "REPLAY_CLEAN_PROCESS": {
+   "description": "Clean-process semantic replay under same manifest/checkpoints",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "REPLAY_DECISION_TAPE": {
+   "description": "DecisionTape records exact discretionary selections",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "REPLAY_EVENT_TAPE": {
+   "description": "Semantic EventTape records meaningful changes",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "REPLAY_STATE_HASHES": {
+   "description": "Privileged/public/actor-scoped semantic hashes exclude process-local identity",
+   "disposition": "NOT_OBSERVABLE_ON_CURRENT_SURFACE",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "this obligation needs the semantic replay export seam, which the engine refused rather than served: engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed. A fail-closed refusal is an absent capability, never a satisfied obligation"
+  },
+  "RNG_RULES_TAPE": {
+   "description": "RulesRngTape records semantic random operations",
+   "disposition": "SEED_ACKNOWLEDGED_CAPABILITY_OBSERVED",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "the engine acknowledged the requested seed 424242 in the create-game response, so seed control is a precondition this candidate meets; the RulesRngTape itself is a separate obligation and is not established by the acknowledgement alone"
+  }
+ },
+ "promotion_note": "A disposition here reports what the run observed about the seed acknowledgement and the replay export seam. It never turns a fail-closed refusal into a pass, and it does not itself flip a FULL107 row: row outcomes belong to scripts/run_current_boundary_qualification.py under an active owner.",
+ "replay_export_seam": {
+  "detail": "engine refused the export (unknown_message): export_replay is not supported: deterministic replay is not claimed",
+  "refused": true
+ },
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": true,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 6,
+   "min_players": 2,
+   "mode_selection_supported": true,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms and priority concession; multi-target/divided, combat, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+    "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": true,
+   "seed_supported": true,
+   "stack_visible": true,
+   "starting_state_injection_supported": true,
+   "target_selection_supported": true,
+   "trigger_order_supported": true
+  },
+  "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
+  "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+  "scenario_injection_supported": true,
+  "seed_supported": true,
+  "starting_state_injection_supported": true,
+  "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+ },
+ "schema_version": "commander-lab.replay-obligation-disposition/1.0.0",
+ "seed_binding": {
+  "acknowledged_seed": 424242,
+  "classification": "ACKNOWLEDGED_ENGINE_SEED",
+  "controlled": true,
+  "requested_seed": 424242
+ }
+}
