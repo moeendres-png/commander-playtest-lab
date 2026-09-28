@@ -632,6 +632,35 @@ def _canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
 
+# Provider requester-binding metadata is not observed content. The distinctness
+# check compares what each principal actually observed; if the binding fields
+# were included, a provider could return one identical unscoped payload to every
+# requester while varying only the marker, and four identical views would look
+# distinct. Excluding the marker makes the comparison stricter, which is the
+# safe direction for a leak check; the `is_actor` field itself is still consumed
+# by the actor-marking check above and by no_opponent_hidden_content below.
+_BINDING_STATE_KEYS: frozenset[str] = frozenset({"observer_player_id"})
+_BINDING_PLAYER_KEYS: frozenset[str] = frozenset({"is_actor"})
+
+
+def _content_view(payload: dict[str, Any]) -> dict[str, Any]:
+    """The state view without provider requester-binding metadata."""
+    content = {
+        key: value for key, value in _state_view(payload).items() if key not in _BINDING_STATE_KEYS
+    }
+    players = content.get("players")
+    if isinstance(players, list):
+        content["players"] = [
+            (
+                {key: value for key, value in entry.items() if key not in _BINDING_PLAYER_KEYS}
+                if isinstance(entry, dict)
+                else entry
+            )
+            for entry in players
+        ]
+    return content
+
+
 def validate_principal_scoping(
     observations: dict[str, Any], *, requested_seats: tuple[str, ...]
 ) -> dict[str, Any]:
@@ -711,8 +740,10 @@ def validate_principal_scoping(
     # STATE VIEW, not the whole observation envelope. The envelope carries a
     # monotonically increasing `state_observation_offset`, so comparing it would
     # make four byte-identical states look like four distinct observations and
-    # mask exactly the leak this check exists to catch.
-    distinct = {_canonical(_state_view(usable[seat])) for seat in usable}
+    # mask exactly the leak this check exists to catch. Provider requester-
+    # binding metadata is excluded for the same reason: marking the observer is
+    # not observation content.
+    distinct = {_canonical(_content_view(usable[seat])) for seat in usable}
     if len(usable) > 1 and len(distinct) == 1:
         findings.append(
             {

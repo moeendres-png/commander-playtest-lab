@@ -62,9 +62,15 @@ def _mutate(base: dict[str, Any], probe: str) -> dict[str, Any]:
     elif probe == "commander_not_in_pool":
         deck["commander_names"] = ["Hill Giant"]
     elif probe == "colour_identity_violation":
-        # Isamaru is {W}{W}; replacing the monobound with black permanents
-        # makes the deck violate the commander's colour identity.
-        deck["mainboard"] = ["Black Lotus"] * len(deck["mainboard"])
+        # Isamaru is {W}{W}. A non-basic black land makes the deck violate the
+        # commander's colour identity while changing nothing else, so the engine
+        # must refuse it for THAT reason.
+        #
+        # The earlier mutation used 99 Black Lotuses, which the engine correctly
+        # refused, but as a legendary copy-limit violation rather than a colour
+        # identity one. The probe would have passed for the wrong reason. A
+        # non-legendary, non-basic card isolates the rule actually under test.
+        deck["mainboard"] = ["Shivan Reef"] * len(deck["mainboard"])
     elif probe == "mainboard_short_of_one_hundred":
         deck["mainboard"] = deck["mainboard"][:50]
     elif probe == "empty_mainboard":

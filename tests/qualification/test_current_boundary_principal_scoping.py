@@ -14,6 +14,7 @@ to be checked where it is trusted, which is here.
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 
 from commander_lab.qualification.current_boundary.full107 import validate_principal_scoping
@@ -201,3 +202,37 @@ def test_runner_validates_before_persisting() -> None:
     )
     # And an unscoped result must be reported, not silently persisted.
     assert "principal scoping not established" in source
+
+
+def test_binding_metadata_cannot_fabricate_distinct_views() -> None:
+    """A provider cannot earn distinctness by varying only the observer marker.
+
+    The marker binds an observation to its requester; it is not observed
+    content. If it counted toward distinctness, one identical unscoped payload
+    delivered to four requesters would stop looking byte-identical.
+    """
+    shared = _scoped(0, hand=[{"object_id": "obj:1", "name": "Black Lotus"}])
+    observations = {}
+    for index, seat in enumerate(SEATS):
+        entry = copy.deepcopy(shared)
+        entry["state"]["observer_player_id"] = seat
+        for player in entry["state"]["players"]:
+            player["is_actor"] = player["seat"] == index
+        observations[seat] = entry
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 1
+    assert any(
+        finding["check"] == "observations_differ_per_principal" for finding in result["findings"]
+    ), result["findings"]
+    assert result["attribution"] == "ENGINE_CANDIDATE_DEFECT"
+
+
+def test_correctly_scoped_views_with_markers_remain_distinct() -> None:
+    observations = _good()
+    for index, seat in enumerate(SEATS):
+        observations[seat]["state"]["observer_player_id"] = seat
+        for player in observations[seat]["state"]["players"]:
+            player["is_actor"] = player["seat"] == index
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 4
+    assert result["verdict"] == "PRINCIPAL_SCOPED"
