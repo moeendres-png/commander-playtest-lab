@@ -357,6 +357,23 @@ Its status is fully known, not UNKNOWN:
 
 Once that P1 is fixed, the tests can be ported/cherry-picked independently of #284's four overlapping Lab paths if needed.
 
+## Historical Muse PR hygiene
+
+Open-PR search after branch adjudication found one stale Muse-specific governance PR beyond the active salvage/integration carriers:
+
+- PR #165 — `chore/foundry-dual-lane-execution@ebc318b3e90a92938e94da8067a78647ac7d304f`
+
+A fresh path/semantic mapping proved its former unique documentation concepts now have stronger canonical successors under `docs/foundry-execution/*`, current `AGENTS.md`, the workstream state schema/validator and current `opencode.json`. Its Muse-HIGH-primary / approval-heavy routing is intentionally obsolete.
+
+Coordinator supersession receipt: PR #165 comment `5880021755`.
+
+PR #165 was closed without merge and without branch deletion.
+
+Disposition:
+`SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION`.
+
+Active PR #284 is not hygiene-closed because it still carries current integration-ready PB-03 test work. PR #291 is this clean final Muse-salvage carrier.
+
 ## Terminal status
 
 `MUSE_INVENTORY_COMPLETE = YES`
