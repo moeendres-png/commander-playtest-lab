@@ -108,5 +108,13 @@
     "mypy": "clean, 275 files",
     "ruff": "clean"
   },
-  "head_after_pb06": "0f9b06db"
+  "head_after_pb06": "0f9b06db",
+  "pb07_structural_finding": {
+    "classification": "CODE_DERIVED",
+    "finding": "Only 1 of the 29 mandatory CARD_ fixtures (CARD_02) is present in the 107-row denominator. CARD_01 and CARD_03..CARD_29 are in COMMON_FIXTURE_MANIFEST_v1 (all 29 carry a card_identity) but absent from the denominator, which is why ACTUAL_CARD_*.json reports card_fixtures=29, card_fixtures_passed=0 and behaviorally_executed_count=0.",
+    "consequence": "AF07 cannot be discharged by executing the current denominator. This is a denominator/accounting question, not only a missing engine harness: the 29-card corpus obligation is scored against fixtures that are not rows.",
+    "owner_surface": "The CARD_ mapping, execution dispatch and corpus accounting all live in scripts/run_current_boundary_qualification.py, and the native CARD harnesses in engine-bridge .../XmageFullGameCard02ExecutionTest.java and XmageNativeStateRestorationTest.java. Both are under PR #284's active writer lock.",
+    "status": "NOT RACED; recorded for the owner and the Coordinator",
+    "not_decided_here": "Whether the denominator should be widened to carry all 29 card fixtures, or whether AF07 is satisfied by a separate corpus artifact, is an evidence-policy decision reserved to the Coordinator, not a Lab change."
+  }
 }
