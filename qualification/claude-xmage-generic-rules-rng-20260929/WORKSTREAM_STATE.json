@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/home/user/commander-playtest-lab (Claude Code cloud container clone)",
+  "branch": "claude/optimistic-bohr-6asye6",
+  "audit_base_sha": "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd",
+  "audit_base_tree": "0d5b3f0d9020cc99131dd92a41a9615c61bbac8a",
+  "state_written_against_head": "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd",
+  "objective": "XMage generic B4-D lane Rules RNG (AF09 / PB-08 XMage half): bind an explicit create-game seed to XMage's native per-game Rules RNG, acknowledge it from engine readback, keep it out of principal-scoped observations, and remove the bridge-side library-shuffle no-op that silently skipped every Rules shuffle.",
+  "in_scope": [
+    "engine-bridge generic lane: JsonlBridge, XmageGameManager, XmageProvider, XmageBridgePlayer",
+    "shared engine-native seed binding helper extracted from XmageFullGameSession",
+    "bridge tests and the B3 / B4-F regression scripts whose capability guards pinned seed_supported=false"
+  ],
+  "out_of_scope": [
+    "current-boundary pipeline modules and committed receipts (active writers: PR #284, PR #289)",
+    "XMage PB-03 engine-bridge test surfaces (PR #292, PR #285)",
+    "regenerating the committed XMage current-boundary column",
+    "mulligan default (chooseMulligan=keep) on the no-controller path",
+    "Forge, Production Provider selection, Architecture Freeze"
+  ],
+  "ownership": "Claude Code session on branch claude/optimistic-bohr-6asye6; no other open branch edits engine-bridge/src/main generic-lane files at audit base (PR #285 two-dot diff deletes the module wholesale and is not an active line-level writer).",
+  "dependencies": [
+    "moeendres-png/mage@b19596980f2734496ea1896504253e1bdd2756dd (Game.setRulesSeed / setRequireExplicitSeed / getRulesRandom)"
+  ],
+  "forbidden_shortcuts": [
+    "seed echo from request",
+    "seed value in observations",
+    "bridge-side shuffle no-op",
+    "coerced or silently dropped malformed seeds"
+  ],
+  "validated_gates": [
+    "mvn verify engine-bridge: 335 tests, only failure was the test pinning the shuffle no-op (updated); targeted rerun 35/35",
+    "XmageGenericLaneRulesSeedTest 7/7",
+    "B3, B4-A, B4-B, B4-C, B4-D process regressions PASS",
+    "Phase-6 differential 2 passed 1 skipped; B4-F replay, illegal-action, capability closeout, provider-pin validation PASS",
+    "targeted Python suites 186 passed"
+  ],
+  "files_modified": [
+    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageRulesSeedBinding.java (new)",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/JsonlBridge.java",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageGenericLaneRulesSeedTest.java (new)",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/JsonlBridgeTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageBridgePlayerFailClosedTest.java",
+    "scripts/run_external_b3_regression.py",
+    "scripts/run_external_b4f_capability_closeout.py"
+  ],
+  "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
+  "first_failing_boundary": "XmageBridgePlayer.shuffleLibrary no-op (introduced on the PR #218 line) \u2014 libraries stayed in decklist order and rules_random_calls == 0 after start",
+  "technical_decisions": [
+    "ENGINE_NATIVE_REUSE: delete the shuffle override; PlayerImpl.shuffleLibrary already uses game.getRulesRandom(), honors SHUFFLE_LIBRARY replacement and fires LIBRARY_SHUFFLED",
+    "EXTRACT_AND_GENERALIZE: move the WS213 full-game seed binding into XmageRulesSeedBinding and reuse it on the generic lane",
+    "unseeded generic games stay allowed but report seed_controlled=false and carry no rules_seed field",
+    "B3 / B4-F evidence guards keep proving their own runs unseeded; seed support is orthogonal to their scopes"
+  ],
+  "authority_gates": [],
+  "status": "WAITING",
+  "remaining_scope": [
+    "CI on the pushed head (external-engine-integration, xmage-full-game-conformance)",
+    "impact adjudication + regeneration of the committed XMage current-boundary column by its owner (not done here)"
+  ],
+  "exact_next_action": "Owner of the current-boundary pipeline (PR #289/#284 line) re-runs the XMage column on a head containing this change: AF01 Rules-RNG invariant should read seed_supported=true and the create response acknowledges the engine-readback rules_seed, so XMage PB-08/AF09 can move from UNCONTROLLED_ENGINE_RNG to ACKNOWLEDGED_ENGINE_SEED; the clean-process replay twin rows remain open.",
+  "execution_profile": null,
+  "executor_model": "Claude (Claude Code); not a Foundry executor profile",
+  "executor_handoff_from": null,
+  "executor_handoff_reason": "User-directed autonomous Claude workstream"
+}

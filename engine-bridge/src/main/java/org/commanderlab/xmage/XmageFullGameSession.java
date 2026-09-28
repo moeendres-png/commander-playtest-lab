@@ -143,8 +143,7 @@ final class XmageFullGameSession {
         // pinned engine, while game.start/init performs the initial shuffle,
         // choosing-player pick and opening hands. The legacy process-global
         // seed call is retired here: it never was Rules-RNG authority.
-        game.setRulesSeed(seed);
-        game.setRequireExplicitSeed(true);
+        XmageRulesSeedBinding.bind(game, seed);
         game.setNumPlayers(playerCount);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
@@ -455,25 +454,7 @@ final class XmageFullGameSession {
      * seed_supported} is true only when this proof holds for the run.
      */
     synchronized JsonObject rulesSeedBindingPayload() {
-        JsonObject binding = new JsonObject();
-        binding.addProperty("explicit_seed", seed);
-        binding.addProperty("rules_seed", game.getRulesSeed());
-        binding.addProperty("rules_seed_matches", game.getRulesSeed() == seed);
-        binding.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
-        binding.addProperty("require_explicit_seed", true);
-        binding.addProperty("rules_random_calls", game.getRulesRandomCalls());
-        binding.addProperty("seed_scope", "authoritative_per_game_rules_rng");
-        binding.addProperty(
-                "binding_model",
-                "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + "
-                        + "game.setRequireExplicitSeed(true) after construction, "
-                        + "before game.start/init"
-        );
-        binding.addProperty(
-                "seed_supported",
-                game.getRulesSeed() == seed && game.isRulesSeedExplicit()
-        );
-        return binding;
+        return XmageRulesSeedBinding.payload(game, seed);
     }
 
     /**
