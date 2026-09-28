@@ -98,6 +98,33 @@ def test_native_suite_executor_is_on_the_execution_path() -> None:
     assert "executed_commit" in source
 
 
+def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> None:
+    """A Forge-only run must not regenerate XMage native receipts."""
+    import importlib.util
+
+    # Importing the runner resolves each native suite's root from the
+    # environment and reads that root's tree at module level. Point the Forge
+    # root at this repository so the import works on a machine that does not
+    # have the historical reference checkout; the test only exercises candidate
+    # scoping, and the patched executor never runs a suite.
+    monkeypatch.setenv("FORGE_WORKSPACE", str(REPO))
+    spec = importlib.util.spec_from_file_location("wsr_runner_mod", RUNNER)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    executed: list[tuple[str, str]] = []
+
+    def _fake(candidate: str, group: str, *, runner: object) -> dict:
+        executed.append((candidate, group))
+        return {}
+
+    monkeypatch.setattr(module, "run_native_suite", _fake)
+    module.run_all_native_suites(object(), ("forge",))
+    assert executed, "the forge native suites must still be executed"
+    assert {candidate for candidate, _ in executed} == {"forge"}
+
+
 def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
     """`engine_owned: true` from caller intent alone is the Gate 3 defect.
 

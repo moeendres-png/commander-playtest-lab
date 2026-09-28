@@ -72,7 +72,7 @@ RECEIPT_DIR = OUT_DIR / "receipts"
 # WSR20 evidence checkout.
 #
 # The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
-# evidence head is Forge PR #4 d5bd22d1, which changes forge-protocol2-bridge
+# evidence head is Forge PR #5 e15f37d6, which changes forge-protocol2-bridge
 # only. engine_tree_equivalence re-proves that separation on every run.
 FORGE_WORKSPACE = Path(
     os.environ.get("FORGE_WORKSPACE", "/home/moeen/code/ws-forge-full107-cdq-20260926")
@@ -417,10 +417,19 @@ def run_native_suite(
     return document
 
 
-def run_all_native_suites(runner: receipt_mod.RunnerIdentity) -> list[dict[str, Any]]:
-    """Execute every bound native suite; return only the persisted receipts."""
+def run_all_native_suites(
+    runner: receipt_mod.RunnerIdentity,
+    candidates: tuple[str, ...] = ("xmage", "forge"),
+) -> list[dict[str, Any]]:
+    """Execute every bound native suite for the selected candidates.
+
+    The native-suite stage is scoped to the candidates this run was asked for.
+    A candidate that was not selected must not have its native receipts
+    regenerated: that would re-execute a surface whose runtime claim is not
+    under requalification.
+    """
     receipts: list[dict[str, Any]] = []
-    for candidate in ("xmage", "forge"):
+    for candidate in candidates:
         for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
             receipts.append(run_native_suite(candidate, group, runner=runner))
     return receipts
@@ -991,7 +1000,7 @@ def main() -> int:
             indent=1,
         ),
     )
-    native_receipts = run_all_native_suites(runner)
+    native_receipts = run_all_native_suites(runner, tuple(candidates))
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {

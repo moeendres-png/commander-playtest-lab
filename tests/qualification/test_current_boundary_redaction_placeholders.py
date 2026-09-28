@@ -20,6 +20,7 @@ Two distinctions matter and are pinned here:
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -138,6 +139,66 @@ def test_conflicting_actor_marker_cannot_be_hidden_by_valid_envelope() -> None:
     assert any(
         finding["check"] == "actor_binding_conflict" and finding.get("seat") == "p1"
         for finding in result["findings"]
+    )
+
+
+def _dual_shape_scoped() -> dict[str, dict]:
+    """Each observation carries BOTH authoritative mechanisms, consistently."""
+    observations = _envelope_scoped()
+    for index, seat in enumerate(SEATS):
+        observations[seat]["state"]["players"][index]["is_actor"] = True
+    return observations
+
+
+def _mixed_shape_scoped() -> dict[str, dict]:
+    """Alternate mechanisms per observation; each is authoritative on its own."""
+    envelope = _envelope_scoped()
+    marker = _correctly_scoped()
+    return {
+        seat: (envelope if index % 2 == 0 else marker)[seat] for index, seat in enumerate(SEATS)
+    }
+
+
+def test_both_authoritative_binding_shapes_are_accepted() -> None:
+    """Provider-neutral: the envelope and the state marker are both valid bindings."""
+    both = validate_principal_scoping(_dual_shape_scoped(), requested_seats=SEATS)
+    assert both["verdict"] == "PRINCIPAL_SCOPED", both["findings"]
+    assert both["observations_with_established_requester"] == list(SEATS)
+
+    mixed = validate_principal_scoping(_mixed_shape_scoped(), requested_seats=SEATS)
+    assert mixed["verdict"] == "PRINCIPAL_SCOPED", mixed["findings"]
+    assert mixed["observations_with_established_requester"] == list(SEATS)
+
+
+def test_binding_metadata_alone_cannot_fabricate_distinct_views() -> None:
+    """One identical content view stays identical however the binding is marked.
+
+    Every binding field the providers emit is varied per requester: requested id,
+    resolved engine id, seat, in-state actor marker and the monotonic envelope
+    offset. The observed rows themselves (seat, live player id, zones) are
+    identical across the four responses. Binding metadata is not observed game
+    content, so the four views must still count as one shared view and must not
+    earn principal-scoped credit.
+    """
+    shared = _observation(0)
+    for entry in shared["state"]["players"]:
+        entry["zones"]["hand"] = ["<hidden>", "<hidden>"]
+    observations = {}
+    for index, seat in enumerate(SEATS):
+        entry = copy.deepcopy(shared)
+        entry["state_observation_offset"] = 1 + index
+        entry["observer_player_id"] = seat
+        entry["observer_seat"] = index
+        entry["observer_engine_player_id"] = f"engine-{seat}"
+        for row_index, row in enumerate(entry["state"]["players"]):
+            row["player_id"] = f"engine-{row_index}"
+            row["is_actor"] = row_index == index
+        observations[seat] = entry
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 1, result
+    assert result["credible_as_principal_scoped_evidence"] is False
+    assert any(
+        finding["check"] == "observations_differ_per_principal" for finding in result["findings"]
     )
 
 

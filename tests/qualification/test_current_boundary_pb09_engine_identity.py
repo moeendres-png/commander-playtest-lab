@@ -30,8 +30,8 @@ FORK = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
 UPSTREAM = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
 BRIDGE = "4753bb7c72ea60d653121e0bab989077b4009f9c"
-BRIDGE_HEAD = "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa"
-BRIDGE_TREE = "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9"
+BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
+BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
 
 
 def test_the_four_forge_commits_are_all_distinct() -> None:
@@ -275,14 +275,14 @@ def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
     assert "forge-game" in R.FORGE_RULES_CORE_MODULE_ROOTS
 
 
-def test_forge_pr4_head_is_rules_core_equivalent_to_the_fork_head() -> None:
-    """The real PB-05 fact: the bridge repair changed zero Rules-Core source."""
+def test_forge_pr5_head_is_rules_core_equivalent_to_the_fork_head() -> None:
+    """The real PB-05/WSR30 fact: the bridge repair changed zero Rules-Core source."""
     forge = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
     if not (forge / ".git").exists():
         pytest.skip("the Forge reference checkout is not present in this environment")
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
 
-    proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR4")
+    proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR5")
     assert proof["engine_equivalent"] is True
     assert proof["differing_modules"] == []
     assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
@@ -330,8 +330,8 @@ def test_bridge_and_evidence_head_is_bound_separately() -> None:
     head = identity["bridge_evidence_head"]
     assert head["commit"] == BRIDGE_HEAD
     assert head["tree"] == BRIDGE_TREE
-    assert head["pull_request"] == 4
-    assert head["is_draft"] is True, "Forge PR #4 must stay Draft"
+    assert head["pull_request"] == 5
+    assert head["is_draft"] is True, "Forge PR #5 must stay Draft"
     assert head["changes_rules_core"] is False
     # Distinct from the Rules Core and from the historical bridge pin.
     assert head["commit"] != identity["executing_engine"]["commit"]
