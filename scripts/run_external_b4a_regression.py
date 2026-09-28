@@ -6,6 +6,7 @@ import math
 import os
 from pathlib import Path
 
+from commander_lab.engine.rules.base import RulesEngineProtocolError
 from commander_lab.engine.rules.bridge import ExternalRulesAdapter
 from commander_lab.models import (
     EngineMessageType,
@@ -15,6 +16,7 @@ from commander_lab.models import (
     RulesEngineAvailability,
     RulesGameRequest,
 )
+from commander_lab.qualification.current_boundary.full107 import validate_principal_scoping
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -109,66 +111,180 @@ def main() -> None:
             raise SystemExit("B4-A real game did not reach the bounded B3 handoff")
 
         client = adapter._require_client()
-        first_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
-        second_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
-        state = GameState.model_validate(first_raw["state"])
 
-        if state.game_id != game_id:
-            raise SystemExit("B4-A state returned wrong game_id")
-        if state.seed is not None or state.rng_counter is not None:
-            raise SystemExit("B4-A invented a seed or RNG counter")
-        if state.turn_number != 1 or state.step != "upkeep":
-            raise SystemExit(
-                f"B4-A unexpected turn/step: turn={state.turn_number}, step={state.step!r}"
+        # A principal is mandatory. The pre-remediation B4-A regression sent an
+        # empty request and therefore exercised the global, unscoped snapshot.
+        # Pin the fail-closed contract first so a future seat-0 fallback cannot
+        # silently revive that path.
+        try:
+            client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+        except RulesEngineProtocolError as exc:
+            if "observer_player_id_required" not in str(exc):
+                raise SystemExit(f"B4-A wrong omitted-observer failure: {exc}") from exc
+        else:
+            raise SystemExit("B4-A omitted observer_player_id did not fail closed")
+
+        try:
+            client.request(
+                EngineMessageType.GET_GAME_STATE,
+                {"observer_player_id": "not-a-live-principal"},
+                game_id=game_id,
             )
-        if state.active_player_id is None:
-            raise SystemExit("B4-A did not expose the real active player")
-        if len(state.players) != 4:
-            raise SystemExit("B4-A state did not expose four players")
-        if state.stack:
-            raise SystemExit("B4-A bounded handoff unexpectedly has a nonempty stack")
+        except RulesEngineProtocolError as exc:
+            if "UNKNOWN_OBSERVER_PLAYER_ID" not in str(exc):
+                raise SystemExit(f"B4-A wrong unknown-observer failure: {exc}") from exc
+        else:
+            raise SystemExit("B4-A unknown observer_player_id did not fail closed")
 
-        for player in state.players:
-            if player.life != 40:
+        requested = ("p1", "p2", "p3", "p4")
+        raw_views: dict[str, dict[str, object]] = {}
+        states: dict[str, GameState] = {}
+        offsets: list[int] = []
+        bindings: list[dict[str, object]] = []
+
+        for expected_seat, principal in enumerate(requested):
+            raw = client.request(
+                EngineMessageType.GET_GAME_STATE,
+                {"observer_player_id": principal},
+                game_id=game_id,
+            )
+            state = GameState.model_validate(raw["state"])
+            raw_views[principal] = raw
+            states[principal] = state
+
+            if raw.get("observer_player_id") != principal:
+                raise SystemExit(f"B4-A requester echo mismatch for {principal}")
+            if raw.get("observer_seat") != expected_seat:
+                raise SystemExit(f"B4-A observer seat mismatch for {principal}")
+            engine_id = raw.get("observer_engine_player_id")
+            if not isinstance(engine_id, str) or not engine_id:
+                raise SystemExit(f"B4-A live engine principal id missing for {principal}")
+            if state.players[expected_seat].player_id != engine_id:
+                raise SystemExit(f"B4-A observer binding does not match state row for {principal}")
+
+            if state.game_id != game_id:
+                raise SystemExit("B4-A state returned wrong game_id")
+            if state.seed is not None or state.rng_counter is not None:
+                raise SystemExit("B4-A invented a seed or RNG counter")
+            if state.turn_number != 1 or state.step != "upkeep":
                 raise SystemExit(
-                    f"B4-A unexpected life total for {player.player_id}: {player.life}"
+                    f"B4-A unexpected turn/step: turn={state.turn_number}, step={state.step!r}"
                 )
-            if len(player.zones.hand) != 7:
-                raise SystemExit(f"B4-A unexpected hand size for {player.player_id}")
-            if len(player.zones.library) != 91:
-                raise SystemExit(f"B4-A unexpected library size for {player.player_id}")
-            if len(player.zones.command) != 2:
-                raise SystemExit(f"B4-A commander zone mismatch for {player.player_id}")
+            if state.active_player_id is None:
+                raise SystemExit("B4-A did not expose the active player")
+            if len(state.players) != 4:
+                raise SystemExit("B4-A state did not expose four players")
+            if state.stack:
+                raise SystemExit("B4-A bounded handoff unexpectedly has a nonempty stack")
 
-        first_offset = int(first_raw.get("state_observation_offset", -1))
-        second_offset = int(second_raw.get("state_observation_offset", -1))
-        if first_offset < 1 or second_offset != first_offset + 1:
-            raise SystemExit(
-                f"B4-A state observation offset is not monotonic: {first_offset} -> {second_offset}"
+            for seat, player in enumerate(state.players):
+                if player.life != 40:
+                    raise SystemExit(
+                        f"B4-A unexpected life total for {player.player_id}: {player.life}"
+                    )
+                if len(player.zones.hand) != 7:
+                    raise SystemExit(f"B4-A unexpected hand size for {player.player_id}")
+                if len(player.zones.library) != 91:
+                    raise SystemExit(f"B4-A unexpected library size for {player.player_id}")
+                if len(player.zones.command) != 2:
+                    raise SystemExit(f"B4-A commander zone mismatch for {player.player_id}")
+
+                hand = list(player.zones.hand)
+                if seat == expected_seat:
+                    if any(card == "<hidden>" for card in hand):
+                        raise SystemExit(f"B4-A hid the requester's own hand for {principal}")
+                elif any(card != "<hidden>" for card in hand):
+                    raise SystemExit(
+                        f"B4-A exposed opponent hand identity to requester {principal}"
+                    )
+
+                library = list(player.zones.library)
+                if any(card != "<hidden>" for card in library):
+                    raise SystemExit(
+                        f"B4-A exposed library identity/order to requester {principal}"
+                    )
+
+                expected_player_id = engine_id if seat == expected_seat else f"op-{seat}"
+                if player.player_id != expected_player_id:
+                    raise SystemExit(
+                        f"B4-A principal id projection mismatch for {principal}, seat {seat}"
+                    )
+
+            offset = int(raw.get("state_observation_offset", -1))
+            offsets.append(offset)
+            if raw.get("seed_controlled") is not False:
+                raise SystemExit("B4-A seed-control boundary is not explicit")
+            if raw.get("legal_actions_complete") is not False:
+                raise SystemExit("B4-A legal-action completeness boundary widened")
+            bindings.append(
+                {
+                    "requester": principal,
+                    "observer_seat": expected_seat,
+                    "engine_id_matches_state_row": True,
+                }
             )
-        if first_raw.get("seed_controlled") is not False:
-            raise SystemExit("B4-A seed-control boundary is not explicit")
-        if first_raw.get("legal_actions_complete") is not False:
-            raise SystemExit("B4-A legal-action completeness boundary widened")
 
+        if offsets[0] < 1 or offsets != list(range(offsets[0], offsets[0] + len(offsets))):
+            raise SystemExit(f"B4-A state observation offsets are not monotonic: {offsets}")
+
+        canonical_states = {
+            json.dumps(raw_views[principal]["state"], sort_keys=True, separators=(",", ":"))
+            for principal in requested
+        }
+        if len(canonical_states) != 4:
+            raise SystemExit(
+                f"B4-A principal views are not independently scoped: {len(canonical_states)} distinct"
+            )
+
+        scoping = validate_principal_scoping(raw_views, requested_seats=requested)
+        if scoping.get("verdict") != "PRINCIPAL_SCOPED":
+            raise SystemExit(
+                "B4-A shared qualification validator rejected principal scoping: "
+                + json.dumps(scoping, sort_keys=True)
+            )
+
+        engine_ids = {
+            principal: str(raw_views[principal]["observer_engine_player_id"])
+            for principal in requested
+        }
+        for principal in requested:
+            serialized = json.dumps(raw_views[principal]["state"], sort_keys=True)
+            for other, engine_id in engine_ids.items():
+                if other != principal and engine_id in serialized:
+                    raise SystemExit(
+                        f"B4-A requester {principal} received foreign live principal id {other}"
+                    )
+
+        first_state = states["p1"]
         evidence.update(
             {
                 "provider": adapter.get_provider_version(),
                 "capabilities": capabilities.model_dump(mode="json"),
                 "game_id": game_id,
-                "engine_game_id": str(first_raw.get("engine_game_id")),
-                "state_observation_offsets": [first_offset, second_offset],
-                "turn_number": state.turn_number,
-                "phase": state.phase.value,
-                "step": state.step,
-                "active_player_id": state.active_player_id,
-                "priority_player_id": state.priority_player_id,
-                "player_count": len(state.players),
-                "hand_sizes": [len(player.zones.hand) for player in state.players],
-                "library_sizes": [len(player.zones.library) for player in state.players],
-                "command_zone_sizes": [len(player.zones.command) for player in state.players],
-                "stack_size": len(state.stack),
-                "event_sequence_observed": state.event_sequence,
+                "engine_game_id": str(raw_views["p1"].get("engine_game_id")),
+                "principal_scoping": {
+                    "requesters": list(requested),
+                    "distinct_state_views": len(canonical_states),
+                    "bindings": bindings,
+                    "opponent_hands_placeholder_only": True,
+                    "libraries_placeholder_only": True,
+                    "foreign_live_principal_ids_absent": True,
+                    "omitted_observer_fails_closed": True,
+                    "unknown_observer_fails_closed": True,
+                    "shared_validator_verdict": scoping.get("verdict"),
+                    "shared_validator_attribution": scoping.get("attribution"),
+                    "shared_validator_findings": scoping.get("findings"),
+                },
+                "state_observation_offsets": offsets,
+                "turn_number": first_state.turn_number,
+                "phase": first_state.phase.value,
+                "step": first_state.step,
+                "player_count": len(first_state.players),
+                "hand_sizes": [len(player.zones.hand) for player in first_state.players],
+                "library_sizes": [len(player.zones.library) for player in first_state.players],
+                "command_zone_sizes": [len(player.zones.command) for player in first_state.players],
+                "stack_size": len(first_state.stack),
+                "event_sequence_observed": first_state.event_sequence,
                 "status": "passed",
             }
         )

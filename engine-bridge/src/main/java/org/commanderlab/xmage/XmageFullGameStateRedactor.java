@@ -244,10 +244,21 @@ final class XmageFullGameStateRedactor {
         Player anchor = game.getPlayers().values().stream().findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("game has no players"));
         JsonObject view = actorView(game, anchor);
+
+        // actorView legitimately exposes the viewer's own native UUID. A public
+        // replay/transcript view has no principal viewer, so normalize that last
+        // raw principal id back to the same public seat token used for every
+        // other principal before stripping actor-private fields.
+        String rawAnchorId = anchor.getId().toString();
+        String publicAnchorId = "op-" + seat(game, anchor.getId());
+        replacePrincipalId(view, "active_player_id", rawAnchorId, publicAnchorId);
+        replacePrincipalId(view, "priority_player_id", rawAnchorId, publicAnchorId);
+
         view.remove("actor_id");
         view.remove("seat");
         for (JsonElement element : view.getAsJsonArray("players")) {
             JsonObject player = element.getAsJsonObject();
+            replacePrincipalId(player, "player_id", rawAnchorId, publicAnchorId);
             player.remove("is_actor");
             player.remove("hand");
             player.remove("mana_pool");
@@ -255,7 +266,32 @@ final class XmageFullGameStateRedactor {
             player.remove("granted_library");
             if (player.has("battlefield") && player.get("battlefield").isJsonArray()) {
                 for (JsonElement permanentElement : player.getAsJsonArray("battlefield")) {
-                    permanentElement.getAsJsonObject().remove("private_identity");
+                    JsonObject permanent = permanentElement.getAsJsonObject();
+                    replacePrincipalId(
+                            permanent,
+                            "controller_id",
+                            rawAnchorId,
+                            publicAnchorId
+                    );
+                    permanent.remove("private_identity");
+                }
+            }
+        }
+        if (view.has("commander_status") && view.get("commander_status").isJsonArray()) {
+            for (JsonElement statusElement : view.getAsJsonArray("commander_status")) {
+                JsonObject status = statusElement.getAsJsonObject();
+                replacePrincipalId(status, "owner_id", rawAnchorId, publicAnchorId);
+                if (status.has("commander_damage_to_player")
+                        && status.get("commander_damage_to_player").isJsonArray()) {
+                    for (JsonElement damageElement
+                            : status.getAsJsonArray("commander_damage_to_player")) {
+                        replacePrincipalId(
+                                damageElement.getAsJsonObject(),
+                                "player_id",
+                                rawAnchorId,
+                                publicAnchorId
+                        );
+                    }
                 }
             }
         }
@@ -286,7 +322,10 @@ final class XmageFullGameStateRedactor {
         JsonObject item = new JsonObject();
         item.addProperty("object_id", permanent.getId().toString());
         item.addProperty("name", permanent.getName());
-        item.addProperty("controller_id", permanent.getControllerId().toString());
+        item.addProperty(
+                "controller_id",
+                ActorSafeIdentity.optionalForSeat(game, viewer, permanent.getControllerId())
+        );
         item.addProperty("tapped", permanent.isTapped());
         boolean faceDown = permanent.isFaceDown(game);
         item.addProperty("face_down", faceDown);
@@ -384,7 +423,7 @@ final class XmageFullGameStateRedactor {
             ordered.sort(java.util.Comparator.comparing(UUID::toString));
             for (UUID commanderId : ordered) {
                 JsonObject entry = new JsonObject();
-                entry.addProperty("owner_id", player.getId().toString());
+                entry.addProperty("owner_id", ActorSafeIdentity.forSeat(game, viewer, player));
                 Card commanderCard = game.getCard(commanderId);
                 entry.addProperty("name",
                         commanderCard == null ? "unknown commander" : commanderCard.getName());
@@ -433,6 +472,23 @@ final class XmageFullGameStateRedactor {
             result.add(item.getId().toString());
         }
         return result;
+    }
+
+    private static void replacePrincipalId(
+            JsonObject object,
+            String property,
+            String rawId,
+            String replacement
+    ) {
+        if (object == null || !object.has(property) || object.get(property).isJsonNull()) {
+            return;
+        }
+        JsonElement value = object.get(property);
+        if (value.isJsonPrimitive()
+                && value.getAsJsonPrimitive().isString()
+                && rawId.equals(value.getAsString())) {
+            object.addProperty(property, replacement);
+        }
     }
 
     private static void addUuid(JsonObject object, String property, UUID value) {
