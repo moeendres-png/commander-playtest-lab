@@ -1,0 +1,17 @@
+{
+  "branch": "sbmax/full-completion",
+  "effort": "max",
+  "executor": "opencode-go/space-bunny-free",
+  "head": "b27a8ba72c104c2f17ffcddd8ab7bf5e6df4da42",
+  "marker": "SB_INDEPENDENT_BASELINE_FINAL",
+  "merge_state": "origin/main merge in progress, cleanly auto-merged, not yet committed",
+  "note": "lineage endpoint BEFORE the controlled convergence into current main. Preserved, not rewritten. Supersedes SB_INDEPENDENT_BASELINE as the latest Bunny-side seal while that earlier seal remains intact at tag sb-independent-baseline-20260928.",
+  "prior_seal_intact": "sb-independent-baseline-20260928",
+  "sealed": "2026-09-28T19:25:58.314540+02:00",
+  "tree": "f61046cea3aad131117b234d8f898436a407a5d4",
+  "verified_canonical_main": {
+    "head": "6b8c2150e02d0ef6db6f4c4d3df5a104b4e7e890",
+    "note": "NEWER than the c9277b90 named in the Coordinator update: 6b8c2150 includes c9277b90 (PR #283) plus PR #281 four-model Foundry readiness. Verified by fetch, not assumed.",
+    "tree": "19fbe34a16d100ef997f867b554f3ff7b13c942f"
+  }
+}
