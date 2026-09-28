@@ -8,8 +8,8 @@ import pytest
 from commander_lab.engine.rules.base import (
     DEFAULT_ENGINE_RUNTIME_DIRECTORY,
     ENGINE_RUNTIME_DIRECTORY_ENV,
-    RulesEngineUnavailable,
     resolve_engine_working_directory,
+    RulesEngineUnavailable,
 )
 
 
