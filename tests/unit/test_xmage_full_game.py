@@ -331,9 +331,7 @@ _JVM_LINKAGE_FAILURE = (
 )
 
 
-def test_jvm_linkage_fault_is_not_recorded_as_a_rules_conformance_failure(
-    tmp_path: Path,
-) -> None:
+def test_jvm_linkage_fault_is_not_recorded_as_a_rules_conformance_failure(tmp_path: Path) -> None:
     decks = _decks()
     case = FullGameBatchCase(
         case_id="case-jvm-linkage",
@@ -348,9 +346,7 @@ def test_jvm_linkage_fault_is_not_recorded_as_a_rules_conformance_failure(
     assert record.official_campaign_eligible is False
 
 
-def test_genuine_engine_game_failure_is_still_recorded_as_conformance(
-    tmp_path: Path,
-) -> None:
+def test_genuine_engine_game_failure_is_still_recorded_as_conformance(tmp_path: Path) -> None:
     message = (
         'XMage full-game engine failed: {"message": "XMage full-game did not terminate", '
         '"type": "engine"}'
