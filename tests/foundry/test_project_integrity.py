@@ -98,3 +98,20 @@ def test_recovered_donor_receipts_bind_the_actual_transplanted_content():
                 f"{name}: recovered donor content changed; adjudicate and update "
                 "the receipt instead of retaining a false exact-port claim"
             )
+
+
+def test_downstream_git_guidance_defers_to_root_boundaries():
+    paths = (
+        ".opencode/agents/foundry-implementer.md",
+        "docs/foundry-execution/FULL_PROJECT_EXECUTION_AUTHORITY_2026-09-27.md",
+    )
+    for name in paths:
+        text = (ROOT / name).read_text()
+        assert "`AGENTS.md` sections 10-11" in text
+        assert "no additional rebase, history-rewrite, destructive branch/worktree deletion" in text
+        for obsolete in (
+            "create/remove worktrees",
+            "merge/rebase/cherry-pick",
+            "- delete proven-superseded",
+        ):
+            assert obsolete not in text

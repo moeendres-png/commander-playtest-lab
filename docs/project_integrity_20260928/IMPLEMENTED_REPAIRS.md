@@ -23,3 +23,9 @@ No launcher, provider, Rules, qualification implementation or runtime evidence
 was modified. Combined donor snapshots are compared by blob in
 COMBINED_DONOR_COMPARISON.json; differences are retained as provenance, not blindly
 merged. Replay-specific legacy delta is deferred to the completion owner.
+
+Review follow-up: standalone drift checking now reuses source-lock's effective
+URL rewrite guard, not just literal remote parsing. All three scope fixtures
+(local/global/environment) failed before this follow-up. Downstream implementer
+and full-execution authority instructions now defer to root Git boundaries; a
+regression guard prevents the identified positive rebase/deletion grants returning.

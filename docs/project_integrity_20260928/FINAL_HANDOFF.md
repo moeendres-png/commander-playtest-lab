@@ -28,7 +28,7 @@ Five helpers, 119 tests; sealed hashes and combined-donor comparisons preserved.
 Replay delta remains for engine/replay owner; no donor history discarded.
 
 ## Tests / Evidence / PASS / FAIL / UNKNOWN
-VALIDATION records 631 passing tests, one unavailable live-export skip, Ruff,
+VALIDATION records 637 passing tests, one unavailable live-export skip, Ruff,
 format, strict mypy and compileall. Baseline probe: 102 fail / 17 pass before fixes.
 PASS is tooling-only. No engine/runtime/provider promotion. CI result must be
 read on exact PR head; publication receipt is also persisted in the PR.

@@ -28,9 +28,9 @@ import subprocess
 from pathlib import Path
 
 try:
-    from .source_lock import is_canonical_remote, remote_url_records
+    from .source_lock import _no_url_rewrites, is_canonical_remote, remote_url_records
 except ImportError:
-    from source_lock import is_canonical_remote, remote_url_records
+    from source_lock import _no_url_rewrites, is_canonical_remote, remote_url_records
 
 REACHABLE_INSTRUCTION_FILES = ("AGENTS.md", "CLAUDE.md")
 REACHABLE_CONFIG_FILES = ("opencode.json", "opencode.jsonc")
@@ -109,6 +109,25 @@ def check(
             }
         )
         failed = True
+
+    # Literal URL identity alone does not bind Git's effective transport.
+    # Reuse the source-lock primary gate, including system/global/environment
+    # configuration and fail-closed unreadable configuration behavior.
+    try:
+        rewrites_clean = _no_url_rewrites(
+            target_real, dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        rewrites_clean = False
+    if not rewrites_clean:
+        failed = True
+        findings.append(
+            {
+                "surface": "(repo identity)",
+                "classification": "AMBIGUOUS",
+                "detail": "EFFECTIVE_URL_REWRITE: Git URL rewrites present or unreadable",
+            }
+        )
 
     # 2. reachable instruction surfaces.
     markers: list[str] = profile.get("stale_markers", [])

@@ -5,10 +5,10 @@
     "passed": 119
   },
   "final_foundry_and_wsr24_shape": {
-    "passed": 631,
+    "passed": 637,
     "skipped": 1,
     "skip_reason": "no live export snapshot present",
-    "seconds": 66.53
+    "seconds": 69.62
   },
   "ruff_check": "PASS",
   "ruff_format": "PASS (1046 files)",
@@ -20,5 +20,12 @@
     "passed": 5,
     "command": "pytest -q tests/foundry/test_project_integrity.py",
     "note": "Four policy tests rerun and one new content-hash binding guard added; no production delta after full affected regression."
+  },
+  "review_regression": {
+    "url_rewrite_fail_before": 3,
+    "focused_after": 22,
+    "full_affected_after": 637,
+    "skip": 1,
+    "reason": "No live export snapshot"
   }
 }
