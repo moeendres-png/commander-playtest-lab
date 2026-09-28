@@ -238,7 +238,7 @@ class XmageCausalStackReconstructionTest {
         };
     }
 
-    private static JsonObject targetProposal(
+    static JsonObject targetProposal(
             String proposalId,
             XmageCausalStackReconstruction.StackFrame frame,
             JsonObject legal,
@@ -301,7 +301,7 @@ class XmageCausalStackReconstructionTest {
                 match);
     }
 
-    private static JsonObject manaProposal(
+    static JsonObject manaProposal(
             String proposalId,
             String pid,
             JsonObject legal,
