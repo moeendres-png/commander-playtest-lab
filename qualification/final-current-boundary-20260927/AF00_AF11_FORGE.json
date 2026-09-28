@@ -1,0 +1,237 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "full107_counts": {
+  "BLOCKED": 7,
+  "CRASH": 0,
+  "FAIL": 0,
+  "PASS": 79,
+  "PROTOCOL_FAILURE": 0,
+  "TIMEOUT": 0,
+  "UNKNOWN": 21
+ },
+ "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
+ "gates": [
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "candidate commit reported by the provider at handshake: ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "engine_commit provenance: env:FORGE_ENGINE_SHA",
+    "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+   ],
+   "gate": "AF00",
+   "name": "SOURCE_AND_BUILD_LOCK",
+   "nonblocking_limitations": [
+    "Forge reports its engine commit from the FORGE_ENGINE_SHA environment variable rather than deriving it from the built Forge bytes, so the commit-to-build binding is operator-supplied, not build-proven"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "20 AF01 v2 invariants executed under Protocol 2.0.0 on the protocol2-jsonl lane",
+    "AF01_*_FORGE.json"
+   ],
+   "gate": "AF01",
+   "name": "PROTOCOL_HANDSHAKE",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "independent live lifecycles executed at ['2P', '3P', '4P', '5P']",
+    "bounded 6P lifecycle also executed: True"
+   ],
+   "gate": "AF02",
+   "name": "PLAYER_CARDINALITY",
+   "nonblocking_limitations": [
+    "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "the engine rejected an illegal Commander colour identity during deck import (proving the engine owns deck legality, not the harness)",
+    "the engine rejected unknown card names by name",
+    "out-of-scope submissions produced no fabricated legal option",
+    "runner contains no legality reconstruction"
+   ],
+   "gate": "AF03",
+   "name": "RULES_AUTHORITY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "an external PRIORITY decision was reached and answered with an engine-offered option on the shared generic lane",
+    "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions",
+    "XMage binds decisions by decision_id (sha256) and pass by action_id; Forge binds by revision (long) and pass by actor_id; neither accepts the other's shape"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [
+    "no STARTING_PLAYER, MULLIGAN or DRAW decision class beyond PRIORITY was reachable for the other candidate on the shared surface"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "HIDDEN_05",
+    "HIDDEN_06",
+    "HIDDEN_08",
+    "HIDDEN_09",
+    "HIDDEN_11",
+    "HIDDEN_12",
+    "HIDDEN_13",
+    "HIDDEN_19"
+   ],
+   "evidence": [
+    "principal-scoped state read for four seats in a live 4P game",
+    "HIDDEN_INFO_FORGE.json",
+    "native hidden/replay suites green: 217 tests"
+   ],
+   "gate": "AF05",
+   "name": "HIDDEN_INFORMATION",
+   "nonblocking_limitations": [
+    "per-scenario hidden channels (face-down exile, look, controlled-player, shuffle invalidation) are not reachable on the generic surface"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "MICRO_COPY",
+    "MICRO_COSTS",
+    "MICRO_MODES",
+    "MICRO_REPLACEMENT",
+    "MICRO_ZONE_CHANGES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-COMBAT-4"
+   ],
+   "evidence": [
+    "79 of 107 rows PASS under the effective v1.0.6 contract; 7 BLOCKED; 21 UNKNOWN"
+   ],
+   "gate": "AF06",
+   "name": "GENERAL_RULES_CORRECTNESS",
+   "nonblocking_limitations": [
+    "micro-rules mechanisms in constructed mid-game states have no current-boundary execution seam"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "ACTUAL_CARD_FORGE.json",
+    "engine-validated import of a real 100-card Commander deck"
+   ],
+   "gate": "AF07",
+   "name": "ACTUAL_CARD_BEHAVIOR",
+   "nonblocking_limitations": [
+    "the effective 29-card actual-card denominator was not individually executed on this boundary"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-COMBAT-4"
+   ],
+   "evidence": [
+    "cardinality lifecycles at 2P/3P/4P/5P",
+    "START-2 executed under the v1.0.6 successor"
+   ],
+   "gate": "AF08",
+   "name": "MULTIPLAYER_COMMANDER",
+   "nonblocking_limitations": [
+    "mid-game Commander/elimination fixtures need a starting-state injection seam that is unavailable"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "REPLAY_CLEAN_PROCESS"
+   ],
+   "evidence": [
+    "replay export executed in a live game (RNG_REPLAY_FORGE.json)",
+    "native replay/semantic suites green"
+   ],
+   "gate": "AF09",
+   "name": "RNG_REPLAY",
+   "nonblocking_limitations": [
+    "the clean-process twin half of each replay obligation is not proven per fixture"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "denominator accounting complete: 107 explicit outcomes for 107 rows",
+    "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+    "native suites: 217 tests, all green"
+   ],
+   "gate": "AF10",
+   "name": "RUNTIME_EVIDENCE_RELIABILITY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "both candidates run as genuine separate external processes over stdin/stdout JSONL; no engine code is embedded in Lab",
+    "XMage MIT, Forge GPL-3.0 (recorded in the source lock)",
+    "the two candidates publish different request-body conventions (XMage reads payload, Forge reads params) and different decision-identity fields, so one adapter cannot serve both without a shim"
+   ],
+   "gate": "AF11",
+   "name": "INTEROP_LICENSE_TOPOLOGY",
+   "nonblocking_limitations": [
+    "a provider-specific decision-identity shim in the Lab adapter would be required for a single provider-neutral pilot"
+   ],
+   "verdict": "FAIL"
+  }
+ ],
+ "native_runs": {
+  "direct": {
+   "classes": [
+    "WsR20Full107DenominatorTest",
+    "WS233CardinalityTest",
+    "WS227SemanticReplayTest",
+    "WsR15HiddenInfoFamilyTest",
+    "WS234S3BridgeTest",
+    "WS236F4BridgeTest",
+    "WS216GapClosureTest",
+    "WS202ExecutableSurfaceTest",
+    "WS217DividedAllocationTest",
+    "WsR15MulticountCombatTest",
+    "WsR15MulticountTriggerTest",
+    "WsR15DeterminismTwinTest",
+    "WsR15ConcessionFamilyTest",
+    "WsR16SixPlayerFamilyTest",
+    "BridgeEngineTest"
+   ],
+   "errors": 0,
+   "failures": 0,
+   "returncode": 0,
+   "tests": 150
+  },
+  "mechanism": {
+   "classes": [
+    "ProtocolTest",
+    "BridgeProtocolProcessTest",
+    "HeadlessGuiFailClosedTest",
+    "WS216SeparateProcessTest",
+    "WS217SeparateProcessTest",
+    "WS227SeparateProcessTest",
+    "WS233CardinalityProcessTest",
+    "WS202SeparateProcessTest"
+   ],
+   "errors": 0,
+   "failures": 0,
+   "returncode": 0,
+   "tests": 67
+  }
+ },
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af-matrix/1.0.0"
+}

@@ -1,45 +1,102 @@
 {
+ "schema_version": "commander-lab.current-rules-authority-receipt/1.3.0",
+ "authority": "Wizards of the Coast",
+ "verified_date": "2026-09-28",
+ "authority_status": "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED",
+ "official_rules_page_url": "https://magic.wizards.com/en/rules",
+ "current_official_source": {
+  "rules_page_txt_link_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt",
+  "effective_date": "2026-09-25",
+  "document_effective_date_text": "These rules are effective as of September 25, 2026.",
+  "applicable_rule": "103.8a",
+  "semantic_requirement": "In a two-player game, the player who plays first skips the draw step of their first turn.",
+  "rule_103_8a_observed": true,
+  "rule_103_8a_exact_text": "103.8a In a two-player game, the player who plays first skips the draw step (see rule 504, “Draw Step”) of their first turn.",
+  "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL",
+  "byte_exact_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "byte_exact_bytes": 977752,
+  "byte_exact_status": "BYTE_EXACT_CAPTURED"
+ },
+ "semantic_basis_effective_date": "2026-09-25",
+ "byte_identity_claim": true,
+ "freshness_adjudication": {
+  "prior_claimed_newer_effective_date": null,
+  "disposition": "ADOPTED_BY_DIRECT_OFFICIAL_CAPTURE_AND_COORDINATOR_ADJUDICATION",
+  "reason": "Direct official capture plus independent live re-fetch confirm the 2026-09-25 TXT as current. The prior 2026-08-07 receipt is preserved verbatim in the supersedes block, not deleted.",
+  "admission_credit_from_prior_signal": true
+ },
+ "supersedes": {
   "schema_version": "commander-lab.current-rules-authority-receipt/1.2.0",
   "authority": "Wizards of the Coast",
   "verified_date": "2026-09-27",
   "authority_status": "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED",
   "official_rules_page_url": "https://magic.wizards.com/en/rules",
   "current_official_source": {
-    "rules_page_txt_link_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
-    "effective_date": "2026-08-07",
-    "document_effective_date_text": "These rules are effective as of August 7, 2026.",
-    "applicable_rule": "103.8a",
-    "semantic_requirement": "In a two-player game, the player who plays first skips the draw step of their first turn.",
-    "rule_103_8a_observed": true,
-    "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL",
-    "byte_exact_sha256": null,
-    "byte_exact_status": "NOT_CAPTURED_IN_THIS_COORDINATOR_SURFACE"
+   "rules_page_txt_link_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+   "effective_date": "2026-08-07",
+   "document_effective_date_text": "These rules are effective as of August 7, 2026.",
+   "applicable_rule": "103.8a",
+   "semantic_requirement": "In a two-player game, the player who plays first skips the draw step of their first turn.",
+   "rule_103_8a_observed": true,
+   "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL",
+   "byte_exact_sha256": null,
+   "byte_exact_status": "NOT_CAPTURED_IN_THIS_COORDINATOR_SURFACE"
   },
   "freshness_adjudication": {
-    "prior_claimed_newer_effective_date": "2026-09-25",
-    "prior_signal_role": "DISCOVERY_ONLY",
-    "disposition": "REJECTED_BY_HIGHER_AUTHORITY_CURRENT_OFFICIAL_RULES_PAGE",
-    "reason": "On 2026-09-27 the current official Wizards Rules page directly links the 20260807 TXT, whose document states an August 7, 2026 effective date. The prior 2026-09-25 signal is therefore not current Rules authority.",
-    "official_release_bulletin_url": "https://magic.wizards.com/en/news/announcements/reality-fracture-update-bulletin",
-    "bulletin_role": "OFFICIAL_CORROBORATION_ONLY",
-    "admission_credit_from_prior_signal": false
+   "prior_claimed_newer_effective_date": "2026-09-25",
+   "prior_signal_role": "DISCOVERY_ONLY",
+   "disposition": "REJECTED_BY_HIGHER_AUTHORITY_CURRENT_OFFICIAL_RULES_PAGE",
+   "reason": "On 2026-09-27 the current official Wizards Rules page directly links the 20260807 TXT, whose document states an August 7, 2026 effective date. The prior 2026-09-25 signal is therefore not current Rules authority.",
+   "official_release_bulletin_url": "https://magic.wizards.com/en/news/announcements/reality-fracture-update-bulletin",
+   "bulletin_role": "OFFICIAL_CORROBORATION_ONLY",
+   "admission_credit_from_prior_signal": false
   },
-  "reproduction": {
-    "require_current_official_rules_page": true,
-    "require_rules_page_txt_target_match": true,
-    "require_document_effective_date": true,
-    "require_rule_number": "103.8a",
-    "fail_closed_on_source_drift": true,
-    "fail_closed_if_rules_page_target_changes": true,
-    "byte_exact_hash_optional_for_semantic_authority_but_required_for_byte_identity_claim": true
-  },
-  "historical_repository_provenance": {
-    "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
-    "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE",
-    "historical_effective_date": "2026-08-07",
-    "historical_resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
-    "historical_txt_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
-    "semantic_effective_date_matches_current": true,
-    "byte_identity_carry_forward": false
-  }
+  "disposition": "STALE_RECEIPT",
+  "why_wrong": "Its mechanism claim (the official page links the 20260807 TXT) is falsified by direct capture: the live official page links MagicCompRules 20260925.{docx,pdf,txt}, and the live 2026-09-25 TXT opens with the September 25, 2026 effective-date sentence with rule 103.8a character-identical to the adopted capture. It made no byte-exact claim so it could not have detected this.",
+  "superseded_by": "Coordinator adjudication adopting 2026-09-25 (docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md section 2); donor byte-exact capture at 208341c6124674046787f3a4b1d699c98c286a27; independent live re-fetch 2026-09-28 recorded below."
+ },
+ "donor_capture_provenance": {
+  "donor_head": "208341c6124674046787f3a4b1d699c98c286a27",
+  "donor_tree": "d8f6c80aa6674fbb5d55b8c6bee41bbfc569f251",
+  "donor_receipt": "qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json",
+  "retrieval_utc": "2026-09-27T14:05:23Z",
+  "official_txt_bytes": 977752,
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "capture_pipeline_self_validation": "re-captured 2026-08-19 TXT sha256 == AUTHORITY_LOCK_v2 historical_txt_sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f"
+ },
+ "successor_reverification": {
+  "date": "2026-09-28",
+  "lane": "muse-xhigh/full-completion",
+  "page_links_observed": [
+   "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.docx",
+   "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.pdf",
+   "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.txt"
+  ],
+  "effective_date_sentence_observed": "These rules are effective as of September 25, 2026.",
+  "rule_103_8a_match": "character-identical to donor rule_103_8a_exact_text",
+  "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL"
+ },
+ "qualification_relevant_rule_diff_2026_08_19_to_2026_09_25": {
+  "103.8a": "SEMANTIC_DELTA_NONE",
+  "103.8b": "SEMANTIC_DELTA_NONE",
+  "103.8c": "SEMANTIC_DELTA_NONE",
+  "504.1": "SEMANTIC_DELTA_NONE",
+  "800.4a": "SEMANTIC_DELTA_NONE",
+  "800.4j": "SEMANTIC_DELTA_NONE",
+  "508.8": "SEMANTIC_DELTA_NONE",
+  "renumbering_506_7a_g_to_506_8a_g": "PURE_RENUMBERING_TEXT_IDENTICAL",
+  "full107_impact": "FULL107_RUNTIME_EVIDENCE_INVALIDATED_NO_FULL107_BLANKET_RERUN_REQUIRED_NO"
+ },
+ "reproduction": {
+  "step_1": "GET https://magic.wizards.com/en/rules and read the Comprehensive Rules TXT href",
+  "step_2": "GET that href (URL-encode the space) and hash the bytes",
+  "expect_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "expect_bytes": 977752,
+  "step_3": "grep rule 103.8a and compare to current_official_source.rule_103_8a_exact_text",
+  "fail_closed_on_source_drift": true
+ },
+ "terminal_states": {
+  "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+  "PRODUCTION_PROVIDER": "NOT SELECTED"
+ }
 }

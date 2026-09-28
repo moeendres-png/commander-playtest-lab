@@ -1,0 +1,158 @@
+{
+ "XmageCommanderDamageRestorationTest": {
+  "tests": 8,
+  "fixture_ids": [
+   "WS05-CMD-DMG-CONTROL",
+   "WS05-CMD-DMG-SAME-21",
+   "WS05-CMD-DMG-SPLIT",
+   "WS05-CMD-ELIM-4",
+   "WS05-CMD-PARTNER-DMG"
+  ]
+ },
+ "XmageDigestCreditTest": {
+  "tests": 14,
+  "fixture_ids": [
+   "MICRO_LAYERS",
+   "MICRO_TARGETS",
+   "PILOT_CHOOSE_MODE",
+   "WS05-CMD-MULL-2",
+   "WS05-CMD-MULL-4",
+   "WS05-CMD-PARTNER-TAX",
+   "WS05-CMD-PARTNER-ZONE",
+   "WS05-CMD-TAX-2",
+   "WS05-CMD-TAX-2-",
+   "WS05-CMD-TAX-4",
+   "WS05-MP-TRIG-3",
+   "WS05-MP-TRIG-5"
+  ]
+ },
+ "XmageExternalRiskSignalTest": {
+  "tests": 4,
+  "fixture_ids": [
+   "MICRO_LAYERS",
+   "PILOT_CHOOSE_MODE"
+  ]
+ },
+ "XmageFull107ResidualRequalificationTest": {
+  "tests": 3,
+  "fixture_ids": [
+   "WS05-CMD-DMG-SPLIT",
+   "WS05-CMD-PARTNER-DMG",
+   "WS05-CMD-START-3"
+  ]
+ },
+ "XmageFullGameCandidateDomainTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "MICRO_TARGETS"
+  ]
+ },
+ "XmageFullGameCard02ExecutionTest": {
+  "tests": 1,
+  "fixture_ids": [
+   "CARD_02"
+  ]
+ },
+ "XmageFullGameConcedeActionTest": {
+  "tests": 5,
+  "fixture_ids": [
+   "PILOT_RESPONSE_INVALID"
+  ]
+ },
+ "XmageFullGameDecisionExecutionTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "NEGATIVE_FIRST_OPTION",
+   "PILOT_CHOOSE_MODE"
+  ]
+ },
+ "XmageFullGameElimExecutionTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "WS05-MP-ELIM-5",
+   "WS05-MP-ELIM-OWNED-3"
+  ]
+ },
+ "XmageFullGameMicroExecutionTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "MICRO_LAYERS",
+   "MICRO_TARGETS"
+  ]
+ },
+ "XmageFullGameNameCanaryTest": {
+  "tests": 4,
+  "fixture_ids": [
+   "PILOT_RESPONSE_INVALID"
+  ]
+ },
+ "XmageFullGamePartnerExecutionTest": {
+  "tests": 6,
+  "fixture_ids": [
+   "WS05-CMD-PARTNER-TAX",
+   "WS05-CMD-PARTNER-TAX-",
+   "WS05-CMD-PARTNER-ZONE"
+  ]
+ },
+ "XmageFullGamePlayerBoundaryTest": {
+  "tests": 4,
+  "fixture_ids": [
+   "PILOT_RESPONSE_INVALID"
+  ]
+ },
+ "XmageFullGameStart2ExecutionTest": {
+  "tests": 1,
+  "fixture_ids": [
+   "WS05-CMD-START-2"
+  ]
+ },
+ "XmageFullGameTaxExecutionTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "WS05-CMD-TAX-2",
+   "WS05-CMD-TAX-4"
+  ]
+ },
+ "XmageFullGameTrigExecutionTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "WS05-MP-TRIG-3",
+   "WS05-MP-TRIG-5"
+  ]
+ },
+ "XmageFullGameWs05MulliganTest": {
+  "tests": 2,
+  "fixture_ids": [
+   "WS05-CMD-MULL-2",
+   "WS05-CMD-MULL-4"
+  ]
+ },
+ "XmageHiddenReplayIntegrationTest": {
+  "tests": 9,
+  "fixture_ids": [
+   "HIDDEN_02"
+  ]
+ },
+ "XmageNativeStateRestorationTest": {
+  "tests": 20,
+  "fixture_ids": [
+   "CARD_02",
+   "MICRO_LAYERS",
+   "WS05-CMD-MULL-2-",
+   "WS05-CMD-PARTNER-TAX",
+   "WS05-CMD-TAX-2",
+   "WS05-CMD-ZONE-LIB-YES",
+   "WS05-MP-ELIM-OWNED-3",
+   "WS05-MP-TRIG-3"
+  ]
+ },
+ "XmageTemporalProgressionDriverTest": {
+  "tests": 7,
+  "fixture_ids": [
+   "PILOT_DECLARE_ATTACKER",
+   "PILOT_DECLARE_BLOCKER",
+   "WS05-CMD-START-2",
+   "WS05-MP-TURN-3"
+  ]
+ }
+}

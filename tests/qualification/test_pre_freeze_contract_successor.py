@@ -310,24 +310,36 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
 def test_current_rules_authority_binds_current_official_rules_page() -> None:
     receipt = _json(RULES_AUTHORITY_PATH)
     successor = _json(SUCCESSOR_PATH)
+    # Subject legitimately changed per the binding Coordinator adjudication
+    # (adopt 2026-09-25; prior 1.2.0 receipt is STALE_RECEIPT, preserved in
+    # the supersedes block, never deleted).
+    assert receipt["schema_version"] == "commander-lab.current-rules-authority-receipt/1.3.0"
     assert receipt["authority"] == "Wizards of the Coast"
     assert receipt["authority_status"] == "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED"
     source = receipt["current_official_source"]
-    assert source["rules_page_txt_link_url"].endswith("MagicCompRules%2020260807.txt")
-    assert source["effective_date"] == "2026-08-07"
+    assert source["rules_page_txt_link_url"].endswith("MagicCompRules%2020260925.txt")
+    assert source["effective_date"] == "2026-09-25"
     assert source["rule_103_8a_observed"] is True
-    assert source["byte_exact_sha256"] is None
-    assert source["byte_exact_status"] == "NOT_CAPTURED_IN_THIS_COORDINATOR_SURFACE"
+    assert source["byte_exact_sha256"] == "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+    assert source["byte_exact_bytes"] == 977752
+    assert source["byte_exact_status"] == "BYTE_EXACT_CAPTURED"
+    assert receipt["semantic_basis_effective_date"] == "2026-09-25"
+    assert receipt["byte_identity_claim"] is True
+    assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
 
-    freshness = receipt["freshness_adjudication"]
-    assert freshness["prior_claimed_newer_effective_date"] == "2026-09-25"
-    assert freshness["disposition"] == "REJECTED_BY_HIGHER_AUTHORITY_CURRENT_OFFICIAL_RULES_PAGE"
-    assert freshness["admission_credit_from_prior_signal"] is False
-    assert receipt["reproduction"]["fail_closed_if_rules_page_target_changes"] is True
+    superseded = receipt["supersedes"]
+    assert superseded["schema_version"] == "commander-lab.current-rules-authority-receipt/1.2.0"
+    assert superseded["current_official_source"]["effective_date"] == "2026-08-07"
+    assert superseded["disposition"] == "STALE_RECEIPT"
 
     assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
-    assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-08-07"
-    assert successor["rules_authority"]["byte_identity_claim"] is False
+    # The successor contract blob is intentionally unchanged: only its external
+    # citation date is superseded, and the replacement bytes confirm its
+    # semantics (semantic_delta NONE). Guard its semantic requirement verbatim.
+    assert successor["rules_authority"]["requirement"] == (
+        "In a two-player game, the starting player skips the entire draw step of the first turn; "
+        "the successor fixture must not require priority or any observation inside that skipped step."
+    )
     assert successor["rules_authority"]["freshness_conflict_resolved"] == "2026-09-27"
 
 
