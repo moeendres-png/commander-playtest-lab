@@ -326,3 +326,32 @@ still requires a pinned Lab runtime rerun after the successor line carries this 
   https://github.com/moeendres-png/forge/pull/6#issuecomment-5880329119
 - Donor status: `REUSE / INTEGRATED_ELSEWHERE`; no duplicate implementation. PB-07 Lab credit
   remains **0/29** pending the pinned Lab rerun.
+
+---
+
+## Refresh 2026-09-29 (post-#291) + PR #6 adversarial verification
+
+- Canonical Lab main advanced to `afe09c61` (tree `0d5b3f0d`) via PR #291 (Muse salvage / PB-03
+  admission). No overlap with these audit docs; `origin/main` merged into the audit branch (`369408b9`).
+  New open: #292 (Muse PB-03, NON_OVERLAPPING); #289 advanced to `0d010fe1`.
+- **DS-07 confirmed in canonical CI**: Forge PR #6 Java 17/21 runs fail with exactly
+  `WsR24Pb07MechanicProbesTest.testFindAndAftermath -> unexpected COPY_CHOICE for p1`. The bridge CI
+  suite is 301 tests with 1 failure; the desktop suite is 456 tests, 0 failures, 6 skipped. The
+  validated 13-line `answerCommon` repair makes the class 16/16.
+- **DS-08 (new P1)**: PR #6 changes the Rules Core engine tree (`forge-game/.../Card.java`, +24).
+  The Lab's own `verify_engine_identity(ef958 -> 6f70e32e810)` raises
+  `CANDIDATE_IDENTITY_DIVERGENCE` with `differing=['forge-game']`. The bridge-only descendant
+  equivalence no longer holds; Lab native/engine evidence and the `FORGE_CANDIDATE_COMMIT` binding
+  must be re-bound to the PR #6 engine tree and impact-adjudicated.
+- **Collateral of the alternate-split enumeration**: only two of the 29 corpus cards are split —
+  `Wear // Tear` (Split/Fuse) and `Find // Finality` (Split/Aftermath); Boseiju is
+  `AlternateMode:DoubleFaced` and unaffected. `WsR11FuseBridgeFamilyTest` + `WsR11BoseijuBridgeFamilyTest`
+  are 6/6 green at the PR #6 head (fused cast destroys both types; Wear-half alone; short-mana fused
+  fails closed at payment decline). The desktop suite (including AI/simulation split-card tests) is
+  green at that head.
+- **PB-07 inheritance matrix at PR #6 head** (`6f70e32e810`): 11 rows are candidate-side inheritable
+  because their committed test classes re-ran in the PR #6 bridge/desktop CI at the new head;
+  16 rows rest on ad-hoc `probe:` evidence and must be freshly executed; 2 rows are split-surface
+  requalifications (`Wear // Tear` green, `Find // Finality` green after the harness repair).
+  **All 29 rows still require the pinned Lab current-boundary rerun for Lab credit** — no 29/29
+  promotion from Forge unit tests.
