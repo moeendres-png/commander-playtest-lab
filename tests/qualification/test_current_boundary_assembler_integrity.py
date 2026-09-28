@@ -40,9 +40,23 @@ def _module_constants(path: Path) -> dict[str, object]:
 
 
 def test_hard_coded_native_runs_literal_is_gone() -> None:
-    """NATIVE_RUNS was a hand-written literal the assembler consumed as evidence."""
-    assert "NATIVE_RUNS" not in _module_constants(ASSEMBLER)
-    assert "NATIVE_RUNS" not in _source(ASSEMBLER)
+    """NATIVE_RUNS was a hand-written literal the assembler consumed as evidence.
+
+    The name may still appear in a comment recording that it was retired, so the
+    guard is on the constant existing at all: it must not be assigned anywhere,
+    and no name containing it may be defined.
+    """
+    assert "NATIVE_RUNS" not in _module_constants(ASSEMBLER), (
+        "the NATIVE_RUNS literal must not exist as a module constant"
+    )
+    tree = ast.parse(_source(ASSEMBLER))
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            assert "NATIVE_RUNS" not in node.name, f"{node.name} reintroduces the retired literal"
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    assert "NATIVE_RUNS" not in target.id, target.id
 
 
 def test_assembler_never_reads_test_source_for_fixture_ids() -> None:

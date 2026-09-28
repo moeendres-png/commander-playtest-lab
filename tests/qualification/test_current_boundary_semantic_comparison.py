@@ -40,11 +40,11 @@ def test_identical_observations_are_same_semantics() -> None:
     assert result["equal"] is True
 
 
-def test_a_different_event_sequence_is_a_difference_not_an_equality() -> None:
+def test_a_different_event_sequence_is_a_visible_divergence() -> None:
     other = dict(BASE)
     other["semantic_events"] = ["draw_step_exposed:P1"]
     result = compare_semantics(_row(BASE), _row(other))
-    assert result["disposition"] == "SEMANTIC_DIFFERENCE"
+    assert result["disposition"] == "RULES_VISIBLE_DIVERGENCE"
     assert result["equal"] is False
     assert "semantic_events" in result["differing_keys"]
 
@@ -53,27 +53,30 @@ def test_a_different_zone_count_is_a_difference() -> None:
     other = dict(BASE)
     other["observed_actor_zone_counts"] = [{"hand_count": 7, "library_count": 91}]
     result = compare_semantics(_row(BASE), _row(other))
-    assert result["disposition"] == "SEMANTIC_DIFFERENCE"
+    assert result["disposition"] == "RULES_VISIBLE_DIVERGENCE"
     assert "observed_actor_zone_counts" in result["differing_keys"]
 
 
 def test_a_missing_event_on_one_side_is_a_difference() -> None:
     other = {k: v for k, v in BASE.items() if k != "priority_reached"}
     result = compare_semantics(_row(BASE), _row(other))
-    assert result["disposition"] == "SEMANTIC_DIFFERENCE"
+    assert result["disposition"] == "RULES_VISIBLE_DIVERGENCE"
 
 
-def test_no_semantic_evidence_yields_unknown_not_equality() -> None:
-    """PASS with nothing observed cannot establish semantic equality."""
+def test_no_semantic_evidence_is_not_comparable() -> None:
+    """PASS with nothing observed cannot establish semantic equality.
+
+    An evidence gap is NON_COMPARABLE, never a tie and never SAME_SEMANTICS.
+    """
     result = compare_semantics(_row({}), _row(dict(BASE)))
-    assert result["disposition"] == "UNKNOWN_NO_COMPARABLE_EVIDENCE"
+    assert result["disposition"] == "NON_COMPARABLE"
     assert result["equal"] is None
     assert "left" in result["reason"]
 
 
-def test_both_sides_empty_yields_unknown() -> None:
+def test_both_sides_empty_yields_non_comparable() -> None:
     result = compare_semantics(_row({}), _row({}))
-    assert result["disposition"] == "UNKNOWN_NO_COMPARABLE_EVIDENCE"
+    assert result["disposition"] == "NON_COMPARABLE"
     assert "evidence" in result["reason"]
 
 
@@ -117,7 +120,7 @@ def test_non_mapping_evidence_is_handled() -> None:
 def test_assembler_calls_the_semantic_comparison() -> None:
     source = ASSEMBLER.read_text(encoding="utf-8")
     assert "compare_semantics" in source
-    assert "SEMANTIC_DIFFERENCE" in source
+    assert "RULES_VISIBLE_DIVERGENCE" in source
     # And the old label-only branch must be gone.
     assert (
         'if xr["exit_state"] == fr["exit_state"] == "PASS":\n            disposition = "SAME_SEMANTICS"'

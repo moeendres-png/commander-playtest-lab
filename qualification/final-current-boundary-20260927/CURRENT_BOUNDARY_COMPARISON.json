@@ -1,8 +1,7 @@
 {
  "denominator": 107,
  "dispositions": {
-  "NON_COMPARABLE": 103,
-  "UNKNOWN_NO_COMPARABLE_EVIDENCE": 4
+  "NON_COMPARABLE": 107
  },
  "no_ranking": "this packet contains no score, no ranking and no preferred provider",
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
@@ -1434,7 +1433,7 @@
    }
   },
   {
-   "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1451,7 +1450,7 @@
    },
    "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
    "semantic_comparison": {
-    "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+    "disposition": "NON_COMPARABLE",
     "equal": null,
     "left": {
      "present": false
@@ -1468,7 +1467,7 @@
    }
   },
   {
-   "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1485,7 +1484,7 @@
    },
    "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
    "semantic_comparison": {
-    "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+    "disposition": "NON_COMPARABLE",
     "equal": null,
     "left": {
      "present": false
@@ -1502,7 +1501,7 @@
    }
   },
   {
-   "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1519,7 +1518,7 @@
    },
    "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
    "semantic_comparison": {
-    "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+    "disposition": "NON_COMPARABLE",
     "equal": null,
     "left": {
      "present": false
@@ -1536,7 +1535,7 @@
    }
   },
   {
-   "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1553,7 +1552,7 @@
    },
    "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
    "semantic_comparison": {
-    "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+    "disposition": "NON_COMPARABLE",
     "equal": null,
     "left": {
      "present": false

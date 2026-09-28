@@ -71,9 +71,10 @@ def test_porcelain_reader_splits_lines_without_stripping_them() -> None:
     import inspect
 
     source = inspect.getsource(R._git_porcelain)
-    assert "splitlines()" in source
+    assert "proc.stdout.splitlines()" in source
     assert "proc.stdout.strip()" not in source
-    assert "return proc.stdout" in source
+    # The filter may inspect each line, but must never rewrite it.
+    assert "line.strip() for line in" not in source
 
 
 def test_run_output_exclusion_is_recorded_not_silent() -> None:

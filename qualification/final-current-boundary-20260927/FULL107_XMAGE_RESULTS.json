@@ -12,48 +12,51 @@
  "evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION",
  "native_promotions": 0,
  "native_runs": {
-  "absent_receipts_yield_no_credit": true,
-  "errors": 0,
-  "failed": 0,
-  "groups": [
-   {
-    "candidate": "xmage",
-    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
-    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
-    "errors": 0,
-    "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
-    "failed": 0,
-    "group": "direct",
-    "passed": 34,
-    "receipt_digest": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
-    "returncode": 0,
-    "tests": 34
-   },
-   {
-    "candidate": "xmage",
-    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
-    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
-    "errors": 0,
-    "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
-    "failed": 0,
-    "group": "mechanism",
-    "passed": 135,
-    "receipt_digest": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223",
-    "returncode": 0,
-    "tests": 135
-   }
-  ],
-  "groups_credited": [
-   "xmage:direct",
-   "xmage:mechanism"
-  ],
-  "passed": 169,
-  "receipt_digests": {
-   "xmage:direct": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
-   "xmage:mechanism": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223"
+  "direct": {
+   "candidate": "xmage",
+   "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+   "failed": 0,
+   "failures": 0,
+   "passed": 34,
+   "receipt_digest": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
+   "returncode": 0,
+   "tests": 34
   },
+  "mechanism": {
+   "candidate": "xmage",
+   "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+   "failed": 0,
+   "failures": 0,
+   "passed": 135,
+   "receipt_digest": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223",
+   "returncode": 0,
+   "tests": 135
+  }
+ },
+ "native_runs_provenance": {
+  "absent_receipts_yield_no_credit": true,
+  "expected_engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
   "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
-  "tests": 169
+  "summary": {
+   "errors": 0,
+   "failed": 0,
+   "groups_credited": [
+    "xmage:direct",
+    "xmage:mechanism"
+   ],
+   "passed": 169,
+   "receipt_digests": {
+    "xmage:direct": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
+    "xmage:mechanism": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223"
+   },
+   "tests": 169
+  }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "rows": [

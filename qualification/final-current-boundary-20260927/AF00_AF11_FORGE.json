@@ -215,7 +215,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_FORGE.json",
-    "native hidden/replay suites green: 217 tests"
+    "native hidden/replay suites green: 0 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -359,7 +359,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 217 tests, all green"
+    "native suites: 0 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -382,48 +382,32 @@
   }
  ],
  "native_runs": {
-  "absent_receipts_yield_no_credit": true,
-  "errors": 0,
-  "failed": 0,
-  "groups": [
-   {
-    "candidate": "forge",
-    "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-    "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
-    "errors": 0,
-    "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
-    "failed": 0,
-    "group": "direct",
-    "passed": 150,
-    "receipt_digest": "f663fce87c7de72a5e9efa3bfcd804db280354270fec3bac05f4d177f399d536",
-    "returncode": 0,
-    "tests": 150
-   },
-   {
-    "candidate": "forge",
-    "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-    "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
-    "errors": 0,
-    "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
-    "failed": 0,
-    "group": "mechanism",
-    "passed": 67,
-    "receipt_digest": "c847911edd679ff0aec3f534338ed103e213fc9c4e361ea905bd1c9e336b485d",
-    "returncode": 0,
-    "tests": 67
-   }
-  ],
-  "groups_credited": [
-   "forge:direct",
-   "forge:mechanism"
-  ],
-  "passed": 217,
-  "receipt_digests": {
-   "forge:direct": "f663fce87c7de72a5e9efa3bfcd804db280354270fec3bac05f4d177f399d536",
-   "forge:mechanism": "c847911edd679ff0aec3f534338ed103e213fc9c4e361ea905bd1c9e336b485d"
+  "direct": {
+   "candidate": "forge",
+   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+   "errors": 0,
+   "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+   "failed": 0,
+   "failures": 0,
+   "passed": 150,
+   "receipt_digest": "f663fce87c7de72a5e9efa3bfcd804db280354270fec3bac05f4d177f399d536",
+   "returncode": 0,
+   "tests": 150
   },
-  "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
-  "tests": 217
+  "mechanism": {
+   "candidate": "forge",
+   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+   "errors": 0,
+   "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+   "failed": 0,
+   "failures": 0,
+   "passed": 67,
+   "receipt_digest": "c847911edd679ff0aec3f534338ed103e213fc9c4e361ea905bd1c9e336b485d",
+   "returncode": 0,
+   "tests": 67
+  }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af-matrix/1.0.0"

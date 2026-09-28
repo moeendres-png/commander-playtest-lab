@@ -213,7 +213,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_XMAGE.json",
-    "native hidden/replay suites green: 169 tests"
+    "native hidden/replay suites green: 0 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -357,7 +357,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 169 tests, all green"
+    "native suites: 0 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -380,48 +380,32 @@
   }
  ],
  "native_runs": {
-  "absent_receipts_yield_no_credit": true,
-  "errors": 0,
-  "failed": 0,
-  "groups": [
-   {
-    "candidate": "xmage",
-    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
-    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
-    "errors": 0,
-    "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
-    "failed": 0,
-    "group": "direct",
-    "passed": 34,
-    "receipt_digest": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
-    "returncode": 0,
-    "tests": 34
-   },
-   {
-    "candidate": "xmage",
-    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
-    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
-    "errors": 0,
-    "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
-    "failed": 0,
-    "group": "mechanism",
-    "passed": 135,
-    "receipt_digest": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223",
-    "returncode": 0,
-    "tests": 135
-   }
-  ],
-  "groups_credited": [
-   "xmage:direct",
-   "xmage:mechanism"
-  ],
-  "passed": 169,
-  "receipt_digests": {
-   "xmage:direct": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
-   "xmage:mechanism": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223"
+  "direct": {
+   "candidate": "xmage",
+   "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+   "failed": 0,
+   "failures": 0,
+   "passed": 34,
+   "receipt_digest": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
+   "returncode": 0,
+   "tests": 34
   },
-  "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
-  "tests": 169
+  "mechanism": {
+   "candidate": "xmage",
+   "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+   "failed": 0,
+   "failures": 0,
+   "passed": 135,
+   "receipt_digest": "407cbf72fe9699ccd6dfacbb43b84aaee2cbaf71343ec74bbc8b105b87ada223",
+   "returncode": 0,
+   "tests": 135
+  }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af-matrix/1.0.0"

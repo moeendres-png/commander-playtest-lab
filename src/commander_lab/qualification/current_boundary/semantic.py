@@ -169,12 +169,17 @@ def compare_semantics(left: dict[str, Any], right: dict[str, Any]) -> dict[str, 
     ``SAME_SEMANTICS``
         Both sides recorded semantic evidence and the normalized observations are
         byte-identical after removing candidate-specific identity.
-    ``SEMANTIC_DIFFERENCE``
-        Both sides recorded evidence and it differs. This needs Rules
-        adjudication; it is not a pass and not a tie.
-    ``UNKNOWN_NO_COMPARABLE_EVIDENCE``
+    ``RULES_VISIBLE_DIVERGENCE``
+        Both sides recorded evidence and it differs. The two engines are
+        observably doing different things, which is a Rules-visible divergence
+        needing adjudication, not a pass and not a tie.
+    ``NON_COMPARABLE``
         At least one side recorded no semantic evidence, so equality cannot be
-        established. This is an evidence gap.
+        established. This is an evidence gap, never a tie.
+
+    These are the project's established comparison dispositions; introducing new
+    names would make the comparison unreadable to every consumer that already
+    validates this vocabulary.
     """
     left_signature = semantic_signature(left)
     right_signature = semantic_signature(right)
@@ -182,7 +187,7 @@ def compare_semantics(left: dict[str, Any], right: dict[str, Any]) -> dict[str, 
     if not left_signature["present"] or not right_signature["present"]:
         missing = "left" if not left_signature["present"] else "right"
         return {
-            "disposition": "UNKNOWN_NO_COMPARABLE_EVIDENCE",
+            "disposition": "NON_COMPARABLE",
             "equal": None,
             "left": {"present": left_signature["present"]},
             "right": {"present": right_signature["present"]},
@@ -200,7 +205,7 @@ def compare_semantics(left: dict[str, Any], right: dict[str, Any]) -> dict[str, 
         != json.dumps(right_signature["normalized"].get(key), sort_keys=True, default=str)
     )
     return {
-        "disposition": "SAME_SEMANTICS" if equal else "SEMANTIC_DIFFERENCE",
+        "disposition": "SAME_SEMANTICS" if equal else "RULES_VISIBLE_DIVERGENCE",
         "equal": equal,
         "left_digest": left_signature["digest"],
         "right_digest": right_signature["digest"],
