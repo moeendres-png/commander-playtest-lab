@@ -73,7 +73,6 @@ def main() -> None:
     timeout_seconds = _timeout_from_environment("XMAGE_B4F_REQUEST_TIMEOUT_SECONDS", 30.0)
     adapter = ExternalRulesAdapter(
         RulesBackend.XMAGE,
-        cwd=ROOT,
         request_timeout_seconds=timeout_seconds,
     )
     evidence: dict[str, object] = {

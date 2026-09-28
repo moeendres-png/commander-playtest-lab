@@ -35,7 +35,12 @@ from commander_lab.models import (
     ValidationLevel,
 )
 
-from .base import RulesEngineAdapter, RulesEngineProtocolError, RulesEngineUnavailable
+from .base import (
+    RulesEngineAdapter,
+    RulesEngineProtocolError,
+    RulesEngineUnavailable,
+    resolve_engine_working_directory,
+)
 
 _BACKEND_ENV = {
     RulesBackend.FORGE: "COMMANDER_LAB_FORGE_BRIDGE_CMD",
@@ -67,6 +72,11 @@ class JsonLineBridgeClient:
             raise ValueError("bridge command must not be empty")
         self.command = command
         self.cwd = None if cwd is None else str(cwd)
+        # An unset cwd must not inherit the caller's directory: the engine writes
+        # its own runtime state (XMage's H2 card repository) relative to the
+        # process working directory, which would land that state in the Git
+        # worktree. Resolve the shared runtime state directory instead.
+        self.cwd = resolve_engine_working_directory(self.cwd)
         self.startup_timeout_seconds = startup_timeout_seconds
         self.request_timeout_seconds = request_timeout_seconds
         self.engine = engine

@@ -4,12 +4,11 @@ worktree: /home/moeen/code/csn-final-bakeoff/space-bunny/lab
 branch: sbmax/full-completion
 audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
 audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
-state_written_against_head: e91819ae18166a9f91ca52d101a72c8cb8eddade
-validated_head: null
+state_written_against_head: 58c1c24400b66ea3d70e49d80bfa6ab7e19040da
+validated_head: 58c1c24400b66ea3d70e49d80bfa6ab7e19040da
 objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification,
   remediation, freeze readiness, production implementation, real full games, replay,
-  hidden information, multiplayer, batch execution, cross-model review, and operational
-  completion.'
+  hidden information, multiplayer, batch execution, and operational completion.'
 in_scope:
 - full technically achievable Commander Simulator Next completion campaign
 out_of_scope:
@@ -17,5 +16,219 @@ out_of_scope:
 - Architecture Freeze decision by the executor
 ownership: final-completion-space-bunny-max
 status: ACTIVE
-exact_next_action: Read the campaign contract, reconcile fresh source truth, build
-  the live dependency graph, and execute the highest-value critical path.
+
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: max
+
+hard_gates:
+- 'Rules Core is the sole Magic legality and Rules-semantics authority; no second hidden
+  Rules Engine in any pilot, adapter, harness, replay or qualification helper.'
+- 'Unsupported production-reachable paths fail closed. No first-option, random, default
+  yes/no, silent skip, parent-class fallback, or requested-option legality reconstruction.'
+- 'Hidden information is principal-scoped in observations, errors, logs, evidence and replay.'
+- 'All Rules randomness originates in the Rules Core with explicit seed authority.'
+- 'Evidence is classified; UNKNOWN != PASS, PARTIAL != FULL, NOT_RUN != PASS, CODE_DERIVED
+  != RUNTIME_VERIFIED.'
+- 'No test, denominator, assertion, immutable materialization or expected semantics is
+  weakened to obtain green.'
+- 'PRODUCTION_PROVIDER selection and ARCHITECTURE_FREEZE are Coordinator decisions and are
+  never claimed by this executor.'
+
+forbidden_shortcuts:
+- 'Rebuilding a general Rules Core instead of qualifying the pinned engine.'
+- 'Editing config/rules_engines.json to make evidence consistent (would launder a Lab
+  Rules-Core fork into a provider pin).'
+- 'Editing an executed commit into any provenance or evidence field.'
+- 'Promoting one candidate PASS to fill the other candidate UNKNOWN.'
+- 'Reading a modeled projection as an executed result.'
+- 'Mutating canonical data or weakening the stale-canonical-input guard to get green.'
+
+dependencies:
+- 'ENV: lock-faithful venv at <repo>/.venv (pip --require-hashes -r requirements/lock.txt,
+  plus pip install -e . --no-deps). Required before ANY test or evidence run.'
+- 'ENV: CLEAN TRACKED TREE required to run the suite. tools/service.py rejects canonical
+  inputs when tracked_worktree_dirty and yields ~52 spurious failures.'
+- 'ENGINE: org.mage:mage:1.4.61 must be built from the exact pin b1959698, not from the
+  mage worktree HEAD. Build the engine tree with MAVEN_OPTS=-Djava.io.tmpdir=<writable>,
+  because /tmp is read-only in the Foundry sandbox.'
+- 'BRIDGE: engine-bridge mvn package produces the shaded xmage-engine-bridge jar consumed via
+  COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD (absolute jar path).'
+- 'PB-09 depends on a Coordinator decision and therefore does NOT gate executable work.'
+
+files_modified:
+- '.env.example'
+- 'src/commander_lab/engine/rules/base.py'
+- 'src/commander_lab/engine/rules/bridge.py'
+- 'src/commander_lab/engine/rules/full_game.py'
+- 'tests/architecture/test_engine_runtime_state_isolation.py'
+- 'tests/foundry/test_launcher.py'
+- 'tools/foundry/launcher.py'
+- 'scripts/run_external_b3_regression.py'
+- 'scripts/run_external_b4a_regression.py'
+- 'scripts/run_external_b4b_regression.py'
+- 'scripts/run_external_b4c_regression.py'
+- 'scripts/run_external_b4d_regression.py'
+- 'scripts/run_external_b4f_capability_closeout.py'
+- 'scripts/run_external_b4f_illegal_action_regression.py'
+- 'scripts/run_external_b4f_provider_pin_validation.py'
+- 'scripts/run_external_full_game_conformance.py'
+- 'scripts/run_real_4p_full_game_smoke.py'
+- 'scripts/run_real_deck_gate.py'
+
+tests_run:
+- 'pytest -q (full suite): 1699 passed / 1 failed / 5 skipped on the clean audit base; the
+  single failure was FOUNDRY-01 and is now repaired.'
+- 'pytest -q tests/foundry/test_launcher.py: 101 passed; the 5 new nested-launch tests were
+  verified FAILING with the repair reverted, so they discriminate.'
+- 'pytest -q tests/architecture/test_engine_runtime_state_isolation.py: 6 passed.'
+- 'ruff check .: clean. ruff format --check .: 999 files already formatted.'
+- 'mypy src/commander_lab: Success, no issues found in 263 source files.'
+- 'mvn -DskipTests install on the extracted pin b1959698: BUILD SUCCESS.'
+- 'mvn -DskipTests package in engine-bridge: BUILD SUCCESS.'
+- 'scripts/run_real_4p_full_game_smoke.py --smoke-decisions 40: status PASS, 40 decisions.'
+
+evidence:
+- 'DIRECTLY_VERIFIED: pinned xmage b1959698 rebuilt from the exact git archive; all 34
+  org.mage artifact sha256 values differ from the pre-existing ~/.m2 set, proving the prior
+  local install was NOT the pin. CI is unaffected because it checks out the pin and verifies
+  HEAD before every build.'
+- 'DIRECTLY_VERIFIED: canonical xmage pin b1959698 is NOT an ancestor of origin/master and
+  NOT an ancestor of the campaign mage worktree HEAD 2312a666; it exists only on
+  origin/sol/rg06-hidden-state-restore-20260924 and origin/sol/rg06b-restored-morph-ability-suppression-20260926.
+  pin..HEAD diverges by 90 src/main/java files (365 insertions, 1729 deletions) including
+  deleted CommanderPlaysCountState/CommanderPlaysCountWatcher.'
+- 'DIRECTLY_VERIFIED (runtime): real 4P bounded smoke at the true pin — 4 real 100-card
+  decks imported by XMage, 40 external-pilot decisions, decision classes
+  [choose_object, mulligan, target, priority], clean shutdown, xmage_commit b1959698.'
+- 'DIRECTLY_VERIFIED: engine runtime state no longer lands in the Git worktree; after the
+  repair `db/` does not appear in the worktree and engine state is in gitignored
+  .runtime/engine/db.'
+- 'CODE_DERIVED: src/commander_lab/qualification/ does not exist on this lineage. The whole
+  107-row current-boundary executor and all 107x2 runtime evidence exist only on unmerged
+  WSR22 branches, so AF06/AF07/AF08/AF09 cannot currently be recomputed.'
+- 'CODE_DERIVED: nothing consumes the bridge dimension manifest at
+  XmageNativeStateRestoration.java:1026-1065, so the PB-03 admission fix is unimplemented
+  even on its own branch and 33 XMage rows remain BLOCKED on a MODELED projection.'
+
+artifacts:
+- '.foundry/FINAL_COMPLETION_STATE.yaml'
+- 'artifacts/xmage-full-game/REAL_4P_PREFLIGHT.json (generated, untracked)'
+- 'artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json (generated, untracked)'
+
+technical_decisions:
+- id: EXEC-IDENTITY
+  decision: >-
+    Accept built-in explore/general as the conformant Space Bunny MAX child path and fail
+    closed on the two committed Muse XHIGH subagent roles.
+  reasoning: >-
+    .opencode/agents/foundry-adjudicator.md and foundry-reviewer.md are pinned to
+    opencode-go/muse-spark-1.3-contributor at xhigh. The campaign contract forbids invoking
+    Muse, and requires every child to remain Space Bunny MAX. Built-in agents inherit the
+    session model, which launch-context.json confirms is space-bunny-free at
+    variant_resolution=native_max. No child can therefore run below MAX or on another model.
+  rejected_alternative: invoking the committed Muse roles because they are the natural
+    review roles; rejected as a direct contract violation.
+- id: PB09-ORDERING
+  decision: >-
+    REVERSE the recorded ordering "PB-09 before PB-03" for execution purposes. Execute
+    PB-03, the capability gap and terminal-state reachability first; prepare PB-09 only as
+    Coordinator decision input.
+  reasoning: >-
+    PB09_FORGE_CANDIDATE_IDENTITY.md section 6 states the open question is which artifact is
+    the Forge candidate for Architecture Freeze, and that the Coordinator owns provider and
+    candidate identity. This executor cannot resolve it, so it cannot gate executable work.
+    It invalidates the Forge column of a cross-candidate comparison, not primary-engine
+    progress. The admissible half that IS executable without the decision is to re-execute
+    the Forge column at pinned upstream a37a865a with pinned bridge 4753bb7c, which is
+    evidence generation, not selection. PB-03 is entirely Lab-owned, needs no reserved
+    authority, and its designed fix is unimplemented even on its own branch.
+  contract_basis: 'Workstream contract section 13 explicitly requires revalidating this ordering.'
+- id: ENGINE-CWD
+  decision: >-
+    Resolve the external engine process working directory to a single shared, configurable,
+    absolute runtime-state directory (.runtime/engine by default, ENGINE_RUNTIME_DIRECTORY
+    to override) instead of inheriting the caller CWD; remove all 13 engine-lane cwd=ROOT
+    pins; honour an explicit cwd; fail closed if the directory cannot be created.
+  reasoning: >-
+    XMage hardcodes jdbc:h2:file:./db/cards.h2 relative to the process CWD, so the first real
+    game wrote a ~254MB untracked database into the Git worktree. .env.example already
+    declares the intended policy ("Mutable engine state and bridge logs are local runtime
+    data" at .runtime/engine), so the code contradicted its own declared policy. An absolute
+    pinned path removes the CWD coupling entirely rather than only moving the default.
+  classification_of_defect: RUNTIME pollution of the Git worktree by the production run path.
+
+hypotheses_rejected:
+- 'REJECTED: "the pre-existing ~/.m2 org.mage 1.4.61 is the pinned engine because the version
+  matches." Refuted by rebuilding from the pin: all 34 artifact hashes changed. Version
+  equality is not identity equality; this is exactly the PB-09 reasoning error applied to
+  XMage locally.'
+- 'REJECTED: "the mage worktree HEAD can be built as the canonical pinned engine." Refuted:
+  the pin is not an ancestor of HEAD and the trees diverge by 90 engine source files.'
+- 'REJECTED: "the 52 full-suite failures after editing were caused by the edits." Refuted:
+  they are the documented stale-canonical-input guard, which rejects canonical inputs when
+  tracked_worktree_dirty. Confirmed by reading tools/service.py:752 and by re-running on a
+  committed clean tree.'
+- 'REJECTED: "the untracked 254MB db/ directory breaks the test suite." Refuted: the guard
+  tests TRACKED dirtiness only. The harm is worktree pollution and accidental-commit hazard,
+  which is still a real defect but was initially overstated as a functional break.'
+- 'REJECTED: "PB-09 must be resolved before any other work because it is the highest-priority
+  item." Refuted as an execution constraint: it is Coordinator-reserved, so it can only gate
+  executable work by making the campaign wait, which the contract forbids.'
+
+authority_gates:
+- 'COORDINATOR_PROVIDER_SELECTION: which artifact is the Forge candidate — pinned upstream
+  forge-2.0.14 (a37a865a) or the Lab fork (ef958ee9) that the evidence executed. Reserved;
+  not claimed. Emit COORDINATOR_PROVIDER_SELECTION_REQUIRED only when provider evidence is
+  genuinely complete.'
+- 'COORDINATOR_ARCHITECTURE_FREEZE: not claimed.'
+
+first_failing_boundary: >-
+  For the end product, the first boundary that cannot yet be crossed is terminal state: a
+  real 100-card Commander game has not been driven to a terminal state. Full-game conformance
+  reaches game-over only with a synthetic technical deck (Isamaru + 99 Plains), and the real
+  4-deck 100-card smoke stops at 40 decisions with terminal_reached=false.
+root_cause_class: >-
+  UNKNOWN
+failure_class: UNKNOWN
+current_failure: >-
+  A real 100-card Commander game does not reach a terminal state through the production
+  path. The real 4-deck bounded smoke stops at 40 decisions with terminal_reached=false,
+  and full-game conformance reaches game-over only with a synthetic technical deck
+  (Isamaru + 99 Plains). Not yet root-caused: it is not established whether the limit is
+  pilot decision quality, an unhandled decision class, decision-loop throughput, or a
+  genuine engine-side blocker. Diagnose before repairing.
+current_hypothesis: >-
+  Leading hypothesis, to be tested rather than assumed: the external pilot policy is
+  correct but not game-completing, so games stall rather than misbehave. The strongest
+  discriminator is a long real-deck run with per-decision class/option logging to find the
+  first decision the policy cannot answer or the first turn on which no progress is made.
+  Competing hypotheses to falsify: an unhandled decision class fails closed mid-game
+  (would raise, not stall); a per-decision legal-action ceiling blocks mandatory
+  progression; or the seed/deck combination produces an unwinnable early board.
+
+
+remaining_scope:
+- 'Land the current-boundary 107-row executor on this lineage (transplant whole files from the
+  WSR22 branch) and regenerate qualification/SHA256SUMS + WS17_SHA256SUMS rather than
+  transplanting them.'
+- 'PB-03: implement real dimension-manifest admission from the bridge, then execute the 33
+  blocked XMage rows to obtain executed outcomes instead of a MODELED projection.'
+- 'CAP: resolve legal_actions_supported and action_submission_supported (AF04 currently FAIL
+  on XMage; the generic lane fails closed with LEGAL_ACTIONS_UNAVAILABLE unless
+  external_control=true).'
+- 'TERM: drive a real 100-card Commander game to a terminal state through the production
+  path, for 2P, 3P, 4P and 5P independently.'
+- 'PB-06 per-scenario hidden channels, PB-07 effective 29-card corpus, PB-08 per-fixture
+  clean-process replay twin — all both-sided.'
+- 'PB-09: re-execute the Forge column at pinned upstream a37a865a + bridge 4753bb7c as
+  Coordinator decision input.'
+- 'Then COORDINATOR_PROVIDER_SELECTION_REQUIRED, then COORDINATOR_ARCHITECTURE_FREEZE_REQUIRED.'
+
+next_action: >-
+  Commit M1, re-run the full suite on the clean tree to confirm zero failures, then
+  transplant the current-boundary executor.
+exact_next_action: >-
+  Commit the M1 milestone (launcher nested-launch identity repair + engine runtime-state
+  isolation + regression tests), re-run `pytest -q` against the now-clean tracked tree to
+  confirm 0 failures, and only then begin the QUAL-01 transplant from
+  origin/wsr22-successor/current-boundary-freeze-20260927.

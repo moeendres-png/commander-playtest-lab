@@ -1196,6 +1196,42 @@ def test_muse_xhigh_does_not_fabricate_top_level_native_variant(target, canon):
     assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
 
 
+# A nested launch — launcher invoked from inside a live Foundry run — inherits
+# the outer session's FOUNDRY_*/OPENCODE_* environment through `dict(os.environ)`.
+# Identity keys the plan does not resolve must therefore be CLEARED, not left to
+# be inherited, or the child observes an execution identity its own plan never
+# resolved. Ambient-routing suppression is the second instance of that class.
+_NESTED_INHERITED_KEYS = (
+    "FOUNDRY_NATIVE_VARIANT",
+    "FOUNDRY_ROUTING_SUPPRESSED",
+    "OPENCODE_DISABLE_PROJECT_CONFIG",
+)
+
+
+@pytest.mark.parametrize("key", _NESTED_INHERITED_KEYS)
+def test_nested_launch_clears_unresolved_conditional_identity_keys(target, canon, monkeypatch, key):
+    """A nested launch must not inherit an identity key its plan did not resolve."""
+    monkeypatch.setenv(key, "inherited-from-outer-session")
+    plan = _plan(target, canon, execution_profile="muse", effort="xhigh")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["_env"].get(key) != "inherited-from-outer-session"
+    if key != "FOUNDRY_NATIVE_VARIANT":
+        # This plan does not suppress routing, so the suppression keys must be
+        # absent entirely rather than merely not-inherited.
+        assert key not in plan["_env"]
+
+
+def test_nested_launch_still_resolves_space_bunny_native_variant(target, canon, monkeypatch):
+    """Clearing inherited keys must not suppress a variant the plan really resolves."""
+    monkeypatch.setenv("FOUNDRY_NATIVE_VARIANT", "inherited-from-outer-session")
+    monkeypatch.setenv("FOUNDRY_ROUTING_SUPPRESSED", "1")
+    plan = _plan(target, canon, execution_profile="space-bunny", effort="xhigh")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
+    assert "FOUNDRY_ROUTING_SUPPRESSED" not in plan["_env"]
+    assert "OPENCODE_DISABLE_PROJECT_CONFIG" not in plan["_env"]
+
+
 def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
     captured = {}
 

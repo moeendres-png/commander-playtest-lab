@@ -32,6 +32,8 @@ from commander_lab.models import (
     RulesDeckInput,
 )
 
+from .base import resolve_engine_working_directory
+
 FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0"
 FULL_GAME_LANE = "xmage_full_game_external_pilots"
 FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
@@ -187,6 +189,11 @@ class _RawFullGameClient:
             )
         self.command = command
         self.cwd = None if cwd is None else str(cwd)
+        # An unset cwd must not inherit the caller's directory: the engine writes
+        # its own runtime state (XMage's H2 card repository) relative to the
+        # process working directory, which would land that state in the Git
+        # worktree. Resolve the shared runtime state directory instead.
+        self.cwd = resolve_engine_working_directory(self.cwd)
         self.request_timeout_seconds = request_timeout_seconds
         self._process: subprocess.Popen[str] | None = None
         self._stdout_queue: queue.Queue[str | None] = queue.Queue()

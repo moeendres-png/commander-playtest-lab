@@ -827,6 +827,20 @@ def resolve_environment(
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
     env.pop("OPENCODE_PERMISSION", None)
+    # Conditional identity keys must be CLEARED, not merely left unset. Every
+    # unconditional key below overwrites the ambient value, but a key that is
+    # only assigned inside an `if` would otherwise be INHERITED from an outer
+    # Foundry session and contradict this plan's own execution record. A nested
+    # launch (launcher invoked from inside a live Foundry run) is a real
+    # production-reachable path, and an inherited variant/routing key is an
+    # execution-identity defect: the child would observe a native variant the
+    # plan did not resolve. Fail closed to the plan.
+    for inherited_identity_key in (
+        "FOUNDRY_NATIVE_VARIANT",
+        "OPENCODE_DISABLE_PROJECT_CONFIG",
+        "FOUNDRY_ROUTING_SUPPRESSED",
+    ):
+        env.pop(inherited_identity_key, None)
     config_dir = str(Path(run_dir) / "config-dir")
     manifest = build_config_dir(canonical_root, config_dir)
     policy_hash = drift_mod.canonical_bundle_hash(
