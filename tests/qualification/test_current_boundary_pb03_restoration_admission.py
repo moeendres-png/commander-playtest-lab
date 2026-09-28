@@ -349,3 +349,52 @@ def test_lab_owned_bridge_identity_names_the_real_proof_not_a_meaningless_one() 
     # It must not claim a module-tree comparison it never performed.
     assert "modules" not in proof
     assert "forge" not in proof["justification"].casefold()
+
+
+# --- A native suite that cannot be credited must say so, not abort the run -----
+
+
+def test_uncitable_native_suite_records_no_credit_with_the_exact_reason(tmp_path: Path) -> None:
+    """An uncreditable suite must be reported, not lost and not fatal.
+
+    The assembler consumes these receipts, so "absent" and "refused" are
+    different facts. A bound suite that cannot prove identity records NO_CREDIT
+    naming the reason, and the rest of the boundary evidence is still produced.
+    """
+    import importlib.util
+    import json
+
+    runner_path = REPO / "scripts" / "run_current_boundary_qualification.py"
+    spec = importlib.util.spec_from_file_location("cb_runner_under_test", runner_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+
+    # Persist into a temporary directory. A test must never write into the live
+    # evidence bundle: doing so silently rewrites a committed run's provenance,
+    # and the SHA256SUMS guard would then fail for a reason that has nothing to do
+    # with the code under test.
+    module.RECEIPT_DIR = tmp_path / "receipts"
+
+    receipts = module._no_credit_receipt(
+        "forge",
+        "direct",
+        module.receipt_mod.RunnerIdentity(
+            repository="r",
+            commit="a" * 40,
+            tree="b" * 40,
+            branch="br",
+            dirty=False,
+            dirty_paths=(),
+            input_digests={},
+        ),
+        "workspace has no git metadata",
+    )
+    assert receipts["credit"] == "NO_CREDIT"
+    assert receipts["reason"] == "workspace has no git metadata"
+    assert receipts["tests"] == 0
+    assert receipts["receipt_digest"]
+    persisted = json.loads(
+        (module.RECEIPT_DIR / "native-forge-direct.json").read_text(encoding="utf-8")
+    )
+    assert persisted["credit"] == "NO_CREDIT"

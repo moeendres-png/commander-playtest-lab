@@ -37,18 +37,58 @@ def test_the_four_forge_commits_are_all_distinct() -> None:
 
 
 def test_source_lock_names_all_four_identities() -> None:
-    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
-    assert identity["executing_engine"]["commit"] == FORK
+    """All four Forge commits stay named and distinct under distinct keys.
+
+    Re-pointing the executing engine to the pin must not collapse the set: the
+    fork head, the pinned candidate, the WSR20 tip and the additive bridge are
+    four different things and each keeps its own name.
+    """
+    forge = sl.boundary_receipt()["candidates"]["forge"]
+    identity = forge["engine_identity_pb09"]
+    assert forge["column_scope"] == "pinned_upstream"
+    assert identity["executing_engine"]["commit"] == UPSTREAM
+    assert identity["fork_head"]["commit"] == FORK
     assert identity["upstream_baseline"]["commit"] == UPSTREAM
     assert identity["wsr20_evidence_tip"]["commit"] == TIP
     assert identity["bridge_source_commit"]["commit"] == BRIDGE
+    # The bridge materializes the pinned candidate and must say so, so the two
+    # identities can never be cross-wired the way they were before.
+    assert identity["bridge_source_commit"]["rules_core_base_commit"] == UPSTREAM
+    # The fork and the pinned candidate must never share a name.
+    assert {FORK, UPSTREAM, TIP, BRIDGE} == {
+        identity["executing_engine"]["commit"],
+        identity["fork_head"]["commit"],
+        identity["wsr20_evidence_tip"]["commit"],
+        identity["bridge_source_commit"]["commit"],
+    }
 
 
-def test_the_fork_is_never_labelled_pristine_upstream() -> None:
+def test_the_fork_is_never_the_candidate_and_never_labelled_pristine() -> None:
+    """The fork is Lab-modified Rules Core. It is not the candidate at all now.
+
+    This guard was originally "the fork is never labelled pristine upstream". After
+    the authorized re-point to the pinned-upstream column the stronger invariant
+    holds: the fork is not the executing candidate either, so no result can be
+    reported against it by accident, and it is still never called pristine.
+    """
     identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
-    assert identity["executing_engine"]["is_pristine_upstream"] is False
-    assert identity["upstream_baseline"]["verified_pristine"] is False
-    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is False
+    assert identity["executing_engine"]["is_pristine_upstream"] is True
+    assert identity["fork_head"]["commit"] == FORK
+    assert identity["fork_head"]["is_pristine_upstream"] is False
+    assert sl.FORGE_CANDIDATE_COMMIT != sl.FORGE_FORK_HEAD_COMMIT
+    assert sl.FORGE_CANDIDATE_COMMIT == UPSTREAM
+
+
+def test_upstream_behaviour_is_observed_because_the_pinned_candidate_was_executed() -> None:
+    """Upstream behaviour was UNKNOWN until the pinned candidate was executed.
+
+    It is now executed, so the receipt may say so; saying so is what stops the
+    historical fork result from being read as an upstream result.
+    """
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["upstream_baseline"]["verified_pristine"] is True
+    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is True
+    assert sl.FORGE_COLUMN_SCOPE == "pinned_upstream"
 
 
 def test_the_descendant_is_never_claimed_to_be_the_candidate_head() -> None:

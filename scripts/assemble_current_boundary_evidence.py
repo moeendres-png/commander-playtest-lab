@@ -13,6 +13,7 @@ executed inside this workstream at the recorded runtime identity.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -25,7 +26,10 @@ from commander_lab.qualification.current_boundary import receipts as receipt_mod
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
-FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+# Same pinned materialization workspace the runner executes, resolved from the
+# environment so the assembler cannot silently read a different checkout.
+FORGE_WS_DEFAULT = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+FORGE_WS = Path(os.environ.get("COMMANDER_LAB_FORGE_WORKSPACE") or FORGE_WS_DEFAULT)
 
 # Execution receipts. The assembler trusts nothing else for native credit: no
 # receipt means no credit, and source text is never a substitute.

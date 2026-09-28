@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -71,7 +72,17 @@ OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
-FORGE_WORKSPACE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+# The Forge candidate workspace is a checkout (or export) of the PINNED
+# materialization commit FORGE_BRIDGE_SOURCE_COMMIT, whose diff against the
+# pinned Rules Core is confined to forge-protocol2-bridge/** and pom.xml.
+#
+# It is resolved from the environment rather than hardcoded, because a hardcoded
+# scratch path would be unreproducible on any other machine and would silently
+# point a later run at whatever happened to be left on disk. Fail closed when it
+# is absent rather than falling back to the Lab fork checkout.
+FORGE_WORKSPACE_ENV = "COMMANDER_LAB_FORGE_WORKSPACE"
+_FORGE_WORKSPACE_DEFAULT = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+FORGE_WORKSPACE = Path(os.environ.get(FORGE_WORKSPACE_ENV) or _FORGE_WORKSPACE_DEFAULT)
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -256,6 +267,20 @@ def run_native_suite(
     # engine is the same engine. That is re-proven from the engine's main-source
     # trees on every run and fails closed if any module differs. Resolving this
     # live rather than asserting it is what surfaced the divergence originally.
+    # A pinned materialization may be supplied as a verified export rather than a
+    # git checkout. In that case there is no HEAD to read and, more importantly,
+    # no module tree to compare, so no descendant-equivalence proof is possible.
+    # Say so and withhold native credit rather than inventing a commit.
+    workspace_has_git = Path(spec["root"], ".git").exists()
+    if not workspace_has_git:
+        return _no_credit_receipt(
+            candidate,
+            group,
+            runner,
+            "the candidate workspace is a verified materialization export with no git "
+            "metadata, so neither an executing HEAD nor a per-module tree proof exists; "
+            "native credit is withheld rather than inferred from the supplied commit",
+        )
     actual_engine_commit = git("rev-parse", "HEAD", cwd=spec["root"])
     if spec.get("identity_proof") == "LAB_OWNED_BRIDGE_MODULE":
         # The suite runs in this repository's own engine-bridge module, so the
@@ -330,12 +355,60 @@ def run_native_suite(
     return document
 
 
+def _no_credit_receipt(
+    candidate: str,
+    group: str,
+    runner: receipt_mod.RunnerIdentity,
+    reason: str,
+) -> dict[str, Any]:
+    """Record a native suite that earns NO credit, with the exact reason.
+
+    A bound suite that cannot be credited must not abort the run, and must not be
+    silently skipped either: the assembler consumes these receipts and anything
+    absent is not the same as anything refused. This is the difference between
+    "not run" and "run and refused", and the evidence has to say which.
+    """
+    document = {
+        "schema_version": "current-boundary.native-suite-receipt/1.0.0",
+        "candidate": candidate,
+        "group": group,
+        "credit": receipt_mod._NO_CREDIT,
+        "reason": reason,
+        "tests": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runner": {"commit": runner.commit, "tree": runner.tree, "branch": runner.branch},
+    }
+    document["receipt_digest"] = receipt_mod._digest(document)
+    path = RECEIPT_DIR / f"native-{candidate}-{group}.json"
+    receipt_mod.persist(path, document)
+    print(f"native suite {candidate}:{group}: NO_CREDIT ({reason})")
+    return document
+
+
 def run_all_native_suites(runner: receipt_mod.RunnerIdentity) -> list[dict[str, Any]]:
-    """Execute every bound native suite; return only the persisted receipts."""
+    """Execute every bound native suite; return only the persisted receipts.
+
+    A suite that cannot be credited records a NO_CREDIT receipt naming the exact
+    reason. It must never abort the run: the rest of the boundary evidence is
+    still valid and must be produced, and the uncreditable suite is reported
+    rather than lost.
+    """
     receipts: list[dict[str, Any]] = []
     for candidate in ("xmage", "forge"):
         for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
-            receipts.append(run_native_suite(candidate, group, runner=runner))
+            try:
+                receipts.append(run_native_suite(candidate, group, runner=runner))
+            except (
+                receipt_mod.ReceiptError,
+                subprocess.SubprocessError,
+                OSError,
+            ) as exc:
+                receipts.append(
+                    _no_credit_receipt(candidate, group, runner, f"{type(exc).__name__}: {exc}")
+                )
     return receipts
 
 

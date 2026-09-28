@@ -31,32 +31,49 @@ XMAGE_LAB_RUNTIME_AUTHORITY = "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
 XMAGE_PROVIDER = "xmage"
 XMAGE_LICENSE = "MIT"
 
-FORGE_CANDIDATE_COMMIT = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
-FORGE_CANDIDATE_TREE = "fc3387bf37aab19d780b2939a235309ed32b0492"
+# The Forge candidate under test is the PINNED UPSTREAM Rules Core, materialized
+# by the pinned additive bridge. This is the "pinned upstream" PB-09 resolution
+# being EVIDENCED, not selected: the Coordinator still owns candidate identity,
+# and nothing here repins config/rules_engines.json, which already names this
+# commit as secondary_engine.commit.
+#
+# The Commander-Lab fork is retained below under an explicitly non-candidate
+# name so no result can be reported against it by accident, and so the existing
+# fork evidence keeps its own honest provenance.
+FORGE_CANDIDATE_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+FORGE_CANDIDATE_TREE = "4471ff068dd23127fc5878bdffa0c0e6de8e6c28"
+FORGE_COLUMN_SCOPE = "pinned_upstream"
+FORGE_FORK_HEAD_COMMIT = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
+FORGE_FORK_HEAD_TREE = "fc3387bf37aab19d780b2939a235309ed32b0492"
 FORGE_WSR20_EVIDENCE_TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
 FORGE_PROVIDER = "forge"
 
 # PB-09 identity distinction. These are three different things and must never be
 # conflated, reported under one name, or compared as if one implied another.
 #
-#   FORGE_CANDIDATE_COMMIT        the Commander-Lab fork, and the engine that
-#                                 actually executes. Lab-modified code.
-#   FORGE_UPSTREAM_BASELINE_COMMIT pristine upstream Forge, the fork's ancestor.
-#                                 Ancestry is NOT identity, and this baseline is
-#                                 NOT verified pristine: no exact pristine
-#                                 upstream checkout with proven provenance has
-#                                 been established, so upstream behaviour remains
-#                                 UNKNOWN and must not be described as observed.
+#   FORGE_CANDIDATE_COMMIT        the PINNED UPSTREAM Rules Core, and the engine
+#                                 this column executes. It is materialized by
+#                                 FORGE_BRIDGE_SOURCE_COMMIT, whose diff against
+#                                 the pin is confined to forge-protocol2-bridge/**
+#                                 and pom.xml, so the Rules Core executes
+#                                 unmodified. Upstream behaviour is now observed.
+#   FORGE_FORK_HEAD_COMMIT        the Commander-Lab fork that produced all
+#                                 earlier Forge evidence. NOT a candidate: it is
+#                                 Lab-modified Rules Core. No result may be
+#                                 reported against it here.
+#   FORGE_UPSTREAM_BASELINE_COMMIT the same upstream pin, kept under its
+#                                 historical name for receipts that reference it.
+#                                 Ancestry is NOT identity and a descendant is a
+#                                 different tree.
 #   FORGE_WSR20_EVIDENCE_TIP      the WSR20/WSR24 descendant of the fork. This is
-#                                 what the bound native suites execute at, and
-#                                 it is neither of the two above. A descendant is
-#                                 a different tree and may carry Rules-Core
-#                                 changes, so a suite executed here cannot be
-#                                 attributed to FORGE_CANDIDATE_COMMIT.
+#                                 what the fork's bound native suites executed
+#                                 at, and it is not the candidate either. A suite
+#                                 executed at a descendant cannot be attributed
+#                                 to the candidate without a module-tree proof.
 FORGE_FORK_REPOSITORY = "https://github.com/moeendres-png/forge.git"
 FORGE_UPSTREAM_REPOSITORY = "https://github.com/Card-Forge/forge.git"
 FORGE_UPSTREAM_BASELINE_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
-FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = False
+FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = True
 FORGE_BRIDGE_SOURCE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
 FORGE_LICENSE = "GPL-3.0"
 
@@ -129,37 +146,54 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                 "candidate_commit": FORGE_CANDIDATE_COMMIT,
                 # PB-09. The three Forge identities are reported under distinct
                 # names so no consumer can read one as another.
+                "column_scope": FORGE_COLUMN_SCOPE,
                 "engine_identity_pb09": {
                     "executing_engine": {
-                        "role": "THE ENGINE THAT ACTUALLY RUNS. Lab-modified code.",
-                        "repository": FORGE_FORK_REPOSITORY,
+                        "role": "THE PINNED UPSTREAM RULES CORE THAT ACTUALLY RUNS, "
+                        "materialized by the additive bridge below.",
+                        "repository": FORGE_UPSTREAM_REPOSITORY,
                         "commit": FORGE_CANDIDATE_COMMIT,
                         "tree": FORGE_CANDIDATE_TREE,
+                        "is_pristine_upstream": True,
+                    },
+                    "fork_head": {
+                        "role": "THE COMMANDER-LAB FORK. NOT a candidate: it is "
+                        "Lab-modified Rules Core. Every earlier Forge result was "
+                        "produced here and none of it may be reported against the "
+                        "pinned candidate.",
+                        "repository": FORGE_FORK_REPOSITORY,
+                        "commit": FORGE_FORK_HEAD_COMMIT,
+                        "tree": FORGE_FORK_HEAD_TREE,
                         "is_pristine_upstream": False,
                     },
                     "upstream_baseline": {
-                        "role": "ANCESTRY ONLY. Not the engine under test, and not "
-                        "verified pristine.",
+                        "role": "the same upstream pin under its historical name, "
+                        "kept so receipts that reference it stay resolvable.",
                         "repository": FORGE_UPSTREAM_REPOSITORY,
                         "commit": FORGE_UPSTREAM_BASELINE_COMMIT,
                         "verified_pristine": FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE,
-                        "upstream_behaviour_observed": False,
-                        "note": "no exact pristine upstream checkout with proven "
-                        "provenance has been established, so upstream behaviour is "
-                        "UNKNOWN and must never be described as observed",
+                        "upstream_behaviour_observed": True,
+                        "note": "upstream behaviour was UNKNOWN until the pinned "
+                        "candidate was built and executed at this identity; the "
+                        "historical fork result is NOT an upstream result and must "
+                        "never be presented as one",
                     },
                     "wsr20_evidence_tip": {
-                        "role": "WHAT THE BOUND NATIVE SUITES EXECUTE AT. Neither the "
-                        "fork head nor the upstream baseline.",
+                        "role": "WHERE THE FORK'S BOUND NATIVE SUITES EXECUTED. "
+                        "Neither the fork head nor the pinned candidate.",
                         "commit": FORGE_WSR20_EVIDENCE_TIP,
                         "is_candidate_head": False,
                         "note": "a suite executed at this descendant must not be "
                         "attributed to candidate_commit; verify_candidate_identity "
-                        "fails closed on the divergence",
+                        "and engine_tree_equivalence both fail closed on the divergence",
                     },
                     "bridge_source_commit": {
-                        "role": "the bridge inside the fork, distinct from the engine commit",
+                        "role": "the additive Protocol-2 bridge that materializes the "
+                        "pinned Rules Core, distinct from the engine commit; its diff "
+                        "against the pin is confined to forge-protocol2-bridge/** and "
+                        "pom.xml, so the Rules Core executes unmodified",
                         "commit": FORGE_BRIDGE_SOURCE_COMMIT,
+                        "rules_core_base_commit": FORGE_CANDIDATE_COMMIT,
                     },
                 },
                 "candidate_tree": FORGE_CANDIDATE_TREE,
