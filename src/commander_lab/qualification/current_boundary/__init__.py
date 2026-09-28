@@ -47,8 +47,13 @@ from .full107 import (
     run_cardinality,
     start2_row,
     summarize,
+    validate_principal_scoping,
 )
-from .game_driver import DECISION_IDENTITY_SHAPES, drive_commander_game
+from .game_driver import (
+    DECISION_IDENTITY_SHAPES,
+    build_deck,
+    drive_commander_game,
+)
 from .materialization import (
     EffectiveMaterialization,
     load_effective_materialization,
@@ -89,6 +94,7 @@ __all__ = [
     "EffectiveMaterialization",
     "RowResult",
     "boundary_receipt",
+    "build_deck",
     "build_launch_plan",
     "cardinality_row",
     "drive_commander_game",
@@ -102,4 +108,5 @@ __all__ = [
     "run_cardinality",
     "start2_row",
     "summarize",
+    "validate_principal_scoping",
 ]
