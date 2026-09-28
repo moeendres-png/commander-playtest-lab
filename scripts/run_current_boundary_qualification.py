@@ -1010,7 +1010,8 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "candidate": candidate,
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
-                "game": hidden_game.to_document(),
+                "game": hidden_game.to_document() if hidden_game is not None else None,
+                "game_established": hidden_game is not None,
                 "principal_observations": observations,
                 "principal_scoping": scoping,
                 "principal_observations_credible": scoping["credible_as_principal_scoped_evidence"],
@@ -1026,12 +1027,27 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- Rules RNG + semantic replay ----------------------------------
-        replay_payload = export_replay(proc, hidden_game.game_id)
-        event_log = proc.request("export_event_log", {}, game_id=hidden_game.game_id)
-        probes["replay"] = replay_payload
-        probes["event_log"] = (
-            event_log.get("payload") if isinstance(event_log.get("payload"), dict) else {}
-        )
+        if hidden_game is not None:
+            replay_payload = export_replay(proc, hidden_game.game_id)
+            event_log = proc.request("export_event_log", {}, game_id=hidden_game.game_id)
+            probes["replay"] = replay_payload
+            probes["event_log"] = (
+                event_log.get("payload") if isinstance(event_log.get("payload"), dict) else {}
+            )
+        else:
+            # No live game means no replay was exported and no event log was read.
+            # This is UNOBSERVED, not a failed replay: claiming a replay result for
+            # a game that never existed would be a fabricated observation.
+            replay_payload = None
+            probes["replay"] = None
+            probes["event_log"] = {}
+            probes["replay_not_established"] = {
+                "reason": "NO_LIVE_GAME",
+                "detail": "no live Commander game could be established at any player count this "
+                "engine qualifies, so no replay was exported and no event log was read. RNG "
+                "and replay are UNOBSERVED for this candidate; no credit is earned and none "
+                "is denied, because nothing was exercised.",
+            }
         write(
             f"RNG_REPLAY_{candidate.upper()}.json",
             {
@@ -1087,7 +1103,9 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "candidate": candidate,
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
-                "cards_imported_at_runtime": hidden_game.deck_identity,
+                "cards_imported_at_runtime": (
+                    hidden_game.deck_identity if hidden_game is not None else None
+                ),
                 "cards": list(ACTUAL_CARD_NAMES),
                 # Derived from the AF03 probe this run actually executed. It
                 # previously asserted in prose that "the engine itself rejected an
@@ -1107,7 +1125,9 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                     ),
                     # Decks are per seat, not per card. Counting them said nothing
                     # about the corpus.
-                    "decks_imported_at_runtime": len(hidden_game.deck_identity),
+                    "decks_imported_at_runtime": (
+                        len(hidden_game.deck_identity) if hidden_game is not None else 0
+                    ),
                     # Counted against the FROZEN identities, not the local list.
                     # ACTUAL_CARD_NAMES shares zero members with the required
                     # corpus, and a row passing 29 arbitrary cards must not be able
