@@ -558,6 +558,53 @@ def sleep(seconds: float) -> None:
 _HIDDEN_CONTENT_KEYS: frozenset[str] = frozenset({"hand", "library", "revealed", "face_down_cards"})
 
 
+# A provider that correctly hides a zone usually says so with a placeholder
+# rather than omitting the zone. A placeholder is the ABSENCE of content, so
+# counting it as content accuses a candidate of a leak it did not commit. The
+# Forge bridge returns "<hidden>" per opponent card; treating that array as
+# exposed hand content produced a false ENGINE_CANDIDATE_DEFECT against a
+# provider that was redacting correctly.
+_REDACTION_PLACEHOLDERS: frozenset[str] = frozenset(
+    {"<hidden>", "hidden", "***", "<redacted>", "redacted", "?", "null", "none", ""}
+)
+
+
+def _zone_exposes_content(zone: Any) -> bool:
+    """Whether a zone carries real content rather than a redaction placeholder.
+
+    An empty list, a null, or a list made entirely of placeholders means nothing
+    was disclosed. A list containing at least one real entry means it was.
+    """
+    if zone is None:
+        return False
+    if isinstance(zone, (str, int, float, bool)):
+        return str(zone).strip().lower() not in _REDACTION_PLACEHOLDERS
+    if isinstance(zone, dict):
+        # An object is real content unless every value is a placeholder.
+        return any(_zone_exposes_content(value) for value in zone.values())
+    if isinstance(zone, (list, tuple, set)):
+        return any(_zone_exposes_content(item) for item in zone)
+    return bool(zone)
+
+
+def _state_view(payload: dict[str, Any]) -> dict[str, Any]:
+    """The state view inside a principal observation.
+
+    The observation wraps the state under ``state``; the players array lives
+    there, not at the top level. Reading the top level produced a false
+    "no players array" finding against a correctly shaped response, which is
+    exactly as bad as missing a real leak: a scoping verdict must be true, not
+    merely conservative.
+    """
+    state = payload.get("state")
+    return state if isinstance(state, dict) else payload
+
+
+def _players_of(payload: dict[str, Any]) -> list[Any]:
+    players = _state_view(payload).get("players")
+    return players if isinstance(players, list) else []
+
+
 def _canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
@@ -590,9 +637,11 @@ def validate_principal_scoping(
             )
 
     # Each observation must mark exactly one actor, and it must be the requester.
+    established_requester: dict[str, bool] = {}
     for seat, payload in usable.items():
-        players = payload.get("players")
-        if not isinstance(players, list) or not players:
+        players = _players_of(payload)
+        established_requester[seat] = False
+        if not players:
             findings.append(
                 {
                     "check": "actor_marked",
@@ -605,6 +654,13 @@ def validate_principal_scoping(
         actors = [
             entry for entry in players if isinstance(entry, dict) and entry.get("is_actor") is True
         ]
+        if len(actors) == 1 and _seat_index(requested_seats, seat) == actors[0].get("seat"):
+            # The provider named the observing principal AND it is the seat that
+            # asked. Only then does "a non-actor seat carries content" mean a
+            # leak, and only then can this observation support a demonstrated
+            # defect. The judgement is PER OBSERVATION: a sibling response that
+            # omitted its marker must not downgrade a leak proved here.
+            established_requester[seat] = True
         if len(actors) != 1:
             findings.append(
                 {
@@ -628,9 +684,12 @@ def validate_principal_scoping(
                 }
             )
 
-    # Two principals cannot receive the same view. Identical payloads mean one
-    # unscoped projection was returned to every caller.
-    distinct = {_canonical(usable[seat]) for seat in usable}
+    # Two principals cannot receive the same view. The comparison is over the
+    # STATE VIEW, not the whole observation envelope. The envelope carries a
+    # monotonically increasing `state_observation_offset`, so comparing it would
+    # make four byte-identical states look like four distinct observations and
+    # mask exactly the leak this check exists to catch.
+    distinct = {_canonical(_state_view(usable[seat])) for seat in usable}
     if len(usable) > 1 and len(distinct) == 1:
         findings.append(
             {
@@ -643,13 +702,14 @@ def validate_principal_scoping(
 
     # No observation may carry another principal's hidden card content.
     for seat, payload in usable.items():
-        players = payload.get("players")
-        if not isinstance(players, list):
-            continue
-        for entry in players:
+        for entry in _players_of(payload):
             if not isinstance(entry, dict):
                 continue
-            exposed = sorted(key for key in _HIDDEN_CONTENT_KEYS if entry.get(key))
+            raw_zones = entry.get("zones")
+            zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else entry
+            exposed = sorted(
+                key for key in _HIDDEN_CONTENT_KEYS if _zone_exposes_content(zones.get(key))
+            )
             if exposed and entry.get("is_actor") is not True:
                 findings.append(
                     {
@@ -661,15 +721,101 @@ def validate_principal_scoping(
                     }
                 )
 
+    # Classify the defect, because the two have different owners and the
+    # difference matters. An ENGINE leak is a candidate defect: the provider
+    # returned unauthorised identity or content and the Lab must not mask it.
+    # A SERIALIZER leak is a Lab defect: the response was correctly scoped and
+    # the Lab persisted extra identity. Masking an engine leak in the serializer
+    # and then awarding engine correctness credit is forbidden, so the
+    # classification is derived from what the observation actually contains.
+    # The zone keys observed on a non-actor seat. This is the RAW observation, and
+    # it is deliberately kept separate from engine_leak_indicators below: a key
+    # appearing here says content sat on a seat that was not marked as the
+    # requester's, which is not the same as a demonstrated leak.
+    exposed_keys = sorted(
+        {
+            key
+            for finding in findings
+            if finding.get("check") == "no_opponent_hidden_content"
+            for key in _exposed_keys_of(finding.get("detail", ""))
+        }
+    )
+    # A content leak is only DEMONSTRATED when the evidence forces it. Two
+    # different things must not be conflated:
+    #
+    #   * Two requesters receiving a byte-identical state proves an unscoped
+    #     projection outright. The requester differs and the payload does not, so
+    #     each caller necessarily sees every other seat's cards. That is a
+    #     conclusive candidate defect.
+    #   * Real content present while the provider does not mark the observing
+    #     principal proves nothing on its own: the content may belong to the
+    #     requester. Without actor marking the validator cannot tell who was
+    #     asked, so attributing a leak to the candidate would be an accusation
+    #     the evidence does not support.
+    #
+    # A provider that redacts opponents with placeholders and simply omits the
+    # actor marker is unestablished, not defective.
+    identical_views = any(
+        finding.get("check") == "observations_differ_per_principal" for finding in findings
+    )
+    # A leaked-content finding is attributed to the observation that produced it.
+    # A batch-wide flag is wrong in both directions: one response missing its
+    # actor marker must not downgrade a demonstrated leak in every OTHER
+    # response, and one response carrying a leak must not upgrade the rest.
+    leaked_from_established = any(
+        finding.get("check") == "no_opponent_hidden_content"
+        and established_requester.get(str(finding.get("seat", "")), False)
+        for finding in findings
+    )
+    if not findings:
+        attribution = "NONE"
+    elif identical_views or leaked_from_established:
+        attribution = "ENGINE_CANDIDATE_DEFECT"
+    elif exposed_keys:
+        attribution = "SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT"
+    else:
+        attribution = "LAB_SERIALIZER_DEFECT"
+    engine_leak = attribution == "ENGINE_CANDIDATE_DEFECT"
+
     return {
         "verdict": "PRINCIPAL_SCOPED" if not findings else "SCOPING_NOT_ESTABLISHED",
+        "attribution": attribution,
+        # Populated ONLY for a demonstrated leak. Listing zones here for an
+        # unestablished case would restate the accusation the attribution just
+        # declined to make.
+        "engine_leak_indicators": exposed_keys if engine_leak else [],
+        "zones_observed_on_unmarked_seats": exposed_keys,
+        "observations_with_established_requester": sorted(
+            seat for seat, ok in established_requester.items() if ok
+        ),
+        "observations_without_established_requester": sorted(
+            seat for seat, ok in established_requester.items() if not ok
+        ),
+        "attribution_rule": "one shared state view across different requesters is a "
+        "conclusive candidate defect, and real content for a KNOWN non-actor is too. Real "
+        "content with no actor marking is unestablished, not a demonstrated leak, because "
+        "the content may be the requester's own. A masked engine leak must never earn engine "
+        "correctness credit, and an undemonstrated one must never be asserted.",
         "credible_as_principal_scoped_evidence": not findings,
         "principals_checked": sorted(usable),
-        "distinct_payloads": len(distinct),
+        "distinct_state_views": len(distinct),
+        "compared": "the state view, excluding the observation envelope whose "
+        "monotonic offset would otherwise make identical states look distinct",
         "findings": findings,
         "note": "an observation that is not principal-scoped is recorded as observed and is "
         "not presented as hidden-information evidence",
     }
+
+
+def _exposed_keys_of(detail: str) -> list[str]:
+    """Recover the exposed zone names from a finding's detail text."""
+    marker = "zone content ["
+    if marker not in detail:
+        return []
+    tail = detail.split(marker, 1)[1]
+    # The detail ends with prose after the bracketed list, so cut at "]".
+    inside = tail.split("]", 1)[0]
+    return [item.strip().strip("'\"") for item in inside.split(",") if item.strip()]
 
 
 def _seat_index(seats: tuple[str, ...], seat: str) -> int | None:

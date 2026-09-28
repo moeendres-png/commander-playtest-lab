@@ -1,0 +1,7 @@
+{
+ "count": 0,
+ "note": "No Rules-visible behavioural divergence was observed. The cross-engine differences found in this workstream are protocol/interface shape differences, recorded in CURRENT_BOUNDARY_COMPARISON and PROVIDER_BLOCKERS, not Magic Rules disagreements. The Coordinator performs final independent Rules adjudication.",
+ "pending_rules_adjudication": [],
+ "ruled_visible_divergences": [],
+ "schema_version": "wsr22.divergence-packet/1.0.0"
+}

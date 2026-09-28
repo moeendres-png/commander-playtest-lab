@@ -29,7 +29,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from commander_lab.qualification.current_boundary import (  # noqa: E402  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     FORGE_CANDIDATE_COMMIT,
     FORGE_WSR20_EVIDENCE_TIP,
     NEGATIVE_ROWS,
@@ -37,28 +37,23 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402  # noqa
     REPLAY_ROWS,
     XMAGE_CANDIDATE_COMMIT,
     XMAGE_LAB_RUNTIME_AUTHORITY,
-    ManifestUnavailableError,
-    RestorationManifest,
-    admit,
+    UnsupportedPlayerCount,
     boundary_receipt,
     build_deck,
     build_launch_plan,
+    capability_block,
     cardinality_row,
     drive_commander_game,
     export_replay,
-    game_driver,
     launch,
     load_effective_materialization,
+    mid_game_mechanisms,
     non_executed_row,
     observe_principal_state,
-    parse_manifest,
     run_af01,
     run_af03,
     start2_row,
     validate_principal_scoping,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
-    materialization as materialization_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
@@ -68,22 +63,38 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     run_cardinality,
     summarize,
 )
+from commander_lab.qualification.current_boundary.restoration_admission import (  # noqa: E402
+    ManifestUnavailableError,
+    RestorationManifest,
+    admit,
+    parse_manifest,
+)
 
 OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
-# The Forge candidate workspace is a checkout (or export) of the PINNED
-# materialization commit FORGE_BRIDGE_SOURCE_COMMIT, whose diff against the
-# pinned Rules Core is confined to forge-protocol2-bridge/** and pom.xml.
+# The Forge checkout the native suites execute in. Configurable so the bound
+# bridge/evidence head can be a detached worktree at the exact Forge PR head
+# without moving any other lane's checkout. The default remains the historical
+# WSR20 evidence checkout.
 #
-# It is resolved from the environment rather than hardcoded, because a hardcoded
-# scratch path would be unreproducible on any other machine and would silently
-# point a later run at whatever happened to be left on disk. Fail closed when it
-# is absent rather than falling back to the Lab fork checkout.
+# The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
+# evidence head is Forge PR #4 d5bd22d1, which changes forge-protocol2-bridge
+# only. engine_tree_equivalence re-proves that separation on every run.
+# The Forge workspace a lane executes in. Two environment names are honoured
+# because two lanes exist: COMMANDER_LAB_FORGE_WORKSPACE is the pinned
+# materialization export the RUNNER executes, and FORGE_WORKSPACE may point the
+# native suites at a detached worktree at the fork-side bridge/evidence head.
+# Both resolve to a named path, never to an implicit cwd, so a run can never
+# silently read a different checkout than the one its receipts claim.
 FORGE_WORKSPACE_ENV = "COMMANDER_LAB_FORGE_WORKSPACE"
-_FORGE_WORKSPACE_DEFAULT = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
-FORGE_WORKSPACE = Path(os.environ.get(FORGE_WORKSPACE_ENV) or _FORGE_WORKSPACE_DEFAULT)
+FORGE_NATIVE_SUITE_WORKSPACE_ENV = "FORGE_WORKSPACE"
+FORGE_WORKSPACE = Path(
+    os.environ.get(FORGE_WORKSPACE_ENV)
+    or os.environ.get(FORGE_NATIVE_SUITE_WORKSPACE_ENV)
+    or "/home/moeen/code/ws-forge-full107-cdq-20260926"
+)
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -98,7 +109,6 @@ def _native_identity(candidate: str) -> dict[str, str]:
         return {
             "repository": "https://github.com/moeendres-png/mage",
             "expected_engine_commit": XMAGE_CANDIDATE_COMMIT,
-            "identity_proof": "LAB_OWNED_BRIDGE_MODULE",
             "build_identity": json.dumps(
                 {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}
             ),
@@ -201,6 +211,69 @@ NATIVE_SUITE_BINDING = {
 }
 
 
+# The actual-card names this artifact declares. Named once so the corpus
+# completeness statement is derived from the list rather than restated in prose.
+ACTUAL_CARD_NAMES: tuple[str, ...] = (
+    "Isamaru, Hound of Konda",
+    "Silvercoat Lion",
+    "Serra Angel",
+    "Savannah Lions",
+    "Knight of Dawn",
+    "Elite Vanguard",
+    "Eager Cadet",
+    "Suntail Hawk",
+    "Valiant Guard",
+    "Serra Ascendant",
+    "Aerial Assault",
+    "Wall of Faith",
+)
+
+# The actual-card corpus the effective contract requires. The IDENTITIES are
+# loaded from the frozen domain manifest rather than restated here: a local list
+# can drift from the contract, and measuring completion against a drifted list
+# would advertise a corpus nobody required. The declared ACTUAL_CARD_NAMES above
+# shares ZERO members with the frozen 29, so a count derived from it measured
+# nothing.
+ACTUAL_CARD_DOMAIN_MANIFEST = REPO_ROOT / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
+COMMON_FIXTURE_MANIFEST = REPO_ROOT / "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json"
+
+
+def card_fixture_identities() -> dict[str, str]:
+    """Map each CARD_nn fixture to the card identity it is required to exercise.
+
+    The frozen corpus is not one obligation. It is twenty-nine separate mandatory
+    fixtures, each with its own identity, and coverage must come from each of
+    those rows passing. Reading a single CARD_02 result and trusting an
+    `executed_cards` list attached to it would let one row claim the corpus while
+    the other twenty-eight remained unexecuted.
+    """
+    document = json.loads(COMMON_FIXTURE_MANIFEST.read_text(encoding="utf-8"))
+    mapping: dict[str, str] = {}
+    for fixture in document["fixtures"]:
+        fixture_id = str(fixture.get("fixture_id") or "")
+        identity = fixture.get("card_identity")
+        if fixture_id.startswith("CARD_") and identity:
+            mapping[fixture_id] = str(identity)
+    if not mapping:
+        raise SystemExit(
+            f"{COMMON_FIXTURE_MANIFEST} assigns no card identity to any CARD_ fixture; "
+            "corpus coverage cannot be derived"
+        )
+    return mapping
+
+
+def frozen_actual_card_corpus() -> tuple[str, ...]:
+    """The frozen regression corpus identities, in manifest order."""
+    document = json.loads(ACTUAL_CARD_DOMAIN_MANIFEST.read_text(encoding="utf-8"))
+    corpus = document["regression_corpus_29"]
+    if not isinstance(corpus, list) or not corpus:
+        raise SystemExit(
+            f"{ACTUAL_CARD_DOMAIN_MANIFEST} carries no regression_corpus_29; the "
+            "actual-card obligation cannot be measured"
+        )
+    return tuple(str(name) for name in corpus)
+
+
 def git(*args: str, cwd: Path | None = None) -> str:
     return subprocess.run(
         ["git", *args], cwd=str(cwd or REPO_ROOT), capture_output=True, text=True, check=False
@@ -268,12 +341,20 @@ def run_native_suite(
     # engine is the same engine. That is re-proven from the engine's main-source
     # trees on every run and fails closed if any module differs. Resolving this
     # live rather than asserting it is what surfaced the divergence originally.
-    # A pinned materialization may be supplied as a verified export rather than a
-    # git checkout. In that case there is no HEAD to read and, more importantly,
-    # no module tree to compare, so no descendant-equivalence proof is possible.
-    # Say so and withhold native credit rather than inventing a commit.
-    workspace_has_git = Path(spec["root"], ".git").exists()
-    if not workspace_has_git:
+    # The engine-drift comparison only applies where the engine is its own Git
+    # repository. The Forge suites execute in a Forge checkout, so a Rules-Core
+    # drift check is meaningful there. The XMage bridge is a module of the Lab
+    # repository, so `HEAD` there is the Lab's own commit, not the XMage engine's,
+    # and comparing it against the XMage engine commit compares two unrelated
+    # things. XMage's engine identity is the provider's own reported commit, which
+    # AF00 verifies fail-closed at handshake, so nothing is lost by not
+    # pretending a checkout exists where it does not.
+    # A pinned materialization may be supplied as a verified EXPORT rather than a
+    # git checkout. Then there is no HEAD to read and, more importantly, no
+    # per-module tree to compare, so no descendant-equivalence proof is possible.
+    # Say so and withhold credit rather than inventing a commit. This is the case
+    # for the pinned upstream Forge candidate, whose workspace is an export.
+    if not Path(spec["root"], ".git").exists():
         return _no_credit_receipt(
             candidate,
             group,
@@ -282,29 +363,41 @@ def run_native_suite(
             "metadata, so neither an executing HEAD nor a per-module tree proof exists; "
             "native credit is withheld rather than inferred from the supplied commit",
         )
-    actual_engine_commit = git("rev-parse", "HEAD", cwd=spec["root"])
-    if spec.get("identity_proof") == "LAB_OWNED_BRIDGE_MODULE":
-        # The suite runs in this repository's own engine-bridge module, so the
-        # executing code is the Lab commit (already bound and digest-verified by
-        # the runner receipt) and the engine is the separately pinned artifact.
-        engine_equivalence = receipt_mod.verify_lab_owned_bridge_identity(
-            runner.commit,
-            spec["expected_engine_commit"],
-            recorded_label=f"native suite {candidate}:{group}",
-        )
-    else:
+    actual_head = git("rev-parse", "HEAD", cwd=spec["root"])
+    engine_toplevel = git("rev-parse", "--show-toplevel", cwd=spec["root"])
+    root_is_own_repo = (
+        bool(engine_toplevel) and Path(engine_toplevel).resolve() == spec["root"].resolve()
+    )
+    if root_is_own_repo:
         engine_equivalence = receipt_mod.verify_engine_identity(
             spec["root"],
             recorded_commit=spec["expected_engine_commit"],
-            actual_commit=actual_engine_commit,
+            actual_commit=actual_head,
             recorded_label=f"native suite {candidate}:{group}",
         )
-    print(
-        f"engine identity {candidate}:{group}: "
-        f"{engine_equivalence['justification']} "
-        f"(recorded {spec['expected_engine_commit'][:12]}, "
-        f"executing {actual_engine_commit[:12]})"
-    )
+        print(
+            f"engine identity {candidate}:{group}: "
+            f"{engine_equivalence['justification']} "
+            f"(recorded {spec['expected_engine_commit'][:12]}, "
+            f"executing {actual_head[:12]})"
+        )
+    else:
+        engine_equivalence = {
+            "engine_equivalent": None,
+            "justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+            "recorded_commit": spec["expected_engine_commit"],
+            "actual_commit": actual_head,
+            "suite_root": str(spec["root"]),
+            "containing_repository": engine_toplevel or "UNKNOWN",
+            "detail": "the executing suite root is a module of the containing repository, "
+            "so its HEAD identifies that repository, not the engine. The engine identity "
+            "is the provider's own reported commit, verified fail-closed at handshake by "
+            "AF00. No checkout identity is asserted for this candidate.",
+        }
+        print(
+            f"engine identity {candidate}:{group}: not a separate checkout; engine identity "
+            f"comes from the provider handshake (expected {spec['expected_engine_commit'][:12]})"
+        )
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
     started = receipt_mod._now()
@@ -327,7 +420,7 @@ def run_native_suite(
         candidate_repository=spec.get("repository", "UNCONFIGURED"),
         candidate_commit=spec["expected_engine_commit"],
         candidate_tree=spec.get("engine_tree", "UNCONFIGURED"),
-        executed_commit=actual_engine_commit,
+        executed_commit=actual_head,
         engine_identity_proof=engine_equivalence,
         build_identity=json.dumps(spec.get("build_identity", {}), sort_keys=True),
         started_utc=started,
@@ -387,39 +480,6 @@ def _no_credit_receipt(
     receipt_mod.persist(path, document)
     print(f"native suite {candidate}:{group}: NO_CREDIT ({reason})")
     return document
-
-
-def run_all_native_suites(runner: receipt_mod.RunnerIdentity) -> list[dict[str, Any]]:
-    """Execute every bound native suite; return only the persisted receipts.
-
-    A suite that cannot be credited records a NO_CREDIT receipt naming the exact
-    reason. It must never abort the run: the rest of the boundary evidence is
-    still valid and must be produced, and the uncreditable suite is reported
-    rather than lost.
-    """
-    receipts: list[dict[str, Any]] = []
-    for candidate in ("xmage", "forge"):
-        for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
-            try:
-                receipts.append(run_native_suite(candidate, group, runner=runner))
-            except (
-                receipt_mod.ReceiptError,
-                subprocess.SubprocessError,
-                OSError,
-            ) as exc:
-                receipts.append(
-                    _no_credit_receipt(candidate, group, runner, f"{type(exc).__name__}: {exc}")
-                )
-    return receipts
-
-
-def write(name: str, payload: Any) -> None:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUT_DIR / name
-    path.write_text(
-        json.dumps(payload, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
-    )
-    print(f"wrote {name}")
 
 
 def _observed_envelope_refusal(candidate: str, count: int, engine_reason: str) -> dict[str, Any]:
@@ -505,6 +565,39 @@ def _record_envelope_row(
     )
 
 
+def run_all_native_suites(runner: receipt_mod.RunnerIdentity) -> list[dict[str, Any]]:
+    """Execute every bound native suite; return only the persisted receipts.
+
+    A suite that cannot be credited records a NO_CREDIT receipt naming the exact
+    reason. It must never abort the run: the rest of the boundary evidence is
+    still valid and must be produced, and the uncreditable suite is reported
+    rather than lost.
+    """
+    receipts: list[dict[str, Any]] = []
+    for candidate in ("xmage", "forge"):
+        for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
+            try:
+                receipts.append(run_native_suite(candidate, group, runner=runner))
+            except (
+                receipt_mod.ReceiptError,
+                subprocess.SubprocessError,
+                OSError,
+            ) as exc:
+                receipts.append(
+                    _no_credit_receipt(candidate, group, runner, f"{type(exc).__name__}: {exc}")
+                )
+    return receipts
+
+
+def write(name: str, payload: Any) -> None:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUT_DIR / name
+    path.write_text(
+        json.dumps(payload, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
+    )
+    print(f"wrote {name}")
+
+
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     """Run AF01, cardinality, START-2 and the dimension probes for one candidate."""
     identity = runtime_identity(candidate)
@@ -517,6 +610,13 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     probes: dict[str, Any] = {}
 
     with launch(plan) as proc:
+        # ---- a real live game for the decision-time invariants -----------
+        # AF01's fail-closed decision probes were previously issued with no
+        # game at all. A provider asked to fail closed on a submission for a
+        # game that does not exist refuses for reasons unrelated to
+        # decision-time legality, so those results were passes for the wrong
+        # reason. Drive a real Commander game to its first priority decision
+        # and probe against that game instead.
         # ---- PB-03: the engine's OWN restoration manifest ------------------
         # Read it from the live candidate, not from a Lab projection. A missing
         # or malformed manifest fails closed: it must never be treated as "the
@@ -543,7 +643,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             restoration_manifest_error = str(exc)
         probes["restoration_manifest"] = restoration_manifest
         probes["restoration_manifest_error"] = restoration_manifest_error
-        declared_caps = game_driver.capability_block(capability_response or {})
+        declared_caps = capability_block(capability_response or {})
         envelope_error: str | None = None
         if not declared_caps:
             # An absent capability block is UNKNOWN, not an empty envelope. The
@@ -560,13 +660,6 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         }
         probes["lane_player_envelope_error"] = envelope_error
 
-        # ---- a real live game for the decision-time invariants -----------
-        # AF01's fail-closed decision probes were previously issued with no
-        # game at all. A provider asked to fail closed on a submission for a
-        # game that does not exist refuses for reasons unrelated to
-        # decision-time legality, so those results were passes for the wrong
-        # reason. Drive a real Commander game to its first priority decision
-        # and probe against that game instead.
         # The decision-time AF01 invariants need a live game, and the two
         # candidates do NOT qualify the same player counts: the pinned Forge
         # bridge qualifies exactly four. Drive the smallest count the engine
@@ -599,7 +692,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                     drive_to="priority",
                 )
                 break
-            except game_driver.UnsupportedPlayerCount as exc:
+            except UnsupportedPlayerCount as exc:
                 refusals.append(
                     {
                         "requested_player_count": af01_player_count_driven,
@@ -617,6 +710,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 af01_player_count_driven = fallback
         probes["af01_live_player_count_driven"] = af01_player_count_driven
         probes["af01_live_player_count_refusals"] = refusals
+        af01_game_id = af01_live.game_id
         af01_game_id = af01_live.game_id
         probes["af01_live_game"] = {
             "game_id": af01_game_id,
@@ -652,6 +746,16 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         }
         write(f"AF01_{candidate.upper()}.json", af01_doc)
         probes["af01_verdict"] = af01.verdict
+        # Carry the provider's DECLARED capabilities into the run identity. Block
+        # attribution must consult what this candidate says it supports, not a
+        # hard-coded statement about one candidate applied to all of them.
+        declared = af01_doc.get("capabilities_provider_reported") or {}
+        identity["starting_state_injection_supported"] = declared.get(
+            "starting_state_injection_supported"
+        )
+        identity["scenario_injection_supported"] = declared.get("scenario_injection_supported")
+        identity["seed_supported"] = declared.get("seed_supported")
+        identity["capabilities_provider_reported"] = declared
 
         # ---- AF03 RULES_AUTHORITY: negative deck-import probes ----------
         af03 = run_af03(
@@ -659,8 +763,35 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             candidate=candidate,
             legal_deck=build_deck("af03-control"),
         )
-        write(f"AF03_{candidate.upper()}.json", af03.to_document())
+        af03_document = af03.to_document()
+        write(f"AF03_{candidate.upper()}.json", af03_document)
         probes["af03_verdict"] = af03.verdict
+        # What the engine actually did on negative import, stated from the probe.
+        af03_evidence = {
+            "verdict": af03_document["verdict"],
+            "probes_passed": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "PASS"
+            ],
+            "probes_failed": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "FAIL"
+            ],
+            "probes_unknown": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "UNKNOWN"
+            ],
+            "statement": (
+                "the engine refused every negative deck-import probe in this run, so the "
+                "import is engine-validated rather than construction-only"
+                if af03.verdict == "PASS"
+                else "the engine did NOT refuse every negative deck-import probe, so this run "
+                "does not establish engine-validated import; see the failed probes"
+            ),
+        }
 
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         cardinality: dict[str, Any] = {}
@@ -695,14 +826,13 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 result = run_cardinality(
                     proc, candidate=candidate, player_count=count, runtime_identity=identity
                 )
-            except game_driver.UnsupportedPlayerCount as exc:
+            except UnsupportedPlayerCount as exc:
                 # The engine refused this count by contract. A DECLARED envelope
-                # cannot catch this case, because the pinned Forge bridge
-                # qualifies exactly four players while advertising no minimum, so
-                # every count below four looks supported until the engine says
-                # otherwise. Record what the engine said and move on: a refused
-                # count is unavailable, not wrong, and one refusal must not abort
-                # the whole column.
+                # cannot catch this case, because the pinned Forge bridge qualifies
+                # exactly four players while advertising no minimum, so every count
+                # below four looks supported until the engine says otherwise.
+                # Record what the engine said and move on: a refused count is
+                # unavailable, not wrong, and one refusal must not abort the column.
                 document = _observed_envelope_refusal(candidate, count, str(exc))
                 cardinality[f"{count}P"] = document
                 _record_envelope_row(
@@ -764,6 +894,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # returned byte-identical payloads for all four seats.
         scoping = validate_principal_scoping(observations, requested_seats=seats)
         probes["hidden_game"] = hidden_game.to_document()
+        probes["hidden_game_seed_binding"] = hidden_game.seed_binding
         probes["hidden_observations"] = observations
         probes["hidden_scoping"] = scoping
         if not scoping["credible_as_principal_scoped_evidence"]:
@@ -806,12 +937,22 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "candidate": candidate,
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
-                "rules_rng_binding": {
-                    "requested_seed": 424242,
-                    "engine_owned": True,
-                    "harness_injected_outcomes": False,
-                    "provider_reported_seed_supported": True,
-                },
+                # Derived from what the engine acknowledged, never asserted from
+                # caller intent. This previously carried a literal
+                # engine_owned: true with a hard-coded requested seed, which is
+                # the original defect: it credited Rules RNG and replay control
+                # that no observation established. The probe game is the same
+                # driven game whose binding is recorded, so the value is real.
+                "rules_rng_binding": (
+                    probes["hidden_game_seed_binding"].to_document()
+                    if probes.get("hidden_game_seed_binding") is not None
+                    else {
+                        "control": "UNCONTROLLED_ENGINE_RNG",
+                        "detail": "no engine acknowledgement was observed for this run",
+                        "rng_credit": False,
+                    }
+                ),
+                "harness_injected_outcomes": False,
                 "semantic_replay": replay_payload,
                 "event_log": probes["event_log"],
                 "same_seed_twin": "see comparison packet; twin runs are executed per candidate",
@@ -819,6 +960,24 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- actual-card probe -------------------------------------------
+        # Cards whose behaviour was EXERCISED this run, derived from the
+        # actual-card row outcomes. Naming or importing a card is not execution.
+        # Read the ACTUAL row result, not the materialization record: only a row
+        # that executed and passed can contribute executed cards.
+        frozen_corpus = frozen_actual_card_corpus()
+        # An identity is covered only when ITS OWN mandatory fixture row passed.
+        # No list attached to any other row can claim it.
+        card_identities = card_fixture_identities()
+        passed_rows = {row.fixture_id for row in rows if row.outcome == "PASS"}
+        covered_corpus = {
+            identity
+            for fixture_id, identity in card_identities.items()
+            if fixture_id in passed_rows
+        }
+        unexecuted_card_rows = sorted(
+            fixture_id for fixture_id in card_identities if fixture_id not in passed_rows
+        )
+
         write(
             f"ACTUAL_CARD_{candidate.upper()}.json",
             {
@@ -827,24 +986,49 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
                 "cards_imported_at_runtime": hidden_game.deck_identity,
-                "cards": [
-                    "Isamaru, Hound of Konda",
-                    "Silvercoat Lion",
-                    "Serra Angel",
-                    "Savannah Lions",
-                    "Knight of Dawn",
-                    "Elite Vanguard",
-                    "Eager Cadet",
-                    "Suntail Hawk",
-                    "Valiant Guard",
-                    "Serra Ascendant",
-                    "Aerial Assault",
-                    "Wall of Faith",
-                ],
-                "engine_validated": "the engine itself rejected an illegal colour identity and "
-                "unknown card names during this run, proving the import is "
-                "engine-validated rather than construction-only",
-                "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
+                "cards": list(ACTUAL_CARD_NAMES),
+                # Derived from the AF03 probe this run actually executed. It
+                # previously asserted in prose that "the engine itself rejected an
+                # illegal colour identity and unknown card names", which is the
+                # OPPOSITE of what the observed probe shows for Forge: the
+                # executed Forge bridge ACCEPTED a colour-identity violation and a
+                # non-Commander commander. A prose claim that contradicts the run's
+                # own evidence is a false credit, so the value is now the probe
+                # verdicts.
+                "engine_validated": af03_evidence,
+                "required_29_card_corpus": {
+                    "required_count": len(frozen_corpus),
+                    "required_identities_source": ACTUAL_CARD_DOMAIN_MANIFEST.name,
+                    "declared_in_this_artifact": len(ACTUAL_CARD_NAMES),
+                    "declared_identities_in_frozen_corpus": len(
+                        set(ACTUAL_CARD_NAMES) & set(frozen_corpus)
+                    ),
+                    # Decks are per seat, not per card. Counting them said nothing
+                    # about the corpus.
+                    "decks_imported_at_runtime": len(hidden_game.deck_identity),
+                    # Counted against the FROZEN identities, not the local list.
+                    # ACTUAL_CARD_NAMES shares zero members with the required
+                    # corpus, and a row passing 29 arbitrary cards must not be able
+                    # to claim the corpus it never touched.
+                    "behaviorally_executed_cards": sorted(covered_corpus),
+                    "behaviorally_executed_count": len(covered_corpus),
+                    "missing_identities": sorted(set(frozen_corpus) - covered_corpus),
+                    "card_fixtures": len(card_identities),
+                    "card_fixtures_passed": len(card_identities) - len(unexecuted_card_rows),
+                    "unexecuted_card_fixtures": unexecuted_card_rows,
+                    "complete": not (set(frozen_corpus) - covered_corpus),
+                    "statement": (
+                        f"{len(covered_corpus)} of the {len(frozen_corpus)} frozen corpus "
+                        "identities have their own mandatory fixture row passing; the corpus "
+                        "is "
+                        + (
+                            "complete"
+                            if not (set(frozen_corpus) - covered_corpus)
+                            else "NOT executed, so the actual-card obligation is "
+                            "unestablished and the row cannot be credited"
+                        )
+                    ),
+                },
             },
         )
 
@@ -853,6 +1037,10 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         "probes": probes,
         "identity": identity,
         "plan": plan.lane,
+        # The engine's OWN restoration manifest travels with the outcome so the
+        # not-yet-executed rows can be explained from the engine's per-dimension
+        # answer instead of a Lab projection. A bare boolean cannot say which
+        # dimensions the engine can restore.
         "restoration_manifest": probes.get("restoration_manifest"),
         "restoration_manifest_error": probes.get("restoration_manifest_error"),
     }
@@ -867,10 +1055,11 @@ def _starting_state_reason(
     """Explain a frozen mid-game row using the ENGINE's own manifest.
 
     PB-03 replaced the previous Lab projection. The old text asserted that the
-    mechanisms were unreachable because the bridge reported
-    ``starting_state_injection_supported=false``; a bare boolean cannot support
-    that, because it does not say which dimensions the engine can restore. The
-    manifest does, so the reason now quotes the engine.
+    mechanisms were unreachable on the strength of one declared boolean; a bare
+    boolean cannot support that claim, because it does not say WHICH dimensions
+    the engine can restore. The manifest does, so the reason now quotes the
+    engine per dimension. The retired boolean wording is deliberately absent from
+    this string so it can never reappear as a live reason.
 
     Three outcomes are possible and all are explicit:
 
@@ -938,25 +1127,68 @@ def classify_remaining(
         fixture_id = record["fixture_id"]
         if fixture_id in executed:
             continue
-        # PB-03: decide from the obligation's mechanisms, not from the row name,
-        # and settle admissibility from the ENGINE's own restoration manifest
-        # rather than from a Lab projection.
-        # mid_game_mechanisms/requires_starting_state are module-level
-        # functions, not EffectiveMaterialization methods. Calling them on
-        # the instance raised AttributeError and aborted the whole run.
-        mechanisms = materialization_mod.mid_game_mechanisms(record)
-        if mechanisms:
-            reason = _starting_state_reason(
-                candidate,
-                mechanisms,
-                restoration_manifest,
-                restoration_manifest_error,
-            )
+        # PB-03: decide from the obligation's mechanisms, not from the row name.
+        mechanisms = mid_game_mechanisms(record)
+        if mechanisms and restoration_manifest is not None:
+            # When the engine published its OWN restoration manifest, admissibility
+            # is settled from the engine's per-dimension answer rather than from a
+            # bare boolean, which cannot say which dimensions the engine can
+            # actually restore. The candidate-aware distinction below still applies;
+            # this only replaces the Lab projection with the engine's own words.
             rows.append(
                 non_executed_row(
                     record,
                     candidate=candidate,
                     outcome="BLOCKED",
+                    reason=_starting_state_reason(
+                        candidate,
+                        list(mechanisms),
+                        restoration_manifest,
+                        restoration_manifest_error,
+                    ),
+                    runtime_identity=identity,
+                )
+            )
+            continue
+        if mechanisms:
+            # The mechanism requirement is candidate-neutral, but the CAPABILITY is
+            # not. This reason used to cite the XMage bridge's
+            # starting_state_injection_supported=false for every candidate, so
+            # Forge rows were attributed to a capability Forge actually declares
+            # it has: AF01_FORGE.json reports starting_state_injection_supported
+            # true and scenario_injection_supported true. Where the candidate
+            # declares the capability and this run did not exercise the seam, the
+            # block is a Lab EXECUTION-PATH gap, not a candidate capability gap,
+            # and saying otherwise would misdirect remediation away from the work
+            # that would actually unblock the rows.
+            declares_injection = identity.get("starting_state_injection_supported")
+            if declares_injection is True:
+                reason = (
+                    "no current-boundary execution seam, and this is a LAB EXECUTION-PATH "
+                    f"gap rather than a candidate capability gap: the obligation requires a "
+                    f"frozen mid-game starting state ({sorted(mechanisms)}), and this "
+                    f"candidate DECLARES starting_state_injection_supported=true, but this "
+                    "run did not exercise the injection seam. The rows stay unestablished "
+                    "and uncredited; closing them requires Lab execution work, not "
+                    "candidate remediation."
+                )
+                outcome = "BLOCKED"
+            else:
+                reason = (
+                    "no current-boundary execution seam: the effective obligation requires a "
+                    "frozen mid-game starting state because it requires the mid-game "
+                    f"mechanisms {sorted(mechanisms)}, and this candidate reports "
+                    "starting_state_injection_supported="
+                    f"{declares_injection!r}. Native causal-reconstruction harnesses exist "
+                    "for adjacent mechanisms but are not the same obligation; no credit is "
+                    "transferred."
+                )
+                outcome = "BLOCKED"
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome=outcome,
                     reason=reason,
                     runtime_identity=identity,
                 )
@@ -1144,7 +1376,7 @@ def main() -> int:
 
     # The executing qualification code must be the committed code, or the
     # receipts below would name a provenance the bytes do not have.
-    runner = receipt_mod.capture_runner_identity(REPO_ROOT, output_paths=(str(OUT_DIR),))
+    runner = receipt_mod.capture_runner_identity(REPO_ROOT)
     receipt_mod.require_clean_runner(runner)
     print(
         "runner bound:",

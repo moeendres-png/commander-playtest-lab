@@ -24,19 +24,12 @@ def _child(body: str) -> str:
     return textwrap.dedent(body)
 
 
-# Stubs are written into a pytest-provided temporary directory, never into the
-# source tree. Writing them under tests/ left generated .py files in the
-# repository, which (a) pollutes the tracked worktree at runtime and (b) makes
-# the `ruff check .` CI gate fail on generated code that no human maintains.
-@pytest.fixture
-def stub_dir(tmp_path: Path) -> Path:
-    directory = tmp_path / "bridge_stubs"
-    directory.mkdir()
-    return directory
+STUB_DIR = Path(__file__).resolve().parent / "_bridge_stubs"
 
 
-def _write_stub(directory: Path, name: str, body: str) -> Path:
-    path = directory / name
+def _write_stub(name: str, body: str) -> Path:
+    STUB_DIR.mkdir(exist_ok=True)
+    path = STUB_DIR / name
     path.write_text(_child(body), encoding="utf-8")
     path.chmod(0o755)
     return path
@@ -86,8 +79,8 @@ def _session(popen: subprocess.Popen) -> B.BridgeProcess:
     )
 
 
-def test_normal_response_is_returned(stub_dir: Path) -> None:
-    script = _write_stub(stub_dir, "ok.py", _respond_ok())
+def test_normal_response_is_returned() -> None:
+    script = _write_stub("ok.py", _respond_ok())
     popen = _spawn(script)
     try:
         session = _session(popen)
@@ -98,9 +91,8 @@ def test_normal_response_is_returned(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_no_output_times_out_and_terminates_child(stub_dir: Path) -> None:
+def test_no_output_times_out_and_terminates_child() -> None:
     script = _write_stub(
-        stub_dir,
         "silent.py",
         """\
         import sys, time
@@ -127,9 +119,8 @@ def test_no_output_times_out_and_terminates_child(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_child_alive_forever_times_out_and_is_reaped(stub_dir: Path) -> None:
+def test_child_alive_forever_times_out_and_is_reaped() -> None:
     script = _write_stub(
-        stub_dir,
         "forever.py",
         """\
         import sys, time
@@ -150,10 +141,9 @@ def test_child_alive_forever_times_out_and_is_reaped(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_partial_line_never_becomes_a_pass(stub_dir: Path) -> None:
+def test_partial_line_never_becomes_a_pass() -> None:
     """A truncated line must be a protocol failure, not a silent default."""
     script = _write_stub(
-        stub_dir,
         "partial.py",
         """\
         import json, sys
@@ -177,9 +167,8 @@ def test_partial_line_never_becomes_a_pass(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_process_exit_before_response_is_a_launch_error(stub_dir: Path) -> None:
+def test_process_exit_before_response_is_a_launch_error() -> None:
     script = _write_stub(
-        stub_dir,
         "exits.py",
         """\
         import sys
@@ -198,9 +187,8 @@ def test_process_exit_before_response_is_a_launch_error(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_late_response_within_a_generous_deadline_succeeds(stub_dir: Path) -> None:
+def test_late_response_within_a_generous_deadline_succeeds() -> None:
     script = _write_stub(
-        stub_dir,
         "late.py",
         """\
         import json, sys, time
@@ -223,10 +211,9 @@ def test_late_response_within_a_generous_deadline_succeeds(stub_dir: Path) -> No
         popen.wait(timeout=5)
 
 
-def test_execution_continues_after_a_timeout(stub_dir: Path) -> None:
+def test_execution_continues_after_a_timeout() -> None:
     """A stalled candidate must not prevent the next candidate from running."""
     stalled = _write_stub(
-        stub_dir,
         "stall1.py",
         """\
         import sys, time
@@ -235,7 +222,7 @@ def test_execution_continues_after_a_timeout(stub_dir: Path) -> None:
                 time.sleep(600)
     """,
     )
-    healthy = _write_stub(stub_dir, "ok2.py", _respond_ok())
+    healthy = _write_stub("ok2.py", _respond_ok())
 
     first = _spawn(stalled)
     try:
@@ -254,9 +241,8 @@ def test_execution_continues_after_a_timeout(stub_dir: Path) -> None:
         second.wait(timeout=5)
 
 
-def test_timeout_is_recorded_in_the_transcript(stub_dir: Path) -> None:
+def test_timeout_is_recorded_in_the_transcript() -> None:
     script = _write_stub(
-        stub_dir,
         "silent2.py",
         """\
         import sys, time
@@ -281,9 +267,8 @@ def test_timeout_is_recorded_in_the_transcript(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_timeout_error_names_the_timeout(stub_dir: Path) -> None:
+def test_timeout_error_names_the_timeout() -> None:
     script = _write_stub(
-        stub_dir,
         "silent3.py",
         """\
         import sys, time
@@ -302,9 +287,8 @@ def test_timeout_error_names_the_timeout(stub_dir: Path) -> None:
         popen.wait(timeout=5)
 
 
-def test_no_zombie_remains_after_timeout(stub_dir: Path) -> None:
+def test_no_zombie_remains_after_timeout() -> None:
     script = _write_stub(
-        stub_dir,
         "silent4.py",
         """\
         import sys, time

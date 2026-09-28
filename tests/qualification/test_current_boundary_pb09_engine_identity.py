@@ -30,65 +30,53 @@ FORK = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
 UPSTREAM = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
 BRIDGE = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+BRIDGE_HEAD = "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa"
+BRIDGE_TREE = "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9"
 
 
 def test_the_four_forge_commits_are_all_distinct() -> None:
     assert len({FORK, UPSTREAM, TIP, BRIDGE}) == 4
 
 
-def test_source_lock_names_all_four_identities() -> None:
-    """All four Forge commits stay named and distinct under distinct keys.
+def test_source_lock_names_all_five_identities() -> None:
+    """FIVE distinct Forge identities, each named under its own key.
 
-    Re-pointing the executing engine to the pin must not collapse the set: the
-    fork head, the pinned candidate, the WSR20 tip and the additive bridge are
-    four different things and each keeps its own name.
+    The convergence added a fifth: the fork-side bridge/evidence head is a
+    different bridge from the one that materialized the pinned core, so counting
+    four would leave a real identity unnamed and therefore conflable.
     """
-    forge = sl.boundary_receipt()["candidates"]["forge"]
-    identity = forge["engine_identity_pb09"]
-    assert forge["column_scope"] == "pinned_upstream"
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
     assert identity["executing_engine"]["commit"] == UPSTREAM
     assert identity["fork_head"]["commit"] == FORK
     assert identity["upstream_baseline"]["commit"] == UPSTREAM
     assert identity["wsr20_evidence_tip"]["commit"] == TIP
     assert identity["bridge_source_commit"]["commit"] == BRIDGE
-    # The bridge materializes the pinned candidate and must say so, so the two
-    # identities can never be cross-wired the way they were before.
-    assert identity["bridge_source_commit"]["rules_core_base_commit"] == UPSTREAM
-    # The fork and the pinned candidate must never share a name.
-    assert {FORK, UPSTREAM, TIP, BRIDGE} == {
+    assert identity["bridge_evidence_head"]["commit"] == BRIDGE_HEAD
+    named = {
         identity["executing_engine"]["commit"],
         identity["fork_head"]["commit"],
         identity["wsr20_evidence_tip"]["commit"],
         identity["bridge_source_commit"]["commit"],
+        identity["bridge_evidence_head"]["commit"],
     }
+    assert len(named) == 5, "the five Forge identities must be five distinct commits"
 
 
-def test_the_fork_is_never_the_candidate_and_never_labelled_pristine() -> None:
-    """The fork is Lab-modified Rules Core. It is not the candidate at all now.
+def test_the_fork_is_never_labelled_pristine_upstream() -> None:
+    """The fork is Lab-modified Rules Core and is never called pristine.
 
-    This guard was originally "the fork is never labelled pristine upstream". After
-    the authorized re-point to the pinned-upstream column the stronger invariant
-    holds: the fork is not the executing candidate either, so no result can be
-    reported against it by accident, and it is still never called pristine.
+    The convergence moved the EXECUTING engine to the pinned upstream, which IS
+    pristine and IS observed. That must not weaken this guard: the fork keeps its
+    own block and is still never labelled pristine, and it is never the candidate.
     """
     identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
-    assert identity["executing_engine"]["is_pristine_upstream"] is True
-    assert identity["fork_head"]["commit"] == FORK
     assert identity["fork_head"]["is_pristine_upstream"] is False
-    assert sl.FORGE_CANDIDATE_COMMIT != sl.FORGE_FORK_HEAD_COMMIT
-    assert sl.FORGE_CANDIDATE_COMMIT == UPSTREAM
-
-
-def test_upstream_behaviour_is_observed_because_the_pinned_candidate_was_executed() -> None:
-    """Upstream behaviour was UNKNOWN until the pinned candidate was executed.
-
-    It is now executed, so the receipt may say so; saying so is what stops the
-    historical fork result from being read as an upstream result.
-    """
-    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["fork_head"]["commit"] == FORK
+    assert sl.FORGE_CANDIDATE_COMMIT != FORK
+    # The pristine claim belongs to the pin, and the pin is genuinely observed.
+    assert identity["executing_engine"]["is_pristine_upstream"] is True
     assert identity["upstream_baseline"]["verified_pristine"] is True
     assert identity["upstream_baseline"]["upstream_behaviour_observed"] is True
-    assert sl.FORGE_COLUMN_SCOPE == "pinned_upstream"
 
 
 def test_the_descendant_is_never_claimed_to_be_the_candidate_head() -> None:
@@ -115,11 +103,21 @@ def test_config_and_readiness_carry_the_same_identities(path: Path) -> None:
         if "secondary_engine" in document
         else document["engine_identity_pb09"]
     )
-    assert identity["executing_engine"]["commit"] == FORK
-    assert identity["executing_engine"]["is_pristine_upstream"] is False
+    # The config and the readiness packet must agree on the SAME converged model:
+    # the pinned upstream is what executes, it is pristine, and it has been
+    # observed. Disagreement between these two files is exactly the conflation
+    # this whole guard exists to prevent, so it is checked in both directions.
+    assert identity["executing_engine"]["commit"] == UPSTREAM
+    assert identity["executing_engine"]["is_pristine_upstream"] is True
+    assert identity["fork_head"]["commit"] == FORK
+    assert identity["fork_head"]["is_pristine_upstream"] is False
     assert identity["upstream_baseline"]["commit"] == UPSTREAM
-    assert identity["upstream_baseline"]["verified_pristine"] is False
-    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is False
+    assert identity["upstream_baseline"]["verified_pristine"] is True
+    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is True
+    # The two bridges stay separately named, so a result from one can never be
+    # reported for the other.
+    assert identity["bridge_source_commit"]["commit"] == BRIDGE
+    assert identity["bridge_evidence_head"]["commit"] == BRIDGE_HEAD
     assert "confusion_forbidden" in identity
 
 
@@ -140,10 +138,15 @@ def test_commit_field_is_the_pin_of_record_not_a_verdict_on_pb09() -> None:
     secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
     meaning = secondary["commit_meaning"].upper()
     assert "PINNED CANDIDATE OF RECORD" in meaning
-    assert "OPEN" in meaning and "COORDINATOR" in meaning
-    # It must not assert the fork is not the engine, which would pre-judge PB-09.
-    assert "NOT THE ENGINE THAT EXECUTES" not in meaning
-    assert secondary["engine_identity_pb09"]["pb09_status"].startswith("OPEN")
+    # The provider decision and the freeze stay Coordinator-owned and unclaimed.
+    assert "COORDINATOR" in meaning
+    assert "PRODUCTION_PROVIDER" in meaning
+    assert "ARCHITECTURE_FREEZE" in meaning
+    # It must never repin the field to the fork to make evidence agree.
+    assert secondary["commit"] == UPSTREAM
+    assert secondary["commit"] != FORK
+    status = secondary["engine_identity_pb09"]["pb09_status"]
+    assert "COORDINATOR" in status.upper()
 
 
 def test_identity_blocks_declare_pb09_open_rather_than_resolved() -> None:
@@ -154,8 +157,14 @@ def test_identity_blocks_declare_pb09_open_rather_than_resolved() -> None:
             if "secondary_engine" in document
             else document["engine_identity_pb09"]
         )
-        assert identity["pb09_status"].startswith("OPEN"), path.name
-        assert "RESOLVED" not in identity["pb09_status"].upper()
+        status = identity["pb09_status"]
+        # PB-09's factual half is resolved by execution: the pinned upstream was
+        # built, proven pristine and run live. Its DECISION half is not, and must
+        # not be: provider selection and the architecture freeze are the
+        # Coordinator's, so the status must say so and claim neither.
+        assert "RESOLVED_BY_EXECUTION" in status.upper(), path.name
+        assert "COORDINATOR" in status.upper(), path.name
+        assert "NOT CLAIMED" in status.upper(), path.name
 
 
 def test_readiness_records_pb09_as_a_freeze_blocker() -> None:
@@ -284,6 +293,140 @@ def test_real_forge_descendant_is_engine_equivalent() -> None:
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
 
     proof = verify_engine_identity(forge, FORK, TIP, recorded_label="forge native suite")
-    assert proof["justification"] == "ENGINE_MAIN_SOURCE_TREES_IDENTICAL"
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
     assert proof["differing_modules"] == []
-    assert len(proof["modules"]) == 7
+    # Six Rules-Core modules. forge-protocol2-bridge is excluded and bound
+    # separately, because it is transport/provenance, not Magic legality.
+    assert len(proof["modules"]) == 6
+    assert "forge-game" in proof["modules"]
+    assert "forge-protocol2-bridge" not in proof["modules"]
+    assert set(proof["compared_module_roots"]) == {
+        "forge-game",
+        "forge-core",
+        "forge-ai",
+        "forge-gui",
+        "forge-gui-desktop",
+        "adventure-editor",
+    }
+
+
+# --- the bridge is a separate identity, never collapsed into the Rules Core --- #
+
+
+def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
+    """PB-05 changed the bridge and no Rules-Core source. The check must pass."""
+    from commander_lab.qualification.current_boundary import receipts as R
+
+    assert "forge-protocol2-bridge" not in R.FORGE_RULES_CORE_MODULE_ROOTS
+    assert R.FORGE_BRIDGE_MODULE_ROOTS == ("forge-protocol2-bridge",)
+    assert "forge-game" in R.FORGE_RULES_CORE_MODULE_ROOTS
+
+
+def test_forge_pr4_head_is_rules_core_equivalent_to_the_fork_head() -> None:
+    """The real PB-05 fact: the bridge repair changed zero Rules-Core source."""
+    forge = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+    if not (forge / ".git").exists():
+        pytest.skip("the Forge reference checkout is not present in this environment")
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR4")
+    assert proof["engine_equivalent"] is True
+    assert proof["differing_modules"] == []
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
+
+
+def test_rules_core_drift_still_fails_closed() -> None:
+    """Excluding the bridge must not weaken the drift guard for real engine code."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        for module in ("forge-game", "forge-protocol2-bridge"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/E.java").write_text("class E {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "head"],
+            cwd=repo,
+            check=True,
+        )
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+        # A forge-game change is Rules-Core drift and must be refused.
+        (repo / "forge-game/src/main/java/E.java").write_text("class E { int x; }\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "engine"],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+        with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+            verify_engine_identity(repo, head, tip, recorded_label="forge")
+
+
+def test_bridge_and_evidence_head_is_bound_separately() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    head = identity["bridge_evidence_head"]
+    assert head["commit"] == BRIDGE_HEAD
+    assert head["tree"] == BRIDGE_TREE
+    assert head["pull_request"] == 4
+    assert head["is_draft"] is True, "Forge PR #4 must stay Draft"
+    assert head["changes_rules_core"] is False
+    # Distinct from the Rules Core and from the historical bridge pin.
+    assert head["commit"] != identity["executing_engine"]["commit"]
+    assert head["commit"] != identity["bridge_source_commit"]["commit"]
+
+
+def test_pb05_credit_rule_is_recorded_with_the_identities() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["pb05_provenance_consumed"] == list(sl.FORGE_PB05_PROVENANCE_FIELDS)
+    assert "no AF00 or PB-05 credit" in identity["pb05_credit_rule"]
+
+
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# CONVERGENCE GUARDS (SB independent baseline). The converged source lock executes
+# the PINNED UPSTREAM core and demotes the Lab fork to non-candidate, so these pin
+# that stronger invariant. They are ADDITIONAL to main's four-commits-distinct,
+# never-labelled-pristine and bridge-head guards, which still hold unchanged: a
+# fork result stays valid evidence ABOUT THE FORK and is simply never evidence
+# about the pin.
+# ---------------------------------------------------------------------------
+
+
+def test_the_fork_is_never_the_candidate_and_never_labelled_pristine() -> None:
+    """The fork is Lab-modified Rules Core. It is not the candidate at all now.
+
+    This guard was originally "the fork is never labelled pristine upstream". After
+    the authorized re-point to the pinned-upstream column the stronger invariant
+    holds: the fork is not the executing candidate either, so no result can be
+    reported against it by accident, and it is still never called pristine.
+    """
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["executing_engine"]["is_pristine_upstream"] is True
+    assert identity["fork_head"]["commit"] == FORK
+    assert identity["fork_head"]["is_pristine_upstream"] is False
+    assert sl.FORGE_CANDIDATE_COMMIT != sl.FORGE_FORK_HEAD_COMMIT
+    assert sl.FORGE_CANDIDATE_COMMIT == UPSTREAM
+
+
+def test_upstream_behaviour_is_observed_because_the_pinned_candidate_was_executed() -> None:
+    """Upstream behaviour was UNKNOWN until the pinned candidate was executed.
+
+    It is now executed, so the receipt may say so; saying so is what stops the
+    historical fork result from being read as an upstream result.
+    """
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["upstream_baseline"]["verified_pristine"] is True
+    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is True
+    assert sl.FORGE_COLUMN_SCOPE == "pinned_upstream"

@@ -770,7 +770,8 @@ final class XmageGameManager {
 
     private static JsonObject playerState(Game game, Player player, int seat) {
         JsonObject state = new JsonObject();
-        state.addProperty("player_id", player.getId().toString());
+        // Actor-safe: never disclose another seat's real principal id.
+        state.addProperty("player_id", ActorSafeIdentity.forSeat(game, player, player));
         state.addProperty("seat", seat);
         state.addProperty("life", player.getLife());
         state.addProperty("poison_counters", player.getCountersCount(CounterType.POISON));

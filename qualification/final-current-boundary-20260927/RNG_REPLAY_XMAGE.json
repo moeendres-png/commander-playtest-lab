@@ -2,22 +2,22 @@
  "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
  "candidate": "xmage",
  "event_log": {
-  "engine_game_id": "08f68bce-29e7-4b94-8d39-0d5abe59c104",
+  "engine_game_id": "6e960132-e77b-4498-9c29-f87b47369853",
   "event_log_source": "xmage_bridge_external_control",
-  "game_id": "wsr22-xmage-4p-8d5b23e9",
+  "game_id": "wsr22-xmage-4p-e0ac8b38",
   "latest_event_offset": 3,
   "log": {
    "backend": "xmage",
    "events": [
     {
      "actor_id": null,
-     "event_id": "7f38caf3760b6cc57825ddb8a1d562f785be98e23e793babd08b8bd1c7f72cc4",
+     "event_id": "eeb602cb160aed285452c90e6aada865aae141149129b1ff74e2bd4bfb25db5f",
      "event_type": "game_created",
-     "game_id": "wsr22-xmage-4p-8d5b23e9",
+     "game_id": "wsr22-xmage-4p-e0ac8b38",
      "payload": {
       "action_id": null,
       "decision_id": null,
-      "engine_game_id": "08f68bce-29e7-4b94-8d39-0d5abe59c104",
+      "engine_game_id": "6e960132-e77b-4498-9c29-f87b47369853",
       "external_control": true,
       "player_count": 4,
       "starting_player_seat": 0
@@ -27,63 +27,105 @@
      "sequence": 1
     },
     {
-     "actor_id": "ae049394-d2fe-44fd-a4e1-c61fbb022a1f",
-     "event_id": "4c921612e1563e1dd072e8a67524021a54fcc984e0f656f528faa94b42b44516",
+     "actor_id": "c6b1bbbd-5b29-4783-ace2-425f4e81fd61",
+     "event_id": "e6a9f43224b3dad9a952729b08afad1e3167da54b50cbe1d8f6d3c514dda9611",
      "event_type": "game_started",
-     "game_id": "wsr22-xmage-4p-8d5b23e9",
+     "game_id": "wsr22-xmage-4p-e0ac8b38",
      "payload": {
       "action_id": null,
       "decision_id": null,
-      "engine_game_id": "08f68bce-29e7-4b94-8d39-0d5abe59c104",
+      "engine_game_id": "6e960132-e77b-4498-9c29-f87b47369853",
       "external_control": true,
-      "starting_player_id": "ae049394-d2fe-44fd-a4e1-c61fbb022a1f",
+      "starting_player_id": "c6b1bbbd-5b29-4783-ace2-425f4e81fd61",
       "turn_number": 1
      },
-     "post_state_hash": "b3e7adba5c4432acf053b09528ae82255f1cea54cbd7edbfbd8cd0c3ea943731",
+     "post_state_hash": "d5c059d5aaadba503dee71fb191db99e9f7379ed425ba41a35ddf25fbda61e44",
      "pre_state_hash": null,
      "sequence": 2
     },
     {
-     "actor_id": "ae049394-d2fe-44fd-a4e1-c61fbb022a1f",
-     "event_id": "0336dbf533c27533367ededc1cb875131a3992db8e78722e60212dfa1d7a7e95",
+     "actor_id": "c6b1bbbd-5b29-4783-ace2-425f4e81fd61",
+     "event_id": "5fd18ba1d56e89e979312b0e4e95320972f678e768fa624733c65c95a13535b3",
      "event_type": "priority_passed",
-     "game_id": "wsr22-xmage-4p-8d5b23e9",
+     "game_id": "wsr22-xmage-4p-e0ac8b38",
      "payload": {
-      "action_id": "7a52bfe4617c1b9c5f29499c59affaa44dfbd3787ee5747f5a6b5dfaf801c09d",
+      "action_id": "c10031e49d682353758cb416ebbd27dc2d5e1d8531282f61abe11980d1f667a1",
       "action_type": "pass_priority",
       "bounded_submission": true,
-      "decision_id": "be4876367ea60c23dab526d4d4b61cd427ed690d3139fc46d436cc67caeb378d",
-      "engine_game_id": "08f68bce-29e7-4b94-8d39-0d5abe59c104",
+      "decision_id": "3ec4f50b85dcce32cd54664ae6a53e16968ce554a77ca8df2e9f25da01dc99a3",
+      "engine_game_id": "6e960132-e77b-4498-9c29-f87b47369853",
       "source_name": null,
       "source_object_id": null
      },
-     "post_state_hash": "45e892bcf57642cf91376483fe484bb6d337e68f074bf3d7911f8bce0d63bc48",
-     "pre_state_hash": "b3e7adba5c4432acf053b09528ae82255f1cea54cbd7edbfbd8cd0c3ea943731",
+     "post_state_hash": "1e04b4486de32ded35fd5b291e0d8dadf7ab2687e1eab3ee63b10d100445dafc",
+     "pre_state_hash": "d5c059d5aaadba503dee71fb191db99e9f7379ed425ba41a35ddf25fbda61e44",
      "sequence": 3
     }
    ],
-   "log_sha256": "9aa9760feed1044b3f887b36c7422cfcc4fe1282a7f6ed4616bcd803e47ccd84",
+   "log_sha256": "4921df797927e66c99d2538a7565bfc32d574b54362aac2dfc31e191a56a4411",
    "raw_lines": [],
-   "session_id": "wsr22-xmage-4p-8d5b23e9"
+   "session_id": "wsr22-xmage-4p-e0ac8b38"
   },
   "raw_internal_xmage_gameevent_exhaustive": false,
   "returned_event_count": 3
  },
+ "harness_injected_outcomes": false,
  "rules_rng_binding": {
-  "engine_owned": true,
-  "harness_injected_outcomes": false,
-  "provider_reported_seed_supported": true,
-  "requested_seed": 424242
+  "acknowledged_seed": null,
+  "acknowledgement_source": "create_commander_game_response",
+  "classification": "UNCONTROLLED_ENGINE_RNG",
+  "controlled": false,
+  "requested_seed": 424242,
+  "rng_credit": false,
+  "schema_version": "commander-lab.seed-binding/1.0.0"
  },
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "7daba87650c670e511ca4a7f81769a0119dde925",
+  "adapter_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": false,
+   "commander_supported": true,
+   "commander_tax_visible": false,
+   "concede_supported": false,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": true,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 5,
+   "mode_selection_supported": false,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap",
+    "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process",
+    "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable",
+    "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized",
+    "NO_PROVIDER_READY remains in force"
+   ],
+   "partner_supported": true,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": false,
+   "seed_supported": false,
+   "stack_visible": true,
+   "starting_state_injection_supported": false,
+   "target_selection_supported": false,
+   "trigger_order_supported": false
+  },
   "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "7daba87650c670e511ca4a7f81769a0119dde925",
-  "runner_tree": "61290897cbe0261f4f2d75e5699eb90e4af81573"
+  "runner_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
+  "runner_tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410",
+  "scenario_injection_supported": false,
+  "seed_supported": false,
+  "starting_state_injection_supported": false
  },
  "same_seed_twin": "see comparison packet; twin runs are executed per candidate",
  "schema_version": "wsr22.rng-replay/1.0.0",

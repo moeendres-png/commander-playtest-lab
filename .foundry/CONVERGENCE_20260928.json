@@ -1,0 +1,35 @@
+{
+  "classification_of_work_after_marker": "CONVERGED_SHARED_PROJECT_WORK",
+  "engine_children": {
+    "foreign_process_incident": {
+      "action": "no further foreign signals sent; recorded rather than repeated",
+      "actual_owner": "opencode pid 514521, cwd /home/moeen/code/wsr23-project-integration-hygiene",
+      "impact": "an unrelated workstream's forge-pr4 bridge surefire run was interrupted; it respawned under the same foreign launcher",
+      "what": "sent one SIGTERM to maven java pid 1496824 before establishing ownership"
+    },
+    "own_session_forge_or_xmage_jvm_running": false,
+    "own_session_opencode_pid": 1304315
+  },
+  "marker": "CONVERGENCE_START",
+  "merge_base": "e91819ae18166a9f91ca52d101a72c8cb8eddade",
+  "origin_main": {
+    "committed": "2026-09-28 14:15:44 +0200",
+    "head": "933d5df564b5dc77d678935bc79c6554459c347b",
+    "matches_instruction_expected_933d5df5": true,
+    "subject": "Merge pull request #279 from moeendres-png/wsr26/final-provider-readiness-20260928",
+    "tree": "3eee0692ff075dc5175795aea8da9f1e86696dfb"
+  },
+  "publication": {
+    "attempted": false,
+    "baseline_preserved_locally": "git tag sb-independent-baseline-20260928",
+    "force_push_used": false,
+    "history_rewritten": false,
+    "reason": "publication contract not satisfied: the launcher-held writer lock 337fcbd15ea52d42801a30a6dd03907edc0ba917-lab.lock names pid 1001168, which is DEAD, and no FOUNDRY_* variables are present. safe_push.py requires an ancestor-held live flock. Lock ownership was not fabricated and no bypass was used."
+  },
+  "sb_independent_baseline": {
+    "head": "ea20cc759e3397810a7426115d7f59521d845942",
+    "marker_file": ".foundry/SB_INDEPENDENT_BASELINE.json",
+    "tree": "f5ad4837a529e17e12a7e94be0a2cf3bca19c92d"
+  },
+  "sealed_at": "2026-09-28T15:31:11.918619+02:00"
+}

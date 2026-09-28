@@ -3,7 +3,7 @@
   "candidate": "forge",
   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "candidate_repository": "https://github.com/moeendres-png/forge",
-  "candidate_tree": "56209bb72b84fc845ad00433b4471e723ecc8a01",
+  "candidate_tree": "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9",
   "classes": [
     "ProtocolTest",
     "BridgeProtocolProcessTest",
@@ -15,13 +15,21 @@
     "WS202SeparateProcessTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=ProtocolTest,BridgeProtocolProcessTest,HeadlessGuiFailClosedTest,WS216SeparateProcessTest,WS217SeparateProcessTest,WS227SeparateProcessTest,WS233CardinalityProcessTest,WS202SeparateProcessTest",
-  "ended_utc": "2026-09-28T10:35:37+00:00",
+  "ended_utc": "2026-09-28T11:05:27+00:00",
   "engine_identity_proof": {
-    "actual_commit": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
-    "detail": "the commits differ only outside the engine's main sources, so the engine that executed is the engine the evidence is about",
+    "actual_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+    "compared_module_roots": [
+      "forge-game",
+      "forge-core",
+      "forge-ai",
+      "forge-gui",
+      "forge-gui-desktop",
+      "adventure-editor"
+    ],
+    "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
     "differing_modules": [],
     "engine_equivalent": true,
-    "justification": "ENGINE_MAIN_SOURCE_TREES_IDENTICAL",
+    "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
     "modules": {
       "adventure-editor": {
         "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
@@ -52,47 +60,42 @@
         "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
         "identical": true,
         "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
-      },
-      "forge-protocol2-bridge": {
-        "actual_tree": "eba77a72d58369271adc82e8b72e0cfd1b587da0",
-        "identical": true,
-        "recorded_tree": "eba77a72d58369271adc82e8b72e0cfd1b587da0"
       }
     },
     "one_sided_modules": [],
     "recorded_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
   },
   "environment": {
-    "python": "3.14.4"
+    "python": "3.12.14"
   },
   "errors": 0,
-  "executed_commit": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
+  "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
   "failed": 0,
   "group": "mechanism",
   "passed": 67,
   "positive_fixtures": [],
-  "receipt_digest": "a3f06c5fe88dff8b466eee90d6f3421b11a036f48b1e35f4d14531d087d5503c",
+  "receipt_digest": "75434ca19c84e3ebad5a172d296eb0ce4f84680176c352043f26da9218ca9a51",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m67\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 334.3 s -- in \u001b[1mTestSuite\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m67\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 319.9 s -- in \u001b[1mTestSuite\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 67, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
-    "branch": "sbmax/full-completion",
-    "built_utc": "2026-09-28T10:16:54+00:00",
-    "commit": "7daba87650c670e511ca4a7f81769a0119dde925",
+    "branch": "wsr26/final-provider-readiness-20260928",
+    "built_utc": "2026-09-28T10:47:05+00:00",
+    "commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
-      "config/rules_engines.json": "aff1514712f3900748cb62fe13eb7b537311389b9adc915e76f25dc430013a1d",
+      "config/rules_engines.json": "85c4e10897b4443c57a4bbbe9cfca94b090372724e507af081133f1e696c00d2",
       "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
-      "scripts/assemble_current_boundary_evidence.py": "fd91d9ce31db5fb89cfb6b73263c537a71eda77298a193ab00a533b19c79c7a0",
-      "scripts/run_current_boundary_qualification.py": "53b69f4b45abf1703adf62afd0626d7387710d35f37d125fc40de9ea3cd725b7",
-      "src/commander_lab/engine/rules/__init__.py": "72e6d4b5ca1ac24a552cd5cf9a70f392f5456404c09b70fa5faa0de090dd5b5b",
-      "src/commander_lab/engine/rules/base.py": "14b1248504d8b96cac9d7758ab2e0c9917182c2c5a72b2c56557445400dd0db5",
-      "src/commander_lab/engine/rules/bridge.py": "e1f0370fd59a54b8acdb558d4735d114f2a0e13670cd35f1159f86883c84cf0e",
-      "src/commander_lab/engine/rules/full_game.py": "c6aea76f7b83957a2cc6d217f8fb0228ded20b7c3e8044384080667d32779cd9",
-      "src/commander_lab/engine/rules/full_game_batch.py": "2bc17281e708a48f0114045aad594c61f476ab66dce992b62ec6bf32484b714f",
+      "scripts/assemble_current_boundary_evidence.py": "7665d674486d7a280f05e4981993a0aa9476276b7a71fd5e58bf6848171fee18",
+      "scripts/run_current_boundary_qualification.py": "573eb87b8487f6d91336a93cc2e37c040d803d5810dd394d5b25c8d404f9c5fc",
+      "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
+      "src/commander_lab/engine/rules/base.py": "e387ad46293bdf8c48976abc02b02649bd6c3b53e15f8b45a0b4f133755af3b0",
+      "src/commander_lab/engine/rules/bridge.py": "8ca8cd8eb1432764167754b317a9cafd5e5f739fed4ef6df950ecd5d8acc8931",
+      "src/commander_lab/engine/rules/full_game.py": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+      "src/commander_lab/engine/rules/full_game_batch.py": "6664d33d98c2e7fd0a50a2ed70970357d35e82765c9dbcc69723d71408e7626b",
       "src/commander_lab/engine/rules/manager.py": "a3ce16a4f63a047b10fdc4ea312fb4d989712dbdbc4c2a6aa872f33c5cd39a41",
       "src/commander_lab/engine/rules/phase85.py": "7b50a03dc16777c0859fec1f589c046e56b47537f3dfb58fa23f3f457b41d169",
       "src/commander_lab/engine/rules/project.py": "7ec2840930745e07ec9d8497211da705e7764f87f08289b0796ef82d39c50acb",
@@ -101,26 +104,28 @@
       "src/commander_lab/engine/rules/replay.py": "ce55dbdf6c2c5809f829d7742987c3cc7907824fadc37224e64fd4827235345d",
       "src/commander_lab/engine/rules/tactical.py": "6613ad25a2de36233eec1acff73b859c7ce35777087465a1f46075b0ffed8024",
       "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b684300d229e503b6a0e977ae39dd263464656053c4d4cb145ad1",
-      "src/commander_lab/qualification/current_boundary/__init__.py": "f10a4c76c8e38e91021b9aef4849af364767f86e54a038ce41894af909c76e55",
+      "src/commander_lab/qualification/current_boundary/__init__.py": "c1505a7a90613c57ebb88ece7a51f3ebce3c7161ae3057be105a13e73c411e49",
       "src/commander_lab/qualification/current_boundary/af01.py": "3ed66eb6f3be09acd5c26bb02cf71650950e17a24d7a6bd9471ef44bb343d161",
       "src/commander_lab/qualification/current_boundary/af03.py": "30dc52d2b60462d2395a3a3805f43c997aaaba3c323864316726b99613cab1fc",
-      "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "2be55c846d299651ec925fcf033343622d2b6dabcdd1ead7ad2321ee97a74446",
-      "src/commander_lab/qualification/current_boundary/full107.py": "ff4f8825fcb186b58fe102b33cc6888909fee1d785aca19a92144573dfa4a88a",
-      "src/commander_lab/qualification/current_boundary/game_driver.py": "4ef7d89ba3ca47651623242bee06942d83ac9b0b599977c98928be6128bc2ca9",
+      "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "8a19aaa7da05db8657f5bd355cc0208d9992cc60dbab983adae716390e5cdeff",
+      "src/commander_lab/qualification/current_boundary/full107.py": "4a7818821323da8796a06666198e9635a4eca3e635537211c39e099f3f693b36",
+      "src/commander_lab/qualification/current_boundary/game_driver.py": "9cae03067de019c8963fb17bc5ad7504d7681989b5d7bc2a14ceefa61f941628",
       "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
       "src/commander_lab/qualification/current_boundary/materialization.py": "246b016422f5f0302ae4effa215f1968dc25644a47d5fcf88c468315f63f2114",
-      "src/commander_lab/qualification/current_boundary/receipts.py": "1ca1acd191204d51984cc1a233aca7af1a063f62102848e78a4a19b23a7d1db1",
-      "src/commander_lab/qualification/current_boundary/restoration_admission.py": "375c3400b5facf08dc3c501a54d2b23c829baf4f1eb9413e1d4cdaa391d89cc4",
-      "src/commander_lab/qualification/current_boundary/semantic.py": "692c31a8a1884f3bdf99b7994f105f549f08bd14296844625eeeb2bb82060f7e",
-      "src/commander_lab/qualification/current_boundary/source_lock.py": "de49af228ce0a82e9e7ddb56a7f1a6f0d31caed1a7d896ad52b15df32758bd90"
+      "src/commander_lab/qualification/current_boundary/receipts.py": "cef7786ed1ac0e8dbfd9ce27997a415a0267cdec929b20421a3e8850fb17d592",
+      "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
+      "src/commander_lab/qualification/current_boundary/source_lock.py": "80bb26b1872472589c20d9903a653f48340d0f947677e3478417116721cb16b0"
     },
     "repository": "https://github.com/moeendres-png/commander-playtest-lab.git",
+    "run_output_prefixes": [
+      "qualification/final-current-boundary-20260927/"
+    ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "61290897cbe0261f4f2d75e5699eb90e4af81573"
+    "tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410"
   },
-  "runner_digest": "adc2a24be097d922836b4f53534e9023595f058cd6bf08c6d9023578d4f7755b",
+  "runner_digest": "2fe2db719896269cb4b28b1b172e1451ac823b1f2ee6753735f7a4762b8065ec",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-28T10:29:44+00:00",
+  "started_utc": "2026-09-28T10:59:48+00:00",
   "tests": 67
 }

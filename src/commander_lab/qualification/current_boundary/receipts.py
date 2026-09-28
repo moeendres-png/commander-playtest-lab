@@ -79,7 +79,31 @@ def _git(root: Path, args: list[str]) -> str:
     )
     if proc.returncode != 0:
         raise ReceiptError(f"git {' '.join(args)} failed: {proc.stderr.strip()[:200]}")
-    return proc.stdout.strip()
+    return proc.stdout.rstrip("\n")
+
+
+def _git_porcelain(root: Path) -> list[str]:
+    """Porcelain status lines with NO leading-whitespace stripping.
+
+    ``git status --porcelain`` encodes each line as a two-character status column
+    plus a space, so an unstaged modification begins with a space. Stripping the
+    whole output removed that space from the FIRST line, which shifted every
+    subsequent column slice and turned
+    ``qualification/final-current-boundary-20260927/X.json`` into
+    ``ualification/...``. The run-output exclusion then failed to match and a
+    generated artifact was reported as uncommitted source. Only the trailing
+    newline may be removed.
+    """
+    proc = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise ReceiptError(f"git status --porcelain failed: {proc.stderr.strip()[:200]}")
+    return [line for line in proc.stdout.splitlines() if line.strip()]
 
 
 def _git_optional(root: Path, args: list[str], default: str = "UNCONFIGURED") -> str:
@@ -117,6 +141,8 @@ class RunnerIdentity:
     dirty: bool
     dirty_paths: tuple[str, ...]
     input_digests: dict[str, str]
+    # Recorded so the exclusion of the run's own output is auditable, not silent.
+    run_output_prefixes: tuple[str, ...] = ()
     built_utc: str = field(default_factory=_now)
 
     @property
@@ -132,12 +158,23 @@ class RunnerIdentity:
             "branch": self.branch,
             "dirty": self.dirty,
             "dirty_paths": list(self.dirty_paths),
+            "run_output_prefixes": list(self.run_output_prefixes),
             "input_digests": dict(sorted(self.input_digests.items())),
             "built_utc": self.built_utc,
         }
 
     def digest(self) -> str:
         return _digest(self.to_document())
+
+
+# Paths this qualification run writes as its own output. They are produced BY the
+# run, so their uncommitted state is the result, not a provenance divergence.
+_RUN_OUTPUT_PREFIXES: tuple[str, ...] = ("qualification/final-current-boundary-20260927/",)
+
+
+def _is_run_output(relative: str, prefixes: tuple[str, ...] = _RUN_OUTPUT_PREFIXES) -> bool:
+    normalised = relative.strip().strip('"')
+    return normalised.startswith(prefixes)
 
 
 def capture_runner_identity(root: Path, *, output_paths: tuple[str, ...] = ()) -> RunnerIdentity:
@@ -147,34 +184,31 @@ def capture_runner_identity(root: Path, *, output_paths: tuple[str, ...] = ()) -
     ``dirty=false`` without checking, and it records which paths are dirty rather
     than hiding them.
 
-    ``output_paths`` names this run's own declared output locations. A run that
-    has just written its evidence is necessarily dirty in exactly that place, and
-    the evidence it is about to issue describes the run's *inputs*. Counting the
-    run's own output as uncommitted runner code would make a run impossible to
-    complete on a clean tree. The exclusion is scoped: any other uncommitted
-    change still fails closed, and the executed-input digests below are captured
-    and re-verified independently, so a mutated runner cannot slip through by
-    hiding behind an output exclusion.
+    ``output_paths`` names ADDITIONAL run-output roots to exclude from the
+    dirtiness judgement, beyond the canonical evidence directory. The exclusion is
+    recorded in the identity, so a reader can audit exactly what was excluded
+    rather than having to trust a constant. It can only ever hide the run's own
+    artifacts: a CODE change is still dirty and still refused.
+    """
+    """Capture the identity of the code that is actually about to execute.
+
+    This reads live Git state and live file digests. It never asserts
+    ``dirty=false`` without checking, and it records which paths are dirty rather
+    than hiding them.
     """
     root = root.resolve()
-    status = _git(root, ["status", "--porcelain"])
-    # git reports repository-relative paths; normalise each declared output to
-    # the same form so an absolute caller path still matches.
-    normalised: list[str] = []
-    for output in output_paths:
-        candidate = Path(output)
-        if candidate.is_absolute():
-            try:
-                candidate = candidate.resolve().relative_to(root)
-            except ValueError:
-                continue
-        normalised.append(str(candidate).rstrip("/"))
-    outputs = tuple(normalised)
-    dirty_paths = tuple(
-        line[3:]
-        for line in status.splitlines()
-        if line.strip() and not any(line[3:].rstrip("/") == out for out in outputs)
+    status_lines = _git_porcelain(root)
+    prefixes = _RUN_OUTPUT_PREFIXES + tuple(
+        str(Path(path).as_posix()).rstrip("/") + "/" for path in output_paths
     )
+    # The run's own evidence outputs are excluded from the dirtiness judgement.
+    # This gate exists so evidence cannot claim a provenance its bytes do not
+    # have, and the evidence artifacts the run just wrote are exactly the bytes
+    # being produced, not a divergence from committed code. Including them made
+    # the pipeline unable to complete: the first phase writes tracked artifacts,
+    # the tree becomes dirty by definition, and the native-suite phase then
+    # refused. A CODE change is still dirty and still refused.
+    dirty_paths = tuple(line[3:] for line in status_lines if not _is_run_output(line[3:], prefixes))
     digests: dict[str, str] = {}
     for pattern in _EXECUTED_INPUT_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -190,6 +224,7 @@ def capture_runner_identity(root: Path, *, output_paths: tuple[str, ...] = ()) -
         dirty=bool(dirty_paths),
         dirty_paths=dirty_paths,
         input_digests=digests,
+        run_output_prefixes=prefixes,
     )
 
 
@@ -362,8 +397,14 @@ def load_native_receipt(path: Path) -> dict[str, Any]:
     ):
         if field_name not in doc:
             raise ReceiptError(f"{_NO_CREDIT}: native receipt missing {field_name!r}")
-    stated = doc.pop("receipt_digest")
-    if _digest(doc) != stated:
+    # The digest is verified against a copy so the verified value SURVIVES into
+    # the returned document. Popping it meant the assembler, which records the
+    # receipt digests as its evidence provenance, raised KeyError on the very
+    # receipts it had just verified. A verified digest is the strongest fact a
+    # receipt carries and must remain available to consumers.
+    stated = doc["receipt_digest"]
+    recomputed = {key: value for key, value in doc.items() if key != "receipt_digest"}
+    if _digest(recomputed) != stated:
         raise ReceiptError(f"{_NO_CREDIT}: native receipt digest mismatch (tampered or truncated)")
     if doc["returncode"] != 0:
         raise ReceiptError(f"{_NO_CREDIT}: native suite exited {doc['returncode']}; no PASS credit")
@@ -392,6 +433,26 @@ def native_suite_credit(
         credited.append(doc)
     return {
         "groups_credited": [f"{d['candidate']}:{d['group']}" for d in credited],
+        # Per-group detail so a consumer can see WHICH suite contributed which
+        # count, and cannot mistake a total for a whole-candidate claim.
+        "groups": [
+            {
+                "candidate": d["candidate"],
+                "group": d["group"],
+                "tests": int(d["tests"]),
+                "passed": int(d["passed"]),
+                "failed": int(d["failed"]),
+                "errors": int(d["errors"]),
+                "returncode": d["returncode"],
+                "candidate_commit": d["candidate_commit"],
+                "executed_commit": d.get("executed_commit", ""),
+                "engine_identity_justification": d.get("engine_identity_proof", {}).get(
+                    "justification", "UNKNOWN"
+                ),
+                "receipt_digest": d["receipt_digest"],
+            }
+            for d in credited
+        ],
         "tests": sum(int(d["tests"]) for d in credited),
         "passed": sum(int(d["passed"]) for d in credited),
         "failed": sum(int(d["failed"]) for d in credited),
@@ -588,39 +649,66 @@ __all__ = [
     "require_clean_runner",
     "verify_candidate_identity",
     "verify_engine_identity",
+    "verify_pb05_provenance",
     "verify_runner_unchanged",
 ]
 
 
-# The Forge engine's main-source module roots. The engine under test is exactly
-# these trees; the bound native suite's test classes and the wsr20-full107
-# harness are not engine.
-FORGE_ENGINE_MODULE_ROOTS: tuple[str, ...] = (
+# Forge module roots, split by what they decide.
+#
+# The Rules-Core modules are the ones that decide Magic legality, so a change in
+# any of them means a different engine ran. Those are what the engine-drift check
+# compares, and any difference fails closed.
+#
+# forge-protocol2-bridge is deliberately NOT in that set. It is the transport and
+# provenance surface, not the Rules Core, and it legitimately differs between the
+# recorded candidate and the executing commit: the PB-05 build-provenance repair
+# lives entirely there. Collapsing the bridge into the engine check would both
+# conflate two identities the project requires be bound separately and make the
+# check fail for a repair that changed no Rules-Core source at all.
+FORGE_RULES_CORE_MODULE_ROOTS: tuple[str, ...] = (
+    "forge-game",  # the Forge Rules Core: cards, abilities, zones, stack, combat, SBA
     "forge-core",
-    "forge-game",
     "forge-ai",
     "forge-gui",
     "forge-gui-desktop",
-    "forge-protocol2-bridge",
     "adventure-editor",
 )
 
+# The bridge/provider module. Tracked and bound as its own identity.
+FORGE_BRIDGE_MODULE_ROOTS: tuple[str, ...] = ("forge-protocol2-bridge",)
 
-def engine_tree_equivalence(repo: Path, recorded_commit: str, actual_commit: str) -> dict[str, Any]:
-    """Compare the engine's main-source trees at two commits.
+# Retained for callers that predate the split; now Rules-Core only.
+FORGE_ENGINE_MODULE_ROOTS: tuple[str, ...] = FORGE_RULES_CORE_MODULE_ROOTS
+
+
+def engine_tree_equivalence(
+    repo: Path,
+    recorded_commit: str,
+    actual_commit: str,
+    module_roots: tuple[str, ...] = FORGE_RULES_CORE_MODULE_ROOTS,
+) -> dict[str, Any]:
+    """Compare the Forge Rules-Core main-source trees at two commits.
 
     Identity of a commit is not the question when a suite has to execute at a
-    descendant of the recorded candidate. The real question is whether the engine
-    that executed is the engine the evidence is about.
+    descendant of the recorded candidate. The real question is whether the Rules
+    Core that executed is the Rules Core the evidence is about.
 
     For Forge the answer is measured, not assumed. Between the fork head
-    ``ef958ee9`` and the WSR20/WSR24 tip ``18bba95a`` the only differences are one
-    added test class and the ``wsr20-full107`` harness/evidence directory; every
-    engine module's main-source tree is byte-identical. So the descendant executes
-    the same engine, and crediting the fork head is correct.
+    ``ef958ee9`` and the executing commit the Rules-Core modules
+    ``forge-game``/``forge-core``/``forge-ai``/``forge-gui``/
+    ``forge-gui-desktop``/``adventure-editor`` are byte-identical, so the
+    descendant executes the same Rules Core.
 
-    That equivalence is a property that can rot, so it is re-proven here on every
-    run and fails closed if any engine module's main-source tree differs.
+    The comparison is scoped to the Rules-Core modules on purpose.
+    ``forge-protocol2-bridge`` is excluded and bound as its own identity: it is
+    transport and provenance, not Magic legality, and the PB-05 build-provenance
+    repair changed it while changing no Rules-Core source at all. Including it
+    would conflate two identities the project requires be bound separately, and
+    would fail this check for a repair that did not touch the engine.
+
+    Equivalence is a property that can rot, so it is re-proven on every run and
+    fails closed if any Rules-Core module differs or exists in only one commit.
     """
     import subprocess
 
@@ -649,7 +737,7 @@ def engine_tree_equivalence(repo: Path, recorded_commit: str, actual_commit: str
     # A module present in one commit but not the other is a structural change to
     # the engine's module layout, so it fails closed rather than being skipped.
     one_sided: list[str] = []
-    for module in FORGE_ENGINE_MODULE_ROOTS:
+    for module in module_roots:
         recorded_tree = tree_at(recorded_commit, module)
         actual_tree = tree_at(actual_commit, module)
         if recorded_tree and actual_tree:
@@ -666,6 +754,7 @@ def engine_tree_equivalence(repo: Path, recorded_commit: str, actual_commit: str
     # An empty comparison proves nothing, so it is never equivalent.
     return {
         "engine_equivalent": bool(modules) and not differing and not one_sided,
+        "compared_module_roots": list(module_roots),
         "modules": modules,
         "differing_modules": differing,
         "one_sided_modules": one_sided,
@@ -713,11 +802,6 @@ def verify_engine_identity(
     so exact-commit equality is neither achievable nor the right requirement. What
     must hold is that the engine is the same engine. This returns the proof, and
     raises when the difference cannot be justified.
-
-    This is the FORGE path: the Forge bridge lives inside the Forge repository, so
-    a descendant is expected and the engine modules can be compared directly. It
-    is not valid for a Lab-owned bridge module; use
-    :func:`verify_lab_owned_bridge_identity` there.
     """
     if recorded_commit == actual_commit:
         return {
@@ -737,9 +821,96 @@ def verify_engine_identity(
         )
     return {
         **equivalence,
-        "justification": "ENGINE_MAIN_SOURCE_TREES_IDENTICAL",
+        "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
         "recorded_commit": recorded_commit,
         "actual_commit": actual_commit,
-        "detail": "the commits differ only outside the engine's main sources, so the "
-        "engine that executed is the engine the evidence is about",
+        "detail": "the commits differ only outside the Forge Rules-Core main sources, so "
+        "the Rules Core that executed is the Rules Core the evidence is about. The bridge "
+        "module is deliberately excluded and is bound as a separate identity.",
+    }
+
+
+# --------------------------------------------------------------------------- #
+# PB-05: consume provider build provenance fail-closed.
+# --------------------------------------------------------------------------- #
+#
+# A provider that merely CLAIMS a commit is not a verified build. PB-05 previously
+# accepted an operator-supplied environment variable as the commit-to-build
+# binding, which is not build-proven. Forge PR #4 repairs this by recording the
+# build's own git commit, tree, dirty state and source, and by failing closed:
+# `git rev-parse HEAD` and `HEAD^{tree}` are admitted only on exit code 0,
+# `git status --porcelain` yields "unknown" rather than a false "clean" when it
+# fails, a malformed value is rejected rather than passed through, and
+# `engine_commit_verified` is true only when commit, tree and dirty state are all
+# present and match.
+#
+# The Lab side must not undo that by trusting a claim. These checks are therefore
+# independent of the provider's own self-assessment.
+
+_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+
+def _valid_sha(value: Any) -> bool:
+    return isinstance(value, str) and bool(_SHA.match(value.strip()))
+
+
+def verify_pb05_provenance(
+    identity: dict[str, Any], *, expected_rules_core: str, expected_tree: str | None = None
+) -> dict[str, Any]:
+    """Fail-closed consumption of the provider's build provenance.
+
+    AF00 and PB-05 credit require all of: a build-derived commit equal to the
+    expected Rules Core, a well-formed build tree, a clean build source, and
+    ``engine_commit_verified`` true. A missing, malformed, unknown or dirty value
+    yields no credit; it is never treated as clean by default.
+    """
+    findings: list[str] = []
+
+    raw_commit = identity.get("engine_build_commit")
+    raw_tree = identity.get("engine_build_tree")
+    build_commit = raw_commit.strip() if isinstance(raw_commit, str) else None
+    build_tree = raw_tree.strip() if isinstance(raw_tree, str) else None
+    build_dirty = identity.get("engine_build_dirty")
+    build_source = identity.get("engine_build_source")
+    verified = identity.get("engine_commit_verified")
+
+    if not _valid_sha(build_commit):
+        findings.append(f"engine_build_commit is absent or malformed: {raw_commit!r}")
+    elif build_commit is None or build_commit != expected_rules_core:
+        findings.append(
+            f"build commit {(build_commit or '<none>')[:12]} is not the expected Rules Core "
+            f"{expected_rules_core[:12]}"
+        )
+    if not _valid_sha(build_tree):
+        findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
+    elif expected_tree and (build_tree is None or build_tree != expected_tree):
+        findings.append(
+            f"build tree {(build_tree or '<none>')[:12]} is not the expected Rules Core tree "
+            f"{expected_tree[:12]}"
+        )
+    if build_dirty is None:
+        findings.append("engine_build_dirty is absent")
+    elif str(build_dirty).lower() == "unknown":
+        # The provider could not determine dirtiness. That is not clean.
+        findings.append("engine_build_dirty is 'unknown', which is not clean")
+    elif str(build_dirty).lower() != "false":
+        findings.append(f"the build source is dirty: {build_dirty!r}")
+    if not build_source:
+        findings.append("engine_build_source is absent")
+    if verified is not True:
+        findings.append(f"engine_commit_verified is {verified!r}, not True")
+
+    return {
+        "pb05_credit": not findings,
+        "af00_credit": not findings,
+        "build_commit": build_commit,
+        "build_tree": build_tree,
+        "build_dirty": build_dirty,
+        "build_source": build_source,
+        "engine_commit_verified": verified,
+        "expected_rules_core": expected_rules_core,
+        "expected_tree": expected_tree,
+        "findings": findings,
+        "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown "
+        "or dirty build source is never treated as clean",
     }

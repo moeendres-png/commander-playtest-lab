@@ -250,7 +250,7 @@ def test_create_request_omits_seed_on_a_lane_that_declares_no_seed_support() -> 
     """
     from commander_lab.qualification.current_boundary.game_driver import _create_request
 
-    request = _create_request("g1", ["h1"], 20260923, lane_seed_supported=False)
+    request = _create_request("g1", ["h1"], 20260923, seed_supported=False)["request"]
     assert "seed" not in request
     assert "rules_seed" not in request
     assert "options" not in request
@@ -262,7 +262,7 @@ def test_create_request_omits_seed_on_a_lane_that_declares_no_seed_support() -> 
 def test_create_request_carries_the_seed_on_a_lane_that_declares_seed_support() -> None:
     from commander_lab.qualification.current_boundary.game_driver import _create_request
 
-    request = _create_request("g1", ["h1"], 20260923, lane_seed_supported=True)
+    request = _create_request("g1", ["h1"], 20260923, seed_supported=True)["request"]
     assert request["seed"] == 20260923
     assert request["rules_seed"] == 20260923
     assert request["options"] == {"seed": 20260923, "rules_seed": 20260923}

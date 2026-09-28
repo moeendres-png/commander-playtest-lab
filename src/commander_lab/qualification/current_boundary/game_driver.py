@@ -44,14 +44,6 @@ class GameDriveError(RuntimeError):
     """The external engine could not complete the requested lifecycle."""
 
 
-class UnsupportedPlayerCount(GameDriveError):
-    """The engine's own declared player envelope does not include this count.
-
-    Distinct from a failure: nothing was attempted, and the refusal is the
-    engine's advertised contract rather than a behaviour observed at runtime.
-    """
-
-
 @dataclass
 class DecisionTapeEntry:
     step: str
@@ -74,6 +66,80 @@ class GameObservation:
 # execution on the shared Protocol-2 surface. Recorded, not normalized away.
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
+def capability_block(response: dict[str, Any]) -> dict[str, Any]:
+    """Locate the engine's own capability block inside a capability response.
+
+    The bridge protocol nests capabilities under "payload" while the top level of
+    a response carries transport status, so reading the wrong level yields an
+    empty block. An empty block is not a harmless default: it makes a candidate
+    that declared plenty of capabilities look like one that declared none, and it
+    silently empties the player envelope, which is how a harness ends up asking an
+    engine for a count the engine never offered.
+
+    Accepts either a raw protocol envelope or an already-unwrapped payload, so
+    every caller shares one definition of where the block lives.
+    """
+    payload = response.get("payload")
+    if isinstance(payload, dict):
+        nested = payload.get("capabilities")
+        if isinstance(nested, dict):
+            return nested
+    block = response.get("capabilities")
+    return block if isinstance(block, dict) else {}
+
+
+class UnsupportedPlayerCount(GameDriveError):
+    """The engine does not qualify this player count.
+
+    Distinct from a lifecycle failure. A declared-envelope refusal means nothing
+    beyond the handshake was attempted, and an engine refusal means the engine
+    answered and declined. Either way the fact is about what the engine
+    qualifies, so it must never be folded into "the drive broke" where it would
+    read as a defect diagnosis.
+    """
+
+
+def _declares_seed_support(proc: BridgeProcess) -> bool:
+    """Whether the provider declares that it accepts an authoritative seed.
+
+    Absent or unparsable capability data is treated as "does not support", so an
+    unknown provider never receives a seed it may reject. The converse mistake
+    would be to assume support and fail the whole run.
+    """
+    try:
+        response = proc.request("get_capabilities", {}, timeout_s=60.0)
+    except Exception:
+        return False
+    capabilities = _payload(response).get("capabilities")
+    if not isinstance(capabilities, dict):
+        return False
+    return capabilities.get("seed_supported") is True
+
+
+def _create_request(
+    game_id: str, handles: list[str], seed: int, seed_supported: bool
+) -> dict[str, Any]:
+    """The authoritative create-game request, with the seed only when supported.
+
+    ``seed_supported`` is the LANE's own declared capability, never a harness
+    preference: a seed must reach the provider's authoritative request when the
+    provider accepts one, because a requested seed that never left the harness is the
+    original defect. When the provider does not declare support, the seed is
+    omitted rather than forced, and the run is honestly uncontrolled.
+    """
+    request: dict[str, Any] = {
+        "game_id": game_id,
+        "deck_handles": handles,
+        "format": "commander",
+        "external_control": True,
+    }
+    if seed_supported:
+        request["seed"] = seed
+        request["rules_seed"] = seed
+        request["options"] = {"seed": seed, "rules_seed": seed}
+    return {"request": request}
+
+
 def _acknowledged_seed(response: Any) -> Any:
     """Extract whatever seed the provider actually acknowledged, if anything.
 
@@ -150,13 +216,14 @@ class CommandedGameResult:
     failure: str | None = None
     failure_kind: str | None = None
     seed_binding: Any = None
-    # What the lane actually advertised, so a reader can see that seed control
-    # was taken from the provider's own capability surface and not assumed.
+    # What the lane actually advertised, so a reader can see that seed control and
+    # the player envelope were taken from the provider's own capability surface
+    # rather than assumed by the harness.
     declared_capabilities: dict[str, Any] = field(default_factory=dict)
-    # The engine's own declared player envelope. Read from the capability
-    # payload, never assumed: the two candidates do not support the same
-    # counts, and driving a count the engine has declared it does not qualify
-    # is a harness defect, not a candidate capability result.
+    # The engine's own declared player envelope, read from the capability payload
+    # and never assumed. The two candidates do not qualify the same counts, and
+    # driving a count the engine has advertised it does not qualify would present a
+    # harness choice as a candidate capability result.
     min_players: int | None = None
     max_players: int | None = None
 
@@ -211,6 +278,13 @@ def _require_ok(
     requested_player_count: int | None = None,
     candidate: str | None = None,
 ) -> dict[str, Any]:
+    """Unwrap a payload, raising with the provider's own error detail preserved.
+
+    Reporting only the status made every provider rejection indistinguishable, and
+    a rejected create request is not a diagnosable failure without its code and
+    message. The detail is carried into the error text and, through the driver's
+    failure record, into the evidence.
+    """
     if not _first_ok(response):
         # The engine's own refusal of a player count is a capability fact, not a
         # lifecycle failure, and must not be recorded as one.
@@ -220,44 +294,34 @@ def _require_ok(
         # 2-player request sits inside the advertised envelope and is attempted.
         # Only the engine's refusal reveals the real contract. The engine is the
         # authority on that, not the harness reading a flag.
-        code = ""
-        message = ""
         errors = response.get("errors")
-        if isinstance(errors, list) and errors:
-            first = errors[0]
-            if isinstance(first, dict):
-                code = str(first.get("code", ""))
-                message = str(first.get("message", ""))
+        first = errors[0] if isinstance(errors, list) and errors else None
+        code = str(first.get("code", "")) if isinstance(first, dict) else ""
         if code == "player_count_unsupported" and requested_player_count is not None:
             raise UnsupportedPlayerCount(
                 f"the {candidate or 'engine'} engine refused {requested_player_count} "
-                f"players by contract: {message or code}. Nothing further was attempted, "
-                "and this is not a candidate capability result for that count."
+                f"players by contract: {_failure_detail(response)}. Nothing further was "
+                "attempted, and this is not a candidate capability result for that count."
             )
-        raise GameDriveError(f"{step} failed: status={response.get('status')!r}")
+        raise GameDriveError(f"{step} failed: {_failure_detail(response)}")
     return _payload(response)
 
 
-def capability_block(response: dict[str, Any]) -> dict[str, Any]:
-    """Locate the engine's own capability block inside a capability response.
-
-    The bridge protocol nests capabilities under "payload" while the top level of
-    a response carries transport status, so reading the wrong level yields an
-    empty block. An empty block is not a harmless default: it makes a candidate
-    that declared plenty of capabilities look like one that declared none, and it
-    silently empties the player envelope, which is how a harness ends up asking an
-    engine for a count the engine never offered.
-
-    Accepts either a raw protocol envelope or an already-unwrapped payload, so
-    every caller shares one definition of where the block lives.
-    """
-    payload = response.get("payload")
-    if isinstance(payload, dict):
-        nested = payload.get("capabilities")
-        if isinstance(nested, dict):
-            return nested
-    block = response.get("capabilities")
-    return block if isinstance(block, dict) else {}
+def _failure_detail(response: dict[str, Any]) -> str:
+    """A compact, faithful rendering of why the provider refused."""
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors:
+        parts = []
+        for entry in errors:
+            if isinstance(entry, dict):
+                code = entry.get("code", "UNKNOWN")
+                message = entry.get("message", "")
+                parts.append(f"{code}: {message}" if message else str(code))
+            else:
+                parts.append(str(entry))
+        return "; ".join(parts)
+    status = response.get("status")
+    return f"status={status!r} with no error detail from the provider"
 
 
 def build_deck(deck_id: str) -> dict[str, Any]:
@@ -386,36 +450,6 @@ def _action_kind(action: dict[str, Any]) -> str:
     return str(action.get("action_type", ""))
 
 
-def _create_request(
-    game_id: str,
-    handles: list[str],
-    seed: int,
-    lane_seed_supported: bool,
-) -> dict[str, Any]:
-    """Shape create_commander_game from the lane's DECLARED seed capability.
-
-    The seed must reach the provider's authoritative request on a lane that
-    accepts one; recording a requested seed that never left the harness is the
-    Gate 3 defect. But sending a seed to a lane that has declared it cannot
-    accept one is equally wrong: the provider refuses game creation outright,
-    which would be recorded as a game failure for a reason unrelated to Rules.
-    """
-    request: dict[str, Any] = {
-        "game_id": game_id,
-        "deck_handles": handles,
-        "format": "commander",
-        # Required for the generic lane to expose an external decision surface
-        # at all; without it get_legal_actions fails closed with
-        # LEGAL_ACTIONS_UNAVAILABLE and the engine would self-play (PB-01).
-        "external_control": True,
-    }
-    if lane_seed_supported:
-        request["seed"] = seed
-        request["rules_seed"] = seed
-        request["options"] = {"seed": seed, "rules_seed": seed}
-    return request
-
-
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -450,41 +484,33 @@ def drive_commander_game(
             response = _require_ok(proc.request(message, {}), message)
             if message == "get_capabilities":
                 capabilities = capability_block(response)
-        result.steps_completed.append("handshake")
         result.declared_capabilities = dict(capabilities)
         declared_min = capabilities.get("min_players")
         declared_max = capabilities.get("max_players")
-        if isinstance(declared_min, int) and not isinstance(declared_min, bool):
-            result.min_players = declared_min
-        if isinstance(declared_max, int) and not isinstance(declared_max, bool):
-            result.max_players = declared_max
+        result.min_players = (
+            declared_min
+            if isinstance(declared_min, int) and not isinstance(declared_min, bool)
+            else None
+        )
+        result.max_players = (
+            declared_max
+            if isinstance(declared_max, int) and not isinstance(declared_max, bool)
+            else None
+        )
+        result.steps_completed.append("handshake")
 
-        # PB-04: seed support is LANE-scoped, and must be read from the lane
-        # rather than assumed. The generic compatibility lane truthfully reports
-        # seed_supported=false and refuses any seed option with
-        # `unsupported_game_option`; the full-game lane binds an explicit Rules
-        # seed and reports true. Sending a seed the lane has declared it cannot
-        # accept makes game creation fail for a reason that has nothing to do
-        # with Rules behaviour, so the request is shaped from what the lane
-        # actually advertised. When the lane cannot take a seed, the Rules RNG
-        # binding is recorded as UNCONTROLLED by classify_seed_binding below and
-        # earns no RNG or replay credit, which is the honest outcome.
-        lane_seed_supported = capabilities.get("seed_supported") is True
-
-        # Refuse a player count the engine has declared it does not qualify, and
-        # name the engine's own envelope. The two candidates do NOT support the
-        # same counts: the pinned Forge bridge qualifies exactly four. Driving an
-        # unsupported count and recording the refusal as a candidate capability
-        # result would be a harness defect masquerading as evidence, and
-        # silently substituting a different count would be worse.
+        # Refuse an out-of-envelope count BEFORE importing a deck or creating a
+        # game, so nothing beyond the handshake is attempted. This covers the
+        # DECLARED envelope only. An engine that understates its envelope is caught
+        # by the engine's own refusal at create time, classified below.
         if (result.min_players is not None and player_count < result.min_players) or (
             result.max_players is not None and player_count > result.max_players
         ):
             raise UnsupportedPlayerCount(
                 f"the {candidate} engine declares a qualified player envelope of "
                 f"{result.min_players}..{result.max_players}; this drive requested "
-                f"{player_count}. Not attempted, and not a candidate capability "
-                "result: the engine refused the count by contract."
+                f"{player_count}. Nothing beyond the handshake was attempted, and "
+                "this is not a capability result for that count."
             )
 
         handles: list[str] = []
@@ -500,17 +526,22 @@ def drive_commander_game(
             handles.append(str(handle_id))
         result.steps_completed.append("import_deck")
 
+        # Whether the seed may be sent is a declared provider capability, not a
+        # harness preference. The XMage generic B4-D lane reports
+        # seed_supported=false and rejects a create request carrying a seed with
+        # `unsupported_game_option`, which turned an honestly uncontrolled run
+        # into a hard failure. Ask the provider, then send the seed only if it
+        # declares support. When it does not, the run proceeds with no seed and
+        # the binding below is UNCONTROLLED_ENGINE_RNG, which earns no RNG or
+        # replay credit. That is the correct outcome, not a workaround.
+        seed_supported = _declares_seed_support(proc)
+        result.terminal_facts["provider_seed_supported"] = seed_supported
+        result.terminal_facts["seed_sent_to_provider"] = bool(seed_supported)
+
         created = _require_ok(
             proc.request(
                 "create_commander_game",
-                {
-                    "request": _create_request(
-                        game_id,
-                        handles,
-                        seed,
-                        lane_seed_supported,
-                    ),
-                },
+                _create_request(game_id, handles, seed, seed_supported),
                 game_id=game_id,
                 timeout_s=300.0,
             ),
@@ -764,9 +795,9 @@ def drive_commander_game(
         result.terminal_facts["priority_reached"] = priority_seen
         result.steps_completed.append("decision_drive")
     except UnsupportedPlayerCount:
-        # A declared-envelope refusal is not a lifecycle failure and must not be
-        # folded into one: the caller has to be able to tell "the engine does not
-        # qualify this count" from "the lifecycle broke", because the first is a
+        # A declared-envelope refusal and an engine refusal are capability facts,
+        # not lifecycle failures. The caller must be able to tell "the engine does
+        # not qualify this count" from "the lifecycle broke", because the first is a
         # capability fact it must record and the second is a defect to diagnose.
         raise
     except (GameDriveError, DecisionUnsatisfied, BridgeLaunchError) as exc:

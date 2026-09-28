@@ -49,10 +49,18 @@ from .full107 import (
     summarize,
     validate_principal_scoping,
 )
-from .game_driver import DECISION_IDENTITY_SHAPES, build_deck, drive_commander_game
+from .game_driver import (
+    DECISION_IDENTITY_SHAPES,
+    UnsupportedPlayerCount,
+    build_deck,
+    capability_block,
+    drive_commander_game,
+)
 from .materialization import (
     EffectiveMaterialization,
     load_effective_materialization,
+    mid_game_mechanisms,
+    requires_starting_state,
 )
 from .restoration_admission import (
     MECHANISM_DIMENSION_REQUIREMENTS,
@@ -110,19 +118,23 @@ __all__ = [
     "ManifestUnavailableError",
     "RestorationManifest",
     "RowResult",
+    "UnsupportedPlayerCount",
     "admit",
     "boundary_receipt",
     "build_deck",
     "build_launch_plan",
+    "capability_block",
     "cardinality_row",
     "classify_family",
     "drive_commander_game",
     "export_replay",
     "launch",
     "load_effective_materialization",
+    "mid_game_mechanisms",
     "non_executed_row",
     "observe_principal_state",
     "parse_manifest",
+    "requires_starting_state",
     "run_af01",
     "run_af03",
     "run_cardinality",

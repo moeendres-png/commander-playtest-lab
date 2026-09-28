@@ -26,8 +26,10 @@ from commander_lab.qualification.current_boundary import receipts as receipt_mod
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
-# Same pinned materialization workspace the runner executes, resolved from the
-# environment so the assembler cannot silently read a different checkout.
+# The same pinned materialization workspace the runner executes, resolved from the
+# environment so the assembler cannot silently read a different checkout than the
+# one the evidence was produced against. The default is retained only so a bare
+# invocation still names the historical workspace rather than an implicit cwd.
 FORGE_WS_DEFAULT = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 FORGE_WS = Path(os.environ.get("COMMANDER_LAB_FORGE_WORKSPACE") or FORGE_WS_DEFAULT)
 
@@ -83,15 +85,57 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
 
 
 def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
-    """Native-suite credit for one candidate, from receipts only."""
+    """Native-suite credit for one candidate, from receipts only.
+
+    `native_runs` keeps its established shape: a mapping of group name to that
+    group's observed detail, so a consumer can read one suite's result directly.
+    The aggregate summary and the provenance rule live under sibling keys rather
+    than being mixed into the mapping, where a scalar would break iteration.
+    """
+    receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
+    credit = receipt_mod.native_suite_credit(
+        receipts, candidate=candidate, expected_commit=expected_commit
+    )
+    # PURELY a per-group mapping. Every value must be subscriptable, because
+    # consumers iterate it directly; scalar metadata lives beside it.
+    return {
+        group["group"]: {
+            "candidate": group["candidate"],
+            "tests": group["tests"],
+            "passed": group["passed"],
+            # `failures` is the established key consumers read; `failed` is the
+            # receipt's own name. Both are emitted so no consumer has to guess.
+            "failed": group["failed"],
+            "failures": group["failed"],
+            "errors": group["errors"],
+            "returncode": group["returncode"],
+            "candidate_commit": group["candidate_commit"],
+            "executed_commit": group["executed_commit"],
+            "engine_identity_justification": group["engine_identity_justification"],
+            "receipt_digest": group["receipt_digest"],
+        }
+        for group in credit["groups"]
+    }
+
+
+def native_credit_provenance(candidate: str, expected_commit: str) -> dict[str, Any]:
+    """The provenance statement that accompanies `native_runs`."""
     receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
     credit = receipt_mod.native_suite_credit(
         receipts, candidate=candidate, expected_commit=expected_commit
     )
     return {
         "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
-        **credit,
         "absent_receipts_yield_no_credit": True,
+        "expected_engine_commit": expected_commit,
+        "summary": {
+            "groups_credited": credit["groups_credited"],
+            "tests": credit["tests"],
+            "passed": credit["passed"],
+            "failed": credit["failed"],
+            "errors": credit["errors"],
+            "receipt_digests": credit["receipt_digests"],
+        },
     }
 
 
@@ -196,11 +240,18 @@ def assemble() -> None:
         results["native_runs"] = native_credit(
             candidate, results["runtime_identity"].get("engine_candidate_commit", "")
         )
+        results["native_runs_provenance"] = native_credit_provenance(
+            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+        )
         write(f"FULL107_{candidate.upper()}_RESULTS.json", results)
         per_candidate[candidate] = {
             "rows": rows,
             "counts": counts,
             "native_runs": results["native_runs"],
+            "native_runs_provenance": results["native_runs_provenance"],
+            # Bound here so the AF matrix can never read another candidate's
+            # identity through a leaked loop variable.
+            "results_runtime_identity": results["runtime_identity"],
         }
 
     # ---- AF00-AF11 matrix ------------------------------------------------
@@ -208,11 +259,27 @@ def assemble() -> None:
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
         extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        # Receipt-derived, never the retired NATIVE_RUNS literal. The summary
+        # counts only what a verified receipt observed, and it is empty when no
+        # receipt exists, so the gate cannot inherit a historical count.
         native = data["native_runs"]
-        native_tests = sum(group["tests"] for group in native.values())
-        native_green = all(
-            group["returncode"] == 0 and group["failures"] == 0 and group["errors"] == 0
-            for group in native.values()
+        native_summary = native.get("summary", {})
+        native_groups = [
+            k
+            for k in native
+            if k
+            not in {
+                "source",
+                "summary",
+                "absent_receipts_yield_no_credit",
+                "expected_engine_commit",
+            }
+        ]
+        native_tests = int(native_summary.get("tests", 0))
+        native_green = (
+            bool(native_groups)
+            and not native_summary.get("failed")
+            and not native_summary.get("errors")
         )
         cardinality = load(OUT / f"PLAYER_CARDINALITY_{candidate.upper()}.json")
         # All-or-nothing. This previously counted any run with a non-empty
@@ -221,8 +288,12 @@ def assemble() -> None:
         # prefixes earned AF02 PASS. A shortfall is UNKNOWN, not FAIL: an
         # unestablished count is an evidence gap, not a refutation.
         cardinality_assessment = lifecycle_mod.cardinality_verdict(cardinality["results"])
-        # The commit this evidence is required to be about, as recorded by the run.
-        expected_engine_commit = results["runtime_identity"].get("engine_candidate_commit", "")
+        # The commit THIS candidate's evidence is required to be about, read from
+        # this candidate's own results. It used to be a variable assigned in the
+        # earlier per-candidate loop, so by the time the AF matrix ran it held the
+        # LAST candidate's commit. XMage's AF00 was therefore compared against
+        # Forge's expected commit and reported FAIL for the wrong reason.
+        expected_engine_commit = data["results_runtime_identity"].get("engine_candidate_commit", "")
         matrix = [
             {
                 # AF00 was a literal PASS. Its evidence merely printed the commit
@@ -476,7 +547,7 @@ def assemble() -> None:
             comparison_result = semantic_mod.compare_semantics(xr, fr)
             disposition = comparison_result["disposition"]
             note = comparison_result["reason"]
-            if disposition == "SEMANTIC_DIFFERENCE":
+            if disposition == "RULES_VISIBLE_DIVERGENCE":
                 note += " (requires Coordinator Rules adjudication)"
         elif "FAIL" in (xr["exit_state"], fr["exit_state"]):
             disposition = "UNKNOWN_PENDING_RULES_ADJUDICATION"

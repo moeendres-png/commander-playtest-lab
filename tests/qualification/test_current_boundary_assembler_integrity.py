@@ -40,9 +40,23 @@ def _module_constants(path: Path) -> dict[str, object]:
 
 
 def test_hard_coded_native_runs_literal_is_gone() -> None:
-    """NATIVE_RUNS was a hand-written literal the assembler consumed as evidence."""
-    assert "NATIVE_RUNS" not in _module_constants(ASSEMBLER)
-    assert "NATIVE_RUNS" not in _source(ASSEMBLER)
+    """NATIVE_RUNS was a hand-written literal the assembler consumed as evidence.
+
+    The name may still appear in a comment recording that it was retired, so the
+    guard is on the constant existing at all: it must not be assigned anywhere,
+    and no name containing it may be defined.
+    """
+    assert "NATIVE_RUNS" not in _module_constants(ASSEMBLER), (
+        "the NATIVE_RUNS literal must not exist as a module constant"
+    )
+    tree = ast.parse(_source(ASSEMBLER))
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            assert "NATIVE_RUNS" not in node.name, f"{node.name} reintroduces the retired literal"
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    assert "NATIVE_RUNS" not in target.id, target.id
 
 
 def test_assembler_never_reads_test_source_for_fixture_ids() -> None:
@@ -105,17 +119,14 @@ def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
     assert "UNCONTROLLED_ENGINE_RNG" in receipts
     assert "REQUESTED_SEED" in receipts
 
-    # The seed must actually reach the provider request. PB-04 made the request
-    # shape lane-dependent (a lane that declares no seed support must not be sent
-    # one), so the assertion follows the seed into the request builder instead of
-    # requiring it to be a literal inside the call site. The requirement is
-    # unchanged: when the lane accepts a seed, the seed goes out on the wire.
-    create = driver.split('"create_commander_game",', 1)[1].split("},", 1)[0]
-    assert "_create_request" in create, "game creation must go through the request builder"
-    request_builder = driver.split("def _create_request(", 1)[1].split("\ndef ", 1)[0]
-    assert '"seed": seed' in request_builder, "the seed must reach the provider request"
-    assert "lane_seed_supported" in request_builder, "the request must be lane-scoped"
-    assert '"rules_seed": seed' in request_builder
+    # The seed must actually reach the provider request. It is built in
+    # _create_request, which sends it only when the provider declares support;
+    # the behaviour itself is pinned in test_current_boundary_seed_capability.
+    create_helper = driver[driver.index("def _create_request(") :]
+    create_helper = create_helper[: create_helper.index("\n\ndef ")]
+    assert 'request["seed"] = seed' in create_helper
+    assert 'request["rules_seed"] = seed' in create_helper
+    assert "if seed_supported:" in create_helper
 
     # And the derived binding is what the evidence records.
     assert '"rules_rng_binding"' in driver

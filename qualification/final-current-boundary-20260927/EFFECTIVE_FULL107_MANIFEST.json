@@ -1,5 +1,5 @@
 {
- "canonical_bundle_digest": "f40eda1976488962d36a77769970fec5624a5920fdaceea537ba9ae5ec7e026b",
+ "canonical_bundle_digest": "3ce9fa1f32b77ada6082caea2553c47c4e0d3caed7f1c77bce3e471deb75e95a",
  "changed_fixture_ids": [
   "WS05-CMD-START-2"
  ],
@@ -1913,7 +1913,7 @@
   }
  ],
  "rules_authority": {
-  "effective_date": "2026-08-07",
+  "effective_date": "2026-09-25",
   "receipt_path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
   "rule": "103.8a"
  },

@@ -11,19 +11,9 @@ and requires the mechanism classifier to agree with it exactly, and requires the
 classifier source to contain no fixture id at all.
 """
 
-# Four PB-03 guards in this family require the WSR22 evidence bundle
-# (qualification/final-current-boundary-20260927/EFFECTIVE_FULL107_MANIFEST.json)
-# and therefore stay on the WSR22 branch together with that bundle and its
-# integrity guard (tests/qualification/test_wsr22_current_boundary.py):
-#   test_mechanism_split_agrees_with_the_historical_split_exactly
-#   test_the_two_groups_share_no_event
-#   test_denominator_is_preserved_at_107
-#   test_blocked_rows_earn_no_credit_and_stay_explicit
-# They are bundle assertions, not classifier assertions. The classifier itself
-# is guarded here and is exercised on this lineage.
-
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from commander_lab.qualification.current_boundary import materialization
@@ -31,9 +21,14 @@ from commander_lab.qualification.current_boundary import materialization
 REPO = Path(__file__).resolve().parents[2]
 RUNNER = REPO / "scripts/run_current_boundary_qualification.py"
 MATERIALIZATION = REPO / "src/commander_lab/qualification/current_boundary/materialization.py"
+MANIFEST = REPO / "qualification/final-current-boundary-20260927/EFFECTIVE_FULL107_MANIFEST.json"
 
 # The historical prefix tuple, kept here only as the thing being retired.
 RETIRED_PREFIXES = ("WS05-MP-", "WS05-CMD-ZONE-", "WS05-CMD-DMG-", "WS05-CMD-ELIM-")
+
+
+def _rows() -> list[dict]:
+    return json.loads(MANIFEST.read_text(encoding="utf-8"))["rows"]
 
 
 def test_classifier_source_contains_no_fixture_id() -> None:
@@ -50,6 +45,51 @@ def test_runner_has_no_prefix_match_on_obligation_rows() -> None:
     assert "mid_game_mechanisms(record)" in source
     for prefix in RETIRED_PREFIXES:
         assert f'"{prefix}"' not in source, f"{prefix} is still matched by name"
+
+
+def test_mechanism_split_agrees_with_the_historical_split_exactly() -> None:
+    """The derived split must match the retired one, row for row."""
+    rows = [r for r in _rows() if r["fixture_family"] == "multiplayer_commander"]
+    by_mechanism = {r["fixture_id"] for r in rows if materialization.requires_starting_state(r)}
+    by_prefix = {r["fixture_id"] for r in rows if r["fixture_id"].startswith(RETIRED_PREFIXES)}
+    assert by_mechanism == by_prefix, (
+        f"only-mechanism={sorted(by_mechanism - by_prefix)} "
+        f"only-prefix={sorted(by_prefix - by_mechanism)}"
+    )
+    # And the split is non-trivial in both directions, so the test is not vacuous.
+    assert len(by_mechanism) == 27
+    assert len(by_prefix) == 27
+    assert len(rows) == 36
+
+
+def test_the_two_groups_share_no_event() -> None:
+    """Why the split is exact rather than approximate."""
+    rows = [r for r in _rows() if r["fixture_family"] == "multiplayer_commander"]
+    mid = set()
+    start = set()
+    for record in rows:
+        events = set(record.get("expected_events") or [])
+        (mid if materialization.requires_starting_state(record) else start).update(events)
+    assert mid, "expected some mid-game rows"
+    assert start, "expected some game-start rows"
+    assert not (mid & start), f"shared events: {sorted(mid & start)}"
+
+
+def test_denominator_is_preserved_at_107() -> None:
+    """PB-03 must not remove or duplicate a row to make the seam work."""
+    assert len(_rows()) == 107
+
+
+def test_blocked_rows_earn_no_credit_and_stay_explicit() -> None:
+    """A mechanism-blocked row is UNKNOWN/BLOCKED, never a silent PASS."""
+    for record in _rows():
+        if not materialization.requires_starting_state(record):
+            continue
+        mechanisms = materialization.mid_game_mechanisms(record)
+        assert mechanisms, record["fixture_id"]
+        # Every mechanism named must be a declared family, not a raw event string.
+        for mechanism in mechanisms:
+            assert mechanism in materialization.MID_GAME_MECHANISM_FAMILIES
 
 
 def test_an_unseen_mid_game_row_is_classified_correctly() -> None:

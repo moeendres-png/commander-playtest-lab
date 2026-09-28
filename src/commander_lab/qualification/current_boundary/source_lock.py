@@ -75,6 +75,68 @@ FORGE_UPSTREAM_REPOSITORY = "https://github.com/Card-Forge/forge.git"
 FORGE_UPSTREAM_BASELINE_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = True
 FORGE_BRIDGE_SOURCE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+
+# CONVERGENCE ADJUDICATION (SB independent baseline + origin/main 933d5df5).
+# Recorded rather than silently reconciled, because these are scope decisions and
+# a reader must be able to see that a conflict happened and how it was decided.
+#
+#   candidate      SB executed the PINNED UPSTREAM core a37a865a and proved it
+#                  pristine and live (PB-09 H4-F receipt). Main executed the Lab
+#                  FORK ef958ee9 and recorded
+#                  FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = False, noting that
+#                  no pristine upstream checkout had been established, so upstream
+#                  behaviour remained UNKNOWN. That specific main claim is
+#                  SUPERSEDED: the pristine upstream tree now exists, is verified,
+#                  and carries a live receipt. The candidate is therefore the
+#                  upstream pin and the fork is demoted to non-candidate, while
+#                  being RETAINED so its historical evidence keeps honest
+#                  provenance. => BUNNY_SUPERSEDES_MAIN on this fact.
+#                  The fork's own evidence is NOT invalidated: it remains valid
+#                  evidence ABOUT THE FORK. It is simply not evidence about the
+#                  pin, and no result crosses between them.
+#   two bridges    4753bb7c is the additive bridge that materializes the pinned
+#                  upstream core (SB, live-verified). d5bd22d1 is Forge PR #4, the
+#                  fork-side bridge head carrying the PB-05 build-provenance
+#                  repair, and it is Draft. They are not interchangeable and
+#                  neither licenses a result for the other. A bridge commit is not
+#                  an engine commit.
+#   PB-05          MAIN_SUPERSEDES_BUNNY. Main added engine_build_* and
+#                  engine_commit_verified, consumed fail-closed. These are additive
+#                  and are kept. They are BRIDGE-SCOPED: the pinned upstream bridge
+#                  4753bb7c does not emit them, so PB-05 credit for the pinned
+#                  column stays withheld rather than being inferred from the fork's
+#                  bridge. That withholding is a fact about the bridge, not a
+#                  verdict on the Rules Core.
+
+# The Forge bridge/evidence head is a SEPARATE identity from the Rules Core and is
+# bound separately, never collapsed into one "Forge SHA". Forge PR #4 carries the
+# PB-05 build-provenance repair and is Draft; it is not merged to Forge master and
+# must not be merged merely to consume it.
+#
+# PR #4 head d5bd22d1 has 22 commits above the fork Rules-Core head and changes
+# forge-protocol2-bridge only. forge-game, forge-core, forge-ai, forge-gui,
+# forge-gui-desktop and adventure-editor are byte-identical, which engine_tree_
+# equivalence re-verifies on every run over the Rules-Core modules alone.
+#
+# This is the FORK-side bridge. It is NOT the bridge that materialized the pinned
+# upstream candidate above, and a suite or receipt produced through it is evidence
+# about the fork, never about the pin.
+FORGE_BRIDGE_EVIDENCE_COMMIT = "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa"
+FORGE_BRIDGE_EVIDENCE_TREE = "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9"
+FORGE_BRIDGE_EVIDENCE_PR = 4
+FORGE_BRIDGE_EVIDENCE_IS_DRAFT = True
+
+# PB-05 provenance fields the fork-side bridge emits. They are consumed
+# fail-closed: no verified=true means no AF00/PB-05 credit, and a dirty or unknown
+# build source means no current evidence at all. Absence of these fields is
+# UNKNOWN provenance, never assumed-good provenance.
+FORGE_PB05_PROVENANCE_FIELDS = (
+    "engine_build_commit",
+    "engine_build_tree",
+    "engine_build_dirty",
+    "engine_build_source",
+    "engine_commit_verified",
+)
 FORGE_LICENSE = "GPL-3.0"
 
 # Contract blob paths inside the Lab repository.
@@ -195,6 +257,28 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                         "commit": FORGE_BRIDGE_SOURCE_COMMIT,
                         "rules_core_base_commit": FORGE_CANDIDATE_COMMIT,
                     },
+                    "bridge_evidence_head": {
+                        "role": "A SECOND, DISTINCT BRIDGE: the fork-side head that carries "
+                        "the PB-05 build-provenance repair. Bound separately from the Rules "
+                        "Core and never collapsed into it. Forge PR #4, Draft, deliberately "
+                        "not merged to master. It is NOT the bridge that materialized the "
+                        "pinned upstream core above, and it does not emit the engine_build_* "
+                        "provenance fields, so PB-05 credit for the pinned column stays "
+                        "withheld rather than being inferred from it. A bridge commit is not "
+                        "an engine commit.",
+                        "repository": FORGE_FORK_REPOSITORY,
+                        "commit": FORGE_BRIDGE_EVIDENCE_COMMIT,
+                        "tree": FORGE_BRIDGE_EVIDENCE_TREE,
+                        "pull_request": FORGE_BRIDGE_EVIDENCE_PR,
+                        "is_draft": FORGE_BRIDGE_EVIDENCE_IS_DRAFT,
+                        "changes_rules_core": False,
+                    },
+                    "pb05_provenance_consumed": list(FORGE_PB05_PROVENANCE_FIELDS),
+                    "pb05_credit_rule": "no engine_commit_verified=true means no AF00 or "
+                    "PB-05 credit; a dirty or unknown build source means no current "
+                    "evidence. These fields are BRIDGE-SCOPED: the materializing bridge "
+                    "does not emit them, so their absence withholds credit rather than "
+                    "granting it by default.",
                 },
                 "candidate_tree": FORGE_CANDIDATE_TREE,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
