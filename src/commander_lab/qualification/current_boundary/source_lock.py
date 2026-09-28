@@ -60,17 +60,18 @@ FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = False
 FORGE_BRIDGE_SOURCE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
 
 # The Forge bridge/evidence head is a SEPARATE identity from the Rules Core and is
-# bound separately, never collapsed into one "Forge SHA". Forge PR #4 carries the
-# PB-05 build-provenance repair and is Draft; it is not merged to Forge master and
-# must not be merged merely to consume it.
+# bound separately, never collapsed into one "Forge SHA". Forge PR #5 carries the
+# PB-05 build-provenance repair plus the WSR28/WSR30 Commander-legality,
+# requester-binding and creation-seed acknowledgements, and is Draft; it is not
+# merged to Forge master and must not be merged merely to consume it.
 #
-# PR #4 head d5bd22d1 has 22 commits above the Rules-Core head and changes
+# PR #5 head e15f37d6 has 26 commits above the Rules-Core head and changes
 # forge-protocol2-bridge only. forge-game, forge-core, forge-ai, forge-gui,
 # forge-gui-desktop and adventure-editor are byte-identical, which engine_tree_
 # equivalence re-verifies on every run over the Rules-Core modules alone.
-FORGE_BRIDGE_EVIDENCE_COMMIT = "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa"
-FORGE_BRIDGE_EVIDENCE_TREE = "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9"
-FORGE_BRIDGE_EVIDENCE_PR = 4
+FORGE_BRIDGE_EVIDENCE_COMMIT = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
+FORGE_BRIDGE_EVIDENCE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
+FORGE_BRIDGE_EVIDENCE_PR = 5
 FORGE_BRIDGE_EVIDENCE_IS_DRAFT = True
 
 # PB-05 provenance fields the bridge now emits. They are consumed fail-closed:
@@ -185,8 +186,9 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                     "bridge_evidence_head": {
                         "role": "THE BRIDGE/PROVIDER/EVIDENCE COMMIT THAT RUNS. Bound "
                         "separately from the Rules Core and never collapsed into it. "
-                        "Carries the PB-05 build-provenance repair. Forge PR #4, Draft, "
-                        "deliberately not merged to master.",
+                        "Carries the PB-05 build-provenance repair and the WSR28/WSR30 "
+                        "provider-truth repairs. Forge PR #5, Draft, deliberately not "
+                        "merged to master.",
                         "repository": FORGE_FORK_REPOSITORY,
                         "commit": FORGE_BRIDGE_EVIDENCE_COMMIT,
                         "tree": FORGE_BRIDGE_EVIDENCE_TREE,

@@ -338,6 +338,9 @@ def start2_row(
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
     # Observations, not the fixture's expectations. The verdict below is derived
     # from these, and from the fixture only as a statement of the obligation.
+    # They are also written into the persisted terminal facts: a verdict whose
+    # guard inputs are not in the artifact cannot be audited, and the document
+    # schema persists terminal_facts, not the row-local evidence dict.
     zone_counts = game.terminal_facts.get("observed_actor_zone_counts")
     observed_draw_events = [event for event in game.semantic_events if "draw" in str(event).lower()]
     observed_starting_actor = next(
@@ -348,6 +351,9 @@ def start2_row(
         ),
         None,
     )
+    game.terminal_facts["observed_decision_kinds"] = kinds
+    game.terminal_facts["observed_draw_semantic_events"] = observed_draw_events
+    game.terminal_facts["observed_starting_actor"] = observed_starting_actor
     evidence = {
         "player_count": 2,
         "actual_cards": _actual_cards(),
@@ -609,6 +615,44 @@ def _canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
 
+# Provider requester-binding metadata is not observed content. The distinctness
+# check compares what each principal actually observed; if the binding fields
+# were included, a provider could return one identical unscoped payload to every
+# requester while varying only the marker, and four identical views would look
+# distinct. Excluding the binding metadata makes the comparison stricter, which
+# is the safe direction for a leak check; the fields themselves are still
+# consumed by the binding checks above and by no_opponent_hidden_content below.
+# The monotonic `state_observation_offset` lives outside the state view and is
+# excluded by construction, because only the state view is compared.
+_BINDING_STATE_KEYS: frozenset[str] = frozenset(
+    {
+        "observer_player_id",
+        "observer_engine_player_id",
+        "observer_seat",
+        "state_observation_offset",
+    }
+)
+_BINDING_PLAYER_KEYS: frozenset[str] = frozenset({"is_actor"})
+
+
+def _content_view(payload: dict[str, Any]) -> dict[str, Any]:
+    """The state view without provider requester-binding metadata."""
+    content = {
+        key: value for key, value in _state_view(payload).items() if key not in _BINDING_STATE_KEYS
+    }
+    players = content.get("players")
+    if isinstance(players, list):
+        content["players"] = [
+            (
+                {key: value for key, value in entry.items() if key not in _BINDING_PLAYER_KEYS}
+                if isinstance(entry, dict)
+                else entry
+            )
+            for entry in players
+        ]
+    return content
+
+
 def validate_principal_scoping(
     observations: dict[str, Any], *, requested_seats: tuple[str, ...]
 ) -> dict[str, Any]:
@@ -744,8 +788,10 @@ def validate_principal_scoping(
     # STATE VIEW, not the whole observation envelope. The envelope carries a
     # monotonically increasing `state_observation_offset`, so comparing it would
     # make four byte-identical states look like four distinct observations and
-    # mask exactly the leak this check exists to catch.
-    distinct = {_canonical(_state_view(usable[seat])) for seat in usable}
+    # mask exactly the leak this check exists to catch. Provider requester-
+    # binding metadata is excluded for the same reason: marking the observer is
+    # not observation content.
+    distinct = {_canonical(_content_view(usable[seat])) for seat in usable}
     if len(usable) > 1 and len(distinct) == 1:
         findings.append(
             {

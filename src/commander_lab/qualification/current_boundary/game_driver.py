@@ -381,6 +381,33 @@ def _action_kind(action: dict[str, Any]) -> str:
     return str(action.get("action_type", ""))
 
 
+def _zone_count_record(
+    *,
+    seat: int,
+    hand: Any,
+    library_size: int | None,
+    principal: str,
+    envelope_bound: bool,
+) -> dict[str, Any]:
+    """The persisted proof of one principal-scoped zone-count observation.
+
+    ``engine_id_matches_state_row`` is emitted only when an observer envelope
+    was actually present and its resolved live engine id was checked against
+    the acting seat's own row. A marker-bound response has no engine id to
+    compare, and recording ``false`` for it would read as a failed proof.
+    """
+    record: dict[str, Any] = {
+        "seat": seat,
+        "hand_count": len(hand) if isinstance(hand, list) else None,
+        "library_count": library_size,
+        "observer_player_id": principal,
+        "binding_mechanism": "LIVE_ENGINE_ENVELOPE" if envelope_bound else "STATE_ACTOR_MARKER",
+    }
+    if envelope_bound:
+        record["engine_id_matches_state_row"] = True
+    return record
+
+
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -659,52 +686,102 @@ def drive_commander_game(
             break
 
         if drive_to == "first_turn_draw_skip":
-            # Observe the acting seat's own zone counts from the engine, so the
-            # draw-skip obligation is judged on observed state rather than on the
-            # absence of a decision checkpoint. A checkpoint is not the same
+            # Observe the acting principal's own zone counts from the engine, so
+            # the draw-skip obligation is judged on observed state rather than on
+            # the absence of a decision checkpoint. A checkpoint is not the same
             # thing as a draw: an engine could skip the checkpoint and still draw
             # the card, and only the counts can tell the difference.
-            actor_seat = frame["seat"] if "frame" in dir() else None
+            #
+            # The read names the engine-stated acting principal explicitly. A
+            # provider may bind the response with an observer envelope (requested
+            # external id + resolved live engine id + seat) or with an in-state
+            # actor marker; whichever it emits must establish exactly the acting
+            # principal. A provider that emits neither, or emits contradictions,
+            # fails closed. Counts come from that principal's row only, and no
+            # live engine principal id is persisted.
             try:
-                if not isinstance(actor_seat, int) or actor_seat < 0:
-                    raise GameDriveError("acting seat unavailable for principal observation")
-                observer_player_id = f"p{actor_seat + 1}"
+                decision = frame["decision"] if "frame" in dir() else {}
+                stated = decision.get("actor") if isinstance(decision, dict) else None
+                principal = str(stated) if stated else str(frame["seat"])
+                seats_known = _SEATS[:player_count]
+                if principal not in seats_known:
+                    raise GameDriveError(
+                        f"acting principal {principal!r} is not one of {seats_known}"
+                    )
+                seat_index = seats_known.index(principal)
                 observed = proc.request(
                     "get_game_state",
-                    {"observer_player_id": observer_player_id},
+                    {"observer_player_id": principal},
                     game_id=result.game_id,
+                    timeout_s=60.0,
                 )
                 payload = _payload(observed)
                 state_view = payload.get("state", payload)
-                seats = state_view.get("players") if isinstance(state_view, dict) else None
-                mine = []
-                for entry in seats or []:
-                    if not isinstance(entry, dict) or entry.get("seat") != actor_seat:
-                        continue
-                    raw_zones = entry.get("zones")
-                    zones = raw_zones if isinstance(raw_zones, dict) else {}
-                    hand = zones.get("hand")
-                    library = zones.get("library")
-                    observer_engine_id = payload.get("observer_engine_player_id")
-                    engine_binding_matches = (
-                        isinstance(observer_engine_id, str)
-                        and bool(observer_engine_id)
-                        and entry.get("player_id") == observer_engine_id
+                rows = state_view.get("players") if isinstance(state_view, dict) else None
+                rows = rows if isinstance(rows, list) else []
+                if seat_index >= len(rows) or not isinstance(rows[seat_index], dict):
+                    raise GameDriveError(
+                        "the principal-scoped response carries no row for the acting seat"
                     )
-                    if not engine_binding_matches:
+                actor_row = rows[seat_index]
+                if actor_row.get("seat") != seat_index:
+                    raise GameDriveError("the acting seat row does not report the acting seat")
+
+                # Mechanism A: exact live-engine observer envelope.
+                envelope_present = any(
+                    key in payload
+                    for key in ("observer_player_id", "observer_engine_player_id", "observer_seat")
+                )
+                envelope_bound = False
+                if envelope_present:
+                    engine_id = payload.get("observer_engine_player_id")
+                    envelope_bound = (
+                        payload.get("observer_player_id") == principal
+                        and payload.get("observer_seat") == seat_index
+                        and isinstance(engine_id, str)
+                        and bool(engine_id)
+                        and actor_row.get("player_id") == engine_id
+                    )
+                    if not envelope_bound:
                         raise GameDriveError(
-                            "principal observation does not bind to the acting state row"
+                            "the observer envelope does not bind the acting principal to the "
+                            "live engine row at the acting seat"
                         )
-                    mine.append(
-                        {
-                            "seat": entry.get("seat"),
-                            "hand_count": len(hand) if isinstance(hand, list) else None,
-                            "library_count": (len(library) if isinstance(library, list) else None),
-                            "observer_player_id": payload.get("observer_player_id"),
-                            "engine_id_matches_state_row": True,
-                        }
+
+                # Mechanism B: authoritative in-state actor marker.
+                marked = [
+                    row for row in rows if isinstance(row, dict) and row.get("is_actor") is True
+                ]
+                marker_bound = False
+                if marked:
+                    marker_bound = len(marked) == 1 and marked[0].get("seat") == seat_index
+                    if not marker_bound:
+                        raise GameDriveError(
+                            "the in-state actor marker does not identify exactly the acting "
+                            "principal"
+                        )
+
+                if not (envelope_bound or marker_bound):
+                    raise GameDriveError(
+                        "the response establishes no authoritative acting principal"
                     )
-                result.terminal_facts["observed_actor_zone_counts"] = mine
+
+                raw_zones = actor_row.get("zones")
+                zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else {}
+                hand = zones.get("hand")
+                library_size = zones.get("library_size")
+                if isinstance(library_size, bool) or not isinstance(library_size, int):
+                    library = zones.get("library")
+                    library_size = len(library) if isinstance(library, list) else None
+                result.terminal_facts["observed_actor_zone_counts"] = [
+                    _zone_count_record(
+                        seat=seat_index,
+                        hand=hand,
+                        library_size=library_size,
+                        principal=principal,
+                        envelope_bound=envelope_bound,
+                    )
+                ]
                 result.terminal_facts["observed_zone_count_source"] = (
                     "ENGINE_REPORTED_PRINCIPAL_SCOPED"
                 )

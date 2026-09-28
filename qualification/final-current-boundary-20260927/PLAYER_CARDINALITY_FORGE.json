@@ -16,12 +16,12 @@
    "decision_tape": [
     {
      "actor": "p1",
-     "chosen_option_id": "opt-880abd50-6419-4416-9791-ff1e61370146",
+     "chosen_option_id": "opt-86f33589-31e8-4bf6-97ef-69a1e82a39d2",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-880abd50-6419-4416-9791-ff1e61370146",
-      "opt-6a4ef54e-e5b9-43ce-b10a-2342c64420d6"
+      "opt-86f33589-31e8-4bf6-97ef-69a1e82a39d2",
+      "opt-1e1deaa5-60d3-43ee-8eb8-1a1dcdda37ab"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -33,8 +33,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-06762f55-6a38-4218-a246-65b425042337",
-      "opt-78fbf2a9-3def-4807-bb8e-5363a3b0eaf8"
+      "opt-d862dd72-6783-4f27-85d3-3a8cc6197aea",
+      "opt-5e8237ab-e0c9-410c-81f4-888e7032cc64"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -46,8 +46,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-88d8957d-f583-42bb-9dc1-aa8ae99025ad",
-      "opt-ae7de39a-7dfa-4b83-afb5-69ae26dcef11"
+      "opt-4e3982ab-e335-4ef3-82df-f2b640f37ac0",
+      "opt-6a3cd498-2fcd-4420-ba1c-01d1e3b54af2"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -55,12 +55,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-2da32269-50e5-41df-a57f-ee51054e53d1",
+     "chosen_option_id": "opt-b675f343-3791-4a0e-aab8-2a4345468da1",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-2da32269-50e5-41df-a57f-ee51054e53d1",
-      "opt-b9df5cab-8181-4986-9703-81c44332813f"
+      "opt-b675f343-3791-4a0e-aab8-2a4345468da1",
+      "opt-cf044d2f-98fc-4851-b68a-bea0b4393b6e"
      ],
      "policy": "pass_when_offered",
      "revision": 4,
@@ -73,7 +73,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-2p-7b528018",
+   "game_id": "wsr22-forge-2p-dac43ad8",
    "observations": [
     {
      "payload": {
@@ -82,7 +82,7 @@
         "actor": "p1",
         "decision_class": "forge:mulligan/1",
         "decision_protocol_version": "forge-decision-protocol/1.0.0",
-        "event_offset": 8,
+        "event_offset": 9,
         "kind": "MULLIGAN",
         "legal_set_digest": "f111623e17181b69f06726bab07c2c35d4d9656b2ce72402fb9deeeef4beecaf",
         "legal_set_size": 2,
@@ -103,19 +103,19 @@
        },
        "revision": 2,
        "session_status": "RUNNING",
-       "state_hash": "5ba3adabfcb52c08ff2e1e023fe1606e52f8b412116e4e7727768602b89e05d5"
+       "state_hash": "930879cdf459e8698f9a4b21e0e882f7aa169dc0ba6cb3987fc1e15e66f4465f"
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "5ba3adabfcb52c08ff2e1e023fe1606e52f8b412116e4e7727768602b89e05d5",
-       "pre_state_hash": "d7493f744bb3fc19e7c849011accd592a84612d8d77f1f62478202e0ef6dd90d"
+       "post_state_hash": "930879cdf459e8698f9a4b21e0e882f7aa169dc0ba6cb3987fc1e15e66f4465f",
+       "pre_state_hash": "0226751af96afa1b24184aeea21c66bae2ad35bb71e355de8590c23ce04a9915"
       },
       "game_over": false,
       "next_decision": {
        "actor": "p1",
        "decision_class": "forge:mulligan/1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 8,
+       "event_offset": 9,
        "kind": "MULLIGAN",
        "legal_set_digest": "f111623e17181b69f06726bab07c2c35d4d9656b2ce72402fb9deeeef4beecaf",
        "legal_set_size": 2,
@@ -137,10 +137,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 8,
-       "event_sequence": 8,
-       "game_id": "wsr22-forge-2p-7b528018",
+       "event_offset": 9,
+       "event_sequence": 9,
+       "game_id": "wsr22-forge-2p-dac43ad8",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -149,6 +150,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -191,6 +193,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -279,8 +282,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "5ba3adabfcb52c08ff2e1e023fe1606e52f8b412116e4e7727768602b89e05d5",
-       "pre_state_hash": "5ba3adabfcb52c08ff2e1e023fe1606e52f8b412116e4e7727768602b89e05d5"
+       "post_state_hash": "930879cdf459e8698f9a4b21e0e882f7aa169dc0ba6cb3987fc1e15e66f4465f",
+       "pre_state_hash": "930879cdf459e8698f9a4b21e0e882f7aa169dc0ba6cb3987fc1e15e66f4465f"
       },
       "game_over": false,
       "next_decision": {
@@ -289,10 +292,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 11,
-       "event_sequence": 11,
-       "game_id": "wsr22-forge-2p-7b528018",
+       "event_offset": 12,
+       "event_sequence": 12,
+       "game_id": "wsr22-forge-2p-dac43ad8",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -301,6 +305,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -343,6 +348,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -431,8 +437,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bb3b206ee286b7aaf5f7df60e1f1f7158b421a9ef6a4af0aa644a1c5a3fea62e",
-       "pre_state_hash": "5ba3adabfcb52c08ff2e1e023fe1606e52f8b412116e4e7727768602b89e05d5"
+       "post_state_hash": "7f61fc3261f26da168dbb7a93bc2e08d872165320ddc06d3940b2272b8ce9958",
+       "pre_state_hash": "930879cdf459e8698f9a4b21e0e882f7aa169dc0ba6cb3987fc1e15e66f4465f"
       },
       "game_over": false,
       "next_decision": {
@@ -441,10 +447,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 14,
-       "event_sequence": 14,
-       "game_id": "wsr22-forge-2p-7b528018",
+       "event_offset": 15,
+       "event_sequence": 15,
+       "game_id": "wsr22-forge-2p-dac43ad8",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -453,6 +460,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -495,6 +503,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -583,8 +592,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "40a714c31008441291b3984e6c873cbab75098d99480dd1df693475546afe78d",
-       "pre_state_hash": "bb3b206ee286b7aaf5f7df60e1f1f7158b421a9ef6a4af0aa644a1c5a3fea62e"
+       "post_state_hash": "feedb68bcea08f1695e9a6aa23163669babb096e9b224c4e07d123522ada1b04",
+       "pre_state_hash": "7f61fc3261f26da168dbb7a93bc2e08d872165320ddc06d3940b2272b8ce9958"
       },
       "game_over": false,
       "next_decision": {
@@ -593,10 +602,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 17,
-       "event_sequence": 17,
-       "game_id": "wsr22-forge-2p-7b528018",
+       "event_offset": 18,
+       "event_sequence": 18,
+       "game_id": "wsr22-forge-2p-dac43ad8",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -605,6 +615,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -647,6 +658,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -728,12 +740,12 @@
    ],
    "player_count": 2,
    "rules_rng_binding": {
-    "acknowledged_seed": null,
+    "acknowledged_seed": 424242,
     "acknowledgement_source": "create_commander_game_response",
-    "classification": "UNCONTROLLED_ENGINE_RNG",
-    "controlled": false,
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
     "requested_seed": 424242,
-    "rng_credit": false,
+    "rng_credit": true,
     "schema_version": "commander-lab.seed-binding/1.0.0"
    },
    "semantic_events": [],
@@ -760,12 +772,12 @@
     "priority_reached": true,
     "provider_seed_supported": true,
     "rules_rng_binding": {
-     "acknowledged_seed": null,
+     "acknowledged_seed": 424242,
      "acknowledgement_source": "create_commander_game_response",
-     "classification": "UNCONTROLLED_ENGINE_RNG",
-     "controlled": false,
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
      "requested_seed": 424242,
-     "rng_credit": false,
+     "rng_credit": true,
      "schema_version": "commander-lab.seed-binding/1.0.0"
     },
     "seed_sent_to_provider": true,
@@ -777,13 +789,13 @@
    "decision_tape": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-72e69f8c-86f8-404e-a15b-c73e98de809f",
+     "chosen_option_id": "opt-4b6a5540-7ed6-4464-9f2f-bd5169d48dcf",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-72e69f8c-86f8-404e-a15b-c73e98de809f",
-      "opt-33c62832-99f7-4e17-a6db-7852aabd9617",
-      "opt-6210ec18-434a-415d-bb20-61e1a947e034"
+      "opt-4b6a5540-7ed6-4464-9f2f-bd5169d48dcf",
+      "opt-4a07a46d-a282-4554-b6d2-200465488267",
+      "opt-31992b46-7eba-409e-b56d-4da61b8cfb5d"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -795,8 +807,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-55ad6a0d-65f4-42e8-9ed0-0793e28905af",
-      "opt-35b4e1be-e3d6-4377-89fe-88828aa54037"
+      "opt-07d5ca41-1e16-4a1a-93b0-cc95145c7caf",
+      "opt-bc0cd48c-c252-4534-9df3-2726c19b6ccf"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -808,8 +820,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-83e0997e-a255-4a8c-9abe-b200cf237032",
-      "opt-7497f0c9-0d7e-45a3-9527-1ff8e1ed7097"
+      "opt-7c8475bc-b6fc-4c58-8384-0bb3ecbdfdde",
+      "opt-f0b5ccc2-c014-43d2-9e8c-1c2066a79580"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -821,8 +833,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-00345f2b-31a3-4273-838a-03ccc27ae677",
-      "opt-c914fd57-9dbc-44ab-86cf-0f201bc2cbda"
+      "opt-6d4f3202-97f2-478d-946a-c5c31f9344b2",
+      "opt-7bcfa798-223d-4b0d-ac23-de6ba23aa605"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -830,12 +842,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-e757e079-054a-4ba8-b410-cc55bc645d4f",
+     "chosen_option_id": "opt-5c84f17b-8e36-40dc-ace5-2a64655ef164",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-e757e079-054a-4ba8-b410-cc55bc645d4f",
-      "opt-36607118-cebc-4bcc-80e6-7a96e66052a4"
+      "opt-5c84f17b-8e36-40dc-ace5-2a64655ef164",
+      "opt-b99036bd-531b-463d-8723-529eb9db16c7"
      ],
      "policy": "pass_when_offered",
      "revision": 5,
@@ -849,7 +861,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-3p-fc2fa00e",
+   "game_id": "wsr22-forge-3p-99defc97",
    "observations": [
     {
      "payload": {
@@ -861,8 +873,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "217530a3679dfddf5ab7d2948f0891154372fc9444a0010ae284a26067df49fd",
-       "pre_state_hash": "17df83f1a4642ec32ad67c1825620e2dc42fbdef3c5680419696239f00ecf444"
+       "post_state_hash": "140831eb574024e8632455692259a6512725d8b24e27eec6e994f87f320e8d7b",
+       "pre_state_hash": "599e1ece0da097bd6d11a92f06544b4b8c3f11e4bb31307c9f8c2f17b2b1f656"
       },
       "game_over": false,
       "next_decision": {
@@ -871,10 +883,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 8,
-       "event_sequence": 8,
-       "game_id": "wsr22-forge-3p-fc2fa00e",
+       "event_offset": 9,
+       "event_sequence": 9,
+       "game_id": "wsr22-forge-3p-99defc97",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -883,6 +896,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -925,6 +939,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -967,6 +982,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1063,8 +1079,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "217530a3679dfddf5ab7d2948f0891154372fc9444a0010ae284a26067df49fd",
-       "pre_state_hash": "217530a3679dfddf5ab7d2948f0891154372fc9444a0010ae284a26067df49fd"
+       "post_state_hash": "140831eb574024e8632455692259a6512725d8b24e27eec6e994f87f320e8d7b",
+       "pre_state_hash": "140831eb574024e8632455692259a6512725d8b24e27eec6e994f87f320e8d7b"
       },
       "game_over": false,
       "next_decision": {
@@ -1073,10 +1089,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 11,
-       "event_sequence": 11,
-       "game_id": "wsr22-forge-3p-fc2fa00e",
+       "event_offset": 12,
+       "event_sequence": 12,
+       "game_id": "wsr22-forge-3p-99defc97",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -1085,6 +1102,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1127,6 +1145,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1169,6 +1188,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1265,8 +1285,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "217530a3679dfddf5ab7d2948f0891154372fc9444a0010ae284a26067df49fd",
-       "pre_state_hash": "217530a3679dfddf5ab7d2948f0891154372fc9444a0010ae284a26067df49fd"
+       "post_state_hash": "140831eb574024e8632455692259a6512725d8b24e27eec6e994f87f320e8d7b",
+       "pre_state_hash": "140831eb574024e8632455692259a6512725d8b24e27eec6e994f87f320e8d7b"
       },
       "game_over": false,
       "next_decision": {
@@ -1275,10 +1295,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 14,
-       "event_sequence": 14,
-       "game_id": "wsr22-forge-3p-fc2fa00e",
+       "event_offset": 15,
+       "event_sequence": 15,
+       "game_id": "wsr22-forge-3p-99defc97",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -1287,6 +1308,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1329,6 +1351,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1371,6 +1394,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1467,8 +1491,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "0e3496cd7895268fe3a96453078676b35928c814d84f7b0d881cba70dc3a38d0",
-       "pre_state_hash": "217530a3679dfddf5ab7d2948f0891154372fc9444a0010ae284a26067df49fd"
+       "post_state_hash": "31318e926114e929d01a405172814916869652fca1ed7df46199c03a5f4063c6",
+       "pre_state_hash": "140831eb574024e8632455692259a6512725d8b24e27eec6e994f87f320e8d7b"
       },
       "game_over": false,
       "next_decision": {
@@ -1477,10 +1501,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 17,
-       "event_sequence": 17,
-       "game_id": "wsr22-forge-3p-fc2fa00e",
+       "event_offset": 18,
+       "event_sequence": 18,
+       "game_id": "wsr22-forge-3p-99defc97",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -1489,6 +1514,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1531,6 +1557,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1573,6 +1600,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1669,8 +1697,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "edf766f27d44d1d73c37db1dcc6685b980196e93f17f38ce4cdb4b2c3ec5ed7d",
-       "pre_state_hash": "0e3496cd7895268fe3a96453078676b35928c814d84f7b0d881cba70dc3a38d0"
+       "post_state_hash": "d0c9a640fb0e05c15fb1a2437d8f7141eec2a4cabd79346d1b36c45939ec0457",
+       "pre_state_hash": "31318e926114e929d01a405172814916869652fca1ed7df46199c03a5f4063c6"
       },
       "game_over": false,
       "next_decision": {
@@ -1679,10 +1707,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 20,
-       "event_sequence": 20,
-       "game_id": "wsr22-forge-3p-fc2fa00e",
+       "event_offset": 21,
+       "event_sequence": 21,
+       "game_id": "wsr22-forge-3p-99defc97",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -1691,6 +1720,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1733,6 +1763,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1775,6 +1806,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -1864,12 +1896,12 @@
    ],
    "player_count": 3,
    "rules_rng_binding": {
-    "acknowledged_seed": null,
+    "acknowledged_seed": 424242,
     "acknowledgement_source": "create_commander_game_response",
-    "classification": "UNCONTROLLED_ENGINE_RNG",
-    "controlled": false,
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
     "requested_seed": 424242,
-    "rng_credit": false,
+    "rng_credit": true,
     "schema_version": "commander-lab.seed-binding/1.0.0"
    },
    "semantic_events": [],
@@ -1896,12 +1928,12 @@
     "priority_reached": true,
     "provider_seed_supported": true,
     "rules_rng_binding": {
-     "acknowledged_seed": null,
+     "acknowledged_seed": 424242,
      "acknowledgement_source": "create_commander_game_response",
-     "classification": "UNCONTROLLED_ENGINE_RNG",
-     "controlled": false,
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
      "requested_seed": 424242,
-     "rng_credit": false,
+     "rng_credit": true,
      "schema_version": "commander-lab.seed-binding/1.0.0"
     },
     "seed_sent_to_provider": true,
@@ -1913,14 +1945,14 @@
    "decision_tape": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-cb1a1eb5-e512-40e4-bdf3-b8b9b19a2ef6",
+     "chosen_option_id": "opt-81fa014c-ced7-4842-80da-c129231bce05",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-cb1a1eb5-e512-40e4-bdf3-b8b9b19a2ef6",
-      "opt-1eb3fc16-bf0e-42d3-bf44-af782e267d0e",
-      "opt-550572da-a03a-429e-8467-cfedf661a66b",
-      "opt-a2f286b2-d0c8-430f-aae1-27027c863257"
+      "opt-81fa014c-ced7-4842-80da-c129231bce05",
+      "opt-ec556713-18e3-4bb2-a2c5-6c39c23f4cfd",
+      "opt-3bc00696-bb9a-4c08-b8f8-aacea7820b80",
+      "opt-f8638228-61c4-4cc9-b987-8caa0774d63a"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -1932,8 +1964,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-7b486b73-f74e-4f69-8582-20cde802f757",
-      "opt-0beb16e0-b0d1-4120-8ee7-d7892f920bf5"
+      "opt-4520d685-e864-4c72-8fdb-d5e0faa2214a",
+      "opt-39a56eb7-b1f6-4a2f-aa60-1aaa6c953876"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -1945,8 +1977,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-977e3476-2f21-4110-a413-eb5ff7c28ec4",
-      "opt-e1cdd617-7c73-4773-ac41-e2c42b1dfc2b"
+      "opt-899993de-a197-4ce1-9965-45a1957f15f2",
+      "opt-74c98a34-10c4-4e64-9763-ad0afa5136a8"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -1958,8 +1990,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-f60318b0-507d-4366-b7d5-7304b4ff220e",
-      "opt-aa584606-01b1-49f5-87c1-f07f813f50e6"
+      "opt-8adb3104-1c45-4467-ad05-d9bfc7f299d2",
+      "opt-3b2f7317-627e-4561-a5a4-ec54c4bcb7bb"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -1971,8 +2003,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-633c5792-bd43-4fee-a4d9-31af7dd80270",
-      "opt-80e28ce1-bf69-4a46-89b8-bf26ce7a6ef4"
+      "opt-6997f40f-dcf9-4348-ba84-e6d6761bbde7",
+      "opt-ac911065-9486-4f89-aa29-532d7a1e5fd4"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -1980,12 +2012,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-11e67b38-cc4a-4f0b-a928-06ca22cfea58",
+     "chosen_option_id": "opt-622ad3ff-3b5e-40a0-be13-8ba5386dd66c",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-11e67b38-cc4a-4f0b-a928-06ca22cfea58",
-      "opt-afbd0d2b-623c-49cd-a3c8-b7eb84242c26"
+      "opt-622ad3ff-3b5e-40a0-be13-8ba5386dd66c",
+      "opt-dc87cb36-3df9-47fb-aff4-3c730731c4a0"
      ],
      "policy": "pass_when_offered",
      "revision": 6,
@@ -2000,7 +2032,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-4p-c0cc6cf4",
+   "game_id": "wsr22-forge-4p-3acf030a",
    "observations": [
     {
      "payload": {
@@ -2012,8 +2044,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f",
-       "pre_state_hash": "7a8ea7f9176b9242bf10d5e2ed5b5bb0b0ad3b899d9f17bacde46d2d26a7f945"
+       "post_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73",
+       "pre_state_hash": "0c0bd9110fc370addf09393214ad2a4f1ccee43d44f51632799385459c3b4a0a"
       },
       "game_over": false,
       "next_decision": {
@@ -2022,10 +2054,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 8,
-       "event_sequence": 8,
-       "game_id": "wsr22-forge-4p-c0cc6cf4",
+       "event_offset": 9,
+       "event_sequence": 9,
+       "game_id": "wsr22-forge-4p-3acf030a",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -2034,6 +2067,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2076,6 +2110,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2118,6 +2153,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2160,6 +2196,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2264,8 +2301,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f",
-       "pre_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f"
+       "post_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73",
+       "pre_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73"
       },
       "game_over": false,
       "next_decision": {
@@ -2274,10 +2311,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 11,
-       "event_sequence": 11,
-       "game_id": "wsr22-forge-4p-c0cc6cf4",
+       "event_offset": 12,
+       "event_sequence": 12,
+       "game_id": "wsr22-forge-4p-3acf030a",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -2286,6 +2324,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2328,6 +2367,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2370,6 +2410,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2412,6 +2453,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2516,8 +2558,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f",
-       "pre_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f"
+       "post_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73",
+       "pre_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73"
       },
       "game_over": false,
       "next_decision": {
@@ -2526,10 +2568,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 14,
-       "event_sequence": 14,
-       "game_id": "wsr22-forge-4p-c0cc6cf4",
+       "event_offset": 15,
+       "event_sequence": 15,
+       "game_id": "wsr22-forge-4p-3acf030a",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -2538,6 +2581,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2580,6 +2624,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2622,6 +2667,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2664,6 +2710,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2768,8 +2815,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f",
-       "pre_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f"
+       "post_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73",
+       "pre_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73"
       },
       "game_over": false,
       "next_decision": {
@@ -2778,10 +2825,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 17,
-       "event_sequence": 17,
-       "game_id": "wsr22-forge-4p-c0cc6cf4",
+       "event_offset": 18,
+       "event_sequence": 18,
+       "game_id": "wsr22-forge-4p-3acf030a",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -2790,6 +2838,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2832,6 +2881,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2874,6 +2924,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -2916,6 +2967,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3020,8 +3072,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "088ab908b08ab2424d95584f0a8c00f256a0f7a4e8c8f9e690f674da444e3670",
-       "pre_state_hash": "2bf534897bb57f05862878cbda1c1fbf12808c09fd35fe4e5d8b65a26032408f"
+       "post_state_hash": "86003b873c535f01850b597630edd7e804216a4f92d0ae49f1d92958790c6548",
+       "pre_state_hash": "8cb94acfcd3ba05538e99bbea849bf0ede2fa2d5c4b0cb135a91fd430d836b73"
       },
       "game_over": false,
       "next_decision": {
@@ -3030,10 +3082,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 20,
-       "event_sequence": 20,
-       "game_id": "wsr22-forge-4p-c0cc6cf4",
+       "event_offset": 21,
+       "event_sequence": 21,
+       "game_id": "wsr22-forge-4p-3acf030a",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -3042,6 +3095,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3084,6 +3138,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3126,6 +3181,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3168,6 +3224,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3272,8 +3329,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "f23fc239b0279ff63764accb108b373fae965e197f8b9b95f91fff82ac335d39",
-       "pre_state_hash": "088ab908b08ab2424d95584f0a8c00f256a0f7a4e8c8f9e690f674da444e3670"
+       "post_state_hash": "29c58207bab0d598d14aa4cc12dacc9ff435536dfd9aaecb346937d70422df1f",
+       "pre_state_hash": "86003b873c535f01850b597630edd7e804216a4f92d0ae49f1d92958790c6548"
       },
       "game_over": false,
       "next_decision": {
@@ -3282,10 +3339,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 23,
-       "event_sequence": 23,
-       "game_id": "wsr22-forge-4p-c0cc6cf4",
+       "event_offset": 24,
+       "event_sequence": 24,
+       "game_id": "wsr22-forge-4p-3acf030a",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -3294,6 +3352,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3336,6 +3395,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3378,6 +3438,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3420,6 +3481,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3517,12 +3579,12 @@
    ],
    "player_count": 4,
    "rules_rng_binding": {
-    "acknowledged_seed": null,
+    "acknowledged_seed": 424242,
     "acknowledgement_source": "create_commander_game_response",
-    "classification": "UNCONTROLLED_ENGINE_RNG",
-    "controlled": false,
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
     "requested_seed": 424242,
-    "rng_credit": false,
+    "rng_credit": true,
     "schema_version": "commander-lab.seed-binding/1.0.0"
    },
    "semantic_events": [],
@@ -3549,12 +3611,12 @@
     "priority_reached": true,
     "provider_seed_supported": true,
     "rules_rng_binding": {
-     "acknowledged_seed": null,
+     "acknowledged_seed": 424242,
      "acknowledgement_source": "create_commander_game_response",
-     "classification": "UNCONTROLLED_ENGINE_RNG",
-     "controlled": false,
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
      "requested_seed": 424242,
-     "rng_credit": false,
+     "rng_credit": true,
      "schema_version": "commander-lab.seed-binding/1.0.0"
     },
     "seed_sent_to_provider": true,
@@ -3566,15 +3628,15 @@
    "decision_tape": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-c7f6b9d6-90fe-4aac-af9c-84c081b1b5a1",
+     "chosen_option_id": "opt-f5ab982b-e248-4c6c-9e65-710f70b5581b",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-c7f6b9d6-90fe-4aac-af9c-84c081b1b5a1",
-      "opt-de4cfbca-c875-4ddf-a5cb-bd625c2563d8",
-      "opt-c2021732-0328-4c18-a6b9-90b693d4e605",
-      "opt-db7d48e2-9250-4c65-bc3d-0f6abc351d19",
-      "opt-adeaf5b9-586a-4dd6-b4cb-9c39b75445cb"
+      "opt-f5ab982b-e248-4c6c-9e65-710f70b5581b",
+      "opt-8a6a7b4c-f39c-4ad2-af3d-d7143fbb050b",
+      "opt-102b4b33-8791-4960-a237-8efad67c1939",
+      "opt-a117700d-8c0c-413b-b667-873644ae4ded",
+      "opt-11190e42-8523-49f1-885b-973273d10dc1"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -3586,8 +3648,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-4a50a5dc-5b59-4b8c-a2ff-ea10940f2dc0",
-      "opt-b5ae87f5-5f5c-4a85-a65f-cc8dd93b144e"
+      "opt-a1eae4d3-0dc5-4d94-8714-07c713d8cac0",
+      "opt-761933df-8e10-477f-baa6-3f95756255c0"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -3599,8 +3661,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-30673473-26ed-4ac1-b57f-e08244ada014",
-      "opt-7e02ceb9-a529-4c84-8644-caab000707e7"
+      "opt-169d1568-10fd-438e-ac58-726e70c1a8bf",
+      "opt-843f0e23-e514-4379-8d7f-d564b475ff10"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -3612,8 +3674,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-ab5b0971-a867-4b29-a80b-469ce626e28d",
-      "opt-8b09e1b0-1a96-40bc-8fae-9a18d74c5b2d"
+      "opt-13a170d6-d100-4b30-a664-27ddce847fb6",
+      "opt-124f41e9-0fc8-4ce9-b030-ca1645dec902"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -3625,8 +3687,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-caec3fd6-de1d-44aa-84f0-1192f9ef2b1d",
-      "opt-bb5e676c-9881-41bc-8fd8-f710a91b6bc2"
+      "opt-555c918e-d3eb-4843-b12b-f70b5bc43441",
+      "opt-4dd70339-b766-4f7f-ae71-eb55ded7785f"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -3638,8 +3700,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-b26acdf3-8d98-436e-8476-88d23d750d9b",
-      "opt-480506e8-74e5-4140-bda2-714f1c9d5f1f"
+      "opt-60a16043-ec10-4cb2-aa4d-2486ad21de5f",
+      "opt-8f0de30f-2e4d-4821-a034-1d3ea19d2a1f"
      ],
      "policy": "keep_all",
      "revision": 6,
@@ -3647,12 +3709,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-1062b368-e238-46cc-b91b-34ea058c3703",
+     "chosen_option_id": "opt-196b5228-21b7-4fc1-9841-78bdf4ebd1f6",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-1062b368-e238-46cc-b91b-34ea058c3703",
-      "opt-c60c59b8-feb1-4a7e-bc9d-b6f11a5e6132"
+      "opt-196b5228-21b7-4fc1-9841-78bdf4ebd1f6",
+      "opt-e38ab418-fb6d-4faa-a6c5-9cf3c641c736"
      ],
      "policy": "pass_when_offered",
      "revision": 7,
@@ -3668,7 +3730,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-5p-3a3c0239",
+   "game_id": "wsr22-forge-5p-552f2380",
    "observations": [
     {
      "payload": {
@@ -3680,8 +3742,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486",
-       "pre_state_hash": "10c71796b01802e85096be8416e436fd87aecb59f018d1f4e162ffc77ccdff3a"
+       "post_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b",
+       "pre_state_hash": "33edc7ea99625d6fd286f1fd39cddcd0e7f6bf0095f1abe10bc70ba94d464ffc"
       },
       "game_over": false,
       "next_decision": {
@@ -3690,10 +3752,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 8,
-       "event_sequence": 8,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 9,
+       "event_sequence": 9,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -3702,6 +3765,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3744,6 +3808,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3786,6 +3851,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3828,6 +3894,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3870,6 +3937,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -3982,8 +4050,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486",
-       "pre_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486"
+       "post_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b",
+       "pre_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b"
       },
       "game_over": false,
       "next_decision": {
@@ -3992,10 +4060,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 11,
-       "event_sequence": 11,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 12,
+       "event_sequence": 12,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -4004,6 +4073,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4046,6 +4116,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4088,6 +4159,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4130,6 +4202,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4172,6 +4245,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4284,8 +4358,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486",
-       "pre_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486"
+       "post_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b",
+       "pre_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b"
       },
       "game_over": false,
       "next_decision": {
@@ -4294,10 +4368,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 14,
-       "event_sequence": 14,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 15,
+       "event_sequence": 15,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -4306,6 +4381,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4348,6 +4424,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4390,6 +4467,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4432,6 +4510,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4474,6 +4553,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4586,8 +4666,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486",
-       "pre_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486"
+       "post_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b",
+       "pre_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b"
       },
       "game_over": false,
       "next_decision": {
@@ -4596,10 +4676,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 17,
-       "event_sequence": 17,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 18,
+       "event_sequence": 18,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -4608,6 +4689,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4650,6 +4732,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4692,6 +4775,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4734,6 +4818,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4776,6 +4861,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4888,8 +4974,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486",
-       "pre_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486"
+       "post_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b",
+       "pre_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b"
       },
       "game_over": false,
       "next_decision": {
@@ -4898,10 +4984,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 20,
-       "event_sequence": 20,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 21,
+       "event_sequence": 21,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -4910,6 +4997,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4952,6 +5040,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -4994,6 +5083,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5036,6 +5126,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5078,6 +5169,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5190,8 +5282,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "4af2b66513c718fa0a6ea796e7334e11ea44d07dc09e5e0c6719affa1133ddc6",
-       "pre_state_hash": "7b4aea1645213044da3a789f232c4c0eae12d33f62db5a2b088a2d096db4d486"
+       "post_state_hash": "5654af945b8aa61e0d7d0493fdb091c5bbf72212dc25ad67b7e4b5d7819c0bd6",
+       "pre_state_hash": "cbab97d39f3c7a510a3b3dbf111c584f4f760cf7ff0c41d406686deb9f3ec53b"
       },
       "game_over": false,
       "next_decision": {
@@ -5200,10 +5292,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 23,
-       "event_sequence": 23,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 24,
+       "event_sequence": 24,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -5212,6 +5305,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5254,6 +5348,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5296,6 +5391,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5338,6 +5434,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5380,6 +5477,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5492,8 +5590,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "f59e7610063d3be53719385f7341dab9b80e36e0a81033848d954ecb7cb044d9",
-       "pre_state_hash": "4af2b66513c718fa0a6ea796e7334e11ea44d07dc09e5e0c6719affa1133ddc6"
+       "post_state_hash": "9f23f365dea096c90a8a85e72a7d2e5a380665bed184b2669431fbef4e9eadd8",
+       "pre_state_hash": "5654af945b8aa61e0d7d0493fdb091c5bbf72212dc25ad67b7e4b5d7819c0bd6"
       },
       "game_over": false,
       "next_decision": {
@@ -5502,10 +5600,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 26,
-       "event_sequence": 26,
-       "game_id": "wsr22-forge-5p-3a3c0239",
+       "event_offset": 27,
+       "event_sequence": 27,
+       "game_id": "wsr22-forge-5p-552f2380",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -5514,6 +5613,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5556,6 +5656,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5598,6 +5699,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5640,6 +5742,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5682,6 +5785,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -5787,12 +5891,12 @@
    ],
    "player_count": 5,
    "rules_rng_binding": {
-    "acknowledged_seed": null,
+    "acknowledged_seed": 424242,
     "acknowledgement_source": "create_commander_game_response",
-    "classification": "UNCONTROLLED_ENGINE_RNG",
-    "controlled": false,
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
     "requested_seed": 424242,
-    "rng_credit": false,
+    "rng_credit": true,
     "schema_version": "commander-lab.seed-binding/1.0.0"
    },
    "semantic_events": [],
@@ -5819,12 +5923,12 @@
     "priority_reached": true,
     "provider_seed_supported": true,
     "rules_rng_binding": {
-     "acknowledged_seed": null,
+     "acknowledged_seed": 424242,
      "acknowledgement_source": "create_commander_game_response",
-     "classification": "UNCONTROLLED_ENGINE_RNG",
-     "controlled": false,
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
      "requested_seed": 424242,
-     "rng_credit": false,
+     "rng_credit": true,
      "schema_version": "commander-lab.seed-binding/1.0.0"
     },
     "seed_sent_to_provider": true,
@@ -5836,16 +5940,16 @@
    "decision_tape": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-1b7ba57a-bc22-477a-a383-894ada39c4b1",
+     "chosen_option_id": "opt-9e4f402d-5897-4baa-8cbe-7c9f0523f9a0",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-1b7ba57a-bc22-477a-a383-894ada39c4b1",
-      "opt-06544708-641d-445a-bfc5-e93b089cd9d5",
-      "opt-c3c1643f-30ce-4463-939c-496017d4b62f",
-      "opt-3fc9ef7e-d892-4dd1-9dfb-4f661f6e08da",
-      "opt-0dc0bb13-01d1-4059-a528-c2c6b34476a0",
-      "opt-fabc8e84-5bdb-4ea1-a137-f186e8adcc35"
+      "opt-9e4f402d-5897-4baa-8cbe-7c9f0523f9a0",
+      "opt-b0e7a013-be1b-496a-814c-c14d4fccc69a",
+      "opt-5f5bb278-8678-4741-8108-741f127ebae4",
+      "opt-c11abb87-5fde-4237-98ab-6d0d639096fe",
+      "opt-07b6f694-49b6-40ad-a83f-64227c3843fe",
+      "opt-27156158-b1a9-46f1-87e2-684637b90a1b"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -5857,8 +5961,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-9200e5ba-adf5-4c89-af0e-5c961073673d",
-      "opt-5afdef5c-b9d4-4696-944f-a27eff6bf230"
+      "opt-fd857be6-e673-4250-a479-e6ad50b6fedc",
+      "opt-bc940785-3851-41b5-a26f-e0a6fefbac1e"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -5870,8 +5974,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-c6f29468-0278-4ebf-9b97-b7cdbf95ac1a",
-      "opt-bd1df8ec-b141-4624-9ef0-2abb24505689"
+      "opt-479c8201-f69a-4139-95f8-c6693894e231",
+      "opt-096bfccf-3335-405e-aded-12bb7f0f7a79"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -5883,8 +5987,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-a4197671-e9e4-4e49-a90c-1328a5a1016d",
-      "opt-d8ae5489-2e56-49b6-82e7-7bf7a6161bf5"
+      "opt-832cf09e-f656-4280-bc07-c6457824061f",
+      "opt-36127c1d-ef5a-4292-83aa-9949227b304c"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -5896,8 +6000,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-3a291091-d367-4ddf-a3d5-4df58b22169f",
-      "opt-ce8f36d8-a608-475c-9c16-3c77272eb16f"
+      "opt-27a88c35-7891-4c7c-b43f-eb2072e832bc",
+      "opt-a2ed8074-c2a3-4152-a4fc-8f028b5b17f7"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -5909,8 +6013,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-7b21ab73-27b4-464a-a0c3-d24a0d1babe4",
-      "opt-75aaf71e-7110-41ef-9c1c-04a46f00305c"
+      "opt-89ee94ce-e7c1-4a31-8b10-28a6d634ec16",
+      "opt-5bd695d2-ec6d-4d2d-a325-0a3ce37103d2"
      ],
      "policy": "keep_all",
      "revision": 6,
@@ -5922,8 +6026,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-4bb7b056-5c6e-468e-9d33-06ca54c47fb0",
-      "opt-3c8c67d6-5865-4dba-a5fe-1b58cd0e7276"
+      "opt-8a7e7c5c-fb67-44e6-bab0-6e679067d97d",
+      "opt-53727d84-5373-476a-a6a8-60945a750f6f"
      ],
      "policy": "keep_all",
      "revision": 7,
@@ -5931,12 +6035,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-257d06c2-9d68-4c33-ba42-da75773e5876",
+     "chosen_option_id": "opt-0e795dfc-edff-4c73-8159-a217cdf41d83",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-257d06c2-9d68-4c33-ba42-da75773e5876",
-      "opt-d79d8029-aac8-45aa-82a7-8afca43ce6f3"
+      "opt-0e795dfc-edff-4c73-8159-a217cdf41d83",
+      "opt-99db15da-b342-4ee4-93d1-c7e84c83f0ac"
      ],
      "policy": "pass_when_offered",
      "revision": 8,
@@ -5953,7 +6057,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-6p-dbf8ce26",
+   "game_id": "wsr22-forge-6p-c7294c47",
    "observations": [
     {
      "payload": {
@@ -5965,8 +6069,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e",
-       "pre_state_hash": "36cd8425afe8175af592819671712c0369d1b3a920973d57db913c2b583487e2"
+       "post_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8",
+       "pre_state_hash": "e59f25fec32c4e4ca73ec9fd2f447b4e7b88a7528bcb656a89f7231f7e07a5f7"
       },
       "game_over": false,
       "next_decision": {
@@ -5975,10 +6079,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 8,
-       "event_sequence": 8,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 9,
+       "event_sequence": 9,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -5987,6 +6092,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6029,6 +6135,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6071,6 +6178,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6113,6 +6221,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6155,6 +6264,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6197,6 +6307,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6317,8 +6428,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e",
-       "pre_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e"
+       "post_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8",
+       "pre_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8"
       },
       "game_over": false,
       "next_decision": {
@@ -6327,10 +6438,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 11,
-       "event_sequence": 11,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 12,
+       "event_sequence": 12,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -6339,6 +6451,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6381,6 +6494,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6423,6 +6537,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6465,6 +6580,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6507,6 +6623,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6549,6 +6666,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6669,8 +6787,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e",
-       "pre_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e"
+       "post_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8",
+       "pre_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8"
       },
       "game_over": false,
       "next_decision": {
@@ -6679,10 +6797,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 14,
-       "event_sequence": 14,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 15,
+       "event_sequence": 15,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -6691,6 +6810,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6733,6 +6853,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6775,6 +6896,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6817,6 +6939,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6859,6 +6982,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -6901,6 +7025,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7021,8 +7146,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e",
-       "pre_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e"
+       "post_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8",
+       "pre_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8"
       },
       "game_over": false,
       "next_decision": {
@@ -7031,10 +7156,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 17,
-       "event_sequence": 17,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 18,
+       "event_sequence": 18,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -7043,6 +7169,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7085,6 +7212,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7127,6 +7255,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7169,6 +7298,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7211,6 +7341,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7253,6 +7384,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7373,8 +7505,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e",
-       "pre_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e"
+       "post_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8",
+       "pre_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8"
       },
       "game_over": false,
       "next_decision": {
@@ -7383,10 +7515,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 20,
-       "event_sequence": 20,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 21,
+       "event_sequence": 21,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -7395,6 +7528,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7437,6 +7571,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7479,6 +7614,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7521,6 +7657,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7563,6 +7700,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7605,6 +7743,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7725,8 +7864,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e",
-       "pre_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e"
+       "post_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8",
+       "pre_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8"
       },
       "game_over": false,
       "next_decision": {
@@ -7735,10 +7874,11 @@
       "state": {
        "active_player_id": null,
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 23,
-       "event_sequence": 23,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 24,
+       "event_sequence": 24,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -7747,6 +7887,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7789,6 +7930,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7831,6 +7973,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7873,6 +8016,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7915,6 +8059,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -7957,6 +8102,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8077,8 +8223,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "479a92f36c6dbe6ed96aba0977bd650c96aad0e3749bad397a131bc3720552f6",
-       "pre_state_hash": "a9bceac741c5c43125bf32e442f35a203ac444063068c3796dec7aad2654d65e"
+       "post_state_hash": "29e559c129c890adf91a0c9cb84e65f2acc5dac80bb4687464484e541f2e5db4",
+       "pre_state_hash": "37ad107b810a1ccc657fb17f31ffc8b4db2d900c17dc215a355b4a3a46170dd8"
       },
       "game_over": false,
       "next_decision": {
@@ -8087,10 +8233,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 26,
-       "event_sequence": 26,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 27,
+       "event_sequence": 27,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -8099,6 +8246,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8141,6 +8289,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8183,6 +8332,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8225,6 +8375,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8267,6 +8418,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8309,6 +8461,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8429,8 +8582,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "385a8bd5f7a917058577c0385309b41af367c4cac6e92a78a92b1397cde19236",
-       "pre_state_hash": "479a92f36c6dbe6ed96aba0977bd650c96aad0e3749bad397a131bc3720552f6"
+       "post_state_hash": "ed593c4816b756bb5f1de1c01808b5e6fc6f810d83e4a55f99de297ae6e40651",
+       "pre_state_hash": "29e559c129c890adf91a0c9cb84e65f2acc5dac80bb4687464484e541f2e5db4"
       },
       "game_over": false,
       "next_decision": {
@@ -8439,10 +8592,11 @@
       "state": {
        "active_player_id": "p1",
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
-       "event_offset": 29,
-       "event_sequence": 29,
-       "game_id": "wsr22-forge-6p-dbf8ce26",
+       "event_offset": 30,
+       "event_sequence": 30,
+       "game_id": "wsr22-forge-6p-c7294c47",
        "legal_actions": [],
+       "observer_player_id": null,
        "phase": "beginning",
        "players": [
         {
@@ -8451,6 +8605,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8493,6 +8648,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8535,6 +8691,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8577,6 +8734,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8619,6 +8777,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8661,6 +8820,7 @@
          },
          "commander_damage_received": {},
          "has_lost": false,
+         "is_actor": false,
          "land_plays_remaining": 1,
          "life": 40,
          "loss_reason": null,
@@ -8774,12 +8934,12 @@
    ],
    "player_count": 6,
    "rules_rng_binding": {
-    "acknowledged_seed": null,
+    "acknowledged_seed": 424242,
     "acknowledgement_source": "create_commander_game_response",
-    "classification": "UNCONTROLLED_ENGINE_RNG",
-    "controlled": false,
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
     "requested_seed": 424242,
-    "rng_credit": false,
+    "rng_credit": true,
     "schema_version": "commander-lab.seed-binding/1.0.0"
    },
    "semantic_events": [],
@@ -8806,12 +8966,12 @@
     "priority_reached": true,
     "provider_seed_supported": true,
     "rules_rng_binding": {
-     "acknowledged_seed": null,
+     "acknowledged_seed": 424242,
      "acknowledgement_source": "create_commander_game_response",
-     "classification": "UNCONTROLLED_ENGINE_RNG",
-     "controlled": false,
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
      "requested_seed": 424242,
-     "rng_credit": false,
+     "rng_credit": true,
      "schema_version": "commander-lab.seed-binding/1.0.0"
     },
     "seed_sent_to_provider": true,
@@ -8821,7 +8981,7 @@
  },
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-  "adapter_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+  "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": true,
@@ -8863,8 +9023,8 @@
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
-  "runner_tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410",
+  "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
+  "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
   "scenario_injection_supported": true,
   "seed_supported": true,
   "starting_state_injection_supported": true,

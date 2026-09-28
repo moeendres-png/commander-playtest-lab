@@ -5,10 +5,10 @@
   "BLOCKED": 44,
   "CRASH": 0,
   "FAIL": 0,
-  "PASS": 4,
+  "PASS": 5,
   "PROTOCOL_FAILURE": 0,
   "TIMEOUT": 0,
-  "UNKNOWN": 59
+  "UNKNOWN": 58
  },
  "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
  "gates": [
@@ -156,14 +156,11 @@
   },
   {
    "authority": "ENGINE_ONLY",
-   "blocking_rows": [
-    "commander_not_in_pool",
-    "colour_identity_violation"
-   ],
+   "blocking_rows": [],
    "evidence": [
     "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
-    "deck_import_rejects_non_commander: FAIL (the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules)",
-    "deck_import_rejects_colour_identity_violation: FAIL (the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules)",
+    "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
     "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
     "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
    ],
@@ -173,7 +170,7 @@
     "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
    ],
    "observed_probe_count": 5,
-   "verdict": "FAIL"
+   "verdict": "PASS"
   },
   {
    "blocking_rows": [],
@@ -272,7 +269,7 @@
     "WS05-MP-TURN-5"
    ],
    "evidence": [
-    "4 of 107 rows PASS under the effective v1.0.6 contract; 44 BLOCKED; 59 UNKNOWN"
+    "5 of 107 rows PASS under the effective v1.0.6 contract; 44 BLOCKED; 58 UNKNOWN"
    ],
    "gate": "AF06",
    "name": "GENERAL_RULES_CORRECTNESS",
@@ -387,11 +384,11 @@
    "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
    "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
    "errors": 0,
-   "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+   "executed_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
    "failed": 0,
    "failures": 0,
    "passed": 150,
-   "receipt_digest": "9c6fa48298d9aea4b1b037df14a8c10a4bc57673683f74493d560bbd0ef0fa9f",
+   "receipt_digest": "6ad479ff423d66337f77274ec3da3e91d06aac515f0c47ab9162cfd413bc5e09",
    "returncode": 0,
    "tests": 150
   },
@@ -400,11 +397,11 @@
    "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
    "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
    "errors": 0,
-   "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+   "executed_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
    "failed": 0,
    "failures": 0,
    "passed": 67,
-   "receipt_digest": "75434ca19c84e3ebad5a172d296eb0ce4f84680176c352043f26da9218ca9a51",
+   "receipt_digest": "602120ccdbf45c3030893e72456d3f2343c502d58d4adf017f417000aceb212a",
    "returncode": 0,
    "tests": 67
   }

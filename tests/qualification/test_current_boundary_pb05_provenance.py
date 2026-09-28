@@ -1,9 +1,9 @@
 """PB-05: provider build provenance is consumed fail-closed, not trusted.
 
 PB-05 previously accepted an operator-supplied environment variable as the
-commit-to-build binding, which is not build-proven. Forge PR #4 repairs this by
-recording the build's own git commit, tree, dirty state and source and failing
-closed on every error path.
+commit-to-build binding, which is not build-proven. Forge PR #5 (continuing the
+PR #4 repair) records the build's own git commit, tree, dirty state and source
+and fails closed on every error path.
 
 The Lab must not undo that repair by trusting a claim. These tests pin the
 Lab-side consumer independently of the provider's own self-assessment: a missing,
