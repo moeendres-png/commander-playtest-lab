@@ -27,7 +27,13 @@ FULL107_SUCCESSOR_CONTRACT = "1.0.6-successor"
 FULL107_MATERIALIZATION_SCHEMA = "commander-lab.semantic-fixture-materialization/1.0.6-successor"
 
 XMAGE_CANDIDATE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
-XMAGE_LAB_RUNTIME_AUTHORITY = "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+# The Lab commit whose engine-bridge code is the RUNTIME AUTHORITY for the XMage
+# lane. This is a DECLARED pin, not the evidence: the runner receipt independently
+# binds the live commit, tree and executed-input digests, and require_clean_runner
+# refuses a dirty tree. It is updated to the converged commit
+# (merge of canonical main 933d5df5) because leaving the previous value would make
+# every receipt name a commit whose bridge bytes are NOT the ones that executed.
+XMAGE_LAB_RUNTIME_AUTHORITY = "f641f9eba942d6c1a6fb074c4511faa32bcc6fca"
 XMAGE_PROVIDER = "xmage"
 XMAGE_LICENSE = "MIT"
 
