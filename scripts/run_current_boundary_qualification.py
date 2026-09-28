@@ -54,6 +54,10 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     validate_principal_scoping,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary.bridge_launcher import (  # noqa: E402
+    BridgeLaunchError,
+    BridgeTimeout,
+)
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     HIDDEN_SCENARIO_ROWS,
     NATIVE_MICRO_ROWS,
@@ -433,6 +437,345 @@ def write(name: str, payload: Any) -> None:
         json.dumps(payload, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
     )
     print(f"wrote {name}")
+
+
+
+PB03_QUALIFICATION_SEED = 424242
+
+
+def _provider_error(response: dict[str, Any]) -> tuple[str, str]:
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors and isinstance(errors[0], dict):
+        first = errors[0]
+        return str(first.get("code") or "provider_error"), str(first.get("message") or "")
+    return str(response.get("status") or "provider_error"), str(response)
+
+
+def _pb03_transport_action(legal: dict[str, Any]) -> dict[str, Any] | None:
+    """Choose only the declared, content-independent arrival transport action.
+
+    This is not a legality engine: every candidate comes from the Rules Core.
+    The helper recognizes only three pre-arrival decisions whose policy is
+    explicit and independent of hidden card quality. Anything else fails closed.
+    """
+    actions = [row for row in legal.get("actions", []) if isinstance(row, dict)]
+    decision_class = str(legal.get("decision_class") or "")
+    actor = str(legal.get("actor_id") or "")
+    matches: list[dict[str, Any]] = []
+    for action in actions:
+        metadata = action.get("metadata")
+        metadata = metadata if isinstance(metadata, dict) else {}
+        option_type = str(metadata.get("option_type") or "")
+        action_id = str(action.get("action_id") or "")
+        action_type = str(action.get("action_type") or "")
+        selected = (
+            (decision_class == "mulligan" and option_type == "keep")
+            or (
+                decision_class == "choose_object"
+                and bool(actor)
+                and action_id.endswith(":" + actor)
+            )
+            or (decision_class == "priority" and action_type == "pass_priority")
+        )
+        if selected:
+            matches.append(action)
+    return matches[0] if len(matches) == 1 else None
+
+
+def _pb03_proposal(
+    *,
+    index: int,
+    legal: dict[str, Any],
+    action: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "proposal_id": f"pb03-transport-{index}",
+        "actor_id": legal.get("actor_id"),
+        "legal_action_id": action.get("action_id"),
+        "action_type": action.get("action_type"),
+        "target_ids": [],
+        "selected_modes": [],
+        "choices": {"ordering": []},
+        "decision_tier": 1,
+        "policy_name": "pb03-native-state-arrival-transport",
+    }
+
+
+def execute_xmage_pb03_admission(
+    materialization,
+    *,
+    runtime_identity: dict[str, Any],
+    already_executed: set[str],
+) -> tuple[list[RowResult], dict[str, Any]]:
+    """Exercise the live bounded native-state seam for PB-03 rows.
+
+    Construction/readback is evidence that the harness can reach the requested
+    state. It is deliberately NOT behaviour credit. Rows remain UNKNOWN after a
+    successful construction until a positive fixture receipt proves the row's
+    own Rules-visible obligation. Unsupported dimensions remain BLOCKED with the
+    provider's exact fail-closed reason.
+    """
+    rows: list[RowResult] = []
+    probes: dict[str, Any] = {}
+    for record in materialization.denominator_records():
+        fixture_id = str(record["fixture_id"])
+        if fixture_id in already_executed or not mid_game_mechanisms(record):
+            continue
+
+        plan = build_launch_plan("xmage", lane="full-game")
+        evidence: dict[str, Any] = {
+            "player_count": len(record.get("players") or []),
+            "actual_cards": [],
+            "decision_tape": [],
+            "semantic_events": [],
+            "runtime_identity": runtime_identity,
+            "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+            "principal_observation_scope": "no hidden card identity emitted by PB-03 receipt",
+            "terminal_facts": {
+                "native_state_transport": True,
+                "generic_starting_state_capability_promoted": False,
+            },
+        }
+        try:
+            with launch(plan) as proc:
+                for message in ("start_engine", "get_provider_version", "get_capabilities"):
+                    response = proc.request(message, {})
+                    if response.get("success") is not True:
+                        code, detail = _provider_error(response)
+                        rows.append(
+                            RowResult(
+                                fixture_id,
+                                "xmage",
+                                "BLOCKED",
+                                "PB03_NATIVE_STATE_ADMISSION",
+                                f"{message} failed closed: {code}: {detail}",
+                                evidence,
+                            )
+                        )
+                        break
+                else:
+                    capabilities_response = proc.request("get_capabilities", {})
+                    capabilities_payload = capabilities_response.get("payload")
+                    capabilities_payload = (
+                        capabilities_payload if isinstance(capabilities_payload, dict) else {}
+                    )
+                    lane = capabilities_payload.get("full_game_lane")
+                    lane = lane if isinstance(lane, dict) else {}
+                    dimensions = lane.get("state_restoration_dimensions")
+                    if not isinstance(dimensions, dict):
+                        rows.append(
+                            RowResult(
+                                fixture_id,
+                                "xmage",
+                                "BLOCKED",
+                                "PB03_NATIVE_STATE_ADMISSION",
+                                "live full-game capability payload did not publish "
+                                "state_restoration_dimensions",
+                                evidence,
+                            )
+                        )
+                        continue
+                    capabilities = capabilities_payload.get("capabilities")
+                    capabilities = capabilities if isinstance(capabilities, dict) else {}
+                    if capabilities.get("starting_state_injection_supported") is not False:
+                        rows.append(
+                            RowResult(
+                                fixture_id,
+                                "xmage",
+                                "FAIL",
+                                "PB03_NATIVE_STATE_ADMISSION",
+                                "bounded PB-03 seam illegally promoted the generic "
+                                "starting_state_injection_supported capability",
+                                evidence,
+                            )
+                        )
+                        continue
+                    evidence["terminal_facts"]["state_restoration_dimensions"] = dimensions
+
+                    game_id = f"pb03-{fixture_id.lower()}-{abs(hash(fixture_id)) % 1_000_000:06d}"
+                    created = proc.request(
+                        "create_native_state_game",
+                        {
+                            "game_id": game_id,
+                            "seed": PB03_QUALIFICATION_SEED,
+                            "record": record,
+                        },
+                    )
+                    if created.get("success") is not True:
+                        code, detail = _provider_error(created)
+                        outcome = "FAIL" if code == "native_state_digest_mismatch" else "BLOCKED"
+                        rows.append(
+                            RowResult(
+                                fixture_id,
+                                "xmage",
+                                outcome,
+                                "PB03_NATIVE_STATE_ADMISSION",
+                                f"{code}: {detail}",
+                                evidence,
+                            )
+                        )
+                        continue
+
+                    started = proc.request("start_full_game", {})
+                    if started.get("success") is not True:
+                        code, detail = _provider_error(started)
+                        rows.append(
+                            RowResult(
+                                fixture_id,
+                                "xmage",
+                                "PROTOCOL_FAILURE",
+                                "PB03_NATIVE_STATE_ADMISSION",
+                                f"start_full_game failed: {code}: {detail}",
+                                evidence,
+                            )
+                        )
+                        continue
+
+                    for index in range(80):
+                        receipt = proc.request("get_native_state_restoration_receipt", {})
+                        if receipt.get("success") is True:
+                            payload = receipt.get("payload")
+                            payload = payload if isinstance(payload, dict) else {}
+                            evidence["terminal_facts"]["native_state_receipt"] = payload
+                            evidence["rules_rng_binding"] = payload.get("rules_seed_binding")
+                            if payload.get("match") is not True:
+                                rows.append(
+                                    RowResult(
+                                        fixture_id,
+                                        "xmage",
+                                        "FAIL",
+                                        "PB03_NATIVE_STATE_ADMISSION",
+                                        "native restoration reached the target but strict "
+                                        "readback did not match the requested state",
+                                        evidence,
+                                    )
+                                )
+                            else:
+                                rows.append(
+                                    RowResult(
+                                        fixture_id,
+                                        "xmage",
+                                        "UNKNOWN",
+                                        "PB03_NATIVE_STATE_CONSTRUCTION_VERIFIED",
+                                        "bounded native restoration constructed and strictly "
+                                        "read back the frozen state; the fixture's own "
+                                        "Rules-visible behaviour still requires a positive "
+                                        "current-head fixture receipt before PASS",
+                                        evidence,
+                                    )
+                                )
+                            break
+
+                        code, detail = _provider_error(receipt)
+                        if code != "native_state_target_not_reached":
+                            rows.append(
+                                RowResult(
+                                    fixture_id,
+                                    "xmage",
+                                    "BLOCKED",
+                                    "PB03_NATIVE_STATE_ADMISSION",
+                                    f"{code}: {detail}",
+                                    evidence,
+                                )
+                            )
+                            break
+
+                        legal_response = proc.request("get_legal_actions", {})
+                        if legal_response.get("success") is not True:
+                            code, detail = _provider_error(legal_response)
+                            rows.append(
+                                RowResult(
+                                    fixture_id,
+                                    "xmage",
+                                    "BLOCKED",
+                                    "PB03_NATIVE_STATE_ARRIVAL",
+                                    f"get_legal_actions failed: {code}: {detail}",
+                                    evidence,
+                                )
+                            )
+                            break
+                        legal = legal_response.get("payload")
+                        legal = legal if isinstance(legal, dict) else {}
+                        action = _pb03_transport_action(legal)
+                        if action is None:
+                            rows.append(
+                                RowResult(
+                                    fixture_id,
+                                    "xmage",
+                                    "BLOCKED",
+                                    "PB03_NATIVE_STATE_ARRIVAL",
+                                    "arrival encountered an unsupported discretionary decision "
+                                    f"class {legal.get('decision_class')!r}; no first/random/"
+                                    "default action was substituted",
+                                    evidence,
+                                )
+                            )
+                            break
+                        proposal = _pb03_proposal(index=index, legal=legal, action=action)
+                        submitted = proc.request("submit_action", {"proposal": proposal})
+                        if submitted.get("success") is not True:
+                            code, detail = _provider_error(submitted)
+                            rows.append(
+                                RowResult(
+                                    fixture_id,
+                                    "xmage",
+                                    "BLOCKED",
+                                    "PB03_NATIVE_STATE_ARRIVAL",
+                                    f"authoritative transport action rejected: {code}: {detail}",
+                                    evidence,
+                                )
+                            )
+                            break
+                        evidence["decision_tape"].append(
+                            {
+                                "index": index,
+                                "decision_class": legal.get("decision_class"),
+                                "actor_id": legal.get("actor_id"),
+                                "legal_action_id": action.get("action_id"),
+                                "action_type": action.get("action_type"),
+                            }
+                        )
+                    else:
+                        rows.append(
+                            RowResult(
+                                fixture_id,
+                                "xmage",
+                                "BLOCKED",
+                                "PB03_NATIVE_STATE_ARRIVAL",
+                                "requested native temporal checkpoint was not reached within "
+                                "the bounded external-decision arrival window",
+                                evidence,
+                            )
+                        )
+        except BridgeTimeout as exc:
+            rows.append(
+                RowResult(
+                    fixture_id,
+                    "xmage",
+                    "TIMEOUT",
+                    "PB03_NATIVE_STATE_ADMISSION",
+                    str(exc),
+                    evidence,
+                )
+            )
+        except BridgeLaunchError as exc:
+            rows.append(
+                RowResult(
+                    fixture_id,
+                    "xmage",
+                    "PROTOCOL_FAILURE",
+                    "PB03_NATIVE_STATE_ADMISSION",
+                    str(exc),
+                    evidence,
+                )
+            )
+
+        if rows and rows[-1].fixture_id == fixture_id:
+            probes[fixture_id] = rows[-1].to_document(record)
+        else:
+            raise RuntimeError(f"PB-03 row {fixture_id} produced no explicit outcome")
+
+    return rows, probes
 
 
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
@@ -933,6 +1276,15 @@ def main() -> int:
     for candidate in candidates:
         outcome = execute_candidate(candidate, materialization)
         identity = outcome["identity"]
+        if candidate == "xmage":
+            already = {row.fixture_id for row in outcome["rows"]}
+            pb03_rows, pb03_probes = execute_xmage_pb03_admission(
+                materialization,
+                runtime_identity=identity,
+                already_executed=already,
+            )
+            outcome["rows"].extend(pb03_rows)
+            outcome["probes"]["pb03_native_state"] = pb03_probes
         executed = {row.fixture_id for row in outcome["rows"]}
         rows = outcome["rows"] + classify_remaining(
             materialization, executed, candidate=candidate, identity=identity
