@@ -75,12 +75,12 @@ class XmagePb03Tier1RowsTest {
         return new Arrived(session, restoration, seats, plan);
     }
 
-    private static void submit(XmageFullGameSession session, String id, JsonObject action) {
+    static void submit(XmageFullGameSession session, String id, JsonObject action) {
         XmageFullGameTaxExecutionTest.submit(session, id, action);
     }
 
     /** Submit a prebuilt proposal (e.g. empty blocker selection) directly. */
-    private static void submitProposal(
+    static void submitProposal(
             XmageFullGameSession session, String tag, JsonObject proposal) {
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         String decisionId = pending.get("decision_id").getAsString();
@@ -89,7 +89,7 @@ class XmagePb03Tier1RowsTest {
                 tag + ": proposal must execute against the pending decision");
     }
 
-    private static void passPriority(XmageFullGameSession session, String id) {
+    static void passPriority(XmageFullGameSession session, String id) {
         submit(session, id, XmageFullGameTaxExecutionTest.singleActionOfType(
                 session.legalActionsPayload(), "pass_priority", null));
     }
@@ -443,7 +443,7 @@ class XmagePb03Tier1RowsTest {
         return matches.get(0);
     }
 
-    private static JsonObject emptyBlockProposal(
+    static JsonObject emptyBlockProposal(
             String proposalId, JsonObject legal) {
         JsonObject proposal = XmageFullGameTaxExecutionTest.genericProposal(
                 proposalId, legal.get("actor_id").getAsString(), "",
@@ -979,7 +979,7 @@ class XmagePb03Tier1RowsTest {
                 "0/0 Memnite must be in its owner's graveyard before priority");
     }
 
-    private static boolean graveyardHas(
+    static boolean graveyardHas(
             Player owner, XmageFullGameSession session, String cardName) {
         mage.game.Game game = session.restorationGame();
         for (mage.cards.Card card : owner.getGraveyard().getCards(game)) {
@@ -1497,7 +1497,7 @@ class XmagePb03Tier1RowsTest {
                 + session.restorationGame().getStack().size());
     }
 
-    private static void castSpellAs(
+    static void castSpellAs(
             XmageFullGameSession session, Map<String, Player> seats,
             String tag, String cardName, String casterPid) {
         for (int step = 0; step < 20; step++) {
@@ -1538,8 +1538,13 @@ class XmagePb03Tier1RowsTest {
         fail(tag + ": bound exceeded seeking priority to cast " + cardName);
     }
 
-    private static void payHomogeneous(
+    static void payHomogeneous(
             XmageFullGameSession session, String tag, String expectedLabel) {
+        payFromLabels(session, tag, java.util.Set.of(expectedLabel));
+    }
+
+    static void payFromLabels(
+            XmageFullGameSession session, String tag, java.util.Set<String> allowedLabels) {
         for (int round = 0; round < 12; round++) {
             String pending = pendingClass(session);
             if (pending == null) {
@@ -1566,24 +1571,23 @@ class XmagePb03Tier1RowsTest {
                 }
             }
             if (!mana.isEmpty()) {
-                String label = null;
+                List<JsonObject> allowed = new ArrayList<>();
                 for (JsonObject action : mana) {
                     String candidate = action.getAsJsonObject("metadata")
                             .get("label").getAsString();
-                    if (label == null) {
-                        label = candidate;
-                    } else {
-                        assertEquals(label, candidate, tag + ": heterogeneous mana fails closed");
-                    }
+                    assertTrue(allowedLabels.contains(candidate),
+                            tag + ": only allowed mana labels may pay, got " + candidate);
+                    allowed.add(action);
                 }
-                if (expectedLabel != null) {
-                    assertEquals(expectedLabel, label, tag + ": only " + expectedLabel
-                            + " expected");
-                }
-                mana.sort((left, right) -> left.get("action_id").getAsString()
+                allowed.sort((left, right) -> left.get("action_id").getAsString()
                         .compareTo(right.get("action_id").getAsString()));
-                submit(session, tag + "-pay-" + round, mana.get(0));
-            } else if (pool.size() == 1) {
+                submit(session, tag + "-pay-" + round, allowed.get(0));
+            } else if (!pool.isEmpty()) {
+                // Mana-pool spends arrive one per mana unit for heterogeneous
+                // payments: spend the first offered unit and re-poll. Every
+                // unit must eventually be spent for exact-color costs.
+                pool.sort((left, right) -> left.get("action_id").getAsString()
+                        .compareTo(right.get("action_id").getAsString()));
                 submit(session, tag + "-spend-" + round, pool.get(0));
             } else {
                 fail(tag + ": payment offers neither mana abilities (" + mana.size()
@@ -1593,7 +1597,7 @@ class XmagePb03Tier1RowsTest {
         fail(tag + ": payment bound breached");
     }
 
-    private static JsonObject findTargetOffer(
+    static JsonObject findTargetOffer(
             XmageFullGameSession session, String nativeId, String name) {
         JsonObject legal = session.legalActionsPayload();
         List<JsonObject> matches = new ArrayList<>();
@@ -1618,7 +1622,7 @@ class XmagePb03Tier1RowsTest {
         return matches.get(0);
     }
 
-    private static void resolveWithNeutralCombat(
+    static void resolveWithNeutralCombat(
             XmageFullGameSession session, Map<String, Player> seats,
             String tag, int bound) {
         for (int step = 0; step < bound; step++) {
@@ -1670,7 +1674,7 @@ class XmagePb03Tier1RowsTest {
         return context.toString();
     }
 
-    private static void resolveUntilQuiescent(
+    static void resolveUntilQuiescent(
             XmageFullGameSession session, String tag, int bound) {
         for (int step = 0; step < bound; step++) {
             String pending = pendingClass(session);

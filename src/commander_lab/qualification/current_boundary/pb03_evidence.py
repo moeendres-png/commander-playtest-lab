@@ -97,13 +97,48 @@ CHARACTERIZATION_XMAGE: dict[str, dict[str, Any]] = {
     "WS05-CMD-ZONE-LIB-YES": {
         "outcome": "BLOCKED",
         "reason": (
-            "PB-10 demotion: donor PASS cited only XmageNativeStateRestorationTest "
-            "rejectsFrozenStackSpell, which proves the record fail-closes "
-            "(UNSUPPORTED_ZONE on its stack causal step) but observes no "
-            "obligated fact. Admitted TIER_2 (genuine Doom Blade tuck path); "
-            "execution pending in Wave 2."
+            "PB-10 demotion upgraded by Wave-2a duality proof: donor PASS cited "
+            "only rejectsFrozenStackSpell, and the genuine-causal execution "
+            "(real Bant Charm tuck, terminal library reached) proves the engine "
+            "never offers the commander zone choice for the setup copy. "
+            "Commander-status duality; no genuine choice path exists."
         ),
-        "classes": ["XmageNativeStateRestorationTest"],
+        "classes": ["XmagePb03Tier2CmdZoneTest", "XmageNativeStateRestorationTest"],
+    },
+    "WS05-CMD-ZONE-GY-YES": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Doom Blade destroys the test commander (graveyard terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
+    },
+    "WS05-CMD-ZONE-GY-NO": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Doom Blade destroys the test commander (graveyard terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
+    },
+    "WS05-CMD-ZONE-EXILE-YES": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Swords to Plowshares exiles the test commander (exile terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
+    },
+    "WS05-CMD-ZONE-EXILE-NO": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Swords to Plowshares exiles the test commander (exile terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
+    },
+    "WS05-CMD-ZONE-HAND-YES": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Unsummon returns the test commander (hand terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
+    },
+    "WS05-CMD-ZONE-HAND-NO": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Unsummon returns the test commander (hand terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
+    },
+    "WS05-CMD-ZONE-LIB-NO": {
+        "outcome": "BLOCKED",
+        "reason": "Wave-2a duality proof: genuine Bant Charm tucks the test commander (library terminal) but no zone choice is ever offered for the setup copy. Commander-status duality.",
+        "classes": ["XmagePb03Tier2CmdZoneTest"],
     },
     "WS05-MP-ELIM-OWNED-3": {
         "outcome": "BLOCKED",

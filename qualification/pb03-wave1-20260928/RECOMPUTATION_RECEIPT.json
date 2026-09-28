@@ -16,8 +16,8 @@
   ],
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
   "runner_branch": "muse-xhigh/full-completion",
-  "runner_commit": "022782ad380f9d5733596973360a2b6938ba0485",
-  "runner_tree": "66b8ea257fcd56083bbe654b82deb2bab5790d1a"
+  "runner_commit": "0a36e47e31f09f053c42ec5c076a6b49d6e7b981",
+  "runner_tree": "804762a1dd3782e45ea9e0a69b460ad8ad42f170"
  },
  "schema_version": "pb03.wave1-receipt/1.0.0",
  "terminal_states": {
@@ -223,57 +223,57 @@
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-GY-YES",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-GY-NO",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-HAND-YES",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-HAND-NO",
    "new_outcome": "BLOCKED"
   },
   {
    "action": "CHARACTERIZE",
-   "basis": "XmageNativeStateRestorationTest",
+   "basis": "XmagePb03Tier2CmdZoneTest,XmageNativeStateRestorationTest",
    "donor_outcome": "PASS",
    "fixture_id": "WS05-CMD-ZONE-LIB-YES",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2CmdZoneTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-LIB-NO",
    "new_outcome": "BLOCKED"
