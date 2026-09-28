@@ -65,3 +65,31 @@ def test_replay_debugger_steps_and_diffs() -> None:
     assert debugger.step(0).state.players[0].life == 37
     assert "players" in debugger.diff(0, 1)
     assert len(debugger.filter_events(event_type="damage")) == 1
+
+
+def test_replay_debugger_does_not_claim_unexecuted_same_seed_twin() -> None:
+    event = {
+        "sequence": 0,
+        "event_type": "damage",
+        "actor_id": "p1",
+        "internal_state_after": _state(37),
+    }
+    digest = hashlib.sha256(
+        json.dumps([event], sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    replay = EngineReplay(
+        engine="tactical",
+        engine_version="test",
+        validation_level=RuntimeValidationLevel.TACTICAL_ORACLE,
+        game_id="g",
+        initial_state=_state(40),
+        events=(event,),
+        final_state=_state(37),
+        event_log_sha256=digest,
+    )
+
+    repeat = ReplayDebugger(replay).repeat_with_same_seed()
+
+    assert repeat["deterministic_identity"] is None
+    assert repeat["determinism_validation"] == "NOT_RUN"
+    assert repeat["same_seed_twin_executed"] is False
