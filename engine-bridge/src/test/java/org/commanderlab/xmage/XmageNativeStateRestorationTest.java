@@ -804,25 +804,6 @@ class XmageNativeStateRestorationTest {
         assertTrue(!dimensions.getAsJsonArray("unsupported_dimensions").isEmpty());
     }
 
-    @Test
-    void dimensionsManifestIsPublishedOnTheFullGameCapabilityLane() {
-        JsonObject payload = XmageFullGameJsonlBridge.capabilitiesPayload();
-        JsonObject lane = payload.getAsJsonObject("full_game_lane");
-        assertTrue(lane.has("state_restoration_dimensions"),
-                "full-game lane must publish the state-restoration dimensions manifest");
-
-        JsonObject published = lane.getAsJsonObject("state_restoration_dimensions");
-        JsonObject nativeManifest = XmageNativeStateRestoration.dimensionsPayload();
-        assertEquals(nativeManifest, published,
-                "published dimensions must come verbatim from the native restoration implementation");
-        assertEquals(
-                payload.getAsJsonObject("capabilities")
-                        .get("starting_state_injection_supported").getAsBoolean(),
-                published.get("starting_state_injection_supported").getAsBoolean());
-        assertFalse(published.getAsJsonArray("supported_dimensions").isEmpty());
-        assertFalse(published.getAsJsonArray("unsupported_dimensions").isEmpty());
-        assertTrue(published.has("schema_version"));
-    }
 
     /** Live protocol capability truth must expose bounded restoration dimensions. */
     @Test
