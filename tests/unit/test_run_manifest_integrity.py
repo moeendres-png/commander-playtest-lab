@@ -95,6 +95,17 @@ def test_duplicate_json_keys_are_rejected(sealed_run: Path) -> None:
     assert not verify_run(sealed_run).valid
 
 
+def test_overflowing_numeric_literal_fails_closed(sealed_run: Path) -> None:
+    path = sealed_run / "run-manifest.json"
+    text = path.read_text(encoding="utf-8")
+    path.write_text(
+        text.replace('"metadata": {"seed": 1}', '"metadata": {"seed": 1e999}'),
+        encoding="utf-8",
+    )
+    result = verify_run(sealed_run)
+    assert not result.valid and result.status == "corrupt"
+
+
 def test_invalid_utf8_manifest_fails_closed(sealed_run: Path) -> None:
     (sealed_run / "run-manifest.json").write_bytes(b"\xff")
     assert not verify_run(sealed_run).valid
