@@ -3,7 +3,8 @@
  "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
  "engine_identity_pb09": {
   "bridge_source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
-  "confusion_forbidden": "Ancestry is not identity; a descendant is a different tree; a bridge commit is not an engine commit. None of these fields licenses reporting a result observed on one as evidence for another.",
+  "pb09_status": "OPEN. Coordinator-owned provider/architecture question (docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md). These identity fields keep the commits distinguishable; they do not settle PB-09, and no field here authorises repinning the candidate.",
+    "confusion_forbidden": "Ancestry is not identity; a descendant is a different tree; a bridge commit is not an engine commit. None of these fields licenses reporting a result observed on one as evidence for another.",
   "executing_engine": {
    "commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
    "is_pristine_upstream": false,

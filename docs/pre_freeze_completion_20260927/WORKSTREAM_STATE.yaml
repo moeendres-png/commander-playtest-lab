@@ -183,7 +183,8 @@ evidence_integrity_remediation:
   validated_tree: cad50d6be83ccbb683c6949572532c2abfc4dd8f
   prior_validated_head: 2a24180028f7dc88d8d863c5aba5562d58894e81
   evidence_gates_complete: 11 of 11 (gates 1-11)
-  adjudication_blockers_closed: PB-09, PB-03
+  adjudication_blockers_closed: PB-03
+  adjudication_blockers_still_open: PB-09 (Coordinator-owned; see below)
   pre_remediation_checkpoint: b1a5c2b4095a831a28c699ae5111c0e6c2625918
   branch: wsr22-successor/current-boundary-freeze-20260927
   pr: 278

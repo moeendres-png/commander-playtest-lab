@@ -83,13 +83,39 @@ def test_config_and_readiness_carry_the_same_identities(path: Path) -> None:
     assert "confusion_forbidden" in identity
 
 
-def test_config_explains_what_the_legacy_commit_field_means() -> None:
-    """`commit` is functional for CI, so its meaning must be stated, not implied."""
+def test_config_does_not_repin_the_candidate_to_the_fork() -> None:
+    """PB-09 forbids repinning the pin to the fork to make evidence consistent.
+
+    The executed fork carries Lab's own Rules engineering, so designating it as the
+    Forge candidate would launder 47 Rules-touching Lab commits into a provider
+    pin. The pin is the Coordinator's to change, not this harness's.
+    """
     secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
-    assert secondary["commit"] == UPSTREAM
+    assert secondary["commit"] == UPSTREAM, "the Forge candidate pin must not move"
+    assert secondary["bridge_source"]["commit"] == BRIDGE
+
+
+def test_commit_field_is_the_pin_of_record_not_a_verdict_on_pb09() -> None:
+    """The field states what the pin IS, and does not pre-judge the open question."""
+    secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
     meaning = secondary["commit_meaning"].upper()
-    assert "ANCESTRY" in meaning
-    assert "NOT THE ENGINE THAT EXECUTES" in meaning
+    assert "PINNED CANDIDATE OF RECORD" in meaning
+    assert "OPEN" in meaning and "COORDINATOR" in meaning
+    # It must not assert the fork is not the engine, which would pre-judge PB-09.
+    assert "NOT THE ENGINE THAT EXECUTES" not in meaning
+    assert secondary["engine_identity_pb09"]["pb09_status"].startswith("OPEN")
+
+
+def test_identity_blocks_declare_pb09_open_rather_than_resolved() -> None:
+    for path in (CONFIG, READINESS):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        identity = (
+            document["secondary_engine"]["engine_identity_pb09"]
+            if "secondary_engine" in document
+            else document["engine_identity_pb09"]
+        )
+        assert identity["pb09_status"].startswith("OPEN"), path.name
+        assert "RESOLVED" not in identity["pb09_status"].upper()
 
 
 def test_readiness_records_pb09_as_a_freeze_blocker() -> None:

@@ -104,14 +104,14 @@
    "rules_core_base_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
   },
   "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
-  "commit_meaning": "ANCESTRY BASELINE ONLY. This is the pristine-upstream Forge release the Commander-Lab fork is based on, NOT the engine that executes. See engine_identity_pb09 for the engine that actually runs. Do not use this field to attribute behaviour to a running engine.",
+  "commit_meaning": "PINNED CANDIDATE OF RECORD. This is upstream Forge forge-2.0.14, the commit this repository pins as the Forge candidate. Whether the executed Lab fork ef958ee9 is an acceptable substitute for this pin is the OPEN, Coordinator-owned question recorded in docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md. Do not repin this field to the fork to make evidence consistent, and do not read a result observed on the fork as a result observed on this pin.",
   "engine_identity_pb09": {
    "bridge_source": {
     "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
     "repository": "https://github.com/moeendres-png/forge.git",
     "role": "the bridge inside the fork, distinct from the engine commit"
    },
-   "confusion_forbidden": "These four commits are distinct. Ancestry is not identity, a descendant is a different tree, and a bridge commit is not an engine commit. None of these fields licenses reporting a result observed on one as evidence for another.",
+   "confusion_forbidden": "These four commits are distinct. Ancestry is not identity, a descendant is a different tree, and a bridge commit is not an engine commit. None of these fields licenses reporting a result observed on one as evidence for another, and none of them settles PB-09, which remains open.",
    "executing_engine": {
     "commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "is_pristine_upstream": false,
@@ -126,6 +126,7 @@
     "role": "WHAT THE BOUND NATIVE SUITES EXECUTE AT. Neither the fork head nor the upstream baseline.",
     "tree": "56209bb72b84fc845ad00433b4471e723ecc8a01"
    },
+   "pb09_status": "OPEN. Coordinator-owned provider/architecture question, not a coding question. Recorded here to keep the identities distinguishable, NOT to resolve it. The executed fork carries Lab's own Rules engineering (47 Rules-touching commits, 61 of them in forge-game, the Forge Rules Core), so the Forge evidence is valid evidence of a Lab-modified Forge and not of pinned Forge.",
    "upstream_baseline": {
     "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
     "note": "no exact pristine upstream checkout with proven provenance has been established, so upstream behaviour is UNKNOWN and must never be described as observed or compared against the fork as if it were measured",

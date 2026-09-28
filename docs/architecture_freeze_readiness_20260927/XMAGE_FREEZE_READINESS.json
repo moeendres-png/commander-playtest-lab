@@ -2,7 +2,8 @@
  "candidate": "xmage",
  "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
  "engine_identity_pb09": {
-  "confusion_forbidden": "Ancestry is not identity and a fork is not pristine upstream. A result observed on this fork must never be reported as an upstream XMage result.",
+  "pb09_status": "OPEN. Coordinator-owned provider/architecture question (docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md). These identity fields keep the commits distinguishable; they do not settle PB-09, and no field here authorises repinning the candidate.",
+    "confusion_forbidden": "Ancestry is not identity and a fork is not pristine upstream. A result observed on this fork must never be reported as an upstream XMage result.",
   "executing_engine": {
    "commit": "b19596980f2734496ea1896504253e1bdd2756dd",
    "is_pristine_upstream": false,
