@@ -5,12 +5,12 @@
   "failed": 0,
   "group": "direct",
   "passed": 0,
-  "reason": "ReceiptError: CANDIDATE_IDENTITY_DIVERGENCE: native suite forge:direct records a37a865a5328 but executes at 18bba95a4528, and the engine is not provably the same: differing=['forge-game', 'forge-core', 'forge-ai', 'forge-gui', 'forge-gui-desktop'] one_sided=[] compared=6. No credit.",
-  "receipt_digest": "d81c011038122344552af102efae9fe34b47e3bf0c34dfe3c5d5b4a2803fc1a1",
+  "reason": "the candidate workspace is a verified materialization export with no git metadata, so neither an executing HEAD nor a per-module tree proof exists; native credit is withheld rather than inferred from the supplied commit",
+  "receipt_digest": "ec3677523737bf6c0775a4ec2b866450e6fb981931c88a12b810be0e29b862c1",
   "runner": {
     "branch": "sbmax/full-completion",
-    "commit": "82615665ad2028a56209aad594ec1ff352331383",
-    "tree": "32ec95ad8c2f2043ae145a7c4a136fdd9bb48000"
+    "commit": "677e4056b5ccd4df0f9366b6757df2f2f41ca7ba",
+    "tree": "bc4ff6f470cb93fae0d37c7626eb064c45365129"
   },
   "schema_version": "current-boundary.native-suite-receipt/1.0.0",
   "skipped": 0,

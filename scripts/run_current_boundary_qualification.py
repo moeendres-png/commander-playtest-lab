@@ -1445,57 +1445,6 @@ def main() -> int:
         },
     )
 
-    candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
-    summary: dict[str, Any] = {}
-    for candidate in candidates:
-        outcome = execute_candidate(candidate, materialization)
-        identity = outcome["identity"]
-        executed = {row.fixture_id for row in outcome["rows"]}
-        rows = outcome["rows"] + classify_remaining(
-            materialization,
-            executed,
-            candidate=candidate,
-            identity=identity,
-            restoration_manifest=outcome.get("restoration_manifest"),
-            restoration_manifest_error=outcome.get("restoration_manifest_error"),
-        )
-        by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
-        documents = [row.to_document(by_id[row.fixture_id]) for row in rows]
-        counts = summarize(rows)
-        assert len(documents) == 107, f"{candidate}: {len(documents)} rows"
-        write(
-            f"FULL107_{candidate.upper()}_RESULTS.json",
-            {
-                "schema_version": "wsr22.full107-results/1.0.0",
-                "candidate": candidate,
-                "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-                "evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION",
-                "runtime_identity": identity,
-                "counts": counts,
-                "total": len(documents),
-                "rows": documents,
-            },
-        )
-        write(
-            f"FULL107_{candidate.upper()}_RUNTIME_LOG_INDEX.json",
-            {
-                "schema_version": "wsr22.runtime-log-index/1.0.0",
-                "candidate": candidate,
-                "runtime_identity": identity,
-                "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
-                "transcripts": {
-                    "af01_transcript_digest": f"see AF01_{candidate.upper()}.json",
-                    "cardinality": outcome["probes"].get("cardinality"),
-                },
-                "denominator_complete": True,
-            },
-        )
-        summary[candidate] = {"counts": counts, "identity": identity}
-        probes = outcome["probes"]
-        (OUT_DIR / f"_probes_{candidate}.json").write_text(
-            json.dumps(probes, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
-        )
-
     # The executing qualification code must be the committed code, or the
     # receipts below would name a provenance the bytes do not have.
     runner = receipt_mod.capture_runner_identity(REPO_ROOT)
@@ -1525,6 +1474,93 @@ def main() -> int:
             },
         },
     )
+
+    candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
+    summary: dict[str, Any] = {}
+    for candidate in candidates:
+        outcome = execute_candidate(candidate, materialization)
+        identity = outcome["identity"]
+        executed = {row.fixture_id for row in outcome["rows"]}
+        rows = outcome["rows"] + classify_remaining(
+            materialization,
+            executed,
+            candidate=candidate,
+            identity=identity,
+            restoration_manifest=outcome.get("restoration_manifest"),
+            restoration_manifest_error=outcome.get("restoration_manifest_error"),
+        )
+        by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
+        documents = [row.to_document(by_id[row.fixture_id]) for row in rows]
+        counts = summarize(rows)
+        assert len(documents) == 107, f"{candidate}: {len(documents)} rows"
+        # Native-suite credit travels WITH the results, derived only from the
+        # receipts this run persisted. It used to be absent from the runner's
+        # output while the committed evidence contained it, which meant the
+        # evidence could not be reproduced from the runner that claims to produce
+        # it. A NO_CREDIT group is carried explicitly: absent credit and refused
+        # credit are different facts and must stay distinguishable.
+        native_runs: dict[str, Any] = {}
+        no_credit: list[dict[str, Any]] = []
+        for receipt in native_receipts:
+            if not isinstance(receipt, dict):
+                continue
+            group_name = str(receipt.get("group") or "")
+            if not group_name:
+                continue
+            if receipt.get("credit") == receipt_mod._NO_CREDIT:
+                no_credit.append(
+                    {
+                        "group": f"{receipt.get('candidate')}:{group_name}",
+                        "reason": receipt.get("reason"),
+                    }
+                )
+                continue
+            native_runs[group_name] = receipt
+        write(
+            f"FULL107_{candidate.upper()}_RESULTS.json",
+            {
+                "schema_version": "wsr22.full107-results/1.0.0",
+                "candidate": candidate,
+                "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+                "evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+                "runtime_identity": identity,
+                "counts": counts,
+                "total": len(documents),
+                "rows": documents,
+                "native_runs": native_runs,
+                "native_runs_provenance": {
+                    "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
+                    "absent_receipts_yield_no_credit": True,
+                    "expected_engine_commit": identity.get("engine_candidate_commit", ""),
+                    "no_credit_groups": no_credit,
+                    "detail": "A group absent from native_runs was NOT credited. Where it is "
+                    "listed under no_credit_groups the engine or the identity proof refused "
+                    "it and the reason is recorded verbatim; where it is listed nowhere, no "
+                    "receipt was persisted for it at all. Neither case is a pass.",
+                },
+                "native_promotions": 0,
+            },
+        )
+        write(
+            f"FULL107_{candidate.upper()}_RUNTIME_LOG_INDEX.json",
+            {
+                "schema_version": "wsr22.runtime-log-index/1.0.0",
+                "candidate": candidate,
+                "runtime_identity": identity,
+                "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+                "transcripts": {
+                    "af01_transcript_digest": f"see AF01_{candidate.upper()}.json",
+                    "cardinality": outcome["probes"].get("cardinality"),
+                },
+                "denominator_complete": True,
+            },
+        )
+        summary[candidate] = {"counts": counts, "identity": identity}
+        probes = outcome["probes"]
+        (OUT_DIR / f"_probes_{candidate}.json").write_text(
+            json.dumps(probes, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
+        )
+
     print(json.dumps({k: v["counts"] for k, v in summary.items()}, indent=1))
     print(
         "boundary receipt:",

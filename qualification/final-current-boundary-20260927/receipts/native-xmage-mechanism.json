@@ -6,11 +6,11 @@
   "group": "mechanism",
   "passed": 0,
   "reason": "the candidate workspace is a verified materialization export with no git metadata, so neither an executing HEAD nor a per-module tree proof exists; native credit is withheld rather than inferred from the supplied commit",
-  "receipt_digest": "9b82342f7515aafaff90b133717444e065763eadeface8a8bd0d4796de1c738c",
+  "receipt_digest": "d180295706a587bc492f93d9639cd1f07ad001e856f3c4ab8d663ae0c3809260",
   "runner": {
     "branch": "sbmax/full-completion",
-    "commit": "82615665ad2028a56209aad594ec1ff352331383",
-    "tree": "32ec95ad8c2f2043ae145a7c4a136fdd9bb48000"
+    "commit": "677e4056b5ccd4df0f9366b6757df2f2f41ca7ba",
+    "tree": "bc4ff6f470cb93fae0d37c7626eb064c45365129"
   },
   "schema_version": "current-boundary.native-suite-receipt/1.0.0",
   "skipped": 0,

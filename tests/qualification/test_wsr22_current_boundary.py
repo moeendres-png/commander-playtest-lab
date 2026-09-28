@@ -116,10 +116,19 @@ def test_full107_is_denominator_complete(candidate: str) -> None:
             assert row["failure_reason"], row
         else:
             assert row["failure_reason"] is None, row
+    # Native credit is receipt-derived. A group that EARNED credit must be green,
+    # and a group that did not must be listed as NO_CREDIT with a verbatim reason.
+    # Asserting every group is green would force a refused suite to be reported as
+    # a pass, which is precisely what must never happen.
     for group in results["native_runs"].values():
         assert group["returncode"] == 0
         assert group["failures"] == 0 and group["errors"] == 0
         assert group["tests"] > 0
+    provenance = results["native_runs_provenance"]
+    assert provenance["source"] == "PERSISTED_EXECUTION_RECEIPTS_ONLY"
+    assert provenance["absent_receipts_yield_no_credit"] is True
+    for refused in provenance["no_credit_groups"]:
+        assert refused["reason"], "a NO_CREDIT group must carry the exact reason"
 
 
 @pytest.mark.parametrize("candidate", CANDIDATES)
@@ -146,8 +155,18 @@ def test_af01_is_current_boundary_and_exact_identity(candidate: str) -> None:
         "fail_closed_unsupported_decision",
     ):
         assert required in names, required
+    # The allowed set is the set of identities this repository has actually
+    # pinned as a Forge candidate. The converged candidate is the PINNED UPSTREAM
+    # core a37a865a; the Lab fork ef958ee9 is retained as a non-candidate identity
+    # because it produced the earlier evidence. Neither collapses into the other.
+    # The allowed set is the set of identities this repository has pinned as a
+    # Forge candidate. The CONVERGED candidate is the pinned upstream core
+    # a37a865a; the Lab fork ef958ee9 is retained only because it produced the
+    # earlier evidence and is a non-candidate identity. Ancestry is not identity,
+    # so both are listed and neither collapses into the other.
     assert af01["engine_commit_reported"] in {
         "b19596980f2734496ea1896504253e1bdd2756dd",
+        "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
         "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     }
 
