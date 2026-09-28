@@ -20,6 +20,7 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
@@ -88,6 +89,24 @@ def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
         **credit,
         "absent_receipts_yield_no_credit": True,
     }
+
+
+def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
+    """AF00 derived from the reported engine identity, not asserted.
+
+    The gate is only satisfied when the provider named a commit, and named the
+    commit the evidence is about. A provider that reports nothing is UNKNOWN: an
+    absent identity is not a verified one. A provider that names a *different*
+    commit is FAIL, because the evidence would be attributed to an engine that
+    did not run.
+    """
+    reported = str(af01.get("engine_commit_reported") or "").strip()
+    if not reported:
+        return "UNKNOWN"
+    expected = str(expected_commit or "").strip()
+    if not expected:
+        return "UNKNOWN"
+    return "PASS" if reported == expected else "FAIL"
 
 
 def af03_gate(candidate: str) -> dict[str, Any]:
@@ -192,19 +211,28 @@ def assemble() -> None:
             for group in native.values()
         )
         cardinality = load(OUT / f"PLAYER_CARDINALITY_{candidate.upper()}.json")
-        card_pass = [
-            k
-            for k, v in cardinality["results"].items()
-            if v.get("steps_completed") and not v.get("failure") and k in {"2P", "3P", "4P", "5P"}
-        ]
+        # All-or-nothing. This previously counted any run with a non-empty
+        # steps_completed list, so a lifecycle that only imported decks and
+        # created a game counted as a completed player count, and four such
+        # prefixes earned AF02 PASS. A shortfall is UNKNOWN, not FAIL: an
+        # unestablished count is an evidence gap, not a refutation.
+        cardinality_assessment = lifecycle_mod.cardinality_verdict(cardinality["results"])
+        # The commit this evidence is required to be about, as recorded by the run.
+        expected_engine_commit = results["runtime_identity"].get("engine_candidate_commit", "")
         matrix = [
             {
+                # AF00 was a literal PASS. Its evidence merely printed the commit
+                # the provider reported; nothing compared it to the commit the
+                # evidence was supposed to be about, so a provider reporting the
+                # wrong engine still earned PASS. The verdict is now derived from
+                # that comparison.
                 "gate": "AF00",
                 "name": "SOURCE_AND_BUILD_LOCK",
-                "verdict": "PASS",
+                "verdict": source_lock_verdict(af01, expected_engine_commit),
                 "evidence": [
                     f"candidate commit reported by the provider at handshake: "
                     f"{af01['engine_commit_reported']}",
+                    f"commit the evidence is required to be about: {expected_engine_commit}",
                     f"engine_commit provenance: {af01['engine_commit_provenance']}",
                     "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
                 ],
@@ -243,11 +271,15 @@ def assemble() -> None:
             {
                 "gate": "AF02",
                 "name": "PLAYER_CARDINALITY",
-                "verdict": "PASS" if len(card_pass) == 4 else "FAIL",
+                "verdict": cardinality_assessment["verdict"],
+                "all_or_nothing": True,
                 "evidence": [
-                    f"independent live lifecycles executed at {sorted(card_pass)}",
-                    f"bounded 6P lifecycle also executed: {'6P' in cardinality['results']}",
+                    cardinality_assessment["reason"],
+                    f"counts with a complete lifecycle: {cardinality_assessment['complete_counts']}",
+                    f"counts without one: {cardinality_assessment['incomplete_counts']}",
+                    f"bounded 6P lifecycle recorded: {'6P' in cardinality['results']}",
                 ],
+                "lifecycle_assessment": cardinality_assessment,
                 "blocking_rows": [],
                 "nonblocking_limitations": [
                     "6P is bounded secondary evidence; 7P is not attempted on this boundary"

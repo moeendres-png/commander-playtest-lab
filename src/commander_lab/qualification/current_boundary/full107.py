@@ -27,6 +27,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
+from . import lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
     CommandedGameResult,
@@ -266,23 +267,26 @@ def cardinality_row(
             f"engine created {created} players for a {wanted}P fixture",
             evidence,
         )
-    if not result.terminal_facts.get("priority_reached"):
+    # All-or-nothing. A run that stopped part-way through the lifecycle has not
+    # established the fixture, whatever prefix it did complete, so an incomplete
+    # lifecycle is UNKNOWN rather than FAIL and never a partial PASS.
+    assessment = lifecycle.lifecycle_completeness(
+        {
+            "steps_completed": list(result.steps_completed),
+            "failure": result.failure,
+            "terminal_facts": result.terminal_facts,
+            "decision_tape": [entry.__dict__ for entry in result.decision_tape],
+        }
+    )
+    evidence["lifecycle_completeness"] = assessment
+    if not assessment["complete"]:
         return RowResult(
             fixture_id,
             candidate,
-            "FAIL",
+            "UNKNOWN",
             "PROTOCOL2_LIFECYCLE",
-            "no external priority decision was ever reached",
-            evidence,
-        )
-    external_choices = [entry for entry in result.decision_tape if entry.chosen_option_id]
-    if not external_choices:
-        return RowResult(
-            fixture_id,
-            candidate,
-            "FAIL",
-            "PROTOCOL2_LIFECYCLE",
-            "no externally supplied discretionary decision was bound to an engine-offered option",
+            "the Commander lifecycle was not completed, so this fixture is "
+            "unestablished: " + "; ".join(assessment["reasons"]),
             evidence,
         )
     return RowResult(
