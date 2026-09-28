@@ -510,12 +510,6 @@ final class XmageFullGameJsonlBridge {
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("bit_exact_replay_validated", false);
-        // The global generic injection flag stays false. Publish the bounded,
-        // engine-native restoration dimensions separately so qualification can
-        // admit or block each obligation by the dimensions it actually needs.
-        // This payload is produced by the same restoration implementation that
-        // performs the construction; it is not a parallel capability model.
-        lane.add("state_restoration_dimensions", XmageNativeStateRestoration.dimensionsPayload());
         // Itemised, live capability truth for bounded native state restoration.
         // The global generic-injection flag deliberately remains false.
         lane.add("state_restoration_dimensions", XmageNativeStateRestoration.dimensionsPayload());
