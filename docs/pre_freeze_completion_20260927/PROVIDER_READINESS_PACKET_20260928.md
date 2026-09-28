@@ -210,7 +210,9 @@ for all candidates at once:
 
 | Candidate | `seed_supported` reported | Consequence |
 |---|---|---|
-| XMage | `false` | driver sends no seed; binding `UNCONTROLLED_ENGINE_RNG`, `rng_credit: false` |
+| XMage | `false` | **XMage — fully uncontrolled.** The driver sends no seed; the binding is
+  `UNCONTROLLED_ENGINE_RNG` with `rng_credit: false`. Closing this needs a seed-capable
+  generic lane or an engine-level binding. |
 | Forge, pinned candidate `a37a865a` via bridge `4753bb7c` | `false` | same: no seed sent, no RNG credit |
 
 **The fork-era Forge observation does not transfer.** An earlier revision recorded
@@ -230,6 +232,30 @@ it is a fact about the bridge, not a verdict on the Rules Core.
 Neither candidate earns AF09 RNG credit on this configuration. Whether Forge's
 state-level binding alone would satisfy AF09 is an adjudication this packet does not
 make.
+
+### 6.4 The 29-card corpus is counted from per-row behaviour, never from names
+
+`ACTUAL_CARD_<CANDIDATE>.json` derives corpus completion from the **behaviourally
+executed** card identities, and three separate numbers exist so they cannot be
+confused:
+
+| Field | Meaning | XMage | Forge |
+|---|---|---|---|
+| `required_count` | the frozen 29 the effective contract requires | 29 | 29 |
+| `declared_identities_in_frozen_corpus` | how many names the artifact itself declares that are actually in the frozen 29 | **0** | **0** |
+| `behaviorally_executed_count` | frozen identities whose own mandatory fixture row passed | **0** | **0** |
+
+The middle number is the one that used to mislead. Appending 29 card names to the
+artifact — the "appending 29 names" shortcut — looked like coverage, but the
+declared list shares **zero** members with the frozen corpus, so it measured
+nothing at all. The per-seat deck count is likewise not a
+card count: 4 decks were imported per run, one per seat, and calling that 4 executed
+cards would have been as wrong as calling the 29 names a corpus.
+
+`card_fixtures: 29` with `card_fixtures_passed: 0` is the honest current state for
+both candidates: the corpus is 29 separate mandatory obligations, **none** of which
+has passed on this configuration. Completion is `false` for both, and it is counted
+per row so a single passing fixture can never claim the corpus.
 
 ## 7. Blocker register
 

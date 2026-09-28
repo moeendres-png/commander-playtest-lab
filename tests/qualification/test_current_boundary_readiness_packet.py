@@ -149,6 +149,15 @@ def test_receipt_counts_are_stated() -> None:
         # receipts recorded 4291377e, which is not a prefix of anything the run
         # executed.
         cells = [cell.strip().strip("*") for cell in row.strip().strip("|").split("|")]
+        # A NO_CREDIT receipt never executed, so it has no executing commit and the
+        # packet row says so. That row is still required, because omitting it would
+        # let a reader infer the suite was never bound.
+        if no_credit:
+            assert len(cells) >= 5, f"{path.name}: the packet row is malformed"
+            assert cells[3] == "NO_CREDIT", (
+                f"the packet must state NO_CREDIT for {path.name}, not {cells[3]!r}"
+            )
+            continue
         stated = cells[5].replace("Lab ", "").strip().strip("`").strip()
         assert stated, f"{path.name}: the packet row has no executing-commit cell"
         assert receipt["executed_commit"].startswith(stated), (
