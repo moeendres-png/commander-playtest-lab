@@ -1,7 +1,7 @@
 {
   "branch": "sbmax/final-pre-freeze-20260928",
   "pr": "https://github.com/moeendres-png/commander-playtest-lab/pull/289",
-  "pr_state": "OPEN draft",
+  "pr_state": "OPEN draft (head advanced locally to cf5af359; not yet pushed)",
   "base_main": "3910040b3ca4eb276f8895fa4c9801af3550f123",
   "established": {
     "xmage_fresh_baseline": "PASS 5 / FAIL 0 / UNKNOWN 58 / BLOCKED 44 / 107",
@@ -19,5 +19,58 @@
     "44_BLOCKED_starting_state": "PB-03 transport. PR #284 is an active writer on the overlapping bridge and receipt surfaces and records generic_starting_state_capability_promoted=false, so this is not being built there; not raced.",
     "58_UNKNOWN": "20 PB-06 per-scenario hidden info, 15 decision families, 11 no-execution-path, 7 per-shortcut negative, 5 replay/RNG"
   },
-  "not_claimed": ["PRODUCTION_PROVIDER", "ARCHITECTURE_FREEZE"]
+  "not_claimed": [
+    "PRODUCTION_PROVIDER",
+    "ARCHITECTURE_FREEZE"
+  ],
+  "drift_refresh": {
+    "performed_utc": "2026-09-28T22:30Z",
+    "classification": "A: no relevant drift",
+    "origin_main": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+    "origin_main_tree": "a28d98b29c84342056e5658f8f4423f927999108",
+    "new_commits_on_main": 0,
+    "note": "origin/main identical to the recorded lock; 3910040b..origin/main is empty",
+    "removed_remote_branch": "wsr27/final-candidate-remediation-20260928 (merged lineage, not re-created)",
+    "open_pr_heads": {
+      "284": "33d5bf343df6 (ACTIVE PB-03 OWNER, still advancing)",
+      "287": "ecf673f465f5 (DeepSeek audit/Aftermath donor, not auto-absorbed)",
+      "288": "5cc7b43865ff (open, noncanonical, no independent review credit)",
+      "289": "479c2ebb4398 (this workstream)"
+    },
+    "foreign_write_on_convergence_branch": "sbmax/full-completion advanced to b4ea7751 'Merge current main after run-manifest integrity hardening'; preserved, not touched"
+  },
+  "pb03_ownership": {
+    "status": "WAIT_FOR_OWNER",
+    "owner": "PR #284 (sol/final-integration-salvage-20260928)",
+    "owned_files_count": 35,
+    "overlap_with_this_workstream": "XmageFullGameJsonlBridge.java, XmageNativeStateRestorationTest.java, run_current_boundary_qualification.py, engine/rules/*, current_boundary/bridge_launcher.py + receipts.py, replay_debugger.py, tools/foundry/launcher.py",
+    "non_overlapping_surfaces_available": "semantic.py, full107.py, source_lock.py, game_driver.py, assemble_current_boundary_evidence.py, config/, docs/, most of tests/qualification/",
+    "action": "No co-edit, no cherry-pick, no duplicated transport. 44 BLOCKED rows stay BLOCKED and honest until #284 merges and the result is reused."
+  },
+  "af11_repair": {
+    "classification": "DIRECTLY_VERIFIED",
+    "defect": "AF11 was a hard-coded FAIL whose prose did not address its own contract ('actual integration topology satisfies WS-09; Forge remains a genuine separate process/service'); it measured nothing",
+    "repair": "scripts/assemble_current_boundary_evidence.py::_af11_measure now derives the verdict from observable facts: distinct external adapter per candidate, no adapter resolving to the in-tree engine package, recorded qualification boundary, recorded licence topology",
+    "technical_facts_all_hold": true,
+    "verdict": "UNKNOWN (was FAIL)",
+    "why_unknown_not_pass": "the residual is a Coordinator-owned policy question (does the candidate-scoped decision-identity shim + GPL-3.0 process topology satisfy AF11/WS-09, and any licence/redistribution consequence) that the Lab must not decide",
+    "why_this_is_not_a_weakening": "freeze_eligible requires PASS and UNKNOWN is already in NON_PASS_VERDICTS, so neither candidate is closer to eligible; FAIL is still emitted automatically if a technical fact is ever violated",
+    "synced": [
+      "AF00_AF11_XMAGE.json + AF00_AF11_FORGE.json (AF11 row only; no other gate touched)",
+      "XMAGE_FREEZE_READINESS.json + FORGE_FREEZE_READINESS.json",
+      "FREEZE_GATE_BINDING_MAP.json",
+      "PROVIDER_READINESS_PACKET_20260928.md",
+      "tests/qualification/test_wsr24_freeze_readiness.py"
+    ],
+    "collateral_defect_caught": "re-running the assembler degraded unrelated native_runs evidence (dropped build_identity/classes/command/environment, 209 lines); reverted by surgical splice so only the AF11 row differs from HEAD"
+  },
+  "head_after_af11": "cf5af359",
+  "validation_after_af11": {
+    "qualification": "375 passed, 2 skipped",
+    "full_suite": "2192 passed, 5 skipped",
+    "mypy": "clean, 274 source files",
+    "ruff_check": "clean",
+    "ruff_format": "clean"
+  },
+  "next_action": "Push cf5af359 to #289 and confirm exact-head CI. Continue on non-overlapping surfaces (semantic.py, full107.py, game_driver.py, docs) while PB-03 stays WAIT_FOR_OWNER on #284."
 }
