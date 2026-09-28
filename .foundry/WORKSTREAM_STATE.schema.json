@@ -46,7 +46,10 @@
       "description": "Descriptive HEAD at document production time. Never a validation claim."
     },
     "validated_head": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^[0-9a-f]{40}$",
       "description": "Newest commit with actual validation evidence; null means none beyond the audit base."
     },
@@ -183,7 +186,7 @@
         "xhigh",
         "max"
       ],
-      "description": "Execution identity metadata. Current active routing uses max for Space Bunny and xhigh for Muse; high remains accepted only for historical state compatibility."
+      "description": "Project task-complexity / historical execution metadata. Provider-native effort is recorded separately in native_variant; active profiles pin each model to its highest project-authorized native effort."
     },
     "hypotheses_rejected": {
       "type": "array",
@@ -234,6 +237,61 @@
     "exact_next_action": {
       "type": "string",
       "minLength": 1
+    },
+    "execution_profile": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "deepseek",
+        "muse",
+        "glm",
+        "space-bunny",
+        "muse-free-zen",
+        null
+      ],
+      "description": "Explicit Foundry executor profile for the run. Null preserves historical state compatibility."
+    },
+    "executor_model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Exact provider/model identity used by the run; informational provenance, never Rules or qualification authority."
+    },
+    "native_variant": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "xhigh",
+        "max",
+        null
+      ],
+      "description": "Provider-native reasoning variant pinned by the selected profile. Null is retained for legacy/unverified-provider runs only."
+    },
+    "variant_resolution": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "How the native variant was resolved/pinned, matching launcher telemetry when present."
+    },
+    "executor_handoff_from": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Previous explicit execution profile when a workstream is resumed cross-model."
+    },
+    "executor_handoff_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Evidence-based reason for an explicit executor handoff; never an automatic quota fallback."
     }
   },
   "additionalProperties": false
