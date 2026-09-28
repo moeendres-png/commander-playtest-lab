@@ -21,6 +21,7 @@ final class XmageFullGameJsonlBridge {
     private XmageFullGameSession session;
     private XmageNativeStateRestoration nativeRestoration;
     private String nativeFixtureId;
+    private String nativeFrozenRequestedStateDigest;
     private boolean nativeRestorationFinalized;
 
     record Result(String json, boolean shutdown) {
@@ -341,6 +342,7 @@ final class XmageFullGameJsonlBridge {
                     nativeRestoration
             );
             nativeFixtureId = fixtureId;
+            nativeFrozenRequestedStateDigest = frozenDigest;
             nativeRestorationFinalized = false;
 
             JsonObject responsePayload = new JsonObject();
@@ -391,7 +393,9 @@ final class XmageFullGameJsonlBridge {
     private Result getNativeStateRestorationReceipt(String requestId) {
         try {
             XmageFullGameSession active = requireSession();
-            if (nativeRestoration == null || nativeFixtureId == null) {
+            if (nativeRestoration == null
+                    || nativeFixtureId == null
+                    || nativeFrozenRequestedStateDigest == null) {
                 return error(
                         requestId,
                         "native_state_session_required",
@@ -424,7 +428,14 @@ final class XmageFullGameJsonlBridge {
             payload.addProperty("fixture_id", nativeFixtureId);
             payload.addProperty("match", verdict.match());
             payload.addProperty("mismatch_count", verdict.mismatches().size());
-            payload.addProperty("requested_state_digest", verdict.requestedDigest());
+            // Keep requested_state_digest in the same frozen fixture-digest domain
+            // used by create_native_state_game. The restoration projection digest
+            // is a different evidence domain and therefore gets its own field.
+            payload.addProperty("requested_state_digest", nativeFrozenRequestedStateDigest);
+            payload.addProperty(
+                    "restoration_requested_projection_digest",
+                    verdict.requestedDigest()
+            );
             payload.addProperty("constructed_state_digest", verdict.constructedDigest());
             payload.addProperty("turn_number", observed.get("turn_number").getAsInt());
             payload.addProperty("phase", observed.get("phase").getAsString());
