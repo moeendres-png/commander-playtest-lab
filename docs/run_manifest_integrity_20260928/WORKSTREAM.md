@@ -42,3 +42,31 @@ stays NOT_RUN; stop for genuine source/ownership/authority gates.
 
 ARCHITECTURE_FREEZE = NOT CLAIMED
 PRODUCTION_PROVIDER = NOT SELECTED
+
+## Junction follow-up after PR #282 integration
+
+Current base: `3910040b3ca4eb276f8895fa4c9801af3550f123`, tree
+`a28d98b29c84342056e5658f8f4423f927999108`. Owned follow-up branch:
+`astra/run-manifest-junction-20260928`. The original source lock above remains
+historical provenance. PR #282 is merged, including the reviewed finite-float fix.
+
+Remaining defect: Windows directory junctions are traversed by os.walk despite
+followlinks=False and are not reported by is_symlink(). Reject is_junction()
+before descent; preserve the existing seal on failure. The new actual-junction
+regression fails before the guard and passes after it. Reuse pathlib on the
+project-required Python >=3.12; no new dependency or manifest schema.
+
+Additional owned surface: `.github/workflows/run-manifest-integrity.yml`, a
+bounded Windows test gate. Existing windows-runtime.yml is foreign-active, so
+it remains untouched. The new gate executes the actual junction test, which
+Linux cannot exercise. Published active storage surfaces were checked before edits.
+
+Validation: 56 passed / 5 skipped (four unavailable Windows symlink privileges
+and POSIX FIFO), 14 workflow-contract tests passed; affected Ruff, formatting,
+strict mypy and compileall passed. Linux coverage remains an exact-head CI gate.
+No authenticity, concurrent hostile-writer safety, Rules or qualification claim.
+
+Exact next action for normal Sol: inspect the published follow-up head and target,
+all CI including windows-manifest-integrity, and current review findings; repair
+only attributable failures, then normal merge with --match-head-commit and no
+admin bypass. Persist resulting main HEAD/TREE. Do not merge PR #282 again.

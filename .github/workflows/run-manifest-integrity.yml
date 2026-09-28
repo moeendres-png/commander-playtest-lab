@@ -1,0 +1,38 @@
+name: Run Manifest Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'src/commander_lab/storage/**'
+      - 'tests/unit/test_run_manifest_integrity.py'
+      - 'tests/unit/test_phase86_atomic_and_integrity.py'
+      - '.github/workflows/run-manifest-integrity.yml'
+      - 'pyproject.toml'
+      - 'requirements/lock.txt'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  windows-manifest-integrity:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5
+        with:
+          python-version: '3.12'
+      - name: Install manifest test dependencies
+        # Install the hashed package list without resolving Linux-lock transitive
+        # extras on Windows; this bounded suite does not exercise those extras.
+        run: |
+          python -m pip install --no-deps --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Exercise real Windows junction and manifest contracts
+        run: python -m pytest -q tests/unit/test_run_manifest_integrity.py tests/unit/test_phase86_atomic_and_integrity.py
