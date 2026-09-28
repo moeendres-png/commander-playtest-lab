@@ -341,9 +341,7 @@ def test_jvm_linkage_fault_is_not_recorded_as_a_rules_conformance_failure(
         decks=decks,
         pilots=tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 5)),  # type: ignore[arg-type]
     )
-    batch = XmageFullGameBatchRunner(
-        _ConformanceFailingRunner(_JVM_LINKAGE_FAILURE), tmp_path
-    )  # type: ignore[arg-type]
+    batch = XmageFullGameBatchRunner(_ConformanceFailingRunner(_JVM_LINKAGE_FAILURE), tmp_path)  # type: ignore[arg-type]
     record = batch.run((case,)).records[0]
     assert record.failure_class is FullGameFailureClass.INFRASTRUCTURE
     assert record.failure_class is not FullGameFailureClass.CONFORMANCE
@@ -365,9 +363,7 @@ def test_genuine_engine_game_failure_is_still_recorded_as_conformance(
         decks=decks,
         pilots=tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 5)),  # type: ignore[arg-type]
     )
-    batch = XmageFullGameBatchRunner(
-        _ConformanceFailingRunner(message), tmp_path
-    )  # type: ignore[arg-type]
+    batch = XmageFullGameBatchRunner(_ConformanceFailingRunner(message), tmp_path)  # type: ignore[arg-type]
     assert batch.run((case,)).records[0].failure_class is FullGameFailureClass.CONFORMANCE
 
 
