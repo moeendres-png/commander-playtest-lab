@@ -1,0 +1,21 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/csn-final-bakeoff/space-bunny/lab
+branch: sbmax/full-completion
+audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
+audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
+state_written_against_head: e91819ae18166a9f91ca52d101a72c8cb8eddade
+validated_head: null
+objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification,
+  remediation, freeze readiness, production implementation, real full games, replay,
+  hidden information, multiplayer, batch execution, cross-model review, and operational
+  completion.'
+in_scope:
+- full technically achievable Commander Simulator Next completion campaign
+out_of_scope:
+- Production Provider selection by the executor
+- Architecture Freeze decision by the executor
+ownership: final-completion-space-bunny-max
+status: ACTIVE
+exact_next_action: Read the campaign contract, reconcile fresh source truth, build
+  the live dependency graph, and execute the highest-value critical path.
