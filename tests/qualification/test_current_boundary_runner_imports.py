@@ -149,9 +149,8 @@ def test_every_name_the_runner_uses_is_bound() -> None:
     bound = _module_level_bound_names()
     undefined: set[str] = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-            if node.id not in bound:
-                undefined.add(node.id)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id not in bound:
+            undefined.add(node.id)
     assert not undefined, f"runner uses names it never binds: {sorted(undefined)}"
 
 
