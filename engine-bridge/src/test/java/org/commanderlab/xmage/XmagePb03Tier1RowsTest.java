@@ -94,7 +94,7 @@ class XmagePb03Tier1RowsTest {
                 session.legalActionsPayload(), "pass_priority", null));
     }
 
-    private static String pendingClass(XmageFullGameSession session) {
+    static String pendingClass(XmageFullGameSession session) {
         for (int attempt = 0; attempt < 30; attempt++) {
             JsonObject payload = session.pendingDecisionPayload();
             if (!payload.get("decision").isJsonNull()) {
@@ -1545,7 +1545,9 @@ class XmagePb03Tier1RowsTest {
 
     static void payFromLabels(
             XmageFullGameSession session, String tag, java.util.Set<String> allowedLabels) {
-        for (int round = 0; round < 12; round++) {
+        // Taps and pool spends each consume a round; size the bound for the
+        // largest homogeneous payment (Nexus of Fate: 7 taps + 7 spends).
+        for (int round = 0; round < 30; round++) {
             String pending = pendingClass(session);
             if (pending == null) {
                 fail(tag + ": engine terminal during payment");

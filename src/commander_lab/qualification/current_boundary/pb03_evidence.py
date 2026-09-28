@@ -164,6 +164,17 @@ CHARACTERIZATION_XMAGE: dict[str, dict[str, Any]] = {
         ),
         "classes": ["XmageHiddenReplayIntegrationTest"],
     },
+    "MICRO_RULES_RANDOMNESS": {
+        "outcome": "BLOCKED",
+        "reason": (
+            "Wave-2b characterization: the reconstructed Stitch resolves to a "
+            "genuine Heads-or-tails call, but the row's decision_script is "
+            "empty — choosing heads or tails without script would be "
+            "unscripted discretion over the win condition, and the flip "
+            "outcome is seed-determined Rules RNG. Fail closed; row BLOCKED."
+        ),
+        "classes": ["XmagePb03Tier2StackTest"],
+    },
 }
 
 # PB-10: donor PASS rows whose sole harness was a non-obligation test

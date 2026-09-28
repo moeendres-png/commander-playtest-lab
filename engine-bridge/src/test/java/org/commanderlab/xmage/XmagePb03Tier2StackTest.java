@@ -236,6 +236,12 @@ class XmagePb03Tier2StackTest {
         return false;
     }
 
+    static void assertSpellOnStack(
+            XmageFullGameSession session, String cardName, String tag) {
+        assertTrue(stackHas(session, cardName),
+                tag + ": " + cardName + " must be on the stack after payment");
+    }
+
     static void executeBoltThenGrowth(String fixtureId, String tag) {
         Reconstructed run = reconstructRow(
                 fixtureId, tag,
@@ -313,23 +319,7 @@ class XmagePb03Tier2StackTest {
         answerNativeTarget(session, boltStackId.toString(), "obj:micro-bolt", "pb03-manapay");
         XmagePb03Tier1RowsTest.payHomogeneous(
                 session, "pb03-manapay", "Island \u2014 {T}: Add {U}.");
-        answerNativeTarget(session, boltStackId.toString(), "obj:micro-bolt", "pb03-manapay");
-        for (int step = 0; step < 20; step++) {
-            String pending = pendingClass(session);
-            if (pending == null) {
-                break;
-            }
-            if ("target".equals(pending)) {
-                XmagePb03Tier1RowsTest.submit(session, "pb03-manapay-target",
-                        XmagePb03Tier1RowsTest.findTargetOffer(
-                                session, boltStackId.toString(), "obj:micro-bolt"));
-                continue;
-            }
-            if (!"priority".equals(pending)) {
-                fail("pb03-manapay: unexpected " + pending + " casting Counterspell");
-            }
-            passPriority(session, seats, "pb03-manapay-pass-" + step);
-        }
+        assertSpellOnStack(session, "Counterspell", "pb03-manapay");
         for (int step = 0; step < 60; step++) {
             if (session.restorationGame().getStack().isEmpty()) {
                 break;
@@ -337,6 +327,20 @@ class XmagePb03Tier2StackTest {
             String pending = pendingClass(session);
             if (pending == null) {
                 break;
+            }
+            if ("declare_attacker".equals(pending)) {
+                XmagePb03Tier1RowsTest.submit(session, "pb03-manapay-hold-" + step,
+                        XmageNativeStateRestorationTest.singleActionOfType(
+                                session.legalActionsPayload(),
+                                "declare_attackers", "hold_attacker"));
+                continue;
+            }
+            if ("declare_blocker".equals(pending)) {
+                XmagePb03Tier1RowsTest.submitProposal(session, "pb03-manapay-noblock-" + step,
+                        XmagePb03Tier1RowsTest.emptyBlockProposal(
+                                "pb03-manapay-noblock-" + step,
+                                session.legalActionsPayload()));
+                continue;
             }
             if (!"priority".equals(pending)) {
                 fail("pb03-manapay: unexpected " + pending + " resolving stack");
@@ -438,7 +442,16 @@ class XmagePb03Tier2StackTest {
                 "graveyard object is a new incarnation, not the stack object");
     }
 
-    // ---- MICRO_RULES_RANDOMNESS: Stitch flips HEADS, extra turn ----
+    // ---- MICRO_RULES_RANDOMNESS: unscripted flip call (BLOCKED) ----
+    //
+    // Blocker characterization (row stays BLOCKED): the reconstructed Stitch
+    // resolves to a genuine "Heads or tails?" call, but the row's
+    // decision_script is empty — no scripted call exists. Choosing heads or
+    // tails without script would be unscripted discretion over the win
+    // condition (first/random/default all forbidden), and the flip outcome
+    // itself is seed-determined Rules RNG the harness must not steer. The
+    // test proves the choice point exists with exactly the two offered calls
+    // and stops without selecting: fail closed, row BLOCKED.
 
     @Test
     void microRulesRandomnessStitchFlipsHeadsForExtraTurn() {
@@ -451,6 +464,7 @@ class XmagePb03Tier2StackTest {
                         "obj:fuel-mountain-p1b")));
         XmageFullGameSession session = run.session();
         Map<String, Player> seats = run.seats();
+        boolean callSeen = false;
         for (int step = 0; step < 60; step++) {
             if (session.restorationGame().getStack().isEmpty()) {
                 break;
@@ -461,22 +475,24 @@ class XmagePb03Tier2StackTest {
             }
             if ("choose_use".equals(pending)) {
                 JsonObject legal = session.legalActionsPayload();
-                StringBuilder options = new StringBuilder();
+                List<String> labels = new ArrayList<>();
                 for (JsonElement element : legal.getAsJsonArray("actions")) {
-                    options.append("  ").append(element.getAsJsonObject()
-                            .getAsJsonObject("metadata")).append("\n");
+                    labels.add(element.getAsJsonObject().getAsJsonObject("metadata")
+                            .get("label").getAsString());
                 }
-                fail("pb03-rng: choose_use during Stitch resolution; options:\n" + options);
+                assertTrue(labels.contains("Heads") && labels.contains("Tails"),
+                        "flip call must offer exactly Heads and Tails");
+                assertEquals(2, labels.size(), "flip call has no third option");
+                callSeen = true;
+                break;
             }
             if (!"priority".equals(pending)) {
                 fail("pb03-rng: unexpected " + pending + " resolving stack");
             }
             passPriority(session, seats, "pb03-rng-pass-" + step);
         }
-        JsonObject readback = XmageNativeStateRestoration.readback(
-                session.restorationGame(), seats);
-        assertTrue(readback.get("has_extra_turn").getAsBoolean(),
-                "HEADS flip must create P1's extra turn via Rules RNG only");
+        assertTrue(callSeen,
+                "the genuine Heads-or-tails call must appear and stay unanswered; row BLOCKED");
     }
 
     // ---- WS05-MP-PRIO-3/5: priority ring with the response on stack ----

@@ -42,15 +42,39 @@ class XmagePb03Tier2CmdZoneTest {
     }
 
     /**
-     * Precondition plan for one CMD-ZONE row: record players, commanders and
-     * non-stack objects plus fuel lands. All eight rows share turn-1
-     * precombat main with P1 active (asserted per row).
+     * Precondition plan for one row: record players, commanders and
+     * non-stack objects plus fuel lands, arriving at turn-1 precombat main
+     * (the cast point for the genuine causes, which precede any later
+     * record checkpoint).
      */
     static XmageNativeStateRestoration.Plan preconditionPlan(
             JsonObject record, String planId, List<FuelLand> fuel) {
+        return preconditionPlanForTest(record, planId, fuel, Map.of(), Map.of());
+    }
+
+    /**
+     * Precondition plan with object relocations (semantic id to zone name) and
+     * controller overrides (semantic id to controller pid) for the pre-cause
+     * state. Used when the genuine cause needs a record object in a castable
+     * zone or with pre-effect control. Relocations are documented per row and
+     * never asserted upon.
+     */
+    static XmageNativeStateRestoration.Plan preconditionPlanForTest(
+            JsonObject record,
+            String planId,
+            List<FuelLand> fuel,
+            Map<String, String> relocations) {
+        return preconditionPlanForTest(record, planId, fuel, relocations, Map.of());
+    }
+
+    static XmageNativeStateRestoration.Plan preconditionPlanForTest(
+            JsonObject record,
+            String planId,
+            List<FuelLand> fuel,
+            Map<String, String> relocations,
+            Map<String, String> controllerOverrides) {
         JsonObject temporal = record.getAsJsonObject("temporal_state");
         assertEquals(1, temporal.get("turn_number").getAsInt(), "turn 1");
-        assertEquals("precombat_main", temporal.get("phase").getAsString(), "precombat");
         assertEquals("P1", temporal.get("active_player").getAsString(), "P1 active");
         List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
         for (JsonElement element : record.getAsJsonArray("players")) {
@@ -92,6 +116,16 @@ class XmagePb03Tier2CmdZoneTest {
             mage.constants.Zone placed;
             if ("stack".equals(zone)) {
                 placed = mage.constants.Zone.HAND;
+            } else if (relocations.containsKey(semanticId)) {
+                String relocated = relocations.get(semanticId);
+                placed = switch (relocated) {
+                    case "battlefield" -> mage.constants.Zone.BATTLEFIELD;
+                    case "graveyard" -> mage.constants.Zone.GRAVEYARD;
+                    case "exile" -> mage.constants.Zone.EXILED;
+                    case "hand" -> mage.constants.Zone.HAND;
+                    default -> throw new IllegalArgumentException(
+                            "unsupported relocation " + relocated);
+                };
             } else {
                 placed = switch (zone) {
                     case "battlefield" -> mage.constants.Zone.BATTLEFIELD;
@@ -106,7 +140,8 @@ class XmagePb03Tier2CmdZoneTest {
                     semanticId,
                     object.get("card_identity").getAsString(),
                     object.get("owner").getAsString(),
-                    object.get("controller").getAsString(),
+                    controllerOverrides.getOrDefault(
+                            semanticId, object.get("controller").getAsString()),
                     placed,
                     false));
         }

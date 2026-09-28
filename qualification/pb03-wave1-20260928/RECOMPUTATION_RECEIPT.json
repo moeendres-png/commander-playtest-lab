@@ -1,10 +1,70 @@
 {
  "counts": {
-  "BLOCKED": 27,
-  "PASS": 35,
-  "UNKNOWN": 45
+  "BLOCKED": 26,
+  "PASS": 22,
+  "UNKNOWN": 59
  },
- "donor_head": "208341c6124674046787f3a4b1d699c98c286a27",
+ "input_column": {
+  "counts": {
+   "BLOCKED": 44,
+   "CRASH": 0,
+   "FAIL": 0,
+   "PASS": 4,
+   "PROTOCOL_FAILURE": 0,
+   "TIMEOUT": 0,
+   "UNKNOWN": 59
+  },
+  "directory": "qualification/final-current-boundary-20260927",
+  "results": "FULL107_XMAGE_RESULTS.json",
+  "runtime_identity": {
+   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+   "adapter_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
+   "capabilities_provider_reported": {
+    "action_submission_supported": false,
+    "commander_damage_visible": false,
+    "commander_supported": true,
+    "commander_tax_visible": false,
+    "concede_supported": false,
+    "deck_import_supported": true,
+    "engine_shutdown_supported": true,
+    "event_log_supported": true,
+    "game_shutdown_supported": true,
+    "headless_supported": true,
+    "healthcheck_supported": true,
+    "legal_actions_supported": false,
+    "max_players": 5,
+    "mode_selection_supported": false,
+    "mulligan_supported": false,
+    "multiplayer_supported": true,
+    "notes": [
+     "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap",
+     "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process",
+     "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable",
+     "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized",
+     "NO_PROVIDER_READY remains in force"
+    ],
+    "partner_supported": true,
+    "priority_visible": true,
+    "replay_supported": false,
+    "runtime_kind": "external_rules_engine",
+    "scenario_injection_supported": false,
+    "seed_supported": false,
+    "stack_visible": true,
+    "starting_state_injection_supported": false,
+    "target_selection_supported": false,
+    "trigger_order_supported": false
+   },
+   "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+   "lane": "generic protocol-2 compatibility lane",
+   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+   "runner_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
+   "runner_tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410",
+   "scenario_injection_supported": false,
+   "seed_supported": false,
+   "starting_state_injection_supported": false
+  }
+ },
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
   "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
@@ -16,8 +76,8 @@
   ],
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
   "runner_branch": "muse-xhigh/full-completion",
-  "runner_commit": "0a36e47e31f09f053c42ec5c076a6b49d6e7b981",
-  "runner_tree": "804762a1dd3782e45ea9e0a69b460ad8ad42f170"
+  "runner_commit": "cb185e580fa9af5df1a1ec9827f65a33d2a40209",
+  "runner_tree": "cf578006fb9faac6c930376c470d81d7c9fd20f4"
  },
  "schema_version": "pb03.wave1-receipt/1.0.0",
  "terminal_states": {
@@ -29,7 +89,7 @@
   {
    "action": "CHARACTERIZE",
    "basis": "XmageHiddenReplayIntegrationTest",
-   "donor_outcome": "PASS",
+   "donor_outcome": "UNKNOWN",
    "fixture_id": "HIDDEN_02",
    "new_outcome": "UNKNOWN"
   },
@@ -41,25 +101,25 @@
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microManaPaymentCounterspellPaidWithTwoBlue",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_MANA_PAYMENT",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microPriorityGrowthSavesBearsFromBolt",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_PRIORITY",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microStackGrowthSavesBearsFromBolt",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_STACK",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
    "action": "PROMOTE",
@@ -104,25 +164,25 @@
    "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microZoneChangesBoltBecomesNewGraveyardObject",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_ZONE_CHANGES",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microCopyFlareDuplicatesBoltOnStack",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_COPY",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=CONTROL_DIVERGENCE",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microControlMagicTransfersBearsToP1",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_CONTROL",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
    "action": "PROMOTE",
@@ -132,25 +192,25 @@
    "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier2StackTest",
    "donor_outcome": "BLOCKED",
    "fixture_id": "MICRO_RULES_RANDOMNESS",
    "new_outcome": "BLOCKED"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.mpPrio3RingOrderWithBoltResponse",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-MP-PRIO-3",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=STACK_SPELLS",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.mpPrio5RingOrderWithBoltResponse",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-MP-PRIO-5",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
    "action": "PROMOTE",
@@ -174,16 +234,16 @@
    "new_outcome": "PASS"
   },
   {
-   "action": "ADMIT_TIER_2_PENDING",
-   "basis": "missing=EXTRA_TURN_QUEUE",
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.mpTurn5ExtraTurnsRunP3ThenP2",
    "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-MP-TURN-5",
-   "new_outcome": "BLOCKED"
+   "new_outcome": "PASS"
   },
   {
    "action": "CHARACTERIZE",
    "basis": "XmageNativeStateRestorationTest,XmageFullGameElimExecutionTest",
-   "donor_outcome": "PASS",
+   "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-MP-ELIM-OWNED-3",
    "new_outcome": "BLOCKED"
   },
@@ -267,7 +327,7 @@
   {
    "action": "CHARACTERIZE",
    "basis": "XmagePb03Tier2CmdZoneTest,XmageNativeStateRestorationTest",
-   "donor_outcome": "PASS",
+   "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ZONE-LIB-YES",
    "new_outcome": "BLOCKED"
   },
@@ -281,7 +341,7 @@
   {
    "action": "CHARACTERIZE",
    "basis": "XmagePb03Tier1RowsTest",
-   "donor_outcome": "PASS",
+   "donor_outcome": "BLOCKED",
    "fixture_id": "WS05-CMD-ELIM-4",
    "new_outcome": "BLOCKED"
   }

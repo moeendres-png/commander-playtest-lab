@@ -76,6 +76,44 @@ OBLIGATION_EXECUTIONS: dict[str, dict[str, str]] = {
         "method": "mpCombat5AssignsThreeAttackersToThreeDefenders",
         "observed": "single declare-attackers action assigns a0 to P2, a1 to P3 and a2 to P4",
     },
+    # Wave-2b Tier-2 obligation executions via L4 genuine reconstruction.
+    "MICRO_COPY": {
+        "method": "microCopyFlareDuplicatesBoltOnStack",
+        "observed": "genuine Bolt then Flare reconstructed bottom-to-top; Flare resolution creates a Bolt copy as a distinct stack object",
+    },
+    "MICRO_MANA_PAYMENT": {
+        "method": "microManaPaymentCounterspellPaidWithTwoBlue",
+        "observed": "genuine Bolt reconstructed; genuine Counterspell cast with exactly two blue mana counters it, no damage",
+    },
+    "MICRO_PRIORITY": {
+        "method": "microPriorityGrowthSavesBearsFromBolt",
+        "observed": "genuine Bolt reconstructed; genuine Giant Growth resolves first, Bears survives, stack empties",
+    },
+    "MICRO_STACK": {
+        "method": "microStackGrowthSavesBearsFromBolt",
+        "observed": "genuine Bolt reconstructed; genuine Giant Growth resolves first, Bears survives, stack empties",
+    },
+    "MICRO_ZONE_CHANGES": {
+        "method": "microZoneChangesBoltBecomesNewGraveyardObject",
+        "observed": "genuine Bolt reconstructed and resolved; graveyard object is a new incarnation with continuous lineage",
+    },
+    "WS05-MP-PRIO-3": {
+        "method": "mpPrio3RingOrderWithBoltResponse",
+        "observed": "genuine Bolt reconstructed; priority traverses live ring order with the response persisting on stack",
+    },
+    "WS05-MP-PRIO-5": {
+        "method": "mpPrio5RingOrderWithBoltResponse",
+        "observed": "genuine Bolt reconstructed; priority traverses live ring order with the response persisting on stack",
+    },
+    # Wave-2c Tier-2 obligation executions.
+    "MICRO_CONTROL": {
+        "method": "microControlMagicTransfersBearsToP1",
+        "observed": "genuine Control Magic cast and resolved; Bears owner P2 controller P1 through the real effect only",
+    },
+    "WS05-MP-TURN-5": {
+        "method": "mpTurn5ExtraTurnsRunP3ThenP2",
+        "observed": "genuine Time Warp (P2) resolved then genuine Nexus of Fate (P3) resolved; extra turns run P3 then P2",
+    },
 }
 
 TIER_2_PENDING_REASON = (
@@ -221,7 +259,8 @@ def main() -> int:
                 "directory": "qualification/final-current-boundary-20260927",
                 "results": "FULL107_XMAGE_RESULTS.json",
                 "counts": donor["counts"],
-                "note": "donor bytes preserved verbatim; this file only transforms them",
+                "note": "post-convergence input is main's re-executed column "
+                "(receipt-gated assembly); donor transplant bytes preserved in history",
             },
             "runtime_identity": identity,
             "counts": counts,
@@ -233,7 +272,12 @@ def main() -> int:
         "RECOMPUTATION_RECEIPT.json",
         {
             "schema_version": "pb03.wave1-receipt/1.0.0",
-            "donor_head": "208341c6124674046787f3a4b1d699c98c286a27",
+            "input_column": {
+                "directory": "qualification/final-current-boundary-20260927",
+                "results": "FULL107_XMAGE_RESULTS.json",
+                "counts": donor["counts"],
+                "runtime_identity": donor.get("runtime_identity", {}),
+            },
             "runtime_identity": identity,
             "transform_count": len(transforms),
             "transforms": transforms,
