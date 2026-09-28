@@ -130,6 +130,17 @@ def test_mismatched_observer_envelope_fails_closed() -> None:
     )
 
 
+def test_conflicting_actor_marker_cannot_be_hidden_by_valid_envelope() -> None:
+    observations = _envelope_scoped()
+    observations["p1"]["state"]["players"][1]["is_actor"] = True
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["credible_as_principal_scoped_evidence"] is False
+    assert any(
+        finding["check"] == "actor_binding_conflict" and finding.get("seat") == "p1"
+        for finding in result["findings"]
+    )
+
+
 def test_one_shared_view_is_a_demonstrated_defect() -> None:
     """Different requester, identical payload, therefore each sees the others."""
     result = validate_principal_scoping(_identical_views_with_real_content(), requested_seats=SEATS)
