@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -57,8 +58,21 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     summarize,
 )
 
-OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
-FORGE_WORKSPACE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+OUT_DIR = Path(
+    os.environ.get(
+        "COMMANDER_LAB_OUT_DIR",
+        str(REPO_ROOT / "qualification" / "final-current-boundary-20260927"),
+    )
+)
+FORGE_WORKSPACE = Path(
+    os.environ.get(
+        "COMMANDER_LAB_FORGE_WORKSPACE",
+        "/home/moeen/code/ws-forge-full107-cdq-20260926",
+    )
+)
+# PB-09 pristine-upstream runs override the executed engine commit (and only
+# that): the workspace HEAD must equal this commit or the run fails closed.
+FORGE_ENGINE_COMMIT_OVERRIDE = os.environ.get("COMMANDER_LAB_FORGE_ENGINE_COMMIT") or None
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
 # fresh in this workstream; historical PASS is never transferred.
@@ -177,7 +191,7 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
     else:
         base.update(
             {
-                "engine_candidate_commit": FORGE_CANDIDATE_COMMIT,
+                "engine_candidate_commit": FORGE_ENGINE_COMMIT_OVERRIDE or FORGE_CANDIDATE_COMMIT,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
                 "adapter": "forge-protocol2-bridge (read-only reference checkout)",
                 "adapter_commit": git("rev-parse", "HEAD", cwd=FORGE_WORKSPACE),
@@ -223,7 +237,12 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     identity = runtime_identity(candidate)
     workspace = FORGE_WORKSPACE if candidate == "forge" else None
     lane = "compat" if candidate == "xmage" else "protocol2-jsonl"
-    plan = build_launch_plan(candidate, lane=lane, forge_workspace=workspace)
+    plan = build_launch_plan(
+        candidate,
+        lane=lane,
+        forge_workspace=workspace,
+        forge_engine_commit=FORGE_ENGINE_COMMIT_OVERRIDE,
+    )
 
     by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
     rows: list[RowResult] = []
@@ -382,6 +401,27 @@ def classify_remaining(
     for record in materialization.denominator_records():
         fixture_id = record["fixture_id"]
         if fixture_id in executed:
+            continue
+        if candidate == "forge":
+            # No XMage-seam admission table applies to Forge, and no audited
+            # Forge per-row execution binding exists in this run: every
+            # non-lifecycle row is honestly UNKNOWN pending the Wave-F native
+            # audit, never BLOCKED by a foreign seam's vocabulary.
+            reason = (
+                "pristine-upstream Forge run: no audited per-row execution "
+                "binding exists for this obligation in this run (Wave-F native "
+                "audit pending). No seam absence is proven, so no BLOCKED is "
+                "claimed; no credit is transferred from the fork column."
+            )
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome="UNKNOWN",
+                    reason=reason,
+                    runtime_identity=identity,
+                )
+            )
             continue
         # PB-03 dimension admission: mechanism per row, never fixture-id prefix.
         tier, missing = admit_row(fixture_id)

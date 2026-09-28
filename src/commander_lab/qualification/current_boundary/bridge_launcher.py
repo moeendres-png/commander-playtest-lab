@@ -151,12 +151,16 @@ def build_launch_plan(
     lane: str | None = None,
     xmage_workspace: Path | None = None,
     forge_workspace: Path | None = None,
+    forge_engine_commit: str | None = None,
 ) -> LaunchPlan:
     """Build the exact launch recipe for a candidate.
 
     ``xmage_workspace`` is the Lab ``engine-bridge`` module (Lab-owned build
     output). ``forge_workspace`` is a read-only reference Forge checkout that
-    is *built and executed* but never edited.
+    is *built and executed* but never edited. ``forge_engine_commit``
+    overrides the expected/reported engine commit (PB-09 pristine-upstream
+    runs); it defaults to the pinned fork execution commit and must always
+    equal the workspace HEAD the bridge reports.
     """
     if candidate == "xmage":
         workspace = xmage_workspace or (repo_root() / "engine-bridge")
@@ -198,6 +202,7 @@ def build_launch_plan(
             )
         module = forge_workspace / "forge-protocol2-bridge"
         classpath = _read_classpath(module, "target/cp-wsr22.txt")
+        engine_commit = forge_engine_commit or FORGE_CANDIDATE_COMMIT
         argv = (
             "java",
             "-Djava.awt.headless=true",
@@ -211,10 +216,10 @@ def build_launch_plan(
             argv=argv,
             cwd=forge_workspace,
             env_overrides={
-                "FORGE_ENGINE_SHA": FORGE_CANDIDATE_COMMIT,
+                "FORGE_ENGINE_SHA": engine_commit,
                 "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),
             },
-            expected_engine_commit=FORGE_CANDIDATE_COMMIT,
+            expected_engine_commit=engine_commit,
             build_identity={
                 "module": "forge-protocol2-bridge",
                 "classes": str(module / "target" / "classes"),

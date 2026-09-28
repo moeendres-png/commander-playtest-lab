@@ -1,0 +1,29 @@
+{
+ "ancestry_rules_core_is_ancestor": true,
+ "bridge_build": {
+  "bridge_main_present": true,
+  "classes": "/tmp/foundry-launch-final-completion-muse-xhigh/launch-final-completion-muse-xhigh-5z86ui59/forge-pristine/forge-protocol2-bridge/target/classes",
+  "classpath_manifest": "/tmp/foundry-launch-final-completion-muse-xhigh/launch-final-completion-muse-xhigh-5z86ui59/forge-pristine/forge-protocol2-bridge/target/cp-wsr22.txt"
+ },
+ "counts": {
+  "BLOCKED": 0,
+  "CRASH": 0,
+  "FAIL": 4,
+  "PASS": 1,
+  "PROTOCOL_FAILURE": 0,
+  "TIMEOUT": 0,
+  "UNKNOWN": 102
+ },
+ "engine_commit_binding": "env:FORGE_ENGINE_SHA (operator-supplied; PB-05 open)",
+ "executed_worktree_head": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+ "executed_worktree_tree": "4cd539f1c56876590b8679dc1534d4632560c66d",
+ "out_dir": "qualification/pb09-pristine-forge-20260928",
+ "pinned_bridge_source": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+ "pinned_rules_core": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+ "schema_version": "pb09.pristine-forge-run/1.0.0",
+ "terminal_states": {
+  "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+  "PRODUCTION_PROVIDER": "NOT SELECTED"
+ },
+ "worktree_clean": true
+}

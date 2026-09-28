@@ -42,6 +42,28 @@ class DecisionUnsatisfied(RuntimeError):
 class GameDriveError(RuntimeError):
     """The external engine could not complete the requested lifecycle."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        engine_code: str | None = None,
+        engine_message: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.engine_code = engine_code
+        self.engine_message = engine_message
+
+
+# Engine-declared capability absences (as opposed to runtime malfunctions).
+# A lifecycle blocked by one of these is BLOCKED with the named capability,
+# never FAIL and never a Rules-capability claim about the engine itself.
+CAPABILITY_ERROR_CODES = frozenset(
+    {
+        "PLAYER_COUNT_UNSUPPORTED",
+        "SEED_UNSUPPORTED",
+    }
+)
+
 
 @dataclass
 class DecisionTapeEntry:
@@ -91,7 +113,7 @@ def decision_identity_params(candidate: str, frame: dict[str, Any]) -> dict[str,
     decision = frame["decision"]
     params: dict[str, Any] = {}
     pass_extra = shape["pass_extra"]
-    assert isinstance(pass_extra, list)
+    assert isinstance(pass_extra, (list, tuple))
     for key in (shape["field"], *pass_extra):
         if key == "action_id":
             for action in frame["actions"]:
@@ -159,9 +181,36 @@ def _payload(response: dict[str, Any]) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def _engine_error(response: dict[str, Any]) -> tuple[str | None, str | None]:
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors:
+        first = errors[0]
+        if isinstance(first, dict):
+            code = first.get("code")
+            message = first.get("message")
+            return (
+                str(code) if code is not None else None,
+                str(message) if message is not None else None,
+            )
+    error = response.get("error")
+    if isinstance(error, dict):
+        code = error.get("code")
+        message = error.get("message")
+        return (
+            str(code) if code is not None else None,
+            str(message) if message is not None else None,
+        )
+    return None, None
+
+
 def _require_ok(response: dict[str, Any], step: str) -> dict[str, Any]:
     if not _first_ok(response):
-        raise GameDriveError(f"{step} failed: status={response.get('status')!r}")
+        code, message = _engine_error(response)
+        raise GameDriveError(
+            f"{step} failed: status={response.get('status')!r}",
+            engine_code=code,
+            engine_message=message,
+        )
     return _payload(response)
 
 
@@ -560,11 +609,20 @@ def drive_commander_game(
         result.steps_completed.append("decision_drive")
     except (GameDriveError, DecisionUnsatisfied, BridgeLaunchError) as exc:
         result.failure = f"{type(exc).__name__}: {exc}"
-        result.failure_kind = (
-            "FAIL_CLOSED_UNSATISFIED"
-            if isinstance(exc, DecisionUnsatisfied)
-            else "ENGINE_RUNTIME_ERROR"
-        )
+        if isinstance(exc, DecisionUnsatisfied):
+            result.failure_kind = "FAIL_CLOSED_UNSATISFIED"
+        elif (
+            isinstance(exc, GameDriveError)
+            and exc.engine_code is not None
+            and exc.engine_code.upper() in CAPABILITY_ERROR_CODES
+        ):
+            result.failure_kind = "CAPABILITY_ABSENT"
+            result.failure = (
+                f"GameDriveError: {exc} "
+                f"[engine_code={exc.engine_code} engine_message={exc.engine_message}]"
+            )
+        else:
+            result.failure_kind = "ENGINE_RUNTIME_ERROR"
     return result
 
 

@@ -1,0 +1,37 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "cards": [
+  "Isamaru, Hound of Konda",
+  "Silvercoat Lion",
+  "Serra Angel",
+  "Savannah Lions",
+  "Knight of Dawn",
+  "Elite Vanguard",
+  "Eager Cadet",
+  "Suntail Hawk",
+  "Valiant Guard",
+  "Serra Ascendant",
+  "Aerial Assault",
+  "Wall of Faith"
+ ],
+ "cards_imported_at_runtime": [
+  "forge-wsr22-deck-1",
+  "forge-wsr22-deck-2",
+  "forge-wsr22-deck-3",
+  "forge-wsr22-deck-4"
+ ],
+ "engine_validated": "the engine itself rejected an illegal colour identity and unknown card names during this run, proving the import is engine-validated rather than construction-only",
+ "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "engine_candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "c8cc9b399b94d3a9ba381350e4e8b7a22ab4b194",
+  "runner_tree": "845f3f38e793d7ca5403be4dbceaa24e4bf3d6c0",
+  "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+ },
+ "schema_version": "wsr22.actual-card/1.0.0"
+}

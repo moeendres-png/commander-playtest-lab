@@ -650,6 +650,15 @@ def cardinality_row(
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
     }
     if result.failure:
+        if result.failure_kind == "CAPABILITY_ABSENT":
+            return RowResult(
+                fixture_id,
+                candidate,
+                "BLOCKED",
+                "PROTOCOL2_LIFECYCLE",
+                f"provider-declared capability absence, not a Rules failure: {result.failure}",
+                evidence,
+            )
         return RowResult(
             fixture_id,
             candidate,
@@ -750,6 +759,15 @@ def start2_row(
         "observed_draw_step_frames": draw_frames,
     }
     if game.failure:
+        if game.failure_kind == "CAPABILITY_ABSENT":
+            return RowResult(
+                fixture_id,
+                candidate,
+                "BLOCKED",
+                "PROTOCOL2_START2_V1_0_6",
+                f"provider-declared capability absence, not a Rules failure: {game.failure}",
+                evidence,
+            )
         return RowResult(
             fixture_id,
             candidate,

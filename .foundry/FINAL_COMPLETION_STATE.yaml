@@ -23,7 +23,15 @@ execution_identity:
   children: muse-xhigh-only
   space_bunny_invoked: false
 source_lock:
-  lab_head: null
+  lab_head: c8cc9b399b94d3a9ba381350e4e8b7a22ab4b194
+  sb_independent_baseline: SB_INDEPENDENT_BASELINE
+  sb_baseline_note: endpoint-of-independent-model-comparison-phase-followup-is-CONVERGED_SHARED_PROJECT_WORK
+  forge_head: 561023b5723d1a6dde296c2ac1e0811244217305
+  forge_branch: muse-xhigh/full-completion
+  mage_head: 8e1ee0b53d572ac636570c5fa0911b9c9d824e10
+  mage_branch: muse-xhigh/full-completion
+  baseline_tests: python-1721-passed-5-skipped-bridge-330-green-pb03-wave1-17-green-wave2a-8-green-wave2b-6-green
+  baseline_evidence: donor-transplant-41-paths-xmage-recomputed-35-45-27-pristine-forge-bridge-run-4P-pass-pins-bound
   main_base: e91819ae18166a9f91ca52d101a72c8cb8eddade
   origin_main_verified: e91819ae18166a9f91ca52d101a72c8cb8eddade
   no_main_drift: true
