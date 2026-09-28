@@ -1,0 +1,40 @@
+{
+  "status": "LOCAL_VALIDATED_READY_FOR_PR",
+  "source_head": "7890aed0f692e67052dd51925575380828996ab4",
+  "branch": "astra/run-manifest-integrity-20260928",
+  "baseline": "19 failed, 2 passed on unchanged main",
+  "first_linux_followup": "24 passed before WSL became unavailable",
+  "current_windows_followup": "48 passed, 5 skipped; includes existing Phase10 acceptance consumer",
+  "required_next": [
+    "Exact-head Linux CI including the five native-Windows capability skips",
+    "Review findings and fresh refs/ownership before normal Sol integration"
+  ],
+  "limitations": [
+    "File integrity only; not authenticity or Rules qualification",
+    "Run tree must be quiescent; no claim of a hostile-writer-proof filesystem snapshot"
+  ],
+  "architecture_freeze": "NOT CLAIMED",
+  "production_provider": "NOT SELECTED",
+  "ruff": "PASS",
+  "ruff_format": "PASS",
+  "strict_mypy": "PASS: 274 source files",
+  "compileall": "PASS",
+  "validation_environment": "Isolated Windows Python 3.12 venv with pinned lock packages; Linux CI required for platform-specific cases",
+  "ownership": [
+    {
+      "ref": "origin/sbmax/full-completion",
+      "head": "55d35dec6cc0258f7b1ae12e90e1554537d86b0c",
+      "overlap": []
+    },
+    {
+      "ref": "origin/wsr27/campaign-terminal-record-20260928",
+      "head": "2feff05b658e6cdcfcb6da45f0eb80daad741e7d",
+      "overlap": []
+    },
+    {
+      "ref": "origin/wsr27/multimodel-foundry-readiness-20260928",
+      "head": "b0286f2e2c5e92371e7dac45533b327be59295ef",
+      "overlap": []
+    }
+  ]
+}
