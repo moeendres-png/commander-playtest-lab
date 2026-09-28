@@ -13,7 +13,6 @@ the 29-card shortfall could not be read off the artifact.
 
 from __future__ import annotations
 
-import ast
 import json
 from pathlib import Path
 
@@ -70,9 +69,11 @@ def test_corpus_shortfall_is_a_number_not_a_prose_pointer() -> None:
 def test_card_list_is_declared_once() -> None:
     source = RUNNER.read_text(encoding="utf-8")
     assert "ACTUAL_CARD_NAMES: tuple[str, ...] = (" in source
-    tree = ast.parse(source)
-    # The list must not also be inline at the artifact site.
+    # The list must not also be inlined at the artifact site, or the corpus count
+    # would be restated rather than derived.
     assert '"cards": list(ACTUAL_CARD_NAMES)' in source
+    # Declared exactly once, so the two sites cannot drift apart.
+    assert source.count("ACTUAL_CARD_NAMES: tuple[str, ...] = (") == 1
 
 
 def test_artifact_reports_observed_refusals_when_present() -> None:
