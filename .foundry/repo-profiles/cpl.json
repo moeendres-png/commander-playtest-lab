@@ -19,7 +19,7 @@
     "docs/foundry-execution/**",
     "docs/qualification/**"
   ],
-  "notes": "Canonical dual-executor Foundry control plane. Space Bunny MAX is the committed/default and preferred executor for active project work. Muse remains an explicit XHIGH-only alternate for deliberate cross-model review/continuation. AGENTS.md + current routing/authority docs + opencode.json govern. Historical Muse HIGH governance remains provenance only.",
+  "notes": "Canonical dual-executor Foundry control plane. Runtime on main remains Space Bunny MAX + Muse XHIGH until the active launcher owner releases launcher.py/test_launcher.py and four-profile integration is qualified. WSR27 prepares a model-neutral four-profile registry containing exact model identities, highest authorized native efforts, runtime status and no-fallback/provenance invariants only. Task selection and model choice remain operator/prompt decisions; repository policy does not assign task classes or usage frequency to models.",
   "profile": "cpl",
   "qualification_conventions": [
     "source lock + WORKSTREAM_STATE + sealed evidence; contract-required tests override impact optimization"
@@ -28,5 +28,7 @@
   "safe_external_dirs": [
     "/tmp/*"
   ],
-  "stale_markers": []
+  "stale_markers": [],
+  "executor_profile_registry": ".foundry/executor-profiles.json",
+  "multimodel_runtime_status": "PREPARED_NOT_ACTIVE"
 }
