@@ -44,3 +44,30 @@ clean committed checkpoint is required. No acceptance PASS is claimed yet.
 
 ARCHITECTURE_FREEZE = NOT CLAIMED
 PRODUCTION_PROVIDER = NOT SELECTED
+
+## Validated completion and integration handoff
+
+Repair checkpoint: `ccb961ec` (pushed). Clean-checkout rerun: **62 passed,
+6 skipped** in 31.46s across the new quarantine tests, manifest tests, existing
+atomic-storage tests and Phase10 acceptance. Five skips require unavailable
+Windows symlink privilege; one requires POSIX FIFO. The actual dangling Windows
+junction test ran and passed. The earlier two acceptance failures were solely
+the expected dirty-source gate and are resolved by the committed rerun.
+Affected Ruff, format, strict mypy and compileall passed.
+
+Only nine production lines changed in quarantine_run; no provider, Rules,
+launcher or qualification artifacts changed. The new PR is independent of #288;
+its earlier inventory guard remains a separate integration item.
+
+Final remote readback before publication: main remains source-locked above.
+Active refs checked: sbmax/final-pre-freeze `2ec0759c377d6c490f142e678c3796e722aeb43f`,
+sbmax/full-completion `b4ea775137c9d0538ca85f8c8b56383650111745`,
+sol/final-integration-salvage `20e3d2caf357defd87a9c7217f17246919819f79`,
+docs/final-adversarial-audit `ecf673f465f5b3ca4d10b562900e0e42a872bc01`.
+
+PASS: bounded local repair and affected validation. NOT_YET_VERIFIED: published
+exact-head Linux CI and current PR review. No broader project completion claim.
+Exact next action for Sol: inspect new PR head/target, exact-head checks and review
+findings; resolve attributable failures; merge normally with --match-head-commit
+only after gates pass, then persist merged main HEAD/TREE. No admin bypass,
+force push, branch deletion, or mutation of another worker's campaign.
