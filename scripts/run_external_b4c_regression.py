@@ -173,7 +173,11 @@ def main() -> None:
         cast_evidence: dict[str, object] | None = None
 
         for iteration in range(64):
-            state_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+            state_raw = client.request(
+                EngineMessageType.GET_GAME_STATE,
+                {"observer_player_id": "p1"},
+                game_id=game_id,
+            )
             state = GameState.model_validate(state_raw["state"])
             observed_steps.append(state.step)
             decision = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
