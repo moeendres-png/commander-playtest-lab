@@ -24,11 +24,55 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     hidden_obligations as hidden_mod,
 )
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    provider_binding as binding_mod,
+)
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
 FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+
+# Published candidate heads that supersede what the committed artifacts
+# consumed. This is recorded data with provenance, not a live probe: the
+# assembler must stay runnable offline, and a candidate head that is not
+# recorded here is treated as unknown rather than assumed current.
+#
+# Forge PR #6 (6f70e32e) rewrites the production Rules Core
+# (forge-game/.../card/Card.java) and the protocol-2 bridge. It is published on
+# top of bridge head e15f37d6 while its Rules Core descends from fork point
+# ef958ee9, so the two bases are declared per surface.
+PUBLISHED_CANDIDATE_HEADS: dict[str, list[dict[str, Any]]] = {
+    "forge": [
+        {
+            "head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
+            "base_by_surface": {
+                "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+                "adapter": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+            },
+            "paths": [
+                "forge-game/src/main/java/forge/game/card/Card.java",
+                "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+                "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeSession.java",
+                "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+                "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
+            ],
+            "rules_core_paths": ["forge-game/src/main/java/forge/game/card/Card.java"],
+            "adapter_paths": ["forge-protocol2-bridge/"],
+            "source": "moeendres-png/forge PR #6, OPEN draft, Rules Core + bridge rewrite",
+        }
+    ],
+    "xmage": [],
+}
+
+# The artifacts whose validity depends on which candidate head they consumed.
+BINDING_ARTIFACTS: tuple[tuple[str, str], ...] = (
+    ("forge", "FULL107_FORGE_RESULTS"),
+    ("forge", "ACTUAL_CARD_FORGE"),
+    ("xmage", "FULL107_XMAGE_RESULTS"),
+    ("xmage", "ACTUAL_CARD_XMAGE"),
+)
+
 
 # Execution receipts. The assembler trusts nothing else for native credit: no
 # receipt means no credit, and source text is never a substitute.
@@ -326,6 +370,44 @@ def _af11_measure(
     return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
 
 
+def _binding_summary(provider_bindings: dict[str, Any], candidate: str) -> str:
+    """One-line, readable candidate-head binding summary for a gate row."""
+    entries = provider_bindings["bindings"].get(candidate) or {}
+    if not entries:
+        return "no candidate identity recorded"
+    bound = [n for n, e in entries.items() if e["disposition"] == binding_mod.BOUND]
+    stale = [n for n, e in entries.items() if e["disposition"] == binding_mod.STALE]
+    parts = []
+    if bound:
+        parts.append(f"{len(bound)} artifact(s) bound to the head they consumed")
+    if stale:
+        parts.append(f"{len(stale)} artifact(s) STALE for a published head")
+    return "; ".join(parts) or "no disposition"
+
+
+def _consumed_label(entry: dict[str, Any]) -> str:
+    consumed = entry.get("consumed") or {}
+    return (
+        ", ".join(
+            f"{field}={consumed[field]}"
+            for field in ("engine_candidate_commit", "adapter_commit")
+            if consumed.get(field)
+        )
+        or "no recorded identity"
+    )
+
+
+def _superseding_label(entry: dict[str, Any]) -> str:
+    heads = sorted(
+        {
+            str(change.get("head"))
+            for change in entry.get("superseding_changes") or []
+            if change.get("head")
+        }
+    )
+    return ", ".join(heads) or "an unpublished head"
+
+
 def assemble() -> None:
     bindings = native_bindings()
     per_candidate: dict[str, dict[str, Any]] = {}
@@ -412,6 +494,22 @@ def assemble() -> None:
                 "runtime_identity": per_candidate[cand]["results_runtime_identity"],
             },
         )
+
+    # ---- provider evidence binding -----------------------------------------
+    # Records which candidate head each artifact actually consumed, and marks
+    # it stale when a published candidate change rewrites a surface it used.
+    # This is descriptive: it never changes a gate verdict and never relabels an
+    # artifact with a head it did not run against.
+    binding_inputs: dict[str, dict[str, Any]] = {}
+    for cand, artifact_name in BINDING_ARTIFACTS:
+        path = OUT / f"{artifact_name}.json"
+        if not path.exists():
+            continue
+        binding_inputs.setdefault(cand, {})[artifact_name] = binding_mod.load_json(path)
+    provider_bindings = binding_mod.assess_provider_bindings(
+        binding_inputs, PUBLISHED_CANDIDATE_HEADS
+    )
+    write("PROVIDER_EVIDENCE_BINDING.json", provider_bindings)
 
     # ---- AF00-AF11 matrix ------------------------------------------------
     af11_by_candidate = {
@@ -614,11 +712,21 @@ def assemble() -> None:
                 "evidence": [
                     f"ACTUAL_CARD_{candidate.upper()}.json",
                     "engine-validated import of a real 100-card Commander deck",
+                    "candidate-head binding: " + _binding_summary(provider_bindings, candidate),
                 ],
                 "blocking_rows": [],
                 "nonblocking_limitations": [
                     "the effective 29-card actual-card denominator was "
-                    "not individually executed on this boundary"
+                    "not individually executed on this boundary",
+                    *[
+                        f"{entry['artifact']} consumed "
+                        f"{_consumed_label(entry)} and is STALE for "
+                        f"{_superseding_label(entry)}; it is evidence of the head it ran "
+                        "against, never of the newer one"
+                        for entries in provider_bindings["bindings"].values()
+                        for entry in entries.values()
+                        if entry["disposition"] == binding_mod.STALE
+                    ],
                 ],
             },
             {

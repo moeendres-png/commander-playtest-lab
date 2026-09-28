@@ -286,12 +286,15 @@
    "blocking_rows": [],
    "evidence": [
     "ACTUAL_CARD_XMAGE.json",
-    "engine-validated import of a real 100-card Commander deck"
+    "engine-validated import of a real 100-card Commander deck",
+    "candidate-head binding: 2 artifact(s) bound to the head they consumed"
    ],
    "gate": "AF07",
    "name": "ACTUAL_CARD_BEHAVIOR",
    "nonblocking_limitations": [
-    "the effective 29-card actual-card denominator was not individually executed on this boundary"
+    "the effective 29-card actual-card denominator was not individually executed on this boundary",
+    "ACTUAL_CARD_FORGE consumed engine_candidate_commit=ef958ee91ac6c9ce0152189f2654bf6e05abf273, adapter_commit=e15f37d6b2b5c0ad682948f86f037e07b6aaded5 and is STALE for 6f70e32e81025fd8a6eaf08d475f8282b7f03dc9; it is evidence of the head it ran against, never of the newer one",
+    "FULL107_FORGE_RESULTS consumed engine_candidate_commit=ef958ee91ac6c9ce0152189f2654bf6e05abf273, adapter_commit=e15f37d6b2b5c0ad682948f86f037e07b6aaded5 and is STALE for 6f70e32e81025fd8a6eaf08d475f8282b7f03dc9; it is evidence of the head it ran against, never of the newer one"
    ],
    "verdict": "UNKNOWN"
   },
