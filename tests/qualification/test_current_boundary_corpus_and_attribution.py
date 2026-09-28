@@ -42,8 +42,11 @@ def test_corpus_does_not_count_decks_as_cards() -> None:
 
 
 def test_executed_cards_come_from_a_passing_probe_not_a_list() -> None:
-    assert 'card_row["exit_state"] == "PASS"' in SOURCE
-    assert 'card_row.evidence or {}).get("executed_cards")' in SOURCE
+    assert 'card_result.outcome == "PASS"' in SOURCE
+    assert 'card_result.evidence or {}).get("executed_cards")' in SOURCE
+    # It must read the row RESULT. by_id holds materialization records, which
+    # carry no outcome, so reading it there raises KeyError at runtime.
+    assert 'row.fixture_id == "CARD_02"' in SOURCE
 
 
 def test_block_attribution_reads_the_candidate_capability() -> None:

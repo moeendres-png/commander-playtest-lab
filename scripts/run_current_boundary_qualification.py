@@ -627,9 +627,11 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # Cards whose behaviour was EXERCISED this run, derived from the
         # actual-card row outcomes. Naming or importing a card is not execution.
         behaviourally_executed_cards: set[str] = set()
-        card_row = by_id.get("CARD_02")
-        if card_row is not None and card_row["exit_state"] == "PASS":
-            executed = (card_row.evidence or {}).get("executed_cards")
+        # Read the ACTUAL row result, not the materialization record: only a row
+        # that executed and passed can contribute executed cards.
+        card_result = next((row for row in rows if row.fixture_id == "CARD_02"), None)
+        if card_result is not None and card_result.outcome == "PASS":
+            executed = (card_result.evidence or {}).get("executed_cards")
             if isinstance(executed, list):
                 behaviourally_executed_cards = {str(name) for name in executed}
 
