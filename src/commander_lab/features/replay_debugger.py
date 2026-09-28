@@ -79,13 +79,21 @@ class ReplayDebugger:
         }
 
     def repeat_with_same_seed(self) -> dict[str, Any]:
-        """Verify deterministic replay identity; it does not invent a new rules-engine future."""
+        """Describe replay identity inputs without claiming an unexecuted twin.
+
+        This legacy debugger has no Rules-engine execution capability. A stored
+        event-log digest and final-state hash can identify one replay, but they
+        cannot prove deterministic same-seed reproduction. Clean-process twin
+        execution belongs to the semantic-replay qualification lane.
+        """
         return {
             "game_id": self.replay.game_id,
             "seed": self.state_at(0).seed,
             "event_log_sha256": self.replay.event_log_sha256,
             "final_state_hash": sha256_value(self.replay.final_state),
-            "deterministic_identity": True,
+            "deterministic_identity": None,
+            "determinism_validation": "NOT_RUN",
+            "same_seed_twin_executed": False,
         }
 
     def batch_alternative_futures(
