@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "status": "PREPARED_NOT_RUNTIME_ACTIVE",
+  "authority_date": "2026-09-28",
+  "provider": "opencode-go",
+  "policy": {
+    "highest_supported_effort_only": true,
+    "explicit_profile_per_run": true,
+    "automatic_fallback": false,
+    "quota_or_auth_failure": "FAIL_CLOSED_THEN_EXPLICIT_RESUME",
+    "model_choice_changes_rules_authority": false,
+    "live_catalog_reverification_required_at_activation": true
+  },
+  "current_runtime_default": "space-bunny",
+  "preferred_future_workhorse_candidate": "deepseek",
+  "profiles": {
+    "deepseek": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "native_variant": "max",
+      "intended_role": "ENGINEERING_WORKHORSE",
+      "intended_frequency": "VERY_FREQUENT",
+      "runtime_status": "BLOCKED_ON_LAUNCHER_INTEGRATION",
+      "notes": "Primary candidate for bounded implementation, Java/Python build-test-debug loops, qualification and CI remediation. Use explicit fresh/resumed sessions; no silent quota fallback."
+    },
+    "muse": {
+      "model": "opencode-go/muse-spark-1.3-contributor",
+      "native_variant": "xhigh",
+      "intended_role": "LONG_HORIZON_LEADER",
+      "intended_frequency": "VERY_FREQUENT",
+      "runtime_status": "ACTIVE",
+      "notes": "Long campaigns, large-context continuation, difficult sustained debugging and cross-model review."
+    },
+    "glm": {
+      "model": "opencode-go/glm-5.3",
+      "native_variant": "max",
+      "intended_role": "FRONTIER_ROOT_CAUSE",
+      "intended_frequency": "SELECTIVE",
+      "runtime_status": "BLOCKED_ON_LAUNCHER_INTEGRATION",
+      "notes": "Scarce frontier lane for nonlocal root cause, cross-subsystem semantic defects and difficult fresh-context review."
+    },
+    "space-bunny": {
+      "model": "opencode-go/space-bunny-free",
+      "native_variant": "max",
+      "intended_role": "FREE_BULK_EXECUTION",
+      "intended_frequency": "FREQUENT",
+      "runtime_status": "ACTIVE",
+      "notes": "Bulk/repetitive/mechanical execution and GitHub /oc lane; critical semantics require normal evidence gates and preferably cross-model review."
+    }
+  },
+  "activation_gate": {
+    "required_surfaces": [
+      "tools/foundry/launcher.py",
+      "tests/foundry/test_launcher.py",
+      "opencode.json",
+      "AGENTS.md",
+      "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+      "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
+      "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md"
+    ],
+    "blocker": "Active ownership overlaps launcher/governance surfaces on 2026-09-28; do not co-edit.",
+    "required_validation": [
+      "exact four-profile allowlist and one highest native variant per model",
+      "explicit profile selection and child --model pin",
+      "no automatic fallback on quota/auth/catalog/tool/child failure",
+      "telemetry/context/state provenance for selected profile/model/native variant",
+      "CPL/Forge/Mage injected-policy smoke",
+      "DeepSeek MAX authenticated bounded smoke before making it runtime default"
+    ]
+  }
+}

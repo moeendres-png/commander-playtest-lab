@@ -1,0 +1,107 @@
+{
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "REMOTE_GITHUB_CONNECTOR_NO_LOCAL_WORKTREE",
+  "branch": "wsr27/multimodel-foundry-readiness-20260928",
+  "audit_base_sha": "933d5df564b5dc77d678935bc79c6554459c347b",
+  "audit_base_tree": "3eee0692ff075dc5175795aea8da9f1e86696dfb",
+  "state_written_against_head": "933d5df564b5dc77d678935bc79c6554459c347b",
+  "validated_head": null,
+  "objective": "Prepare four-model OpenCode Go Foundry readiness without overlapping active launcher/governance owners.",
+  "in_scope": [
+    "executor profile registry",
+    "state provenance schema",
+    "repo-profile current observations",
+    "hermetic readiness tests",
+    "readiness/activation contract"
+  ],
+  "out_of_scope": [
+    "launcher/test_launcher co-edit",
+    "PR280-owned canonical governance edits",
+    "live opencode allowlist widening",
+    "Forge/Mage master mutation",
+    "Rules semantics",
+    "Production Provider",
+    "Architecture Freeze"
+  ],
+  "ownership": "WSR27_MULTIMODEL_FOUNDRY_READINESS",
+  "dependencies": [
+    "sbmax/full-completion must release or integrate launcher.py/test_launcher.py",
+    "PR #280 governance overlap must be serialized"
+  ],
+  "hard_gates": [
+    "no partial live allowlist widening",
+    "no automatic model fallback",
+    "highest-supported native effort only",
+    "authenticated DeepSeek MAX smoke before runtime-default switch"
+  ],
+  "forbidden_shortcuts": [
+    "silent fallback",
+    "lower-effort substitution",
+    "fork-master policy copy",
+    "co-edit active owner surfaces",
+    "secret inspection"
+  ],
+  "validated_gates": [
+    "fresh Lab/Forge/Mage default-branch identities read",
+    "fork roots verified without project-local OpenCode policy files",
+    "four selected model/native-effort pairs externally verified"
+  ],
+  "failed_gates": [],
+  "invalidated_gates": [],
+  "do_not_rerun": [
+    "fresh repository inventory unless relevant drift occurs"
+  ],
+  "current_failure": "Runtime activation cannot proceed without violating active launcher/governance ownership.",
+  "failure_class": "INFRASTRUCTURE_DEFECT",
+  "current_hypothesis": "A serial integration after active owner release is the smallest safe activation path.",
+  "files_modified": [
+    ".foundry/executor-profiles.json",
+    ".foundry/WORKSTREAM_STATE.schema.json",
+    ".foundry/repo-profiles/cpl.json",
+    ".foundry/repo-profiles/forge.json",
+    ".foundry/repo-profiles/mage.json",
+    "tests/foundry/test_executor_profiles.py",
+    "docs/foundry-multimodel-readiness-20260928/WORKSTREAM_CONTRACT.md",
+    "docs/foundry-multimodel-readiness-20260928/READINESS.md",
+    "docs/foundry-multimodel-readiness-20260928/WORKSTREAM_STATE.json"
+  ],
+  "tests_run": [
+    "NOT_RUN_LOCALLY_GITHUB_CONNECTOR_ONLY; hermetic test added for CI"
+  ],
+  "evidence": [
+    "GitHub default branch reads 2026-09-28",
+    "GitHub PR #280 ownership text and changed-file inventory",
+    "OpenCode Go model capability verification 2026-09-28"
+  ],
+  "artifacts": [
+    ".foundry/executor-profiles.json",
+    "docs/foundry-multimodel-readiness-20260928/READINESS.md"
+  ],
+  "remaining_scope": [
+    "runtime launcher/config activation after ownership release",
+    "authenticated DeepSeek MAX bounded smoke",
+    "project-native model benchmark/routing confirmation"
+  ],
+  "status": "BLOCKED",
+  "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
+  "current_reasoning_tier": "max",
+  "execution_profile": null,
+  "executor_model": null,
+  "native_variant": null,
+  "variant_resolution": null,
+  "executor_handoff_from": null,
+  "executor_handoff_reason": null,
+  "hypotheses_rejected": [
+    "Widen opencode.json now — rejected because current launcher enforces exact-two allowlist and would fail closed.",
+    "Add AGENTS/opencode files to Forge/Mage master — rejected because canonical policy injection supersedes fork-root copies and mirror masters must remain clean."
+  ],
+  "technical_decisions": [
+    "Prepare runtime-neutral registry/state/tests now; serialize launcher/config activation behind current ownership."
+  ],
+  "authority_gates": [],
+  "first_failing_boundary": "tools/foundry/launcher.py exact-two-executor validation + active ownership",
+  "root_cause_class": "INFRASTRUCTURE_DEFECT",
+  "next_action": "Wait for active launcher/governance ownership release, then integrate four-profile runtime atomically.",
+  "exact_next_action": "After sbmax/full-completion and PR #280 release/merge their overlapping surfaces, re-read main/owner state and implement launcher.py + test_launcher.py + opencode.json + canonical routing docs as one atomic four-profile activation, then run hermetic cross-repo tests and an authenticated DeepSeek V4.1 Flash MAX smoke."
+}
