@@ -231,9 +231,7 @@ def test_nested_fixture_cannot_escape_parent_candidate_or_head() -> None:
         ("schema_version", "wrong/1"),
     ],
 )
-def test_nested_nonpositive_or_incomplete_fixture_cannot_promote(
-    field: str, value: str
-) -> None:
+def test_nested_nonpositive_or_incomplete_fixture_cannot_promote(field: str, value: str) -> None:
     child = _fixture_receipt(**{field: value})
     parent = _good_receipt(positive_fixtures=[child])
     assert R.positive_fixture_credit(
@@ -246,12 +244,15 @@ def test_nested_fixture_in_failed_or_tampered_parent_cannot_promote() -> None:
     failed_parent = _good_receipt(positive_fixtures=[child], failed=1, passed=33)
     tampered_parent = _good_receipt(positive_fixtures=[child])
     tampered_parent["tests"] = 999
-    assert R.positive_fixture_credit(
-        [failed_parent, tampered_parent],
-        candidate="xmage",
-        expected_commit="d" * 40,
-        denominator=_DENOM,
-    ) == {}
+    assert (
+        R.positive_fixture_credit(
+            [failed_parent, tampered_parent],
+            candidate="xmage",
+            expected_commit="d" * 40,
+            denominator=_DENOM,
+        )
+        == {}
+    )
 
 
 def test_collect_receipts_plus_nested_credit_is_end_to_end(tmp_path: Path) -> None:
