@@ -16,6 +16,7 @@ from commander_lab.models import (
     RulesEngineAvailability,
     RulesGameRequest,
 )
+from commander_lab.qualification.current_boundary.full107 import validate_principal_scoping
 
 ROOT = Path(__file__).resolve().parents[1]
 
