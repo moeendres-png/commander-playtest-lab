@@ -447,7 +447,6 @@ def write(name: str, payload: Any) -> None:
     )
     print(f"wrote {name}")
 
-
 PB03_QUALIFICATION_SEED = 424242
 
 
