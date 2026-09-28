@@ -8,7 +8,6 @@ from pathlib import Path
 
 from commander_lab.engine.rules.base import RulesEngineProtocolError
 from commander_lab.engine.rules.bridge import ExternalRulesAdapter
-from commander_lab.qualification.current_boundary.full107 import validate_principal_scoping
 from commander_lab.models import (
     EngineMessageType,
     GameState,
@@ -160,9 +159,7 @@ def main() -> None:
             if not isinstance(engine_id, str) or not engine_id:
                 raise SystemExit(f"B4-A live engine principal id missing for {principal}")
             if state.players[expected_seat].player_id != engine_id:
-                raise SystemExit(
-                    f"B4-A observer binding does not match state row for {principal}"
-                )
+                raise SystemExit(f"B4-A observer binding does not match state row for {principal}")
 
             if state.game_id != game_id:
                 raise SystemExit("B4-A state returned wrong game_id")
