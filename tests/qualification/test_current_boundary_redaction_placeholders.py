@@ -227,10 +227,47 @@ def test_attribution_rule_is_stated() -> None:
 # --- against the committed artifacts --------------------------------------- #
 
 
-def test_committed_xmage_evidence_is_a_demonstrated_defect() -> None:
+def test_committed_xmage_evidence_is_principal_scoped_after_remediation() -> None:
+    """The committed XMage evidence is now CREDIBLE, which is the real regression guard.
+
+    This test previously asserted the opposite: that the committed evidence showed
+    one shared view attributed to an engine defect. That was true before PR #283 and
+    is false now, because #283 was merged and a fresh run against the merged bridge
+    returns four genuinely distinct principal views with no findings.
+
+    Leaving the old assertion would have pinned a FIXED defect as a permanent
+    property and failed every future run for the right reason. Rewriting it to the
+    current truth keeps the property that actually matters: the committed evidence
+    must be re-validated by the same validator, and it must come out scoped. If a
+    future regression reintroduced a shared view, this fails again.
+    """
     document = json.loads((OUT / "HIDDEN_INFO_XMAGE.json").read_text(encoding="utf-8"))
     result = validate_principal_scoping(document["principal_observations"], requested_seats=SEATS)
-    assert result["distinct_state_views"] == 1, "XMage returns one shared view"
+    assert result["distinct_state_views"] == 4, (
+        "the merged #283 bridge must return four genuinely distinct principal views"
+    )
+    assert result["attribution"] == "NONE", result["findings"]
+    assert result["credible_as_principal_scoped_evidence"] is True
+    assert result["verdict"] == "PRINCIPAL_SCOPED"
+
+    # And the persisted verdict must agree with the re-validated one, so the
+    # artifact cannot claim credibility the observations do not support.
+    assert document["principal_observations_credible"] is True
+
+
+def test_a_shared_view_would_still_be_detected_if_it_recurred() -> None:
+    """The detector itself is unchanged, so a regression is still caught.
+
+    Rewriting the assertion above must not have weakened the check. This feeds the
+    exact historical leak shape, one shared payload for four principals, and
+    requires the same demonstrated verdict the pre-#283 evidence carried.
+    """
+    # The historical leak shape: ONE payload with real hand content, delivered to
+    # every principal. No observer is named, so nothing is bound.
+    shared = _observation(0, redact=False)
+    observations = {seat: json.loads(json.dumps(shared)) for seat in SEATS}
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 1
     assert result["attribution"] == "ENGINE_CANDIDATE_DEFECT"
 
 
