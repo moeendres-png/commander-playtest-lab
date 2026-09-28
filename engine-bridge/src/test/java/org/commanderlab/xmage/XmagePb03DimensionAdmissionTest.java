@@ -132,9 +132,9 @@ class XmagePb03DimensionAdmissionTest {
         XmageFullGameElimExecutionTest.characterizeElimBlocker(
                 "WS05-MP-ELIM-OWNED-3", "pb03-admit-elim-owned-3", "P2", 3);
         XmageFullGameElimExecutionTest.characterizeElimBlocker(
-                "WS05-MP-ELIM-PRIO-3", "pb03-admit-elim-prio-3", "P3", 3);
+                "WS05-MP-ELIM-PRIO-3", "pb03-admit-elim-prio-3", "P2", 3);
         XmageFullGameElimExecutionTest.characterizeElimBlocker(
-                "WS05-MP-ELIM-TURN-3", "pb03-admit-elim-turn-3", "P3", 3);
+                "WS05-MP-ELIM-TURN-3", "pb03-admit-elim-turn-3", "P2", 3);
         XmageFullGameElimExecutionTest.characterizeElimBlocker(
                 "WS05-MP-ELIM-5", "pb03-admit-elim-5", "P3", 5);
     }
