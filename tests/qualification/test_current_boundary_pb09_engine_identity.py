@@ -98,3 +98,126 @@ def test_readiness_records_pb09_as_a_freeze_blocker() -> None:
     assert any("PB-09" in blocker for blocker in blockers)
     # And it must not claim freeze eligibility.
     assert document["freeze_eligibility"]["freeze_eligible"] is False
+
+
+# --- the engine-equivalence proof, which is what actually resolves PB-09 ----- #
+
+
+def test_engine_equivalence_accepts_a_harness_only_descendant() -> None:
+    """A descendant that adds only harness and evidence executes the same engine."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import engine_tree_equivalence
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        for module in ("forge-core", "forge-game"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/Engine.java").write_text("class Engine {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "fork head"],
+            cwd=repo,
+            check=True,
+        )
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        # Harness-only change: a test class and an evidence packet.
+        (repo / "forge-core/src/test/java").mkdir(parents=True)
+        (repo / "forge-core/src/test/java/SuiteTest.java").write_text("class SuiteTest {}\n")
+        (repo / "forge-core/wsr20-full107").mkdir(parents=True)
+        (repo / "forge-core/wsr20-full107/RESULTS.json").write_text("{}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.email=t@t",
+                "-c",
+                "user.name=t",
+                "commit",
+                "-q",
+                "-m",
+                "harness only",
+            ],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+
+        equivalence = engine_tree_equivalence(repo, head, tip)
+        assert equivalence["engine_equivalent"] is True
+        assert equivalence["differing_modules"] == []
+
+
+def test_engine_equivalence_rejects_an_engine_change() -> None:
+    """A descendant that touches engine code must never be credited."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        for module in ("forge-core", "forge-game"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/Engine.java").write_text("class Engine {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "fork head"],
+            cwd=repo,
+            check=True,
+        )
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        # Engine change: this is a different engine, not a harness addition.
+        (repo / "forge-core/src/main/java/Engine.java").write_text("class Engine { int x; }\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.email=t@t",
+                "-c",
+                "user.name=t",
+                "commit",
+                "-q",
+                "-m",
+                "engine change",
+            ],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+
+        with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+            verify_engine_identity(repo, head, tip, recorded_label="forge")
+
+
+def test_real_forge_descendant_is_engine_equivalent() -> None:
+    """The measured fact PB-09 turns on, re-proven against the real repository.
+
+    Between the Commander-Lab fork head and the WSR20/WSR24 tip the only
+    differences are one added test class and the wsr20-full107 harness/evidence
+    directory. Every engine module's main-source tree is byte-identical, which is
+    why the suite can execute at the descendant and still be evidence about the
+    fork head.
+    """
+    forge = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+    if not (forge / ".git").exists():
+        pytest.skip("the Forge reference checkout is not present in this environment")
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    proof = verify_engine_identity(forge, FORK, TIP, recorded_label="forge native suite")
+    assert proof["justification"] == "ENGINE_MAIN_SOURCE_TREES_IDENTICAL"
+    assert proof["differing_modules"] == []
+    assert len(proof["modules"]) == 7

@@ -241,14 +241,24 @@ def run_native_suite(
     """
     receipt_mod.require_clean_runner(runner)
     spec = NATIVE_SUITE_BINDING[candidate]
-    # Resolve the executing engine head from the suite's own checkout and refuse
-    # to proceed when it is not the recorded candidate. This is what surfaced the
-    # ef958ee9-recorded / 18bba95a-executed divergence.
+    # Resolve the executing engine head from the suite's own checkout. A suite
+    # must execute at the descendant that actually contains its test classes, so
+    # exact-commit equality is not the requirement; what must hold is that the
+    # engine is the same engine. That is re-proven from the engine's main-source
+    # trees on every run and fails closed if any module differs. Resolving this
+    # live rather than asserting it is what surfaced the divergence originally.
     actual_engine_commit = git("rev-parse", "HEAD", cwd=spec["root"])
-    receipt_mod.verify_candidate_identity(
+    engine_equivalence = receipt_mod.verify_engine_identity(
+        spec["root"],
         recorded_commit=spec["expected_engine_commit"],
         actual_commit=actual_engine_commit,
         recorded_label=f"native suite {candidate}:{group}",
+    )
+    print(
+        f"engine identity {candidate}:{group}: "
+        f"{engine_equivalence['justification']} "
+        f"(recorded {spec['expected_engine_commit'][:12]}, "
+        f"executing {actual_engine_commit[:12]})"
     )
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
@@ -272,6 +282,8 @@ def run_native_suite(
         candidate_repository=spec.get("repository", "UNCONFIGURED"),
         candidate_commit=spec["expected_engine_commit"],
         candidate_tree=spec.get("engine_tree", "UNCONFIGURED"),
+        executed_commit=actual_engine_commit,
+        engine_identity_proof=engine_equivalence,
         build_identity=json.dumps(spec.get("build_identity", {}), sort_keys=True),
         started_utc=started,
         ended_utc=receipt_mod._now(),

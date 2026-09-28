@@ -227,6 +227,11 @@ class NativeSuiteReceipt:
     runner: RunnerIdentity
     classes: tuple[str, ...]
     positive_fixtures: tuple[dict[str, Any], ...] = ()
+    # What actually executed, and the proof that the engine was the same engine.
+    # A receipt naming only candidate_commit could attribute a result to a commit
+    # that never ran, which is the defect this pair exists to prevent.
+    executed_commit: str = ""
+    engine_identity_proof: dict[str, Any] = field(default_factory=dict)
 
     def to_document(self) -> dict[str, Any]:
         doc = {
@@ -237,6 +242,8 @@ class NativeSuiteReceipt:
             "candidate_repository": self.candidate_repository,
             "candidate_commit": self.candidate_commit,
             "candidate_tree": self.candidate_tree,
+            "executed_commit": self.executed_commit,
+            "engine_identity_proof": self.engine_identity_proof,
             "build_identity": self.build_identity,
             "started_utc": self.started_utc,
             "ended_utc": self.ended_utc,
@@ -546,6 +553,7 @@ __all__ = [
     "capture_runner_identity",
     "classify_seed_binding",
     "collect_receipts",
+    "engine_tree_equivalence",
     "environment_identity",
     "load_native_receipt",
     "native_suite_credit",
@@ -554,5 +562,122 @@ __all__ = [
     "positive_fixture_credit",
     "require_clean_runner",
     "verify_candidate_identity",
+    "verify_engine_identity",
     "verify_runner_unchanged",
 ]
+
+
+# The Forge engine's main-source module roots. The engine under test is exactly
+# these trees; the bound native suite's test classes and the wsr20-full107
+# harness are not engine.
+FORGE_ENGINE_MODULE_ROOTS: tuple[str, ...] = (
+    "forge-core",
+    "forge-game",
+    "forge-ai",
+    "forge-gui",
+    "forge-gui-desktop",
+    "forge-protocol2-bridge",
+    "adventure-editor",
+)
+
+
+def engine_tree_equivalence(repo: Path, recorded_commit: str, actual_commit: str) -> dict[str, Any]:
+    """Compare the engine's main-source trees at two commits.
+
+    Identity of a commit is not the question when a suite has to execute at a
+    descendant of the recorded candidate. The real question is whether the engine
+    that executed is the engine the evidence is about.
+
+    For Forge the answer is measured, not assumed. Between the fork head
+    ``ef958ee9`` and the WSR20/WSR24 tip ``18bba95a`` the only differences are one
+    added test class and the ``wsr20-full107`` harness/evidence directory; every
+    engine module's main-source tree is byte-identical. So the descendant executes
+    the same engine, and crediting the fork head is correct.
+
+    That equivalence is a property that can rot, so it is re-proven here on every
+    run and fails closed if any engine module's main-source tree differs.
+    """
+    import subprocess
+
+    def tree_at(commit: str, module: str) -> str:
+        # `--verify` is required: plain `git rev-parse` echoes an unknown ref
+        # back verbatim instead of failing, which would compare the same
+        # non-existent path in both commits and report the engine as identical.
+        completed = subprocess.run(
+            [
+                "git",
+                "rev-parse",
+                "--verify",
+                "--quiet",
+                f"{commit}:{module}/src/main/java",
+            ],
+            cwd=str(repo),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        value = completed.stdout.strip()
+        return value if len(value) == 40 and all(c in "0123456789abcdef" for c in value) else ""
+
+    modules: dict[str, dict[str, Any]] = {}
+    differing: list[str] = []
+    # A module present in one commit but not the other is a structural change to
+    # the engine's module layout, so it fails closed rather than being skipped.
+    one_sided: list[str] = []
+    for module in FORGE_ENGINE_MODULE_ROOTS:
+        recorded_tree = tree_at(recorded_commit, module)
+        actual_tree = tree_at(actual_commit, module)
+        if recorded_tree and actual_tree:
+            equal = recorded_tree == actual_tree
+            modules[module] = {
+                "recorded_tree": recorded_tree,
+                "actual_tree": actual_tree,
+                "identical": equal,
+            }
+            if not equal:
+                differing.append(module)
+        elif recorded_tree != actual_tree:
+            one_sided.append(module)
+    # An empty comparison proves nothing, so it is never equivalent.
+    return {
+        "engine_equivalent": bool(modules) and not differing and not one_sided,
+        "modules": modules,
+        "differing_modules": differing,
+        "one_sided_modules": one_sided,
+    }
+
+
+def verify_engine_identity(
+    repo: Path, recorded_commit: str, actual_commit: str, *, recorded_label: str
+) -> dict[str, Any]:
+    """Allow a commit difference only when the engine itself is provably identical.
+
+    A suite must execute at the descendant that actually contains its test classes,
+    so exact-commit equality is neither achievable nor the right requirement. What
+    must hold is that the engine is the same engine. This returns the proof, and
+    raises when the difference cannot be justified.
+    """
+    if recorded_commit == actual_commit:
+        return {
+            "engine_equivalent": True,
+            "justification": "EXACT_COMMIT",
+            "recorded_commit": recorded_commit,
+            "actual_commit": actual_commit,
+        }
+    equivalence = engine_tree_equivalence(repo, recorded_commit, actual_commit)
+    if not equivalence["engine_equivalent"]:
+        raise ReceiptError(
+            f"CANDIDATE_IDENTITY_DIVERGENCE: {recorded_label} records "
+            f"{recorded_commit[:12]} but executes at {actual_commit[:12]}, and the engine "
+            f"is not provably the same: differing={equivalence['differing_modules']} "
+            f"one_sided={equivalence['one_sided_modules']} "
+            f"compared={len(equivalence['modules'])}. No credit."
+        )
+    return {
+        **equivalence,
+        "justification": "ENGINE_MAIN_SOURCE_TREES_IDENTICAL",
+        "recorded_commit": recorded_commit,
+        "actual_commit": actual_commit,
+        "detail": "the commits differ only outside the engine's main sources, so the "
+        "engine that executed is the engine the evidence is about",
+    }

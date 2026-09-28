@@ -76,7 +76,12 @@ def test_native_suite_executor_is_on_the_execution_path() -> None:
     assert "require_clean_runner" in source
     assert "verify_runner_unchanged" in source
     # And it must check the recorded candidate against the executing one.
-    assert "verify_candidate_identity" in source
+    # The gate must PROVE the engine is the same engine, not merely assert the
+    # commit matches, because the suite has to execute at a descendant that
+    # contains its test classes.
+    assert "verify_engine_identity" in source
+    assert "engine_identity_proof" in source
+    assert "executed_commit" in source
 
 
 def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
