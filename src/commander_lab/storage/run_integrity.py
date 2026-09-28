@@ -177,9 +177,14 @@ def create_run_manifest(
 def verify_run(run_directory: str | Path) -> RunVerification:
     checked = 0
     try:
-        root = Path(run_directory).resolve()
-        manifest_path = root / _MANIFEST_NAME
         try:
+            try:
+                root = Path(run_directory).resolve(strict=True)
+            except RuntimeError as exc:
+                # Python 3.12 reports link loops as RuntimeError. Limit this
+                # translation to resolution so unrelated programming errors escape.
+                raise ValueError("run path cannot be resolved") from exc
+            manifest_path = root / _MANIFEST_NAME
             manifest_stat = manifest_path.lstat()
         except FileNotFoundError:
             return RunVerification(False, "incomplete", ("run-manifest.json is missing",), 0)

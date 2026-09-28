@@ -33,3 +33,9 @@ No real run or external directory is modified; only temporary fixtures are used.
 Checkpoint 1: failing-before tests captured; repair pending.
 ARCHITECTURE_FREEZE = NOT CLAIMED
 PRODUCTION_PROVIDER = NOT SELECTED
+
+Checkpoint 2: strict root resolution implemented; Python 3.12 loop RuntimeError
+is translated only around Path.resolve, not around unrelated verification code.
+Focused new tests: 4 passed. Storage regression before adding the unrelated-error
+control: 53 passed, 5 platform skips. Affected Ruff/format/strict mypy pass.
+Clean-commit integration validation follows this checkpoint.

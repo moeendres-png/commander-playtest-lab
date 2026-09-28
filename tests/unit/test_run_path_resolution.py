@@ -6,7 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.storage.run_integrity import verify_run
+from commander_lab.storage import run_integrity
+from commander_lab.storage.run_integrity import create_run_manifest, verify_run
 
 
 @pytest.fixture
@@ -38,3 +39,16 @@ def test_ordinary_missing_run_remains_incomplete(tmp_path: Path) -> None:
     result = verify_run(tmp_path / "missing")
     assert not result.valid
     assert result.status == "incomplete"
+
+
+def test_unrelated_runtime_error_is_not_hidden(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    create_run_manifest(tmp_path, run_id="control", status="completed", metadata={})
+
+    def broken_inventory(root: Path) -> dict[str, Path]:
+        raise RuntimeError("internal inventory failure")
+
+    monkeypatch.setattr(run_integrity, "_artifact_paths", broken_inventory)
+    with pytest.raises(RuntimeError, match="internal inventory failure"):
+        verify_run(tmp_path)
