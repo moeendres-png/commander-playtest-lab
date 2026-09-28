@@ -52,8 +52,8 @@
   "do_not_rerun": [
     "fresh repository inventory unless relevant drift occurs"
   ],
-  "current_failure": "Runtime activation cannot proceed without violating active launcher/governance ownership.",
-  "failure_class": "INFRASTRUCTURE_DEFECT",
+  "current_failure": "Runtime four-profile activation is intentionally blocked by active launcher/governance ownership; this is an ownership gate, not a demonstrated technical defect.",
+  "failure_class": "NONE",
   "current_hypothesis": "A serial integration after active owner release is the smallest safe activation path.",
   "files_modified": [
     ".foundry/executor-profiles.json",
@@ -100,8 +100,8 @@
     "Prepare runtime-neutral registry/state/tests now; serialize launcher/config activation behind current ownership."
   ],
   "authority_gates": [],
-  "first_failing_boundary": "tools/foundry/launcher.py exact-two-executor validation + active ownership",
-  "root_cause_class": "INFRASTRUCTURE_DEFECT",
+  "first_failing_boundary": "OWNERSHIP_GATE: tools/foundry/launcher.py + tests/foundry/test_launcher.py and overlapping canonical governance surfaces",
+  "root_cause_class": "NONE",
   "next_action": "Wait for active launcher/governance ownership release, then integrate four-profile runtime atomically.",
   "exact_next_action": "After sbmax/full-completion and PR #280 release/merge their overlapping surfaces, re-read main/owner state and implement launcher.py + test_launcher.py + opencode.json + canonical routing docs as one atomic four-profile activation, then run hermetic cross-repo tests and an authenticated DeepSeek V4.1 Flash MAX smoke."
 }
