@@ -3,7 +3,7 @@
   "candidate": "xmage",
   "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
   "candidate_repository": "https://github.com/moeendres-png/mage",
-  "candidate_tree": "5694d919bf13ea0c9963180f716a9b3aa4f4d6fd",
+  "candidate_tree": "c90366880cffb52b048a625a179bca1bc3c79dc5",
   "classes": [
     "XmageFull107ResidualRequalificationTest",
     "XmageDigestCreditTest",
@@ -16,9 +16,9 @@
     "XmageFullGameDecisionExecutionTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=XmageFull107ResidualRequalificationTest,XmageDigestCreditTest,XmageFullGameWs05MulliganTest,XmageFullGameTaxExecutionTest,XmageFullGamePartnerExecutionTest,XmageFullGameCard02ExecutionTest,XmageFullGameMicroExecutionTest,XmageFullGameTrigExecutionTest,XmageFullGameDecisionExecutionTest",
-  "ended_utc": "2026-09-28T05:24:18+00:00",
+  "ended_utc": "2026-09-28T06:17:42+00:00",
   "engine_identity_proof": {
-    "actual_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+    "actual_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
     "containing_repository": "/home/moeen/code/wsr22-successor-current-boundary",
     "detail": "the executing suite root is a module of the containing repository, so its HEAD identifies that repository, not the engine. The engine identity is the provider's own reported commit, verified fail-closed at handshake by AF00. No checkout identity is asserted for this candidate.",
     "engine_equivalent": null,
@@ -30,36 +30,36 @@
     "python": "3.12.14"
   },
   "errors": 0,
-  "executed_commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+  "executed_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
   "failed": 0,
   "group": "direct",
   "passed": 34,
   "positive_fixtures": [],
-  "receipt_digest": "8e02e267932d71665c3fb57a02187a82127c4a46bbfa3b5a3764bce73cf4f5a0",
+  "receipt_digest": "1a5b1bc56f47fdd4a0bc2f845b60b857b106ca04109fa0363939e7c5ebb4f222",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 25.16 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTrigExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m14\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.846 s -- in org.commanderlab.xmage.\u001b[1mXmageDigestCreditTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.203 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTaxExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m1\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameCard02ExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.141 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameMicroExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m6\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.529 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGamePartnerExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m3\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.151 s -- in org.commanderlab.xmage.\u001b[1mXmageFull107ResidualRequalificationTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.257 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameDecisionExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.069 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameWs05MulliganTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.125 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTrigExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m14\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.612 s -- in org.commanderlab.xmage.\u001b[1mXmageDigestCreditTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.167 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTaxExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m1\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.058 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameCard02ExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.148 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameMicroExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m6\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.217 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGamePartnerExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m3\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in org.commanderlab.xmage.\u001b[1mXmageFull107ResidualRequalificationTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.189 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameDecisionExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameWs05MulliganTest\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 34, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
     "branch": "wsr22-successor/current-boundary-freeze-20260927",
-    "built_utc": "2026-09-28T05:23:48+00:00",
-    "commit": "4a364e0c22217b591ed820cc4221c5bed58482d1",
+    "built_utc": "2026-09-28T06:17:34+00:00",
+    "commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
       "config/rules_engines.json": "85c4e10897b4443c57a4bbbe9cfca94b090372724e507af081133f1e696c00d2",
       "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
-      "scripts/assemble_current_boundary_evidence.py": "fd91d9ce31db5fb89cfb6b73263c537a71eda77298a193ab00a533b19c79c7a0",
-      "scripts/run_current_boundary_qualification.py": "69fd867d35c633c153da778aacc7cb0c0c5b6636834956d07148fe9a69b6802b",
+      "scripts/assemble_current_boundary_evidence.py": "7665d674486d7a280f05e4981993a0aa9476276b7a71fd5e58bf6848171fee18",
+      "scripts/run_current_boundary_qualification.py": "b943304cd41dd2656cb3a625d3ff5999e18c03c22acf4508d5bb401a2b455948",
       "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
       "src/commander_lab/engine/rules/base.py": "e387ad46293bdf8c48976abc02b02649bd6c3b53e15f8b45a0b4f133755af3b0",
       "src/commander_lab/engine/rules/bridge.py": "8ca8cd8eb1432764167754b317a9cafd5e5f739fed4ef6df950ecd5d8acc8931",
@@ -81,8 +81,8 @@
       "src/commander_lab/qualification/current_boundary/game_driver.py": "9cae03067de019c8963fb17bc5ad7504d7681989b5d7bc2a14ceefa61f941628",
       "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
       "src/commander_lab/qualification/current_boundary/materialization.py": "246b016422f5f0302ae4effa215f1968dc25644a47d5fcf88c468315f63f2114",
-      "src/commander_lab/qualification/current_boundary/receipts.py": "a10b1edb072b17b7839b24d60467d13dfdf51f5b9ce59ab1e55fd004ea6ecee7",
-      "src/commander_lab/qualification/current_boundary/semantic.py": "692c31a8a1884f3bdf99b7994f105f549f08bd14296844625eeeb2bb82060f7e",
+      "src/commander_lab/qualification/current_boundary/receipts.py": "cef7786ed1ac0e8dbfd9ce27997a415a0267cdec929b20421a3e8850fb17d592",
+      "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
       "src/commander_lab/qualification/current_boundary/source_lock.py": "80bb26b1872472589c20d9903a653f48340d0f947677e3478417116721cb16b0"
     },
     "repository": "https://github.com/moeendres-png/commander-playtest-lab.git",
@@ -90,11 +90,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "5694d919bf13ea0c9963180f716a9b3aa4f4d6fd"
+    "tree": "c90366880cffb52b048a625a179bca1bc3c79dc5"
   },
-  "runner_digest": "849606046e1db693243e52759637f6c0dc4472f32edc673da839b7e334ea3e8d",
+  "runner_digest": "e66dc324c9f41e8ed20ef9aec22c90a255b6e7e9f7dcfde7c279fbe873f70ab4",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-28T05:23:48+00:00",
+  "started_utc": "2026-09-28T06:17:34+00:00",
   "tests": 34
 }

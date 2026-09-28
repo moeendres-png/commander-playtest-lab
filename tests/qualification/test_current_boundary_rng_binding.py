@@ -49,10 +49,13 @@ def test_rng_artifact_records_a_derived_binding() -> None:
         assert "requested_seed" in binding, candidate
         assert "acknowledged_seed" in binding, candidate
         assert "control" in binding or "classification" in binding, candidate
-        # A run that acknowledged nothing must carry no credit.
+        assert "controlled" in binding, candidate
+        # A run that acknowledged nothing must carry no credit and must say so
+        # in the classification the receipt schema uses.
         if binding.get("acknowledged_seed") is None:
             assert binding.get("rng_credit") is False, candidate
-            assert binding.get("control") == "UNCONTROLLED_ENGINE_RNG", candidate
+            assert binding.get("controlled") is False, candidate
+            assert binding.get("classification") == "UNCONTROLLED_ENGINE_RNG", candidate
 
 
 def test_runner_captures_the_binding_from_the_driven_game() -> None:
@@ -65,3 +68,5 @@ def test_uncontrolled_outcome_is_explicit() -> None:
     source = RUNNER.read_text(encoding="utf-8")
     assert "UNCONTROLLED_ENGINE_RNG" in source
     assert '"rng_credit": False' in source
+    # The uncontrolled fallback must also be explicit about being uncontrolled.
+    assert '"detail": "no engine acknowledgement was observed for this run"' in source
