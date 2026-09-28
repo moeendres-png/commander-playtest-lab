@@ -4,8 +4,8 @@ worktree: /home/moeen/code/csn-final-bakeoff/space-bunny/lab
 branch: sbmax/full-completion
 audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
 audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
-state_written_against_head: 87f4882054411839a684f4c7b02dee67030db2f8
-validated_head: 87f4882054411839a684f4c7b02dee67030db2f8
+state_written_against_head: 2e69cc585c39391f57de0d1be7fe982f3a03e329
+validated_head: 2e69cc585c39391f57de0d1be7fe982f3a03e329
 objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification, remediation,
   freeze readiness, production implementation, real full games, replay, hidden information, multiplayer,
   batch execution, and operational completion.'
@@ -89,6 +89,10 @@ files_modified:
 - tests/qualification/test_current_boundary_assembler_integrity.py
 - qualification/SHA256SUMS
 - WS17_SHA256SUMS
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
+- engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameDecisionSurfaceTest.java
+- docs/pb09_pinned_forge_execution_20260928/RECEIPT.md
+- docs/pb09_pinned_forge_execution_20260928/RECEIPT.json
 tests_run:
 - 'pytest -q (full suite) at 139e5863: 1905 passed / 5 skipped / 0 failed.'
 - 'pytest -q tests/qualification: 254 passed / 2 skipped.'
@@ -180,9 +184,21 @@ evidence:
   outside the enumerated set. Six remain unobserved by this campaign: amount, announce_x, multi_amount,
   pile, replacement_effect, trigger_order.'
 - 'DIRECTLY_VERIFIED (bridge): 318 tests, 0 failures, 1 skipped after the AF04 capability change.'
+- 'DIRECTLY_VERIFIED (PB-09, pinned upstream Forge executes): the pinned candidate a37a865a with the pinned
+  additive bridge 4753bb7c builds offline and passes the existing qualified mechanism tests/integration/test_forge_bridge_h4f_live.py
+  (38.79s), which independently pins FORGE_ENGINE_SHA=a37a865a and asserts the bridge reports that commit.
+  Nine-phase live 4P protocol including an external decision, principal-scoped hidden information with
+  every opponent hand fully hidden, and fail-closed rejection of a fabricated legal_action_id.'
+- 'DIRECTLY_VERIFIED (PB-09, additive proof): the diff from a37a865a to 4753bb7c touches only forge-protocol2-bridge/**
+  and pom.xml; zero forge-core/forge-game/forge-ai/forge-gui source files changed, so the executed Rules
+  Core is the pin unmodified.'
+- 'DIRECTLY_VERIFIED (PB-09, still open): engine_commit_source is env:FORGE_ENGINE_SHA, so the reported
+  commit is operator-supplied rather than build-derived. PB-05 is not closed.'
 artifacts:
-- 'qualification/final-current-boundary-20260927/ (executed current-boundary evidence: FULL107, AF01,
-  AF03, cardinality, hidden-info, RNG/replay, actual-card, manifest, receipts)'
+- 'qualification/final-current-boundary-20260927/ (first executed current-boundary evidence on this lineage:
+  FULL107 107/107, AF01, AF03, cardinality, hidden-info, RNG/replay, actual-card, receipts)'
+- docs/pb09_pinned_forge_execution_20260928/RECEIPT.md (pinned upstream Forge execution evidence)
+- docs/pb09_pinned_forge_execution_20260928/RECEIPT.json (identity, artifact hashes, live probe)
 - docs/final_completion_20260928/RECEIPT.md (real-deck evidence receipt + reproduction)
 - docs/final_completion_20260928/RECEIPT.json
 - docs/final_completion_20260928/EVIDENCE_SUMMARY.json
@@ -346,32 +362,31 @@ current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the t
   name specific fixture objects, in which case a Coordinator ruling on mechanism-equivalent evidence is
   required before any of the 14 can close.'
 remaining_scope:
-- 'PB-03 transport seam: expose the native state-restoration path as a full-game lane protocol message
-  plus a Lab request model, then execute the 14 engine-supported rows. Their obligations name fixture-specific
-  objects, so a Coordinator ruling on mechanism-equivalent evidence may also be required; that is not
-  assumed here.'
-- 'AF09: the current-boundary runner drives the compat lane, which declares no seed support. Either drive
-  the seed-capable full-game lane, or keep the honest UNCONTROLLED binding and close AF09 on the full-game
-  lane with its own evidence.'
+- Forge 107-row FULL107 column at the pinned candidate. The pinned candidate is now built and proven to
+  execute a live 4P lifecycle, but the denominator has not been re-run at the pin, so no candidate comparison
+  at true identities exists. This is the last substantive item before a provider decision is meaningful.
+- 'PB-05: derive the Forge engine identity from built bytes rather than env:FORGE_ENGINE_SHA, which AF00
+  requires for a build-proven binding.'
+- 'PB-03 transport seam: expose the native state-restoration path as a protocol message plus a Lab request
+  model, then execute the 14 engine-supported rows. Their obligations name fixture-specific objects, so
+  a Coordinator ruling on mechanism-equivalent evidence may also be required.'
 - 'AF07 / PB-07: execute the effective 29-card actual-card corpus; no execution path exists.'
 - 'AF05 / PB-06: per-scenario hidden-information channels; 19 HIDDEN_* rows remain UNKNOWN.'
-- 'PB-08: per-fixture clean-process replay twins across the corpus (a real-deck 4P twin already exists
-  on the full-game lane).'
-- 'PB-09 decision input: re-execute the Forge column at pinned upstream a37a865a with pinned bridge 4753bb7c.
-  A clean pin checkout exists at /home/moeen/code/forge-candidate-h4f; only the classpath manifest is
-  missing on disk and the Lab identity constants are still hardcoded to the fork.'
+- 'PB-08: per-fixture clean-process replay twins across the corpus.'
+- 'AF09: the current-boundary runner drives the compat lane, which declares no seed support, so its Rules
+  RNG is honestly UNCONTROLLED. Close AF09 on the seed-capable full-game lane.'
 - 'Forge full-game lane: none exists; full_game.py hardcodes the xmage lane.'
 - 'chooseRingBearer: an audited parent delegation, a genuinely discretionary Player callback the external
   pilot never sees. Needs a ruling, not a silent change.'
 next_action: 'Forge pin re-execution: build a disposable pinned checkout at 4753bb7c, produce the classpath
   manifest, and execute the Forge column so the comparison rests on the pinned candidate. This is the
   longest remaining pole and the last substantive item before a provider decision.'
-exact_next_action: Create a disposable detached export of moeendres-png/forge at 4753bb7c outside both
-  existing Forge checkouts (which are a foreign unknown-owner surface and the campaign worktree), build
-  forge-protocol2-bridge with -am offline, write forge-protocol2-bridge/target/cp-wsr22.txt, then run
-  tests/integration/test_forge_bridge_h4f_live.py with FORGE_SOURCE_DIR pointed at it. That test already
-  pins FORGE_ENGINE_SHA=a37a865a and asserts the bridge reports it, so it is the existing qualified mechanism
-  for this and needs no new code.
+exact_next_action: 'Re-point the current-boundary Forge execution at the pinned tree that now exists and
+  is proven to build: replace the executor''s Forge identity constant (currently the fork ef958ee9) with
+  the pinned candidate a37a865a, point the workspace at a disposable pinned export, and run scripts/run_current_boundary_qualification.py
+  --candidate forge to produce the 107-row column at the true candidate identity. Note this changes which
+  artifact the executor treats as the Forge candidate, which is one of the two PB-09 resolutions, so record
+  it explicitly as the ''pinned upstream'' resolution being evidenced and leave the selection to the Coordinator.'
 do_not_rerun:
 - Do not re-transplant the WSR22 evidence bundle qualification/final-current-boundary-20260927/*. It is
   WSR22's result artifact, it is stale against this HEAD, and adopting it would present another workstream's
