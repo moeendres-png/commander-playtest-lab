@@ -453,6 +453,53 @@ def native_suite_credit(
 # --------------------------------------------------------------------------- #
 
 
+def _positive_fixture_rows(receipts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Flatten positive-fixture records from verified suite envelopes.
+
+    Production collection returns only digest-verified NativeSuiteReceipt
+    documents. Their nested positive_fixtures are covered by the parent receipt
+    digest, so no circular child->parent digest field is required. Standalone
+    positive-fixture documents remain accepted for focused unit/backward-
+    compatibility callers, but the production assembler does not collect them.
+    """
+    rows: list[dict[str, Any]] = []
+    for doc in receipts:
+        schema = doc.get("schema_version")
+        if schema == POSITIVE_FIXTURE_RECEIPT_SCHEMA:
+            rows.append(doc)
+            continue
+        if schema != NATIVE_SUITE_RECEIPT_SCHEMA:
+            continue
+
+        # Fail closed even if a caller bypassed collect_receipts(): nested
+        # fixture credit is valid only inside an all-green, digest-valid suite.
+        stated = doc.get("receipt_digest")
+        if not isinstance(stated, str) or not stated:
+            continue
+        recomputed = {key: value for key, value in doc.items() if key != "receipt_digest"}
+        if _digest(recomputed) != stated:
+            continue
+        if doc.get("returncode") != 0 or doc.get("failed") or doc.get("errors"):
+            continue
+
+        parent_candidate = doc.get("candidate")
+        parent_commit = doc.get("candidate_commit")
+        nested = doc.get("positive_fixtures")
+        if not isinstance(nested, list):
+            continue
+        for row in nested:
+            if not isinstance(row, dict):
+                continue
+            # The child repeats the identity intentionally. This catches a
+            # stale/misattributed child even though the parent is valid.
+            if row.get("candidate") != parent_candidate:
+                continue
+            if row.get("candidate_commit") != parent_commit:
+                continue
+            rows.append(row)
+    return rows
+
+
 def positive_fixture_credit(
     receipts: list[dict[str, Any]],
     *,
@@ -462,13 +509,14 @@ def positive_fixture_credit(
 ) -> dict[str, list[str]]:
     """Fixture -> test identities, from positive observations only.
 
-    A fixture earns native-test credit only when a positive receipt states the
-    fixture, the test, the candidate head, the obligation exercised, the observed
-    assertion, and PASS. A negative assertion, a bare mention, a stale head or a
-    missing observation yields nothing.
+    In production, positive observations are nested inside a verified
+    NativeSuiteReceipt. The parent digest binds their exact bytes and the child
+    repeats candidate/head identity. A fixture earns credit only when the exact
+    positive-behaviour schema, PASS outcome, nonblank obligation and observed
+    assertion, denominator membership and current candidate head all agree.
     """
     out: dict[str, list[str]] = {}
-    for doc in receipts:
+    for doc in _positive_fixture_rows(receipts):
         if doc.get("schema_version") != POSITIVE_FIXTURE_RECEIPT_SCHEMA:
             continue
         if doc.get("candidate") != candidate:
@@ -477,17 +525,19 @@ def positive_fixture_credit(
             continue
         if doc.get("outcome") != "PASS":
             continue
-        observation = doc.get("observed_assertion")
-        if not observation:
-            # A PASS with no observed assertion is construction/import evidence
-            # at best, never behaviour evidence.
-            continue
         if doc.get("assertion_kind") != "POSITIVE_BEHAVIOUR":
             continue
-        fixture = str(doc.get("fixture_id", ""))
+
+        fixture = str(doc.get("fixture_id", "")).strip()
+        test_identity = str(doc.get("test_identity", "")).strip()
+        obligation = str(doc.get("obligation_exercised", "")).strip()
+        observation = str(doc.get("observed_assertion", "")).strip()
         if fixture not in denominator:
             continue
-        out.setdefault(fixture, []).append(str(doc.get("test_identity", "")))
+        if not test_identity or not obligation or not observation:
+            continue
+
+        out.setdefault(fixture, []).append(test_identity)
     return {fixture: sorted(set(names)) for fixture, names in sorted(out.items())}
 
 
