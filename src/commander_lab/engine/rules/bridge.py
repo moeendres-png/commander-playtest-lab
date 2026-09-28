@@ -551,8 +551,17 @@ class ExternalRulesAdapter(RulesEngineAdapter):
     def start_game(self, game_id: str) -> dict[str, Any]:
         return self._require_client().request(EngineMessageType.START_GAME, {}, game_id=game_id)
 
-    def get_game_state(self, game_id: str) -> GameState:
-        return self.get_state(game_id)
+    def get_game_state(self, game_id: str, *, observer_player_id: str) -> GameState:
+        """Return one authoritative state projection bound to an explicit principal."""
+        observer = observer_player_id.strip()
+        if not observer:
+            raise RulesEngineProtocolError("observer_player_id must be nonblank")
+        result = self._require_client().request(
+            EngineMessageType.GET_GAME_STATE,
+            {"observer_player_id": observer},
+            game_id=game_id,
+        )
+        return GameState.model_validate(result.get("state", result))
 
     def pass_priority(self, game_id: str, *, actor_id: str | None = None) -> GameState:
         result = self._require_client().request(

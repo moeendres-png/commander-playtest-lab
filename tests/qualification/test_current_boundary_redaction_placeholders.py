@@ -51,7 +51,21 @@ def _observation(actor_seat: int, *, redact: bool = True) -> dict:
 
 
 def _correctly_scoped() -> dict[str, dict]:
-    return {seat: _observation(index) for index, seat in enumerate(SEATS)}
+    """Correctly bound observations, naming the principal they were projected for.
+
+    The provider must name the requested observer; an is_actor marker on its own
+    does not establish WHO the observation belongs to, and without that the
+    non-actor seats are not actually known. Naming the observer here is what makes
+    "real content on a known non-actor" a demonstrable defect rather than an
+    unestablished one, which is the property these tests exist to check.
+    """
+    observations: dict[str, dict] = {}
+    for index, seat in enumerate(SEATS):
+        payload = _observation(index)
+        payload["observer_player_id"] = seat
+        payload["observer_seat"] = index
+        observations[seat] = payload
+    return observations
 
 
 def _unmarked_actor() -> dict[str, dict]:
@@ -59,6 +73,20 @@ def _unmarked_actor() -> dict[str, dict]:
     for payload in observations.values():
         for entry in payload["state"]["players"]:
             entry["is_actor"] = False
+    return observations
+
+
+def _envelope_scoped() -> dict[str, dict]:
+    observations = _correctly_scoped()
+    for actor_index, seat in enumerate(SEATS):
+        payload = observations[seat]
+        engine_id = f"engine-{seat}"
+        payload["observer_player_id"] = seat
+        payload["observer_engine_player_id"] = engine_id
+        payload["observer_seat"] = actor_index
+        for index, entry in enumerate(payload["state"]["players"]):
+            entry.pop("is_actor", None)
+            entry["player_id"] = engine_id if index == actor_index else f"op-{index}"
     return observations
 
 
@@ -91,11 +119,40 @@ def test_correct_redaction_is_principal_scoped() -> None:
 
 
 def test_unmarked_actor_is_unestablished_not_defective() -> None:
-    """Content may be the requester's own when the provider says who is asking."""
+    """Content may be the requester's own when no principal binding is available."""
     result = validate_principal_scoping(_unmarked_actor(), requested_seats=SEATS)
     assert result["credible_as_principal_scoped_evidence"] is False
     assert result["attribution"] == "SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT"
     assert result["engine_leak_indicators"] == []
+
+
+def test_exact_observer_envelope_establishes_requester_without_state_schema_change() -> None:
+    result = validate_principal_scoping(_envelope_scoped(), requested_seats=SEATS)
+    assert result["verdict"] == "PRINCIPAL_SCOPED", result["findings"]
+    assert result["observations_with_established_requester"] == list(SEATS)
+    assert result["attribution"] == "NONE"
+
+
+def test_mismatched_observer_envelope_fails_closed() -> None:
+    observations = _envelope_scoped()
+    observations["p1"]["observer_player_id"] = "p2"
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["credible_as_principal_scoped_evidence"] is False
+    assert any(
+        finding["check"] == "observer_binding" and finding.get("seat") == "p1"
+        for finding in result["findings"]
+    )
+
+
+def test_conflicting_actor_marker_cannot_be_hidden_by_valid_envelope() -> None:
+    observations = _envelope_scoped()
+    observations["p1"]["state"]["players"][1]["is_actor"] = True
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["credible_as_principal_scoped_evidence"] is False
+    assert any(
+        finding["check"] == "actor_binding_conflict" and finding.get("seat") == "p1"
+        for finding in result["findings"]
+    )
 
 
 def test_one_shared_view_is_a_demonstrated_defect() -> None:

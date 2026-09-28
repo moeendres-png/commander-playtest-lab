@@ -93,7 +93,11 @@ def _validate_events(events: list[dict[str, Any]]) -> None:
 
 def _expect_unknown_game(client: Any, game_id: str) -> None:
     try:
-        client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+        client.request(
+            EngineMessageType.GET_GAME_STATE,
+            {"observer_player_id": "p1"},
+            game_id=game_id,
+        )
     except RulesEngineProtocolError as exc:
         if "Unknown process-local game_id" not in str(exc):
             raise SystemExit(f"B4-D shutdown failed for unexpected reason: {exc}") from exc
@@ -250,7 +254,11 @@ def main() -> None:
                 f"B4-D event count mismatch: expected {expected_before_shutdown}, got {len(full_events)}"
             )
         state = GameState.model_validate(
-            client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)["state"]
+            client.request(
+                EngineMessageType.GET_GAME_STATE,
+                {"observer_player_id": "p1"},
+                game_id=game_id,
+            )["state"]
         )
         if state.event_sequence != len(full_events):
             raise SystemExit("B4-D GameState.event_sequence does not match event log")

@@ -71,14 +71,21 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     source = DRIVER.read_text(encoding="utf-8")
     block = source[source.index('if drive_to == "first_turn_draw_skip":') :]
     block = block[: block.index('result.terminal_facts["decision_identity_shape"]')]
-    assert '"observer_player_id": actor_id' in block
+    # The principal is named with the Lab's canonical external principal id,
+    # derived from the engine's own acting seat, never from a decision-frame
+    # actor string and never a phantom key the providers ignore.
+    assert '"observer_player_id": observer_player_id' in block
+    assert 'observer_player_id = f"p{actor_seat + 1}"' in block
     assert '"actor": actor_seat' not in block
+    # The library count is read from engine-reported data only.
     assert 'zones.get("library_size")' in block
     assert "len(hand)" in block
-    # Counts come from the marked principal entry only, never from any seat.
-    assert 'entry.get("is_actor") is not True' in block
-    # The actor identity comes from the observed frame, never guessed.
-    assert 'frame.get("decision", {}).get("actor")' in block
+    # Counts come from the acting seat's row only, never from any seat.
+    assert 'entry.get("seat") != actor_seat' in block
+    # The acting seat comes from the engine's own published frame, never guessed
+    # and never defaulted to seat 0.
+    assert 'actor_seat = frame["seat"]' in block
+    assert "acting seat unavailable for principal observation" in block
 
 
 def test_fixture_event_list_is_labelled_as_obligation_not_evidence() -> None:
@@ -94,20 +101,45 @@ def test_driver_observes_engine_reported_zone_counts() -> None:
     assert "observed_actor_zone_counts" in source
     assert "ENGINE_REPORTED_PRINCIPAL_SCOPED" in source
     assert '"get_game_state"' in source
-    # The observation must select only the marked acting principal, not every player.
-    assert 'entry.get("is_actor") is not True' in source
+    # The request must name the acting principal explicitly, with no default seat.
+    assert '"observer_player_id": observer_player_id' in source
+    # The response must be tied back to the exact acting seat.
+    assert 'entry.get("seat") != actor_seat' in source
+    # Both authoritative binding mechanisms must be present, because providers
+    # expose different but equally authoritative shapes. Which applies is decided
+    # by the response shape, never by branching on the provider's name.
+    assert "LIVE_ENGINE_ENVELOPE" in source
+    assert "STATE_MARKER" in source
+    assert "engine_id_matches_state_row" in source
+    # And the observation must fail closed when neither mechanism binds, rather
+    # than recording an unscoped observation as if it were principal-scoped.
+    assert "did not bind to the acting state row" in source
 
 
 def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
-    """A hidden-information guard: record the actor's own counts, never another seat's."""
+    """Record only the acting principal's counts; never persist another live principal id."""
     source = DRIVER.read_text(encoding="utf-8")
-    start = source.index('seats = state.get("players")')
-    end = source.index('"observed_actor_zone_counts"] = mine')
+    start = source.index('observer_player_id = f"p{actor_seat + 1}"')
+    end = source.index('result.terminal_facts["observed_zone_count_source"]')
     block = source[start:end]
-    assert 'entry.get("is_actor") is not True' in block
+    assert 'entry.get("seat") != actor_seat' in block
+    # The is_actor marker is accepted as an alternative binding, so it is a
+    # positive match rather than a rejection filter.
+    assert 'entry.get("is_actor") is True' in block
+    # The echoed observer must be the one we requested; a provider naming some
+    # other principal proves nothing about the seat we asked about.
+    assert "echoed_observer == observer_player_id" in block
+    # A library count is read from engine-reported data only, never inferred.
+    assert "ENGINE_REPORTED_LIBRARY_SIZE" in block
+    assert "UNREPORTED" in block
     assert "hand_count" in block
     assert "library_count" in block
-    # The engine's own principal identifier must never be recorded.
-    assert "player_id" not in block
+    assert "engine_id_matches_state_row" in block
+    # The engine id may be used transiently to prove the binding but must not
+    # be stored in the terminal-facts record.
+    mine_start = block.index("mine.append(")
+    mine_block = block[mine_start:]
+    assert '"observer_engine_player_id"' not in mine_block
+    assert '"player_id"' not in mine_block
     # Only the acting seat's entry is kept, never the whole players array.
     assert "for entry in seats or []" in block

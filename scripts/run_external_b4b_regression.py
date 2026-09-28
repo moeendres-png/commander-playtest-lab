@@ -101,7 +101,11 @@ def main() -> None:
             raise SystemExit("B4-B game did not remain on turn 1")
 
         client = adapter._require_client()
-        state_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+        state_raw = client.request(
+            EngineMessageType.GET_GAME_STATE,
+            {"observer_player_id": "p1"},
+            game_id=game_id,
+        )
         state = GameState.model_validate(state_raw["state"])
         if state.step != "upkeep":
             raise SystemExit(f"B4-B expected first real upkeep priority, observed {state.step!r}")

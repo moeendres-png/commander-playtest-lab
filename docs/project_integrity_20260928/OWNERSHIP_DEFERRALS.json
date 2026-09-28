@@ -1,0 +1,11 @@
+{
+  "foreign_branch": "sbmax/full-completion",
+  "observed_head": "55d35dec6cc0258f7b1ae12e90e1554537d86b0c",
+  "paths": [
+    "tools/foundry/launcher.py",
+    "tests/foundry/test_launcher.py"
+  ],
+  "disposition": "FOREIGN_ACTIVE_DO_NOT_EDIT",
+  "finding": "Current launcher accepts project effort high/xhigh, refuses max, accepts legacy Zen; differs from native-only policy. Local Astra patch withdrawn on discovery of the newly published foreign branch.",
+  "exact_next_action": "Owning completion campaign repairs execution_identity and dependent launcher tests; afterward re-run native-pair, CLI/environment/telemetry and full Foundry regression. No competing implementation is integrated."
+}

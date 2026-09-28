@@ -236,3 +236,133 @@ def test_correctly_scoped_views_with_markers_remain_distinct() -> None:
     result = validate_principal_scoping(observations, requested_seats=SEATS)
     assert result["distinct_state_views"] == 4
     assert result["verdict"] == "PRINCIPAL_SCOPED"
+
+
+# ---------------------------------------------------------------------------
+# DUAL BINDING SHAPES. Providers expose different but equally authoritative
+# principal-binding envelopes, and the validator must accept each on its own terms
+# while refusing anything that does not actually establish WHO an observation
+# belongs to. These run against real validate_principal_scoping, not source text.
+# ---------------------------------------------------------------------------
+
+
+def _live_engine_envelope(index: int, engine_id: str) -> dict:
+    """Mechanism A: requested principal resolved to a live engine id and seat."""
+    entry = _good()[SEATS[index]]
+    entry["observer_player_id"] = SEATS[index]
+    entry["observer_engine_player_id"] = engine_id
+    entry["observer_seat"] = index
+    entry["state"]["players"][index]["player_id"] = engine_id
+    return entry
+
+
+def _authoritative_marker(index: int) -> dict:
+    """Mechanism B: named observer plus exactly one is_actor row, no engine id."""
+    entry = _good()[SEATS[index]]
+    entry["observer_player_id"] = SEATS[index]
+    for player in entry["state"]["players"]:
+        player["is_actor"] = player["seat"] == index
+    return entry
+
+
+def test_live_engine_envelope_shape_is_accepted() -> None:
+    observations = {
+        seat: _live_engine_envelope(index, f"live-{index}") for index, seat in enumerate(SEATS)
+    }
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 4, result["distinct_state_views"]
+    assert result["verdict"] == "PRINCIPAL_SCOPED", result["findings"]
+
+
+def test_authoritative_state_marker_shape_is_accepted() -> None:
+    """A provider that exposes no live engine id is not disqualified for it."""
+    observations = {seat: _authoritative_marker(index) for index, seat in enumerate(SEATS)}
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 4, result["distinct_state_views"]
+    assert result["verdict"] == "PRINCIPAL_SCOPED", result["findings"]
+    assert not any(finding["check"] == "observer_binding" for finding in result["findings"]), (
+        "a provider presenting only the state marker must not be failed for lacking "
+        "an envelope field it never claims"
+    )
+
+
+def test_a_claimed_but_unbound_full_envelope_fails_closed() -> None:
+    """Presenting the strong envelope and getting it wrong is a real failure.
+
+    This is the mirror of accepting mechanism B: a provider that claims to resolve
+    the principal to a live engine id must have that id match the row at the seat.
+    Claiming the strong envelope and mismatching it is not a weaker shape, it is a
+    contradictory one.
+    """
+    observations = {}
+    for index, seat in enumerate(SEATS):
+        entry = _live_engine_envelope(index, f"live-{index}")
+        entry["state"]["players"][index]["player_id"] = "someone-else"
+        observations[seat] = entry
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["verdict"] != "PRINCIPAL_SCOPED"
+    assert any(finding["check"] == "observer_binding" for finding in result["findings"])
+
+
+def test_distinct_content_without_any_binding_is_not_accepted() -> None:
+    """Distinct payloads prove variation, not per-principal scoping."""
+    observations = {}
+    for index, seat in enumerate(SEATS):
+        entry = _scoped(index, hand=[{"object_id": f"obj:{index}", "name": "Card"}])
+        entry["state"].pop("observer_player_id", None)
+        for player in entry["state"]["players"]:
+            player.pop("is_actor", None)
+        observations[seat] = entry
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["verdict"] != "PRINCIPAL_SCOPED"
+    assert not result["credible_as_principal_scoped_evidence"]
+
+
+def test_binding_metadata_alone_never_earns_distinctness() -> None:
+    """The required negative control, asserted end to end.
+
+    ONE shared state payload, delivered four times, with only requester-binding
+    metadata changed. The content is byte-identical, so four distinct views would
+    mean the binding marker is being counted as observed game content. It must not
+    be, or a provider could hide a single unscoped projection behind four markers.
+    """
+    shared = _scoped(0, hand=[{"object_id": "obj:1", "name": "Black Lotus"}])
+    observations = {}
+    for index, seat in enumerate(SEATS):
+        entry = copy.deepcopy(shared)
+        # ONLY requester-binding metadata varies. The observed state content is
+        # byte-identical across all four, including the live player_id rows, so any
+        # distinctness the validator reports would have to come from the markers.
+        entry["observer_player_id"] = seat
+        entry["observer_seat"] = index
+        for player in entry["state"]["players"]:
+            player["is_actor"] = player["seat"] == index
+        observations[seat] = entry
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 1, (
+        "varying only requester-binding metadata must not fabricate four distinct views"
+    )
+    assert any(
+        finding["check"] == "observations_differ_per_principal" for finding in result["findings"]
+    ), result["findings"]
+    assert result["attribution"] == "ENGINE_CANDIDATE_DEFECT"
+
+
+def test_distinct_live_player_rows_are_content_and_do_count() -> None:
+    """The converse control, so the exclusion above is not over-broad.
+
+    A provider that genuinely resolves each requester to a different live engine
+    principal reports different player_id rows. That IS observed content, so those
+    views must remain distinct. Excluding binding metadata must not have gone so
+    far as to hide a real difference.
+    """
+    observations = {}
+    for index, seat in enumerate(SEATS):
+        entry = _live_engine_envelope(index, f"live-{index}")
+        entry["state"]["players"][index]["player_id"] = f"live-{index}"
+        observations[seat] = entry
+    result = validate_principal_scoping(observations, requested_seats=SEATS)
+    assert result["distinct_state_views"] == 4, (
+        "distinct live player rows are observed content and must remain distinct"
+    )
+    assert result["verdict"] == "PRINCIPAL_SCOPED", result["findings"]

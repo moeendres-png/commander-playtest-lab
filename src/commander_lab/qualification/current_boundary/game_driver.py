@@ -771,34 +771,93 @@ def drive_commander_game(
             # projected for (`is_actor`). Counts are derived from that marked
             # entry only, so the observation is principal-scoped and identity is
             # never inferred from which seat happens to hold visible cards.
-            actor_id = (
-                (frame.get("decision", {}).get("actor") or frame.get("seat"))
-                if "frame" in dir()
-                else None
-            )
+            # The acting seat is the engine's own frame, never a default seat.
+            actor_seat = frame["seat"] if "frame" in dir() else None
             try:
+                if not isinstance(actor_seat, int) or actor_seat < 0:
+                    raise GameDriveError("acting seat unavailable for principal observation")
+                observer_player_id = f"p{actor_seat + 1}"
                 observed = proc.request(
                     "get_game_state",
-                    {"observer_player_id": actor_id},
+                    {"observer_player_id": observer_player_id},
                     game_id=result.game_id,
                     timeout_s=60.0,
                 )
-                state = _payload(observed).get("state")
-                seats = state.get("players") if isinstance(state, dict) else None
-                mine = []
+                payload = _payload(observed)
+                state_view = payload.get("state", payload)
+                seats = state_view.get("players") if isinstance(state_view, dict) else None
+                # Two authoritative binding mechanisms exist, and which one applies
+                # is decided by the RESPONSE SHAPE, never by the provider's name.
+                #
+                #   A, live-engine envelope: the provider echoes the external
+                #      principal we asked for, resolves it to a live engine
+                #      principal, and that resolved id matches this player row.
+                #   B, authoritative state marker: the provider names the
+                #      requested observer_player_id and marks exactly one row
+                #      is_actor, and that row is the acting seat.
+                #
+                # Both prove WHO the observation belongs to. Neither is satisfied by
+                # the mere presence of hidden content, by seat 0, or by guessing, and
+                # when neither holds the observation is unestablished rather than
+                # scoped. Accepting a name we did not request would be the mirror
+                # failure, so the echoed observer id must be the one requested.
+                observer_engine_id = payload.get("observer_engine_player_id")
+                echoed_observer = payload.get("observer_player_id")
+                engine_principal_agrees = (
+                    isinstance(echoed_observer, str) and echoed_observer == observer_player_id
+                )
+                mine: list[dict[str, Any]] = []
+                principal_binding: str | None = None
                 for entry in seats or []:
-                    if not isinstance(entry, dict) or entry.get("is_actor") is not True:
+                    if not isinstance(entry, dict) or entry.get("seat") != actor_seat:
                         continue
+                    mechanism_a = (
+                        isinstance(observer_engine_id, str)
+                        and bool(observer_engine_id)
+                        and entry.get("player_id") == observer_engine_id
+                        and engine_principal_agrees
+                    )
+                    mechanism_b = entry.get("is_actor") is True and engine_principal_agrees
+                    if not (mechanism_a or mechanism_b):
+                        continue
+                    principal_binding = "LIVE_ENGINE_ENVELOPE" if mechanism_a else "STATE_MARKER"
                     raw_zones = entry.get("zones")
-                    zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else {}
+                    zones = raw_zones if isinstance(raw_zones, dict) else {}
                     hand = zones.get("hand")
+                    library = zones.get("library")
+                    # Prefer an engine-reported count; fall back to the length of an
+                    # engine-reported list. Neither is inferred, and a provider that
+                    # reports neither yields None rather than a guess.
+                    reported_size = zones.get("library_size")
+                    library_count = (
+                        reported_size
+                        if isinstance(reported_size, int)
+                        else (len(library) if isinstance(library, list) else None)
+                    )
                     mine.append(
                         {
                             "seat": entry.get("seat"),
                             "hand_count": len(hand) if isinstance(hand, list) else None,
-                            "library_count": zones.get("library_size"),
-                            "is_actor": True,
+                            "library_count": library_count,
+                            "library_size_source": (
+                                "ENGINE_REPORTED_LIBRARY_SIZE"
+                                if isinstance(reported_size, int)
+                                else (
+                                    "ENGINE_REPORTED_LIBRARY_LIST_LENGTH"
+                                    if isinstance(library, list)
+                                    else "UNREPORTED"
+                                )
+                            ),
+                            "observer_player_id": echoed_observer,
+                            "binding_mechanism": principal_binding,
+                            "engine_id_matches_state_row": mechanism_a,
                         }
+                    )
+                if not mine or principal_binding is None:
+                    raise GameDriveError(
+                        "principal observation did not bind to the acting state row by "
+                        "either authoritative mechanism; the zone counts are therefore "
+                        "unestablished rather than principal-scoped"
                     )
                 result.terminal_facts["observed_actor_zone_counts"] = mine
                 result.terminal_facts["observed_zone_count_source"] = (
