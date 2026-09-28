@@ -11,8 +11,6 @@ from commander_lab.engine.rules.base import (
     RulesEngineUnavailable,
     resolve_engine_working_directory,
 )
-from commander_lab.engine.rules.bridge import JsonLineBridgeClient
-from commander_lab.engine.rules.full_game import _RawFullGameClient
 
 
 ENGINE_LANE_CALLS = {"JsonLineBridgeClient", "ExternalRulesAdapter", "XmageFullGameRunner"}
@@ -100,6 +98,8 @@ def test_uncreatable_runtime_directory_fails_closed(
 def test_jsonl_client_uses_isolated_default_cwd(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from commander_lab.engine.rules.bridge import JsonLineBridgeClient
+
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv(ENGINE_RUNTIME_DIRECTORY_ENV, raising=False)
 
@@ -111,6 +111,8 @@ def test_jsonl_client_uses_isolated_default_cwd(
 def test_full_game_client_uses_isolated_default_cwd(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from commander_lab.engine.rules.full_game import _RawFullGameClient
+
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv(ENGINE_RUNTIME_DIRECTORY_ENV, raising=False)
 
