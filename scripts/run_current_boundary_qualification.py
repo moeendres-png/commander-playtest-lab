@@ -193,6 +193,28 @@ NATIVE_SUITE_BINDING = {
 }
 
 
+# The actual-card names this artifact declares. Named once so the corpus
+# completeness statement is derived from the list rather than restated in prose.
+ACTUAL_CARD_NAMES: tuple[str, ...] = (
+    "Isamaru, Hound of Konda",
+    "Silvercoat Lion",
+    "Serra Angel",
+    "Savannah Lions",
+    "Knight of Dawn",
+    "Elite Vanguard",
+    "Eager Cadet",
+    "Suntail Hawk",
+    "Valiant Guard",
+    "Serra Ascendant",
+    "Aerial Assault",
+    "Wall of Faith",
+)
+
+# The 29-card corpus the effective contract requires. Declared so the artifact can
+# state the shortfall as a number instead of pointing at prose.
+REQUIRED_ACTUAL_CARD_CORPUS = 29
+
+
 def git(*args: str, cwd: Path | None = None) -> str:
     return subprocess.run(
         ["git", *args], cwd=str(cwd or REPO_ROOT), capture_output=True, text=True, check=False
@@ -440,8 +462,35 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             candidate=candidate,
             legal_deck=build_deck("af03-control"),
         )
-        write(f"AF03_{candidate.upper()}.json", af03.to_document())
+        af03_document = af03.to_document()
+        write(f"AF03_{candidate.upper()}.json", af03_document)
         probes["af03_verdict"] = af03.verdict
+        # What the engine actually did on negative import, stated from the probe.
+        af03_evidence = {
+            "verdict": af03_document["verdict"],
+            "probes_passed": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "PASS"
+            ],
+            "probes_failed": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "FAIL"
+            ],
+            "probes_unknown": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "UNKNOWN"
+            ],
+            "statement": (
+                "the engine refused every negative deck-import probe in this run, so the "
+                "import is engine-validated rather than construction-only"
+                if af03.verdict == "PASS"
+                else "the engine did NOT refuse every negative deck-import probe, so this run "
+                "does not establish engine-validated import; see the failed probes"
+            ),
+        }
 
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         cardinality: dict[str, Any] = {}
@@ -573,24 +622,28 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
                 "cards_imported_at_runtime": hidden_game.deck_identity,
-                "cards": [
-                    "Isamaru, Hound of Konda",
-                    "Silvercoat Lion",
-                    "Serra Angel",
-                    "Savannah Lions",
-                    "Knight of Dawn",
-                    "Elite Vanguard",
-                    "Eager Cadet",
-                    "Suntail Hawk",
-                    "Valiant Guard",
-                    "Serra Ascendant",
-                    "Aerial Assault",
-                    "Wall of Faith",
-                ],
-                "engine_validated": "the engine itself rejected an illegal colour identity and "
-                "unknown card names during this run, proving the import is "
-                "engine-validated rather than construction-only",
-                "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
+                "cards": list(ACTUAL_CARD_NAMES),
+                # Derived from the AF03 probe this run actually executed. It
+                # previously asserted in prose that "the engine itself rejected an
+                # illegal colour identity and unknown card names", which is the
+                # OPPOSITE of what the observed probe shows for Forge: the
+                # executed Forge bridge ACCEPTED a colour-identity violation and a
+                # non-Commander commander. A prose claim that contradicts the run's
+                # own evidence is a false credit, so the value is now the probe
+                # verdicts.
+                "engine_validated": af03_evidence,
+                "required_29_card_corpus": {
+                    "required_count": REQUIRED_ACTUAL_CARD_CORPUS,
+                    "declared_in_this_artifact": len(ACTUAL_CARD_NAMES),
+                    "imported_at_runtime": len(hidden_game.deck_identity),
+                    "complete": len(ACTUAL_CARD_NAMES) >= REQUIRED_ACTUAL_CARD_CORPUS,
+                    "statement": (
+                        f"this artifact names {len(ACTUAL_CARD_NAMES)} cards and imported "
+                        f"{len(hidden_game.deck_identity)} at runtime; the 29-card corpus is "
+                        "NOT executed, so the actual-card obligation is unestablished and the "
+                        "row cannot be credited"
+                    ),
+                },
             },
         )
 
