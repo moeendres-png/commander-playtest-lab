@@ -804,6 +804,42 @@ class XmageNativeStateRestorationTest {
         assertTrue(!dimensions.getAsJsonArray("unsupported_dimensions").isEmpty());
     }
 
+    /**
+     * The dimensions manifest must be observable over the protocol, not only from
+     * inside the JVM. A bare {@code starting_state_injection_supported=false}
+     * cannot support per-obligation admission: a qualifier deciding whether ONE
+     * frozen mid-game row is executable needs to know which dimensions the native
+     * restore path actually covers. Before this was published, the manifest was
+     * computed and never left the process, so it could inform no admission
+     * decision at all.
+     */
+    @Test
+    void dimensionsManifestIsPublishedOnTheFullGameCapabilityLane() {
+        JsonObject capabilities = XmageFullGameJsonlBridge.capabilitiesPayload();
+        JsonObject lane = capabilities.getAsJsonObject("full_game_lane");
+        assertTrue(lane.has("state_restoration_dimensions"),
+                "full-game lane must publish the state-restoration dimensions manifest");
+
+        JsonObject published = lane.getAsJsonObject("state_restoration_dimensions");
+        JsonObject nativeManifest = XmageNativeStateRestoration.dimensionsPayload();
+
+        // Published verbatim from the same restoration code that performs the
+        // restore: the manifest is never authored independently of that code.
+        assertEquals(nativeManifest, published);
+
+        // The manifest must agree with the capability flag it qualifies, in both
+        // directions, or a qualifier could read a contradiction.
+        assertEquals(
+                capabilities.getAsJsonObject("capabilities")
+                        .get("starting_state_injection_supported").getAsBoolean(),
+                published.get("starting_state_injection_supported").getAsBoolean());
+
+        // Per-obligation admission needs the itemisation, not just the boolean.
+        assertFalse(published.getAsJsonArray("supported_dimensions").isEmpty());
+        assertFalse(published.getAsJsonArray("unsupported_dimensions").isEmpty());
+        assertTrue(published.has("schema_version"));
+    }
+
     @Test
     void residualCandidateOrderedLibraryRestorePrimitiveIsRuntimeReachable() {
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(

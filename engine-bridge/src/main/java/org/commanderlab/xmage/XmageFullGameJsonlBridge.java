@@ -445,7 +445,8 @@ final class XmageFullGameJsonlBridge {
         }
     }
 
-    private static JsonObject capabilitiesPayload() {
+    /** Package-private so the capability payload can be asserted directly in tests. */
+    static JsonObject capabilitiesPayload() {
         JsonObject capabilities = new JsonObject();
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
@@ -509,6 +510,15 @@ final class XmageFullGameJsonlBridge {
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("bit_exact_replay_validated", false);
+        // Why starting_state_injection_supported is false, itemised. A bare
+        // boolean cannot support per-obligation admission: a qualifier that must
+        // decide whether ONE frozen mid-game row is executable needs to know
+        // WHICH dimensions the native restore path covers. The manifest was
+        // already computed but never left the JVM, so it could not inform any
+        // admission decision. It is published here verbatim, next to the flag it
+        // qualifies, and is derived from the same restoration code that performs
+        // the restore; it is never authored independently of that code.
+        lane.add("state_restoration_dimensions", XmageNativeStateRestoration.dimensionsPayload());
 
         JsonObject result = new JsonObject();
         result.add("capabilities", capabilities);
