@@ -79,7 +79,31 @@ def _git(root: Path, args: list[str]) -> str:
     )
     if proc.returncode != 0:
         raise ReceiptError(f"git {' '.join(args)} failed: {proc.stderr.strip()[:200]}")
-    return proc.stdout.strip()
+    return proc.stdout.rstrip("\n")
+
+
+def _git_porcelain(root: Path) -> list[str]:
+    """Porcelain status lines with NO leading-whitespace stripping.
+
+    ``git status --porcelain`` encodes each line as a two-character status column
+    plus a space, so an unstaged modification begins with a space. Stripping the
+    whole output removed that space from the FIRST line, which shifted every
+    subsequent column slice and turned
+    ``qualification/final-current-boundary-20260927/X.json`` into
+    ``ualification/...``. The run-output exclusion then failed to match and a
+    generated artifact was reported as uncommitted source. Only the trailing
+    newline may be removed.
+    """
+    proc = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise ReceiptError(f"git status --porcelain failed: {proc.stderr.strip()[:200]}")
+    return [line for line in proc.stdout.splitlines() if line.strip()]
 
 
 def _git_optional(root: Path, args: list[str], default: str = "UNCONFIGURED") -> str:
@@ -161,7 +185,7 @@ def capture_runner_identity(root: Path) -> RunnerIdentity:
     than hiding them.
     """
     root = root.resolve()
-    status = _git(root, ["status", "--porcelain"])
+    status_lines = _git_porcelain(root)
     # The run's own evidence outputs are excluded from the dirtiness judgement.
     # This gate exists so evidence cannot claim a provenance its bytes do not
     # have, and the evidence artifacts the run just wrote are exactly the bytes
@@ -169,9 +193,7 @@ def capture_runner_identity(root: Path) -> RunnerIdentity:
     # the pipeline unable to complete: the first phase writes tracked artifacts,
     # the tree becomes dirty by definition, and the native-suite phase then
     # refused. A CODE change is still dirty and still refused.
-    dirty_paths = tuple(
-        line[3:] for line in status.splitlines() if line.strip() and not _is_run_output(line[3:])
-    )
+    dirty_paths = tuple(line[3:] for line in status_lines if not _is_run_output(line[3:]))
     digests: dict[str, str] = {}
     for pattern in _EXECUTED_INPUT_GLOBS:
         for path in sorted(root.glob(pattern)):

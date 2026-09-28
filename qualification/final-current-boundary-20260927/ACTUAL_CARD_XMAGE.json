@@ -25,13 +25,13 @@
  "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "cff18cb33a46d79127a1d596c869227329a0623d",
+  "adapter_commit": "4608ce836ac06118d99e4cd78a2373491db581fd",
   "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "cff18cb33a46d79127a1d596c869227329a0623d",
-  "runner_tree": "e36a94066e183854bd456f5da6e250d297db8804"
+  "runner_commit": "4608ce836ac06118d99e4cd78a2373491db581fd",
+  "runner_tree": "0fe76c33d3b5b8d0b335ad6162b52a6aedd92e5f"
  },
  "schema_version": "wsr22.actual-card/1.0.0"
 }
