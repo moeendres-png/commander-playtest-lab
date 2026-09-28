@@ -524,6 +524,7 @@ def test_ancestor_is_not_accepted_as_identity() -> None:
             recorded_label="forge fork",
         )
 
+
 # --- Gate 4: positive fixture credit is derived from exact JUnit cases ------- #
 
 
