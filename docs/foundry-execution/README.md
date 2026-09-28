@@ -6,15 +6,15 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Surface | Canonical path | Role |
 |---|---|---|
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
-| Machine config | `opencode.json` (root) | Safe committed Muse default; launcher-selected Space Bunny MAX profile; permissions; sharing off |
+| Machine config | `opencode.json` (root) | Space Bunny MAX default; explicit Muse XHIGH alternate; permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
 | Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Unique verified reference snapshots + standalone current-workstream owned-write surfaces + Bubblewrap read-only-root boundary |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Muse default, Space Bunny Max profile, legacy Zen override, no fallback |
+| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX default, Muse XHIGH alternate, retired Zen, no fallback |
 | Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / Space Bunny MAX / Muse / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | Post-PR172 merge procedure; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
-| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (HIGH) |
+| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (Space Bunny MAX) |
 | Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (XHIGH) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation |
@@ -24,7 +24,7 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Compaction record | `docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md` | `COMPACTION_HOOK = DEFERRED` + reason |
 | Metrics | `docs/foundry-execution/METRICS.md` + `tools/foundry/metrics.py` | JSONL session records |
 | Benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Replay schema, no claimed results |
-| Next workstream | `handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md` | Source-locked XHIGH task spec |
+| Current workstream | Explicit user assignment + dedicated state/contract | Historical handoffs never select the next task |
 
 Historical research, dated reports, and superseded proposals stay where they are and
 keep their facts; only their execution-routing instructions are superseded, per
@@ -70,10 +70,10 @@ must not widen it. `foundry-implementer` carries no agent-local permission
 override. `foundry-adjudicator` narrows to `edit: deny`, ask-gated
 `pytest`/`python`/`ruff`/`gh api`, and denied destructive/remote/mutation
 paths. `foundry-reviewer` stays fully contained (`edit: deny`,
-`bash: deny` except read-only Git). Generic `gh api*` is ask-gated for all
-roles because OpenCode glob semantics cannot reliably distinguish read
-(`GET`) from mutation (`POST`/`PATCH`/`PUT`/`DELETE`); no method-sensitive
-enforcement is claimed.
+`bash: deny` except read-only Git). Root `gh api*` is allowed for authorized project work; narrower agent-specific
+permissions still apply. Configured permission is not ownership or scope authority.
+Rebase and destructive worktree/branch deletion remain denied. No method-sensitive
+GitHub permission enforcement is claimed.
 
 
 ### Bubblewrap prerequisite for cross-workstream runs

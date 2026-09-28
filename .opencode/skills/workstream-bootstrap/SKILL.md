@@ -16,7 +16,8 @@ canonical-remote state from an unrelated local clone.
    `commander-playtest-lab` fragment as proof of identity.
 2. Current remote identity: run
    `git config --get remote.origin.url` in the candidate checkout and record
-   the full URL. It must contain the canonical slug. On mismatch stop with
+   only the validated repository identity, never credential-bearing URLs. Use
+   source_lock.py to require one exact canonical remote (not a substring). On mismatch stop with
    `WRONG_LOCAL_REPOSITORY` — do not continue to ref checks in this checkout.
 3. Canonical helper: prefer `tools/foundry/source_lock.py` for all identity
    checks below. It emits `WRONG_LOCAL_REPOSITORY` vs

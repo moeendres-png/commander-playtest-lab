@@ -53,7 +53,7 @@ Native variant: `max`
 
 For new substantial OpenCode engineering work, this is the preferred execution profile.
 The Foundry launcher must pin the main model, small model and reachable injected project
-agents to Space Bunny with native MAX. The project-level effort field remains a
+agents to Space Bunny with native MAX. The effort field records the selected native level, not a
 high/xhigh workstream classification and does not reduce Bunny's native MAX compute.
 
 Within an authorized workstream Space Bunny is expected to:
@@ -77,8 +77,8 @@ evidence merely because tokens are available.
 Exact model: `opencode-go/muse-spark-1.3-contributor`
 
 Muse remains fully supported:
-- HIGH for ordinary bounded engineering;
-- XHIGH for difficult nonlocal technical reasoning and adjudication;
+- native XHIGH only for all active engineering and technical adjudication;
+- no active Muse HIGH lane;
 - continuation of existing Muse-owned workstreams;
 - deliberate alternate implementation/review/challenge.
 

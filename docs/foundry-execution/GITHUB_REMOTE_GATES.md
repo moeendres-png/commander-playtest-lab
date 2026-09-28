@@ -1,6 +1,11 @@
 # GitHub Remote Gates — HUMAN_EXTERNAL Recommendations (WS75)
 
-Status: DOCUMENTED_HUMAN_ACTION_REQUIRED. This workstream must not mutate
+Status: HISTORICAL_REMOTE_SNAPSHOT (2026-09-12). Current Lab rulesets require PRs,
+review-thread resolution, quality/security/infrastructure checks and prohibit force
+push/deletion; see `docs/project_integrity_20260928/FINAL_GITHUB_STATE_RECEIPT.json`.
+The dated observations below are provenance, not current admin instructions.
+
+Original status: DOCUMENTED_HUMAN_ACTION_REQUIRED. This workstream must not mutate
 GitHub admin settings; every item below requires a human with admin
 rights on the named repository. Observed state was read 2026-09-12 via
 read-only `gh api` GET calls (no writes performed).
