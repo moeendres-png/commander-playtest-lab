@@ -1,0 +1,65 @@
+{
+  "artifacts": [
+    {
+      "path": "artifacts/xmage-full-game/DECISION_CLASS_INVENTORY.json",
+      "sha256": "b82f25dad6e8807cccd1bdb46f1a138ef2a108805cd9077a8af176988ff507d5"
+    },
+    {
+      "path": "artifacts/xmage-full-game/HIDDEN_INFORMATION_BOUNDARY_REPORT.json",
+      "sha256": "b5568edfdef5267aa4ab65dee9995d2a1be56ec0587bfd130dd17c7fe08378f0"
+    },
+    {
+      "path": "artifacts/xmage-full-game/REAL_4P_PREFLIGHT.json",
+      "sha256": "d49e73feb067ac1a533b595dca7f542af9b21f8f200978104620b5f17a846604"
+    },
+    {
+      "path": "artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json",
+      "sha256": "b920590009b3ed739f5e50100e05b9e2385aab49308b781233fe06a893a99ae9"
+    },
+    {
+      "path": "artifacts/xmage-full-game/XMAGE_FULL_GAME_CONFORMANCE.json",
+      "sha256": "0e04d67928f40205689cecd9ebd07103daffab8ff1414584e513b42cee56161e"
+    },
+    {
+      "path": "artifacts/xmage-full-game/XMAGE_FULL_GAME_FAIL_CLOSED_7P.json",
+      "sha256": "9236329675c49da98bb00e1c7a68d923216cb18d587702c1f36947e4da8cfc8c"
+    },
+    {
+      "path": "artifacts/xmage-full-game/XMAGE_FULL_GAME_REPLAY_GATE.json",
+      "sha256": "454775d57115836ae660a09efa6caa96fad845c856686e16955301d28db3ed96"
+    }
+  ],
+  "bridge": {
+    "artifact": "xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
+    "artifact_sha256": "be972d604b7663318c10734dd4f739771de6c0f7578c586d8dd518ad44ffd6c5",
+    "classpath_manifest_sha256": "545f5599fbfa1b22715a116ce0c0f5198b4fd8d363fe3cc2d6188cdc488a9afb",
+    "module": "engine-bridge"
+  },
+  "classification": {
+    "DIRECTLY_VERIFIED": "runtime executed against the pinned engine on a real external process"
+  },
+  "engine": {
+    "artifact_sha256_mage_jar": "bccb4031a586feb3e6636f1c7f11f3bbd3f35deb6ef4361daa005b7ad4695961",
+    "built_from": "git archive of the exact pinned tree, installed with mvn -DskipTests install",
+    "pin": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "provenance_note": "Artifact hashes are recorded because a matching version string is NOT identity: the pre-existing local 1.4.61 artifact hashed 1c347a65... and was not the pin. CI additionally verifies HEAD against the pin before every build.",
+    "provider": "xmage",
+    "repository": "https://github.com/moeendres-png/mage.git",
+    "version": "1.4.61"
+  },
+  "evidence_class": "technical_conformance_only",
+  "generated_for": "final-completion-space-bunny-max",
+  "lab": {
+    "branch": "sbmax/full-completion",
+    "head": "c4224fd4d73a5d3ad20173a9bab1cc527b4ffbdb",
+    "repository": "moeendres-png/commander-playtest-lab",
+    "tree": "39f8cf3e9c3bb9283d64e11a5a08d56c17c53bd1"
+  },
+  "not_claimed": [
+    "PRODUCTION_PROVIDER selection",
+    "ARCHITECTURE_FREEZE",
+    "bit-exact replay (bit_exact_replay_validated is false by design)",
+    "any AF06/AF07/AF08/AF09 verdict: no 107-row execution has been run on this lineage"
+  ],
+  "schema_version": "lab.evidence-receipt/1.0.0"
+}
