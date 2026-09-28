@@ -398,3 +398,59 @@ def test_uncitable_native_suite_records_no_credit_with_the_exact_reason(tmp_path
         (module.RECEIPT_DIR / "native-forge-direct.json").read_text(encoding="utf-8")
     )
     assert persisted["credit"] == "NO_CREDIT"
+
+
+# --- The two candidates do NOT qualify the same player counts ---------------
+
+
+def test_driver_refuses_a_count_outside_the_declared_envelope() -> None:
+    """A count the engine declares it does not qualify must not be attempted.
+
+    The pinned Forge bridge qualifies exactly four players. Driving 2 and
+    recording the refusal would present a harness choice as a candidate
+    capability result, and silently substituting 4 would be worse.
+    """
+    from commander_lab.qualification.current_boundary import game_driver as G
+
+    class _Proc:
+        """A bridge that answers the handshake and refuses an unsupported count."""
+
+        def __init__(self) -> None:
+            self.requests: list[str] = []
+
+        def request(self, message: str, payload: dict, **_: object) -> dict:
+            self.requests.append(message)
+            if message == "get_capabilities":
+                return {
+                    "success": True,
+                    "status": "ok",
+                    "payload": {
+                        "capabilities": {
+                            "min_players": 4,
+                            "max_players": 4,
+                            "seed_supported": False,
+                        }
+                    },
+                }
+            return {"success": True, "status": "ok", "payload": {}}
+
+    proc = _Proc()
+    with pytest.raises(G.UnsupportedPlayerCount) as excinfo:
+        G.drive_commander_game(
+            proc,  # type: ignore[arg-type]
+            candidate="forge",
+            player_count=2,
+            seed=1,
+        )
+    assert "4..4" in str(excinfo.value)
+    assert "2" in str(excinfo.value)
+    # Nothing beyond the handshake may be attempted.
+    assert "create_commander_game" not in proc.requests
+    assert "import_deck" not in proc.requests
+
+
+def test_unsupported_player_count_is_distinct_from_a_drive_failure() -> None:
+    from commander_lab.qualification.current_boundary import game_driver as G
+
+    assert issubclass(G.UnsupportedPlayerCount, G.GameDriveError)
+    assert not issubclass(G.GameDriveError, G.UnsupportedPlayerCount)

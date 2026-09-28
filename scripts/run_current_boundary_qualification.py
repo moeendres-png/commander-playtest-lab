@@ -421,6 +421,62 @@ def write(name: str, payload: Any) -> None:
     print(f"wrote {name}")
 
 
+def _envelope_refusal(
+    candidate: str, count: int, declared_min: int | None, declared_max: int | None
+) -> dict[str, Any]:
+    """Record a player count the engine itself does not qualify.
+
+    This is the engine's advertised contract, not an observed behaviour and not a
+    candidate capability result. It is recorded as its own document so a reader
+    cannot mistake "not attempted" for "attempted and failed", and it is never
+    promoted to a PASS: an unexecuted row is unexecuted.
+    """
+    return {
+        "schema_version": "current-boundary.player-envelope-refusal/1.0.0",
+        "candidate": candidate,
+        "player_count": count,
+        "attempted": False,
+        "outcome": "ENGINE_DECLARES_COUNT_UNSUPPORTED",
+        "declared_min_players": declared_min,
+        "declared_max_players": declared_max,
+        "reason": (
+            f"the {candidate} engine declares a qualified player envelope of "
+            f"{declared_min}..{declared_max}; {count} players is outside it, so the "
+            "engine refuses the count by contract. Not attempted. This is not a "
+            "capability result for this count and must not be read as one."
+        ),
+    }
+
+
+def _record_envelope_row(
+    rows_sink: list[RowResult],
+    by_id: dict[str, Any],
+    fixture_id: str,
+    candidate: str,
+    identity: dict[str, Any],
+    document: dict[str, Any],
+) -> None:
+    """Give an un-attempted PLAYER_COUNT row an explicit, non-PASS outcome."""
+    record = by_id.get(fixture_id)
+    if record is None:
+        return
+    rows_sink.append(
+        non_executed_row(
+            record,
+            candidate=candidate,
+            # BLOCKED, not UNKNOWN and not FAIL: the module's own vocabulary
+            # defines BLOCKED as the boundary contract locking the execution seam
+            # because of a capability the provider truthfully reports as
+            # unavailable, which is exactly this case. FAIL would assert a Rules
+            # defect that was never observed; UNKNOWN would lose the fact that
+            # the engine gave a definite, advertised answer.
+            outcome="BLOCKED",
+            reason=document["reason"],
+            runtime_identity=identity,
+        )
+    )
+
+
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     """Run AF01, cardinality, START-2 and the dimension probes for one candidate."""
     identity = runtime_identity(candidate)
@@ -458,6 +514,14 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             restoration_manifest_error = str(exc)
         probes["restoration_manifest"] = restoration_manifest
         probes["restoration_manifest_error"] = restoration_manifest_error
+        try:
+            declared_caps = (capability_response or {}).get("capabilities") or {}
+        except NameError:  # pragma: no cover - only when the fetch raised
+            declared_caps = {}
+        probes["lane_player_envelope"] = {
+            "min": declared_caps.get("min_players"),
+            "max": declared_caps.get("max_players"),
+        }
 
         # ---- a real live game for the decision-time invariants -----------
         # AF01's fail-closed decision probes were previously issued with no
@@ -466,10 +530,24 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # decision-time legality, so those results were passes for the wrong
         # reason. Drive a real Commander game to its first priority decision
         # and probe against that game instead.
+        # The decision-time AF01 invariants need a live game, and the two
+        # candidates do NOT qualify the same player counts: the pinned Forge
+        # bridge qualifies exactly four. Drive the smallest count the engine
+        # itself declares it supports, and record which count was used so the
+        # evidence names it rather than implying a 2P surface both share.
+        envelope = probes.get("lane_player_envelope") or {}
+        declared_min = envelope.get("min")
+        declared_max = envelope.get("max")
+        af01_player_count = 2
+        if isinstance(declared_min, int) and af01_player_count < declared_min:
+            af01_player_count = declared_min
+        if isinstance(declared_max, int) and af01_player_count > declared_max:
+            af01_player_count = declared_max
+        probes["af01_live_player_count"] = af01_player_count
         af01_live = drive_commander_game(
             proc,
             candidate=candidate,
-            player_count=2,
+            player_count=af01_player_count,
             seed=int(identity.get("af01_probe_seed", 20260927)),
             drive_to="priority",
         )
@@ -521,6 +599,32 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         cardinality: dict[str, Any] = {}
         for count in (2, 3, 4, 5, 6):
+            if isinstance(declared_min, int) and count < declared_min:
+                cardinality[f"{count}P"] = _envelope_refusal(
+                    candidate, count, declared_min, declared_max
+                )
+                _record_envelope_row(
+                    rows,
+                    by_id,
+                    f"PLAYER_COUNT_{count}P",
+                    candidate,
+                    identity,
+                    cardinality[f"{count}P"],
+                )
+                continue
+            if isinstance(declared_max, int) and count > declared_max:
+                cardinality[f"{count}P"] = _envelope_refusal(
+                    candidate, count, declared_min, declared_max
+                )
+                _record_envelope_row(
+                    rows,
+                    by_id,
+                    f"PLAYER_COUNT_{count}P",
+                    candidate,
+                    identity,
+                    cardinality[f"{count}P"],
+                )
+                continue
             result = run_cardinality(
                 proc, candidate=candidate, player_count=count, runtime_identity=identity
             )

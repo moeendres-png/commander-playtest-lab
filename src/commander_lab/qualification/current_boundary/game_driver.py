@@ -44,6 +44,14 @@ class GameDriveError(RuntimeError):
     """The external engine could not complete the requested lifecycle."""
 
 
+class UnsupportedPlayerCount(GameDriveError):
+    """The engine's own declared player envelope does not include this count.
+
+    Distinct from a failure: nothing was attempted, and the refusal is the
+    engine's advertised contract rather than a behaviour observed at runtime.
+    """
+
+
 @dataclass
 class DecisionTapeEntry:
     step: str
@@ -145,6 +153,12 @@ class CommandedGameResult:
     # What the lane actually advertised, so a reader can see that seed control
     # was taken from the provider's own capability surface and not assumed.
     declared_capabilities: dict[str, Any] = field(default_factory=dict)
+    # The engine's own declared player envelope. Read from the capability
+    # payload, never assumed: the two candidates do not support the same
+    # counts, and driving a count the engine has declared it does not qualify
+    # is a harness defect, not a candidate capability result.
+    min_players: int | None = None
+    max_players: int | None = None
 
     def to_document(self) -> dict[str, Any]:
         return {
@@ -155,6 +169,7 @@ class CommandedGameResult:
             "player_count": self.player_count,
             "deck_identity": self.deck_identity,
             "declared_capabilities": self.declared_capabilities,
+            "lane_player_envelope": {"min": self.min_players, "max": self.max_players},
             "game_id": self.game_id,
             "steps_completed": self.steps_completed,
             "decision_tape": [
@@ -388,6 +403,12 @@ def drive_commander_game(
                 capabilities = raw_caps if isinstance(raw_caps, dict) else {}
         result.steps_completed.append("handshake")
         result.declared_capabilities = dict(capabilities)
+        declared_min = capabilities.get("min_players")
+        declared_max = capabilities.get("max_players")
+        if isinstance(declared_min, int) and not isinstance(declared_min, bool):
+            result.min_players = declared_min
+        if isinstance(declared_max, int) and not isinstance(declared_max, bool):
+            result.max_players = declared_max
 
         # PB-04: seed support is LANE-scoped, and must be read from the lane
         # rather than assumed. The generic compatibility lane truthfully reports
@@ -400,6 +421,22 @@ def drive_commander_game(
         # binding is recorded as UNCONTROLLED by classify_seed_binding below and
         # earns no RNG or replay credit, which is the honest outcome.
         lane_seed_supported = capabilities.get("seed_supported") is True
+
+        # Refuse a player count the engine has declared it does not qualify, and
+        # name the engine's own envelope. The two candidates do NOT support the
+        # same counts: the pinned Forge bridge qualifies exactly four. Driving an
+        # unsupported count and recording the refusal as a candidate capability
+        # result would be a harness defect masquerading as evidence, and
+        # silently substituting a different count would be worse.
+        if (result.min_players is not None and player_count < result.min_players) or (
+            result.max_players is not None and player_count > result.max_players
+        ):
+            raise UnsupportedPlayerCount(
+                f"the {candidate} engine declares a qualified player envelope of "
+                f"{result.min_players}..{result.max_players}; this drive requested "
+                f"{player_count}. Not attempted, and not a candidate capability "
+                "result: the engine refused the count by contract."
+            )
 
         handles: list[str] = []
         for deck_id in result.deck_identity:
@@ -675,6 +712,12 @@ def drive_commander_game(
         result.terminal_facts["draw_step_decision_exposed"] = bool(draw_step_frames)
         result.terminal_facts["priority_reached"] = priority_seen
         result.steps_completed.append("decision_drive")
+    except UnsupportedPlayerCount:
+        # A declared-envelope refusal is not a lifecycle failure and must not be
+        # folded into one: the caller has to be able to tell "the engine does not
+        # qualify this count" from "the lifecycle broke", because the first is a
+        # capability fact it must record and the second is a defect to diagnose.
+        raise
     except (GameDriveError, DecisionUnsatisfied, BridgeLaunchError) as exc:
         result.failure = f"{type(exc).__name__}: {exc}"
         result.failure_kind = (
