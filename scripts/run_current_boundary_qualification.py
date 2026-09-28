@@ -354,17 +354,24 @@ def run_native_suite(
     # per-module tree to compare, so no descendant-equivalence proof is possible.
     # Say so and withhold credit rather than inventing a commit. This is the case
     # for the pinned upstream Forge candidate, whose workspace is an export.
-    if not Path(spec["root"], ".git").exists():
+    # Distinguish a git-less EXPORT from a MODULE of a containing repository. The
+    # XMage bridge suite root is `engine-bridge/`, a module of this repository, so it
+    # has no `.git` of its own by design; the pinned Forge workspace is a real export
+    # with no repository anywhere above it. Reading "no .git here" as an export
+    # silently stripped XMage's native credit that it had legitimately earned, so the
+    # test is whether ANY repository encloses the root, not whether the root is one.
+    engine_toplevel = git("rev-parse", "--show-toplevel", cwd=spec["root"])
+    if not engine_toplevel:
         return _no_credit_receipt(
             candidate,
             group,
             runner,
             "the candidate workspace is a verified materialization export with no git "
-            "metadata, so neither an executing HEAD nor a per-module tree proof exists; "
-            "native credit is withheld rather than inferred from the supplied commit",
+            "metadata anywhere above it, so neither an executing HEAD nor a per-module "
+            "tree proof exists; native credit is withheld rather than inferred from the "
+            "supplied commit",
         )
     actual_head = git("rev-parse", "HEAD", cwd=spec["root"])
-    engine_toplevel = git("rev-parse", "--show-toplevel", cwd=spec["root"])
     root_is_own_repo = (
         bool(engine_toplevel) and Path(engine_toplevel).resolve() == spec["root"].resolve()
     )
