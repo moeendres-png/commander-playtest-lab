@@ -39,6 +39,56 @@ FULL_GAME_LANE = "xmage_full_game_external_pilots"
 FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
 XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 
+# Declared pilot policy for decisions where the Rules Core supplies only a legal
+# domain and no benefit/detriment projection.
+#
+# The bridge does not project an `outcome` for every decision class: `choosePile`
+# builds an empty context, and `announceX`/`getAmount` publish only
+# `numeric_min`/`numeric_max`. When `outcome` is absent the pilot is not reading
+# engine truth, and it must not pretend to. These per-class constants are the
+# pilot's OWN declared, deterministic, content-independent strategy for that
+# case. They are surfaced through `declared_outcome_policies` in the run report
+# so a reader can never mistake a pilot policy for an engine-derived outcome,
+# and they are deliberately NOT hidden inside a `mapping.get(key, default)`
+# call, which is the form in which a default reads as engine authority.
+#
+# The behaviour these name is unchanged from the previous inline literals; the
+# change is that the constant is named, documented, and reported. Values:
+# - boolean (`chooseUse`): the engine always supplies an outcome, so this only
+#   applies to a malformed frame; neutral keeps the pilot from defaulting yes.
+# - pile: XMage's `Choice` determines whether the controller keeps or discards,
+#   so benefit is the declared reading of an unprojected keep-or-discard pile.
+# - scalar/multi numeric (X costs, amounts): benefit is the declared reading,
+#   so the pilot takes the top of the Core-authorised range.
+DECLARED_OUTCOME_POLICY_BY_CLASS: dict[str, str] = {
+    "choose_use": "neutral",
+    "pile": "benefit",
+    "announce_x": "benefit",
+    "amount": "benefit",
+    "multi_amount": "benefit",
+}
+
+
+def declared_outcome_policies() -> tuple[str, ...]:
+    """Report the pilot-declared outcomes used when the engine projects none."""
+    return tuple(
+        f"{decision_class}={outcome}"
+        for decision_class, outcome in sorted(DECLARED_OUTCOME_POLICY_BY_CLASS.items())
+    )
+
+
+def resolve_outcome(context: dict[str, Any], decision_class: str) -> str:
+    """Engine-projected outcome, else this pilot's declared policy for the class.
+
+    The engine remains the only source of a genuine outcome. When it projects
+    none, the named, reported pilot policy applies.
+    """
+    projected = context.get("outcome")
+    if isinstance(projected, str) and projected:
+        return projected.casefold()
+    return DECLARED_OUTCOME_POLICY_BY_CLASS[decision_class]
+
+
 # Bridge-process shutdown dispositions observed by close(). Only
 # graceful_shutdown may back a clean-shutdown evidence claim; every other
 # outcome must fail closed where such a claim matters.
@@ -93,6 +143,7 @@ class FullGameConformanceResult(_StrictModel):
     engine_version: str
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     decision_protocol_version: str
+    declared_outcome_policies: tuple[str, ...] = ()
     decision_count: int = Field(ge=0)
     terminal: bool
     winner_seats: tuple[int, ...]
@@ -131,6 +182,7 @@ class FullGameSmokeResult(_StrictModel):
     engine_version: str
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     decision_protocol_version: str
+    declared_outcome_policies: tuple[str, ...] = ()
     decision_count: int = Field(ge=1)
     smoke_decision_target: int = Field(ge=1)
     bounded_criterion_met: Literal[True]
@@ -460,8 +512,17 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
-        min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
-        max_selections = int(request.get("maximum_selections", request.get("max_selections", 0)))
+        # Selection bounds are authoritative frame facts, not optional metadata.
+        # A silent 0..0 default would let the policy answer a mandatory decision
+        # with an empty selection and defeat the bounds gate below, which is the
+        # same class of failure this policy already refuses elsewhere: no
+        # default, no fallback, fail closed on a missing required fact.
+        min_selections = self._required_bound(
+            request, "minimum_selections", alt_key="min_selections"
+        )
+        max_selections = self._required_bound(
+            request, "maximum_selections", alt_key="max_selections"
+        )
         decision_offset = int(request.get("decision_offset", -1))
         if decision_offset < 1:
             raise FullGameProtocolError("decision_offset must be a positive integer")
@@ -984,7 +1045,7 @@ class ExternalPilotDecisionPolicy:
     ) -> str:
         if not options:
             raise FullGameProtocolError("boolean decision has no legal options")
-        outcome = str(context.get("outcome", "neutral")).casefold()
+        outcome = resolve_outcome(context, "choose_use")
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         for option in options:
@@ -1027,7 +1088,7 @@ class ExternalPilotDecisionPolicy:
     ) -> str:
         if not options:
             raise FullGameProtocolError("pile decision has no legal options")
-        outcome = str(context.get("outcome", "benefit")).casefold()
+        outcome = resolve_outcome(context, "pile")
         benefit = outcome not in {"detriment", "detriment_to_controller"}
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
@@ -1273,15 +1334,21 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("pilot returned unknown stable mana action") from exc
 
     @staticmethod
-    def _required_bound(mapping: dict[str, Any], key: str) -> int:
+    def _required_bound(mapping: dict[str, Any], key: str, *, alt_key: str | None = None) -> int:
         """Authoritative integer bound from Core-supplied context (fail closed).
 
         Strict: missing, boolean, or non-integer bounds raise. No coercion,
         no default, no clamp — the Lab never invents domain content.
+        ``alt_key`` accepts the protocol's alternate spelling of the same fact
+        without relaxing the requirement: if neither spelling is present the
+        bound is still absent, and that fails closed.
         """
-        if not isinstance(mapping, dict) or key not in mapping:
+        if not isinstance(mapping, dict):
             raise FullGameProtocolError(f"numeric decision missing explicit bound: {key}")
-        raw = mapping[key]
+        present = key if key in mapping else (alt_key if alt_key and alt_key in mapping else None)
+        if present is None:
+            raise FullGameProtocolError(f"numeric decision missing explicit bound: {key}")
+        raw = mapping[present]
         if isinstance(raw, bool) or not isinstance(raw, int):
             raise FullGameProtocolError(f"numeric decision bound is not an integer: {key}")
         return cast(int, raw)
@@ -1309,7 +1376,7 @@ class ExternalPilotDecisionPolicy:
         maximum = self._required_bound(context, "numeric_max")
         if maximum < minimum:
             raise FullGameProtocolError("numeric decision has reversed bounds")
-        outcome = str(context.get("outcome", "benefit")).casefold()
+        outcome = resolve_outcome(context, decision_class)
         domain: dict[str, Any] = {
             "kind": "contiguous_inclusive_int",
             "min": minimum,
@@ -1367,7 +1434,7 @@ class ExternalPilotDecisionPolicy:
             or sum(leg["max"] for leg in legs) < total_min
         ):
             raise FullGameProtocolError("multi_amount joint domain is empty")
-        outcome = str(context.get("outcome", "benefit")).casefold()
+        outcome = resolve_outcome(context, "multi_amount")
         domain: dict[str, Any] = {
             "kind": "joint_bounded_int_vector",
             "legs": legs,
@@ -1921,6 +1988,7 @@ class XmageFullGameRunner:
             engine_version=str(provider.get("engine_version", "unknown")),
             xmage_commit=scenario.xmage_commit,
             decision_protocol_version=FULL_GAME_DECISION_PROTOCOL_VERSION,
+            declared_outcome_policies=declared_outcome_policies(),
             decision_count=decision_count,
             smoke_decision_target=smoke_decision_target,
             bounded_criterion_met=True,
@@ -2228,6 +2296,7 @@ class XmageFullGameRunner:
             engine_version=str(provider.get("engine_version", "unknown")),
             xmage_commit=str(provider.get("engine_commit", "")),
             decision_protocol_version=FULL_GAME_DECISION_PROTOCOL_VERSION,
+            declared_outcome_policies=declared_outcome_policies(),
             decision_count=int(result.get("decision_count", 0)),
             terminal=True,
             winner_seats=winner_seats,

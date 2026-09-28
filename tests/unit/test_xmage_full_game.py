@@ -9,14 +9,18 @@ import pytest
 from commander_lab.agents import GenericCommanderPilot
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
+    DECLARED_OUTCOME_POLICY_BY_CLASS,
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     ExternalPilotDecisionPolicy,
     FullGameConformanceResult,
     FullGamePilotBinding,
     FullGameProtocolError,
+    FullGameSmokeResult,
     XmageFullGameRunner,
     _RuntimePilot,
+    declared_outcome_policies,
+    resolve_outcome,
 )
 from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
@@ -213,6 +217,75 @@ def test_unknown_discretionary_decision_class_fails_closed() -> None:
     request["decision_class"] = "unmapped_future_choice"
     with pytest.raises(FullGameProtocolError, match="unsupported discretionary decision class"):
         _runtime_policy().decide(request)
+
+
+# --- selection bounds are authoritative frame facts, never optional ----------
+
+
+@pytest.mark.parametrize("key", ["minimum_selections", "maximum_selections"])
+def test_absent_selection_bound_fails_closed_rather_than_defaulting_to_zero(key: str) -> None:
+    """A 0..0 default would defeat the policy's own selection-bounds gate.
+
+    The frame's selection bounds are Core-authoritative. Absent bounds must
+    fail closed rather than silently authorising an empty selection.
+    """
+    request = _boolean_request(decision_id="engine-a", offset=1)
+    del request[key]
+    with pytest.raises(FullGameProtocolError, match="missing explicit bound"):
+        _runtime_policy().decide(request)
+
+
+def test_alternate_selection_bound_spelling_is_accepted_without_relaxing_the_requirement() -> None:
+    request = _boolean_request(decision_id="engine-a", offset=1)
+    request["min_selections"] = request.pop("minimum_selections")
+    request["max_selections"] = request.pop("maximum_selections")
+    result = _runtime_policy().decide(request)
+    assert result["selected_option_ids"] in (["yes"], ["no"])
+
+
+def test_non_integer_selection_bound_fails_closed() -> None:
+    request = _boolean_request(decision_id="engine-a", offset=1)
+    request["maximum_selections"] = "1"
+    with pytest.raises(FullGameProtocolError, match="not an integer"):
+        _runtime_policy().decide(request)
+
+
+# --- outcomes: engine truth, else a declared and reported pilot policy -------
+
+
+def test_engine_projected_outcome_is_authoritative_and_always_wins() -> None:
+    for projected in ("benefit", "detriment", "neutral", "benefit_to_controller"):
+        for decision_class in DECLARED_OUTCOME_POLICY_BY_CLASS:
+            assert resolve_outcome({"outcome": projected}, decision_class) == projected
+
+
+def test_absent_outcome_falls_back_to_the_declared_pilot_policy_not_a_hidden_default() -> None:
+    for decision_class, declared in DECLARED_OUTCOME_POLICY_BY_CLASS.items():
+        assert resolve_outcome({}, decision_class) == declared
+        assert resolve_outcome({"outcome": ""}, decision_class) == declared
+
+
+def test_declared_outcome_policies_are_reported_so_they_cannot_read_as_engine_truth() -> None:
+    reported = declared_outcome_policies()
+    assert reported
+    assert set(reported) == {
+        f"{decision_class}={outcome}"
+        for decision_class, outcome in DECLARED_OUTCOME_POLICY_BY_CLASS.items()
+    }
+
+
+def test_conformance_result_surfaces_the_declared_outcome_policies() -> None:
+    """The evidence object must disclose pilot-declared outcomes, not hide them."""
+    fields = FullGameConformanceResult.model_fields
+    assert "declared_outcome_policies" in fields
+    assert fields["declared_outcome_policies"].default == ()
+
+
+def test_bounded_smoke_result_surfaces_the_declared_outcome_policies() -> None:
+    """The published smoke evidence must disclose them too, not just the gate."""
+    fields = FullGameSmokeResult.model_fields
+    assert "declared_outcome_policies" in fields
+    assert fields["declared_outcome_policies"].default == ()
 
 
 def test_semantic_transcript_drops_private_state_and_engine_object_ids() -> None:
