@@ -129,7 +129,12 @@ def test_each_mutation_actually_breaks_the_deck(probe: str) -> None:
     elif probe == "commander_not_in_pool":
         assert bad["commander_names"] == ["Hill Giant"]
     elif probe == "colour_identity_violation":
-        assert set(bad["mainboard"]) == {"Black Lotus"}
+        # A non-legendary, non-basic black land isolates the colour-identity
+        # rule. Black Lotus is legendary, so the engine refused 99 of them as a
+        # copy-limit violation and the probe would have passed for the wrong
+        # reason.
+        assert set(bad["mainboard"]) == {"Shivan Reef"}
+        assert "Black Lotus" not in bad["mainboard"]
     assert bad["deck_id"] != base["deck_id"], "a probe must be a distinct deck"
     # The original deck must be untouched.
     assert (
