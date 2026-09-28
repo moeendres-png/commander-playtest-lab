@@ -99,3 +99,84 @@ def test_submodule_imports_are_resolvable() -> None:
         sys.path.insert(0, str(REPO / "src"))
     for name in sorted(_submodule_names()):
         assert importlib.import_module(f"{PACKAGE}.{name}") is not None
+
+
+def _module_level_bound_names() -> set[str]:
+    """Names the runner binds at module level, including every import alias."""
+    tree = ast.parse(RUNNER.read_text(encoding="utf-8"))
+    bound: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                bound.add(alias.asname or alias.name.split(".")[0])
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            bound.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    bound.add(target.id)
+                elif isinstance(target, ast.Tuple):
+                    bound.update(e.id for e in target.elts if isinstance(e, ast.Name))
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            bound.add(node.target.id)
+        elif isinstance(node, ast.arg):
+            bound.add(node.arg)
+        elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            bound.add(node.id)
+        elif isinstance(node, (ast.For, ast.comprehension)):
+            target = getattr(node, "target", None)
+            if isinstance(target, ast.Name):
+                bound.add(target.id)
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            bound.add(node.name)
+    import builtins
+
+    bound.update(dir(builtins))
+    # Module dunders are provided by the interpreter, not by any import.
+    bound.update({"__file__", "__name__", "__doc__", "__package__", "__spec__"})
+    return bound
+
+
+def test_every_name_the_runner_uses_is_bound() -> None:
+    """A used-but-unimported name is a runtime AttributeError/NameError.
+
+    The PB-03 predicate call once shipped calling `materialization.mid_...` off
+    an instance while the module function was never imported. Ruff and the export
+    test both passed, because the export test only checked what the runner
+    imports, not what the runner uses. This closes that gap.
+    """
+    tree = ast.parse(RUNNER.read_text(encoding="utf-8"))
+    bound = _module_level_bound_names()
+    undefined: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            if node.id not in bound:
+                undefined.add(node.id)
+    assert not undefined, f"runner uses names it never binds: {sorted(undefined)}"
+
+
+def test_runner_module_loads() -> None:
+    """Import the runner for real.
+
+    The runner has module-level side effects by design, so this executes it in a
+    subprocess with the Forge workspace pointed at a temporary directory. It is
+    the only check that catches a module-level failure, which is exactly the
+    class of defect that stopped the first runtime run.
+    """
+    import os
+    import subprocess
+    import sys
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        env = dict(os.environ, FORGE_WORKSPACE=tmp, PYTHONPATH=str(REPO / "src"))
+        completed = subprocess.run(
+            [sys.executable, str(RUNNER), "--help"],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=300,
+            check=False,
+        )
+    assert completed.returncode == 0, completed.stderr[-2000:]
+    assert "--candidate" in completed.stdout

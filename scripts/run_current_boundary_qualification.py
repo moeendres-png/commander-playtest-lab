@@ -45,6 +45,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     export_replay,
     launch,
     load_effective_materialization,
+    mid_game_mechanisms,
     non_executed_row,
     observe_principal_state,
     run_af01,
@@ -569,7 +570,7 @@ def classify_remaining(
         if fixture_id in executed:
             continue
         # PB-03: decide from the obligation's mechanisms, not from the row name.
-        mechanisms = materialization.mid_game_mechanisms(record)
+        mechanisms = mid_game_mechanisms(record)
         if mechanisms:
             reason = (
                 "no current-boundary execution seam: the effective obligation requires a "

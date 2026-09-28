@@ -16,13 +16,13 @@
      ],
      "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
      "deck_id": "af03-control",
-     "handle_id": "xmage-deck-d838e3e9-de15-45f7-9cb7-7add3bac4062",
+     "handle_id": "xmage-deck-4e1955ad-4f89-4b54-8490-832c4f965151",
      "rejected_cards": [],
      "warnings": []
     }
    },
    "protocol_version": "2.0.0",
-   "request_id": "92f2cf09-060c-423d-a28c-e90076f1786a",
+   "request_id": "b6a0bce1-eb16-4497-88fc-362dbf3303c1",
    "status": "ok",
    "success": true
   }
@@ -44,7 +44,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "4896f68b-07e6-474d-a1a8-06574e597392",
+    "request_id": "95ea18f1-fe83-4655-9387-6da5f2e800de",
     "status": "error",
     "success": false
    },
@@ -65,7 +65,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "bc9fab79-a7dd-410a-9c51-64d4fc8a4e47",
+    "request_id": "c71b0049-329a-4e25-90fc-c2313dabdd31",
     "status": "error",
     "success": false
    },
@@ -86,7 +86,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "57eb20d5-9dc3-4957-ad06-a2dc630af914",
+    "request_id": "b5a01cd3-6183-48e4-8ec9-c604c4b3f6ab",
     "status": "error",
     "success": false
    },
@@ -107,7 +107,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "1efacf86-022c-4f3a-8503-b97dbe86a413",
+    "request_id": "63709e67-af62-43d2-8899-f108b03126a5",
     "status": "error",
     "success": false
    },
@@ -128,7 +128,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "dec22a98-b074-4221-93fd-fe4a1d3916bf",
+    "request_id": "2b5b3da1-e26a-470c-8830-0240b164269f",
     "status": "error",
     "success": false
    },
