@@ -1,0 +1,40 @@
+schema_version: '1.0'
+workstream: pb09-pristine-upstream-forge-qualification
+branch: muse-xhigh/pb09-pristine-forge-20260929
+worktree: /home/moeen/code/csn-final-bakeoff/muse/pb09-lab
+status: ACTIVE_SOURCE_LOCK
+execution_identity:
+  model: opencode-go/muse-spark-1.3-contributor
+  native_variant: xhigh
+source_lock:
+  lab_main: afe09c61d4ad90f89c28ff75ac7439a20b89cfdd
+  lab_main_tree: 0d5b3f0d9020cc99131dd92a41a9615c61bbac8a
+  lab_branch_head: afe09c61d4ad90f89c28ff75ac7439a20b89cfdd
+  pristine_upstream_repository: https://github.com/Card-Forge/forge.git
+  pristine_upstream_commit: a37a865a53280dd8ad6fad3384d69611e8c5a42f
+  pristine_upstream_tree: 4471ff068dd23127fc5878bdffa0c0e6de8e6c28
+  pristine_materialized_utc: 2026-09-29
+  pristine_build_baseline: java17_same_revision_scheme_no_bridge_module_upstream
+  pristine_checkout: /home/moeen/code/csn-final-bakeoff/muse/forge-upstream-pristine
+  fork_rules_core: ef958ee91ac6c9ce0152189f2654bf6e05abf273
+  fork_bridge_evidence_pr5: e15f37d6b2b5c0ad682948f86f037e07b6aaded5
+  lab_bridge_source_pin: 4753bb7c72ea60d653121e0bab989077b4009f9c
+  fork_reference_checkout: /home/moeen/code/csn-final-bakeoff/muse/forge-fork-ref
+  historical_pristine_run:
+    rules_core: a37a865a53280dd8ad6fad3384d69611e8c5a42f
+    bridge_source: 4753bb7c72ea60d653121e0bab989077b4009f9c
+    counts: PASS_1_FAIL_4_UNKNOWN_102_BLOCKED_0
+    identity_binding: operator_supplied_env_FORGE_ENGINE_SHA_PB05_OPEN
+phase_a_runtime_reachable: UNKNOWN
+ownership:
+  pb09_pristine: muse-xhigh-pb09-workstream
+  forbidden_surfaces:
+    - PR #284 branch and PB-03 implementation
+    - PR #289 branch and game_driver/START-2 surfaces
+    - DeepSeek Forge Aftermath implementation branch
+    - Forge PR #5 branch (no merge to Forge master)
+out_of_scope:
+  - Production Provider selection
+  - Architecture Freeze claim
+  - copying fork Rules-Core semantic fixes into pristine
+  - broad upstream-Forge qualification beyond the lawful boundary
