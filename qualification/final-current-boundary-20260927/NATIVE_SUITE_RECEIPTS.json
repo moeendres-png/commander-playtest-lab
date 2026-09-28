@@ -1,13 +1,13 @@
 {
  "receipt_count": 2,
  "receipt_digests": {
-  "xmage:direct": "c754a4b20258eceb15a8e8d152b1920cd3b31ee25ecf0316d8c4e39b37d67963",
-  "xmage:mechanism": "40d454e554aaac6f1a2ac4bf847ffd89cc7898eac148945a0b1d53b47294d253"
+  "xmage:direct": "8e2940eae476b502a5144c8da4538563cfce869af11ac2c8810794ea5307a3a7",
+  "xmage:mechanism": "a8df6901a1b7c50a83ac22b52aa356e74c75b8106474ce84d9e57bafe3f5f5f6"
  },
  "runner": {
   "branch": "sbmax/final-pre-freeze-20260928",
-  "built_utc": "2026-09-28T20:47:52+00:00",
-  "commit": "1e71dc33c804fd199273339a3ba937d33760907e",
+  "built_utc": "2026-09-28T21:06:57+00:00",
+  "commit": "dfb251df21171fb8c90bbaacc43d3ef0e0ac67e1",
   "dirty": false,
   "dirty_paths": [],
   "input_digests": {
@@ -33,7 +33,7 @@
    "src/commander_lab/qualification/current_boundary/af03.py": "ba6fd0d50be08cbaad81121862679958ca2736f00470ca11eb10c61e74431b60",
    "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "8a19aaa7da05db8657f5bd355cc0208d9992cc60dbab983adae716390e5cdeff",
    "src/commander_lab/qualification/current_boundary/full107.py": "6a3e50aa7fc80a6db185bcf91677f449a6f575265efb4c4602376865bc157542",
-   "src/commander_lab/qualification/current_boundary/game_driver.py": "a223bc639ee0d0190710127b83f9268a0e8ddbb38e4f64bea7f5ab4f8b9b9ab2",
+   "src/commander_lab/qualification/current_boundary/game_driver.py": "afb82cccc4e48bf666a1be3460a7e1e72466ddeab997e681c16ff531bf6d3c5e",
    "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
    "src/commander_lab/qualification/current_boundary/materialization.py": "246b016422f5f0302ae4effa215f1968dc25644a47d5fcf88c468315f63f2114",
    "src/commander_lab/qualification/current_boundary/receipts.py": "e0656419bdb10cc9bc8c12a6254f949c9f45d307dc500f7894d643a1a2b1f99a",
@@ -45,7 +45,7 @@
    "qualification/final-current-boundary-20260927/"
   ],
   "schema_version": "commander-lab.runner-identity/1.0.0",
-  "tree": "87b8b7e9aaa5a20d784677f29a18e8528f2f7492"
+  "tree": "fe792de634e523e60a376198dc77b9a132e4cca8"
  },
  "schema_version": "wsr22.native-suite-receipt-index/1.0.0"
 }

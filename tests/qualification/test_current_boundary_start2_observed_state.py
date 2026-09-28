@@ -76,7 +76,7 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     # seat, derived from the Lab's own frame. It is never inferred from visible
     # cards, and it is never the engine's live actor identity.
     assert '{"observer_player_id": principal}' in block
-    assert "principal = _SEATS[seat_index]" in block
+    assert 'principal = str(frame_seat) if frame_seat is not None else ""' in block
     # Counts come from the acting seat's row only.
     assert 'actor_row.get("seat") != seat_index' in block
     assert 'zones.get("library_size")' in block
@@ -164,7 +164,7 @@ def test_driver_observes_engine_reported_zone_counts() -> None:
 def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     """Record only the acting principal's counts; never persist another live principal id."""
     source = DRIVER.read_text(encoding="utf-8")
-    start = source.index('seat_index = frame.get("seat")')
+    start = source.index('frame_seat = frame.get("seat")')
     end = source.index('result.terminal_facts["observed_zone_count_source"]')
     block = source[start:end]
     assert '{"observer_player_id": principal}' in block
@@ -197,8 +197,8 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
     source = DRIVER.read_text(encoding="utf-8")
 
     # The Lab seat is authoritative and is what the observer request names.
-    assert 'seat_index = frame.get("seat")' in source
-    assert "principal = _SEATS[seat_index]" in source
+    assert 'frame_seat = frame.get("seat")' in source
+    assert "seat_index = _SEATS.index(principal)" in source
     # The request still names the Lab external principal explicitly.
     assert '"observer_player_id": principal' in source
     # And the engine actor is never used as a Lab principal.

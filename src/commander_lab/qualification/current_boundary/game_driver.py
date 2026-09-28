@@ -714,15 +714,17 @@ def drive_commander_game(
                 # the engine resolves that to its own live id, and the binding below
                 # proves the two agree. The live id is used transiently and never
                 # persisted.
-                decision = frame["decision"] if "frame" in dir() else {}
-                seat_index = frame.get("seat") if isinstance(frame, dict) else None
-                if isinstance(seat_index, bool) or not isinstance(seat_index, int):
-                    raise GameDriveError("the decision frame carries no Lab seat")
-                if not 0 <= seat_index < player_count:
+                # The frame's "seat" is the Lab's OWN seat label, published by the
+                # poll loop, and is therefore authoritative for which principal acted.
+                # It is a label rather than an index, so the index is resolved from
+                # the Lab's declared namespace instead of being read off the engine.
+                frame_seat = frame.get("seat") if isinstance(frame, dict) else None
+                principal = str(frame_seat) if frame_seat is not None else ""
+                if principal not in _SEATS[:player_count]:
                     raise GameDriveError(
-                        f"the Lab seat {seat_index} is outside 0..{player_count - 1}"
+                        f"the Lab frame seat {principal!r} is not one of {_SEATS[:player_count]}"
                     )
-                principal = _SEATS[seat_index]
+                seat_index = _SEATS.index(principal)
                 observed = proc.request(
                     "get_game_state",
                     {"observer_player_id": principal},
