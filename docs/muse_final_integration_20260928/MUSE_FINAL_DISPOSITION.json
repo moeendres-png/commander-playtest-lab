@@ -1,0 +1,169 @@
+{
+  "schema": "commander-lab.muse-final-disposition/1.0.0",
+  "audit_base": {
+    "main_commit": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+    "main_tree": "a28d98b29c84342056e5658f8f4423f927999108",
+    "salvage_branch": "sol/muse-final-salvage-20260929"
+  },
+  "donor": {
+    "branch": "donor/muse-xhigh-independent-20260928",
+    "head": "b7b16ef858e2d88bbb2946710eb054afe1246b78",
+    "tree": "1b6320abc0024bd90c093f9e68ecf056b88c0d3f",
+    "convergence_main": "c9277b90ed3835985dcd21824cfe1762b3f65dcd",
+    "unique_commit_count": 12
+  },
+  "branch_dispositions": [
+    {
+      "branch": "donor/muse-xhigh-independent-20260928",
+      "head": "b7b16ef858e2d88bbb2946710eb054afe1246b78",
+      "disposition": "PROVENANCE_ONLY_WITH_PARTIAL_PORT"
+    },
+    {
+      "branch": "muse/ws48-forge-v1.0.5-heavy-support",
+      "head": "895eca21a3f63a54e9173d0dc65f7d94e8b41818",
+      "disposition": "INVALID_DO_NOT_USE_PRODUCTION__PROVENANCE_ONLY_DESIGN"
+    },
+    {
+      "branch": "muse/ws49-xmage-local-execution-readiness",
+      "head": "ece12fde7b605eeafa0b0990623374551a8a3a8c",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "branch": "project/opencode-muse-cross-repo-hardening-v2-20260910",
+      "head": "ec68024593904b648fd03d2fb518bee94cfa4d3b",
+      "disposition": "ALREADY_CANONICAL"
+    },
+    {
+      "branch": "governance/space-bunny-max-muse-xhigh-successor-20260927",
+      "head": "e75efbc73c4aa6148a39b4dbac29bad78a2103ca",
+      "disposition": "ALREADY_CANONICAL_OR_SUPERSEDED"
+    },
+    {
+      "branch": "ops/opencode-muse-primary-privacy-20260908",
+      "head": "22e2a20fe2fab595f0bc01e40cf00dbdd4af856e",
+      "disposition": "PRIVACY_PRINCIPLE_CANONICAL__OLD_EXECUTION_POLICY_INVALID"
+    }
+  ],
+  "donor_commit_dispositions": [
+    {
+      "commit": "81ada1e22d189a261e0c43de9d97cd16b540c643",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "0f281841fab74dc0a5527fc09f8d840175aaf71f",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "abb747a7adcab706b6e11fdbccd1e134dcf14594",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "04d3e5997f12f1154b4bbf08ac6e5c8f0021c2d8",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "022782ad380f9d5733596973360a2b6938ba0485",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "0a36e47e31f09f053c42ec5c076a6b49d6e7b981",
+      "disposition": "MIXED_PB10_SUPERSEDED_PB03_VALUABLE"
+    },
+    {
+      "commit": "c8cc9b399b94d3a9ba381350e4e8b7a22ab4b194",
+      "disposition": "PORTED_TO_INTEGRATION_PR_CHARACTERIZATION_ONLY"
+    },
+    {
+      "commit": "164f166b23a87a1b5b11432cbb7844f32e16b3ba",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "cb185e580fa9af5df1a1ec9827f65a33d2a40209",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "468360a8a60ae39838d9add957f1fb7cb89abfb3",
+      "disposition": "PORTED_TO_INTEGRATION_PR_CREDIT_BLOCKED_PENDING_DISCRETION_HARDENING"
+    },
+    {
+      "commit": "d6d071cd92e037efdc68d6585d7aceb9331acf5e",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "b7b16ef858e2d88bbb2946710eb054afe1246b78",
+      "disposition": "PROVENANCE_ONLY"
+    }
+  ],
+  "assets": [
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03DimensionAdmissionTest.java",
+      "disposition": "PORTED_TO_CLEAN_SALVAGE_BRANCH",
+      "credit": "ZERO_FULL107_CREDIT_BY_ITSELF"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier1RowsTest.java",
+      "disposition": "PORTED_TO_INTEGRATION_PR_284",
+      "credit": "BLOCKED_PENDING_DISCRETION_HARDENING",
+      "finding": "payFromLabels selects sorted element zero when multiple mana offers exist"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2CmdZoneTest.java",
+      "disposition": "PORTED_TO_INTEGRATION_PR_284_CHARACTERIZATION",
+      "credit": "NOT_AUTO_PROMOTED"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2ControlTurnTest.java",
+      "disposition": "PORTED_TO_INTEGRATION_PR_284",
+      "credit": "BLOCKED_PENDING_SHARED_MANA_HELPER_HARDENING"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2StackTest.java",
+      "disposition": "PORTED_TO_INTEGRATION_PR_284",
+      "credit": "BLOCKED_PENDING_DISCRETION_HARDENING",
+      "finding": "firstPoolSpend selects sorted element zero when multiple pool offers exist"
+    },
+    {
+      "path": "qualification/pb03-wave1-20260928",
+      "disposition": "PROVENANCE_ONLY",
+      "credit": "NO_HISTORICAL_PASS_TRANSFER"
+    },
+    {
+      "path": "qualification/pb09-pristine-forge-20260928",
+      "disposition": "PROVENANCE_CONTROL_ONLY",
+      "credit": "NO_PROVIDER_CAPABILITY_CREDIT"
+    }
+  ],
+  "historical_r11": {
+    "reported_commit": "7ad4e944...",
+    "exact_bytes": "UNRECOVERABLE_LOCAL_ONLY",
+    "functional_disposition": "SUPERSEDED_BY_LATER_CANONICAL_IMPLEMENTATION",
+    "canonical_replacements": [
+      "WS213-WS232 replay-tape v1 successor chain (port commit 291dc89ae083b2f84eb826755439a49f8303bb3e)",
+      "RG-06 hidden-state semantic replay integration",
+      "cumulative L1-L7 residual runtime evidence"
+    ]
+  },
+  "active_overlap": {
+    "pr284_pr289_overlap": [
+      "scripts/run_current_boundary_qualification.py",
+      "src/commander_lab/qualification/current_boundary/game_driver.py",
+      "tests/qualification/test_current_boundary_redaction_placeholders.py",
+      "tests/qualification/test_current_boundary_start2_observed_state.py"
+    ],
+    "muse_java_test_paths_overlap_space_bunny": false
+  },
+  "coordinator_gate": {
+    "pr284_comment_id": 5879829287,
+    "classification": "P1_EVIDENCE_INTEGRITY",
+    "requirement": "remove or semantically justify unscripted sorted-first mana/pool selections before affected current behavior credit"
+  },
+  "flags": {
+    "MUSE_INVENTORY_COMPLETE": true,
+    "MUSE_UNIQUE_CODE_ADJUDICATED": true,
+    "MUSE_SAFE_VALUE_INTEGRATED": "PARTIAL_CLEAN_SALVAGE_BRANCH",
+    "MUSE_REMAINING_INTEGRATION_READY": true,
+    "MUSE_UNRESOLVED_UNKNOWN": false,
+    "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT_SELECTED"
+  }
+}
