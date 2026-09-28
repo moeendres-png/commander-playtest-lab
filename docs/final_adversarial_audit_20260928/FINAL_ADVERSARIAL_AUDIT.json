@@ -1,0 +1,1047 @@
+{
+ "schema_version": "deepseek.final-adversarial-audit/1.0.0",
+ "auditor": "DeepSeek V4.1 Flash MAX (independent lab)",
+ "date": "2026-09-28",
+ "source_lock": {
+  "lab_main": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+  "lab_main_tree": "a28d98b29c84342056e5658f8f4423f927999108",
+  "lab_pr_286": {
+   "state": "MERGED",
+   "merge_commit": "3910040b",
+   "head": "5ed07d23"
+  },
+  "forge_rules_core": {
+   "commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "tree": "fc3387bf37aab19d780b2939a235309ed32b0492"
+  },
+  "forge_bridge_evidence": {
+   "commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+   "pr": 5,
+   "state": "OPEN_DRAFT"
+  },
+  "xmage_candidate": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "deepseek_forge_branch": {
+   "name": "deepseek/finality-aftermath-20260928",
+   "head": "52cfd9a24ba",
+   "base": "ef958ee9"
+  },
+  "audit_branch": "docs/final-adversarial-audit-20260928",
+  "space_bunny_pr": {
+   "number": 285,
+   "state": "OPEN",
+   "head": "b4ea7751",
+   "note": "2096 files changed; not reviewed in depth"
+  }
+ },
+ "pass_claims_challenged": [
+  {
+   "claim": "Forge AF03 refuses illegal Commander decks through Rules-Core conformance",
+   "falsification_attempt": "Rule out bridge shape guards (1 commander + 100 cards still refused), incidental colour-card properties (Shivan Reef non-basic non-legendary), and unreadable-deck paths (distinct code).",
+   "evidence": "AF03_FORGE.json probes: deck_not_legal 'has an illegal commander'; deck_not_legal colour identity; deck_import_failed for unknown/size/empty; legal control accepted.",
+   "result": "SURVIVES"
+  },
+  {
+   "claim": "Forge principal scoping is established (PRINCIPAL_SCOPED, 4 distinct views)",
+   "falsification_attempt": "Recomputed distinctness after stripping every binding field; checked exactly-one is_actor per view; checked own-hand real vs opponent placeholders; marker-only fabrication is pinned by a negative control.",
+   "evidence": "HIDDEN_INFO_FORGE.json: distinct=4 content-only, attribution NONE, established p1-p4; binding-metadata-only negative control stays distinct=1.",
+   "result": "SURVIVES"
+  },
+  {
+   "claim": "Forge creation acknowledges the engine-accepted seed",
+   "falsification_attempt": "Checked for request echo vs engine readback; verified reject/mismatch fail closed; verified unseeded launch clears a stale binding.",
+   "evidence": "RNG_REPLAY_FORGE.json ACKNOWLEDGED_ENGINE_SEED from create_commander_game_response; bridge tests Wsr30SeedAcknowledgementTest fail-before/pass-after.",
+   "result": "SURVIVES"
+  },
+  {
+   "claim": "START-2 PASS is based on observed engine state",
+   "falsification_attempt": "Checked that guard inputs are observed and persisted, not the requested fixtures; verified counts come from the marked principal's zones.",
+   "evidence": "terminal_facts observed_decision_kinds, observed_draw_semantic_events=[], observed_starting_actor=p1, observed_actor_zone_counts hand=7 library=92 STATE_ACTOR_MARKER.",
+   "result": "SURVIVES"
+  },
+  {
+   "claim": "Forge native suites 150/150 and 67/67 at e15f37d6",
+   "falsification_attempt": "Checked per-candidate receipt separation, executed vs candidate commit, engine-identity proof, and cross-candidate contamination.",
+   "evidence": "receipts/native-forge-*.json candidate=forge executed=e15f37d6 candidate_commit=ef958ee9 proof=RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL.",
+   "result": "SURVIVES"
+  },
+  {
+   "claim": "Forge PB-07 is 28/29 runtime-qualified",
+   "falsification_attempt": "Checked whether the artifact is Lab current-boundary evidence and whether it binds to canonical main; checked its own global verdict.",
+   "evidence": "PB07_EVIDENCE.json global_verdict = 'PARTIAL (Forge-side preparation only; PB-07 global closure NOT claimed)'; not on canonical Lab main; Lab current-boundary actual-card artifact is import evidence over 12 names.",
+   "result": "DOES_NOT_SURVIVE_AS_LAB_CREDIT"
+  }
+ ],
+ "af11_technical_topology": {
+  "forge": {
+   "engine_repository": "moeendres-png/forge",
+   "engine_commit": "ef958ee9",
+   "engine_license": "GPL-3.0",
+   "bridge_location": "same repository, module forge-protocol2-bridge",
+   "toolchain_link": "compiled in the same Maven reactor against forge-core/forge-game/forge-gui",
+   "runtime": "separate JVM process, JSONL over stdin/stdout",
+   "same_process_as_lab": false,
+   "dynamic_link_to_lab": false,
+   "source_copied_into_lab": false
+  },
+  "xmage": {
+   "engine_repository": "moeendres-png/mage",
+   "engine_commit": "b1959698",
+   "engine_license": "MIT (upstream)",
+   "bridge_location": "Lab repository, module engine-bridge (org.commanderlab.xmage)",
+   "toolchain_link": "compiled against org.mage:mage:1.4.61 artifacts from the local Maven repository (no <repositories> entry)",
+   "runtime": "separate JVM process, JSONL over stdin/stdout",
+   "same_process_as_lab": false,
+   "dynamic_link_to_lab": false,
+   "source_copied_into_lab": false
+  },
+  "lab": {
+   "license_file": "NONE_FOUND (only data/provenance/license_report.md policy and a schema)",
+   "runtime_relationship": "IPC only"
+  }
+ },
+ "af11_remaining_legal_questions": [
+  {
+   "question": "What source-offer/notice obligations attach when modified Forge GPL-3.0 binaries are shipped alongside a separately communicating Lab process?",
+   "classification": "LEGAL_INTERPRETATION_REQUIRED"
+  },
+  {
+   "question": "What license/notice must the Lab carry for its own code and consumed engine artifacts given no Lab LICENSE file?",
+   "classification": "LEGAL_INTERPRETATION_REQUIRED"
+  },
+  {
+   "question": "What MIT attribution set must accompany a distribution embedding transitive Mage jars?",
+   "classification": "LEGAL_INTERPRETATION_REQUIRED"
+  },
+  {
+   "question": "Does build-time source fetching in a container change the GPL source-offer mechanics versus shipping binaries?",
+   "classification": "LEGAL_INTERPRETATION_REQUIRED"
+  }
+ ],
+ "pb07_receipt_map": {
+  "denominator": {
+   "count": 29,
+   "source": "commander-playtest-lab/qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json#regression_corpus_29"
+  },
+  "rows": [
+   {
+    "card": "Ishai, Ojutai Dragonspeaker",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: opponent Memnite cast puts exactly one +1/+1 counter on Ishai",
+    "exact_runtime_test": "probe: opponent Memnite cast puts exactly one +1/+1 counter on Ishai",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Rograkh, Son of Rohgahh",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "BridgeEngineTest commander cast+tax+battlefield; deck-rograkh fixtures",
+    "exact_runtime_test": "BridgeEngineTest commander cast+tax+battlefield; deck-rograkh fixtures",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Esior, Wardwing Familiar",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: hardcast resolves, Flying verified, turn-2 combat evasion deals 1 through ground defenders (p2 40->39); partner mechanism covered by Kediss/Rograkh families, ward unasserted",
+    "exact_runtime_test": "probe: hardcast resolves, Flying verified, turn-2 combat evasion deals 1 through ground defenders (p2 40->39); partner mechanism covered by Kediss/Rograkh families, ward unasserted",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Kediss, Emberclaw Familiar",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR10KedissBridgeFamilyTest",
+    "exact_runtime_test": "WsR10KedissBridgeFamilyTest",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Veyran, Voice of Duality",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WS236F4BridgeTest + WS234",
+    "exact_runtime_test": "WS236F4BridgeTest + WS234",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Harmonic Prodigy",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WS236F4BridgeTest",
+    "exact_runtime_test": "WS236F4BridgeTest",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Narset, Parter of Veils",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: hardcast resolves, CantDraw static active (conditions true), Opt scry resolves but extra draw prevented (hand keeps only turn-draw, library untouched). Harness lesson: zone-gated statics need real ETB (pre-placed permanents carry stale LKI).",
+    "exact_runtime_test": "probe: hardcast resolves, CantDraw static active (conditions true), Opt scry resolves but extra draw prevented (hand keeps only turn-draw, library untouched). Harness lesson: zone-gated statics need real ETB (pre-placed permanents carry stale LKI).",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Jeska, Thrice Reborn",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR11JeskaBridgeFamilyTest (loyalty-cost shape)",
+    "exact_runtime_test": "WsR11JeskaBridgeFamilyTest (loyalty-cost shape)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Magma Opus",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR10MagmaBridgeFamilyTest",
+    "exact_runtime_test": "WsR10MagmaBridgeFamilyTest",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Wash Away",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: cleave {1}{U}{U} variant counters a hand-cast Memnite in response (graveyard, never lands)",
+    "exact_runtime_test": "probe: cleave {1}{U}{U} variant counters a hand-cast Memnite in response (graveyard, never lands)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Wear // Tear",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR11FuseBridgeFamilyTest (fuse)",
+    "exact_runtime_test": "WsR11FuseBridgeFamilyTest (fuse)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REUSABLE",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Dig Through Time",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe full runtime: delve framed+paid (6 exiled), look-7-pick-2 (21 options), bottom-5 ORDER_CHOICE (120 options), resolution end-state verified",
+    "exact_runtime_test": "probe full runtime: delve framed+paid (6 exiled), look-7-pick-2 (21 options), bottom-5 ORDER_CHOICE (120 options), resolution end-state verified",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Flare of Duplication",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR9RetargetBridgeFamilyTest",
+    "exact_runtime_test": "WsR9RetargetBridgeFamilyTest",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Vandalblast",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: normal and overload ({4}{R}) offered as distinct variants, both fully execute",
+    "exact_runtime_test": "probe: normal and overload ({4}{R}) offered as distinct variants, both fully execute",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Finale of Revelation",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR9FinaleX10BridgeFamilyTest (X spell)",
+    "exact_runtime_test": "WsR9FinaleX10BridgeFamilyTest (X spell)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Psychosis Crawler",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: Opt draw drains each opponent to 39 (controller untouched)",
+    "exact_runtime_test": "probe: Opt draw drains each opponent to 39 (controller untouched)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Kaervek the Merciless",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: opponent Bears (MV 2) burns p2 to 38 via any-target choice",
+    "exact_runtime_test": "probe: opponent Bears (MV 2) burns p2 to 38 via any-target choice",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Shriekmaw",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: hardcast ETB destroy + evoke ({1}{B}) with sacrifice and second ETB verified",
+    "exact_runtime_test": "probe: hardcast ETB destroy + evoke ({1}{B}) with sacrifice and second ETB verified",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Butcher of Malakir",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: Bolt kills own Memnite, each opponent sacrifices exactly their creature (p3 Ornithopter, p4 Walker in graveyards)",
+    "exact_runtime_test": "probe: Bolt kills own Memnite, each opponent sacrifices exactly their creature (p3 Ornithopter, p4 Walker in graveyards)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Syphon Mind",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "new multiplayer-discard runtime (this campaign)",
+    "exact_runtime_test": "new multiplayer-discard runtime (this campaign)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Gratuitous Violence",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: cast + real combat, 1-power attacker deals exactly 2 (p2 40->38)",
+    "exact_runtime_test": "probe: cast + real combat, 1-power attacker deals exactly 2 (p2 40->38)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Bolt Bend",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR9RetargetBridgeFamilyTest",
+    "exact_runtime_test": "WsR9RetargetBridgeFamilyTest",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Makeshift Mannequin",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: reanimate with mannequin counter verified",
+    "exact_runtime_test": "probe: reanimate with mannequin counter verified",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Warstorm Surge",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: Memnite entry hits p2 for its power (p2 39)",
+    "exact_runtime_test": "probe: Memnite entry hits p2 for its power (p2 39)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Basilisk Collar",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: cast + equip + Deathtouch/Lifelink verified",
+    "exact_runtime_test": "probe: cast + equip + Deathtouch/Lifelink verified",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Burn Down the House",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: Devils mode creates exactly three Devil tokens",
+    "exact_runtime_test": "probe: Devils mode creates exactly three Devil tokens",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Path of Ancestry",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR13PathBridgeFamilyTest",
+    "exact_runtime_test": "WsR13PathBridgeFamilyTest",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   },
+   {
+    "card": "Find // Finality",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "probe: front-face Find returns both creatures (runtime); aftermath Finality unoffered though engine grant index surfaces the card and enumerates zero abilities",
+    "exact_runtime_test": "probe: front-face Find returns both creatures (runtime); aftermath Finality unoffered though engine grant index surfaces the card and enumerates zero abilities",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN_NOW_REMEDIABLE",
+    "recorded_status": "RUNTIME_QUALIFIED_FRONT_PLUS_ENGINE_GAP"
+   },
+   {
+    "card": "Boseiju Reaches Skyward // Branch of Boseiju",
+    "candidate": "forge",
+    "claimed_behavior_obligation": "WsR11BoseijuBridgeFamilyTest: saga cast, chapter-I search, full transform, Branch power tracking (front-face resolution rule)",
+    "exact_runtime_test": "WsR11BoseijuBridgeFamilyTest: saga cast, chapter-I search, full transform, Branch power tracking (front-face resolution rule)",
+    "exact_receipt": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json (not canonical Lab main)",
+    "candidate_source_identity": {
+     "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+     "bridge_evidence": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+     "note": "recorded at the wsr28 lineage; no Lab source-lock binding in this audit"
+    },
+    "evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+    "affected_by_current_candidate_changes": true,
+    "reuse_disposition": "REQUIRES_TARGETED_RERUN",
+    "recorded_status": "RUNTIME_QUALIFIED"
+   }
+  ],
+  "summary": {
+   "rows": 29,
+   "forge_side_runtime_qualified": 28,
+   "forge_side_engine_gap": 1,
+   "lab_current_boundary_credit": 0
+  }
+ },
+ "aftermath_root_cause": {
+  "card": "Find // Finality",
+  "root_cause": "Card.getAllPossibleAbilities iterated only the current state's spell abilities; with the split card holding LeftSplit (front half, its state after the front half is cast), the RightSplit aftermath SA was never enumerated, and the front half is correctly filtered from the graveyard, so the enumeration returned [].",
+  "smallest_systemic_seam": "append the alternate state's spells in getAllPossibleAbilities and let the existing playability filter decide; zone legality stays in the ability's own restriction",
+  "blast_radius": "every getAllPossibleAbilities consumer (AI, GUI, bridge)",
+  "fix": {
+   "branch": "deepseek/finality-aftermath-20260928",
+   "head": "52cfd9a24ba",
+   "files": [
+    "forge-game/src/main/java/forge/game/card/Card.java",
+    "forge-gui-desktop/src/test/java/forge/gamesimulationtests/ws234/DeepseekAftermathDiscoveryTest.java"
+   ]
+  },
+  "evidence": {
+   "fail_before": "3/6 tests fail with empty graveyard enumeration for the front-cast state",
+   "fix_after": "6/6 pass; enumerated ability aftermath=true spell=true zone=Graveyard",
+   "desktop_suite": "456 tests, 0 failures, 0 errors, 6 skipped",
+   "bridge_suite": "213 tests, 0 failures, 0 errors"
+  },
+  "release_criticality": "PB-07 last Forge card gap; makes the 29th card enumerable, does not by itself close PB-07"
+ },
+ "readiness_blind_spot_matrix": [
+  {
+   "domain": "Legal Actions",
+   "required_observable": "engine-offered actor-scoped options",
+   "current_evidence": "acting-frame enumeration; AF04 UNKNOWN",
+   "strongest_classification": "CODE_DERIVED",
+   "known_gap": "only the acting frame; AF04 unestablished",
+   "false_positive_shape": "fixture-scripted options as engine options",
+   "remaining_work": "decision-family matrix"
+  },
+  {
+   "domain": "Decision Identity",
+   "required_observable": "revision/id + rejection semantics",
+   "current_evidence": "START-2 tape, bridge tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "AF04 row unestablished",
+   "false_positive_shape": "stale revision accepted",
+   "remaining_work": "decision-family matrix"
+  },
+  {
+   "domain": "Priority",
+   "required_observable": "real priority passes",
+   "current_evidence": "PLAYER_COUNT rows",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "full cycles unmeasured",
+   "false_positive_shape": "pass inferred from silence",
+   "remaining_work": "priority micro-rules"
+  },
+  {
+   "domain": "Stack",
+   "required_observable": "stack contents/order",
+   "current_evidence": "family tests",
+   "strongest_classification": "CODE_DERIVED",
+   "known_gap": "no denominator row",
+   "false_positive_shape": "resolved stack read as empty",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Costs",
+   "required_observable": "cost payment/reduction",
+   "current_evidence": "cleave/delve/overload probes",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "not systematic",
+   "false_positive_shape": "option unpayable",
+   "remaining_work": "cost micro-rules"
+  },
+  {
+   "domain": "Mana",
+   "required_observable": "pool and payment framing",
+   "current_evidence": "bridge tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "auto-pay assumed",
+   "remaining_work": "mana micro-rules"
+  },
+  {
+   "domain": "Targets",
+   "required_observable": "legal target sets",
+   "current_evidence": "retarget probes",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "not systematic",
+   "false_positive_shape": "target list from fixture",
+   "remaining_work": "target matrix"
+  },
+  {
+   "domain": "Modes",
+   "required_observable": "modal choices",
+   "current_evidence": "Burn Down the House, Vandalblast",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "default mode assumed",
+   "remaining_work": "modes matrix"
+  },
+  {
+   "domain": "Choices",
+   "required_observable": "optional yes/no",
+   "current_evidence": "probes",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "optional skipped",
+   "remaining_work": "choice matrix"
+  },
+  {
+   "domain": "Triggers",
+   "required_observable": "trigger events",
+   "current_evidence": "family tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "event count as behavior",
+   "remaining_work": "trigger matrix"
+  },
+  {
+   "domain": "Replacement",
+   "required_observable": "replacement application",
+   "current_evidence": "WS234 exile replacement",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "narrow",
+   "false_positive_shape": "untested family",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Prevention",
+   "required_observable": "prevention shields",
+   "current_evidence": "none",
+   "strongest_classification": "UNKNOWN",
+   "known_gap": "full",
+   "false_positive_shape": "damage zero attributed to prevention",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Continuous Effects",
+   "required_observable": "static buffs/debuffs",
+   "current_evidence": "Gratuitous Violence probe",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "narrow",
+   "false_positive_shape": "layer order unobserved",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Layers",
+   "required_observable": "dependency ordering",
+   "current_evidence": "none",
+   "strongest_classification": "UNKNOWN",
+   "known_gap": "full",
+   "false_positive_shape": "correct by coincidence",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "State-Based Actions",
+   "required_observable": "SBA application",
+   "current_evidence": "bridge tests",
+   "strongest_classification": "CODE_DERIVED",
+   "known_gap": "partial",
+   "false_positive_shape": "SBA attributed to action",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Zones",
+   "required_observable": "zone transitions",
+   "current_evidence": "START-2, exile replacement",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "zone read before move",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Copy",
+   "required_observable": "copy effects",
+   "current_evidence": "AF rows UNKNOWN",
+   "strongest_classification": "UNKNOWN",
+   "known_gap": "full",
+   "false_positive_shape": "copy treated as original",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Control",
+   "required_observable": "control changes",
+   "current_evidence": "HIDDEN_12 Mindslaver shape",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "narrow",
+   "false_positive_shape": "controller from owner",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Combat",
+   "required_observable": "combat steps/damage",
+   "current_evidence": "combat tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "wrong source attribution",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Command Zone",
+   "required_observable": "commander placement/move",
+   "current_evidence": "commander tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "command zone as exile",
+   "remaining_work": "micro-rules"
+  },
+  {
+   "domain": "Commander Tax",
+   "required_observable": "cast-count tax",
+   "current_evidence": "Rograkh/commander cast tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "tax applied once",
+   "remaining_work": "tax matrix"
+  },
+  {
+   "domain": "Commander Damage",
+   "required_observable": "per-commander damage",
+   "current_evidence": "damage tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "aggregate damage",
+   "remaining_work": "damage matrix"
+  },
+  {
+   "domain": "Partner",
+   "required_observable": "partner pairing lifecycle",
+   "current_evidence": "pods import",
+   "strongest_classification": "UNKNOWN",
+   "known_gap": "pairing rules",
+   "false_positive_shape": "two commanders without partner check",
+   "remaining_work": "partner matrix"
+  },
+  {
+   "domain": "Mulligan",
+   "required_observable": "keep/bottom decisions",
+   "current_evidence": "START-2 tape",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "bottoming partial",
+   "false_positive_shape": "keep-all assumed",
+   "remaining_work": "mulligan matrix"
+  },
+  {
+   "domain": "Start Rules",
+   "required_observable": "first-player draw skip",
+   "current_evidence": "START-2 PASS",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "no count baseline",
+   "false_positive_shape": "fixture obligation as evidence",
+   "remaining_work": "baseline counts"
+  },
+  {
+   "domain": "2P/3P/4P/5P",
+   "required_observable": "real lifecycles",
+   "current_evidence": "PLAYER_COUNT rows PASS",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "depth limited",
+   "false_positive_shape": "one decision per row",
+   "remaining_work": "deepen rows"
+  },
+  {
+   "domain": "6P bounded",
+   "required_observable": "6-player lifecycle",
+   "current_evidence": "cardinality tests",
+   "strongest_classification": "CODE_DERIVED",
+   "known_gap": "not credited",
+   "false_positive_shape": "4P does not establish 6P",
+   "remaining_work": "6P row"
+  },
+  {
+   "domain": "Hidden Information",
+   "required_observable": "principal-scoped observation",
+   "current_evidence": "HIDDEN_INFO_FORGE PASS; XMage #283",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "scenario denominator",
+   "false_positive_shape": "marker-only distinctness; placeholder as content",
+   "remaining_work": "PB-06 scenario run"
+  },
+  {
+   "domain": "Rules RNG",
+   "required_observable": "engine-accepted seed",
+   "current_evidence": "ACKNOWLEDGED_ENGINE_SEED",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "clean-process twin",
+   "false_positive_shape": "request echo",
+   "remaining_work": "twin runs"
+  },
+  {
+   "domain": "Semantic Replay",
+   "required_observable": "deterministic replay",
+   "current_evidence": "REPLAY rows UNKNOWN",
+   "strongest_classification": "UNKNOWN",
+   "known_gap": "full",
+   "false_positive_shape": "structural replay",
+   "remaining_work": "PB-08"
+  },
+  {
+   "domain": "Actual-Card Behavior",
+   "required_observable": "behavior not import",
+   "current_evidence": "Lab import artifact; Forge-side 28/29",
+   "strongest_classification": "UNKNOWN",
+   "known_gap": "denominator mismatch",
+   "false_positive_shape": "import as behavior",
+   "remaining_work": "pinned rerun (29)"
+  },
+  {
+   "domain": "Process Isolation",
+   "required_observable": "separate processes",
+   "current_evidence": "separate JVM launches",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "no packaging test",
+   "false_positive_shape": "same-JVM assumption",
+   "remaining_work": "packaging topology test"
+  },
+  {
+   "domain": "Failure Semantics",
+   "required_observable": "fail closed",
+   "current_evidence": "bridge rejection tests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "partial",
+   "false_positive_shape": "silent skip",
+   "remaining_work": "failure matrix"
+  },
+  {
+   "domain": "Evidence Integrity",
+   "required_observable": "receipts bound to execution",
+   "current_evidence": "runner/native receipts, resealed manifests",
+   "strongest_classification": "DIRECTLY_VERIFIED",
+   "known_gap": "index scoping note",
+   "false_positive_shape": "stale receipt reuse",
+   "remaining_work": "index note"
+  },
+  {
+   "domain": "AF11 topology/license",
+   "required_observable": "exact topology + notices",
+   "current_evidence": "this audit",
+   "strongest_classification": "TECHNICAL_FACT",
+   "known_gap": "legal questions",
+   "false_positive_shape": "asserted compatibility",
+   "remaining_work": "Coordinator legal questions"
+  }
+ ],
+ "findings": [
+  {
+   "id": "DS-01",
+   "severity": "P1",
+   "title": "Aftermath alternate-half enumeration gap",
+   "detail": "getAllPossibleAbilities returned [] for a split card holding the front-half state in the graveyard; the PB-07 FULL SUPPORTED verdict was reached without the enumeration surface.",
+   "status": "FIXED_IN_ISOLATED_BRANCH",
+   "branch": "deepseek/finality-aftermath-20260928",
+   "head": "52cfd9a24ba"
+  },
+  {
+   "id": "DS-02",
+   "severity": "P2",
+   "title": "PB-07 Forge 28/29 is candidate-side, not canonical Lab credit",
+   "detail": "PB07_EVIDENCE.json is a Forge-branch self-assessment with global_verdict PARTIAL; the Lab current-boundary actual-card artifact is import evidence over 12 names.",
+   "status": "OPEN"
+  },
+  {
+   "id": "DS-03",
+   "severity": "P2",
+   "title": "XMage generic scoping is merged but PB-06 full scenario coverage is unproven",
+   "detail": "Explicit observer resolution and single-authority redaction exist; look/expiry/shuffle/controlled/mulligan/error scenarios are not covered by this audit.",
+   "status": "OPEN"
+  },
+  {
+   "id": "DS-04",
+   "severity": "P3",
+   "title": "Native receipt index is candidate-scoped",
+   "detail": "NATIVE_SUITE_RECEIPTS.json receipt_count=2 (Forge only); XMage receipt files remain in the directory and the assembler reads them.",
+   "status": "NOTE"
+  },
+  {
+   "id": "DS-05",
+   "severity": "P3",
+   "title": "START-2 has no before/after count baseline",
+   "detail": "The skip is directly observed (no draw frames/events), but 'counts unchanged' is corroborated, not differentially measured.",
+   "status": "NOTE"
+  },
+  {
+   "id": "DS-06",
+   "severity": "P3",
+   "title": "No Lab top-level LICENSE file",
+   "detail": "Only a provenance policy document and a license schema exist; AF11 legal questions depend on the distribution license.",
+   "status": "NOTE"
+  }
+ ],
+ "candidate_specific_facts": {
+  "forge": {
+   "rules_core": "ef958ee9",
+   "bridge_evidence": "e15f37d6",
+   "af03": "PASS",
+   "principal_scoping": "established",
+   "seed_ack": "engine readback",
+   "start2": "PASS",
+   "native": "150/150 + 67/67",
+   "pb07": "candidate-side 28/29; 29th now enumerable via DS-01 fix",
+   "open": [
+    "AF04-AF09",
+    "AF11",
+    "PB-06 scenarios",
+    "PB-07 Lab credit",
+    "PB-08 twins"
+   ],
+   "license": "GPL-3.0"
+  },
+  "xmage": {
+   "candidate": "b1959698",
+   "principal_scoping_remediation": "merged #283",
+   "open": [
+    "generic UNKNOWN rows",
+    "PB-06 scenarios",
+    "RNG seam"
+   ],
+   "license": "MIT upstream"
+  }
+ },
+ "what_space_bunny_must_prove": [
+  "PB-03 starting-state transport and the formerly BLOCKED FULL107 rows for both candidates",
+  "PB-06 full scenario coverage for both candidates",
+  "PB-08 clean-process twins and semantic replay",
+  "PB-07 Lab-credit rerun at a pinned candidate head",
+  "AF04-AF09 and AF11 closure for both candidates",
+  "Final semantic comparison and readiness packet"
+ ],
+ "what_coordinator_must_adjudicate": [
+  "Whether the DeepSeek Aftermath fix is integrated into the candidate line",
+  "Whether the PB-07 rerun consumes the Forge-side 28/29 evidence or requires fresh execution",
+  "The four AF11 legal questions",
+  "Whether XMage PB-06 scenario coverage is routed as its own workstream"
+ ],
+ "deepseek_completion_lab": {
+  "campaign": "DEEPSEEK-FINAL-COMPLETION-20260928",
+  "isolated_forge_branch": "deepseek/finality-aftermath-20260928",
+  "isolated_forge_worktree": "/home/moeen/code/deepseek-forge-finality-20260928",
+  "audit_branch": "docs/final-adversarial-audit-20260928",
+  "lab_completion_worktree": "/tmp/opencode/final-audit",
+  "note": "The broad independent completion campaign (PB-03/PB-06/PB-07/PB-08/AF04-AF11) was started with state/candidate reconciliation and one completed major blocker (DS-01); the remaining blockers require multi-session runtime campaigns and are documented above."
+ },
+ "flags": {
+  "DEEPSEEK_FINAL_AUDIT": "COMPLETE",
+  "DEEPSEEK_COMPLETION_LAB": "BLOCKED",
+  "PRODUCTION_CODE_MUTATED": "YES_ISOLATED_ONLY",
+  "PROVIDER_SELECTED": "NO",
+  "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+  "DECISION_CRITICAL_FINDINGS": 3,
+  "DEEPSEEK_COMPLETION_LAB_REASON": "One major blocker (DS-01 Aftermath) implemented, tested and pushed; the remaining PB-03/PB-06/PB-07/PB-08/AF04-AF11 campaigns require multi-session runtime work and are documented in what_space_bunny_must_prove.",
+  "PROVIDER_COMPARISON_COMPLETE": "NO",
+  "DECISION_CRITICAL_UNKNOWN_REMAINS": "YES",
+  "PROVIDER_SELECTION_READY": "NO",
+  "ARCHITECTURE_FREEZE_READY_FOR_COORDINATOR": "NO"
+ }
+}
