@@ -756,13 +756,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1193,13 +1193,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1216,13 +1216,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1697,13 +1697,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1720,13 +1720,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1743,13 +1743,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1766,13 +1766,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1996,13 +1996,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2019,13 +2019,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2042,13 +2042,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2065,13 +2065,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2088,13 +2088,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2111,13 +2111,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2134,13 +2134,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2157,13 +2157,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2180,13 +2180,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2203,13 +2203,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2226,13 +2226,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2249,13 +2249,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2272,13 +2272,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2295,13 +2295,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2318,13 +2318,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2341,13 +2341,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2364,13 +2364,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2387,13 +2387,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2410,13 +2410,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2433,13 +2433,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2456,13 +2456,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2479,13 +2479,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2502,13 +2502,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   }
  ],

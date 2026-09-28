@@ -193,6 +193,69 @@ NATIVE_SUITE_BINDING = {
 }
 
 
+# The actual-card names this artifact declares. Named once so the corpus
+# completeness statement is derived from the list rather than restated in prose.
+ACTUAL_CARD_NAMES: tuple[str, ...] = (
+    "Isamaru, Hound of Konda",
+    "Silvercoat Lion",
+    "Serra Angel",
+    "Savannah Lions",
+    "Knight of Dawn",
+    "Elite Vanguard",
+    "Eager Cadet",
+    "Suntail Hawk",
+    "Valiant Guard",
+    "Serra Ascendant",
+    "Aerial Assault",
+    "Wall of Faith",
+)
+
+# The actual-card corpus the effective contract requires. The IDENTITIES are
+# loaded from the frozen domain manifest rather than restated here: a local list
+# can drift from the contract, and measuring completion against a drifted list
+# would advertise a corpus nobody required. The declared ACTUAL_CARD_NAMES above
+# shares ZERO members with the frozen 29, so a count derived from it measured
+# nothing.
+ACTUAL_CARD_DOMAIN_MANIFEST = REPO_ROOT / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
+COMMON_FIXTURE_MANIFEST = REPO_ROOT / "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json"
+
+
+def card_fixture_identities() -> dict[str, str]:
+    """Map each CARD_nn fixture to the card identity it is required to exercise.
+
+    The frozen corpus is not one obligation. It is twenty-nine separate mandatory
+    fixtures, each with its own identity, and coverage must come from each of
+    those rows passing. Reading a single CARD_02 result and trusting an
+    `executed_cards` list attached to it would let one row claim the corpus while
+    the other twenty-eight remained unexecuted.
+    """
+    document = json.loads(COMMON_FIXTURE_MANIFEST.read_text(encoding="utf-8"))
+    mapping: dict[str, str] = {}
+    for fixture in document["fixtures"]:
+        fixture_id = str(fixture.get("fixture_id") or "")
+        identity = fixture.get("card_identity")
+        if fixture_id.startswith("CARD_") and identity:
+            mapping[fixture_id] = str(identity)
+    if not mapping:
+        raise SystemExit(
+            f"{COMMON_FIXTURE_MANIFEST} assigns no card identity to any CARD_ fixture; "
+            "corpus coverage cannot be derived"
+        )
+    return mapping
+
+
+def frozen_actual_card_corpus() -> tuple[str, ...]:
+    """The frozen regression corpus identities, in manifest order."""
+    document = json.loads(ACTUAL_CARD_DOMAIN_MANIFEST.read_text(encoding="utf-8"))
+    corpus = document["regression_corpus_29"]
+    if not isinstance(corpus, list) or not corpus:
+        raise SystemExit(
+            f"{ACTUAL_CARD_DOMAIN_MANIFEST} carries no regression_corpus_29; the "
+            "actual-card obligation cannot be measured"
+        )
+    return tuple(str(name) for name in corpus)
+
+
 def git(*args: str, cwd: Path | None = None) -> str:
     return subprocess.run(
         ["git", *args], cwd=str(cwd or REPO_ROOT), capture_output=True, text=True, check=False
@@ -433,6 +496,16 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         }
         write(f"AF01_{candidate.upper()}.json", af01_doc)
         probes["af01_verdict"] = af01.verdict
+        # Carry the provider's DECLARED capabilities into the run identity. Block
+        # attribution must consult what this candidate says it supports, not a
+        # hard-coded statement about one candidate applied to all of them.
+        declared = af01_doc.get("capabilities_provider_reported") or {}
+        identity["starting_state_injection_supported"] = declared.get(
+            "starting_state_injection_supported"
+        )
+        identity["scenario_injection_supported"] = declared.get("scenario_injection_supported")
+        identity["seed_supported"] = declared.get("seed_supported")
+        identity["capabilities_provider_reported"] = declared
 
         # ---- AF03 RULES_AUTHORITY: negative deck-import probes ----------
         af03 = run_af03(
@@ -440,8 +513,35 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             candidate=candidate,
             legal_deck=build_deck("af03-control"),
         )
-        write(f"AF03_{candidate.upper()}.json", af03.to_document())
+        af03_document = af03.to_document()
+        write(f"AF03_{candidate.upper()}.json", af03_document)
         probes["af03_verdict"] = af03.verdict
+        # What the engine actually did on negative import, stated from the probe.
+        af03_evidence = {
+            "verdict": af03_document["verdict"],
+            "probes_passed": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "PASS"
+            ],
+            "probes_failed": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "FAIL"
+            ],
+            "probes_unknown": [
+                probe["invariant"]
+                for probe in af03_document["probes"]
+                if probe["verdict"] == "UNKNOWN"
+            ],
+            "statement": (
+                "the engine refused every negative deck-import probe in this run, so the "
+                "import is engine-validated rather than construction-only"
+                if af03.verdict == "PASS"
+                else "the engine did NOT refuse every negative deck-import probe, so this run "
+                "does not establish engine-validated import; see the failed probes"
+            ),
+        }
 
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         cardinality: dict[str, Any] = {}
@@ -565,6 +665,24 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- actual-card probe -------------------------------------------
+        # Cards whose behaviour was EXERCISED this run, derived from the
+        # actual-card row outcomes. Naming or importing a card is not execution.
+        # Read the ACTUAL row result, not the materialization record: only a row
+        # that executed and passed can contribute executed cards.
+        frozen_corpus = frozen_actual_card_corpus()
+        # An identity is covered only when ITS OWN mandatory fixture row passed.
+        # No list attached to any other row can claim it.
+        card_identities = card_fixture_identities()
+        passed_rows = {row.fixture_id for row in rows if row.outcome == "PASS"}
+        covered_corpus = {
+            identity
+            for fixture_id, identity in card_identities.items()
+            if fixture_id in passed_rows
+        }
+        unexecuted_card_rows = sorted(
+            fixture_id for fixture_id in card_identities if fixture_id not in passed_rows
+        )
+
         write(
             f"ACTUAL_CARD_{candidate.upper()}.json",
             {
@@ -573,24 +691,49 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": identity,
                 "cards_imported_at_runtime": hidden_game.deck_identity,
-                "cards": [
-                    "Isamaru, Hound of Konda",
-                    "Silvercoat Lion",
-                    "Serra Angel",
-                    "Savannah Lions",
-                    "Knight of Dawn",
-                    "Elite Vanguard",
-                    "Eager Cadet",
-                    "Suntail Hawk",
-                    "Valiant Guard",
-                    "Serra Ascendant",
-                    "Aerial Assault",
-                    "Wall of Faith",
-                ],
-                "engine_validated": "the engine itself rejected an illegal colour identity and "
-                "unknown card names during this run, proving the import is "
-                "engine-validated rather than construction-only",
-                "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
+                "cards": list(ACTUAL_CARD_NAMES),
+                # Derived from the AF03 probe this run actually executed. It
+                # previously asserted in prose that "the engine itself rejected an
+                # illegal colour identity and unknown card names", which is the
+                # OPPOSITE of what the observed probe shows for Forge: the
+                # executed Forge bridge ACCEPTED a colour-identity violation and a
+                # non-Commander commander. A prose claim that contradicts the run's
+                # own evidence is a false credit, so the value is now the probe
+                # verdicts.
+                "engine_validated": af03_evidence,
+                "required_29_card_corpus": {
+                    "required_count": len(frozen_corpus),
+                    "required_identities_source": ACTUAL_CARD_DOMAIN_MANIFEST.name,
+                    "declared_in_this_artifact": len(ACTUAL_CARD_NAMES),
+                    "declared_identities_in_frozen_corpus": len(
+                        set(ACTUAL_CARD_NAMES) & set(frozen_corpus)
+                    ),
+                    # Decks are per seat, not per card. Counting them said nothing
+                    # about the corpus.
+                    "decks_imported_at_runtime": len(hidden_game.deck_identity),
+                    # Counted against the FROZEN identities, not the local list.
+                    # ACTUAL_CARD_NAMES shares zero members with the required
+                    # corpus, and a row passing 29 arbitrary cards must not be able
+                    # to claim the corpus it never touched.
+                    "behaviorally_executed_cards": sorted(covered_corpus),
+                    "behaviorally_executed_count": len(covered_corpus),
+                    "missing_identities": sorted(set(frozen_corpus) - covered_corpus),
+                    "card_fixtures": len(card_identities),
+                    "card_fixtures_passed": len(card_identities) - len(unexecuted_card_rows),
+                    "unexecuted_card_fixtures": unexecuted_card_rows,
+                    "complete": not (set(frozen_corpus) - covered_corpus),
+                    "statement": (
+                        f"{len(covered_corpus)} of the {len(frozen_corpus)} frozen corpus "
+                        "identities have their own mandatory fixture row passing; the corpus "
+                        "is "
+                        + (
+                            "complete"
+                            if not (set(frozen_corpus) - covered_corpus)
+                            else "NOT executed, so the actual-card obligation is "
+                            "unestablished and the row cannot be credited"
+                        )
+                    ),
+                },
             },
         )
 
@@ -613,20 +756,44 @@ def classify_remaining(
         # PB-03: decide from the obligation's mechanisms, not from the row name.
         mechanisms = mid_game_mechanisms(record)
         if mechanisms:
-            reason = (
-                "no current-boundary execution seam: the effective obligation requires a "
-                "frozen mid-game starting state because it requires the mid-game mechanisms "
-                f"{sorted(mechanisms)}, and the Lab execution path does not expose generic "
-                "starting-state injection (the XMage bridge reports "
-                "starting_state_injection_supported=false). Native causal-reconstruction "
-                "harnesses exist for adjacent mechanisms but are not the same obligation; "
-                "no credit is transferred."
-            )
+            # The mechanism requirement is candidate-neutral, but the CAPABILITY is
+            # not. This reason used to cite the XMage bridge's
+            # starting_state_injection_supported=false for every candidate, so
+            # Forge rows were attributed to a capability Forge actually declares
+            # it has: AF01_FORGE.json reports starting_state_injection_supported
+            # true and scenario_injection_supported true. Where the candidate
+            # declares the capability and this run did not exercise the seam, the
+            # block is a Lab EXECUTION-PATH gap, not a candidate capability gap,
+            # and saying otherwise would misdirect remediation away from the work
+            # that would actually unblock the rows.
+            declares_injection = identity.get("starting_state_injection_supported")
+            if declares_injection is True:
+                reason = (
+                    "no current-boundary execution seam, and this is a LAB EXECUTION-PATH "
+                    f"gap rather than a candidate capability gap: the obligation requires a "
+                    f"frozen mid-game starting state ({sorted(mechanisms)}), and this "
+                    f"candidate DECLARES starting_state_injection_supported=true, but this "
+                    "run did not exercise the injection seam. The rows stay unestablished "
+                    "and uncredited; closing them requires Lab execution work, not "
+                    "candidate remediation."
+                )
+                outcome = "BLOCKED"
+            else:
+                reason = (
+                    "no current-boundary execution seam: the effective obligation requires a "
+                    "frozen mid-game starting state because it requires the mid-game "
+                    f"mechanisms {sorted(mechanisms)}, and this candidate reports "
+                    "starting_state_injection_supported="
+                    f"{declares_injection!r}. Native causal-reconstruction harnesses exist "
+                    "for adjacent mechanisms but are not the same obligation; no credit is "
+                    "transferred."
+                )
+                outcome = "BLOCKED"
             rows.append(
                 non_executed_row(
                     record,
                     candidate=candidate,
-                    outcome="BLOCKED",
+                    outcome=outcome,
                     reason=reason,
                     runtime_identity=identity,
                 )
