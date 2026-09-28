@@ -1,13 +1,13 @@
 {
  "receipt_count": 2,
  "receipt_digests": {
-  "forge:direct": "6ad479ff423d66337f77274ec3da3e91d06aac515f0c47ab9162cfd413bc5e09",
-  "forge:mechanism": "602120ccdbf45c3030893e72456d3f2343c502d58d4adf017f417000aceb212a"
+  "xmage:direct": "b6f06f536f55e20882e00908dfefb110e88cc912ba6c7d2f86f6339cb9cf0444",
+  "xmage:mechanism": "9b6abf7a98f20bb41b13357dfe5fe4424c6b185db8b82872d0f96d896e026e15"
  },
  "runner": {
-  "branch": "wsr27/final-candidate-remediation-20260928",
-  "built_utc": "2026-09-28T18:06:11+00:00",
-  "commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
+  "branch": "sbmax/final-pre-freeze-20260928",
+  "built_utc": "2026-09-28T20:38:42+00:00",
+  "commit": "3910040b3ca4eb276f8895fa4c9801af3550f123",
   "dirty": false,
   "dirty_paths": [],
   "input_digests": {
@@ -45,7 +45,7 @@
    "qualification/final-current-boundary-20260927/"
   ],
   "schema_version": "commander-lab.runner-identity/1.0.0",
-  "tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c"
+  "tree": "a28d98b29c84342056e5658f8f4423f927999108"
  },
  "schema_version": "wsr22.native-suite-receipt-index/1.0.0"
 }

@@ -906,6 +906,44 @@ def classify_remaining(
     return rows
 
 
+def _candidate_native_runs(native_receipts: list[dict[str, Any]], candidate: str) -> dict[str, Any]:
+    """Only THIS candidate's credited groups.
+
+    The receipt list spans every candidate, so an unfiltered loop would attach the
+    other candidate's green suites to this candidate's document. That is a
+    cross-candidate identity leak, and it would let a reader credit one engine
+    with the other's suites.
+    """
+    runs: dict[str, Any] = {}
+    for receipt in native_receipts:
+        if not isinstance(receipt, dict) or receipt.get("candidate") != candidate:
+            continue
+        group = str(receipt.get("group") or "")
+        if not group or receipt.get("credit") == receipt_mod._NO_CREDIT:
+            continue
+        runs[group] = receipt
+    return runs
+
+
+def _candidate_native_refusals(
+    native_receipts: list[dict[str, Any]], candidate: str
+) -> list[dict[str, Any]]:
+    """Groups that ran and were REFUSED credit, with the exact reason.
+
+    Refused credit and absent credit are different facts. Omitting a refused suite
+    would let a reader infer it never ran.
+    """
+    refusals: list[dict[str, Any]] = []
+    for receipt in native_receipts:
+        if not isinstance(receipt, dict) or receipt.get("candidate") != candidate:
+            continue
+        group = str(receipt.get("group") or "")
+        if not group or receipt.get("credit") != receipt_mod._NO_CREDIT:
+            continue
+        refusals.append({"group": f"{candidate}:{group}", "reason": receipt.get("reason")})
+    return refusals
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", default="all", choices=["all", "xmage", "forge"])
@@ -939,6 +977,27 @@ def main() -> int:
 
     candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
     summary: dict[str, Any] = {}
+    # The executing qualification code must be the committed code, or the
+    # receipts below would name a provenance the bytes do not have.
+    runner = receipt_mod.capture_runner_identity(REPO_ROOT)
+    receipt_mod.require_clean_runner(runner)
+    print(
+        "runner bound:",
+        json.dumps(
+            {
+                "commit": runner.commit,
+                "tree": runner.tree,
+                "dirty": runner.dirty,
+                "inputs": len(runner.input_digests),
+                "digest": runner.digest(),
+            },
+            indent=1,
+        ),
+    )
+    # Native suites run FIRST: the per-candidate FULL107 document has to carry the
+    # credit this run actually produced, or the committed evidence cannot be
+    # reproduced from the runner that claims to produce it.
+    native_receipts = run_all_native_suites(runner, tuple(candidates))
     for candidate in candidates:
         outcome = execute_candidate(candidate, materialization)
         identity = outcome["identity"]
@@ -961,6 +1020,17 @@ def main() -> int:
                 "counts": counts,
                 "total": len(documents),
                 "rows": documents,
+                "native_runs": _candidate_native_runs(native_receipts, candidate),
+                "native_runs_provenance": {
+                    "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
+                    "absent_receipts_yield_no_credit": True,
+                    "expected_engine_commit": identity.get("engine_candidate_commit", ""),
+                    "no_credit_groups": _candidate_native_refusals(native_receipts, candidate),
+                    "detail": "A group absent from native_runs was NOT credited. Where it is "
+                    "listed under no_credit_groups the identity proof refused it and the "
+                    "reason is recorded verbatim; where it is listed nowhere, no receipt was "
+                    "persisted for it at all. Neither case is a pass.",
+                },
             },
         )
         write(
@@ -985,22 +1055,6 @@ def main() -> int:
 
     # The executing qualification code must be the committed code, or the
     # receipts below would name a provenance the bytes do not have.
-    runner = receipt_mod.capture_runner_identity(REPO_ROOT)
-    receipt_mod.require_clean_runner(runner)
-    print(
-        "runner bound:",
-        json.dumps(
-            {
-                "commit": runner.commit,
-                "tree": runner.tree,
-                "dirty": runner.dirty,
-                "inputs": len(runner.input_digests),
-                "digest": runner.digest(),
-            },
-            indent=1,
-        ),
-    )
-    native_receipts = run_all_native_suites(runner, tuple(candidates))
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {
