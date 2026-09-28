@@ -36,6 +36,7 @@ import os
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -453,6 +454,58 @@ def native_suite_credit(
 # --------------------------------------------------------------------------- #
 
 
+def positive_fixture_receipts_from_junit_xml(
+    path: Path,
+    *,
+    candidate: str,
+    candidate_commit: str,
+    class_name: str,
+    cases: dict[str, tuple[str, str, str]],
+) -> tuple[dict[str, Any], ...]:
+    """Derive fixture receipts only from exact passing JUnit testcases.
+
+    Test/class names are routing metadata, never sufficient evidence by
+    themselves. A child receipt is emitted only when the exact testcase exists
+    in the Surefire XML and carries no failure, error, or skipped marker. Missing
+    or malformed XML fails closed to no fixture credit; the enclosing native
+    suite receipt still records the aggregate execution separately.
+    """
+    try:
+        root = ET.parse(path).getroot()
+    except (OSError, ET.ParseError):
+        return ()
+
+    observed: dict[str, ET.Element] = {}
+    for testcase in root.iter("testcase"):
+        name = str(testcase.attrib.get("name") or "")
+        classname = str(testcase.attrib.get("classname") or "")
+        if classname != class_name and not classname.endswith("." + class_name):
+            continue
+        observed[name] = testcase
+
+    rows: list[dict[str, Any]] = []
+    for method, (fixture_id, obligation, assertion) in sorted(cases.items()):
+        testcase = observed.get(method)
+        if testcase is None:
+            continue
+        if any(testcase.find(tag) is not None for tag in ("failure", "error", "skipped")):
+            continue
+        rows.append(
+            {
+                "schema_version": POSITIVE_FIXTURE_RECEIPT_SCHEMA,
+                "candidate": candidate,
+                "candidate_commit": candidate_commit,
+                "fixture_id": fixture_id,
+                "test_identity": f"{class_name}.{method}",
+                "outcome": "PASS",
+                "assertion_kind": "POSITIVE_BEHAVIOUR",
+                "obligation_exercised": obligation,
+                "observed_assertion": assertion,
+            }
+        )
+    return tuple(rows)
+
+
 def _positive_fixture_rows(receipts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Flatten positive-fixture records from verified suite envelopes.
 
@@ -681,6 +734,7 @@ __all__ = [
     "parse_maven_summary",
     "persist",
     "positive_fixture_credit",
+    "positive_fixture_receipts_from_junit_xml",
     "require_clean_runner",
     "verify_candidate_identity",
     "verify_engine_identity",
