@@ -25,12 +25,12 @@
  "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-  "adapter_commit": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
+  "adapter_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "dfb490e268b40dba7315a3fb53861eb2580d8baa",
-  "runner_tree": "504a5f296a68bd1c60828eb54538b577021aac7e",
+  "runner_commit": "cff18cb33a46d79127a1d596c869227329a0623d",
+  "runner_tree": "e36a94066e183854bd456f5da6e250d297db8804",
   "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
  },
  "schema_version": "wsr22.actual-card/1.0.0"

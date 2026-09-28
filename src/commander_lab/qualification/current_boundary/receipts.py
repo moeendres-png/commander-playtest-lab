@@ -117,6 +117,8 @@ class RunnerIdentity:
     dirty: bool
     dirty_paths: tuple[str, ...]
     input_digests: dict[str, str]
+    # Recorded so the exclusion of the run's own output is auditable, not silent.
+    run_output_prefixes: tuple[str, ...] = ()
     built_utc: str = field(default_factory=_now)
 
     @property
@@ -132,12 +134,23 @@ class RunnerIdentity:
             "branch": self.branch,
             "dirty": self.dirty,
             "dirty_paths": list(self.dirty_paths),
+            "run_output_prefixes": list(self.run_output_prefixes),
             "input_digests": dict(sorted(self.input_digests.items())),
             "built_utc": self.built_utc,
         }
 
     def digest(self) -> str:
         return _digest(self.to_document())
+
+
+# Paths this qualification run writes as its own output. They are produced BY the
+# run, so their uncommitted state is the result, not a provenance divergence.
+_RUN_OUTPUT_PREFIXES: tuple[str, ...] = ("qualification/final-current-boundary-20260927/",)
+
+
+def _is_run_output(relative: str) -> bool:
+    normalised = relative.strip().strip('"')
+    return normalised.startswith(_RUN_OUTPUT_PREFIXES)
 
 
 def capture_runner_identity(root: Path) -> RunnerIdentity:
@@ -149,7 +162,16 @@ def capture_runner_identity(root: Path) -> RunnerIdentity:
     """
     root = root.resolve()
     status = _git(root, ["status", "--porcelain"])
-    dirty_paths = tuple(line[3:] for line in status.splitlines() if line.strip())
+    # The run's own evidence outputs are excluded from the dirtiness judgement.
+    # This gate exists so evidence cannot claim a provenance its bytes do not
+    # have, and the evidence artifacts the run just wrote are exactly the bytes
+    # being produced, not a divergence from committed code. Including them made
+    # the pipeline unable to complete: the first phase writes tracked artifacts,
+    # the tree becomes dirty by definition, and the native-suite phase then
+    # refused. A CODE change is still dirty and still refused.
+    dirty_paths = tuple(
+        line[3:] for line in status.splitlines() if line.strip() and not _is_run_output(line[3:])
+    )
     digests: dict[str, str] = {}
     for pattern in _EXECUTED_INPUT_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -165,6 +187,7 @@ def capture_runner_identity(root: Path) -> RunnerIdentity:
         dirty=bool(dirty_paths),
         dirty_paths=dirty_paths,
         input_digests=digests,
+        run_output_prefixes=_RUN_OUTPUT_PREFIXES,
     )
 
 
