@@ -173,16 +173,24 @@ def main() -> None:
         cast_evidence: dict[str, object] | None = None
 
         for iteration in range(64):
+            decision = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
+            actor_id = decision.get("actor_id")
+            if not isinstance(actor_id, str) or not actor_id:
+                raise SystemExit("B4-C decision did not expose a live actor id")
+
+            # Observe from the authoritative current decision actor. A fixed P1
+            # view intentionally masks another seat's live priority UUID as
+            # op-N, so comparing that scoped token to the decision actor would
+            # incorrectly report a mismatch when priority rotates.
             state_raw = client.request(
                 EngineMessageType.GET_GAME_STATE,
-                {"observer_player_id": "p1"},
+                {"observer_player_id": actor_id},
                 game_id=game_id,
             )
             state = GameState.model_validate(state_raw["state"])
             observed_steps.append(state.step)
-            decision = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
 
-            if decision.get("actor_id") != state.priority_player_id:
+            if actor_id != state.priority_player_id:
                 raise SystemExit("B4-C decision actor does not match XMage priority player")
 
             raw_actions = tuple(dict(action) for action in decision.get("actions", ()))
