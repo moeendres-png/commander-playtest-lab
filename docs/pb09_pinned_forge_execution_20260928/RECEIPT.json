@@ -1,0 +1,101 @@
+{
+  "classification": "DIRECTLY_VERIFIED (live external process, pinned upstream Rules Core)",
+  "forge": {
+    "additive_claim_basis": "git diff --name-only a37a865a 4753bb7c touches only forge-protocol2-bridge/** and pom.xml; zero forge-core/forge-game/forge-ai/forge-gui source files changed, so the executed Rules Core is the pin unmodified",
+    "artifact_sha256": {
+      "classpath_manifest": "a2f3fc4026661a323087c82cedac5670120ba5b9fc59bd8a22d2fb79d40e4230",
+      "forge-core-2.0.14.jar": "5aaef63fe5e6072abcbb9852c548d2cdd37faa7345319e0b6e6a2900b4a50e59",
+      "forge-game-2.0.14.jar": "d4d4b4c32f663505f01a2f0faf927eea27f6e2278e1bd40ada3f7ac106d18b0c",
+      "forge-protocol2-bridge-2.0.14.jar": "b044e3bd226929b1d6e1ed3551a50862903de2b5afbcad81d8be293e9434a605"
+    },
+    "bridge_source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+    "bridge_source_is_additive_over_the_candidate": true,
+    "build": "mvn -B -ntp -o -DskipTests -Dcheckstyle.skip=true -pl forge-protocol2-bridge -am install (offline, succeeded)",
+    "provider_reported": {
+      "get_capabilities": {
+        "action_submission_supported": false,
+        "commander_damage_visible": true,
+        "commander_supported": true,
+        "commander_tax_visible": true,
+        "concede_supported": false,
+        "deck_import_supported": true,
+        "engine_shutdown_supported": true,
+        "event_log_supported": false,
+        "game_shutdown_supported": true,
+        "headless_supported": true,
+        "healthcheck_supported": true,
+        "legal_actions_supported": false,
+        "max_players": 4,
+        "mode_selection_supported": false,
+        "mulligan_supported": false,
+        "multiplayer_supported": true,
+        "notes": [
+          "bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+          "partner commanders import but pod-level partner lifecycle is not yet qualified",
+          "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+          "seeds are rejected: engine RNG is global and same-seed determinism is not claimed",
+          "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+          "replay is not offered: deterministic replay is not claimed"
+        ],
+        "partner_supported": false,
+        "priority_visible": true,
+        "replay_supported": false,
+        "runtime_kind": "external_rules_engine",
+        "scenario_injection_supported": false,
+        "seed_supported": false,
+        "stack_visible": true,
+        "starting_state_injection_supported": false,
+        "target_selection_supported": false,
+        "trigger_order_supported": false
+      },
+      "get_provider_version": {
+        "bridge_name": "forge-protocol2-bridge",
+        "bridge_version": "2.0.14-ws-a1d-h4f",
+        "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+        "engine_commit_source": "env:FORGE_ENGINE_SHA",
+        "java_version": "21.0.12.1",
+        "protocol_version": "2.0.0",
+        "provider": "forge",
+        "release": "2.0.14"
+      },
+      "start_engine": {
+        "already_started": false,
+        "engine": "forge",
+        "protocol_version": "2.0.0",
+        "status": "started"
+      }
+    },
+    "rules_core_candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "rules_core_release": "forge-2.0.14"
+  },
+  "lab": {
+    "branch": "sbmax/full-completion",
+    "execution_head": "f950def471eb722e2e05d33ffbf0e49eba96be1b",
+    "repository": "moeendres-png/commander-playtest-lab"
+  },
+  "live_h4f_test": {
+    "asserted_engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "elapsed_seconds": 38.79,
+    "phases": [
+      "canonical handshake",
+      "four real deck imports",
+      "4P Commander game creation",
+      "external STARTING_PLAYER decision answered from engine-offered options",
+      "mulligan convergence",
+      "PRIORITY decision with changed post-state hash",
+      "principal-scoped state (own hand visible, every opponent hand fully hidden)",
+      "fail-closed rejection of a fabricated legal_action_id",
+      "clean shutdown"
+    ],
+    "result": "PASS",
+    "test": "tests/integration/test_forge_bridge_h4f_live.py"
+  },
+  "not_established": [
+    "PB-05: engine_commit_source is env:FORGE_ENGINE_SHA, so the reported commit is operator-supplied rather than derived from the built bytes. The build is provably pinned here, but the bridge's self-report is not self-verifying.",
+    "The Forge 107-row FULL107 column has NOT been re-executed at the pinned candidate, so no candidate comparison at true identities exists yet.",
+    "Native-suite credit from the fork is not transferable: verify_engine_identity correctly refuses it, and 19 of the 23 bound native test classes do not exist at 4753bb7c.",
+    "AF11 licence posture for plain upstream GPL-3.0 is not adjudicated."
+  ],
+  "pb09_status": "OPEN and Coordinator-owned. This is decision input, not a selection. Nothing here repins any field; config/rules_engines.json is unchanged.",
+  "schema_version": "lab.pb09-pinned-forge-execution/1.0.0"
+}
