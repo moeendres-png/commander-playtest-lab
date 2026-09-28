@@ -55,7 +55,15 @@ OUTCOMES = (
 # reports starting_state_injection_supported=false, so a frozen mid-game
 # starting state cannot be constructed. This is a contract-locked seam, not a
 # Rules incapability of XMage itself.
-INJECTION_BLOCKED_FAMILIES = ("WS05-MP-", "WS05-CMD-ZONE-", "WS05-CMD-DMG-", "WS05-CMD-ELIM-")
+#
+# PB-03: which rows those are is decided by MECHANISM, not by row name. The
+# previous constant was a tuple of fixture-id prefixes, which could not classify
+# a row it had never seen and hid the reason behind a string. See
+# materialization.requires_starting_state and MID_GAME_MECHANISM_FAMILIES.
+#
+# starting_state_injection_supported is never flipped: the production XMage
+# starting-state seam exists, but it is not this generic obligation, so the
+# capability flag stays as the provider reports it.
 
 # Rows whose obligation is a *per-scenario hidden-information probe* that needs
 # engine-native principal-scoped channel instrumentation which the generic

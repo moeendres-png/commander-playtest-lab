@@ -97,3 +97,90 @@ def load_effective_materialization(root: Path | None = None) -> EffectiveMateria
         denominator=denominator,
         canonical_bundle_digest=bundle["canonical_bundle_digest"],
     )
+
+
+# ---------------------------------------------------------------------------
+# PB-03: classify the starting-state requirement by MECHANISM, not by row name.
+# ---------------------------------------------------------------------------
+#
+# The qualification runner previously decided which denominator rows were
+# blocked by the missing generic starting-state seam with a hard-coded tuple of
+# fixture-id prefixes:
+#
+#     INJECTION_BLOCKED_FAMILIES = ("WS05-MP-", "WS05-CMD-ZONE-", ...)
+#
+# That is a name-based classifier. It cannot classify a row it has never seen,
+# it silently mis-classifies any future row whose id happens to share a prefix,
+# and it hides the actual reason behind a string. It is a harness hardcode, not
+# an obligation statement.
+#
+# The real question is semantic: is this obligation reachable from a fresh game
+# start, or does it require a frozen mid-game state? That is answerable from the
+# obligation's own required events. Measured against the effective
+# materialization, the split is exact and the two groups share no event at all:
+# every event in a mid-game row denotes a mechanism that a game-start-to-priority
+# drive never reaches (a live priority ring, a stack response, a combat
+# declaration, a zone change, a turn transition, a player leaving), and every
+# event in a game-start row denotes a mechanism that occurs at or before the
+# first turn (a commander in the command zone, a mulligan, a tax, a first-turn
+# draw, mana paid).
+#
+# The families below are named for the mechanism, not for the row, so a future
+# row is classified by what it needs rather than by what it is called.
+
+MID_GAME_MECHANISM_FAMILIES: dict[str, tuple[str, ...]] = {
+    "live_priority_ring": ("priority_ring_live_order", "priority_action_resets_pass_count"),
+    "stack_response": ("response_on_stack", "APNAP_stack_order", "simultaneous_trigger_event"),
+    "combat_declaration": (
+        "attacker_declared:",
+        "blocker_declared:",
+        "legal_blocker_partition:",
+        "commander_combat_damage:",
+    ),
+    "commander_damage_accounting": (
+        "commander_damage_total:",
+        "commander_damage_checked_per_commander",
+    ),
+    "zone_manipulation": ("commander_zone_event:", "commander_choice:", "object_leaves_game:"),
+    "turn_transition": ("extra_turn_created:", "next_turn:"),
+    "multiplayer_lifecycle": ("player_leaves:", "player_loses:", "multiplayer_cleanup:"),
+}
+
+# A prefix appearing in any family marks the event as a mid-game mechanism.
+MID_GAME_MECHANISM_PREFIXES: tuple[str, ...] = tuple(
+    sorted({event for events in MID_GAME_MECHANISM_FAMILIES.values() for event in events})
+)
+
+
+def mid_game_mechanisms(record: dict[str, Any]) -> list[str]:
+    """The mid-game mechanisms this obligation requires, by name.
+
+    Returns the family names whose events this record requires. An empty list
+    means every required event is reachable from a fresh game start.
+    """
+    events = record.get("expected_events")
+    if isinstance(events, dict):
+        required = events.get("required_events") or []
+    elif isinstance(events, list):
+        required = events
+    else:
+        required = []
+    found: list[str] = []
+    for family, markers in MID_GAME_MECHANISM_FAMILIES.items():
+        for event in required:
+            text = str(event)
+            if any(text == marker or text.startswith(marker) for marker in markers):
+                found.append(family)
+                break
+    return found
+
+
+def requires_starting_state(record: dict[str, Any]) -> bool:
+    """True when this obligation cannot be reached from a fresh game start.
+
+    This replaces the fixture-id-prefix hardcode. It is derived from the
+    obligation's required events, so it classifies a row it has never seen, and
+    it names the mechanisms responsible so a reviewer can audit the reason
+    without reading the id.
+    """
+    return bool(mid_game_mechanisms(record))

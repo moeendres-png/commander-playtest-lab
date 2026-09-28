@@ -530,11 +530,14 @@ def classify_remaining(
         fixture_id = record["fixture_id"]
         if fixture_id in executed:
             continue
-        if fixture_id.startswith(("WS05-MP-", "WS05-CMD-ZONE-", "WS05-CMD-DMG-", "WS05-CMD-ELIM-")):
+        # PB-03: decide from the obligation's mechanisms, not from the row name.
+        mechanisms = materialization.mid_game_mechanisms(record)
+        if mechanisms:
             reason = (
                 "no current-boundary execution seam: the effective obligation requires a "
-                "frozen mid-game starting state, and the Lab execution path does not expose "
-                "generic starting-state injection (the XMage bridge reports "
+                "frozen mid-game starting state because it requires the mid-game mechanisms "
+                f"{sorted(mechanisms)}, and the Lab execution path does not expose generic "
+                "starting-state injection (the XMage bridge reports "
                 "starting_state_injection_supported=false). Native causal-reconstruction "
                 "harnesses exist for adjacent mechanisms but are not the same obligation; "
                 "no credit is transferred."
