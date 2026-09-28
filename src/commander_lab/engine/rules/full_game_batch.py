@@ -31,6 +31,30 @@ class FullGameFailureClass(StrEnum):
     PROTOCOL = "protocol"
     CONFORMANCE = "conformance"
     ENGINE = "engine"
+    INFRASTRUCTURE = "infrastructure"
+
+
+_INFRASTRUCTURE_FAULT_MARKERS = (
+    "NoClassDefFoundError",
+    "ClassNotFoundException",
+    "ClassNotFoundError",
+    "NoSuchMethodError",
+    "NoSuchFieldError",
+    "UnsatisfiedLinkError",
+    "OutOfMemoryError",
+    "StackOverflowError",
+    "InternalError",
+    "java.lang.UnsupportedClassVersionError",
+    "could not find or load main class",
+)
+
+
+def classify_engine_failure(failure_message: str) -> FullGameFailureClass:
+    """Separate JVM/runtime faults from Magic conformance failures."""
+    folded = failure_message.casefold()
+    if any(marker.casefold() in folded for marker in _INFRASTRUCTURE_FAULT_MARKERS):
+        return FullGameFailureClass.INFRASTRUCTURE
+    return FullGameFailureClass.CONFORMANCE
 
 
 class FullGameBatchCase(_StrictModel):
@@ -176,7 +200,7 @@ class XmageFullGameBatchRunner:
                     case,
                     run_key,
                     started,
-                    FullGameFailureClass.CONFORMANCE,
+                    classify_engine_failure(str(exc)),
                     exc,
                 )
             except (OSError, ValueError) as exc:
@@ -253,4 +277,5 @@ __all__ = [
     "FullGameBatchReport",
     "FullGameFailureClass",
     "XmageFullGameBatchRunner",
+    "classify_engine_failure",
 ]
