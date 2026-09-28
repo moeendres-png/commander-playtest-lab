@@ -381,6 +381,33 @@ def _action_kind(action: dict[str, Any]) -> str:
     return str(action.get("action_type", ""))
 
 
+def _zone_count_record(
+    *,
+    seat: int,
+    hand: Any,
+    library_size: int | None,
+    principal: str,
+    envelope_bound: bool,
+) -> dict[str, Any]:
+    """The persisted proof of one principal-scoped zone-count observation.
+
+    ``engine_id_matches_state_row`` is emitted only when an observer envelope
+    was actually present and its resolved live engine id was checked against
+    the acting seat's own row. A marker-bound response has no engine id to
+    compare, and recording ``false`` for it would read as a failed proof.
+    """
+    record: dict[str, Any] = {
+        "seat": seat,
+        "hand_count": len(hand) if isinstance(hand, list) else None,
+        "library_count": library_size,
+        "observer_player_id": principal,
+        "binding_mechanism": "LIVE_ENGINE_ENVELOPE" if envelope_bound else "STATE_ACTOR_MARKER",
+    }
+    if envelope_bound:
+        record["engine_id_matches_state_row"] = True
+    return record
+
+
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -747,16 +774,13 @@ def drive_commander_game(
                     library = zones.get("library")
                     library_size = len(library) if isinstance(library, list) else None
                 result.terminal_facts["observed_actor_zone_counts"] = [
-                    {
-                        "seat": seat_index,
-                        "hand_count": len(hand) if isinstance(hand, list) else None,
-                        "library_count": library_size,
-                        "observer_player_id": principal,
-                        "binding_mechanism": (
-                            "LIVE_ENGINE_ENVELOPE" if envelope_bound else "STATE_ACTOR_MARKER"
-                        ),
-                        "engine_id_matches_state_row": envelope_bound,
-                    }
+                    _zone_count_record(
+                        seat=seat_index,
+                        hand=hand,
+                        library_size=library_size,
+                        principal=principal,
+                        envelope_bound=envelope_bound,
+                    )
                 ]
                 result.terminal_facts["observed_zone_count_source"] = (
                     "ENGINE_REPORTED_PRINCIPAL_SCOPED"

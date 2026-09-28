@@ -338,6 +338,9 @@ def start2_row(
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
     # Observations, not the fixture's expectations. The verdict below is derived
     # from these, and from the fixture only as a statement of the obligation.
+    # They are also written into the persisted terminal facts: a verdict whose
+    # guard inputs are not in the artifact cannot be audited, and the document
+    # schema persists terminal_facts, not the row-local evidence dict.
     zone_counts = game.terminal_facts.get("observed_actor_zone_counts")
     observed_draw_events = [event for event in game.semantic_events if "draw" in str(event).lower()]
     observed_starting_actor = next(
@@ -348,6 +351,9 @@ def start2_row(
         ),
         None,
     )
+    game.terminal_facts["observed_decision_kinds"] = kinds
+    game.terminal_facts["observed_draw_semantic_events"] = observed_draw_events
+    game.terminal_facts["observed_starting_actor"] = observed_starting_actor
     evidence = {
         "player_count": 2,
         "actual_cards": _actual_cards(),

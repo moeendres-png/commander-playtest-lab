@@ -78,7 +78,13 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     # Counts come from the acting seat's row only.
     assert 'actor_row.get("seat") != seat_index' in block
     assert 'zones.get("library_size")' in block
-    assert "len(hand)" in block
+    assert "hand=hand" in block
+    assert "library_size=library_size" in block
+    helper = source[source.index("def _zone_count_record(") :]
+    helper = helper[: helper.index("\ndef drive_commander_game(")]
+    assert "len(hand)" in helper
+    assert '"hand_count"' in helper
+    assert '"library_count"' in helper
 
 
 def test_start2_observation_validates_both_authoritative_binding_shapes() -> None:
@@ -106,6 +112,31 @@ def test_start2_observation_validates_both_authoritative_binding_shapes() -> Non
     assert "establishes no authoritative acting principal" in block
     assert "does not bind the acting principal" in block
     assert "does not identify exactly the acting" in block
+    # A marker-bound response emits no engine-id proof: there was no envelope
+    # id to compare, and recording false would read as a failed proof.
+    helper = source[source.index("def _zone_count_record(") :]
+    helper = helper[: helper.index("\ndef drive_commander_game(")]
+    assert '"LIVE_ENGINE_ENVELOPE" if envelope_bound else "STATE_ACTOR_MARKER"' in helper
+    assert "if envelope_bound:" in helper
+    assert 'record["engine_id_matches_state_row"] = True' in helper
+
+
+def test_start2_guard_observations_are_persisted_for_audit() -> None:
+    """A verdict whose guard inputs are absent from the artifact cannot be audited.
+
+    The row schema persists ``terminal_facts``, not the row-local evidence
+    dict, so the starting actor and the observed draw events must be written
+    into the terminal facts as well as used by the verdict.
+    """
+    source = _start2_source()
+    start2 = source[source.index("def start2_row(") :]
+    start2 = start2[: start2.index("\ndef non_executed_row(")]
+    for marker in (
+        'terminal_facts["observed_decision_kinds"]',
+        'terminal_facts["observed_draw_semantic_events"]',
+        'terminal_facts["observed_starting_actor"]',
+    ):
+        assert marker in start2, marker
 
 
 def test_fixture_event_list_is_labelled_as_obligation_not_evidence() -> None:
@@ -136,11 +167,11 @@ def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     block = source[start:end]
     assert '{"observer_player_id": principal}' in block
     assert 'actor_row.get("seat") != seat_index' in block
-    assert "hand_count" in block
-    assert "library_count" in block
+    helper = source[source.index("def _zone_count_record(") :]
+    helper = helper[: helper.index("\ndef drive_commander_game(")]
+    assert '"hand_count"' in helper
+    assert '"library_count"' in helper
     # The engine id may be used transiently to prove the binding but must not
     # be stored in the terminal-facts record.
-    mine_start = block.index('"observed_actor_zone_counts"] = [')
-    mine_block = block[mine_start:]
-    assert '"observer_engine_player_id"' not in mine_block
-    assert '"player_id"' not in mine_block
+    assert '"observer_engine_player_id"' not in helper
+    assert '"player_id"' not in helper
