@@ -83,7 +83,7 @@ reduction, no carry-forward across changed evidence semantics.
 
 | Candidate | PASS | FAIL | UNKNOWN | BLOCKED | CRASH | TIMEOUT | PROTOCOL_FAILURE | total |
 |---|---|---|---|---|---|---|---|---|
-| XMage | 4 | 0 | 59 | 44 | 0 | 0 | 0 | **107** |
+| XMage | 5 | 0 | 58 | 44 | 0 | 0 | 0 | **107** |
 | Forge | 5 | 0 | 58 | 44 | 0 | 0 | 0 | **107** |
 
 The historical figures were XMage `30 PASS` and Forge `79 PASS`. They were upper

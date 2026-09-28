@@ -111,7 +111,7 @@
  },
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "dfb251df21171fb8c90bbaacc43d3ef0e0ac67e1",
+  "adapter_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": false,
@@ -151,8 +151,8 @@
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "dfb251df21171fb8c90bbaacc43d3ef0e0ac67e1",
-  "runner_tree": "fe792de634e523e60a376198dc77b9a132e4cca8",
+  "runner_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b",
+  "runner_tree": "5c00c734c81840cda858298551718e6e30d65b83",
   "scenario_injection_supported": false,
   "seed_supported": false,
   "starting_state_injection_supported": false
