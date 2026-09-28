@@ -57,12 +57,6 @@ class XmagePb03DimensionAdmissionTest {
             "WS05-MP-PRIO-5",
             "WS05-MP-ELIM-STACK-3");
 
-    private static final List<String> TIER_3_LIFE_ZERO_PARSES = List.of(
-            "WS05-MP-ELIM-5",
-            "WS05-MP-ELIM-PRIO-3",
-            "WS05-MP-ELIM-TURN-3",
-            "WS05-MP-ELIM-OWNED-3");
-
     @Test
     void tier1RowsParseAsIs() {
         for (String fixture : TIER_1) {
@@ -111,7 +105,7 @@ class XmagePb03DimensionAdmissionTest {
     }
 
     @Test
-    void tier3LifeZeroPreconditionPresentInRecord() {
+    void tier3LifeZeroPreconditionsFailClosedAtRuntime() {
         for (String fixture : List.of(
                 "WS05-MP-ELIM-5",
                 "WS05-MP-ELIM-PRIO-3",
