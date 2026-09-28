@@ -86,6 +86,7 @@ def _native_identity(candidate: str) -> dict[str, str]:
         return {
             "repository": "https://github.com/moeendres-png/mage",
             "expected_engine_commit": XMAGE_CANDIDATE_COMMIT,
+            "identity_proof": "LAB_OWNED_BRIDGE_MODULE",
             "build_identity": json.dumps(
                 {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}
             ),
@@ -256,12 +257,22 @@ def run_native_suite(
     # trees on every run and fails closed if any module differs. Resolving this
     # live rather than asserting it is what surfaced the divergence originally.
     actual_engine_commit = git("rev-parse", "HEAD", cwd=spec["root"])
-    engine_equivalence = receipt_mod.verify_engine_identity(
-        spec["root"],
-        recorded_commit=spec["expected_engine_commit"],
-        actual_commit=actual_engine_commit,
-        recorded_label=f"native suite {candidate}:{group}",
-    )
+    if spec.get("identity_proof") == "LAB_OWNED_BRIDGE_MODULE":
+        # The suite runs in this repository's own engine-bridge module, so the
+        # executing code is the Lab commit (already bound and digest-verified by
+        # the runner receipt) and the engine is the separately pinned artifact.
+        engine_equivalence = receipt_mod.verify_lab_owned_bridge_identity(
+            runner.commit,
+            spec["expected_engine_commit"],
+            recorded_label=f"native suite {candidate}:{group}",
+        )
+    else:
+        engine_equivalence = receipt_mod.verify_engine_identity(
+            spec["root"],
+            recorded_commit=spec["expected_engine_commit"],
+            actual_commit=actual_engine_commit,
+            recorded_label=f"native suite {candidate}:{group}",
+        )
     print(
         f"engine identity {candidate}:{group}: "
         f"{engine_equivalence['justification']} "

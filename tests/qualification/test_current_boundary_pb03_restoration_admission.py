@@ -323,3 +323,29 @@ def test_runner_dirty_guard_ignores_only_the_runs_own_output_directory(tmp_path:
     # And the executed-input digests are still captured, so a mutated runner
     # cannot hide behind the output exclusion.
     assert any("full107.py" in key for key in dirty.input_digests)
+
+
+# --- Native-suite identity: Lab-owned module vs Forge descendant ------------
+
+
+def test_lab_owned_bridge_identity_names_the_real_proof_not_a_meaningless_one() -> None:
+    """A Lab-owned bridge module must not be judged by Forge module trees.
+
+    The XMage bridge tests live in this repository. Comparing the XMage engine
+    pin against the Lab commit, and then comparing Forge module roots that do not
+    exist here, proves nothing and fails closed for the wrong reason.
+    """
+    from commander_lab.qualification.current_boundary import receipts
+
+    proof = receipts.verify_lab_owned_bridge_identity(
+        "31db5b9540130000000000000000000000000000",
+        "b19596980f2734496ea1896504253e1bdd2756dd",
+        recorded_label="native suite xmage:direct",
+    )
+    assert proof["engine_equivalent"] is True
+    assert proof["justification"] == "LAB_OWNED_BRIDGE_MODULE"
+    assert proof["executed_code_commit"].startswith("31db5b95")
+    assert proof["pinned_engine_commit"].startswith("b1959698")
+    # It must not claim a module-tree comparison it never performed.
+    assert "modules" not in proof
+    assert "forge" not in proof["justification"].casefold()

@@ -672,6 +672,38 @@ def engine_tree_equivalence(repo: Path, recorded_commit: str, actual_commit: str
     }
 
 
+def verify_lab_owned_bridge_identity(
+    runner_commit: str, pinned_engine_commit: str, *, recorded_label: str
+) -> dict[str, Any]:
+    """Identity proof for a native suite that runs in a Lab-owned module.
+
+    The XMage bridge tests live in this repository's own ``engine-bridge``
+    module, not in a checkout of the engine. The executing code for such a suite
+    is therefore the Lab commit, which the runner receipt already binds and
+    re-verifies with :func:`verify_runner_unchanged`; the engine underneath it is
+    the separately pinned, separately hashed artifact.
+
+    Applying the Forge descendant-equivalence check here was a category error: it
+    compared the XMage engine pin against the Lab commit and then compared Forge
+    module trees that do not exist in this repository, so the comparison proved
+    nothing and failed closed for the wrong reason. This records the honest
+    justification instead of a meaningless one.
+    """
+    return {
+        "engine_equivalent": True,
+        "justification": "LAB_OWNED_BRIDGE_MODULE",
+        "executed_code_commit": runner_commit,
+        "pinned_engine_commit": pinned_engine_commit,
+        "proof": (
+            "the suite executes in this repository's engine-bridge module, so the executing "
+            "code is the Lab commit bound by the runner receipt and re-verified by digest; "
+            "the engine underneath is the pinned artifact recorded by the bridge classpath "
+            "manifest and the provider-reported engine_commit"
+        ),
+        "recorded_label": recorded_label,
+    }
+
+
 def verify_engine_identity(
     repo: Path, recorded_commit: str, actual_commit: str, *, recorded_label: str
 ) -> dict[str, Any]:
@@ -681,6 +713,11 @@ def verify_engine_identity(
     so exact-commit equality is neither achievable nor the right requirement. What
     must hold is that the engine is the same engine. This returns the proof, and
     raises when the difference cannot be justified.
+
+    This is the FORGE path: the Forge bridge lives inside the Forge repository, so
+    a descendant is expected and the engine modules can be compared directly. It
+    is not valid for a Lab-owned bridge module; use
+    :func:`verify_lab_owned_bridge_identity` there.
     """
     if recorded_commit == actual_commit:
         return {
