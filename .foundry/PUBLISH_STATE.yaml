@@ -7,8 +7,8 @@ branch: "sbmax/final-pre-freeze-20260928"
 # than a rewrite: there is no pre-existing remote ref for this branch.
 audit_base_sha: "3910040b3ca4eb276f8895fa4c9801af3550f123"
 audit_base_tree: "a28d98b29c84342056e5658f8f4423f927999108"
-state_written_against_head: "d8f89aeda84d1b2857e189eccfc4e463e50d0eb1"
-validated_head: "d8f89aeda84d1b2857e189eccfc4e463e50d0eb1"
+state_written_against_head: "90dedf29514ebc9bf1999e512dc2b2a68ac86f31"
+validated_head: "90dedf29514ebc9bf1999e512dc2b2a68ac86f31"
 
 objective: >-
   Final pre-Freeze engineering campaign: drive Commander Simulator Next from the
@@ -31,7 +31,10 @@ out_of_scope:
 ownership: "final-completion-space-bunny-max"
 status: "ACTIVE"
 exact_next_action: >-
-  Continue on the unowned denominator: the 58 remaining UNKNOWN rows, principally
-  PB-06 per-scenario hidden information, which the merged #283 remediation has made
-  reachable. PB-03 transport stays out of scope while PR #284 is an active writer on
-  the overlapping bridge and receipt surfaces.
+  Push the AF11 repair and confirm exact-head CI on PR #289, then continue on the
+  unowned denominator: the 58 remaining UNKNOWN rows, principally PB-06 per-scenario
+  hidden information, which the merged #283 remediation has made reachable. PB-03
+  transport stays out of scope as WAIT_FOR_OWNER while PR #284 is an active writer on
+  the overlapping bridge, receipt, launcher and engine-rules surfaces. AF11 is now a
+  computed verdict (UNKNOWN, not an invented PASS) pending Coordinator adjudication of
+  the WS-09/licence policy residual.
