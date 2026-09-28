@@ -1,8 +1,0 @@
- Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java   |  2 +-
- .../src/mage/cards/g/GhastlyConscription.java      |  2 +-
- Mage.Sets/src/mage/cards/j/JalumGrifter.java       |  2 +-
- Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java  |  2 +-
- .../src/mage/cards/v/VialSmasherTheFierce.java     |  2 +-
- Mage/src/main/java/mage/players/PlayerImpl.java    |  4 +-
- Mage/src/main/java/mage/util/RandomUtil.java       | 44 +++++++++++++++++++++-
- 7 files changed, 50 insertions(+), 8 deletions(-)

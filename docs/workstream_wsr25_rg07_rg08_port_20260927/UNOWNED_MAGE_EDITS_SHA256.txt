@@ -1,7 +1,0 @@
-d460e00983591802a100a8f779a917a3a82421a2610a236d67d0f3fe9a183631  Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java
-0a874a7c7c98d458cce532fe3a2959e01f7cd4d01b79e4d458c2effc8f84f2ea  Mage.Sets/src/mage/cards/g/GhastlyConscription.java
-07c639d673474daf7f71b7b8eb62d7b0032e12e535e78a87625f744fec00680d  Mage.Sets/src/mage/cards/j/JalumGrifter.java
-453919c3fa503cb7545921d152c249292d98127f6d53c5a1cad569c98565041c  Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java
-b625e4d928d9ae46bc9e2ea68ecaee3a8906f24098ae4bf0a4da42eade5bb048  Mage.Sets/src/mage/cards/v/VialSmasherTheFierce.java
-00da6eb1396fc9d86fd071b3846fbc4fc2d431e46795692ee8bdb270a51c3780  Mage/src/main/java/mage/players/PlayerImpl.java
-2e7d270129ee3d9284fb358de5c64228a85f71051b6c145a4f1f042f245028bf  Mage/src/main/java/mage/util/RandomUtil.java
