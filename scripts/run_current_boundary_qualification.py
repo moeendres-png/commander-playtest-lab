@@ -260,19 +260,49 @@ def run_native_suite(
     # engine is the same engine. That is re-proven from the engine's main-source
     # trees on every run and fails closed if any module differs. Resolving this
     # live rather than asserting it is what surfaced the divergence originally.
-    actual_engine_commit = git("rev-parse", "HEAD", cwd=spec["root"])
-    engine_equivalence = receipt_mod.verify_engine_identity(
-        spec["root"],
-        recorded_commit=spec["expected_engine_commit"],
-        actual_commit=actual_engine_commit,
-        recorded_label=f"native suite {candidate}:{group}",
+    # The engine-drift comparison only applies where the engine is its own Git
+    # repository. The Forge suites execute in a Forge checkout, so a Rules-Core
+    # drift check is meaningful there. The XMage bridge is a module of the Lab
+    # repository, so `HEAD` there is the Lab's own commit, not the XMage engine's,
+    # and comparing it against the XMage engine commit compares two unrelated
+    # things. XMage's engine identity is the provider's own reported commit, which
+    # AF00 verifies fail-closed at handshake, so nothing is lost by not
+    # pretending a checkout exists where it does not.
+    actual_head = git("rev-parse", "HEAD", cwd=spec["root"])
+    engine_toplevel = git("rev-parse", "--show-toplevel", cwd=spec["root"])
+    root_is_own_repo = (
+        bool(engine_toplevel) and Path(engine_toplevel).resolve() == spec["root"].resolve()
     )
-    print(
-        f"engine identity {candidate}:{group}: "
-        f"{engine_equivalence['justification']} "
-        f"(recorded {spec['expected_engine_commit'][:12]}, "
-        f"executing {actual_engine_commit[:12]})"
-    )
+    if root_is_own_repo:
+        engine_equivalence = receipt_mod.verify_engine_identity(
+            spec["root"],
+            recorded_commit=spec["expected_engine_commit"],
+            actual_commit=actual_head,
+            recorded_label=f"native suite {candidate}:{group}",
+        )
+        print(
+            f"engine identity {candidate}:{group}: "
+            f"{engine_equivalence['justification']} "
+            f"(recorded {spec['expected_engine_commit'][:12]}, "
+            f"executing {actual_head[:12]})"
+        )
+    else:
+        engine_equivalence = {
+            "engine_equivalent": None,
+            "justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+            "recorded_commit": spec["expected_engine_commit"],
+            "actual_commit": actual_head,
+            "suite_root": str(spec["root"]),
+            "containing_repository": engine_toplevel or "UNKNOWN",
+            "detail": "the executing suite root is a module of the containing repository, "
+            "so its HEAD identifies that repository, not the engine. The engine identity "
+            "is the provider's own reported commit, verified fail-closed at handshake by "
+            "AF00. No checkout identity is asserted for this candidate.",
+        }
+        print(
+            f"engine identity {candidate}:{group}: not a separate checkout; engine identity "
+            f"comes from the provider handshake (expected {spec['expected_engine_commit'][:12]})"
+        )
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
     started = receipt_mod._now()
@@ -295,7 +325,7 @@ def run_native_suite(
         candidate_repository=spec.get("repository", "UNCONFIGURED"),
         candidate_commit=spec["expected_engine_commit"],
         candidate_tree=spec.get("engine_tree", "UNCONFIGURED"),
-        executed_commit=actual_engine_commit,
+        executed_commit=actual_head,
         engine_identity_proof=engine_equivalence,
         build_identity=json.dumps(spec.get("build_identity", {}), sort_keys=True),
         started_utc=started,
