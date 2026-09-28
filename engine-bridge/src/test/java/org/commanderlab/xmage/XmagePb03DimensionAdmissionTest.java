@@ -140,33 +140,18 @@ class XmagePb03DimensionAdmissionTest {
     }
 
     @Test
-    void turn5ParsesButDemandsExtraTurnsWithoutRestoreApi() {
+    void turn5ParsesButDoesNotEarnExtraTurnBehaviorCredit() {
         XmageNativeStateRestoration.Plan plan =
                 XmageNativeStateRestoration.planFromFrozenRecord(
                         XmageNativeStateRestorationTest.frozenRecord("WS05-MP-TURN-5"),
                         "pb03-admit-turn5", SEED);
         assertEquals(5, plan.playerCount());
-        // The extra-turn history (Time Warp / Nexus of Fate already resolved)
-        // is present only as graveyard causal history; the seam has no
-        // extra-turn-queue restore dimension, so the order obligation needs
-        // genuine casts (TIER_2), never construction credit.
-        JsonObject record =
-                XmageNativeStateRestorationTest.frozenRecord("WS05-MP-TURN-5");
-        boolean timeWarpFound = false;
-        boolean nexusFound = false;
-        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
-            JsonObject object = element.getAsJsonObject();
-            if (!"graveyard".equals(object.get("zone").getAsString())) {
-                continue;
-            }
-            String identity = object.get("card_identity").getAsString();
-            if ("Time Warp".equals(identity)) {
-                timeWarpFound = true;
-            } else if ("Nexus of Fate".equals(identity)) {
-                nexusFound = true;
-            }
-        }
-        assertTrue(timeWarpFound, "TURN-5 must carry resolved Time Warp history");
-        assertTrue(nexusFound, "TURN-5 must carry resolved Nexus of Fate history");
+
+        // Admission/construction is deliberately not extra-turn behavior proof.
+        // In particular, a frozen graveyard placement for Nexus of Fate cannot
+        // be treated as a resolved-spell postcondition because the card's own
+        // replacement effect prevents that graveyard outcome. TURN-5 therefore
+        // requires genuine runtime casts/order observation in the Tier-2 suite;
+        // this discriminator grants no row credit.
     }
 }
