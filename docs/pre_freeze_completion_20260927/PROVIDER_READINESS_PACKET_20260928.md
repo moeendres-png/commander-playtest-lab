@@ -52,8 +52,8 @@ verbatim in the receipt. None of them is a pass, and none is a failure.
 
 | Receipt | Candidate | Group | Tests | Passed | Executed at | Engine identity |
 |---|---|---|---|---|---|---|
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | `859646073119` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 136 | 136 | `859646073119` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | `c75b5744259b` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 136 | 136 | `c75b5744259b` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 | `native-forge-direct.json` | forge | direct | 0 | 0 | — | **NO_CREDIT** |
 | `native-forge-mechanism.json` | forge | mechanism | 0 | 0 | — | **NO_CREDIT** |
 

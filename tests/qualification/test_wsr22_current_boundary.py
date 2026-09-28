@@ -120,9 +120,14 @@ def test_full107_is_denominator_complete(candidate: str) -> None:
     # and a group that did not must be listed as NO_CREDIT with a verbatim reason.
     # Asserting every group is green would force a refused suite to be reported as
     # a pass, which is precisely what must never happen.
-    for group in results["native_runs"].values():
+    for group_name, group in results["native_runs"].items():
         assert group["returncode"] == 0
-        assert group["failures"] == 0 and group["errors"] == 0
+        # The raw receipt reports `failed`; `failures` is the assembler's alias for
+        # the same number. Accept either, but require the value to be zero, so the
+        # assertion still catches a genuinely red suite.
+        failures = group.get("failures", group.get("failed"))
+        assert failures == 0, f"{group.get('candidate')}:{group_name} reported failures"
+        assert group["errors"] == 0
         assert group["tests"] > 0
     provenance = results["native_runs_provenance"]
     assert provenance["source"] == "PERSISTED_EXECUTION_RECEIPTS_ONLY"
@@ -134,11 +139,13 @@ def test_full107_is_denominator_complete(candidate: str) -> None:
     # candidate's green suites to this document. A suite group carries its own
     # candidate, and it must match the document.
     for group in results["native_runs"].values():
-        assert group["candidate"] == candidate, (
+        # The document's candidate label is upper-case; the receipt's is lower-case.
+        # Compare case-insensitively so the guard tests identity, not spelling.
+        assert group["candidate"].lower() == candidate.lower(), (
             f"{candidate} results carry a native group for {group['candidate']!r}"
         )
     for refused in provenance["no_credit_groups"]:
-        assert refused["group"].startswith(f"{candidate.lower()}:"), (
+        assert refused["group"].lower().startswith(f"{candidate.lower()}:"), (
             f"{candidate} results carry a NO_CREDIT group for {refused['group']!r}"
         )
 

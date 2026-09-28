@@ -1,22 +1,22 @@
 {
  "receipt_count": 4,
  "receipt_digests": {
-  "forge:direct": "ca1e7ec22a38de06ce4e1599779e18440ba3d7955afdf970c1dbe071baf72a27",
-  "forge:mechanism": "5d92a5988519cb38451bfe7c006aba2ff4b42612feea6e4269f3e076a2fbb07c",
-  "xmage:direct": "c3da63d87308e3fd545b3c54cc639fd00f34092d1085051e5a2bcbd65110b708",
-  "xmage:mechanism": "7a5de8075798b4bfb7697d8635d313a70ad18f08dfb34e629e8580bd7565d190"
+  "forge:direct": "ee4cc1adf8bb9207236db179f13dd0e8ff4ca807e389c5ac7878dd160e84c8e6",
+  "forge:mechanism": "06c34c184ac9ebeb48c829f3d54c14106606f5a310d7fed2b5214022e402b0cd",
+  "xmage:direct": "1360ce3268c2399b941a01511a0a019745c54299a4def4c9a50891264d5bbc70",
+  "xmage:mechanism": "411648884a817d60ba3535f0546ecbfc680acd39300f91e743536a0379584098"
  },
  "runner": {
   "branch": "sbmax/full-completion",
-  "built_utc": "2026-09-28T16:18:08+00:00",
-  "commit": "859646073119fc7e391f57a84b17bfa9801808d9",
+  "built_utc": "2026-09-28T16:25:40+00:00",
+  "commit": "c75b5744259b8c43a51d45a3ccb02d0cb0a4feb8",
   "dirty": false,
   "dirty_paths": [],
   "input_digests": {
    "config/rules_engines.json": "48f1fe78cf21df830c85193ab03a9f080a7864793845d21f75d50ee146cea56f",
    "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
    "scripts/assemble_current_boundary_evidence.py": "fc8ddf355327f32c1e957fe1a2bde37b68fcbf5811fa348b3e2ad78177d25e31",
-   "scripts/run_current_boundary_qualification.py": "503b0d8fdeeb43e511ec21844e47a86720e66543115431c3a84d26e3e2726c8c",
+   "scripts/run_current_boundary_qualification.py": "9b63f3d23c5b7f90d629d18fd191fb8a29350ec8e25afa73a36064021ebdde2f",
    "src/commander_lab/engine/rules/__init__.py": "72e6d4b5ca1ac24a552cd5cf9a70f392f5456404c09b70fa5faa0de090dd5b5b",
    "src/commander_lab/engine/rules/base.py": "14b1248504d8b96cac9d7758ab2e0c9917182c2c5a72b2c56557445400dd0db5",
    "src/commander_lab/engine/rules/bridge.py": "e1f0370fd59a54b8acdb558d4735d114f2a0e13670cd35f1159f86883c84cf0e",
@@ -48,7 +48,7 @@
    "qualification/final-current-boundary-20260927/"
   ],
   "schema_version": "commander-lab.runner-identity/1.0.0",
-  "tree": "1dab7b25c664b6be2892ca11d7e21fc8147788d5"
+  "tree": "4c283c9bc234c15f2f48775107f20956c8ccf146"
  },
  "schema_version": "wsr22.native-suite-receipt-index/1.0.0"
 }
