@@ -27,5 +27,13 @@
     "full_affected_after": 637,
     "skip": 1,
     "reason": "No live export snapshot"
+  },
+  "ci_followup": {
+    "failed_head": "d7fd7e844a966dac306dbc0dfb26e96f03874147",
+    "run": 36408696886,
+    "result": "1 failed, 2076 passed, 10 skipped",
+    "finding": "test_policy_layers_kept requires explicit immutable evidence/provenance, unique work and direct-main/privacy guards in implementer instructions",
+    "repair": "Restored all explicit protections without restoring rebase/deletion grants; existing test unchanged",
+    "focused_after": "28 passed: tests/unit/test_ws78_token_economy.py and tests/foundry/test_project_integrity.py"
   }
 }
