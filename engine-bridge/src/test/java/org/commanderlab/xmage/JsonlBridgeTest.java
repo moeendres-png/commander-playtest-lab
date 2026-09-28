@@ -417,6 +417,106 @@ class JsonlBridgeTest {
                         .getAsString()
         );
     }
+    @Test
+    void getGameStateRequiresExplicitPrincipalAndReturnsDistinctScopedViews()
+            throws Exception {
+        List<String> handles = List.of(
+                importRogShaiHandle("r-scope-import-1"),
+                importRogShaiHandle("r-scope-import-2"),
+                importRogShaiHandle("r-scope-import-3"),
+                importRogShaiHandle("r-scope-import-4")
+        );
+        String gameId = "b4a-jsonl/principal-scope";
+
+        JsonObject created = JsonParser.parseString(
+                bridge.handle(
+                        createGameRequest("r-scope-create", gameId, handles, 0, 40)
+                ).json()
+        ).getAsJsonObject();
+        assertTrue(created.get("success").getAsBoolean());
+
+        JsonObject started = JsonParser.parseString(
+                bridge.handle(startGameRequest("r-scope-start", gameId)).json()
+        ).getAsJsonObject();
+        assertTrue(started.get("success").getAsBoolean());
+
+        JsonObject missing = JsonParser.parseString(
+                bridge.handle(gameStateRequest("r-scope-missing", gameId, null)).json()
+        ).getAsJsonObject();
+        assertFalse(missing.get("success").getAsBoolean());
+        assertEquals(
+                "observer_player_id_required",
+                missing.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString()
+        );
+
+        JsonObject p1 = JsonParser.parseString(
+                bridge.handle(gameStateRequest("r-scope-p1", gameId, "p1")).json()
+        ).getAsJsonObject();
+        JsonObject p2 = JsonParser.parseString(
+                bridge.handle(gameStateRequest("r-scope-p2", gameId, "p2")).json()
+        ).getAsJsonObject();
+        assertTrue(p1.get("success").getAsBoolean());
+        assertTrue(p2.get("success").getAsBoolean());
+
+        JsonObject p1Payload = p1.getAsJsonObject("payload");
+        JsonObject p2Payload = p2.getAsJsonObject("payload");
+        assertEquals("p1", p1Payload.get("observer_player_id").getAsString());
+        assertEquals(0, p1Payload.get("observer_seat").getAsInt());
+        assertEquals("p2", p2Payload.get("observer_player_id").getAsString());
+        assertEquals(1, p2Payload.get("observer_seat").getAsInt());
+
+        JsonObject p1State = p1Payload.getAsJsonObject("state");
+        JsonObject p2State = p2Payload.getAsJsonObject("state");
+        assertNotEquals(p1State, p2State);
+
+        JsonArray p1Players = p1State.getAsJsonArray("players");
+        assertEquals(
+                p1Payload.get("observer_engine_player_id").getAsString(),
+                p1Players.get(0).getAsJsonObject().get("player_id").getAsString()
+        );
+        assertEquals(
+                "op-1",
+                p1Players.get(1).getAsJsonObject().get("player_id").getAsString()
+        );
+        assertEquals(
+                p2Payload.get("observer_engine_player_id").getAsString(),
+                p2State.getAsJsonArray("players").get(1).getAsJsonObject()
+                        .get("player_id").getAsString()
+        );
+
+        JsonArray ownHand = p1Players.get(0).getAsJsonObject()
+                .getAsJsonObject("zones").getAsJsonArray("hand");
+        JsonArray opponentHand = p1Players.get(1).getAsJsonObject()
+                .getAsJsonObject("zones").getAsJsonArray("hand");
+        JsonArray ownLibrary = p1Players.get(0).getAsJsonObject()
+                .getAsJsonObject("zones").getAsJsonArray("library");
+        assertEquals(7, ownHand.size());
+        for (var element : ownHand) {
+            assertNotEquals("<hidden>", element.getAsString());
+        }
+        assertEquals(7, opponentHand.size());
+        for (var element : opponentHand) {
+            assertEquals("<hidden>", element.getAsString());
+        }
+        assertEquals(91, ownLibrary.size());
+        for (var element : ownLibrary) {
+            assertEquals("<hidden>", element.getAsString());
+        }
+
+        JsonObject unknown = JsonParser.parseString(
+                bridge.handle(
+                        gameStateRequest("r-scope-unknown", gameId, "not-a-live-principal")
+                ).json()
+        ).getAsJsonObject();
+        assertFalse(unknown.get("success").getAsBoolean());
+        assertTrue(
+                unknown.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("message").getAsString()
+                        .contains("UNKNOWN_OBSERVER_PLAYER_ID")
+        );
+    }
+
 @Test
     void protocolMismatchIsRejected() {
         String request = """
@@ -621,6 +721,28 @@ class JsonlBridgeTest {
                 new JsonObject()
         );
 
+        return request.toString();
+    }
+
+    private static String gameStateRequest(
+            String requestId,
+            String gameId,
+            String observerPlayerId
+    ) {
+        JsonObject payload = new JsonObject();
+        if (observerPlayerId != null) {
+            payload.addProperty("observer_player_id", observerPlayerId);
+        }
+
+        JsonObject request = new JsonObject();
+        request.addProperty("protocol_version", "2.0.0");
+        request.addProperty("request_id", requestId);
+        request.addProperty("engine", "xmage");
+        request.addProperty("game_id", gameId);
+        request.addProperty("message_type", "get_game_state");
+        request.addProperty("method", "get_game_state");
+        request.add("payload", payload);
+        request.add("params", new JsonObject());
         return request.toString();
     }
 

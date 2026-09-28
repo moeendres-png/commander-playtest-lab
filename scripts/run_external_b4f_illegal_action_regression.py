@@ -106,7 +106,11 @@ def main() -> None:
             raise SystemExit("B4-F illegal-action game did not reach external-control pause")
 
         client = adapter._require_client()
-        before_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+        before_raw = client.request(
+            EngineMessageType.GET_GAME_STATE,
+            {"observer_player_id": "p1"},
+            game_id=game_id,
+        )
         before = GameState.model_validate(before_raw["state"])
         decision_before = client.request(
             EngineMessageType.GET_LEGAL_ACTIONS,
@@ -154,7 +158,11 @@ def main() -> None:
         else:
             raise SystemExit("B4-F non-enumerated current-decision action unexpectedly succeeded")
 
-        after_raw = client.request(EngineMessageType.GET_GAME_STATE, {}, game_id=game_id)
+        after_raw = client.request(
+            EngineMessageType.GET_GAME_STATE,
+            {"observer_player_id": "p1"},
+            game_id=game_id,
+        )
         after = GameState.model_validate(after_raw["state"])
         decision_after = client.request(
             EngineMessageType.GET_LEGAL_ACTIONS,

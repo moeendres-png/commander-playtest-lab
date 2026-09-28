@@ -1,0 +1,112 @@
+{
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "REMOTE_GITHUB_CONNECTOR_NO_LOCAL_WORKTREE",
+  "branch": "wsr27/multimodel-foundry-readiness-20260928",
+  "audit_base_sha": "933d5df564b5dc77d678935bc79c6554459c347b",
+  "audit_base_tree": "3eee0692ff075dc5175795aea8da9f1e86696dfb",
+  "state_written_against_head": "933d5df564b5dc77d678935bc79c6554459c347b",
+  "validated_head": null,
+  "objective": "Prepare technically neutral four-model OpenCode Go Foundry readiness without assigning tasks or model preferences in repository policy and without overlapping active launcher/governance owners.",
+  "in_scope": [
+    "executor profile registry with exact model/native-effort bindings only",
+    "state provenance schema",
+    "explicit-selection and no-fallback semantics",
+    "repo-profile current observations",
+    "hermetic readiness and routing-neutrality tests",
+    "readiness/activation contract"
+  ],
+  "out_of_scope": [
+    "repository task-to-model routing, preferred model, role or usage-frequency policy",
+    "launcher/test_launcher co-edit",
+    "PR280-owned canonical governance edits",
+    "live opencode allowlist widening",
+    "Forge/Mage master mutation",
+    "Rules semantics",
+    "Production Provider",
+    "Architecture Freeze"
+  ],
+  "ownership": "WSR27_MULTIMODEL_FOUNDRY_READINESS",
+  "dependencies": [
+    "sbmax/full-completion must release or integrate launcher.py/test_launcher.py",
+    "PR #280 governance overlap must be serialized"
+  ],
+  "hard_gates": [
+    "no partial live allowlist widening",
+    "no automatic model fallback",
+    "highest-supported/authorized native effort only",
+    "repository contains no task-role/frequency/preference assignment for the four models",
+    "authenticated bounded smoke for each newly activated profile before runtime ACTIVE"
+  ],
+  "forbidden_shortcuts": [
+    "silent fallback",
+    "lower-effort substitution",
+    "fork-master policy copy",
+    "co-edit active owner surfaces",
+    "secret inspection"
+  ],
+  "validated_gates": [
+    "fresh Lab/Forge/Mage default-branch identities read",
+    "fork roots verified without project-local OpenCode policy files",
+    "four selected model/native-effort pairs externally verified",
+    "registry intentionally separates technical model binding from operator task selection"
+  ],
+  "failed_gates": [],
+  "invalidated_gates": [],
+  "do_not_rerun": [
+    "fresh repository inventory unless relevant drift occurs"
+  ],
+  "current_failure": "Runtime four-profile activation is intentionally blocked by active launcher/governance ownership; this is an ownership gate, not a demonstrated technical defect.",
+  "failure_class": "NONE",
+  "current_hypothesis": "A serial integration after active owner release is the smallest safe activation path.",
+  "files_modified": [
+    ".foundry/executor-profiles.json",
+    ".foundry/WORKSTREAM_STATE.schema.json",
+    ".foundry/repo-profiles/cpl.json",
+    ".foundry/repo-profiles/forge.json",
+    ".foundry/repo-profiles/mage.json",
+    "tests/foundry/test_executor_profiles.py",
+    "docs/foundry-multimodel-readiness-20260928/WORKSTREAM_CONTRACT.md",
+    "docs/foundry-multimodel-readiness-20260928/READINESS.md",
+    "docs/foundry-multimodel-readiness-20260928/WORKSTREAM_STATE.json"
+  ],
+  "tests_run": [
+    "NOT_RUN_LOCALLY_GITHUB_CONNECTOR_ONLY; hermetic test added for CI"
+  ],
+  "evidence": [
+    "GitHub default branch reads 2026-09-28",
+    "GitHub PR #280 ownership text and changed-file inventory",
+    "OpenCode Go model capability verification 2026-09-28"
+  ],
+  "artifacts": [
+    ".foundry/executor-profiles.json",
+    "docs/foundry-multimodel-readiness-20260928/READINESS.md"
+  ],
+  "remaining_scope": [
+    "runtime launcher/config activation after ownership release",
+    "authenticated bounded smoke for each newly activated profile"
+  ],
+  "status": "BLOCKED",
+  "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
+  "current_reasoning_tier": "max",
+  "execution_profile": null,
+  "executor_model": null,
+  "native_variant": null,
+  "variant_resolution": null,
+  "executor_handoff_from": null,
+  "executor_handoff_reason": null,
+  "hypotheses_rejected": [
+    "Widen opencode.json now — rejected because current launcher enforces exact-two allowlist and would fail closed.",
+    "Add AGENTS/opencode files to Forge/Mage master — rejected because canonical policy injection supersedes fork-root copies and mirror masters must remain clean."
+  ],
+  "technical_decisions": [
+    "Keep the four-model registry technically neutral: exact model IDs, authorized native effort, runtime status, explicit selection, provenance and no-fallback only.",
+    "Task assignment and model choice remain operator/prompt decisions, not repository policy.",
+    "Serialize launcher/config activation behind current ownership."
+  ],
+  "authority_gates": [],
+  "first_failing_boundary": "OWNERSHIP_GATE: tools/foundry/launcher.py + tests/foundry/test_launcher.py and overlapping canonical governance surfaces",
+  "root_cause_class": "NONE",
+  "next_action": "After active ownership release, integrate technically neutral four-profile runtime support atomically.",
+  "exact_next_action": "After sbmax/full-completion and PR #280 release/merge their overlapping surfaces, re-read main/owner state and implement launcher.py + test_launcher.py + opencode.json + canonical execution docs as one atomic four-profile activation with no task-role/frequency/preference routing, then run hermetic cross-repo tests and authenticated bounded smokes for each newly activated profile."
+}
