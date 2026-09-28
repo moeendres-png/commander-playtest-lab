@@ -256,10 +256,10 @@ def main() -> None:
             )
         state = GameState.model_validate(
             client.request(
-            EngineMessageType.GET_GAME_STATE,
-            {"observer_player_id": "p1"},
-            game_id=game_id,
-        )["state"]
+                EngineMessageType.GET_GAME_STATE,
+                {"observer_player_id": "p1"},
+                game_id=game_id,
+            )["state"]
         )
         if state.event_sequence != len(full_events):
             raise SystemExit("B4-D GameState.event_sequence does not match event log")
