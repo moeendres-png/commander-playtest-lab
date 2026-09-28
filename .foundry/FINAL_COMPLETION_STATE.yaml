@@ -4,7 +4,7 @@ worktree: /home/moeen/code/csn-final-bakeoff/muse/lab
 branch: muse-xhigh/full-completion
 audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
 audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
-state_written_against_head: e91819ae18166a9f91ca52d101a72c8cb8eddade
+state_written_against_head: 0f281841fab74dc0a5527fc09f8d840175aaf71f
 validated_head: null
 objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification,
   remediation, freeze readiness, production implementation, real full games, replay,
@@ -17,5 +17,73 @@ out_of_scope:
 - Architecture Freeze decision by the executor
 ownership: final-completion-muse-xhigh
 status: ACTIVE
-exact_next_action: Read the campaign contract, reconcile fresh source truth, build
-  the live dependency graph, and execute the highest-value critical path.
+execution_identity:
+  model: opencode-go/muse-spark-1.3-contributor
+  native_variant: xhigh
+  children: muse-xhigh-only
+  space_bunny_invoked: false
+source_lock:
+  lab_head: 0f281841fab74dc0a5527fc09f8d840175aaf71f
+  main_base: e91819ae18166a9f91ca52d101a72c8cb8eddade
+  origin_main_verified: e91819ae18166a9f91ca52d101a72c8cb8eddade
+  no_main_drift: true
+  xmage_pin: b19596980f2734496ea1896504253e1bdd2756dd
+  forge_rules_pin: a37a865a53280dd8ad6fad3384d69611e8c5a42f
+  forge_bridge_pin: 4753bb7c72ea60d653121e0bab989077b4009f9c
+  forge_executed_fork: ef958ee91ac6c9ce0152189f2654bf6e05abf273
+  donor_head: 208341c6124674046787f3a4b1d699c98c286a27
+  donor_tree: d8f6c80aa6674fbb5d55b8c6bee41bbfc569f251
+  protocol: 2.0.0
+  boundary: commander-lab.pre-freeze-qualification/2.0.0
+isolation:
+  foreign_active_branch: origin/wsr22-successor/current-boundary-freeze-20260927
+  foreign_branch_policy: no-checkout-no-read-no-diff-no-cherry-pick-no-merge
+  shared_donor: origin/wsr22/final-current-boundary-freeze-qualification-20260927
+  shared_donor_policy: read-only-git-object-reads-whole-file-transplant-with-provenance
+  shared_merged_source: main-branch-docs-bridge-tests-contracts-freely-usable
+blocker_graph:
+  PB-09:
+    class: EVIDENCE_INTEGRITY_DEFECT
+    status: OPEN
+    owner: forge-lane-plus-coordinator
+    order: before-PB-03
+    fact: donor-forge-column-79-21-7-measures-lab-fork-ef958ee9-not-pinned-a37a865a
+    remedy: pristine-upstream-forge-FULL107-at-a37a865a-plus-4753bb7c-then-decision-packet
+  PB-03:
+    class: HARNESS_DEFECT
+    status: OPEN
+    fact: 33-xmage-BLOCKED-by-fixture-id-prefix-hardcode-runner-385-not-by-capability
+    correction: donor-reality-is-15-micro-plus-7-cmd-zone-plus-11-mp-NOT-doc-summary-15-12-6
+    remedy: dimension-admission-against-live-dimensionsPayload-then-execute-admitted-rows
+  PB-06: {status: OPEN, sides: both, scope: per-scenario-hidden-channels-af05}
+  PB-07: {status: OPEN, sides: both, scope: 29-card-corpus-af07}
+  PB-08: {status: OPEN, sides: both, scope: per-fixture-clean-process-replay-twins-af09}
+  AF_table:
+    xmage: AF00-PASS AF01-UNKNOWN AF02-PASS AF03-PASS AF04-FAIL AF05-UNKNOWN AF06-UNKNOWN AF07-UNKNOWN AF08-UNKNOWN AF09-UNKNOWN AF10-PASS AF11-FAIL
+    forge: AF00-REQUIRES_RECONCILIATION AF01-PASS AF02-PASS AF03-PASS AF04-UNKNOWN AF05-UNKNOWN AF06-UNKNOWN AF07-UNKNOWN AF08-UNKNOWN AF09-UNKNOWN AF10-PASS AF11-FAIL
+  rules_receipt:
+    main_file: qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json
+    main_claim: 2026-08-07-REJECTS-2026-09-25
+    adjudication: adopt-2026-09-25-byte-exact-8d860e45
+    live_reverification: pending-this-session
+environment:
+  venv: /tmp/foundry-launch-final-completion-muse-xhigh/launch-final-completion-muse-xhigh-5z86ui59/venv
+  venv_python: '3.12.14'
+  venv_lock_install: DONE-0
+  venv_editable_resolves_to_own_worktree: true
+  java: 21.0.12.1
+  maven: 3.9.12-vs-manifest-3.9.16
+  mage_jar: /home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar-7110650B-present
+  xmage_bridge_jar: not-built
+  docker_binary: absent
+decisions:
+- id: D001
+  content: treat-wsr22-successor-branch-as-foreign-active-off-limits-use-only-shared-donor-objects
+- id: D002
+  content: use-actual-donor-33-row-list-7-11-15-not-PB03-doc-summary-12-6-15
+- id: D003
+  content: dedicated-muse-venv-because-cpl-venv-editable-points-at-foreign-worktree
+- id: D004
+  content: transplant-41-donor-paths-whole-file-then-write-fresh-receipt-with-supersedes-block
+rejected_hypotheses: []
+exact_next_action: Run-baseline-suite-in-muse-venv-then-transplant-41-donor-paths-from-208341c6.
