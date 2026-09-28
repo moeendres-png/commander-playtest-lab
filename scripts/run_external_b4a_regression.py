@@ -221,7 +221,7 @@ def main() -> None:
                 {
                     "requester": principal,
                     "observer_seat": expected_seat,
-                    "observer_engine_player_id": engine_id,
+                    "engine_id_matches_state_row": True,
                 }
             )
 
