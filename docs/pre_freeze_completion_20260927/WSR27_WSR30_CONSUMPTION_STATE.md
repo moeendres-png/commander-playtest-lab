@@ -67,10 +67,12 @@ WSR27/WSR28/WSR30 remediation line only. Not a qualification report.
 - AF04–AF09, AF11 for Forge; PB-07, PB-09; the 44 BLOCKED starting-state rows.
 - XMage current-boundary column is the pre-#283 run; PR #283 carries the
   remediation and its own runtime verification. Not re-run here.
-- Lab PR #286 CI is pending at this read-back; record its terminal state.
+- Lab PR #286 CI: terminal on head `621ccf93` — quality, security,
+  infrastructure, mutation-detection, windows-runtime and
+  decision-workflow-contract all PASS; `exact-main-admission` skips on a pull
+  request by design.
 
 ## Exact next action
 
-Read PR #286 CI to terminal state and record it. Then stop for Coordinator
-routing: XMage is a separate battlefield and is not started here.
-`PRODUCTION_PROVIDER = NOT SELECTED`; `ARCHITECTURE_FREEZE = NOT CLAIMED`.
+Stop for Coordinator routing. XMage is a separate battlefield and is not started
+here. `PRODUCTION_PROVIDER = NOT SELECTED`; `ARCHITECTURE_FREEZE = NOT CLAIMED`.
