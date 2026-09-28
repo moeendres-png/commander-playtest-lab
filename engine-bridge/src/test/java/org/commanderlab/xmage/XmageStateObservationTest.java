@@ -96,10 +96,7 @@ class XmageStateObservationTest {
 
             if (seat == 0) {
                 assertEquals(livePlayerIds.get(0), player.get("player_id").getAsString());
-                assertTrue(
-                        zones.getAsJsonArray("hand").asList().stream()
-                                .noneMatch(element -> "<hidden>".equals(element.getAsString()))
-                );
+                assertNoHidden(zones.getAsJsonArray("hand"), 7);
                 assertTrue(player.getAsJsonObject("mana_pool").size() > 0);
             } else {
                 assertEquals("op-" + seat, player.get("player_id").getAsString());
@@ -118,13 +115,11 @@ class XmageStateObservationTest {
                 p2Players.get(0).getAsJsonObject().getAsJsonObject("zones").getAsJsonArray("hand"),
                 7
         );
-        assertTrue(
+        assertNoHidden(
                 p2Players.get(1).getAsJsonObject()
                         .getAsJsonObject("zones")
-                        .getAsJsonArray("hand")
-                        .asList()
-                        .stream()
-                        .noneMatch(element -> "<hidden>".equals(element.getAsString()))
+                        .getAsJsonArray("hand"),
+                7
         );
 
         assertEquals(0, state.getAsJsonArray("stack").size());
@@ -187,6 +182,13 @@ class XmageStateObservationTest {
         assertEquals(expectedCount, values.size());
         for (var element : values) {
             assertEquals("<hidden>", element.getAsString());
+        }
+    }
+
+    private static void assertNoHidden(JsonArray values, int expectedCount) {
+        assertEquals(expectedCount, values.size());
+        for (var element : values) {
+            assertNotEquals("<hidden>", element.getAsString());
         }
     }
 
