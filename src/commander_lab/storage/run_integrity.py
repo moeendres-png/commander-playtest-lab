@@ -37,8 +37,9 @@ def _artifact_paths(root: Path) -> dict[str, Path]:
     for directory, directories, names in os.walk(root, onerror=unreadable, followlinks=False):
         directories[:] = sorted(name for name in directories if name != ".quarantine")
         for name in directories:
-            if (Path(directory) / name).is_symlink():
-                raise ValueError("run contains a symbolic-link directory")
+            child = Path(directory) / name
+            if child.is_symlink() or child.is_junction():
+                raise ValueError("run contains a linked directory")
         for name in sorted(names):
             path = Path(directory) / name
             relative = path.relative_to(root).as_posix()

@@ -16,7 +16,8 @@ The producer and verifier now share a complete regular-file inventory:
 - declared and observed artifact names must match exactly;
 - schema v1 headers, canonical relative paths, integer sizes and SHA-256 values
   are validated before use; duplicate keys and non-finite JSON values fail closed;
-- symlinks and non-regular artifacts are rejected without reading their targets;
+- symlinks, Windows directory junctions and non-regular artifacts are rejected
+  without reading their targets;
 - size and digest come from the same open file, with observed identity/change
   checks; scan/read failures produce a structured negative verification result;
 - creation validates the full document before the existing atomic writer replaces

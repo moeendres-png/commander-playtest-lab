@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -269,4 +270,25 @@ def test_incomplete_directory_scan_cannot_replace_a_seal(
     with pytest.raises(OSError):
         create_run_manifest(sealed_run, run_id="r1", status="completed", metadata={})
     assert (sealed_run / "run-manifest.json").read_bytes() == before
+    assert not verify_run(sealed_run).valid
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction semantics")
+def test_windows_directory_junction_cannot_import_external_artifacts(
+    sealed_run: Path, tmp_path: Path
+) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "external.json").write_bytes(b"external artifact")
+    link = sealed_run / "junction"
+    subprocess.run(
+        ["cmd", "/d", "/c", "mklink", "/J", str(link), str(outside)],
+        capture_output=True,
+        check=True,
+    )
+    assert link.is_junction()
+    original = (sealed_run / "run-manifest.json").read_bytes()
+    with pytest.raises(ValueError):
+        create_run_manifest(sealed_run, run_id="r1", status="completed", metadata={})
+    assert (sealed_run / "run-manifest.json").read_bytes() == original
     assert not verify_run(sealed_run).valid
