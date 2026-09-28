@@ -870,7 +870,7 @@ def main() -> int:
 
     # The executing qualification code must be the committed code, or the
     # receipts below would name a provenance the bytes do not have.
-    runner = receipt_mod.capture_runner_identity(REPO_ROOT)
+    runner = receipt_mod.capture_runner_identity(REPO_ROOT, output_paths=(str(OUT_DIR),))
     receipt_mod.require_clean_runner(runner)
     print(
         "runner bound:",

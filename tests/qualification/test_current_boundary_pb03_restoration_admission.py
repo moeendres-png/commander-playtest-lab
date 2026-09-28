@@ -266,3 +266,60 @@ def test_create_request_carries_the_seed_on_a_lane_that_declares_seed_support() 
     assert request["seed"] == 20260923
     assert request["rules_seed"] == 20260923
     assert request["options"] == {"seed": 20260923, "rules_seed": 20260923}
+
+
+# --- The provenance guard must stay fail-closed, only for the run's OUTPUT ----
+
+
+def test_runner_dirty_guard_ignores_only_the_runs_own_output_directory(tmp_path: Path) -> None:
+    """A run that just wrote its evidence is dirty in exactly that place.
+
+    Treating the run's own output as uncommitted runner code would make a
+    completed run impossible to receipt. The exclusion must be narrow: any other
+    uncommitted change still fails closed.
+    """
+    import subprocess
+
+    from commander_lab.qualification.current_boundary import receipts
+
+    root = tmp_path / "repo"
+    (root / "scripts").mkdir(parents=True)
+    # The real repository already tracks qualification/, so git reports the run's
+    # output subdirectory itself rather than collapsing the whole tree.
+    (root / "qualification").mkdir(parents=True)
+    (root / "qualification" / "tracked.json").write_text("{}\n", encoding="utf-8")
+    (root / "src" / "commander_lab" / "qualification" / "current_boundary").mkdir(parents=True)
+    (root / "scripts" / "run_current_boundary_qualification.py").write_text("x\n", encoding="utf-8")
+    (
+        root / "src" / "commander_lab" / "qualification" / "current_boundary" / "full107.py"
+    ).write_text("x\n", encoding="utf-8")
+    for argv in (
+        ["init", "-q"],
+        ["config", "user.email", "t@example.invalid"],
+        ["config", "user.name", "t"],
+        ["add", "-A"],
+        ["commit", "-q", "-m", "base"],
+    ):
+        subprocess.run(["git", *argv], cwd=root, check=True, capture_output=True)
+
+    out_dir = root / "qualification" / "final-current-boundary-20260927"
+    out_dir.mkdir(parents=True)
+    (out_dir / "FULL107.json").write_text("{}\n", encoding="utf-8")
+
+    # Only the run's own output is present: the guard must pass.
+    identity = receipts.capture_runner_identity(root, output_paths=(str(out_dir),))
+    assert identity.dirty is False, identity.dirty_paths
+    receipts.require_clean_runner(identity)
+
+    # Any other uncommitted runner change must still fail closed.
+    (
+        root / "src" / "commander_lab" / "qualification" / "current_boundary" / "full107.py"
+    ).write_text("y\n", encoding="utf-8")
+    dirty = receipts.capture_runner_identity(root, output_paths=(str(out_dir),))
+    assert dirty.dirty is True
+    with pytest.raises(receipts.ReceiptError, match="RUNNER_DIRTY"):
+        receipts.require_clean_runner(dirty)
+
+    # And the executed-input digests are still captured, so a mutated runner
+    # cannot hide behind the output exclusion.
+    assert any("full107.py" in key for key in dirty.input_digests)

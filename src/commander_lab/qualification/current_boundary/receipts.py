@@ -140,16 +140,41 @@ class RunnerIdentity:
         return _digest(self.to_document())
 
 
-def capture_runner_identity(root: Path) -> RunnerIdentity:
+def capture_runner_identity(root: Path, *, output_paths: tuple[str, ...] = ()) -> RunnerIdentity:
     """Capture the identity of the code that is actually about to execute.
 
     This reads live Git state and live file digests. It never asserts
     ``dirty=false`` without checking, and it records which paths are dirty rather
     than hiding them.
+
+    ``output_paths`` names this run's own declared output locations. A run that
+    has just written its evidence is necessarily dirty in exactly that place, and
+    the evidence it is about to issue describes the run's *inputs*. Counting the
+    run's own output as uncommitted runner code would make a run impossible to
+    complete on a clean tree. The exclusion is scoped: any other uncommitted
+    change still fails closed, and the executed-input digests below are captured
+    and re-verified independently, so a mutated runner cannot slip through by
+    hiding behind an output exclusion.
     """
     root = root.resolve()
     status = _git(root, ["status", "--porcelain"])
-    dirty_paths = tuple(line[3:] for line in status.splitlines() if line.strip())
+    # git reports repository-relative paths; normalise each declared output to
+    # the same form so an absolute caller path still matches.
+    normalised: list[str] = []
+    for output in output_paths:
+        candidate = Path(output)
+        if candidate.is_absolute():
+            try:
+                candidate = candidate.resolve().relative_to(root)
+            except ValueError:
+                continue
+        normalised.append(str(candidate).rstrip("/"))
+    outputs = tuple(normalised)
+    dirty_paths = tuple(
+        line[3:]
+        for line in status.splitlines()
+        if line.strip() and not any(line[3:].rstrip("/") == out for out in outputs)
+    )
     digests: dict[str, str] = {}
     for pattern in _EXECUTED_INPUT_GLOBS:
         for path in sorted(root.glob(pattern)):
