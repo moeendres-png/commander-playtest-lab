@@ -1,0 +1,20 @@
+{
+  "status": "REPAIR_IMPLEMENTED_FOCUSED_VALIDATION_PASS",
+  "source_head": "7890aed0f692e67052dd51925575380828996ab4",
+  "branch": "astra/run-manifest-integrity-20260928",
+  "baseline": "19 failed, 2 passed on unchanged main",
+  "first_linux_followup": "24 passed before WSL became unavailable",
+  "current_windows_followup": "43 passed, 5 skipped (four symlink privilege cases, one FIFO case)",
+  "required_next": [
+    "Pinned dependency validation",
+    "Existing Phase10 consumer regression",
+    "Exact-head Linux CI including skipped native-Windows cases",
+    "PR review and source/ownership refresh before Sol merge handoff"
+  ],
+  "limitations": [
+    "File integrity only; not authenticity or Rules qualification",
+    "Run tree must be quiescent; no claim of a hostile-writer-proof filesystem snapshot"
+  ],
+  "architecture_freeze": "NOT CLAIMED",
+  "production_provider": "NOT SELECTED"
+}
