@@ -288,6 +288,14 @@ authority_gates:
   (a37a865a) or the Lab fork (ef958ee9) that the evidence executed. Reserved; not claimed. Emit COORDINATOR_PROVIDER_SELECTION_REQUIRED
   only when provider evidence is genuinely complete.'
 - 'COORDINATOR_ARCHITECTURE_FREEZE: not claimed.'
+- 'LOCAL PUSH BLOCKED (not an authority decision): tools/foundry/safe_push.py requires an OS flock on
+  the writer-lock file held by a process that is an ancestor of the pushing process. The lock was acquired
+  by the launcher (pid 1001168), which has exited, so the flock is released and the holder is DEAD. A
+  live ''opencode --auto'' (pid 1304315) is my ancestor and is the correct holder, but it never acquired
+  the lock, and writer_lock.acquire is a launcher-path API that releases on exit, so no short-lived acquisition
+  can satisfy the check. Lock ownership will NOT be fabricated and the check will NOT be bypassed. All
+  work is committed locally and durable; only the remote push is blocked. Re-run from inside a live launcher
+  session, or have the launcher hold the lock, to push.'
 first_failing_boundary: 'CORRECTED. The earlier claim that terminal state was the first failing boundary
   was FALSIFIED. Real 100-card Commander games DO reach terminal state at the current pin through the
   production path: seed 20260923, four real decks, 10826 decisions, winner seat 2, terminal=true. terminal_reached=false
