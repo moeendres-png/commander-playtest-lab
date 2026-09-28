@@ -1,0 +1,12 @@
+{
+  "source_head": "7890aed0f692e67052dd51925575380828996ab4",
+  "source_tree": "32b7a20115ccfe7ad89409ff3ac71f9697a5d1ae",
+  "command": "pytest -q tests/unit/test_run_manifest_integrity.py",
+  "result": {
+    "failed": 19,
+    "passed": 2
+  },
+  "production_code": "Unmodified current main",
+  "classification": "DIRECTLY_VERIFIED hermetic file-integrity defects; no provider or Rules verdict",
+  "checkpoint": "Tests intentionally fail before repair; do not merge this intermediate checkpoint alone"
+}
