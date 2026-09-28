@@ -1204,9 +1204,7 @@ def test_nested_muse_launch_clears_ambient_native_variant(target, canon, monkeyp
     assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
 
 
-def test_unsuppressed_nested_launch_clears_ambient_routing_suppression(
-    target, canon, monkeypatch
-):
+def test_unsuppressed_nested_launch_clears_ambient_routing_suppression(target, canon, monkeypatch):
     monkeypatch.setenv("OPENCODE_DISABLE_PROJECT_CONFIG", "1")
     monkeypatch.setenv("FOUNDRY_ROUTING_SUPPRESSED", "1")
     plan = _plan(target, canon, execution_profile="space-bunny")
