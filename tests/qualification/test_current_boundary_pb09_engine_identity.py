@@ -30,6 +30,8 @@ FORK = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
 UPSTREAM = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
 BRIDGE = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+BRIDGE_HEAD = "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa"
+BRIDGE_TREE = "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9"
 
 
 def test_the_four_forge_commits_are_all_distinct() -> None:
@@ -244,6 +246,99 @@ def test_real_forge_descendant_is_engine_equivalent() -> None:
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
 
     proof = verify_engine_identity(forge, FORK, TIP, recorded_label="forge native suite")
-    assert proof["justification"] == "ENGINE_MAIN_SOURCE_TREES_IDENTICAL"
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
     assert proof["differing_modules"] == []
-    assert len(proof["modules"]) == 7
+    # Six Rules-Core modules. forge-protocol2-bridge is excluded and bound
+    # separately, because it is transport/provenance, not Magic legality.
+    assert len(proof["modules"]) == 6
+    assert "forge-game" in proof["modules"]
+    assert "forge-protocol2-bridge" not in proof["modules"]
+    assert set(proof["compared_module_roots"]) == {
+        "forge-game",
+        "forge-core",
+        "forge-ai",
+        "forge-gui",
+        "forge-gui-desktop",
+        "adventure-editor",
+    }
+
+
+# --- the bridge is a separate identity, never collapsed into the Rules Core --- #
+
+
+def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
+    """PB-05 changed the bridge and no Rules-Core source. The check must pass."""
+    from commander_lab.qualification.current_boundary import receipts as R
+
+    assert "forge-protocol2-bridge" not in R.FORGE_RULES_CORE_MODULE_ROOTS
+    assert R.FORGE_BRIDGE_MODULE_ROOTS == ("forge-protocol2-bridge",)
+    assert "forge-game" in R.FORGE_RULES_CORE_MODULE_ROOTS
+
+
+def test_forge_pr4_head_is_rules_core_equivalent_to_the_fork_head() -> None:
+    """The real PB-05 fact: the bridge repair changed zero Rules-Core source."""
+    forge = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+    if not (forge / ".git").exists():
+        pytest.skip("the Forge reference checkout is not present in this environment")
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR4")
+    assert proof["engine_equivalent"] is True
+    assert proof["differing_modules"] == []
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
+
+
+def test_rules_core_drift_still_fails_closed() -> None:
+    """Excluding the bridge must not weaken the drift guard for real engine code."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        for module in ("forge-game", "forge-protocol2-bridge"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/E.java").write_text("class E {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "head"],
+            cwd=repo,
+            check=True,
+        )
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+        # A forge-game change is Rules-Core drift and must be refused.
+        (repo / "forge-game/src/main/java/E.java").write_text("class E { int x; }\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "engine"],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+        with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+            verify_engine_identity(repo, head, tip, recorded_label="forge")
+
+
+def test_bridge_and_evidence_head_is_bound_separately() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    head = identity["bridge_evidence_head"]
+    assert head["commit"] == BRIDGE_HEAD
+    assert head["tree"] == BRIDGE_TREE
+    assert head["pull_request"] == 4
+    assert head["is_draft"] is True, "Forge PR #4 must stay Draft"
+    assert head["changes_rules_core"] is False
+    # Distinct from the Rules Core and from the historical bridge pin.
+    assert head["commit"] != identity["executing_engine"]["commit"]
+    assert head["commit"] != identity["bridge_source_commit"]["commit"]
+
+
+def test_pb05_credit_rule_is_recorded_with_the_identities() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["pb05_provenance_consumed"] == list(sl.FORGE_PB05_PROVENANCE_FIELDS)
+    assert "no AF00 or PB-05 credit" in identity["pb05_credit_rule"]

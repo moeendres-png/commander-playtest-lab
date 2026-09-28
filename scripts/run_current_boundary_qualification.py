@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -64,7 +65,17 @@ OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
-FORGE_WORKSPACE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+# The Forge checkout the native suites execute in. Configurable so the bound
+# bridge/evidence head can be a detached worktree at the exact Forge PR head
+# without moving any other lane's checkout. The default remains the historical
+# WSR20 evidence checkout.
+#
+# The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
+# evidence head is Forge PR #4 d5bd22d1, which changes forge-protocol2-bridge
+# only. engine_tree_equivalence re-proves that separation on every run.
+FORGE_WORKSPACE = Path(
+    os.environ.get("FORGE_WORKSPACE", "/home/moeen/code/ws-forge-full107-cdq-20260926")
+)
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed

@@ -58,6 +58,31 @@ FORGE_UPSTREAM_REPOSITORY = "https://github.com/Card-Forge/forge.git"
 FORGE_UPSTREAM_BASELINE_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = False
 FORGE_BRIDGE_SOURCE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+
+# The Forge bridge/evidence head is a SEPARATE identity from the Rules Core and is
+# bound separately, never collapsed into one "Forge SHA". Forge PR #4 carries the
+# PB-05 build-provenance repair and is Draft; it is not merged to Forge master and
+# must not be merged merely to consume it.
+#
+# PR #4 head d5bd22d1 has 22 commits above the Rules-Core head and changes
+# forge-protocol2-bridge only. forge-game, forge-core, forge-ai, forge-gui,
+# forge-gui-desktop and adventure-editor are byte-identical, which engine_tree_
+# equivalence re-verifies on every run over the Rules-Core modules alone.
+FORGE_BRIDGE_EVIDENCE_COMMIT = "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa"
+FORGE_BRIDGE_EVIDENCE_TREE = "575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9"
+FORGE_BRIDGE_EVIDENCE_PR = 4
+FORGE_BRIDGE_EVIDENCE_IS_DRAFT = True
+
+# PB-05 provenance fields the bridge now emits. They are consumed fail-closed:
+# no verified=true means no AF00/PB-05 credit, and a dirty or unknown build
+# source means no current evidence at all.
+FORGE_PB05_PROVENANCE_FIELDS = (
+    "engine_build_commit",
+    "engine_build_tree",
+    "engine_build_dirty",
+    "engine_build_source",
+    "engine_commit_verified",
+)
 FORGE_LICENSE = "GPL-3.0"
 
 # Contract blob paths inside the Lab repository.
@@ -157,10 +182,26 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                         "attributed to candidate_commit; verify_candidate_identity "
                         "fails closed on the divergence",
                     },
+                    "bridge_evidence_head": {
+                        "role": "THE BRIDGE/PROVIDER/EVIDENCE COMMIT THAT RUNS. Bound "
+                        "separately from the Rules Core and never collapsed into it. "
+                        "Carries the PB-05 build-provenance repair. Forge PR #4, Draft, "
+                        "deliberately not merged to master.",
+                        "repository": FORGE_FORK_REPOSITORY,
+                        "commit": FORGE_BRIDGE_EVIDENCE_COMMIT,
+                        "tree": FORGE_BRIDGE_EVIDENCE_TREE,
+                        "pull_request": FORGE_BRIDGE_EVIDENCE_PR,
+                        "is_draft": FORGE_BRIDGE_EVIDENCE_IS_DRAFT,
+                        "changes_rules_core": False,
+                    },
                     "bridge_source_commit": {
-                        "role": "the bridge inside the fork, distinct from the engine commit",
+                        "role": "the historical Lab bridge-source pin of record, distinct "
+                        "from both the Rules Core and the executing bridge head",
                         "commit": FORGE_BRIDGE_SOURCE_COMMIT,
                     },
+                    "pb05_provenance_consumed": list(FORGE_PB05_PROVENANCE_FIELDS),
+                    "pb05_credit_rule": "no engine_commit_verified=true means no AF00 or "
+                    "PB-05 credit; a dirty or unknown build source means no current evidence",
                 },
                 "candidate_tree": FORGE_CANDIDATE_TREE,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
