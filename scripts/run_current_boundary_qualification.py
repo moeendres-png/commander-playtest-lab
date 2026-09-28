@@ -49,6 +49,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     run_af01,
     run_af03,
     start2_row,
+    validate_principal_scoping,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
@@ -445,11 +446,23 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             drive_to="priority",
             max_steps=60,
         )
-        observations = {}
-        for seat in ("p1", "p2", "p3", "p4"):
-            observations[seat] = observe_principal_state(proc, hidden_game.game_id, seat=seat)
+        seats = ("p1", "p2", "p3", "p4")
+        observations = {
+            seat: observe_principal_state(proc, hidden_game.game_id, seat=seat) for seat in seats
+        }
+        # Validate that each observation is genuinely scoped to the seat that
+        # asked before persisting it as principal-scoped evidence. Masking
+        # identifiers at the provider is not sufficient: a provider can return
+        # one unscoped payload to every caller, and the committed XMage run
+        # returned byte-identical payloads for all four seats.
+        scoping = validate_principal_scoping(observations, requested_seats=seats)
         probes["hidden_game"] = hidden_game.to_document()
         probes["hidden_observations"] = observations
+        probes["hidden_scoping"] = scoping
+        if not scoping["credible_as_principal_scoped_evidence"]:
+            # Do not write the observations as hidden-information evidence.
+            # The unscoped responses are still recorded, labelled as not scoped.
+            print(f"principal scoping not established for {candidate}: {scoping['findings']}")
         write(
             f"HIDDEN_INFO_{candidate.upper()}.json",
             {
@@ -459,6 +472,8 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "runtime_identity": identity,
                 "game": hidden_game.to_document(),
                 "principal_observations": observations,
+                "principal_scoping": scoping,
+                "principal_observations_credible": scoping["credible_as_principal_scoped_evidence"],
                 "historical_forge_seams_classified_freshly": {
                     "HIDDEN_05": "no face-down exile permission scenario is reachable on the "
                     "generic Protocol-2 surface of this candidate in this run",

@@ -534,3 +534,147 @@ def dumps(value: Any) -> str:
 
 def sleep(seconds: float) -> None:
     time.sleep(seconds)
+
+
+# ---------------------------------------------------------------------------
+# Principal scoping must be validated before an observation is persisted as
+# principal-scoped evidence.
+# ---------------------------------------------------------------------------
+#
+# The hidden-information loop used to read one state observation per seat and
+# write all of them straight into HIDDEN_INFO_<CANDIDATE>.json. Nothing checked
+# that the response was actually scoped to the seat that asked for it. The
+# committed XMage run demonstrates the failure this permits: all four entries
+# held identical state payloads, including stable object ids and ordering for
+# every opponent's seven-card hand and ninety-two-card library. Persisting that
+# under four principal labels presents one unscoped view as four scoped ones.
+#
+# Masking identifiers at the provider is necessary but not sufficient, because a
+# provider can still return the same unscoped payload to every caller. The
+# observation has to be checked where it is trusted, which is here.
+
+# Keys whose values describe a principal's own hidden content. Counts are not
+# hidden; card identities and ordering are.
+_HIDDEN_CONTENT_KEYS: frozenset[str] = frozenset({"hand", "library", "revealed", "face_down_cards"})
+
+
+def _canonical(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, default=str)
+
+
+def validate_principal_scoping(
+    observations: dict[str, Any], *, requested_seats: tuple[str, ...]
+) -> dict[str, Any]:
+    """Check that each observation is genuinely scoped to the seat that asked.
+
+    Returns a verdict mapping. A failing check is never repaired by rewriting the
+    observation: the observation is what the engine said, and the correct
+    response is to refuse to present it as principal-scoped evidence.
+    """
+    findings: list[dict[str, Any]] = []
+
+    usable = {
+        seat: payload
+        for seat, payload in observations.items()
+        if isinstance(payload, dict) and "error" not in payload
+    }
+    for seat in requested_seats:
+        if seat not in usable:
+            findings.append(
+                {
+                    "check": "observation_present",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "no usable principal observation was returned for this seat",
+                }
+            )
+
+    # Each observation must mark exactly one actor, and it must be the requester.
+    for seat, payload in usable.items():
+        players = payload.get("players")
+        if not isinstance(players, list) or not players:
+            findings.append(
+                {
+                    "check": "actor_marked",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "the observation carries no players array to scope against",
+                }
+            )
+            continue
+        actors = [
+            entry for entry in players if isinstance(entry, dict) and entry.get("is_actor") is True
+        ]
+        if len(actors) != 1:
+            findings.append(
+                {
+                    "check": "actor_marked",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": f"expected exactly one actor in the observation, saw {len(actors)}",
+                }
+            )
+            continue
+        observed_seat = actors[0].get("seat")
+        expected_seat = _seat_index(requested_seats, seat)
+        if expected_seat is not None and observed_seat != expected_seat:
+            findings.append(
+                {
+                    "check": "actor_is_the_requester",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": f"the observation marks seat {observed_seat} as actor, but seat "
+                    f"{seat} requested it",
+                }
+            )
+
+    # Two principals cannot receive the same view. Identical payloads mean one
+    # unscoped projection was returned to every caller.
+    distinct = {_canonical(usable[seat]) for seat in usable}
+    if len(usable) > 1 and len(distinct) == 1:
+        findings.append(
+            {
+                "check": "observations_differ_per_principal",
+                "ok": False,
+                "detail": f"all {len(usable)} principals received a byte-identical state "
+                "payload, so the projection is not principal-scoped",
+            }
+        )
+
+    # No observation may carry another principal's hidden card content.
+    for seat, payload in usable.items():
+        players = payload.get("players")
+        if not isinstance(players, list):
+            continue
+        for entry in players:
+            if not isinstance(entry, dict):
+                continue
+            exposed = sorted(key for key in _HIDDEN_CONTENT_KEYS if entry.get(key))
+            if exposed and entry.get("is_actor") is not True:
+                findings.append(
+                    {
+                        "check": "no_opponent_hidden_content",
+                        "seat": seat,
+                        "ok": False,
+                        "detail": f"the observation exposes opponent zone content {exposed} "
+                        "for a non-actor seat",
+                    }
+                )
+
+    return {
+        "verdict": "PRINCIPAL_SCOPED" if not findings else "SCOPING_NOT_ESTABLISHED",
+        "credible_as_principal_scoped_evidence": not findings,
+        "principals_checked": sorted(usable),
+        "distinct_payloads": len(distinct),
+        "findings": findings,
+        "note": "an observation that is not principal-scoped is recorded as observed and is "
+        "not presented as hidden-information evidence",
+    }
+
+
+def _seat_index(seats: tuple[str, ...], seat: str) -> int | None:
+    lowered = seat.lower()
+    for index, candidate in enumerate(seats):
+        if candidate.lower() == lowered:
+            return index
+    return None
