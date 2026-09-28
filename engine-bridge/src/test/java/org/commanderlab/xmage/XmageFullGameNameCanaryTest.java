@@ -100,7 +100,7 @@ class XmageFullGameNameCanaryTest {
             JsonObject pilotState = pending.getAsJsonObject("pilot_state");
             JsonObject legal = session.legalActionsPayload();
 
-            int actorSeat = seatOf(pilotState, actorId);
+            int actorSeat = seatOf(session, actorId);
 
             // Structural negative (same discipline as the UUID oracle).
             boolean actorSawOwnHand = false;
@@ -187,7 +187,7 @@ class XmageFullGameNameCanaryTest {
                                     + " event=" + snippet(latestEvent));
                 }
                 for (String ownerId : canaryByOwner.keySet()) {
-                    coveredPairs.add(actorSeat + "->" + seatOf(pilotState, ownerId));
+                    coveredPairs.add(actorSeat + "->" + seatOf(session, ownerId));
                 }
             }
 
@@ -412,11 +412,19 @@ class XmageFullGameNameCanaryTest {
         return names;
     }
 
-    private static int seatOf(JsonObject pilotState, String playerId) {
-        for (JsonElement element : pilotState.getAsJsonArray("players")) {
-            JsonObject entry = element.getAsJsonObject();
-            if (entry.has("player_id") && playerId.equals(entry.get("player_id").getAsString())) {
-                return entry.get("seat").getAsInt();
+    /**
+     * Seat index for a real principal id.
+     *
+     * <p>This deliberately does NOT look the id up in the projected payload. The
+     * projection now masks every non-viewer principal id, so a lookup there would
+     * return -1 for every opponent and would silently make the ordered
+     * actor-&gt;other coverage check vacuous. The session's own seat map is the
+     * authoritative source, and using it keeps every ordered pair covered.
+     */
+    private static int seatOf(XmageFullGameSession session, String playerId) {
+        for (Map.Entry<String, Integer> entry : session.seatOrder().entrySet()) {
+            if (entry.getKey().equals(playerId)) {
+                return entry.getValue();
             }
         }
         return -1;

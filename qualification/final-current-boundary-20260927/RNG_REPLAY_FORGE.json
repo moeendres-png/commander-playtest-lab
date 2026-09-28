@@ -1,0 +1,37 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "event_log": {},
+ "harness_injected_outcomes": false,
+ "rules_rng_binding": {
+  "acknowledged_seed": null,
+  "acknowledgement_source": "create_commander_game_response",
+  "classification": "UNCONTROLLED_ENGINE_RNG",
+  "controlled": false,
+  "requested_seed": 424242,
+  "rng_credit": false,
+  "schema_version": "commander-lab.seed-binding/1.0.0"
+ },
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+  "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
+  "runner_tree": "c90366880cffb52b048a625a179bca1bc3c79dc5",
+  "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+ },
+ "same_seed_twin": "see comparison packet; twin runs are executed per candidate",
+ "schema_version": "wsr22.rng-replay/1.0.0",
+ "semantic_replay": {
+  "error": [
+   {
+    "code": "unknown_message",
+    "details": {},
+    "message": "export_replay is not supported: deterministic replay is not claimed",
+    "retryable": false
+   }
+  ]
+ }
+}

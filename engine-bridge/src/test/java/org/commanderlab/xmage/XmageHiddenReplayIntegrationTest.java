@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import mage.game.Game;
+
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,8 +75,9 @@ class XmageHiddenReplayIntegrationTest {
                 "non-entitled principal reference must not encode opponent library order");
 
         JsonObject p1FromP2 = playerRow(
+                arrived.game(),
                 XmageFullGameStateRedactor.actorView(arrived.game(), p2),
-                p1.getId().toString());
+                p1.getId());
         assertFalse(p1FromP2.has("library"));
         assertEquals(0, p1FromP2.getAsJsonArray("granted_library").size());
         assertEquals(requested.size(), p1FromP2.get("library_count").getAsInt());
@@ -409,14 +412,26 @@ class XmageHiddenReplayIntegrationTest {
         return result;
     }
 
-    private static JsonObject playerRow(JsonObject view, String playerId) {
+    /**
+     * The row for a principal, located by its seat.
+     *
+     * <p>A public projection masks every principal id, because the real UUID is
+     * engine-internal and would otherwise link observations across games. The
+     * projection still emits a stable seat token, and seat is public, so the row
+     * is found from the seat the session reports. The assertions this serves are
+     * unchanged: they still check that a non-entitled principal sees no library
+     * contents and only a count.
+     */
+    private static JsonObject playerRow(Game game, JsonObject view, UUID playerId) {
+        int seat = XmageFullGameStateRedactor.seat(game, playerId);
+        String token = "op-" + seat;
         for (JsonElement element : view.getAsJsonArray("players")) {
             JsonObject row = element.getAsJsonObject();
-            if (playerId.equals(row.get("player_id").getAsString())) {
+            if (token.equals(row.get("player_id").getAsString())) {
                 return row;
             }
         }
-        throw new AssertionError("player row missing " + playerId);
+        throw new AssertionError("player row missing seat " + seat + " for " + playerId);
     }
 
     private static JsonObject battlefieldItem(JsonObject view, String objectId) {

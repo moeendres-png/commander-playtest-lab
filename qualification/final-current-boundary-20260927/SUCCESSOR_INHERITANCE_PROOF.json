@@ -1,0 +1,29 @@
+{
+ "schema_version": "wsr22.successor-inheritance-proof/1.0.0",
+ "claim": "The v1.0.6 successor changes exactly one denominator row; the other 106 are byte-identical in every obligation-relevant field between the frozen v1.0.5 materialization and the effective v1.0.6 bundle.",
+ "changed_fixture_ids": [
+  "WS05-CMD-START-2"
+ ],
+ "fields_compared": [
+  "requested_state_digest",
+  "materialization_digest",
+  "expected_events",
+  "terminal_postconditions",
+  "players",
+  "deck_state",
+  "semantic_objects",
+  "temporal_state",
+  "commander_state",
+  "knowledge_state",
+  "rules_randomness",
+  "stack_state",
+  "combat_state",
+  "decision_script"
+ ],
+ "identical_count": 106,
+ "differing_count": 1,
+ "differing": [
+  "WS05-CMD-START-2"
+ ],
+ "consequence": "Native harnesses bound to the frozen v1.0.5 records execute the SAME obligations for these 106 rows under the current boundary; only WS05-CMD-START-2 required a new current-boundary run, which was executed."
+}

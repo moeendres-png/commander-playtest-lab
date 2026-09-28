@@ -93,8 +93,15 @@ class XmageVariablePlayerLifecycleTest {
         session.start();
         developSteps(session, 150);
         JsonObject before = session.pendingDecisionPayload();
-        String active = before.getAsJsonObject("decision")
+        // Resolve the active principal from the engine, not from the observation:
+        // the observation masks a non-viewer's real id by design, and this test
+        // drives the engine directly so it may address any seat.
+        String projectedActive = before.getAsJsonObject("decision")
                 .getAsJsonObject("pilot_state").get("active_player_id").getAsString();
+        String active = projectedActive.startsWith("op-")
+                ? session.principalIdAtSeat(
+                        Integer.parseInt(projectedActive.substring("op-".length())))
+                : projectedActive;
         int turnBefore = before.get("turn_number").getAsInt();
         assertTrue(session.concedeOfferPayload(active)
                 .get("concede_available").getAsBoolean());

@@ -21,14 +21,21 @@
   "rules_authority": {
     "current_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
     "historical_repository_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
-    "effective_date": "2026-08-07",
+    "effective_date": "2026-09-25",
     "rule": "103.8a",
     "requirement": "In a two-player game, the starting player skips the entire draw step of the first turn; the successor fixture must not require priority or any observation inside that skipped step.",
-    "semantic_basis_effective_date": "2026-08-07",
+    "semantic_basis_effective_date": "2026-09-25",
     "current_authority_status": "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED",
     "current_authority_receipt_required": true,
-    "byte_identity_claim": false,
-    "freshness_conflict_resolved": "2026-09-27"
+    "byte_identity_claim": true,
+    "freshness_conflict_resolved": "2026-09-27",
+    "byte_exact_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+    "byte_exact_status": "DIRECT_CAPTURE_AND_HASHED",
+    "rules_semantic_impact": {
+      "FULL107_RUNTIME_EVIDENCE_INVALIDATED": "NO",
+      "FULL107_BLANKET_RERUN_REQUIRED": "NO",
+      "reason": "The qualification-relevant rule set is semantically unchanged between 2026-08-19 and 2026-09-25 (103.8a/b/c, 504.1, 800.4a/j, 508.8 all semantic_delta NONE), so the effective date correction changes provenance, not obligations."
+    }
   },
   "record_successors": [
     {
@@ -89,7 +96,7 @@
         "historical_rsp": "commander-lab.rules-service/1.1.0",
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
         "transport_protocol": "2.0.0",
-        "comprehensive_rules_effective_date": "2026-08-07",
+        "comprehensive_rules_effective_date": "2026-09-25",
         "comprehensive_rules_rule": "103.8a"
       },
       "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
