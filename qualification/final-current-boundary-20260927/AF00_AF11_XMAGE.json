@@ -385,11 +385,11 @@
    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "4291377e71e68cd6e2d35ea978cb9330f533cdd2",
+   "executed_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "98f97b1b900df7d08e1b4d35425c2d77812ee34ae7558b1356002cf1377a997c",
+   "receipt_digest": "75920f1689825fe7e95863d309aeeb04701a939cbe07e196539243d608286ffc",
    "returncode": 0,
    "tests": 34
   },
@@ -398,11 +398,11 @@
    "candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "4291377e71e68cd6e2d35ea978cb9330f533cdd2",
+   "executed_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
    "failed": 0,
    "failures": 0,
    "passed": 135,
-   "receipt_digest": "9ddfaae1aef58758aa41169ecc4bb5e40cdc03e463dd2f9d0015ae24d8588cd5",
+   "receipt_digest": "25128a512f1289f7b3505be82072c03f80e6bd3670d8312710a73cfd8daf4e84",
    "returncode": 0,
    "tests": 135
   }

@@ -6,14 +6,14 @@
   "decision_tape": [
    {
     "actor": "p3",
-    "chosen_option_id": "opt-c87e6d45-2982-4a6e-827b-e4171ffa02cc",
+    "chosen_option_id": "opt-598dd00c-b5b7-4334-98c8-d1ed9ae3f21e",
     "kind": "STARTING_PLAYER",
     "note": "fixture-scripted seat p1",
     "offered_option_ids": [
-     "opt-c87e6d45-2982-4a6e-827b-e4171ffa02cc",
-     "opt-4c9235ec-c0b3-4c32-a95e-64b4823f97ce",
-     "opt-40aa89f3-088a-4fe9-a412-d2e08489a447",
-     "opt-9e8a53fc-1b13-4cfb-96ca-269f954e0c03"
+     "opt-598dd00c-b5b7-4334-98c8-d1ed9ae3f21e",
+     "opt-53d7a515-2d09-4bcc-8a74-7433df06cb48",
+     "opt-bf2a63f4-3b60-439a-ac92-06f6636a3e2b",
+     "opt-ebc7a636-e745-42a6-9de6-b455c2e3c49d"
     ],
     "policy": "fixture_scripted_seat",
     "revision": 1,
@@ -25,8 +25,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-d3e90d25-2cbb-4f1c-81d5-5a9ed6200d14",
-     "opt-50a381f2-155f-44dc-aea3-7787905f6d9c"
+     "opt-2eab21c4-b829-4fad-a806-8be2562e8cbd",
+     "opt-2320bbae-2203-4f44-a6ad-6fcf12a4bb12"
     ],
     "policy": "keep_all",
     "revision": 2,
@@ -38,8 +38,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-91577000-5c99-4deb-8b64-11186b390bd0",
-     "opt-3dd3f317-42ef-42d2-9d86-d82318fd4730"
+     "opt-315fb386-39f5-447e-bf6b-ba56a589da9b",
+     "opt-2db7cc7e-a8b4-4379-96fd-75063988e22c"
     ],
     "policy": "keep_all",
     "revision": 3,
@@ -51,8 +51,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-c2b6e358-ca81-4eab-9bb2-573c7baf5653",
-     "opt-ba33fb27-bae3-4987-ac92-884b6f732c56"
+     "opt-e4670bc0-1977-4749-9284-6daa0c93b7cc",
+     "opt-534520f8-3d47-456d-9182-554baf96adb6"
     ],
     "policy": "keep_all",
     "revision": 4,
@@ -64,8 +64,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-aa9b4d8c-e29c-489c-b8c0-8aac2a280c71",
-     "opt-aa50bf37-19e2-4639-9adc-dbe15bdc45fe"
+     "opt-18ce8ae8-1b90-49a7-9849-52213bc22dd3",
+     "opt-b3e24d27-5f31-4d85-a17d-a69ccf029247"
     ],
     "policy": "keep_all",
     "revision": 5,
@@ -73,12 +73,12 @@
    },
    {
     "actor": "p1",
-    "chosen_option_id": "opt-1ed802dc-654b-40e9-8e00-7b8a597e1661",
+    "chosen_option_id": "opt-96194b05-75b7-441b-8c41-bd82085f373a",
     "kind": "PRIORITY",
     "note": "external priority pass",
     "offered_option_ids": [
-     "opt-1ed802dc-654b-40e9-8e00-7b8a597e1661",
-     "opt-9c31f6dd-84ef-486f-b521-4b92f5047fa4"
+     "opt-96194b05-75b7-441b-8c41-bd82085f373a",
+     "opt-46737c2f-b109-4005-9be8-06a5987d932b"
     ],
     "policy": "pass_when_offered",
     "revision": 6,
@@ -93,7 +93,7 @@
   ],
   "failure": null,
   "failure_kind": null,
-  "game_id": "wsr22-forge-4p-b25f9ab7",
+  "game_id": "wsr22-forge-4p-eaaf524f",
   "observations": [
    {
     "payload": {
@@ -117,7 +117,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 8,
       "event_sequence": 8,
-      "game_id": "wsr22-forge-4p-b25f9ab7",
+      "game_id": "wsr22-forge-4p-eaaf524f",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -369,7 +369,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 11,
       "event_sequence": 11,
-      "game_id": "wsr22-forge-4p-b25f9ab7",
+      "game_id": "wsr22-forge-4p-eaaf524f",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -621,7 +621,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 14,
       "event_sequence": 14,
-      "game_id": "wsr22-forge-4p-b25f9ab7",
+      "game_id": "wsr22-forge-4p-eaaf524f",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -873,7 +873,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 17,
       "event_sequence": 17,
-      "game_id": "wsr22-forge-4p-b25f9ab7",
+      "game_id": "wsr22-forge-4p-eaaf524f",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -1125,7 +1125,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 20,
       "event_sequence": 20,
-      "game_id": "wsr22-forge-4p-b25f9ab7",
+      "game_id": "wsr22-forge-4p-eaaf524f",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -1377,7 +1377,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 23,
       "event_sequence": 23,
-      "game_id": "wsr22-forge-4p-b25f9ab7",
+      "game_id": "wsr22-forge-4p-eaaf524f",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -1674,7 +1674,7 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 23,
     "event_sequence": 23,
-    "game_id": "wsr22-forge-4p-b25f9ab7",
+    "game_id": "wsr22-forge-4p-eaaf524f",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -1936,10 +1936,10 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 23,
     "event_sequence": 23,
-    "game_id": "wsr22-forge-4p-b25f9ab7",
+    "game_id": "wsr22-forge-4p-eaaf524f",
     "legal_actions": [
      {
-      "action_id": "opt-a8b9f32d-6a0b-4f82-951b-34f06a31a1a7",
+      "action_id": "opt-907cf844-6bad-4ccf-ac8d-d589a06b2485",
       "action_type": "pass_priority",
       "actor_id": "p2",
       "allowed_target_ids": [],
@@ -1958,7 +1958,7 @@
       "target_ids": []
      },
      {
-      "action_id": "opt-14db51c9-94f1-4a8a-88de-20ee34be1438",
+      "action_id": "opt-973c48bb-fae7-484b-aeaa-d37946fb77ae",
       "action_type": "concede",
       "actor_id": "p2",
       "allowed_target_ids": [],
@@ -2215,7 +2215,7 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 23,
     "event_sequence": 23,
-    "game_id": "wsr22-forge-4p-b25f9ab7",
+    "game_id": "wsr22-forge-4p-eaaf524f",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -2455,7 +2455,7 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 23,
     "event_sequence": 23,
-    "game_id": "wsr22-forge-4p-b25f9ab7",
+    "game_id": "wsr22-forge-4p-eaaf524f",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -2686,14 +2686,12 @@
  },
  "principal_observations_credible": false,
  "principal_scoping": {
-  "attribution": "ENGINE_CANDIDATE_DEFECT",
-  "attribution_rule": "unauthorised content or one shared view across principals is a candidate defect the Lab must not mask; anything else is a Lab serialization defect. A masked engine leak must never earn engine correctness credit.",
+  "attribution": "SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT",
+  "attribution_rule": "one shared state view across different requesters is a conclusive candidate defect, and real content for a KNOWN non-actor is too. Real content with no actor marking is unestablished, not a demonstrated leak, because the content may be the requester's own. A masked engine leak must never earn engine correctness credit, and an undemonstrated one must never be asserted.",
   "compared": "the state view, excluding the observation envelope whose monotonic offset would otherwise make identical states look distinct",
   "credible_as_principal_scoped_evidence": false,
   "distinct_state_views": 4,
-  "engine_leak_indicators": [
-   "hand"
-  ],
+  "engine_leak_indicators": [],
   "findings": [
    {
     "check": "actor_marked",
@@ -2729,42 +2727,6 @@
     "check": "no_opponent_hidden_content",
     "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
     "ok": false,
-    "seat": "p1"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p1"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p1"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p2"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p2"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p2"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
     "seat": "p2"
    },
    {
@@ -2772,42 +2734,6 @@
     "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
     "ok": false,
     "seat": "p3"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p3"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p3"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p3"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p4"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p4"
-   },
-   {
-    "check": "no_opponent_hidden_content",
-    "detail": "the observation exposes opponent zone content ['hand'] for a non-actor seat",
-    "ok": false,
-    "seat": "p4"
    },
    {
     "check": "no_opponent_hidden_content",
@@ -2823,7 +2749,10 @@
    "p3",
    "p4"
   ],
-  "verdict": "SCOPING_NOT_ESTABLISHED"
+  "verdict": "SCOPING_NOT_ESTABLISHED",
+  "zones_observed_on_unmarked_seats": [
+   "hand"
+  ]
  },
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
@@ -2869,8 +2798,8 @@
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "4291377e71e68cd6e2d35ea978cb9330f533cdd2",
-  "runner_tree": "632e40d5d695b6f192443c48c0db90359e8425de",
+  "runner_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
+  "runner_tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410",
   "scenario_injection_supported": true,
   "seed_supported": true,
   "starting_state_injection_supported": true,

@@ -22,7 +22,7 @@
     "BridgeEngineTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=WsR20Full107DenominatorTest,WS233CardinalityTest,WS227SemanticReplayTest,WsR15HiddenInfoFamilyTest,WS234S3BridgeTest,WS236F4BridgeTest,WS216GapClosureTest,WS202ExecutableSurfaceTest,WS217DividedAllocationTest,WsR15MulticountCombatTest,WsR15MulticountTriggerTest,WsR15DeterminismTwinTest,WsR15ConcessionFamilyTest,WsR16SixPlayerFamilyTest,BridgeEngineTest",
-  "ended_utc": "2026-09-28T10:00:42+00:00",
+  "ended_utc": "2026-09-28T10:59:48+00:00",
   "engine_identity_proof": {
     "actual_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
     "compared_module_roots": [
@@ -81,23 +81,23 @@
   "group": "direct",
   "passed": 150,
   "positive_fixtures": [],
-  "receipt_digest": "8ec7c3cd13f843e09d1e34d514a6d26b5fb549a847ecdecf517225e5c1aace3a",
+  "receipt_digest": "9c6fa48298d9aea4b1b037df14a8c10a4bc57673683f74493d560bbd0ef0fa9f",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m150\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 711.5 s -- in \u001b[1mTestSuite\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m150\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 712.2 s -- in \u001b[1mTestSuite\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 150, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
     "branch": "wsr26/final-provider-readiness-20260928",
-    "built_utc": "2026-09-28T09:47:53+00:00",
-    "commit": "4291377e71e68cd6e2d35ea978cb9330f533cdd2",
+    "built_utc": "2026-09-28T10:47:05+00:00",
+    "commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
       "config/rules_engines.json": "85c4e10897b4443c57a4bbbe9cfca94b090372724e507af081133f1e696c00d2",
       "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
       "scripts/assemble_current_boundary_evidence.py": "7665d674486d7a280f05e4981993a0aa9476276b7a71fd5e58bf6848171fee18",
-      "scripts/run_current_boundary_qualification.py": "28bbfbfbd27b49f5a28053758f21d8cbb70e4eec55a901e884fa598d131916ed",
+      "scripts/run_current_boundary_qualification.py": "573eb87b8487f6d91336a93cc2e37c040d803d5810dd394d5b25c8d404f9c5fc",
       "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
       "src/commander_lab/engine/rules/base.py": "e387ad46293bdf8c48976abc02b02649bd6c3b53e15f8b45a0b4f133755af3b0",
       "src/commander_lab/engine/rules/bridge.py": "8ca8cd8eb1432764167754b317a9cafd5e5f739fed4ef6df950ecd5d8acc8931",
@@ -115,7 +115,7 @@
       "src/commander_lab/qualification/current_boundary/af01.py": "3ed66eb6f3be09acd5c26bb02cf71650950e17a24d7a6bd9471ef44bb343d161",
       "src/commander_lab/qualification/current_boundary/af03.py": "30dc52d2b60462d2395a3a3805f43c997aaaba3c323864316726b99613cab1fc",
       "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "8a19aaa7da05db8657f5bd355cc0208d9992cc60dbab983adae716390e5cdeff",
-      "src/commander_lab/qualification/current_boundary/full107.py": "82f8f715a709a0422e4ece7e461c3130f2a40685a1ae3189629d341a7f2eb53e",
+      "src/commander_lab/qualification/current_boundary/full107.py": "4a7818821323da8796a06666198e9635a4eca3e635537211c39e099f3f693b36",
       "src/commander_lab/qualification/current_boundary/game_driver.py": "9cae03067de019c8963fb17bc5ad7504d7681989b5d7bc2a14ceefa61f941628",
       "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
       "src/commander_lab/qualification/current_boundary/materialization.py": "246b016422f5f0302ae4effa215f1968dc25644a47d5fcf88c468315f63f2114",
@@ -128,11 +128,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "632e40d5d695b6f192443c48c0db90359e8425de"
+    "tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410"
   },
-  "runner_digest": "714272f73de113a0ff4775c7958c490c73d527f844953a51fd5c66138e70a86f",
+  "runner_digest": "2fe2db719896269cb4b28b1b172e1451ac823b1f2ee6753735f7a4762b8065ec",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-28T09:48:31+00:00",
+  "started_utc": "2026-09-28T10:47:37+00:00",
   "tests": 150
 }
