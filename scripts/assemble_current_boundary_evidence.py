@@ -30,8 +30,11 @@ OUT = REPO / "qualification" / "final-current-boundary-20260927"
 # environment so the assembler cannot silently read a different checkout than the
 # one the evidence was produced against. The default is retained only so a bare
 # invocation still names the historical workspace rather than an implicit cwd.
-FORGE_WS_DEFAULT = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
-FORGE_WS = Path(os.environ.get("COMMANDER_LAB_FORGE_WORKSPACE") or FORGE_WS_DEFAULT)
+# No machine-specific default: see the same reasoning in
+# run_current_boundary_qualification.py. An unconfigured workspace means the
+# assembler cannot bind Forge native provenance, and it says so rather than
+# reading whatever happened to be left on one machine.
+FORGE_WS = Path(os.environ.get("COMMANDER_LAB_FORGE_WORKSPACE") or "")
 
 # Execution receipts. The assembler trusts nothing else for native credit: no
 # receipt means no credit, and source text is never a substitute.

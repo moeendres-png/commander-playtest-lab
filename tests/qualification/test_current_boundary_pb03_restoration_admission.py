@@ -568,3 +568,48 @@ def test_a_declared_refusal_and_an_observed_refusal_stay_distinguishable() -> No
     # Neither may be mistaken for a pass or for a Rules failure.
     for document in (declared, observed):
         assert "PASS" not in document["reason"]
+
+
+def test_a_missing_candidate_workspace_is_recorded_not_fatal() -> None:
+    """An unconfigured candidate workspace must degrade, never crash the lane.
+
+    The runner resolved a candidate workspace to a hardcoded absolute path from one
+    developer's machine. That directory existed there, so every local run passed and
+    the defect was invisible; it only surfaced in CI, where the path does not exist
+    and `subprocess` raised a bare FileNotFoundError before any evidence could be
+    produced. Three tests died on it and the whole lane aborted.
+
+    An absent workspace is a legitimate, reportable state: the lane cannot bind that
+    candidate's identity, which is exactly what a NO_CREDIT receipt records. It must
+    say so rather than raise, and it must do so with no environment configured at
+    all, which is the situation CI runs in.
+    """
+    import importlib.util
+    import os
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[2]
+    runner_path = repo / "scripts" / "run_current_boundary_qualification.py"
+
+    saved = {
+        key: os.environ.pop(key, None)
+        for key in ("COMMANDER_LAB_FORGE_WORKSPACE", "FORGE_WORKSPACE")
+    }
+    try:
+        spec = importlib.util.spec_from_file_location("cb_runner_absent_ws", runner_path)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        # No workspace configured: None, NOT an empty Path. Path("") becomes the
+        # current directory, so an unconfigured workspace would resolve to the Lab
+        # checkout and report the Lab commit as the candidate's adapter identity.
+        assert module.FORGE_WORKSPACE is None
+        assert module.git("rev-parse", "HEAD", cwd=module.FORGE_WORKSPACE) == ""
+
+        # And a path that does not exist behaves the same way.
+        assert module.git("rev-parse", "HEAD", cwd=Path("/nonexistent/candidate-ws")) == ""
+    finally:
+        for key, value in saved.items():
+            if value is not None:
+                os.environ[key] = value

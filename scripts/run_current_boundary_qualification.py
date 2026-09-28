@@ -90,11 +90,20 @@ RECEIPT_DIR = OUT_DIR / "receipts"
 # silently read a different checkout than the one its receipts claim.
 FORGE_WORKSPACE_ENV = "COMMANDER_LAB_FORGE_WORKSPACE"
 FORGE_NATIVE_SUITE_WORKSPACE_ENV = "FORGE_WORKSPACE"
-FORGE_WORKSPACE = Path(
-    os.environ.get(FORGE_WORKSPACE_ENV)
-    or os.environ.get(FORGE_NATIVE_SUITE_WORKSPACE_ENV)
-    or "/home/moeen/code/ws-forge-full107-cdq-20260926"
+# No machine-specific default. A hardcoded absolute path from one developer's
+# machine is unreproducible everywhere else and fails in the least obvious way: it
+# exists locally, so every local run passes, and only CI or another host discovers
+# it. An unconfigured workspace is therefore an explicit, reportable condition
+# rather than a guess, and the lane degrades to NO_CREDIT with the reason recorded.
+# None when unconfigured, never Path(""). Path("") silently becomes the CURRENT
+# DIRECTORY, so an unconfigured workspace would have resolved to the Lab checkout
+# and `git rev-parse HEAD` there would return the Lab commit as the candidate's
+# adapter identity. That is a false identity binding, which is far worse than an
+# absent one.
+_configured_forge_workspace = os.environ.get(FORGE_WORKSPACE_ENV) or os.environ.get(
+    FORGE_NATIVE_SUITE_WORKSPACE_ENV
 )
+FORGE_WORKSPACE = Path(_configured_forge_workspace) if _configured_forge_workspace else None
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -274,10 +283,39 @@ def frozen_actual_card_corpus() -> tuple[str, ...]:
     return tuple(str(name) for name in corpus)
 
 
-def git(*args: str, cwd: Path | None = None) -> str:
-    return subprocess.run(
-        ["git", *args], cwd=str(cwd or REPO_ROOT), capture_output=True, text=True, check=False
-    ).stdout.strip()
+_REPO_DEFAULT = object()
+
+
+def git(*args: str, cwd: object = _REPO_DEFAULT) -> str:
+    """Run git in `cwd`, returning "" when there is no usable directory.
+
+    A missing candidate workspace is a legitimate state, not a crash: the lane must
+    be able to START and then record that it cannot bind an identity, which is what
+    the NO_CREDIT receipts exist for. Raising FileNotFoundError here aborted the
+    whole run with a bare OSError, and it only ever showed up on a machine where the
+    configured workspace happened to exist, so the defect was invisible locally and
+    surfaced in CI.
+
+    `cwd=None` is DISTINCT from omitting it. Omitting means "this repository";
+    passing None means "there is no directory", which must yield an empty result.
+    Collapsing the two made an unconfigured candidate workspace fall back to the
+    Lab checkout and report the Lab commit as that candidate's adapter identity,
+    which is a false identity binding rather than a missing one.
+    """
+    if cwd is _REPO_DEFAULT:
+        target: Path | None = REPO_ROOT
+    elif cwd is None:
+        target = None
+    else:
+        target = Path(cwd)
+    if target is None or not target.exists():
+        return ""
+    try:
+        return subprocess.run(
+            ["git", *args], cwd=str(target), capture_output=True, text=True, check=False
+        ).stdout.strip()
+    except OSError:
+        return ""
 
 
 for _candidate in NATIVE_SUITE_BINDING:
@@ -311,6 +349,8 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
                 "engine_candidate_commit": FORGE_CANDIDATE_COMMIT,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
                 "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+                # Empty when unconfigured, so an unbound adapter identity is recorded
+                # as absent rather than inherited from whatever directory is current.
                 "adapter_commit": git("rev-parse", "HEAD", cwd=FORGE_WORKSPACE),
                 "lane": "protocol2-jsonl",
             }
