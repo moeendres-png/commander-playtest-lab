@@ -1,0 +1,14 @@
+{
+  "audit_base_sha": "55d35dec6cc0258f7b1ae12e90e1554537d86b0c",
+  "branch": "sbmax/full-completion",
+  "canonical_main": "c0915113626262843cb00801d7f6f76579654e9a",
+  "head": "2c34a6c7ad74ca0880a1e37ca6e465523db82c7e",
+  "note": "Push state for the Space Bunny MAX convergence + PB-03 transport checkpoint. audit_base is the previously published remote head, so the push is a strict fast-forward with no history rewrite.",
+  "ownership": "final-completion-space-bunny-max",
+  "schema_version": "foundry.workstream-state/1",
+  "session": "space-bunny-max-convergence-20260928",
+  "tree": "2dcd2c4ee10b39ea76d8c067ac45ded78c2d2f87",
+  "validated_head": "2c34a6c7ad74ca0880a1e37ca6e465523db82c7e",
+  "workstream": "final-completion-space-bunny-max",
+  "worktree": "/home/moeen/code/csn-final-bakeoff/space-bunny/lab"
+}
