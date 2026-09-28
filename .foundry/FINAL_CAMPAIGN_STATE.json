@@ -72,5 +72,41 @@
     "ruff_check": "clean",
     "ruff_format": "clean"
   },
-  "next_action": "Push cf5af359 to #289 and confirm exact-head CI. Continue on non-overlapping surfaces (semantic.py, full107.py, game_driver.py, docs) while PB-03 stays WAIT_FOR_OWNER on #284."
+  "next_action": "Push 0f9b06db to #289 and confirm exact-head CI. PB-03 remains WAIT_FOR_OWNER on #284. Next non-overlapping targets: PB-07 actual-card corpus accounting and PB-08 replay/RNG obligations, neither of which requires the owned bridge/receipt surfaces.",
+  "pb06_per_obligation": {
+    "classification": "DIRECTLY_VERIFIED",
+    "defect": "all 20 HIDDEN obligations carried one blanket UNKNOWN reason attributing the whole family to missing per-scenario instrumentation; the family is not uniform",
+    "repair": "src/commander_lab/qualification/current_boundary/hidden_obligations.py classifies each obligation against the live observations; persisted as PB06_HIDDEN_OBLIGATIONS_<CAND>.json and surfaced in AF05",
+    "xmage": {
+      "satisfied": [
+        "HIDDEN_01",
+        "HIDDEN_02"
+      ],
+      "not_observable": 18,
+      "total": 20
+    },
+    "forge": {
+      "satisfied": [
+        "HIDDEN_01"
+      ],
+      "not_observable": 19,
+      "total": 20,
+      "why_forge_differs": "Forge's projection returns no library count, so HIDDEN_02 identity absence is unproven rather than assumed"
+    },
+    "boundaries_held": [
+      "no obligation credited from a different obligation's evidence",
+      "uncredible principal scoping credits nothing",
+      "a satisfied disposition does NOT flip a FULL107 row; run_current_boundary_qualification.py is under #284's active writer lock",
+      "a missing count is unproven, not safe"
+    ],
+    "af05_verdict": "UNKNOWN (unchanged; the family is not complete and no row was promoted)",
+    "tests": "18 new, incl. negative directions and a guard against crediting per-scenario channels from generic scoping"
+  },
+  "validation_after_pb06": {
+    "qualification": "393 passed, 2 skipped",
+    "full_suite": "2210 passed, 5 skipped",
+    "mypy": "clean, 275 files",
+    "ruff": "clean"
+  },
+  "head_after_pb06": "0f9b06db"
 }
