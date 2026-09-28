@@ -95,15 +95,34 @@ def test_duplicate_json_keys_are_rejected(sealed_run: Path) -> None:
     assert not verify_run(sealed_run).valid
 
 
-def test_overflowing_numeric_literal_fails_closed(sealed_run: Path) -> None:
-    path = sealed_run / "run-manifest.json"
-    text = path.read_text(encoding="utf-8")
-    path.write_text(
-        text.replace('"metadata": {"seed": 1}', '"metadata": {"seed": 1e999}'),
-        encoding="utf-8",
-    )
+def _write_seed_literal(root: Path, literal: str, *, nested: bool = False) -> None:
+    payload = _manifest(root)
+    payload["metadata"] = {"nested": {"seed": 1}} if nested else {"seed": 1}
+    text = json.dumps(payload)
+    marker = '"seed": 1'
+    assert marker in text
+    text = text.replace(marker, f'"seed": {literal}', 1)
+    assert f'"seed": {literal}' in text
+    (root / "run-manifest.json").write_text(text, encoding="utf-8")
+
+
+@pytest.mark.parametrize("literal", ["1e999", "-1e999", "NaN", "Infinity", "-Infinity"])
+def test_nonfinite_numeric_literal_fails_closed(sealed_run: Path, literal: str) -> None:
+    _write_seed_literal(sealed_run, literal)
     result = verify_run(sealed_run)
     assert not result.valid and result.status == "corrupt"
+
+
+def test_nested_overflowing_numeric_literal_fails_closed(sealed_run: Path) -> None:
+    _write_seed_literal(sealed_run, "1e999", nested=True)
+    result = verify_run(sealed_run)
+    assert not result.valid and result.status == "corrupt"
+
+
+def test_large_finite_numeric_literal_remains_valid(sealed_run: Path) -> None:
+    _write_seed_literal(sealed_run, "1e308")
+    result = verify_run(sealed_run)
+    assert result.valid and result.status == "valid"
 
 
 def test_invalid_utf8_manifest_fails_closed(sealed_run: Path) -> None:
