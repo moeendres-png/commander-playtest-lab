@@ -485,10 +485,10 @@ def positive_fixture_receipts_from_junit_xml(
 
     rows: list[dict[str, Any]] = []
     for method, (fixture_id, obligation, assertion) in sorted(cases.items()):
-        testcase = observed.get(method)
-        if testcase is None:
+        observed_case = observed.get(method)
+        if observed_case is None:
             continue
-        if any(testcase.find(tag) is not None for tag in ("failure", "error", "skipped")):
+        if any(observed_case.find(tag) is not None for tag in ("failure", "error", "skipped")):
             continue
         rows.append(
             {
