@@ -1,0 +1,37 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "xmage",
+ "cards": [
+  "Isamaru, Hound of Konda",
+  "Silvercoat Lion",
+  "Serra Angel",
+  "Savannah Lions",
+  "Knight of Dawn",
+  "Elite Vanguard",
+  "Eager Cadet",
+  "Suntail Hawk",
+  "Valiant Guard",
+  "Serra Ascendant",
+  "Aerial Assault",
+  "Wall of Faith"
+ ],
+ "cards_imported_at_runtime": [
+  "xmage-wsr22-deck-1",
+  "xmage-wsr22-deck-2",
+  "xmage-wsr22-deck-3",
+  "xmage-wsr22-deck-4"
+ ],
+ "engine_validated": "the engine itself rejected an illegal colour identity and unknown card names during this run, proving the import is engine-validated rather than construction-only",
+ "required_29_card_corpus": "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF",
+ "runtime_identity": {
+  "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+  "adapter_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
+  "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+  "lane": "generic protocol-2 compatibility lane",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "39cbfbca6830cc42adf54b60e1b62fcd28172aea",
+  "runner_tree": "c90366880cffb52b048a625a179bca1bc3c79dc5"
+ },
+ "schema_version": "wsr22.actual-card/1.0.0"
+}

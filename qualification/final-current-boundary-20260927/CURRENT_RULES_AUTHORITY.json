@@ -1,0 +1,114 @@
+{
+ "schema_version": "wsr22.current-official-rules-authority/1.0.0",
+ "workstream": "WSR22-FINAL-CURRENT-BOUNDARY-FREEZE-QUALIFICATION-20260927",
+ "authority": "Wizards of the Coast (direct official capture)",
+ "retrieval_utc": "2026-09-27T14:05:23Z",
+ "retrieval_method": "direct HTTPS GET of the official page, then the official TXT it links",
+ "official_rules_page_url": "https://magic.wizards.com/en/rules",
+ "official_page_txt_links_captured": [
+  "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.docx",
+  "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.pdf",
+  "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.txt"
+ ],
+ "resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt",
+ "official_txt_bytes": 977752,
+ "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+ "effective_date_stated_in_txt": "These rules are effective as of September 25, 2026.",
+ "effective_date": "2026-09-25",
+ "applicable_rule": "103.8a",
+ "rule_103_8a_exact_text": "103.8a In a two-player game, the player who plays first skips the draw step (see rule 504, \u201cDraw Step\u201d) of their first turn.",
+ "rule_103_8a_semantics": "In a two-player game the player who plays first skips the draw step of their first turn. The step is skipped entirely, therefore no priority and no observation point exists inside it; the first observable checkpoint after the beginning phase is the precombat main phase.",
+ "page_links_newer_than_2026_08_07": true,
+ "page_links_newer_than_2026_08_07_evidence": "The current official page HTML links MagicCompRules 20260925.* for DOCX, PDF and TXT. The previously recorded 2026-08-07 TXT URL now returns HTTP 404 (superseded/removed by Wizards).",
+ "freshness_conflict_resolution": {
+  "prior_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
+  "prior_conflict": "A newer official TXT effective 2026-09-25 was signalled by a user report and a secondary mirror (muz/mtgrulediff) with admission_credit=false.",
+  "resolution": "RESOLVED_DIRECT_OFFICIAL_CAPTURE",
+  "reasoning": [
+   "The signal was independently confirmed from the DIRECT official Wizards page, which now links the 2026-09-25 TXT for all three formats.",
+   "The direct official 2026-09-25 TXT was captured byte-exactly and hashed.",
+   "The secondary mirror is therefore promoted from DISCOVERY_ONLY to CORROBORATED, and remains non-authoritative; the direct official bytes are the authority.",
+   "The prior recorded official artifact (2026-08-07) is superseded; the 2026-08-19 artifact recorded in AUTHORITY_LOCK_v2 was re-captured and its sha256 matched the repository's own historical capture exactly (4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f), validating the capture pipeline."
+  ],
+  "capture_pipeline_self_validation": "re-captured 2026-08-19 TXT sha256 == AUTHORITY_LOCK_v2 historical_txt_sha256",
+  "historical_20260819_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+  "historical_20260819_bytes": 977822
+ },
+ "qualification_relevant_rule_diff_2026_08_19_to_2026_09_25": {
+  "changed_rules": {
+   "103.8a": {
+    "2026-08-19": "103.8a In a two-player game, the player who plays first skips the draw step (see rule 504, \u201cDraw Step\u201d) of their first turn.",
+    "2026-09-25": "103.8a In a two-player game, the player who plays first skips the draw step (see rule 504, \u201cDraw Step\u201d) of their first turn.",
+    "semantic_delta": "NONE"
+   },
+   "103.8b": {
+    "2026-08-19": "103.8b In a Two-Headed Giant game, the team who plays first skips the draw step of their first turn.",
+    "2026-09-25": "103.8b In a Two-Headed Giant game, the team who plays first skips the draw step of their first turn.",
+    "semantic_delta": "NONE"
+   },
+   "103.8c": {
+    "2026-08-19": "103.8c In all other multiplayer games, no player skips the draw step of their first turn.",
+    "2026-09-25": "103.8c In all other multiplayer games, no player skips the draw step of their first turn.",
+    "semantic_delta": "NONE"
+   },
+   "504.1": {
+    "2026-08-19": "504.1. First, the active player draws a card. This turn-based action doesn\u2019t use the stack.",
+    "2026-09-25": "504.1. First, the active player draws a card. This turn-based action doesn\u2019t use the stack.",
+    "semantic_delta": "NONE"
+   },
+   "800.4a": {
+    "2026-08-19": "800.4a When a player leaves the game, all objects (see rule 109) owned by that player leave the game and any effects which give that player control of any objects or players end. Then, if that player controlled any objects on the stack not represented by cards, those objects cease to exist. Then, if there are any objects still controlled by that player, those objects are exiled. This is not a state-based action. It h",
+    "2026-09-25": "800.4a When a player leaves the game, all objects (see rule 109) owned by that player leave the game and any effects which give that player control of any objects or players end. Then, if that player controlled any objects on the stack not represented by cards, those objects cease to exist. Then, if there are any objects still controlled by that player, those objects are exiled. This is not a state-based action. It h",
+    "semantic_delta": "NONE"
+   },
+   "800.4j": {
+    "2026-08-19": "800.4j If a player leaves the game during their turn, that turn continues to its completion without an active player. If the active player would receive priority, instead the next player in turn order receives priority, or the top object on the stack resolves, or the phase or step ends, whichever is appropriate.",
+    "2026-09-25": "800.4j If a player leaves the game during their turn, that turn continues to its completion without an active player. If the active player would receive priority, instead the next player in turn order receives priority, or the top object on the stack resolves, or the phase or step ends, whichever is appropriate.",
+    "semantic_delta": "NONE"
+   },
+   "508.8": {
+    "2026-08-19": "508.8. If no creatures are declared as attackers or put onto the battlefield attacking, skip the declare blockers and combat damage steps.",
+    "2026-09-25": "508.8. If no creatures are declared as attackers or put onto the battlefield attacking, skip the declare blockers and combat damage steps.",
+    "semantic_delta": "NONE"
+   },
+   "109.5b": {
+    "2026-08-19": null,
+    "2026-09-25": null,
+    "semantic_delta": "NONE"
+   }
+  },
+  "renumbered": {
+   "family": "combat-timing cast/activation restrictions",
+   "from": "506.7a-506.7g",
+   "to": "506.8a-506.8g",
+   "classification": "PURE_RENUMBERING_TEXT_IDENTICAL_MODULO_RULE_REFERENCE",
+   "evidence_506_8g_20260925": "506.8g Rules 506.8 and 506.8a\u2013f apply to abilities that state that they may be activated only at certain times with respect to combat just as they apply to spells that state that they may be cast only at certain times with respect to combat."
+  },
+  "new_rules": {
+   "111.10x": "111.10x A Heartwood token is a red and green Heartwood artifact token with \u201c{T}: Add {R} or {G}.\u201d",
+   "701.71a": "701.71a To empower Jace N means \u201cIf you don\u2019t control a Jace planeswalker token, create a blue Jace planeswalker token with 0 loyalty, \u2018[\u22121]: Surveil 1,\u2019 and \u2018[\u22123]: Draw a card.\u2019 Choose a Jace planeswalker token you control. Put N loyalty counters on it.\u201d"
+  },
+  "full107_impact_adjudication": {
+   "WS05-CMD-START-2": "SEMANTICS_CONFIRMED_STILL_CURRENT. The v1.0.6 successor requires the 2P starting player to skip the entire first-turn draw step, expose no priority inside it, emit no draw event, and reach precombat main as the first observable checkpoint. Rule 103.8a in the 2026-09-25 official TXT states exactly that and is byte-identical to 2026-08-19. The successor fixture requires the same. The contract's cited effective_date 2026-08-07 is superseded by 2026-09-25 but the semantic basis is unchanged.",
+   "WS05-CMD-START-3": "SEMANTICS_CONFIRMED_STILL_CURRENT. Rule 103.8c (unchanged) states that in all other multiplayer games no player skips the draw step of their first turn, so the 3P first-turn-draw obligation remains correct.",
+   "other_105_rows": "NO_QUALIFICATION_RELEVANT_DELTA. The only textual changes are combat-timing rule renumbering 506.7a-g to 506.8a-g (pure renumbering, text identical), a new token definition 111.10x (Heartwood), and a new planeswalker empower 701.71a (Jace). None is referenced by any of the 107 provider-denominator rows.",
+   "contract_drift_classification": "NOT_SOURCE_CONTRACT_DRIFT. The current contract blob is unchanged; only its external Rules-authority citation date is superseded, and the replacement bytes confirm the contract's semantics. No candidate identity, fixture semantics, adapter protocol, AF gate, or Freeze gate changed."
+  }
+ },
+ "impact_on_repository_receipt": {
+  "file": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+  "action": "RESEALED_WITH_DIRECT_CAPTURE; prior fields preserved verbatim; authority_status moved from FRESHNESS_CONFLICT_FAIL_CLOSED to RESOLVED_DIRECT_OFFICIAL_CAPTURE_2026_09_25",
+  "authority": "WSR22 qualification infrastructure (current official Rules authority receipt)"
+ },
+ "reproduction": {
+  "step_1": "GET https://magic.wizards.com/en/rules and read the Comprehensive Rules TXT href",
+  "step_2": "GET that href (URL-encode the space) and hash the bytes",
+  "expect_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "expect_bytes": 977752,
+  "step_3": "grep rule 103.8a and compare to rule_103_8a_exact_text"
+ },
+ "terminal_states": {
+  "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+  "PRODUCTION_PROVIDER": "NOT SELECTED"
+ }
+}
