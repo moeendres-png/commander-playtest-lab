@@ -11,6 +11,7 @@ import contextlib
 import json
 import os
 import subprocess
+import threading
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -31,6 +32,16 @@ DEFAULT_TIMEOUT_S = 180.0
 
 class BridgeLaunchError(RuntimeError):
     """Raised when an exact candidate build cannot be launched."""
+
+
+class BridgeTimeout(BridgeLaunchError):
+    """A provider accepted a request and did not answer inside the deadline.
+
+    Distinct from a launch failure and from a protocol failure so a stalled
+    candidate is classified TIMEOUT rather than being folded into either. It
+    subclasses ``BridgeLaunchError`` so every existing fail-closed handler still
+    catches it; nothing converts it into a PASS or a default.
+    """
 
 
 @dataclass(frozen=True)
@@ -95,19 +106,83 @@ class BridgeProcess:
             self.popen.stdin.flush()
         except (BrokenPipeError, ValueError) as exc:  # pragma: no cover - transport failure
             raise BridgeLaunchError(f"bridge stdin unavailable: {exc}") from exc
-        raw = self.popen.stdout.readline()
+        raw = self._read_line_with_deadline(timeout_s, message_type, rid)
         if not raw:
             stderr = ""
             if self.popen.stderr is not None:
                 stderr = self.popen.stderr.read()[-2000:]
-            raise BridgeLaunchError(f"bridge closed stdout (stderr tail: {stderr})")
+            raise BridgeLaunchError(
+                f"bridge closed stdout for {message_type} (stderr tail: {stderr})"
+            )
         try:
             response = json.loads(raw)
         except json.JSONDecodeError as exc:
-            raise BridgeLaunchError(f"non-JSON provider response: {raw[:200]!r}") from exc
-        assert isinstance(response, dict)
+            # A partial or malformed line is a protocol failure, never a PASS and
+            # never a silent default.
+            raise BridgeLaunchError(
+                f"non-JSON provider response for {message_type}: {raw[:200]!r}"
+            ) from exc
         self.transcript.append({"direction": "response", "received": response, "request": envelope})
-        return response
+        payload: dict[str, Any] = response
+        return payload
+
+    def _read_line_with_deadline(self, timeout_s: float, message_type: str, request_id: str) -> str:
+        """Read exactly one response line under a real wall-clock deadline.
+
+        A blocking ``readline()`` with no deadline hangs the whole qualification
+        when a provider accepts a request and then stalls, so the run can never
+        reach a TIMEOUT classification, can never move to the other candidate, and
+        leaves a live child behind.
+
+        The read runs on a daemon thread and is joined against the deadline. On
+        expiry the child is terminated and reaped (so no zombie survives and the
+        caller can continue), the applied timeout is recorded in the transcript,
+        and a ``BridgeTimeout`` is raised. A thread is used rather than ``select``
+        because the stream is a buffered ``TextIOWrapper``, whose fd-level
+        readiness does not imply a complete line is available.
+        """
+        assert self.popen.stdout is not None
+        self._last_timeout_s = timeout_s
+        result: list[str] = []
+        finished = threading.Event()
+
+        def _read() -> None:
+            try:
+                result.append(self.popen.stdout.readline())  # type: ignore[union-attr]
+            except (OSError, ValueError):
+                result.append("")
+            finally:
+                finished.set()
+
+        worker = threading.Thread(target=_read, name="bridge-read", daemon=True)
+        worker.start()
+        if not finished.wait(timeout_s):
+            self.transcript.append(
+                {
+                    "direction": "timeout",
+                    "message_type": message_type,
+                    "request_id": request_id,
+                    "timeout_s": timeout_s,
+                    "classification": "TIMEOUT",
+                }
+            )
+            self._terminate_stalled_child()
+            raise BridgeTimeout(
+                f"BRIDGE_TIMEOUT: no response to {message_type} within {timeout_s}s; "
+                "child terminated and reaped, classified TIMEOUT"
+            )
+        return result[0] if result else ""
+
+    def _terminate_stalled_child(self) -> None:
+        """Kill and reap a stalled child so no zombie is left behind."""
+        popen = self.popen
+        with contextlib.suppress(OSError, ValueError):
+            if popen.stdin is not None:
+                popen.stdin.close()
+        with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
+            popen.kill()
+        with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
+            popen.wait(timeout=5)
 
     def close(self, *, timeout_s: float = 20.0) -> None:
         """Best-effort graceful shutdown; never raises on an already-dead bridge."""

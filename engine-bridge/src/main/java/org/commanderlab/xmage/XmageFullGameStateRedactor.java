@@ -108,14 +108,27 @@ final class XmageFullGameStateRedactor {
         return owners != null && owners.contains(owner.getId().toString());
     }
 
+    /** Add a string-valued field, or JSON null when the value is absent. */
+    private static void addString(JsonObject target, String key, String value) {
+        if (value == null) {
+            target.add(key, JsonNull.INSTANCE);
+        } else {
+            target.addProperty(key, value);
+        }
+    }
+
     static JsonObject actorView(Game game, Player actor) {
         JsonObject view = new JsonObject();
         view.addProperty("game_id", game.getId().toString());
         view.addProperty("actor_id", actor.getId().toString());
         view.addProperty("seat", seat(game, actor.getId()));
         view.addProperty("turn_number", game.getState().getTurnNum());
-        addUuid(view, "active_player_id", game.getActivePlayerId());
-        addUuid(view, "priority_player_id", game.getPriorityPlayerId());
+        // Masked in place: a viewer must not learn an opponent's real principal
+        // id from who currently holds priority or the active turn.
+        addString(view, "active_player_id",
+                ActorSafeIdentity.optionalForSeat(game, actor, game.getActivePlayerId()));
+        addString(view, "priority_player_id",
+                ActorSafeIdentity.optionalForSeat(game, actor, game.getPriorityPlayerId()));
         if (game.getTurnPhaseType() == null) {
             view.add("phase", JsonNull.INSTANCE);
         } else {
@@ -131,7 +144,9 @@ final class XmageFullGameStateRedactor {
         int currentSeat = 0;
         for (Player player : game.getPlayers().values()) {
             JsonObject p = new JsonObject();
-            p.addProperty("player_id", player.getId().toString());
+            // Actor-safe: the viewer sees its own id, every other principal is an
+            // opaque token that is stable for this game.
+            p.addProperty("player_id", ActorSafeIdentity.forSeat(game, actor, player));
             p.addProperty("seat", currentSeat++);
             p.addProperty("life", player.getLife());
             p.addProperty("poison_counters", player.getCountersCount(CounterType.POISON));
@@ -216,7 +231,7 @@ final class XmageFullGameStateRedactor {
         // contents are public; commander combat-damage totals are announced by
         // the Rules Core; command-zone cast counts determine the observable
         // commander tax. Read-only adapter projection; no Rules semantics.
-        view.add("commander_status", commanderStatusView(game));
+        view.add("commander_status", commanderStatusView(game, actor));
         return view;
     }
 
@@ -331,7 +346,7 @@ final class XmageFullGameStateRedactor {
         return result;
     }
 
-    private static JsonArray commanderStatusView(Game game) {
+    private static JsonArray commanderStatusView(Game game, Player viewer) {
         JsonArray result = new JsonArray();
         CommanderPlaysCountWatcher playsWatcher =
                 game.getState().getWatcher(CommanderPlaysCountWatcher.class);
@@ -384,7 +399,8 @@ final class XmageFullGameStateRedactor {
                             continue;
                         }
                         JsonObject row = new JsonObject();
-                        row.addProperty("player_id", damagedId.toString());
+                        row.addProperty("player_id", ActorSafeIdentity.optionalForSeat(
+                                game, viewer, damagedId));
                         row.addProperty("total",
                                 damageWatcher.getDamageToPlayer().getOrDefault(damagedId, 0));
                         damage.add(row);

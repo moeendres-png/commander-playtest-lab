@@ -1,14 +1,13 @@
 {
  "denominator": 107,
  "dispositions": {
-  "NON_COMPARABLE": 82,
-  "SAME_SEMANTICS": 25
+  "NON_COMPARABLE": 107
  },
  "no_ranking": "this packet contains no score, no ranking and no preferred provider",
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "rows": [
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -19,15 +18,15 @@
    ],
    "fixture_id": "CARD_02",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageFullGameCard02ExecutionTest, XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
@@ -42,9 +41,9 @@
    ],
    "fixture_id": "HIDDEN_01",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -54,7 +53,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -65,15 +64,15 @@
    ],
    "fixture_id": "HIDDEN_02",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS233CardinalityTest, WS202ExecutableSurfaceTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageHiddenReplayIntegrationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    }
   },
   {
@@ -88,9 +87,9 @@
    ],
    "fixture_id": "HIDDEN_03",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -111,9 +110,9 @@
    ],
    "fixture_id": "HIDDEN_04",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -180,9 +179,9 @@
    ],
    "fixture_id": "HIDDEN_07",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -249,9 +248,9 @@
    ],
    "fixture_id": "HIDDEN_10",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -341,9 +340,9 @@
    ],
    "fixture_id": "HIDDEN_14",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -364,9 +363,9 @@
    ],
    "fixture_id": "HIDDEN_15",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -387,9 +386,9 @@
    ],
    "fixture_id": "HIDDEN_16",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -410,9 +409,9 @@
    ],
    "fixture_id": "HIDDEN_17",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -433,9 +432,9 @@
    ],
    "fixture_id": "HIDDEN_18",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS227SemanticReplayTest, BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -479,9 +478,9 @@
    ],
    "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR15HiddenInfoFamilyTest, WsR16SixPlayerFamilyTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -502,9 +501,9 @@
    ],
    "fixture_id": "MICRO_COMBAT",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest, WsR15MulticountCombatTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -525,9 +524,9 @@
    ],
    "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -548,9 +547,9 @@
    ],
    "fixture_id": "MICRO_CONTROL",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -606,7 +605,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -617,15 +616,15 @@
    ],
    "fixture_id": "MICRO_LAYERS",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameMicroExecutionTest, XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
@@ -640,9 +639,9 @@
    ],
    "fixture_id": "MICRO_MANA_PAYMENT",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -686,9 +685,9 @@
    ],
    "fixture_id": "MICRO_PREVENTION",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -709,9 +708,9 @@
    ],
    "fixture_id": "MICRO_PRIORITY",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -755,15 +754,15 @@
    ],
    "fixture_id": "MICRO_RULES_RANDOMNESS",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -778,9 +777,9 @@
    ],
    "fixture_id": "MICRO_STACK",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -801,9 +800,9 @@
    ],
    "fixture_id": "MICRO_STATE_BASED_ACTIONS",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS234S3BridgeTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -830,9 +829,9 @@
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameMicroExecutionTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
@@ -847,9 +846,9 @@
    ],
    "fixture_id": "MICRO_TRIGGERS",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
@@ -893,9 +892,9 @@
    ],
    "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -905,7 +904,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -916,15 +915,15 @@
    ],
    "fixture_id": "NEGATIVE_FIRST_OPTION",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageFullGameDecisionExecutionTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    }
   },
   {
@@ -939,9 +938,9 @@
    ],
    "fixture_id": "NEGATIVE_GUI_DEFAULT",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -962,9 +961,9 @@
    ],
    "fixture_id": "NEGATIVE_INTERNAL_AI",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -985,9 +984,9 @@
    ],
    "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1008,9 +1007,9 @@
    ],
    "fixture_id": "NEGATIVE_RANDOM_OPTION",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1031,9 +1030,9 @@
    ],
    "fixture_id": "NEGATIVE_SILENT_SKIP",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1129,9 +1128,9 @@
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameDecisionExecutionTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    }
   },
   {
@@ -1169,9 +1168,9 @@
    ],
    "fixture_id": "PILOT_CHOOSE_USE",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1181,7 +1180,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1192,15 +1191,15 @@
    ],
    "fixture_id": "PILOT_DECLARE_ATTACKER",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR15MulticountCombatTest, WsR16SixPlayerFamilyTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageTemporalProgressionDriverTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1216,14 +1215,14 @@
    "fixture_id": "PILOT_DECLARE_BLOCKER",
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
-    "exit_state": "UNKNOWN",
-    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageTemporalProgressionDriverTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1238,9 +1237,9 @@
    ],
    "fixture_id": "PILOT_MANA_PAYMENT",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1261,9 +1260,9 @@
    ],
    "fixture_id": "PILOT_MULLIGAN",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS233CardinalityTest, BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1330,9 +1329,9 @@
    ],
    "fixture_id": "PILOT_PRIORITY",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS233CardinalityTest, WS202ExecutableSurfaceTest, BridgeEngineTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1376,9 +1375,9 @@
    ],
    "fixture_id": "PILOT_TARGET",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1399,9 +1398,9 @@
    ],
    "fixture_id": "PILOT_TARGET_AMOUNT",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS217DividedAllocationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1422,9 +1421,9 @@
    ],
    "fixture_id": "PILOT_TRIGGER_ORDER",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS202ExecutableSurfaceTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1434,7 +1433,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1449,7 +1448,18 @@
     "exit_state": "PASS",
     "reason": "real 2P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
    "xmage": {
     "execution_mode": "PROTOCOL2_LIFECYCLE",
     "exit_state": "PASS",
@@ -1457,7 +1467,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1472,7 +1482,18 @@
     "exit_state": "PASS",
     "reason": "real 3P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
    "xmage": {
     "execution_mode": "PROTOCOL2_LIFECYCLE",
     "exit_state": "PASS",
@@ -1480,7 +1501,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1495,7 +1516,18 @@
     "exit_state": "PASS",
     "reason": "real 4P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
    "xmage": {
     "execution_mode": "PROTOCOL2_LIFECYCLE",
     "exit_state": "PASS",
@@ -1503,7 +1535,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1518,7 +1550,18 @@
     "exit_state": "PASS",
     "reason": "real 5P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
    "xmage": {
     "execution_mode": "PROTOCOL2_LIFECYCLE",
     "exit_state": "PASS",
@@ -1560,9 +1603,9 @@
    ],
    "fixture_id": "REPLAY_DECISION_TAPE",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS227SemanticReplayTest, WsR15DeterminismTwinTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1583,9 +1626,9 @@
    ],
    "fixture_id": "REPLAY_EVENT_TAPE",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS227SemanticReplayTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1606,9 +1649,9 @@
    ],
    "fixture_id": "REPLAY_STATE_HASHES",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS227SemanticReplayTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1629,9 +1672,9 @@
    ],
    "fixture_id": "RNG_RULES_TAPE",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS227SemanticReplayTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
@@ -1641,7 +1684,7 @@
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1652,19 +1695,19 @@
    ],
    "fixture_id": "WS05-CMD-DMG-CONTROL",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageCommanderDamageRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1675,19 +1718,19 @@
    ],
    "fixture_id": "WS05-CMD-DMG-SAME-21",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageCommanderDamageRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1698,19 +1741,19 @@
    ],
    "fixture_id": "WS05-CMD-DMG-SPLIT",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageFull107ResidualRequalificationTest, XmageCommanderDamageRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1721,15 +1764,15 @@
    ],
    "fixture_id": "WS05-CMD-ELIM-4",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageCommanderDamageRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1750,13 +1793,13 @@
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameWs05MulliganTest, XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1767,19 +1810,19 @@
    ],
    "fixture_id": "WS05-CMD-MULL-4",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest, WS233CardinalityTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameWs05MulliganTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1790,19 +1833,19 @@
    ],
    "fixture_id": "WS05-CMD-PARTNER-DMG",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageFull107ResidualRequalificationTest, XmageCommanderDamageRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1813,19 +1856,19 @@
    ],
    "fixture_id": "WS05-CMD-PARTNER-TAX",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGamePartnerExecutionTest, XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1836,19 +1879,19 @@
    ],
    "fixture_id": "WS05-CMD-PARTNER-ZONE",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGamePartnerExecutionTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1860,18 +1903,18 @@
    "fixture_id": "WS05-CMD-START-2",
    "forge": {
     "execution_mode": "PROTOCOL2_START2_V1_0_6",
-    "exit_state": "PASS",
-    "reason": "CR 103.8a satisfied on the current boundary: the starting player's entire first-turn draw step was skipped, no draw-step checkpoint, draw event or in-step priority was ever exposed by the engine, and the first observable external checkpoint was the normal precombat decision handoff"
+    "exit_state": "UNKNOWN",
+    "reason": "the engine reported no principal-scoped zone counts, so the hand/library postcondition of the skipped draw step could not be observed and the row is not credited"
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
     "execution_mode": "PROTOCOL2_START2_V1_0_6",
-    "exit_state": "PASS",
-    "reason": "CR 103.8a satisfied on the current boundary: the starting player's entire first-turn draw step was skipped, no draw-step checkpoint, draw event or in-step priority was ever exposed by the engine, and the first observable external checkpoint was the normal precombat decision handoff"
+    "exit_state": "UNKNOWN",
+    "reason": "the engine reported no principal-scoped zone counts, so the hand/library postcondition of the skipped draw step could not be observed and the row is not credited"
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1882,19 +1925,19 @@
    ],
    "fixture_id": "WS05-CMD-START-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageFull107ResidualRequalificationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -1905,15 +1948,15 @@
    ],
    "fixture_id": "WS05-CMD-TAX-2",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameTaxExecutionTest, XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
@@ -1934,9 +1977,9 @@
    },
    "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameTaxExecutionTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
    }
   },
   {
@@ -1951,15 +1994,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1974,15 +2017,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -1997,15 +2040,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-GY-NO",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2020,15 +2063,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-GY-YES",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS202ExecutableSurfaceTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2043,15 +2086,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-HAND-NO",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2066,15 +2109,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-HAND-YES",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2089,19 +2132,19 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-LIB-NO",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -2112,15 +2155,15 @@
    ],
    "fixture_id": "WS05-CMD-ZONE-LIB-YES",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2137,13 +2180,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2160,13 +2203,13 @@
    "forge": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2181,15 +2224,15 @@
    ],
    "fixture_id": "WS05-MP-COMBAT-5",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR15MulticountCombatTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2204,15 +2247,15 @@
    ],
    "fixture_id": "WS05-MP-ELIM-5",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR15ConcessionFamilyTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2227,19 +2270,19 @@
    ],
    "fixture_id": "WS05-MP-ELIM-CONTROL-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -2250,15 +2293,15 @@
    ],
    "fixture_id": "WS05-MP-ELIM-OWNED-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest, WsR15ConcessionFamilyTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2273,15 +2316,15 @@
    ],
    "fixture_id": "WS05-MP-ELIM-PRIO-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2296,15 +2339,15 @@
    ],
    "fixture_id": "WS05-MP-ELIM-STACK-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2319,15 +2362,15 @@
    ],
    "fixture_id": "WS05-MP-ELIM-TURN-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2342,15 +2385,15 @@
    ],
    "fixture_id": "WS05-MP-PRIO-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS233CardinalityTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2365,19 +2408,19 @@
    ],
    "fixture_id": "WS05-MP-PRIO-5",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WS233CardinalityTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -2388,19 +2431,19 @@
    ],
    "fixture_id": "WS05-MP-TRIG-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR15MulticountTriggerTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameTrigExecutionTest, XmageNativeStateRestorationTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -2411,19 +2454,19 @@
    ],
    "fixture_id": "WS05-MP-TRIG-5",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR15MulticountTriggerTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageDigestCreditTest, XmageFullGameTrigExecutionTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
-   "disposition": "SAME_SEMANTICS",
+   "disposition": "NON_COMPARABLE",
    "engine_local_ids_excluded": [
     "game_id",
     "engine_game_id",
@@ -2434,15 +2477,15 @@
    ],
    "fixture_id": "WS05-MP-TURN-3",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
-   "note": "both candidates executed the effective v1.0.6 obligation and both observed the obligated facts in this boundary",
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (XmageTemporalProgressionDriverTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   },
   {
@@ -2457,15 +2500,15 @@
    ],
    "fixture_id": "WS05-MP-TURN-5",
    "forge": {
-    "execution_mode": "NATIVE_CURRENT_BOUNDARY_RUNTIME",
-    "exit_state": "PASS",
-    "reason": "fixture-corresponding native harness executed fresh under the current boundary (WsR20Full107DenominatorTest); the effective v1.0.6 record for this row is byte-identical to the frozen v1.0.5 record it loads, as proven in SUCCESSOR_INHERITANCE_PROOF.json"
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
    },
    "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
    "xmage": {
     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
     "exit_state": "BLOCKED",
-    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state, and the Lab execution path does not expose generic starting-state injection (the XMage bridge reports starting_state_injection_supported=false). Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
    }
   }
  ],

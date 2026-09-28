@@ -26,6 +26,7 @@ paths fail closed.
 from __future__ import annotations
 
 from .af01 import AF01_INVARIANTS, run_af01
+from .af03 import AF03Report, run_af03
 from .bridge_launcher import (
     BridgeLaunchError,
     BridgeProcess,
@@ -52,11 +53,18 @@ from .full107 import (
     run_cardinality,
     start2_row,
     summarize,
+    validate_principal_scoping,
 )
-from .game_driver import DECISION_IDENTITY_SHAPES, drive_commander_game
+from .game_driver import (
+    DECISION_IDENTITY_SHAPES,
+    build_deck,
+    drive_commander_game,
+)
 from .materialization import (
     EffectiveMaterialization,
     load_effective_materialization,
+    mid_game_mechanisms,
+    requires_starting_state,
 )
 from .pb03_evidence import (
     CHARACTERIZATION_XMAGE,
@@ -105,6 +113,7 @@ __all__ = [
     "TIER_3_REASONS",
     "XMAGE_CANDIDATE_COMMIT",
     "XMAGE_LAB_RUNTIME_AUTHORITY",
+    "AF03Report",
     "BridgeLaunchError",
     "BridgeProcess",
     "CandidateId",
@@ -112,6 +121,7 @@ __all__ = [
     "RowResult",
     "admit_row",
     "boundary_receipt",
+    "build_deck",
     "build_launch_plan",
     "cardinality_row",
     "characterization_outcome",
@@ -119,10 +129,14 @@ __all__ = [
     "export_replay",
     "launch",
     "load_effective_materialization",
+    "mid_game_mechanisms",
     "non_executed_row",
     "observe_principal_state",
+    "requires_starting_state",
     "run_af01",
+    "run_af03",
     "run_cardinality",
     "start2_row",
     "summarize",
+    "validate_principal_scoping",
 ]

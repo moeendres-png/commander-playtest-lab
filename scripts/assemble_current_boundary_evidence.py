@@ -20,105 +20,18 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from commander_lab.qualification.current_boundary import (  # noqa: E402
-    CHARACTERIZATION_XMAGE,
-    PB10_DEMOTIONS,
-    POSITIVE_NATIVE_BINDING_XMAGE,
-)
+from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
 FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 
-# Native classes executed fresh in this workstream, with their green counts.
-NATIVE_RUNS = {
-    "xmage": {
-        "direct": {
-            "returncode": 0,
-            "tests": 34,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "XmageFull107ResidualRequalificationTest",
-                "XmageDigestCreditTest",
-                "XmageFullGameWs05MulliganTest",
-                "XmageFullGameTaxExecutionTest",
-                "XmageFullGamePartnerExecutionTest",
-                "XmageFullGameCard02ExecutionTest",
-                "XmageFullGameMicroExecutionTest",
-                "XmageFullGameTrigExecutionTest",
-                "XmageFullGameDecisionExecutionTest",
-            ],
-        },
-        "mechanism": {
-            "returncode": 0,
-            "tests": 134,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "XmageNativeStateRestorationTest",
-                "XmageTemporalProgressionDriverTest",
-                "XmageTemporalAdvancedProgressionTest",
-                "XmageCausalStackReconstructionTest",
-                "XmageCausalStackMechanicsTest",
-                "XmageControlDivergenceReconstructionTest",
-                "XmageCausalEliminationReconstructionTest",
-                "XmageHiddenReplayIntegrationTest",
-                "XmageCommanderDamageRestorationTest",
-                "XmageFullGameHiddenInformationTest",
-                "XmageFullGamePlayerCountTest",
-                "XmageVariablePlayerLifecycleTest",
-                "XmageFullGameCombatDamageTest",
-                "XmageDecisionRejectionWs229Test",
-                "XmageFullGameRulesSeedBindingTest",
-            ],
-        },
-    },
-    "forge": {
-        "direct": {
-            "returncode": 0,
-            "tests": 150,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "WsR20Full107DenominatorTest",
-                "WS233CardinalityTest",
-                "WS227SemanticReplayTest",
-                "WsR15HiddenInfoFamilyTest",
-                "WS234S3BridgeTest",
-                "WS236F4BridgeTest",
-                "WS216GapClosureTest",
-                "WS202ExecutableSurfaceTest",
-                "WS217DividedAllocationTest",
-                "WsR15MulticountCombatTest",
-                "WsR15MulticountTriggerTest",
-                "WsR15DeterminismTwinTest",
-                "WsR15ConcessionFamilyTest",
-                "WsR16SixPlayerFamilyTest",
-                "BridgeEngineTest",
-            ],
-        },
-        "mechanism": {
-            "returncode": 0,
-            "tests": 67,
-            "failures": 0,
-            "errors": 0,
-            "classes": [
-                "ProtocolTest",
-                "BridgeProtocolProcessTest",
-                "HeadlessGuiFailClosedTest",
-                "WS216SeparateProcessTest",
-                "WS217SeparateProcessTest",
-                "WS227SeparateProcessTest",
-                "WS233CardinalityProcessTest",
-                "WS202SeparateProcessTest",
-            ],
-        },
-    },
-}
+# Execution receipts. The assembler trusts nothing else for native credit: no
+# receipt means no credit, and source text is never a substitute.
+RECEIPT_DIR = OUT / "receipts"
 
-# Forge native suite -> FULL107 obligations: Wave-F builds audited Forge
-# bindings mirroring the XMage package map. The donor WSR20 pointer mapping
-# stays preserved in the donor evidence directory, never reused blindly.
+FORGE_NATIVE_BINDING_PATH = OUT / "wsr20-ingest" / "FULL107_FORGE_MAPPING.json"
 
 
 def load(path: Path) -> Any:
@@ -132,83 +45,177 @@ def write(name: str, payload: Any) -> None:
     print("wrote", name)
 
 
-def apply_evidence_rules(rows: dict[str, dict[str, Any]], candidate: str) -> tuple[int, int]:
-    """Apply promotion/demotion rules. Returns (promoted, demoted).
+def native_bindings() -> dict[str, dict[str, list[str]]]:
+    """Fixture -> test identities, derived from persisted positive receipts only.
 
-    - Characterization rows take their proven non-PASS outcome even when the
-      runner left them PASS (demotion with mechanism) or BLOCKED/UNKNOWN.
-    - Rows with an audited positive binding promote to PASS when not already.
-    - Rows currently PASS/NATIVE with no audited positive binding demote to
-      BLOCKED (stale name-mention promotion); PB-10 rows carry exact reasons.
+    This previously scanned test source for fixture-id strings. That promoted
+    HIDDEN_02 from UNKNOWN to PASS on the strength of a test that mentions
+    HIDDEN_02 only to assert that loading it FAILS. A string mention is not
+    evidence, so the whole scanning path is gone: credit now requires a positive
+    receipt, and anything without one simply receives no credit.
     """
-    promoted = 0
-    demoted = 0
-    for fixture, row in rows.items():
-        if candidate != "xmage":
-            continue
-        characterization = CHARACTERIZATION_XMAGE.get(fixture)
-        if characterization is not None:
-            # Idempotent: characterization rows always carry their proven
-            # non-PASS outcome, whether the runner left them PASS (demotion),
-            # BLOCKED or UNKNOWN.
-            changed = (
-                row["exit_state"] != characterization["outcome"]
-                or row.get("execution_mode") != "NATIVE_CURRENT_BOUNDARY_RUNTIME"
-            )
-            row["exit_state"] = characterization["outcome"]
-            row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
-            row["failure_reason"] = characterization["reason"]
-            row["reason"] = characterization["reason"]
-            row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
-            row["native_harness_classes"] = characterization["classes"]
-            row.setdefault("terminal_facts", {})
-            row["terminal_facts"]["native_harness"] = characterization["classes"]
-            if changed:
-                demoted += 1
-            continue
-        bindings = POSITIVE_NATIVE_BINDING_XMAGE.get(fixture)
-        if bindings:
+    denominator = {
+        load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"][i]["fixture_id"] for i in range(107)
+    }
+    receipts, rejected = receipt_mod.collect_receipts(RECEIPT_DIR)
+    if rejected:
+        for reason in rejected:
+            print(f"native receipt rejected: {reason}")
+    if not receipts:
+        print("no valid native receipts: no native credit is possible this assembly")
+    identity = {
+        c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
+        for c in ("xmage", "forge")
+    }
+    out: dict[str, dict[str, list[str]]] = {}
+    for candidate in ("xmage", "forge"):
+        commit = identity[candidate].get("engine_candidate_commit", "")
+        credited = receipt_mod.positive_fixture_credit(
+            receipts, candidate=candidate, expected_commit=commit, denominator=denominator
+        )
+        for fixture, tests in credited.items():
+            out.setdefault(fixture, {})[candidate] = tests
+    return out
+
+
+def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
+    """Native-suite credit for one candidate, from receipts only.
+
+    `native_runs` keeps its established shape: a mapping of group name to that
+    group's observed detail, so a consumer can read one suite's result directly.
+    The aggregate summary and the provenance rule live under sibling keys rather
+    than being mixed into the mapping, where a scalar would break iteration.
+    """
+    receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
+    credit = receipt_mod.native_suite_credit(
+        receipts, candidate=candidate, expected_commit=expected_commit
+    )
+    # PURELY a per-group mapping. Every value must be subscriptable, because
+    # consumers iterate it directly; scalar metadata lives beside it.
+    return {
+        group["group"]: {
+            "candidate": group["candidate"],
+            "tests": group["tests"],
+            "passed": group["passed"],
+            # `failures` is the established key consumers read; `failed` is the
+            # receipt's own name. Both are emitted so no consumer has to guess.
+            "failed": group["failed"],
+            "failures": group["failed"],
+            "errors": group["errors"],
+            "returncode": group["returncode"],
+            "candidate_commit": group["candidate_commit"],
+            "executed_commit": group["executed_commit"],
+            "engine_identity_justification": group["engine_identity_justification"],
+            "receipt_digest": group["receipt_digest"],
+        }
+        for group in credit["groups"]
+    }
+
+
+def native_credit_provenance(candidate: str, expected_commit: str) -> dict[str, Any]:
+    """The provenance statement that accompanies `native_runs`."""
+    receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
+    credit = receipt_mod.native_suite_credit(
+        receipts, candidate=candidate, expected_commit=expected_commit
+    )
+    return {
+        "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
+        "absent_receipts_yield_no_credit": True,
+        "expected_engine_commit": expected_commit,
+        "summary": {
+            "groups_credited": credit["groups_credited"],
+            "tests": credit["tests"],
+            "passed": credit["passed"],
+            "failed": credit["failed"],
+            "errors": credit["errors"],
+            "receipt_digests": credit["receipt_digests"],
+        },
+    }
+
+
+def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
+    """AF00 derived from the reported engine identity, not asserted.
+
+    The gate is only satisfied when the provider named a commit, and named the
+    commit the evidence is about. A provider that reports nothing is UNKNOWN: an
+    absent identity is not a verified one. A provider that names a *different*
+    commit is FAIL, because the evidence would be attributed to an engine that
+    did not run.
+    """
+    reported = str(af01.get("engine_commit_reported") or "").strip()
+    if not reported:
+        return "UNKNOWN"
+    expected = str(expected_commit or "").strip()
+    if not expected:
+        return "UNKNOWN"
+    return "PASS" if reported == expected else "FAIL"
+
+
+def af03_gate(candidate: str) -> dict[str, Any]:
+    """AF03 RULES_AUTHORITY, read from this run's negative deck-import probe.
+
+    AF03 used to be a literal ``"verdict": "PASS"`` in this assembler, with an
+    evidence list describing deck imports that were never performed and no
+    artifact behind them. It is now read from the probe artifact the runner
+    produces, so a run that did not probe gets no credit, and a run in which the
+    engine accepted an illegal deck gets a FAIL.
+    """
+    path = OUT / f"AF03_{candidate.upper()}.json"
+    if not path.is_file():
+        return {
+            "gate": "AF03",
+            "name": "RULES_AUTHORITY",
+            "verdict": "UNKNOWN",
+            "evidence": ["no AF03 probe artifact exists for this candidate"],
+            "blocking_rows": [],
+            "nonblocking_limitations": [
+                "AF03 cannot be credited without observed negative deck-import probes"
+            ],
+        }
+    document = load(path)
+    probes = document.get("probes", [])
+    return {
+        "gate": "AF03",
+        "name": "RULES_AUTHORITY",
+        "verdict": document.get("verdict", "UNKNOWN"),
+        "evidence": [
+            f"{probe['invariant']}: {probe['verdict']} ({probe['detail']})" for probe in probes
+        ],
+        "observed_probe_count": len(probes),
+        "authority": document.get("authority"),
+        "blocking_rows": [probe["probe"] for probe in probes if probe.get("verdict") == "FAIL"],
+        "nonblocking_limitations": document.get("nonblocking_limitations", []),
+    }
+
+
+def assemble() -> None:
+    bindings = native_bindings()
+    per_candidate: dict[str, dict[str, Any]] = {}
+    for candidate in ("xmage", "forge"):
+        results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
+        rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
+        promoted = 0
+        for fixture, per in bindings.items():
+            classes = per.get(candidate)
+            if not classes or fixture not in rows:
+                continue
+            row = rows[fixture]
             if row["exit_state"] == "PASS":
                 continue
             row["exit_state"] = "PASS"
             row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
             row["failure_reason"] = None
             row["reason"] = (
-                "fixture-corresponding native harness executed fresh under the current "
-                f"boundary ({', '.join(bindings)}); the effective v1.0.6 record for this row "
-                "is byte-identical to the frozen v1.0.5 record it loads, as proven in "
-                "SUCCESSOR_INHERITANCE_PROOF.json"
+                f"fixture-corresponding native harness executed fresh under the current "
+                f"boundary ({', '.join(classes)}); the effective v1.0.6 record for this row "
+                f"is byte-identical to the frozen v1.0.5 record it loads, as proven in "
+                f"SUCCESSOR_INHERITANCE_PROOF.json"
             )
             row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
-            row["native_harness_classes"] = bindings
+            row["native_harness_classes"] = classes
             row.setdefault("terminal_facts", {})
-            row["terminal_facts"]["native_harness"] = bindings
+            row["terminal_facts"]["native_harness"] = classes
             promoted += 1
-            continue
-        if row["exit_state"] == "PASS" and row.get("execution_mode", "").startswith("NATIVE"):
-            demotion = PB10_DEMOTIONS.get(fixture, {})
-            row["exit_state"] = "BLOCKED"
-            row["failure_reason"] = (
-                "stale name-mention promotion without an audited positive binding; "
-                + str(demotion.get("proof", "flagged for audit"))
-            )
-            row["reason"] = row["failure_reason"]
-            demoted += 1
-    return promoted, demoted
-
-
-def assemble() -> None:
-    per_candidate: dict[str, dict[str, Any]] = {}
-    for candidate in ("xmage", "forge"):
-        results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
-        rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
-        promoted, demoted = apply_evidence_rules(rows, candidate)
-        results["pb03_evidence_rules"] = {
-            "promoted": promoted,
-            "demoted": demoted,
-            "rule": "positive native binding promotes; characterization binds non-PASS; "
-            "PASS without audited binding demotes",
-        }
         counts = {
             "PASS": 0,
             "FAIL": 0,
@@ -224,12 +231,21 @@ def assemble() -> None:
         results["rows"] = [rows[row["fixture_id"]] for row in results["rows"]]
         results["counts"] = counts
         results["native_promotions"] = promoted
-        results["native_runs"] = NATIVE_RUNS[candidate]
+        results["native_runs"] = native_credit(
+            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+        )
+        results["native_runs_provenance"] = native_credit_provenance(
+            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+        )
         write(f"FULL107_{candidate.upper()}_RESULTS.json", results)
         per_candidate[candidate] = {
             "rows": rows,
             "counts": counts,
-            "native_runs": NATIVE_RUNS[candidate],
+            "native_runs": results["native_runs"],
+            "native_runs_provenance": results["native_runs_provenance"],
+            # Bound here so the AF matrix can never read another candidate's
+            # identity through a leaked loop variable.
+            "results_runtime_identity": results["runtime_identity"],
         }
 
     # ---- AF00-AF11 matrix ------------------------------------------------
@@ -237,26 +253,55 @@ def assemble() -> None:
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
         extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        # Receipt-derived, never the retired NATIVE_RUNS literal. The summary
+        # counts only what a verified receipt observed, and it is empty when no
+        # receipt exists, so the gate cannot inherit a historical count.
         native = data["native_runs"]
-        native_tests = sum(group["tests"] for group in native.values())
-        native_green = all(
-            group["returncode"] == 0 and group["failures"] == 0 and group["errors"] == 0
-            for group in native.values()
+        native_summary = native.get("summary", {})
+        native_groups = [
+            k
+            for k in native
+            if k
+            not in {
+                "source",
+                "summary",
+                "absent_receipts_yield_no_credit",
+                "expected_engine_commit",
+            }
+        ]
+        native_tests = int(native_summary.get("tests", 0))
+        native_green = (
+            bool(native_groups)
+            and not native_summary.get("failed")
+            and not native_summary.get("errors")
         )
         cardinality = load(OUT / f"PLAYER_CARDINALITY_{candidate.upper()}.json")
-        card_pass = [
-            k
-            for k, v in cardinality["results"].items()
-            if v.get("steps_completed") and not v.get("failure") and k in {"2P", "3P", "4P", "5P"}
-        ]
+        # All-or-nothing. This previously counted any run with a non-empty
+        # steps_completed list, so a lifecycle that only imported decks and
+        # created a game counted as a completed player count, and four such
+        # prefixes earned AF02 PASS. A shortfall is UNKNOWN, not FAIL: an
+        # unestablished count is an evidence gap, not a refutation.
+        cardinality_assessment = lifecycle_mod.cardinality_verdict(cardinality["results"])
+        # The commit THIS candidate's evidence is required to be about, read from
+        # this candidate's own results. It used to be a variable assigned in the
+        # earlier per-candidate loop, so by the time the AF matrix ran it held the
+        # LAST candidate's commit. XMage's AF00 was therefore compared against
+        # Forge's expected commit and reported FAIL for the wrong reason.
+        expected_engine_commit = data["results_runtime_identity"].get("engine_candidate_commit", "")
         matrix = [
             {
+                # AF00 was a literal PASS. Its evidence merely printed the commit
+                # the provider reported; nothing compared it to the commit the
+                # evidence was supposed to be about, so a provider reporting the
+                # wrong engine still earned PASS. The verdict is now derived from
+                # that comparison.
                 "gate": "AF00",
                 "name": "SOURCE_AND_BUILD_LOCK",
-                "verdict": "PASS",
+                "verdict": source_lock_verdict(af01, expected_engine_commit),
                 "evidence": [
                     f"candidate commit reported by the provider at handshake: "
                     f"{af01['engine_commit_reported']}",
+                    f"commit the evidence is required to be about: {expected_engine_commit}",
                     f"engine_commit provenance: {af01['engine_commit_provenance']}",
                     "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
                 ],
@@ -295,30 +340,21 @@ def assemble() -> None:
             {
                 "gate": "AF02",
                 "name": "PLAYER_CARDINALITY",
-                "verdict": "PASS" if len(card_pass) == 4 else "FAIL",
+                "verdict": cardinality_assessment["verdict"],
+                "all_or_nothing": True,
                 "evidence": [
-                    f"independent live lifecycles executed at {sorted(card_pass)}",
-                    f"bounded 6P lifecycle also executed: {'6P' in cardinality['results']}",
+                    cardinality_assessment["reason"],
+                    f"counts with a complete lifecycle: {cardinality_assessment['complete_counts']}",
+                    f"counts without one: {cardinality_assessment['incomplete_counts']}",
+                    f"bounded 6P lifecycle recorded: {'6P' in cardinality['results']}",
                 ],
+                "lifecycle_assessment": cardinality_assessment,
                 "blocking_rows": [],
                 "nonblocking_limitations": [
                     "6P is bounded secondary evidence; 7P is not attempted on this boundary"
                 ],
             },
-            {
-                "gate": "AF03",
-                "name": "RULES_AUTHORITY",
-                "verdict": "PASS",
-                "evidence": [
-                    "the engine rejected an illegal Commander colour identity during deck "
-                    "import (proving the engine owns deck legality, not the harness)",
-                    "the engine rejected unknown card names by name",
-                    "out-of-scope submissions produced no fabricated legal option",
-                    "runner contains no legality reconstruction",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": [],
-            },
+            af03_gate(candidate),
             {
                 "gate": "AF04",
                 "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
@@ -498,11 +534,15 @@ def assemble() -> None:
     for fixture in sorted(x):
         xr, fr = x[fixture], f[fixture]
         if xr["exit_state"] == fr["exit_state"] == "PASS":
-            disposition = "SAME_SEMANTICS"
-            note = (
-                "both candidates executed the effective v1.0.6 obligation and both "
-                "observed the obligated facts in this boundary"
-            )
+            # PASS/PASS is not a semantic comparison. Compare the normalized
+            # Rules-visible observations the two sides actually recorded, so two
+            # engines that disagree about a turn number or a library count are
+            # reported as a difference instead of being labelled equal.
+            comparison_result = semantic_mod.compare_semantics(xr, fr)
+            disposition = comparison_result["disposition"]
+            note = comparison_result["reason"]
+            if disposition == "RULES_VISIBLE_DIVERGENCE":
+                note += " (requires Coordinator Rules adjudication)"
         elif "FAIL" in (xr["exit_state"], fr["exit_state"]):
             disposition = "UNKNOWN_PENDING_RULES_ADJUDICATION"
             note = "a current-boundary failure requires Coordinator Rules adjudication"
@@ -524,6 +564,11 @@ def assemble() -> None:
                 "fixture_id": fixture,
                 "disposition": disposition,
                 "note": note,
+                **(
+                    {"semantic_comparison": comparison_result}
+                    if xr["exit_state"] == fr["exit_state"] == "PASS"
+                    else {}
+                ),
                 "xmage": {
                     "exit_state": xr["exit_state"],
                     "execution_mode": xr["execution_mode"],

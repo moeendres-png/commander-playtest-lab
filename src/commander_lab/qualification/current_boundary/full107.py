@@ -27,9 +27,9 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
+from . import lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
-    DECISION_IDENTITY_SHAPES,
     CommandedGameResult,
     drive_commander_game,
     poll_decision,
@@ -471,6 +471,22 @@ def admit_row(fixture_id: str) -> tuple[str, tuple[str, ...]]:
     return ("UNLISTED", ())
 
 
+# Rows the effective contract itself blocks on the XMage Lab path: the bridge
+# reports starting_state_injection_supported=false, so a frozen mid-game
+# starting state cannot be constructed. This is a contract-locked seam, not a
+# Rules incapability of XMage itself.
+#
+# PB-03: which rows those are is decided by MECHANISM, not by row name. The
+# previous constant was a tuple of fixture-id prefixes, which could not classify
+# a row it had never seen and hid the reason behind a string. See
+# materialization.requires_starting_state and MID_GAME_MECHANISM_FAMILIES.
+# The REQUIRED_DIMENSIONS table above refines the same principle to seam
+# dimensions and execution tiers, pinned against the live restoration seam.
+#
+# starting_state_injection_supported is never flipped: the production XMage
+# starting-state seam exists, but it is not this generic obligation, so the
+# capability flag stays as the provider reports it.
+
 # Rows whose obligation is a *per-scenario hidden-information probe* that needs
 # engine-native principal-scoped channel instrumentation which the generic
 # Protocol-2 state projection does not expose.
@@ -642,11 +658,16 @@ def cardinality_row(
         "terminal_facts": result.terminal_facts,
         "runtime_identity": runtime_identity,
         "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
-        "rules_rng_binding": {
-            "requested_seed": 424242,
-            "engine_owned": True,
-            "provider_reported_seed_supported": DECISION_IDENTITY_SHAPES is not None,
-        },
+        # Same defect as START-2: engine_owned was asserted from caller intent.
+        # Control comes from the engine's acknowledgement via the driver.
+        "rules_rng_binding": (
+            result.seed_binding.to_document()
+            if result.seed_binding is not None
+            else {
+                "control": "UNCONTROLLED_ENGINE_RNG",
+                "detail": "the engine acknowledged no seed for this run",
+            }
+        ),
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
     }
     if result.failure:
@@ -683,6 +704,28 @@ def cardinality_row(
             "FAIL",
             "PROTOCOL2_LIFECYCLE",
             f"engine created {created} players for a {wanted}P fixture",
+            evidence,
+        )
+    # All-or-nothing. A run that stopped part-way through the lifecycle has not
+    # established the fixture, whatever prefix it did complete, so an incomplete
+    # lifecycle is UNKNOWN rather than FAIL and never a partial PASS.
+    assessment = lifecycle.lifecycle_completeness(
+        {
+            "steps_completed": list(result.steps_completed),
+            "failure": result.failure,
+            "terminal_facts": result.terminal_facts,
+            "decision_tape": [entry.__dict__ for entry in result.decision_tape],
+        }
+    )
+    evidence["lifecycle_completeness"] = assessment
+    if not assessment["complete"]:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_LIFECYCLE",
+            "the Commander lifecycle was not completed, so this fixture is "
+            "unestablished: " + "; ".join(assessment["reasons"]),
             evidence,
         )
     if not result.terminal_facts.get("priority_reached"):
@@ -743,6 +786,18 @@ def start2_row(
     )
     kinds = [entry.kind for entry in game.decision_tape]
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
+    # Observations, not the fixture's expectations. The verdict below is derived
+    # from these, and from the fixture only as a statement of the obligation.
+    zone_counts = game.terminal_facts.get("observed_actor_zone_counts")
+    observed_draw_events = [event for event in game.semantic_events if "draw" in str(event).lower()]
+    observed_starting_actor = next(
+        (
+            entry.actor
+            for entry in game.decision_tape
+            if entry.kind.upper() != "DRAW" and entry.actor
+        ),
+        None,
+    )
     evidence = {
         "player_count": 2,
         "actual_cards": _actual_cards(),
@@ -751,12 +806,26 @@ def start2_row(
         "terminal_facts": game.terminal_facts,
         "runtime_identity": runtime_identity,
         "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
-        "rules_rng_binding": {"requested_seed": 424242, "engine_owned": True},
+        # Real binding from the engine's acknowledgement, not a hard-coded
+        # engine_owned flag. An engine that confirms nothing leaves this
+        # UNCONTROLLED and the row cannot be credited for RNG or replay.
+        "rules_rng_binding": (
+            game.seed_binding.to_document()
+            if game.seed_binding is not None
+            else {
+                "control": "UNCONTROLLED_ENGINE_RNG",
+                "detail": "the engine acknowledged no seed for this run",
+            }
+        ),
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
         "v1_0_6_required_events": required,
         "v1_0_6_forbidden_events": forbidden,
         "observed_decision_kinds": kinds,
         "observed_draw_step_frames": draw_frames,
+        "observed_draw_semantic_events": observed_draw_events,
+        "observed_actor_zone_counts": zone_counts,
+        "observed_starting_actor": observed_starting_actor,
+        "fixture_required_events_are_obligation_statements_not_evidence": True,
     }
     if game.failure:
         if game.failure_kind == "CAPABILITY_ABSENT":
@@ -787,13 +856,38 @@ def start2_row(
             "Rules-visible FAIL candidate requiring Coordinator adjudication",
             evidence,
         )
-    if "starting_player:P1" not in required:
+    # A draw semantic event inside the skipped step is a Rules-visible failure,
+    # distinct from a draw checkpoint: either would mean the step was not
+    # skipped entirely.
+    if observed_draw_events:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_START2_V1_0_6",
+            "the engine emitted a draw event during the step CR 103.8a skips "
+            f"entirely: {observed_draw_events}",
+            evidence,
+        )
+    if not zone_counts:
         return RowResult(
             fixture_id,
             candidate,
             "UNKNOWN",
             "PROTOCOL2_START2_V1_0_6",
-            "effective record does not carry the starting-player event",
+            "the engine reported no principal-scoped zone counts, so the "
+            "hand/library postcondition of the skipped draw step could not be "
+            "observed and the row is not credited",
+            evidence,
+        )
+    if observed_starting_actor is None:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "no acting principal was observed, so which seat was the starting "
+            "player could not be established from the run",
             evidence,
         )
     if not game.terminal_facts.get("priority_reached"):
@@ -899,3 +993,293 @@ def dumps(value: Any) -> str:
 
 def sleep(seconds: float) -> None:
     time.sleep(seconds)
+
+
+# ---------------------------------------------------------------------------
+# Principal scoping must be validated before an observation is persisted as
+# principal-scoped evidence.
+# ---------------------------------------------------------------------------
+#
+# The hidden-information loop used to read one state observation per seat and
+# write all of them straight into HIDDEN_INFO_<CANDIDATE>.json. Nothing checked
+# that the response was actually scoped to the seat that asked for it. The
+# committed XMage run demonstrates the failure this permits: all four entries
+# held identical state payloads, including stable object ids and ordering for
+# every opponent's seven-card hand and ninety-two-card library. Persisting that
+# under four principal labels presents one unscoped view as four scoped ones.
+#
+# Masking identifiers at the provider is necessary but not sufficient, because a
+# provider can still return the same unscoped payload to every caller. The
+# observation has to be checked where it is trusted, which is here.
+
+# Keys whose values describe a principal's own hidden content. Counts are not
+# hidden; card identities and ordering are.
+_HIDDEN_CONTENT_KEYS: frozenset[str] = frozenset({"hand", "library", "revealed", "face_down_cards"})
+
+
+# A provider that correctly hides a zone usually says so with a placeholder
+# rather than omitting the zone. A placeholder is the ABSENCE of content, so
+# counting it as content accuses a candidate of a leak it did not commit. The
+# Forge bridge returns "<hidden>" per opponent card; treating that array as
+# exposed hand content produced a false ENGINE_CANDIDATE_DEFECT against a
+# provider that was redacting correctly.
+_REDACTION_PLACEHOLDERS: frozenset[str] = frozenset(
+    {"<hidden>", "hidden", "***", "<redacted>", "redacted", "?", "null", "none", ""}
+)
+
+
+def _zone_exposes_content(zone: Any) -> bool:
+    """Whether a zone carries real content rather than a redaction placeholder.
+
+    An empty list, a null, or a list made entirely of placeholders means nothing
+    was disclosed. A list containing at least one real entry means it was.
+    """
+    if zone is None:
+        return False
+    if isinstance(zone, (str, int, float, bool)):
+        return str(zone).strip().lower() not in _REDACTION_PLACEHOLDERS
+    if isinstance(zone, dict):
+        # An object is real content unless every value is a placeholder.
+        return any(_zone_exposes_content(value) for value in zone.values())
+    if isinstance(zone, (list, tuple, set)):
+        return any(_zone_exposes_content(item) for item in zone)
+    return bool(zone)
+
+
+def _state_view(payload: dict[str, Any]) -> dict[str, Any]:
+    """The state view inside a principal observation.
+
+    The observation wraps the state under ``state``; the players array lives
+    there, not at the top level. Reading the top level produced a false
+    "no players array" finding against a correctly shaped response, which is
+    exactly as bad as missing a real leak: a scoping verdict must be true, not
+    merely conservative.
+    """
+    state = payload.get("state")
+    return state if isinstance(state, dict) else payload
+
+
+def _players_of(payload: dict[str, Any]) -> list[Any]:
+    players = _state_view(payload).get("players")
+    return players if isinstance(players, list) else []
+
+
+def _canonical(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, default=str)
+
+
+def validate_principal_scoping(
+    observations: dict[str, Any], *, requested_seats: tuple[str, ...]
+) -> dict[str, Any]:
+    """Check that each observation is genuinely scoped to the seat that asked.
+
+    Returns a verdict mapping. A failing check is never repaired by rewriting the
+    observation: the observation is what the engine said, and the correct
+    response is to refuse to present it as principal-scoped evidence.
+    """
+    findings: list[dict[str, Any]] = []
+
+    usable = {
+        seat: payload
+        for seat, payload in observations.items()
+        if isinstance(payload, dict) and "error" not in payload
+    }
+    for seat in requested_seats:
+        if seat not in usable:
+            findings.append(
+                {
+                    "check": "observation_present",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "no usable principal observation was returned for this seat",
+                }
+            )
+
+    # Each observation must mark exactly one actor, and it must be the requester.
+    established_requester: dict[str, bool] = {}
+    for seat, payload in usable.items():
+        players = _players_of(payload)
+        established_requester[seat] = False
+        if not players:
+            findings.append(
+                {
+                    "check": "actor_marked",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "the observation carries no players array to scope against",
+                }
+            )
+            continue
+        actors = [
+            entry for entry in players if isinstance(entry, dict) and entry.get("is_actor") is True
+        ]
+        if len(actors) == 1 and _seat_index(requested_seats, seat) == actors[0].get("seat"):
+            # The provider named the observing principal AND it is the seat that
+            # asked. Only then does "a non-actor seat carries content" mean a
+            # leak, and only then can this observation support a demonstrated
+            # defect. The judgement is PER OBSERVATION: a sibling response that
+            # omitted its marker must not downgrade a leak proved here.
+            established_requester[seat] = True
+        if len(actors) != 1:
+            findings.append(
+                {
+                    "check": "actor_marked",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": f"expected exactly one actor in the observation, saw {len(actors)}",
+                }
+            )
+            continue
+        observed_seat = actors[0].get("seat")
+        expected_seat = _seat_index(requested_seats, seat)
+        if expected_seat is not None and observed_seat != expected_seat:
+            findings.append(
+                {
+                    "check": "actor_is_the_requester",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": f"the observation marks seat {observed_seat} as actor, but seat "
+                    f"{seat} requested it",
+                }
+            )
+
+    # Two principals cannot receive the same view. The comparison is over the
+    # STATE VIEW, not the whole observation envelope. The envelope carries a
+    # monotonically increasing `state_observation_offset`, so comparing it would
+    # make four byte-identical states look like four distinct observations and
+    # mask exactly the leak this check exists to catch.
+    distinct = {_canonical(_state_view(usable[seat])) for seat in usable}
+    if len(usable) > 1 and len(distinct) == 1:
+        findings.append(
+            {
+                "check": "observations_differ_per_principal",
+                "ok": False,
+                "detail": f"all {len(usable)} principals received a byte-identical state "
+                "payload, so the projection is not principal-scoped",
+            }
+        )
+
+    # No observation may carry another principal's hidden card content.
+    for seat, payload in usable.items():
+        for entry in _players_of(payload):
+            if not isinstance(entry, dict):
+                continue
+            raw_zones = entry.get("zones")
+            zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else entry
+            exposed = sorted(
+                key for key in _HIDDEN_CONTENT_KEYS if _zone_exposes_content(zones.get(key))
+            )
+            if exposed and entry.get("is_actor") is not True:
+                findings.append(
+                    {
+                        "check": "no_opponent_hidden_content",
+                        "seat": seat,
+                        "ok": False,
+                        "detail": f"the observation exposes opponent zone content {exposed} "
+                        "for a non-actor seat",
+                    }
+                )
+
+    # Classify the defect, because the two have different owners and the
+    # difference matters. An ENGINE leak is a candidate defect: the provider
+    # returned unauthorised identity or content and the Lab must not mask it.
+    # A SERIALIZER leak is a Lab defect: the response was correctly scoped and
+    # the Lab persisted extra identity. Masking an engine leak in the serializer
+    # and then awarding engine correctness credit is forbidden, so the
+    # classification is derived from what the observation actually contains.
+    # The zone keys observed on a non-actor seat. This is the RAW observation, and
+    # it is deliberately kept separate from engine_leak_indicators below: a key
+    # appearing here says content sat on a seat that was not marked as the
+    # requester's, which is not the same as a demonstrated leak.
+    exposed_keys = sorted(
+        {
+            key
+            for finding in findings
+            if finding.get("check") == "no_opponent_hidden_content"
+            for key in _exposed_keys_of(finding.get("detail", ""))
+        }
+    )
+    # A content leak is only DEMONSTRATED when the evidence forces it. Two
+    # different things must not be conflated:
+    #
+    #   * Two requesters receiving a byte-identical state proves an unscoped
+    #     projection outright. The requester differs and the payload does not, so
+    #     each caller necessarily sees every other seat's cards. That is a
+    #     conclusive candidate defect.
+    #   * Real content present while the provider does not mark the observing
+    #     principal proves nothing on its own: the content may belong to the
+    #     requester. Without actor marking the validator cannot tell who was
+    #     asked, so attributing a leak to the candidate would be an accusation
+    #     the evidence does not support.
+    #
+    # A provider that redacts opponents with placeholders and simply omits the
+    # actor marker is unestablished, not defective.
+    identical_views = any(
+        finding.get("check") == "observations_differ_per_principal" for finding in findings
+    )
+    # A leaked-content finding is attributed to the observation that produced it.
+    # A batch-wide flag is wrong in both directions: one response missing its
+    # actor marker must not downgrade a demonstrated leak in every OTHER
+    # response, and one response carrying a leak must not upgrade the rest.
+    leaked_from_established = any(
+        finding.get("check") == "no_opponent_hidden_content"
+        and established_requester.get(str(finding.get("seat", "")), False)
+        for finding in findings
+    )
+    if not findings:
+        attribution = "NONE"
+    elif identical_views or leaked_from_established:
+        attribution = "ENGINE_CANDIDATE_DEFECT"
+    elif exposed_keys:
+        attribution = "SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT"
+    else:
+        attribution = "LAB_SERIALIZER_DEFECT"
+    engine_leak = attribution == "ENGINE_CANDIDATE_DEFECT"
+
+    return {
+        "verdict": "PRINCIPAL_SCOPED" if not findings else "SCOPING_NOT_ESTABLISHED",
+        "attribution": attribution,
+        # Populated ONLY for a demonstrated leak. Listing zones here for an
+        # unestablished case would restate the accusation the attribution just
+        # declined to make.
+        "engine_leak_indicators": exposed_keys if engine_leak else [],
+        "zones_observed_on_unmarked_seats": exposed_keys,
+        "observations_with_established_requester": sorted(
+            seat for seat, ok in established_requester.items() if ok
+        ),
+        "observations_without_established_requester": sorted(
+            seat for seat, ok in established_requester.items() if not ok
+        ),
+        "attribution_rule": "one shared state view across different requesters is a "
+        "conclusive candidate defect, and real content for a KNOWN non-actor is too. Real "
+        "content with no actor marking is unestablished, not a demonstrated leak, because "
+        "the content may be the requester's own. A masked engine leak must never earn engine "
+        "correctness credit, and an undemonstrated one must never be asserted.",
+        "credible_as_principal_scoped_evidence": not findings,
+        "principals_checked": sorted(usable),
+        "distinct_state_views": len(distinct),
+        "compared": "the state view, excluding the observation envelope whose "
+        "monotonic offset would otherwise make identical states look distinct",
+        "findings": findings,
+        "note": "an observation that is not principal-scoped is recorded as observed and is "
+        "not presented as hidden-information evidence",
+    }
+
+
+def _exposed_keys_of(detail: str) -> list[str]:
+    """Recover the exposed zone names from a finding's detail text."""
+    marker = "zone content ["
+    if marker not in detail:
+        return []
+    tail = detail.split(marker, 1)[1]
+    # The detail ends with prose after the bracketed list, so cut at "]".
+    inside = tail.split("]", 1)[0]
+    return [item.strip().strip("'\"") for item in inside.split(",") if item.strip()]
+
+
+def _seat_index(seats: tuple[str, ...], seat: str) -> int | None:
+    lowered = seat.lower()
+    for index, candidate in enumerate(seats):
+        if candidate.lower() == lowered:
+            return index
+    return None

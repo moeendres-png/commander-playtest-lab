@@ -18,6 +18,7 @@ import mage.util.XmageThreadFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -255,14 +256,54 @@ final class XmageFullGameSession {
      * game-state effects (e.g., London mulligan bottom counts via library
      * size) without touching engine internals.</p>
      */
-    JsonObject zoneCountsPayload() {
+    /**
+     * The real principal id at a seat.
+     *
+     * <p>This is the inverse of {@link #seatOrder()} and exists for a direct
+     * engine driver, which legitimately needs to address a principal to submit
+     * on its behalf. It is deliberately NOT projected: observations mask every
+     * non-viewer id, so a pilot acting through an observation can never obtain
+     * an opponent's real identity by way of this method.
+     */
+    String principalIdAtSeat(int seat) {
+        if (seat < 0 || seat >= players.size()) {
+            return null;
+        }
+        return players.get(seat).getId().toString();
+    }
+
+    /**
+     * Seat index per real principal id, in seat order.
+     *
+     * <p>Seat order is public information, so this discloses nothing that a
+     * projection must hide. It exists because a principal-scoped projection now
+     * masks non-viewer ids, and a caller that legitimately needs to relate a
+     * real id to a seat must ask the session rather than trying to recover it
+     * from an observation.
+     */
+    Map<String, Integer> seatOrder() {
+        Map<String, Integer> order = new LinkedHashMap<>();
+        for (int seat = 0; seat < players.size(); seat++) {
+            order.put(players.get(seat).getId().toString(), seat);
+        }
+        return order;
+    }
+
+    JsonObject zoneCountsPayload(UUID actorId) {
+        return zoneCountsPayload(actorId == null ? null : game.getPlayer(actorId));
+    }
+
+    JsonObject zoneCountsPayload(Player actor) {
         ensureStarted();
         JsonArray seats = new JsonArray();
         int seat = 0;
         for (Player player : game.getPlayers().values()) {
             JsonObject item = new JsonObject();
             item.addProperty("seat", seat++);
-            item.addProperty("player_id", player.getId().toString());
+            // Actor-safe: counts are public, but the principal id behind each
+            // seat is not. The viewer keeps its own id; every other seat is an
+            // opaque token stable for this game.
+            item.addProperty("player_id", ActorSafeIdentity.forSeat(game, actor, player));
             item.addProperty("hand_count", player.getHand().size());
             item.addProperty("library_count", player.getLibrary().size());
             item.addProperty("graveyard_count", player.getGraveyard().size());
@@ -688,7 +729,8 @@ final class XmageFullGameSession {
         for (Player player : game.getPlayers().values()) {
             JsonObject item = new JsonObject();
             item.addProperty("seat", seat++);
-            item.addProperty("player_id", player.getId().toString());
+            // Actor-safe: a game result must not enumerate opponents' real ids.
+            item.addProperty("player_id", ActorSafeIdentity.forSeat(game, player, player));
             item.addProperty("life", player.getLife());
             item.addProperty("won", player.hasWon());
             item.addProperty("lost", player.hasLost());

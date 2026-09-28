@@ -35,3 +35,10 @@ engine-bridge/target/cp-wsr22.txt
 # Generated Phase-10 demo evidence
 artifacts/phase10/*.json
 artifacts/engine_setup/logs/.*.process-state.json.*
+
+# WSR22: XMage test-run card database build output (runtime artifact, not source)
+engine-bridge/db/
+engine-bridge/target/cp-wsr22.txt
+
+# WSR22 successor: test-local bridge stub processes (generated, not source)
+tests/qualification/_bridge_stubs/

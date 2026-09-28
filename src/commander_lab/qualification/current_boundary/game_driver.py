@@ -21,6 +21,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from . import receipts as seed_receipts
 from .bridge_launcher import BridgeLaunchError, BridgeProcess
 
 POLL_ATTEMPTS = 40
@@ -87,7 +88,69 @@ class GameObservation:
 # execution on the shared Protocol-2 surface. Recorded, not normalized away.
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
-DECISION_IDENTITY_SHAPES = {
+def _declares_seed_support(proc: BridgeProcess) -> bool:
+    """Whether the provider declares that it accepts an authoritative seed.
+
+    Absent or unparsable capability data is treated as "does not support", so an
+    unknown provider never receives a seed it may reject. The converse mistake
+    would be to assume support and fail the whole run.
+    """
+    try:
+        response = proc.request("get_capabilities", {}, timeout_s=60.0)
+    except Exception:
+        return False
+    capabilities = _payload(response).get("capabilities")
+    if not isinstance(capabilities, dict):
+        return False
+    return capabilities.get("seed_supported") is True
+
+
+def _create_request(
+    game_id: str, handles: list[str], seed: int, seed_supported: bool
+) -> dict[str, Any]:
+    """The authoritative create-game request, with the seed only when supported.
+
+    The seed must reach the provider's authoritative request when the provider
+    accepts one, because a requested seed that never left the harness is the
+    original defect. When the provider does not declare support, the seed is
+    omitted rather than forced, and the run is honestly uncontrolled.
+    """
+    request: dict[str, Any] = {
+        "game_id": game_id,
+        "deck_handles": handles,
+        "format": "commander",
+        "external_control": True,
+    }
+    if seed_supported:
+        request["seed"] = seed
+        request["rules_seed"] = seed
+        request["options"] = {"seed": seed, "rules_seed": seed}
+    return {"request": request}
+
+
+def _acknowledged_seed(response: Any) -> Any:
+    """Extract whatever seed the provider actually acknowledged, if anything.
+
+    A provider may echo the seed at the top level, inside a nested rules/rng
+    object, or not at all. Returning ``None`` is a legitimate and important
+    answer: it means the engine gave us nothing to confirm and the run is
+    uncontrolled.
+    """
+    if not isinstance(response, dict):
+        return None
+    for key in ("rules_seed", "seed", "acknowledged_seed", "engine_seed"):
+        if key in response:
+            return response[key]
+    for key in ("rules", "rng", "random", "options", "result", "state"):
+        nested = response.get(key)
+        if isinstance(nested, dict):
+            found = _acknowledged_seed(nested)
+            if found is not None:
+                return found
+    return None
+
+
+DECISION_IDENTITY_SHAPES: dict[str, dict[str, Any]] = {
     "xmage": {
         "field": "decision_id",
         "type": "sha256_hex",
@@ -112,9 +175,8 @@ def decision_identity_params(candidate: str, frame: dict[str, Any]) -> dict[str,
     shape = DECISION_IDENTITY_SHAPES[candidate]
     decision = frame["decision"]
     params: dict[str, Any] = {}
-    pass_extra = shape["pass_extra"]
-    assert isinstance(pass_extra, (list, tuple))
-    for key in (shape["field"], *pass_extra):
+    decision_keys: list[str] = [shape["field"], *shape["pass_extra"]]
+    for key in decision_keys:
         if key == "action_id":
             for action in frame["actions"]:
                 if action.get("action_type") == "pass_priority":
@@ -141,9 +203,13 @@ class CommandedGameResult:
     steps_completed: list[str] = field(default_factory=list)
     failure: str | None = None
     failure_kind: str | None = None
+    seed_binding: Any = None
 
     def to_document(self) -> dict[str, Any]:
         return {
+            "rules_rng_binding": (
+                self.seed_binding.to_document() if self.seed_binding is not None else None
+            ),
             "candidate": self.candidate,
             "player_count": self.player_count,
             "deck_identity": self.deck_identity,
@@ -207,11 +273,28 @@ def _require_ok(response: dict[str, Any], step: str) -> dict[str, Any]:
     if not _first_ok(response):
         code, message = _engine_error(response)
         raise GameDriveError(
-            f"{step} failed: status={response.get('status')!r}",
+            f"{step} failed: {_failure_detail(response)}",
             engine_code=code,
             engine_message=message,
         )
     return _payload(response)
+
+
+def _failure_detail(response: dict[str, Any]) -> str:
+    """A compact, faithful rendering of why the provider refused."""
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors:
+        parts = []
+        for entry in errors:
+            if isinstance(entry, dict):
+                code = entry.get("code", "UNKNOWN")
+                message = entry.get("message", "")
+                parts.append(f"{code}: {message}" if message else str(code))
+            else:
+                parts.append(str(entry))
+        return "; ".join(parts)
+    status = response.get("status")
+    return f"status={status!r} with no error detail from the provider"
 
 
 def build_deck(deck_id: str) -> dict[str, Any]:
@@ -386,22 +469,37 @@ def drive_commander_game(
             handles.append(str(handle_id))
         result.steps_completed.append("import_deck")
 
+        # Whether the seed may be sent is a declared provider capability, not a
+        # harness preference. The XMage generic B4-D lane reports
+        # seed_supported=false and rejects a create request carrying a seed with
+        # `unsupported_game_option`, which turned an honestly uncontrolled run
+        # into a hard failure. Ask the provider, then send the seed only if it
+        # declares support. When it does not, the run proceeds with no seed and
+        # the binding below is UNCONTROLLED_ENGINE_RNG, which earns no RNG or
+        # replay credit. That is the correct outcome, not a workaround.
+        seed_supported = _declares_seed_support(proc)
+        result.terminal_facts["provider_seed_supported"] = seed_supported
+        result.terminal_facts["seed_sent_to_provider"] = bool(seed_supported)
+
         created = _require_ok(
             proc.request(
                 "create_commander_game",
-                {
-                    "request": {
-                        "game_id": game_id,
-                        "deck_handles": handles,
-                        "format": "commander",
-                        "external_control": True,
-                    }
-                },
+                _create_request(game_id, handles, seed, seed_supported),
                 game_id=game_id,
                 timeout_s=300.0,
             ),
             "create_commander_game",
         )
+        # Seed control is derived from what the engine acknowledged, never from
+        # the fact that the caller asked. An engine that echoes nothing is
+        # UNCONTROLLED and earns no RNG or replay credit.
+        binding = seed_receipts.classify_seed_binding(
+            requested_seed=seed,
+            acknowledged_seed=_acknowledged_seed(created),
+            source="create_commander_game_response",
+        )
+        result.terminal_facts["rules_rng_binding"] = binding.to_document()
+        result.seed_binding = binding
         seats = created.get("seats")
         seat_ids = [seat.get("player_id") for seat in seats] if isinstance(seats, list) else None
         if seat_ids is not None and len(seat_ids) != player_count:
@@ -601,6 +699,36 @@ def drive_commander_game(
             )
             result.terminal_facts["stopped_at_decision_kind"] = kind
             break
+
+        if drive_to == "first_turn_draw_skip":
+            # Observe the acting seat's own zone counts from the engine, so the
+            # draw-skip obligation is judged on observed state rather than on the
+            # absence of a decision checkpoint. A checkpoint is not the same
+            # thing as a draw: an engine could skip the checkpoint and still draw
+            # the card, and only the counts can tell the difference.
+            actor_seat = frame["seat"] if "frame" in dir() else None
+            try:
+                observed = proc.request(
+                    "get_game_state", {"actor": actor_seat}, game_id=result.game_id
+                )
+                seats = _payload(observed).get("players")
+                mine = [
+                    {
+                        "seat": entry.get("seat"),
+                        "hand_count": entry.get("hand_count"),
+                        "library_count": entry.get("library_count"),
+                        "is_actor": entry.get("is_actor"),
+                    }
+                    for entry in (seats or [])
+                    if isinstance(entry, dict) and entry.get("is_actor") is True
+                ]
+                result.terminal_facts["observed_actor_zone_counts"] = mine
+                result.terminal_facts["observed_zone_count_source"] = (
+                    "ENGINE_REPORTED_PRINCIPAL_SCOPED"
+                )
+            except Exception as exc:  # fail closed on the evidence, not on the run
+                result.terminal_facts["observed_actor_zone_counts"] = None
+                result.terminal_facts["observed_zone_count_error"] = str(exc)
 
         result.terminal_facts["decision_identity_shape"] = DECISION_IDENTITY_SHAPES[candidate]
         result.terminal_facts["draw_step_decision_frames"] = draw_step_frames

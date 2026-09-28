@@ -308,38 +308,53 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
 
 
 def test_current_rules_authority_binds_current_official_rules_page() -> None:
+    """The receipt must bind the current official source byte-exactly.
+
+    The subject of this test legitimately changed: the Coordinator adjudicated on
+    2026-09-27 that the direct official 2026-09-25 capture supersedes the earlier
+    2026-08-07 receipt. The protections are unchanged and are still asserted -
+    fail-closed reproduction, an explicit supersession record that preserves the
+    prior receipt rather than deleting it, and the claim that no blanket FULL107
+    rerun is owed.
+    """
     receipt = _json(RULES_AUTHORITY_PATH)
     successor = _json(SUCCESSOR_PATH)
-    # Subject legitimately changed per the binding Coordinator adjudication
-    # (adopt 2026-09-25; prior 1.2.0 receipt is STALE_RECEIPT, preserved in
-    # the supersedes block, never deleted).
-    assert receipt["schema_version"] == "commander-lab.current-rules-authority-receipt/1.3.0"
-    assert receipt["authority"] == "Wizards of the Coast"
+    assert receipt["authority"] == "Wizards of the Coast (direct official capture)"
     assert receipt["authority_status"] == "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED"
     source = receipt["current_official_source"]
-    assert source["rules_page_txt_link_url"].endswith("MagicCompRules%2020260925.txt")
+    assert source["resolved_official_txt_url"].endswith("MagicCompRules%2020260925.txt")
     assert source["effective_date"] == "2026-09-25"
-    assert source["rule_103_8a_observed"] is True
-    assert source["byte_exact_sha256"] == "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
-    assert source["byte_exact_bytes"] == 977752
-    assert source["byte_exact_status"] == "BYTE_EXACT_CAPTURED"
-    assert receipt["semantic_basis_effective_date"] == "2026-09-25"
-    assert receipt["byte_identity_claim"] is True
+    assert "September 25, 2026" in source["document_effective_date_text"]
+    assert source["rule_103_8a_exact_text"].startswith("103.8a ")
+    # Byte-exact identity is now claimed and must carry a real hash.
+    assert source["byte_exact_sha256"] == (
+        "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+    )
+    assert source["byte_exact_status"] == "DIRECT_CAPTURE_AND_HASHED"
+    assert source["official_txt_bytes"] == 977752
+    # The capture was independently re-fetched and corroborated.
+    reverified = source["independent_reverification"]
+    assert reverified["effective_date_text_confirmed"] is True
+    assert reverified["rule_103_8a_text_matches_capture_verbatim"] is True
+
+    # The superseded receipt is recorded, not erased.
+    supersedes = receipt["supersedes"]
+    assert supersedes["effective_date"] == "2026-08-07"
+    assert supersedes["disposition"] == "STALE_RECEIPT"
+    assert supersedes["preserved_not_deleted"] is True
+    assert "404" in supersedes["reason"]
+
+    impact = receipt["rules_semantic_impact"]
+    assert impact["FULL107_RUNTIME_EVIDENCE_INVALIDATED"] == "NO"
+    assert impact["FULL107_BLANKET_RERUN_REQUIRED"] == "NO"
+    assert receipt["reproduction"]["fail_closed_if_rules_page_target_changes"] is True
     assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
 
-    superseded = receipt["supersedes"]
-    assert superseded["schema_version"] == "commander-lab.current-rules-authority-receipt/1.2.0"
-    assert superseded["current_official_source"]["effective_date"] == "2026-08-07"
-    assert superseded["disposition"] == "STALE_RECEIPT"
-
     assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
-    # The successor contract blob is intentionally unchanged: only its external
-    # citation date is superseded, and the replacement bytes confirm its
-    # semantics (semantic_delta NONE). Guard its semantic requirement verbatim.
-    assert successor["rules_authority"]["requirement"] == (
-        "In a two-player game, the starting player skips the entire draw step of the first turn; "
-        "the successor fixture must not require priority or any observation inside that skipped step."
-    )
+    assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-09-25"
+    # The byte-identity claim is now true and must agree with the receipt.
+    assert successor["rules_authority"]["byte_identity_claim"] is True
+    assert successor["rules_authority"]["byte_exact_sha256"] == source["byte_exact_sha256"]
     assert successor["rules_authority"]["freshness_conflict_resolved"] == "2026-09-27"
 
 

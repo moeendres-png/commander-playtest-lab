@@ -1,141 +1,160 @@
 {
- "schema_version": "wsr22.current-source-lock/1.0.0",
- "workstream": "WSR22-FINAL-CURRENT-BOUNDARY-FREEZE-QUALIFICATION-20260927",
- "repository": "moeendres-png/commander-playtest-lab",
- "branch": "wsr22/final-current-boundary-freeze-qualification-20260927",
- "head": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
- "tree": "610f93d81e3b7154731d95472be6dcac05057eac",
- "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
- "transport_protocol": "2.0.0",
- "effective_denominator_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
- "contract_blobs": {
-  "current_pre_freeze_contract": {
-   "path": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-   "sha256": "33ad8390a7b308d56aebf8faec9e17c97059931c45e18f17742b238f0c581b73",
-   "git_blob": "3f1ed8d6e1991bb4787f54a8f102bbc9e4ed4d55"
+  "schema_version": "wsr22.current-source-lock/1.0.0",
+  "workstream": "WSR22-FINAL-CURRENT-BOUNDARY-FREEZE-QUALIFICATION-20260927",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "branch": "wsr22/final-current-boundary-freeze-qualification-20260927",
+  "head": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+  "tree": "610f93d81e3b7154731d95472be6dcac05057eac",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "transport_protocol": "2.0.0",
+  "effective_denominator_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+  "contract_blobs": {
+    "current_pre_freeze_contract": {
+      "path": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
+      "sha256": "33ad8390a7b308d56aebf8faec9e17c97059931c45e18f17742b238f0c581b73",
+      "git_blob": "3f1ed8d6e1991bb4787f54a8f102bbc9e4ed4d55"
+    },
+    "full107_successor_contract_v1_0_6": {
+      "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+      "sha256": "aa013b3484fb34b925970bc6266f20e1da152652a015d222da798caa3439965e",
+      "git_blob": "af12456e00a6f67b67cfb0be351ea5442e7b5a21"
+    },
+    "semantic_fixture_schema_v1_0_6": {
+      "path": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
+      "sha256": "6e004a42e8e14986b4bf1c02adb0b83084a10b572c6b03fa572f951d127ef1b7",
+      "git_blob": "1de2f57270f6c28c69229dd1ab12b92e2ee95c89"
+    },
+    "af01_boundary_v2": {
+      "path": "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json",
+      "sha256": "3eb742125a07cf3572d8256d685ac10e295df2c7a586055307dcd193a0af3849",
+      "git_blob": "e4388a3601e7507c94160494d28079e99fa81546"
+    },
+    "freeze_gate_catalog_v2": {
+      "path": "qualification/pre-freeze-successor/architecture_freeze_gate_catalog_v2.json",
+      "sha256": "f7e4ffdcbcd291fed0693e79a16caf09aefab425b784e46504c75f69a70f3df8",
+      "git_blob": "1b0c7ede65138b03b06b4fcc2d5ddac36dfda9a5"
+    },
+    "freeze_contract_schema_v2": {
+      "path": "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json",
+      "sha256": "c9048b0502b9b3b66c656a1512bd0541e46f67d9ad06d03d1c92185166ed248d",
+      "git_blob": "7fde656b6dbc8a3d3dfacc258793c23d4a9abaa3"
+    },
+    "repository_rules_authority_receipt": {
+      "path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+      "sha256": "a2ec123d68d31c4b8f794b7f45ac891f84c75ac03aa81d76ec4806a693bd1073",
+      "git_blob": "e1f18411442f05f102847b59ea6723893227caac"
+    },
+    "protocol_2_0_0_schema": {
+      "path": "schemas/engine_adapter_protocol.schema.json",
+      "sha256": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
+      "git_blob": "ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+    },
+    "frozen_materialization_v1_0_5": {
+      "path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
+      "sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+      "git_blob": "87da95fcbe90c2c729d1a7b28ee9a65ac8a0bab7"
+    },
+    "denominator_107": {
+      "path": "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json",
+      "sha256": "803b4026852105e990eb6b911b5fe72c253e7e20e4b87928d5fc199f7db41472",
+      "git_blob": "5b76e8cd80bdd6150c3967a609065906ec0fe6a8"
+    },
+    "engine_pin_manifest": {
+      "path": "config/rules_engines.json",
+      "sha256": "91efa354e40551a607f516b44b20493a7e928eb8cd2b5e877e483f76accb27c8",
+      "git_blob": "86e2b04083944d73e5ab3a273f84fffdff33a6a6"
+    },
+    "bridge_grammar_registry": {
+      "path": "src/commander_lab/engine/rules/protocol.py",
+      "sha256": "f4d391957789fb59e76ba43670e3d913fd36079b642a2d9cc1201f375139b192",
+      "git_blob": "c99875d8218b79104972fc182097dbc759ba2831"
+    },
+    "bridge_client": {
+      "path": "src/commander_lab/engine/rules/bridge.py",
+      "sha256": "8ca8cd8eb1432764167754b317a9cafd5e5f739fed4ef6df950ecd5d8acc8931",
+      "git_blob": "17775137fc4caec5f7a7c778e2ac24c8d713be89"
+    },
+    "full_game_runner": {
+      "path": "src/commander_lab/engine/rules/full_game.py",
+      "sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+      "git_blob": "4b118ff8f1bedf893ee4801e2a58f4252f24ece0"
+    },
+    "full_game_batch": {
+      "path": "src/commander_lab/engine/rules/full_game_batch.py",
+      "sha256": "6664d33d98c2e7fd0a50a2ed70970357d35e82765c9dbcc69723d71408e7626b",
+      "git_blob": "a7ed0138c61a2ae65b033ce36f34681c8bd1beba"
+    },
+    "h4_handshake_verifier": {
+      "path": "scripts/h4_verify_materialization_evidence.py",
+      "sha256": "1bfa8bd49e5e1d8747d2261cc601899fee32f0d1f2ab4a45a52c8d52b8be33c7",
+      "git_blob": "f418dbc60767dec0f5583fa57c59f48381a1712b"
+    },
+    "pre_freeze_contract_resolver": {
+      "path": "scripts/resolve_pre_freeze_contract.py",
+      "sha256": "fe110ecd03660c92b95bda9354821ea2356447ba649e0f60a766cc8cbacc55d6",
+      "git_blob": "1059167278dc9585a0752780d86e3c0c932fc184"
+    },
+    "engine_bridge_pom": {
+      "path": "engine-bridge/pom.xml",
+      "sha256": "6c41450ff56894260935d2eb24da52d3d04a67e6ce751834bcbdd244bef69db6",
+      "git_blob": "30de012d073b603154438992b198fd7f8d5c5bef"
+    },
+    "xmage_bridge_provider": {
+      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
+      "sha256": "6b79109059f40642e27aa0e55be065862116f25723387123d348edca2103b20d",
+      "git_blob": "1f2679c9b62f056d4e3f17c0a734c15c4238e088"
+    },
+    "xmage_fullgame_bridge": {
+      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java",
+      "sha256": "9be05ed3eb52b788bc0d12074e9f7cc1ba15723be3e34b17b106b7d3c9babab5",
+      "git_blob": "7672d69c1db7078ff2e1b086aa2bdc2c81ffcfc4"
+    },
+    "xmage_native_state_restoration": {
+      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+      "sha256": "be34367905f6f3f410a9eef3e45c448d78d0705a3edea3be4f746087d3ceab33",
+      "git_blob": "334ae7230094578b3ce155f9f40c4d5c0fb4f4ff"
+    },
+    "xmage_temporal_driver": {
+      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageTemporalProgressionDriver.java",
+      "sha256": "cec9f02875b7450da877edbcc7634e0998186fc55d11df2d5d445d5c28b0133f",
+      "git_blob": "4454e8193355b0aed64507dcd7c4c02c20124e17"
+    }
   },
-  "full107_successor_contract_v1_0_6": {
-   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
-   "sha256": "f898abb76684e9ba0d99f7bf9736f9ca2644a6570a86de1e0a9c9c1b6b7a4e37",
-   "git_blob": "267909c47bc8ce47b9ba1152ab8de499a4a704ce"
+  "historical_wsr21_reference": {
+    "branch": "wsr21/final-provider-cdq-20260927",
+    "remote_tip_expected": "c57048922c6649891cb1bbe455b37b2fcde15586",
+    "role": "PROVENANCE_AND_DONOR_ONLY"
   },
-  "semantic_fixture_schema_v1_0_6": {
-   "path": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
-   "sha256": "8c98b33fcc53cbe999ad61d3c5cef9c6aad338f3f6d9d7e59cab0ff409451e33",
-   "git_blob": "428ed8d52a26a1fca5daf378834f412f11d49519"
+  "historical_wsr20_reference": {
+    "repository": "moeendres-png/forge",
+    "evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
+    "role": "PROVENANCE_AND_DONOR_ONLY"
   },
-  "af01_boundary_v2": {
-   "path": "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json",
-   "sha256": "3eb742125a07cf3572d8256d685ac10e295df2c7a586055307dcd193a0af3849",
-   "git_blob": "e4388a3601e7507c94160494d28079e99fa81546"
+  "candidate_identities": {
+    "xmage_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "xmage_lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+    "forge_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "forge_tree": "fc3387bf37aab19d780b2939a235309ed32b0492"
   },
-  "freeze_gate_catalog_v2": {
-   "path": "qualification/pre-freeze-successor/architecture_freeze_gate_catalog_v2.json",
-   "sha256": "f7e4ffdcbcd291fed0693e79a16caf09aefab425b784e46504c75f69a70f3df8",
-   "git_blob": "1b0c7ede65138b03b06b4fcc2d5ddac36dfda9a5"
+  "execution_identities": {},
+  "official_rules_authority_receipt_after_gate1": "qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json",
+  "source_lock_refresh": {
+    "reason": "Contract blobs resealed after the Coordinator-adjudicated 2026-09-25 Rules authority adoption. The successor contract effective date and byte-identity claim, the semantic fixture schema effective-date const, and the Rules authority receipt all changed bytes, so the lock's recorded digests no longer described the committed inputs.",
+    "resealed_paths": [
+      "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+      "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
+      "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
+    ],
+    "method": "sha256 over the committed bytes plus git hash-object; every other entry re-verified as already matching and left untouched",
+    "not_a_reexecution": "This is a mechanical reseal of provenance digests only. No qualification run was re-executed and no evidence row changed."
   },
-  "freeze_contract_schema_v2": {
-   "path": "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json",
-   "sha256": "c9048b0502b9b3b66c656a1512bd0541e46f67d9ad06d03d1c92185166ed248d",
-   "git_blob": "7fde656b6dbc8a3d3dfacc258793c23d4a9abaa3"
-  },
-  "repository_rules_authority_receipt": {
-   "path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
-   "sha256": "fc551899c3d38881f0d7e115f8dd8587edc68ef420feac46cb131ac691a61069",
-   "git_blob": "c3762c20d2c86f362c29ffb8af1a95aa1164bf72"
-  },
-  "protocol_2_0_0_schema": {
-   "path": "schemas/engine_adapter_protocol.schema.json",
-   "sha256": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
-   "git_blob": "ea8651f75a1461ecc41dc1f24586c00bff97fee5"
-  },
-  "frozen_materialization_v1_0_5": {
-   "path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
-   "sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
-   "git_blob": "87da95fcbe90c2c729d1a7b28ee9a65ac8a0bab7"
-  },
-  "denominator_107": {
-   "path": "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json",
-   "sha256": "803b4026852105e990eb6b911b5fe72c253e7e20e4b87928d5fc199f7db41472",
-   "git_blob": "5b76e8cd80bdd6150c3967a609065906ec0fe6a8"
-  },
-  "engine_pin_manifest": {
-   "path": "config/rules_engines.json",
-   "sha256": "91efa354e40551a607f516b44b20493a7e928eb8cd2b5e877e483f76accb27c8",
-   "git_blob": "86e2b04083944d73e5ab3a273f84fffdff33a6a6"
-  },
-  "bridge_grammar_registry": {
-   "path": "src/commander_lab/engine/rules/protocol.py",
-   "sha256": "f4d391957789fb59e76ba43670e3d913fd36079b642a2d9cc1201f375139b192",
-   "git_blob": "c99875d8218b79104972fc182097dbc759ba2831"
-  },
-  "bridge_client": {
-   "path": "src/commander_lab/engine/rules/bridge.py",
-   "sha256": "8ca8cd8eb1432764167754b317a9cafd5e5f739fed4ef6df950ecd5d8acc8931",
-   "git_blob": "17775137fc4caec5f7a7c778e2ac24c8d713be89"
-  },
-  "full_game_runner": {
-   "path": "src/commander_lab/engine/rules/full_game.py",
-   "sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
-   "git_blob": "4b118ff8f1bedf893ee4801e2a58f4252f24ece0"
-  },
-  "full_game_batch": {
-   "path": "src/commander_lab/engine/rules/full_game_batch.py",
-   "sha256": "6664d33d98c2e7fd0a50a2ed70970357d35e82765c9dbcc69723d71408e7626b",
-   "git_blob": "a7ed0138c61a2ae65b033ce36f34681c8bd1beba"
-  },
-  "h4_handshake_verifier": {
-   "path": "scripts/h4_verify_materialization_evidence.py",
-   "sha256": "1bfa8bd49e5e1d8747d2261cc601899fee32f0d1f2ab4a45a52c8d52b8be33c7",
-   "git_blob": "f418dbc60767dec0f5583fa57c59f48381a1712b"
-  },
-  "pre_freeze_contract_resolver": {
-   "path": "scripts/resolve_pre_freeze_contract.py",
-   "sha256": "fe110ecd03660c92b95bda9354821ea2356447ba649e0f60a766cc8cbacc55d6",
-   "git_blob": "1059167278dc9585a0752780d86e3c0c932fc184"
-  },
-  "engine_bridge_pom": {
-   "path": "engine-bridge/pom.xml",
-   "sha256": "6c41450ff56894260935d2eb24da52d3d04a67e6ce751834bcbdd244bef69db6",
-   "git_blob": "30de012d073b603154438992b198fd7f8d5c5bef"
-  },
-  "xmage_bridge_provider": {
-   "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
-   "sha256": "6b79109059f40642e27aa0e55be065862116f25723387123d348edca2103b20d",
-   "git_blob": "1f2679c9b62f056d4e3f17c0a734c15c4238e088"
-  },
-  "xmage_fullgame_bridge": {
-   "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java",
-   "sha256": "9be05ed3eb52b788bc0d12074e9f7cc1ba15723be3e34b17b106b7d3c9babab5",
-   "git_blob": "7672d69c1db7078ff2e1b086aa2bdc2c81ffcfc4"
-  },
-  "xmage_native_state_restoration": {
-   "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
-   "sha256": "be34367905f6f3f410a9eef3e45c448d78d0705a3edea3be4f746087d3ceab33",
-   "git_blob": "334ae7230094578b3ce155f9f40c4d5c0fb4f4ff"
-  },
-  "xmage_temporal_driver": {
-   "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageTemporalProgressionDriver.java",
-   "sha256": "cec9f02875b7450da877edbcc7634e0998186fc55d11df2d5d445d5c28b0133f",
-   "git_blob": "4454e8193355b0aed64507dcd7c4c02c20124e17"
+  "known_evidence_defects": {
+    "review": "PR #278 automated P1 review, verified in source by the successor workstream",
+    "fabricated_native_suite_promotion": "scripts/assemble_current_boundary_evidence.py defines NATIVE_RUNS as a hard-coded literal and run_native_suite() is never called anywhere, so the assembler promotes rows from UNKNOWN/BLOCKED to PASS without executing a native suite.",
+    "unbound_rules_rng": "game_driver.py accepts a seed parameter that is never placed in the create-game request, while artifacts record requested_seed and engine_owned=true.",
+    "unobserved_verification": "AF01 action probes omit game_id and precede game creation; the START-2 check reads the fixture's required-event list; AF03 PASS is unconditional with no negative deck-import probe; a whole-source regex promotes rows on any fixture-ID mention.",
+    "unenforced_timeout": "bridge_launcher applies no deadline to the blocking readline(), so a stalled provider hangs instead of yielding TIMEOUT.",
+    "consequence": "Any PASS produced by the assembler rather than observed is not admissible evidence. The previously reported same-semantics denominator is an upper bound.",
+    "disposition": "PR #278 not merged; PR #269 not superseded; remediation is a separate bounded workstream. See docs/pre_freeze_completion_20260927/WSR22_EVIDENCE_INTEGRITY.md."
   }
- },
- "historical_wsr21_reference": {
-  "branch": "wsr21/final-provider-cdq-20260927",
-  "remote_tip_expected": "c57048922c6649891cb1bbe455b37b2fcde15586",
-  "role": "PROVENANCE_AND_DONOR_ONLY"
- },
- "historical_wsr20_reference": {
-  "repository": "moeendres-png/forge",
-  "evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
-  "role": "PROVENANCE_AND_DONOR_ONLY"
- },
- "candidate_identities": {
-  "xmage_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
-  "xmage_lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
-  "forge_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-  "forge_tree": "fc3387bf37aab19d780b2939a235309ed32b0492"
- },
- "execution_identities": {},
- "official_rules_authority_receipt_after_gate1": "qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json"
 }

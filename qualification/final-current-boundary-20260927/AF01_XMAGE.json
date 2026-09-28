@@ -36,6 +36,19 @@
   "target_selection_supported": false,
   "trigger_order_supported": false
  },
+ "decision_probe_game": {
+  "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+  "decisions_observed": 1,
+  "game_id": "wsr22-xmage-2p-7061fc4b",
+  "player_count": 2,
+  "steps_completed": [
+   "handshake",
+   "import_deck",
+   "create_commander_game",
+   "start_game",
+   "decision_drive"
+  ]
+ },
  "engine_commit_provenance": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
  "engine_commit_reported": "b19596980f2734496ea1896504253e1bdd2756dd",
  "engine_identity": {
@@ -91,9 +104,9 @@
    "detail": "every response echoed the exact request_id",
    "evidence": {
     "request_ids": {
-     "get_capabilities": "ddde762a-7685-473f-9370-025ec635b44b",
-     "get_provider_version": "0a801b31-7849-41ac-ae1b-270bf90fee2b",
-     "start_engine": "04d8cad7-df81-4720-8dcf-1630dd77fe3d"
+     "get_capabilities": "03d3baf0-210e-424d-97c6-7bdf0197e180",
+     "get_provider_version": "10efd62e-ccb0-4971-8c2b-ac380f69fbcf",
+     "start_engine": "dbc2ca7a-afb2-467d-90c6-a9b6f343cf9a"
     }
    },
    "invariant": "request_id_matches",
@@ -196,8 +209,13 @@
   },
   {
    "af01_v2_clause": "transport.legacy_alias_only_handshake_satisfies_af01=false",
-   "detail": "AF01 credit was taken only from the canonical protocol-2 messages; any legacy alias response observed during probing was recorded but never used for credit",
+   "detail": "the legacy alias handshake was probed and its response recorded, and the credit-bearing payload set contains only the canonical protocol-2 responses",
    "evidence": {
+    "credit_bearing_messages": [
+     "get_capabilities",
+     "get_provider_version",
+     "start_engine"
+    ],
     "engine_hello": {
      "engine_event_offset": 0,
      "errors": [
@@ -208,10 +226,11 @@
       }
      ],
      "protocol_version": "2.0.0",
-     "request_id": "2db4afb7-754b-4882-a077-6fa01a42fa77",
+     "request_id": "aee2fcaf-131b-4bea-bceb-1d9fe1171d22",
      "status": "error",
      "success": false
     },
+    "legacy_alias_in_credit_set": false,
     "legacy_alias_responded": false
    },
    "invariant": "legacy_alias_handshake_not_accepted",
@@ -230,7 +249,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "59ad9c31-463f-4ded-a2ee-eafe04346ec9",
+    "request_id": "f9c8ec76-9562-446e-9895-698ce64e8a9e",
     "status": "error",
     "success": false
    },
@@ -250,7 +269,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "a8f82919-4e6d-4b65-b40b-f0c2b0f29cca",
+    "request_id": "6dc76a5e-a33a-436c-af97-25439570da9a",
     "status": "error",
     "success": false
    },
@@ -259,63 +278,92 @@
   },
   {
    "af01_v2_clause": "fail_closed_invariants.illegal_action",
-   "detail": "provider rejected an unrecognised legal_action_id",
+   "detail": "provider rejected an unrecognised legal_action_id for a live game",
    "evidence": {
-    "engine_event_offset": 0,
-    "errors": [
-     {
-      "code": "invalid_submit_action_payload",
-      "message": "IllegalArgumentException: game_id must be nonblank",
-      "retryable": false
-     }
-    ],
-    "protocol_version": "2.0.0",
-    "request_id": "fb9bcffe-8506-41ed-88ea-617c4596c81d",
-    "status": "error",
-    "success": false
+    "game_id": "wsr22-xmage-2p-7061fc4b",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "invalid_submit_action_payload",
+       "message": "SUBMIT_ACTION requires payload.proposal",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "a5f7fafa-23d0-4e80-9aa0-192f148d6762",
+     "status": "error",
+     "success": false
+    }
    },
    "invariant": "fail_closed_illegal_action",
    "verdict": "PASS"
   },
   {
    "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
-   "detail": "provider rejected an unknown decision identity",
+   "detail": "provider rejected an unknown decision identity for a live game",
    "evidence": {
-    "engine_event_offset": 0,
-    "errors": [
-     {
-      "code": "invalid_submit_action_payload",
-      "message": "IllegalArgumentException: game_id must be nonblank",
-      "retryable": false
-     }
-    ],
-    "protocol_version": "2.0.0",
-    "request_id": "0348fa6e-44a7-4475-8a39-7850a981eb1b",
-    "status": "error",
-    "success": false
+    "game_id": "wsr22-xmage-2p-7061fc4b",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "invalid_submit_action_payload",
+       "message": "SUBMIT_ACTION requires payload.proposal",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "a010e19d-8896-4c3f-8283-cdb18740e56e",
+     "status": "error",
+     "success": false
+    }
    },
    "invariant": "fail_closed_stale_or_unknown_decision",
    "verdict": "PASS"
   },
   {
    "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
-   "detail": "an unsupported decision class failed closed without a default option",
+   "detail": "an unsupported decision class did not fail closed for a live game",
    "evidence": {
-    "engine_event_offset": 0,
-    "errors": [
-     {
-      "code": "invalid_legal_actions_payload",
-      "message": "IllegalArgumentException: game_id must be nonblank",
-      "retryable": false
-     }
-    ],
-    "protocol_version": "2.0.0",
-    "request_id": "0302f627-c2f3-4a18-95b2-4012717666be",
-    "status": "error",
-    "success": false
+    "game_id": "wsr22-xmage-2p-7061fc4b",
+    "response": {
+     "engine_event_offset": 3,
+     "payload": {
+      "actions": [
+       {
+        "action_id": "9181d2b900a999211dfb53cb01e34a72532ca28cfbacf5e79d7fec0476716e49",
+        "action_type": "pass_priority",
+        "actor_id": "991e7084-9e76-4a46-9032-5e3039e6c7d2",
+        "allowed_target_ids": [],
+        "choices_schema": {},
+        "cost": {},
+        "metadata": {
+         "decision_id": "e393e708b80f6c10c7798dd157673ff43ae4efccb46ec3bbcd060e8fdd7f5c10",
+         "submission_ready": true
+        },
+        "modes": [],
+        "source_object_id": null,
+        "target_ids": []
+       }
+      ],
+      "actor_id": "991e7084-9e76-4a46-9032-5e3039e6c7d2",
+      "complete": true,
+      "decision_id": "e393e708b80f6c10c7798dd157673ff43ae4efccb46ec3bbcd060e8fdd7f5c10",
+      "decision_kind": "priority",
+      "decision_offset": 3,
+      "engine_game_id": "d7db427c-6923-4fd8-bb31-dd62d58285b5",
+      "game_id": "wsr22-xmage-2p-7061fc4b",
+      "global_capability_promoted": false
+     },
+     "protocol_version": "2.0.0",
+     "request_id": "b6c30a08-c680-48dd-a36a-22d37a5462db",
+     "status": "ok",
+     "success": true
+    }
    },
    "invariant": "fail_closed_unsupported_decision",
-   "verdict": "PASS"
+   "verdict": "FAIL"
   },
   {
    "af01_v2_clause": "rules_authority_invariants.rules_core_sole_legality_authority",
@@ -328,19 +376,29 @@
   },
   {
    "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
-   "detail": "the Lab qualification runner contains no legality reconstruction: it only transports the request, reads the provider response, and classifies it",
+   "detail": "a scan of 11 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
    "evidence": {
-    "runner_commit": "dfb490e268b40dba7315a3fb53861eb2580d8baa",
-    "runner_tree": "504a5f296a68bd1c60828eb54538b577021aac7e"
+    "runner_commit": "1c8de8e34775ed66786b40c8e59358b493850cfb",
+    "runner_tree": "aa923dd9126fb8b42e56303ff5d5d461ef60b410",
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 11
+    }
    },
    "invariant": "no_adapter_legality_reconstruction",
    "verdict": "PASS"
   },
   {
    "af01_v2_clause": "rules_authority_invariants.fabricated_legal_options_forbidden",
-   "detail": "no legal option is ever synthesised by the runner; option sets are only ever read from get_legal_actions/get_capabilities payloads",
+   "detail": "the same bound-source scan is the evidence; option sets are only ever read from provider payloads, and the live illegal-action probe returned no options",
    "evidence": {
-    "probe": "illegal action probe returned no options"
+    "fabricated_options": 0,
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 11
+    }
    },
    "invariant": "no_fabricated_legal_options",
    "verdict": "PASS"
@@ -362,10 +420,10 @@
   "AF01 PASS does not imply provider release eligibility",
   "AF01 PASS does not select a provider or claim Architecture Freeze"
  ],
- "protocol_transcript_digest": "8c6a97ddccbb2c4421af015017fb19b04ac68f934d128ebe676a51ccd00e99bb",
+ "protocol_transcript_digest": "72ccae6b02b2c0f049d33ed0d1653d7bb4f3a7b80047065e892590420d8b1035",
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af01-current-boundary/1.0.0",
  "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
  "transport_protocol": "2.0.0",
- "verdict": "UNKNOWN"
+ "verdict": "FAIL"
 }

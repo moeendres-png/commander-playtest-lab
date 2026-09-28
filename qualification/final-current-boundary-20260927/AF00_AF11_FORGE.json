@@ -2,13 +2,13 @@
  "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
  "candidate": "forge",
  "full107_counts": {
-  "BLOCKED": 7,
+  "BLOCKED": 44,
   "CRASH": 0,
   "FAIL": 0,
-  "PASS": 79,
+  "PASS": 4,
   "PROTOCOL_FAILURE": 0,
   "TIMEOUT": 0,
-  "UNKNOWN": 21
+  "UNKNOWN": 59
  },
  "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
  "gates": [
@@ -16,6 +16,7 @@
    "blocking_rows": [],
    "evidence": [
     "candidate commit reported by the provider at handshake: ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "commit the evidence is required to be about: ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "engine_commit provenance: env:FORGE_ENGINE_SHA",
     "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
    ],
@@ -38,12 +39,115 @@
    "verdict": "PASS"
   },
   {
+   "all_or_nothing": true,
    "blocking_rows": [],
    "evidence": [
-    "independent live lifecycles executed at ['2P', '3P', '4P', '5P']",
-    "bounded 6P lifecycle also executed: True"
+    "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "counts with a complete lifecycle: [2, 3, 4, 5]",
+    "counts without one: []",
+    "bounded 6P lifecycle recorded: True"
    ],
    "gate": "AF02",
+   "lifecycle_assessment": {
+    "all_or_nothing": true,
+    "complete_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "detail": {
+     "2P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "3P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "4P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "5P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     }
+    },
+    "incomplete_counts": [],
+    "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "required_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "verdict": "PASS"
+   },
    "name": "PLAYER_CARDINALITY",
    "nonblocking_limitations": [
     "6P is bounded secondary evidence; 7P is not attempted on this boundary"
@@ -51,17 +155,25 @@
    "verdict": "PASS"
   },
   {
-   "blocking_rows": [],
+   "authority": "ENGINE_ONLY",
+   "blocking_rows": [
+    "commander_not_in_pool",
+    "colour_identity_violation"
+   ],
    "evidence": [
-    "the engine rejected an illegal Commander colour identity during deck import (proving the engine owns deck legality, not the harness)",
-    "the engine rejected unknown card names by name",
-    "out-of-scope submissions produced no fabricated legal option",
-    "runner contains no legality reconstruction"
+    "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_non_commander: FAIL (the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules)",
+    "deck_import_rejects_colour_identity_violation: FAIL (the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules)",
+    "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
    ],
    "gate": "AF03",
    "name": "RULES_AUTHORITY",
-   "nonblocking_limitations": [],
-   "verdict": "PASS"
+   "nonblocking_limitations": [
+    "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+   ],
+   "observed_probe_count": 5,
+   "verdict": "FAIL"
   },
   {
    "blocking_rows": [],
@@ -79,19 +191,31 @@
   },
   {
    "blocking_rows": [
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
     "HIDDEN_05",
     "HIDDEN_06",
+    "HIDDEN_07",
     "HIDDEN_08",
     "HIDDEN_09",
+    "HIDDEN_10",
     "HIDDEN_11",
     "HIDDEN_12",
     "HIDDEN_13",
-    "HIDDEN_19"
+    "HIDDEN_14",
+    "HIDDEN_15",
+    "HIDDEN_16",
+    "HIDDEN_17",
+    "HIDDEN_18",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL"
    ],
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_FORGE.json",
-    "native hidden/replay suites green: 217 tests"
+    "native hidden/replay suites green: 0 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -102,16 +226,53 @@
   },
   {
    "blocking_rows": [
+    "MICRO_COMBAT",
+    "MICRO_CONTINUOUS_EFFECTS",
+    "MICRO_CONTROL",
     "MICRO_COPY",
     "MICRO_COSTS",
+    "MICRO_MANA_PAYMENT",
     "MICRO_MODES",
+    "MICRO_PREVENTION",
+    "MICRO_PRIORITY",
     "MICRO_REPLACEMENT",
+    "MICRO_RULES_RANDOMNESS",
+    "MICRO_STACK",
+    "MICRO_STATE_BASED_ACTIONS",
+    "MICRO_TRIGGERS",
     "MICRO_ZONE_CHANGES",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
     "WS05-MP-BLOCK-4",
-    "WS05-MP-COMBAT-4"
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
    ],
    "evidence": [
-    "79 of 107 rows PASS under the effective v1.0.6 contract; 7 BLOCKED; 21 UNKNOWN"
+    "4 of 107 rows PASS under the effective v1.0.6 contract; 44 BLOCKED; 59 UNKNOWN"
    ],
    "gate": "AF06",
    "name": "GENERAL_RULES_CORRECTNESS",
@@ -135,8 +296,33 @@
   },
   {
    "blocking_rows": [
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
     "WS05-MP-BLOCK-4",
-    "WS05-MP-COMBAT-4"
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
    ],
    "evidence": [
     "cardinality lifecycles at 2P/3P/4P/5P",
@@ -151,7 +337,11 @@
   },
   {
    "blocking_rows": [
-    "REPLAY_CLEAN_PROCESS"
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_STATE_HASHES",
+    "RNG_RULES_TAPE"
    ],
    "evidence": [
     "replay export executed in a live game (RNG_REPLAY_FORGE.json)",
@@ -169,7 +359,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 217 tests, all green"
+    "native suites: 0 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -193,41 +383,28 @@
  ],
  "native_runs": {
   "direct": {
-   "classes": [
-    "WsR20Full107DenominatorTest",
-    "WS233CardinalityTest",
-    "WS227SemanticReplayTest",
-    "WsR15HiddenInfoFamilyTest",
-    "WS234S3BridgeTest",
-    "WS236F4BridgeTest",
-    "WS216GapClosureTest",
-    "WS202ExecutableSurfaceTest",
-    "WS217DividedAllocationTest",
-    "WsR15MulticountCombatTest",
-    "WsR15MulticountTriggerTest",
-    "WsR15DeterminismTwinTest",
-    "WsR15ConcessionFamilyTest",
-    "WsR16SixPlayerFamilyTest",
-    "BridgeEngineTest"
-   ],
+   "candidate": "forge",
+   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
    "errors": 0,
+   "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+   "failed": 0,
    "failures": 0,
+   "passed": 150,
+   "receipt_digest": "9c6fa48298d9aea4b1b037df14a8c10a4bc57673683f74493d560bbd0ef0fa9f",
    "returncode": 0,
    "tests": 150
   },
   "mechanism": {
-   "classes": [
-    "ProtocolTest",
-    "BridgeProtocolProcessTest",
-    "HeadlessGuiFailClosedTest",
-    "WS216SeparateProcessTest",
-    "WS217SeparateProcessTest",
-    "WS227SeparateProcessTest",
-    "WS233CardinalityProcessTest",
-    "WS202SeparateProcessTest"
-   ],
+   "candidate": "forge",
+   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
    "errors": 0,
+   "executed_commit": "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+   "failed": 0,
    "failures": 0,
+   "passed": 67,
+   "receipt_digest": "75434ca19c84e3ebad5a172d296eb0ce4f84680176c352043f26da9218ca9a51",
    "returncode": 0,
    "tests": 67
   }

@@ -1,6 +1,6 @@
 {
   "schema_version": "pre-freeze-contract-successor-source-lock/1.0.0",
-  "workstream": "PRE-FREEZE CONTRACT SUCCESSOR — START-2 + AF01",
+  "workstream": "PRE-FREEZE CONTRACT SUCCESSOR \u2014 START-2 + AF01",
   "repository": "moeendres-png/commander-playtest-lab",
   "base_commit": "58e8fca430651207a87a8f3e9f41d8c6527dd4cd",
   "base_tree": "4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2",
@@ -14,7 +14,7 @@
   },
   "current_inputs": {
     "rules_authority_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
-    "comprehensive_rules_effective_date": "2026-08-07",
+    "comprehensive_rules_effective_date": "2026-09-25",
     "applicable_rule": "103.8a",
     "engine_protocol_source": "config/rules_engines.json#protocol_version",
     "engine_protocol_at_lock": "2.0.0",
@@ -36,7 +36,7 @@
   "integration_rebase": {
     "main_commit": "586914ea10caf1ede3e509908a6b177c4a20d5e7",
     "main_tree": "6d2aab11a5bf432207a96977c9009fb11906c0d0",
-    "main_advance": "PR #257 — Space Bunny Max Foundry execution profile",
+    "main_advance": "PR #257 \u2014 Space Bunny Max Foundry execution profile",
     "impact_classification": "NON_IMPACTING_IMPLEMENTATION_SURFACE_GOVERNANCE_REVIEWED",
     "changed_paths": [
       "AGENTS.md",

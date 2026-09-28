@@ -110,14 +110,5 @@
  "terminal_states": {
   "ARCHITECTURE_FREEZE": "NOT CLAIMED",
   "PRODUCTION_PROVIDER": "NOT SELECTED"
- },
- "muse_successor_reverification": {
-  "date": "2026-09-28",
-  "lane": "muse-xhigh/full-completion",
-  "live_official_page_links_20260925_docx_pdf_txt": true,
-  "live_effective_date_sentence": "These rules are effective as of September 25, 2026.",
-  "live_rule_103_8a_character_identical_to_capture": true,
-  "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL",
-  "repository_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json (schema 1.3.0; prior 1.2.0 receipt preserved as superseded history)"
  }
 }
