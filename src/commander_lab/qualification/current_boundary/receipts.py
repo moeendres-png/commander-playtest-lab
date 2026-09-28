@@ -460,7 +460,7 @@ def positive_fixture_receipts_from_junit_xml(
     candidate: str,
     candidate_commit: str,
     class_name: str,
-    cases: dict[str, tuple[str, str, str] | tuple[tuple[str, str, str], ...]],
+    cases: dict[str, tuple[str, str, str]],
 ) -> tuple[dict[str, Any], ...]:
     """Derive fixture receipts only from exact passing JUnit testcases.
 
@@ -484,31 +484,25 @@ def positive_fixture_receipts_from_junit_xml(
         observed[name] = testcase
 
     rows: list[dict[str, Any]] = []
-    for method, declared in sorted(cases.items()):
+    for method, (fixture_id, obligation, assertion) in sorted(cases.items()):
         testcase = observed.get(method)
         if testcase is None:
             continue
         if any(testcase.find(tag) is not None for tag in ("failure", "error", "skipped")):
             continue
-        bindings: tuple[tuple[str, str, str], ...]
-        if declared and isinstance(declared[0], tuple):
-            bindings = declared  # type: ignore[assignment]
-        else:
-            bindings = (declared,)  # type: ignore[assignment]
-        for fixture_id, obligation, assertion in bindings:
-            rows.append(
-                {
-                    "schema_version": POSITIVE_FIXTURE_RECEIPT_SCHEMA,
-                    "candidate": candidate,
-                    "candidate_commit": candidate_commit,
-                    "fixture_id": fixture_id,
-                    "test_identity": f"{class_name}.{method}",
-                    "outcome": "PASS",
-                    "assertion_kind": "POSITIVE_BEHAVIOUR",
-                    "obligation_exercised": obligation,
-                    "observed_assertion": assertion,
-                }
-            )
+        rows.append(
+            {
+                "schema_version": POSITIVE_FIXTURE_RECEIPT_SCHEMA,
+                "candidate": candidate,
+                "candidate_commit": candidate_commit,
+                "fixture_id": fixture_id,
+                "test_identity": f"{class_name}.{method}",
+                "outcome": "PASS",
+                "assertion_kind": "POSITIVE_BEHAVIOUR",
+                "obligation_exercised": obligation,
+                "observed_assertion": assertion,
+            }
+        )
     return tuple(rows)
 
 
