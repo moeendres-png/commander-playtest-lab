@@ -1,0 +1,687 @@
+{
+ "schema_version": "deepseek.pb07-requalification-matrix/1.1.0",
+ "evaluated_candidate": {
+  "pr": 6,
+  "commit": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
+  "tree": "5fa5b9470ef6dcdc3383c23652f18b81c1abe364"
+ },
+ "denominator": {
+  "count": 29,
+  "source": "commander-playtest-lab/qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json#regression_corpus_29",
+  "order": "Lab order preserved"
+ },
+ "lab_behavior_credit_current": "0/29",
+ "classification_method": "v1.1.0 re-derivation from current source truth: a card is candidate-side covered when a committed behavior test class at the PR #6 head names it. Preparation-only classes (WsR24Pb07ActualCardPreparationTest) and DeckRecognizerTest are excluded. Name mention is necessary, not sufficient; the Lab performs the final impact adjudication.",
+ "counts_v1_preliminary": {
+  "INHERITABLE_AFTER_IMPACT_ADJUDICATION": 11,
+  "FRESH_RUNTIME_REQUIRED": 16,
+  "SPLIT_SURFACE_REQUIRED": 2
+ },
+ "counts": {
+  "INHERITABLE_AFTER_IMPACT_ADJUDICATION": 27,
+  "SPLIT_SURFACE_REQUIRED": 2
+ },
+ "rows": [
+  {
+   "card": "Ishai, Ojutai Dragonspeaker",
+   "obligation_identity": "probe: opponent Memnite cast puts exactly one +1/+1 counter on Ishai",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Rograkh, Son of Rohgahh",
+   "obligation_identity": "BridgeEngineTest commander cast+tax+battlefield; deck-rograkh fixtures",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "BridgeEngineTest",
+    "Ws234S3CardBehaviorTest",
+    "WsR11JeskaBridgeFamilyTest",
+    "WsR20Full107DenominatorTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=BridgeEngineTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR11JeskaBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR20Full107DenominatorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Esior, Wardwing Familiar",
+   "obligation_identity": "probe: hardcast resolves, Flying verified, turn-2 combat evasion deals 1 through ground defenders (p2 40->39); partner mechanism covered by Kediss/Rograkh families, ward unasserted",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Kediss, Emberclaw Familiar",
+   "obligation_identity": "WsR10KedissBridgeFamilyTest",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR10KedissBridgeFamilyTest",
+    "WsR11JeskaBridgeFamilyTest",
+    "WsR15MulticountTriggerTest",
+    "WsR16SixPlayerFamilyTest",
+    "WsR20Full107DenominatorTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR10KedissBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR11JeskaBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR15MulticountTriggerTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR16SixPlayerFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR20Full107DenominatorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Veyran, Voice of Duality",
+   "obligation_identity": "WS236F4BridgeTest + WS234",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "WS236F4BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "Ws236F4SpellcastDiscriminatorTest",
+    "Ws236S1KaervekDrainTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS236F4BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws236F4SpellcastDiscriminatorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws236S1KaervekDrainTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Harmonic Prodigy",
+   "obligation_identity": "WS236F4BridgeTest",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS236F4BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "Ws236F4SpellcastDiscriminatorTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS236F4BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws236F4SpellcastDiscriminatorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Narset, Parter of Veils",
+   "obligation_identity": "probe: hardcast resolves, CantDraw static active (conditions true), Opt scry resolves but extra draw prevented (hand keeps only turn-draw, library untouched). Harness lesson: zone-gated statics need real ETB (pre-placed permanents carry stale LKI).",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest",
+    "WsR6DrawEventFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=WsR6DrawEventFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Jeska, Thrice Reborn",
+   "obligation_identity": "WsR11JeskaBridgeFamilyTest (loyalty-cost shape)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR11JeskaBridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR11JeskaBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Magma Opus",
+   "obligation_identity": "WsR10MagmaBridgeFamilyTest",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR10MagmaBridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR10MagmaBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Wash Away",
+   "obligation_identity": "probe: cleave {1}{U}{U} variant counters a hand-cast Memnite in response (graveyard, never lands)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234CleaveAftermathTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234CleaveAftermathTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Wear // Tear",
+   "obligation_identity": "WsR11FuseBridgeFamilyTest (fuse)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR11FuseBridgeFamilyTest"
+   ],
+   "engine_source_impact": "split-surface (alternate-half enumeration)",
+   "classification": "SPLIT_SURFACE_REQUIRED",
+   "exact_reason": "engine delta touches alternate split-half enumeration; the obligation must be re-observed at the PR #6 engine identity (candidate-side tests exist at the head)",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR11FuseBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Dig Through Time",
+   "obligation_identity": "probe full runtime: delve framed+paid (6 exiled), look-7-pick-2 (21 options), bottom-5 ORDER_CHOICE (120 options), resolution end-state verified",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Flare of Duplication",
+   "obligation_identity": "WsR9RetargetBridgeFamilyTest",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR9RetargetBridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR9RetargetBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Vandalblast",
+   "obligation_identity": "probe: normal and overload ({4}{R}) offered as distinct variants, both fully execute",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest",
+    "WsR8OverloadFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=WsR8OverloadFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Finale of Revelation",
+   "obligation_identity": "WsR9FinaleX10BridgeFamilyTest (X spell)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR9FinaleX10BridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR9FinaleX10BridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Psychosis Crawler",
+   "obligation_identity": "probe: Opt draw drains each opponent to 39 (controller untouched)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "WsR20Full107DenominatorTest",
+    "WsR24Pb07MechanicProbesTest",
+    "WsR6DrawEventFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR20Full107DenominatorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=WsR6DrawEventFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Kaervek the Merciless",
+   "obligation_identity": "probe: opponent Bears (MV 2) burns p2 to 38 via any-target choice",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "Ws236S1KaervekDrainTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws236S1KaervekDrainTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Shriekmaw",
+   "obligation_identity": "probe: hardcast ETB destroy + evoke ({1}{B}) with sacrifice and second ETB verified",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest",
+    "WsR9EvokeFearFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=WsR9EvokeFearFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Butcher of Malakir",
+   "obligation_identity": "probe: Bolt kills own Memnite, each opponent sacrifices exactly their creature (p3 Ornithopter, p4 Walker in graveyards)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Syphon Mind",
+   "obligation_identity": "new multiplayer-discard runtime (this campaign)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Gratuitous Violence",
+   "obligation_identity": "probe: cast + real combat, 1-power attacker deals exactly 2 (p2 40->38)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Bolt Bend",
+   "obligation_identity": "WsR9RetargetBridgeFamilyTest",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR9RetargetBridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR9RetargetBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Makeshift Mannequin",
+   "obligation_identity": "probe: reanimate with mannequin counter verified",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Warstorm Surge",
+   "obligation_identity": "probe: Memnite entry hits p2 for its power (p2 39)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "Ws234S3CardBehaviorTest",
+    "WsR20Full107DenominatorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR20Full107DenominatorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Basilisk Collar",
+   "obligation_identity": "probe: cast + equip + Deathtouch/Lifelink verified",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Burn Down the House",
+   "obligation_identity": "probe: Devils mode creates exactly three Devil tokens",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "WS234S3BridgeTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WS234S3BridgeTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Path of Ancestry",
+   "obligation_identity": "WsR13PathBridgeFamilyTest",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR10PathSimFamilyTest",
+    "WsR13PathBridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=WsR10PathSimFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR13PathBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Find // Finality",
+   "obligation_identity": "probe: front-face Find returns both creatures (runtime); aftermath Finality unoffered though engine grant index surfaces the card and enumerates zero abilities",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED_FRONT_PLUS_ENGINE_GAP",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "DeepseekAftermathDiscoveryTest",
+    "Ws234CleaveAftermathTest",
+    "WsR24Pb07MechanicProbesTest"
+   ],
+   "engine_source_impact": "split-surface (alternate-half enumeration)",
+   "classification": "SPLIT_SURFACE_REQUIRED",
+   "exact_reason": "engine delta touches alternate split-half enumeration; the obligation must be re-observed at the PR #6 engine identity (candidate-side tests exist at the head)",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=DeepseekAftermathDiscoveryTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234CleaveAftermathTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR24Pb07MechanicProbesTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  },
+  {
+   "card": "Boseiju Reaches Skyward // Branch of Boseiju",
+   "obligation_identity": "WsR11BoseijuBridgeFamilyTest: saga cast, chapter-I search, full transform, Branch power tracking (front-face resolution rule)",
+   "obligation_source": "forge-protocol2-bridge/wsr24-evidence-closure/PB07_EVIDENCE.json",
+   "prior_status": "RUNTIME_QUALIFIED",
+   "prior_evidence_class": "RUNTIME_SELF_ASSESSMENT_FORGE_SIDE",
+   "committed_behavior_tests_at_pr6": [
+    "Ws234S3CardBehaviorTest",
+    "WsR11BoseijuBridgeFamilyTest"
+   ],
+   "engine_source_impact": "identity/tree binding only; behavior not semantically touched by the delta",
+   "classification": "INHERITABLE_AFTER_IMPACT_ADJUDICATION",
+   "exact_reason": "committed behavior test class at the PR #6 head names this obligation and ran in the PR #6 CI suites; usable as candidate-side input after identity re-binding, never as Lab behavior credit",
+   "runner_paths": [
+    "mvn -o -pl forge-gui-desktop -am test -Dtest=Ws234S3CardBehaviorTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR11BoseijuBridgeFamilyTest -Dsurefire.failIfNoSpecifiedTests=false -Dcheckstyle.skip=true",
+    "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge"
+   ],
+   "expected_evidence_artifact": "surefire report for the named class at the PR #6 checkout; Lab qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json and FULL107_FORGE_RESULTS.json re-bound to the PR #6 engine identity",
+   "terminal_classification_rules": "PASS only from a fresh runtime observation establishing the obligation and bound to the PR #6 engine identity; FAIL on an observed violation; UNKNOWN if not executed; BLOCKED if no execution seam. Import/construction/readback and Forge unit/native green are candidate-side input only, never Lab credit."
+  }
+ ],
+ "lab_rerun_command": "FORGE_WORKSPACE=<PR6-exact-checkout> PYTHONPATH=$PWD/src <venv>/bin/python scripts/run_current_boundary_qualification.py --candidate forge",
+ "promotion_rule": "No row receives Lab PASS from Forge unit/native tests. Lab credit requires a fresh pinned runtime observation at the exact candidate identity."
+}

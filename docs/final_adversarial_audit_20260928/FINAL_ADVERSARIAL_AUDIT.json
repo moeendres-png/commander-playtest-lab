@@ -1445,6 +1445,17 @@
     "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
     "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
    }
-  ]
+  ],
+  "superseded_by": "PB07_29_ROW_REQUALIFICATION_MATRIX.json (v1.1.0)",
+  "counts_v1_1": {
+   "INHERITABLE_AFTER_IMPACT_ADJUDICATION": 27,
+   "SPLIT_SURFACE_REQUIRED": 2
+  },
+  "correction": "v1 derived from the stale evidence strings (11/16/2); v1.1 re-derived from the PR #6 test sources: the probe class WsR24Pb07MechanicProbesTest and Ws234S3CardBehaviorTest now contain committed behavioral tests and ran in PR #6 CI, so 27 rows are candidate-side inheritable and 2 are split-surface. Lab credit remains 0/29."
+ },
+ "requalification_packet": {
+  "engine_rebinding_receipt": "docs/final_adversarial_audit_20260928/ENGINE_REBINDING_RECEIPT.json",
+  "pb07_matrix": "docs/final_adversarial_audit_20260928/PB07_29_ROW_REQUALIFICATION_MATRIX.json",
+  "human_readable": "docs/final_adversarial_audit_20260928/PB07_REQUALIFICATION_PACKET.md"
  }
 }

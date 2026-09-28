@@ -1,0 +1,114 @@
+{
+ "schema_version": "deepseek.engine-rebinding-receipt/1.0.0",
+ "candidate": "forge",
+ "pr": {
+  "number": 6,
+  "branch": "sol/final-candidate-successor-20260929",
+  "state": "OPEN_DRAFT"
+ },
+ "pr6_commit": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
+ "pr6_full_tree": "5fa5b9470ef6dcdc3383c23652f18b81c1abe364",
+ "pr6_forge_game_main_source_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+ "predecessor_rules_core": {
+  "commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "tree": "fc3387bf37aab19d780b2939a235309ed32b0492"
+ },
+ "predecessor_bridge_evidence": {
+  "commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+  "tree": "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
+ },
+ "modules_identical_main_source_trees": [
+  "forge-core",
+  "forge-ai",
+  "forge-gui",
+  "forge-gui-desktop",
+  "adventure-editor"
+ ],
+ "modules_differing_main_source_trees": [
+  "forge-game"
+ ],
+ "module_trees": [
+  {
+   "module": "forge-game",
+   "tree_at_predecessor_ef958": "52dbce54a844422a8569f6a84bba7fedf178c700",
+   "tree_at_pr6": "3d31b13fbc8db6963998af551724ea3ff775f625",
+   "identical": false
+  },
+  {
+   "module": "forge-core",
+   "tree_at_predecessor_ef958": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+   "tree_at_pr6": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+   "identical": true
+  },
+  {
+   "module": "forge-ai",
+   "tree_at_predecessor_ef958": "3e500340675e9030cc56f38f5560e286f03defef",
+   "tree_at_pr6": "3e500340675e9030cc56f38f5560e286f03defef",
+   "identical": true
+  },
+  {
+   "module": "forge-gui",
+   "tree_at_predecessor_ef958": "8e5f32179943df1d824597e219617f21627b1881",
+   "tree_at_pr6": "8e5f32179943df1d824597e219617f21627b1881",
+   "identical": true
+  },
+  {
+   "module": "forge-gui-desktop",
+   "tree_at_predecessor_ef958": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+   "tree_at_pr6": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+   "identical": true
+  },
+  {
+   "module": "adventure-editor",
+   "tree_at_predecessor_ef958": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+   "tree_at_pr6": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+   "identical": true
+  }
+ ],
+ "engine_change": {
+  "files": [
+   "forge-game/src/main/java/forge/game/card/Card.java"
+  ],
+  "insertions": 24,
+  "summary": "alternate split-card state enumeration in getAllPossibleAbilities"
+ },
+ "lab_verify_engine_identity": {
+  "raised": true,
+  "exception_type": "ReceiptError",
+  "message": "CANDIDATE_IDENTITY_DIVERGENCE: forge PR6 engine records ef958ee91ac6 but executes at 6f70e32e8102, and the engine is not provably the same: differing=['forge-game'] one_sided=[] compared=6. No credit."
+ },
+ "rules_core_main_source_trees_identical": false,
+ "statement": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL = FALSE for this successor: forge-game's main-source tree differs from the predecessor Rules Core ef958. The bridge-only-descendant equivalence does not cover PR #6 and identity validation was not weakened.",
+ "evidence_invalidated": [
+  "native-forge-direct.json and native-forge-mechanism.json: their engine identity proof (RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL ef958) does not hold for the PR #6 engine tree",
+  "SOURCE_LOCK.json forge engine binding FORGE_CANDIDATE_COMMIT=ef958 and every engine-identity-derived field",
+  "AF00/PB-05 provenance credit conditioned on the ef958 engine identity",
+  "FULL107_FORGE_RESULTS.json runtime_identity rows (engine_candidate_commit ef958, adapter_commit e15f37d6) and any row claiming the old engine identity",
+  "PROVIDER_READINESS_PACKET Forge identity table and native receipt table"
+ ],
+ "evidence_surviving_impact_adjudication": [
+  "XMage evidence and XMage candidate identity (untouched by the Forge engine change)",
+  "Lab harness/runner code and its tests (no semantic dependency on the change)",
+  "Non-split actual-card obligations: the engine delta only adds alternate split-half abilities, so non-split runtime behavior is semantically unaffected; their prior outcomes may be reused as candidate-side input once re-bound to PR #6 identity",
+  "Committed split-family tests re-executed at the PR #6 head in CI (WsR11FuseBridgeFamilyTest, WsR11BoseijuBridgeFamilyTest, desktop suite)"
+ ],
+ "native_suite_receipts_requiring_rebinding": [
+  {
+   "receipt": "qualification/final-current-boundary-20260927/receipts/native-forge-direct.json",
+   "recorded_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "recorded_executed_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+   "action": "re-execute at the PR #6 checkout and re-bind candidate/executed identity"
+  },
+  {
+   "receipt": "qualification/final-current-boundary-20260927/receipts/native-forge-mechanism.json",
+   "recorded_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "recorded_executed_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+   "action": "re-execute at the PR #6 checkout and re-bind candidate/executed identity"
+  }
+ ],
+ "rebinding_values_for_lab_source_lock": {
+  "FORGE_CANDIDATE_COMMIT_after_rebinding": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
+  "FORGE_CANDIDATE_TREE_after_rebinding": "5fa5b9470ef6dcdc3383c23652f18b81c1abe364",
+  "note": "values are proposals for the Lab owner; this packet does not mutate any shared Lab surface"
+ }
+}
