@@ -27,6 +27,11 @@ import os
 import subprocess
 from pathlib import Path
 
+try:
+    from .source_lock import _no_url_rewrites, is_canonical_remote, remote_url_records
+except ImportError:
+    from source_lock import _no_url_rewrites, is_canonical_remote, remote_url_records
+
 REACHABLE_INSTRUCTION_FILES = ("AGENTS.md", "CLAUDE.md")
 REACHABLE_CONFIG_FILES = ("opencode.json", "opencode.jsonc")
 REACHABLE_DIRS = (".opencode", ".claude")
@@ -84,7 +89,7 @@ def check(
 
     # 1. repository identity.
     try:
-        url = _run(["git", "config", "--get", "remote.origin.url"], target_real)
+        urls = remote_url_records(target_real)
     except RuntimeError as exc:
         return {
             "profile": profile.get("profile"),
@@ -95,15 +100,34 @@ def check(
             ],
             "canonical_policy_hash": None,
         }
-    if profile.get("repo_slug", "") not in url:
+    if len(urls) != 1 or not is_canonical_remote(urls[0], profile.get("repo_slug", "")):
         findings.append(
             {
                 "surface": "(repo identity)",
                 "classification": "AMBIGUOUS",
-                "detail": f"target remote lacks profile slug {profile.get('repo_slug')!r}",
+                "detail": "target requires one exact canonical remote identity",
             }
         )
         failed = True
+
+    # Literal URL identity alone does not bind Git's effective transport.
+    # Reuse the source-lock primary gate, including system/global/environment
+    # configuration and fail-closed unreadable configuration behavior.
+    try:
+        rewrites_clean = _no_url_rewrites(
+            target_real, dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        rewrites_clean = False
+    if not rewrites_clean:
+        failed = True
+        findings.append(
+            {
+                "surface": "(repo identity)",
+                "classification": "AMBIGUOUS",
+                "detail": "EFFECTIVE_URL_REWRITE: Git URL rewrites present or unreadable",
+            }
+        )
 
     # 2. reachable instruction surfaces.
     markers: list[str] = profile.get("stale_markers", [])

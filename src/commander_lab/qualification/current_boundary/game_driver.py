@@ -708,20 +708,44 @@ def drive_commander_game(
             # the card, and only the counts can tell the difference.
             actor_seat = frame["seat"] if "frame" in dir() else None
             try:
+                if not isinstance(actor_seat, int) or actor_seat < 0:
+                    raise GameDriveError("acting seat unavailable for principal observation")
+                observer_player_id = f"p{actor_seat + 1}"
                 observed = proc.request(
-                    "get_game_state", {"actor": actor_seat}, game_id=result.game_id
+                    "get_game_state",
+                    {"observer_player_id": observer_player_id},
+                    game_id=result.game_id,
                 )
-                seats = _payload(observed).get("players")
-                mine = [
-                    {
-                        "seat": entry.get("seat"),
-                        "hand_count": entry.get("hand_count"),
-                        "library_count": entry.get("library_count"),
-                        "is_actor": entry.get("is_actor"),
-                    }
-                    for entry in (seats or [])
-                    if isinstance(entry, dict) and entry.get("is_actor") is True
-                ]
+                payload = _payload(observed)
+                state_view = payload.get("state", payload)
+                seats = state_view.get("players") if isinstance(state_view, dict) else None
+                mine = []
+                for entry in seats or []:
+                    if not isinstance(entry, dict) or entry.get("seat") != actor_seat:
+                        continue
+                    raw_zones = entry.get("zones")
+                    zones = raw_zones if isinstance(raw_zones, dict) else {}
+                    hand = zones.get("hand")
+                    library = zones.get("library")
+                    observer_engine_id = payload.get("observer_engine_player_id")
+                    engine_binding_matches = (
+                        isinstance(observer_engine_id, str)
+                        and bool(observer_engine_id)
+                        and entry.get("player_id") == observer_engine_id
+                    )
+                    if not engine_binding_matches:
+                        raise GameDriveError(
+                            "principal observation does not bind to the acting state row"
+                        )
+                    mine.append(
+                        {
+                            "seat": entry.get("seat"),
+                            "hand_count": len(hand) if isinstance(hand, list) else None,
+                            "library_count": (len(library) if isinstance(library, list) else None),
+                            "observer_player_id": payload.get("observer_player_id"),
+                            "engine_id_matches_state_row": True,
+                        }
+                    )
                 result.terminal_facts["observed_actor_zone_counts"] = mine
                 result.terminal_facts["observed_zone_count_source"] = (
                     "ENGINE_REPORTED_PRINCIPAL_SCOPED"

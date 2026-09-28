@@ -11,18 +11,52 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import stat
+import sys
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
 VERDICTS = ("PASS", "FAIL", "UNKNOWN", "NOT_RUN", "PARTIAL")
 
 
-def sha256_of(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
+class ArtifactIndexError(ValueError):
+    """Incomplete or unstable inputs cannot produce an artifact manifest."""
+
+
+def _identity(info: os.stat_result) -> tuple[int, ...]:
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+
+def _snapshot(path: Path) -> tuple[int, str]:
+    """Bind size and hash to one regular-file descriptor; reject observed drift."""
+    before = path.lstat()
+    if not stat.S_ISREG(before.st_mode):
+        raise ArtifactIndexError("artifact is no longer a regular file")
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    fd = os.open(path, flags)
+    with os.fdopen(fd, "rb") as handle:
+        opened = os.fstat(handle.fileno())
+        if not stat.S_ISREG(opened.st_mode) or _identity(before) != _identity(opened):
+            raise ArtifactIndexError("artifact changed before reading")
+        digest = hashlib.sha256()
+        size = 0
         for chunk in iter(lambda: handle.read(65536), b""):
+            size += len(chunk)
             digest.update(chunk)
-    return digest.hexdigest()
+        if (
+            size != opened.st_size
+            or _identity(opened) != _identity(os.fstat(handle.fileno()))
+            or _identity(opened) != _identity(path.lstat())
+        ):
+            raise ArtifactIndexError("artifact changed while reading; stop its writer and retry")
+    return size, digest.hexdigest()
+
+
+def sha256_of(path: Path) -> str:
+    return _snapshot(path)[1]
 
 
 def artifact_index(
@@ -30,25 +64,53 @@ def artifact_index(
     run: str = "UNKNOWN",
     source_sha: str = "UNKNOWN",
     patterns: tuple[str, ...] = ("*",),
+    *,
+    exclude: tuple[str, ...] = (),
 ) -> dict:
+    if not roots or not patterns:
+        raise ArtifactIndexError("at least one existing directory and pattern are required")
+    if any(not p or Path(p).is_absolute() or ".." in Path(p).parts for p in patterns):
+        raise ArtifactIndexError("patterns must be relative and cannot traverse parents")
     entries = []
-    for root in roots:
-        base = Path(root)
-        for pattern in patterns:
-            for path in sorted(base.rglob(pattern)):
-                if not path.is_file() or path.is_symlink():
-                    continue
-                stat = path.stat()
-                entries.append(
-                    {
-                        "name": path.name,
-                        "path": str(path),
-                        "size": stat.st_size,
-                        "sha256": sha256_of(path),
-                        "run": run,
-                        "source_sha": source_sha,
-                    }
-                )
+    seen: set[Path] = set()
+    excluded = {Path(p).resolve() for p in exclude}
+
+    def traversal_error(_error: OSError) -> None:
+        raise ArtifactIndexError("directory traversal failed; verify input access")
+
+    try:
+        bases = []
+        for root in roots:
+            base = Path(root)
+            if base.is_symlink() or not base.is_dir():
+                raise ArtifactIndexError("each root must be an existing non-symlink directory")
+            bases.append(base.resolve(strict=True))
+        for base in sorted(set(bases)):
+            # Keep pathlib's existing rglob semantics (including zero-depth **).
+            # os.walk below independently makes traversal errors explicit.
+            matched = {path for pattern in patterns for path in base.rglob(pattern)}
+            for directory, dirs, files in os.walk(base, onerror=traversal_error, followlinks=False):
+                dirs[:] = sorted(d for d in dirs if not (Path(directory) / d).is_symlink())
+                for name in sorted(files):
+                    path = Path(directory) / name
+                    if path.is_symlink() or path not in matched:
+                        continue
+                    if path in seen or path in excluded:
+                        continue
+                    seen.add(path)
+                    size, digest = _snapshot(path)
+                    entries.append(
+                        {
+                            "name": name,
+                            "path": str(path),
+                            "size": size,
+                            "sha256": digest,
+                            "run": run,
+                            "source_sha": source_sha,
+                        }
+                    )
+    except OSError as exc:
+        raise ArtifactIndexError("artifact input unavailable; verify access and retry") from exc
     entries.sort(key=lambda e: e["path"])
     return {
         "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -56,6 +118,23 @@ def artifact_index(
         "source_sha": source_sha,
         "artifacts": entries,
     }
+
+
+def _write_manifest(output: Path, text: str) -> None:
+    """Publish only a complete manifest, replacing the prior file atomically."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=output.parent, prefix=".artifact-index-", delete=False
+        ) as handle:
+            temporary = Path(handle.name)
+            handle.write(text + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, output)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def handoff_skeleton(
@@ -101,9 +180,28 @@ def main(argv: list[str] | None = None) -> int:
     rep.add_argument("--output", default=None)
     args = parser.parse_args(argv)
     if args.command == "artifact-index":
-        if not args.root:
-            raise SystemExit("--root is required at least once")
-        payload = artifact_index(args.root, args.run, args.source_sha)
+        try:
+            output = Path(args.output).absolute() if args.output else None
+            if output is not None and output.is_symlink():
+                raise ArtifactIndexError("output cannot be a symlink")
+            payload = artifact_index(
+                args.root,
+                args.run,
+                args.source_sha,
+                exclude=(str(output),) if output is not None else (),
+            )
+            text = json.dumps(payload, indent=2, sort_keys=True)
+            if output is not None:
+                _write_manifest(output, text)
+            else:
+                print(text)
+        except (ArtifactIndexError, OSError):
+            print(
+                "ARTIFACT_INDEX_FAIL: incomplete, unstable, or inaccessible input/output; verify paths and stop artifact writers before retrying",
+                file=sys.stderr,
+            )
+            return 1
+        return 0
     else:
         results = json.loads(Path(args.results).read_text(encoding="utf-8")) if args.results else []
         payload = handoff_skeleton(args.workstream, json.loads(args.source_lock), results)

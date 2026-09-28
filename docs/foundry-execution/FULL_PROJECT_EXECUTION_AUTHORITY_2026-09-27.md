@@ -14,21 +14,28 @@ approval gates.
 Within the active campaign/workstream and after verifying current Source Truth and
 ownership, the executor may autonomously:
 
-- create/switch branches and create/remove worktrees;
+- create/switch owned branches and create isolated worktrees;
 - edit source/tests/docs/configuration and make commits;
 - push owned branches;
 - create, update, comment on, close, and merge pull requests;
 - create/update/close project issues;
 - use mutating GitHub API operations required for repository-scoped project work;
-- merge/rebase/cherry-pick integration branches;
+- integrate owned branches by normal merge/cherry-pick;
 - rerun/fix CI and qualification;
-- delete proven-superseded campaign branches/worktrees after unique-content preservation;
+- preserve retained branches/worktrees and unique-content provenance;
 - continue across successive pre-Freeze workstreams without asking for routine approval.
 
 Foundry launcher, writer-lock, and `safe_push.py` remain useful verification tools but
 are not mandatory authority gates when they conflict with this current direct
 authorization. A worker must not fabricate a lock or claim a wrapper PASS it did not
 obtain.
+
+## Root Git authority
+
+`AGENTS.md` sections 10-11 are the single root Git authority. This summary grants
+no additional rebase, history-rewrite, destructive branch/worktree deletion or
+force-push authority. Current user instructions, ownership and configured
+permissions remain binding. Historical broader wording is superseded.
 
 ## Still binding
 

@@ -1,0 +1,87 @@
+[
+  {
+    "donor": "artifact-index",
+    "sha": "07696f99d4e95dc0a1751e0e8c483390f6ba3e99",
+    "classification": "STILL_VALUABLE_PORT",
+    "base_equivalence": "current main production file byte-identical to donor parent",
+    "ported_paths": [
+      "tools/foundry/evidence.py",
+      "tests/foundry/test_artifact_index_integrity.py",
+      "docs/foundry-execution/ARTIFACT_INDEX_INTEGRITY.md"
+    ],
+    "source_blobs": {
+      "tools/foundry/evidence.py": "fe949e4c0cd7df519f7c0d7d798ef43b3b4c9d3a5ba509656d52170c4671f0d8",
+      "tests/foundry/test_artifact_index_integrity.py": "101f4368486dbef7c90b3c13bfb383ac3ce8eba1a8b954b09d7293a283423304",
+      "docs/foundry-execution/ARTIFACT_INDEX_INTEGRITY.md": "56a8f8024eb2deb9cd12f55bb8c9a0d481eb49b7e1d7437cdf3261e05d6e6b80"
+    },
+    "evidence": "sealed committed objects read only; no historical test PASS transferred"
+  },
+  {
+    "donor": "capsule-error-privacy",
+    "sha": "bef7e18ba29f3f359074277defa6e17b8a742f7e",
+    "classification": "STILL_VALUABLE_PORT",
+    "base_equivalence": "current main production file byte-identical to donor parent",
+    "ported_paths": [
+      "tools/foundry/context_capsule.py",
+      "tests/foundry/test_capsule_error_privacy.py",
+      "docs/foundry-execution/CAPSULE_ERROR_PRIVACY.md"
+    ],
+    "source_blobs": {
+      "tools/foundry/context_capsule.py": "d30ae815b2d900dc0e78e558dc31e6e4d8232a428b03b9be035afae601c7ee64",
+      "tests/foundry/test_capsule_error_privacy.py": "72f96d3c7ee391ee96d6f7b7991cba0c34ef97bd2b88837c0cc1ee7def32230a",
+      "docs/foundry-execution/CAPSULE_ERROR_PRIVACY.md": "25afc721a2c3e2a146f557103e533b8d04ecda71e583e4e5acf7913ca15a32ea"
+    },
+    "evidence": "sealed committed objects read only; no historical test PASS transferred"
+  },
+  {
+    "donor": "failure-cluster",
+    "sha": "0053a6d4379ea1e7146ab7b3c5e32453efe650de",
+    "classification": "STILL_VALUABLE_PORT",
+    "base_equivalence": "current main production file byte-identical to donor parent",
+    "ported_paths": [
+      "tools/foundry/cluster_failures.py",
+      "tests/foundry/test_failure_cluster_integrity.py",
+      "docs/foundry-execution/FAILURE_CLUSTER_INTEGRITY.md"
+    ],
+    "source_blobs": {
+      "tools/foundry/cluster_failures.py": "41d98493ea0f83f375c84f5dab05dbea709999ce6e7db337629b203cfb4f7042",
+      "tests/foundry/test_failure_cluster_integrity.py": "8363d6aa9bcfbb2b6658f137d553546c7613b4d81f9d755e14dd3822fb5c7209",
+      "docs/foundry-execution/FAILURE_CLUSTER_INTEGRITY.md": "ffa82c83b90f390f71189189429005c709dff5c01a3f82e1618b7e0a5db29a55"
+    },
+    "evidence": "sealed committed objects read only; no historical test PASS transferred"
+  },
+  {
+    "donor": "session-stats",
+    "sha": "8d2c0ac1a228f0997620a617818ba6dd144a1f88",
+    "classification": "STILL_VALUABLE_PORT",
+    "base_equivalence": "current main production file byte-identical to donor parent",
+    "ported_paths": [
+      "tools/foundry/session_stats.py",
+      "tests/foundry/test_session_stats_integrity.py",
+      "docs/foundry-execution/SESSION_STATS_INTEGRITY.md"
+    ],
+    "source_blobs": {
+      "tools/foundry/session_stats.py": "b2f60c673f746469e7f79175400c8d98b090b5013c862477a3bec426ff93d084",
+      "tests/foundry/test_session_stats_integrity.py": "5b47ee44d5efcf4696b741b8c8063a7b837b692767517a5deefa603f2ba69d43",
+      "docs/foundry-execution/SESSION_STATS_INTEGRITY.md": "02a4f29574b62570fe57970306c9b4e581f94788b7c250f3820ce726ae3fbd8b"
+    },
+    "evidence": "sealed committed objects read only; no historical test PASS transferred"
+  },
+  {
+    "donor": "test-impact",
+    "sha": "e1b9ad378ac776067d0f6d806dce60ad5b141f00",
+    "classification": "STILL_VALUABLE_PORT",
+    "base_equivalence": "current main production file byte-identical to donor parent",
+    "ported_paths": [
+      "tools/foundry/test_impact.py",
+      "tests/foundry/test_test_impact_inventory.py",
+      "docs/foundry-execution/TEST_IMPACT_INVENTORY.md"
+    ],
+    "source_blobs": {
+      "tools/foundry/test_impact.py": "f44e08d3fef0410f036de5c7fb0ad2c77a15b8e6d2f0306ba62464c0ea9ca459",
+      "tests/foundry/test_test_impact_inventory.py": "97276f4612d2aa93f25a47dbb721860a1940f4b73399d68c9167f5f82ba48fde",
+      "docs/foundry-execution/TEST_IMPACT_INVENTORY.md": "9b7fa7e22a1a3fb0aa5ad973a54cc0de49f31a0754f81a8d9a36a2f001c56689"
+    },
+    "evidence": "sealed committed objects read only; no historical test PASS transferred"
+  }
+]

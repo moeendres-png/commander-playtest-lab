@@ -1095,11 +1095,18 @@ def validate_principal_scoping(
                 }
             )
 
-    # Each observation must mark exactly one actor, and it must be the requester.
+    # Each observation must bind exactly one live principal to the requester.
+    # A provider may do this either with an in-state is_actor marker or with a
+    # response-envelope binding that carries the exact requested external id,
+    # resolved live engine id and seat. The envelope is accepted only when the
+    # resolved engine id equals the player id at that seat in the scoped state;
+    # merely echoing caller input is not enough.
     established_requester: dict[str, bool] = {}
+    actor_seat_by_observation: dict[str, int | None] = {}
     for seat, payload in usable.items():
         players = _players_of(payload)
         established_requester[seat] = False
+        actor_seat_by_observation[seat] = None
         if not players:
             findings.append(
                 {
@@ -1110,16 +1117,65 @@ def validate_principal_scoping(
                 }
             )
             continue
+
+        expected_seat = _seat_index(requested_seats, seat)
         actors = [
             entry for entry in players if isinstance(entry, dict) and entry.get("is_actor") is True
         ]
-        if len(actors) == 1 and _seat_index(requested_seats, seat) == actors[0].get("seat"):
-            # The provider named the observing principal AND it is the seat that
-            # asked. Only then does "a non-actor seat carries content" mean a
-            # leak, and only then can this observation support a demonstrated
-            # defect. The judgement is PER OBSERVATION: a sibling response that
-            # omitted its marker must not downgrade a leak proved here.
+        marker_bound = (
+            len(actors) == 1
+            and expected_seat is not None
+            and actors[0].get("seat") == expected_seat
+        )
+
+        envelope_fields_present = any(
+            key in payload
+            for key in ("observer_player_id", "observer_engine_player_id", "observer_seat")
+        )
+        envelope_bound = False
+        if expected_seat is not None and 0 <= expected_seat < len(players):
+            expected_entry = players[expected_seat]
+            envelope_engine_id = payload.get("observer_engine_player_id")
+            envelope_bound = (
+                isinstance(expected_entry, dict)
+                and payload.get("observer_player_id") == seat
+                and payload.get("observer_seat") == expected_seat
+                and isinstance(envelope_engine_id, str)
+                and bool(envelope_engine_id)
+                and expected_entry.get("player_id") == envelope_engine_id
+            )
+
+        if envelope_fields_present and not envelope_bound:
+            findings.append(
+                {
+                    "check": "observer_binding",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "observer envelope does not bind the requested seat to the "
+                    "live player id present at that seat",
+                }
+            )
+
+        # If both mechanisms are present they may not disagree. A valid
+        # envelope must not be allowed to hide a contradictory in-state actor
+        # marker, nor vice versa.
+        marker_conflicts = bool(actors) and not marker_bound
+        if envelope_bound and marker_conflicts:
+            findings.append(
+                {
+                    "check": "actor_binding_conflict",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "the response envelope binds the requester but the in-state "
+                    "actor marker identifies a different or ambiguous principal",
+                }
+            )
+
+        if marker_bound or (envelope_bound and not marker_conflicts):
             established_requester[seat] = True
+            actor_seat_by_observation[seat] = expected_seat
+            continue
+
         if len(actors) != 1:
             findings.append(
                 {
@@ -1130,8 +1186,8 @@ def validate_principal_scoping(
                 }
             )
             continue
+
         observed_seat = actors[0].get("seat")
-        expected_seat = _seat_index(requested_seats, seat)
         if expected_seat is not None and observed_seat != expected_seat:
             findings.append(
                 {
@@ -1169,7 +1225,14 @@ def validate_principal_scoping(
             exposed = sorted(
                 key for key in _HIDDEN_CONTENT_KEYS if _zone_exposes_content(zones.get(key))
             )
-            if exposed and entry.get("is_actor") is not True:
+            entry_is_actor = entry.get("is_actor") is True
+            if (
+                not entry_is_actor
+                and established_requester.get(seat, False)
+                and actor_seat_by_observation.get(seat) == entry.get("seat")
+            ):
+                entry_is_actor = True
+            if exposed and not entry_is_actor:
                 findings.append(
                     {
                         "check": "no_opponent_hidden_content",
@@ -1251,10 +1314,12 @@ def validate_principal_scoping(
             seat for seat, ok in established_requester.items() if not ok
         ),
         "attribution_rule": "one shared state view across different requesters is a "
-        "conclusive candidate defect, and real content for a KNOWN non-actor is too. Real "
-        "content with no actor marking is unestablished, not a demonstrated leak, because "
-        "the content may be the requester's own. A masked engine leak must never earn engine "
-        "correctness credit, and an undemonstrated one must never be asserted.",
+        "conclusive candidate defect, and real content for a KNOWN non-actor is too. A "
+        "requester may be established by an exact in-state actor marker or by an observer "
+        "envelope whose requested id, live engine id and seat agree with the scoped state. "
+        "Real content without either binding is unestablished, not a demonstrated leak. "
+        "A masked engine leak must never earn engine correctness credit, and an "
+        "undemonstrated one must never be asserted.",
         "credible_as_principal_scoped_evidence": not findings,
         "principals_checked": sorted(usable),
         "distinct_state_views": len(distinct),

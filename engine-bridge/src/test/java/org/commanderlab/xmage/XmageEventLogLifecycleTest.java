@@ -47,7 +47,7 @@ class XmageEventLogLifecycleTest {
         assertEquals("game_started", event(started.log(), 1).get("event_type").getAsString());
         assertEquals(64, started.log().get("log_sha256").getAsString().length());
 
-        XmageGameManager.StateSnapshot beforeState = manager.snapshotState(first.gameHandle());
+        XmageGameManager.StateSnapshot beforeState = manager.snapshotState(first.gameHandle(), "p1");
         assertEquals(2L, beforeState.state().get("event_sequence").getAsLong());
 
         XmageGameManager.LegalActionsSnapshot before = manager.legalActions(first.gameHandle());

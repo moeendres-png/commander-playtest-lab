@@ -72,20 +72,27 @@ def test_driver_observes_engine_reported_zone_counts() -> None:
     assert "observed_actor_zone_counts" in source
     assert "ENGINE_REPORTED_PRINCIPAL_SCOPED" in source
     assert '"get_game_state"' in source
-    # The observation must select only the acting seat, not every player.
-    assert 'entry.get("is_actor") is True' in source
+    assert '"observer_player_id": observer_player_id' in source
+    # The response must be tied back to the exact acting seat.
+    assert 'entry.get("seat") != actor_seat' in source
+    assert "engine_id_matches_state_row" in source
 
 
 def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
-    """A hidden-information guard: record the actor's own counts, never another seat's."""
+    """Record only the acting principal's counts; never persist another live principal id."""
     source = DRIVER.read_text(encoding="utf-8")
-    start = source.index("seats = _payload(observed)")
-    end = source.index("] = mine")
+    start = source.index('observer_player_id = f"p{actor_seat + 1}"')
+    end = source.index('result.terminal_facts["observed_zone_count_source"]')
     block = source[start:end]
-    assert 'entry.get("is_actor") is True' in block
+    assert 'entry.get("seat") != actor_seat' in block
     assert "hand_count" in block
     assert "library_count" in block
-    # The engine's own principal identifier must never be recorded.
-    assert "player_id" not in block
+    assert "engine_id_matches_state_row" in block
+    # The engine id may be used transiently to prove the binding but must not
+    # be stored in the terminal-facts record.
+    mine_start = block.index("mine.append(")
+    mine_block = block[mine_start:]
+    assert '"observer_engine_player_id"' not in mine_block
+    assert '"player_id"' not in mine_block
     # Only the acting seat's entry is kept, never the whole players array.
-    assert "for entry in (seats or [])" in block
+    assert "for entry in seats or []" in block

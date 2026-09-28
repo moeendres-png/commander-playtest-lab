@@ -28,10 +28,8 @@ the same branch + explicit state + evidence. Concurrent writers on the same work
 branch, or semantic surface remain forbidden; parallel profiles require independent
 worktrees/ownership.
 
-The existing `--execution-provider zen` remains a compatibility override for
-`opencode/muse-spark-1.3-contributor-free`. It is separate from
-`--execution-profile space-bunny`; conflicting selections fail closed. See
-`EXECUTION_PROVIDER_OVERRIDE.md` for exact resolution.
+The legacy Zen override is not authorized for new work; historical receipts remain
+provenance. See `EXECUTION_PROVIDER_OVERRIDE.md`.
 
 ## Execution identity policy
 
@@ -44,8 +42,10 @@ Active project work has exactly two supported execution identities:
   This is an explicit alternate for deliberate cross-model work, difficult technical
   adjudication, or continuation where Muse is specifically desired.
 
-The launcher fails closed on mismatched pairs. In particular, Space Bunny with `xhigh`
-or Muse with `high`/`max` is invalid. There is no active-work HIGH lane.
+The required launcher contract rejects mismatched pairs: Space Bunny with `xhigh`
+or Muse with `high`/`max` is invalid. There is no active-work HIGH lane. The current
+launcher does not yet enforce this contract; its foreign-owned implementation gap
+is recorded in `docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json`.
 
 Root `opencode.json` is Space Bunny MAX by default and exposes Muse only at XHIGH.
 The GitHub OpenCode lane is also Space Bunny MAX. No executor fallback occurs on quota,

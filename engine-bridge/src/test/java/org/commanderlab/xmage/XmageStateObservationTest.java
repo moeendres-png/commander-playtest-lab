@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class XmageStateObservationTest {
 
     @Test
-    void realStartedGameProducesTruthfulReadOnlySnapshot()
+    void realStartedGameProducesPrincipalScopedSnapshots()
             throws Exception {
         RuntimeDeck deck = loadRogShaiRuntimeDeck();
         XmageDeckImporter importer = new XmageDeckImporter();
@@ -38,22 +39,36 @@ class XmageStateObservationTest {
 
         assertThrows(
                 XmageGameManager.GameException.class,
-                () -> manager.snapshotState(created.gameHandle())
+                () -> manager.snapshotState(created.gameHandle(), "p1")
         );
 
         manager.startGame(created.gameHandle());
 
-        XmageGameManager.StateSnapshot first =
-                manager.snapshotState(created.gameHandle());
-        XmageGameManager.StateSnapshot second =
-                manager.snapshotState(created.gameHandle());
+        List<String> livePlayerIds = manager.requireGame(created.gameHandle())
+                .getPlayers()
+                .values()
+                .stream()
+                .map(player -> player.getId().toString())
+                .toList();
 
-        assertEquals("b4a-test/state", first.gameId());
-        assertNotNull(first.engineGameId());
-        assertEquals(1L, first.stateObservationOffset());
-        assertEquals(2L, second.stateObservationOffset());
+        XmageGameManager.StateSnapshot p1 =
+                manager.snapshotState(created.gameHandle(), "p1");
+        XmageGameManager.StateSnapshot p2 =
+                manager.snapshotState(created.gameHandle(), "p2");
 
-        JsonObject state = first.state();
+        assertEquals("b4a-test/state", p1.gameId());
+        assertNotNull(p1.engineGameId());
+        assertEquals(1L, p1.stateObservationOffset());
+        assertEquals(2L, p2.stateObservationOffset());
+        assertEquals("p1", p1.observerPlayerId());
+        assertEquals(livePlayerIds.get(0), p1.observerEnginePlayerId());
+        assertEquals(0, p1.observerSeat());
+        assertEquals("p2", p2.observerPlayerId());
+        assertEquals(livePlayerIds.get(1), p2.observerEnginePlayerId());
+        assertEquals(1, p2.observerSeat());
+        assertNotEquals(p1.state(), p2.state(), "different principals need different views");
+
+        JsonObject state = p1.state();
         assertEquals("b4a-test/state", state.get("game_id").getAsString());
         assertTrue(state.get("seed").isJsonNull());
         assertTrue(state.get("rng_counter").isJsonNull());
@@ -61,8 +76,6 @@ class XmageStateObservationTest {
         assertEquals(1, state.get("turn_number").getAsInt());
         assertEquals("beginning", state.get("phase").getAsString());
         assertEquals("upkeep", state.get("step").getAsString());
-        assertNotNull(state.get("active_player_id"));
-        assertNotNull(state.get("priority_player_id"));
 
         JsonArray players = state.getAsJsonArray("players");
         assertEquals(4, players.size());
@@ -75,17 +88,108 @@ class XmageStateObservationTest {
 
             JsonObject zones = player.getAsJsonObject("zones");
             assertEquals(7, zones.getAsJsonArray("hand").size());
-            assertEquals(91, zones.getAsJsonArray("library").size());
+            assertAllHidden(zones.getAsJsonArray("library"), 91);
             assertEquals(2, zones.getAsJsonArray("command").size());
             assertEquals(0, zones.getAsJsonArray("battlefield").size());
             assertEquals(0, zones.getAsJsonArray("graveyard").size());
             assertEquals(0, zones.getAsJsonArray("exile").size());
+
+            if (seat == 0) {
+                assertEquals(livePlayerIds.get(0), player.get("player_id").getAsString());
+                assertNoHidden(zones.getAsJsonArray("hand"), 7);
+                assertTrue(player.getAsJsonObject("mana_pool").size() > 0);
+            } else {
+                assertEquals("op-" + seat, player.get("player_id").getAsString());
+                assertAllHidden(zones.getAsJsonArray("hand"), 7);
+                assertEquals(0, player.getAsJsonObject("mana_pool").size());
+            }
         }
+
+        JsonArray p2Players = p2.state().getAsJsonArray("players");
+        assertEquals("op-0", p2Players.get(0).getAsJsonObject().get("player_id").getAsString());
+        assertEquals(
+                livePlayerIds.get(1),
+                p2Players.get(1).getAsJsonObject().get("player_id").getAsString()
+        );
+        assertAllHidden(
+                p2Players.get(0).getAsJsonObject().getAsJsonObject("zones").getAsJsonArray("hand"),
+                7
+        );
+        assertNoHidden(
+                p2Players.get(1).getAsJsonObject()
+                        .getAsJsonObject("zones")
+                        .getAsJsonArray("hand"),
+                7
+        );
 
         assertEquals(0, state.getAsJsonArray("stack").size());
         assertEquals(0, state.getAsJsonArray("legal_actions").size());
         assertEquals(0, state.getAsJsonArray("winner_ids").size());
         assertEquals(2, state.get("event_sequence").getAsInt());
+    }
+
+    @Test
+    void unknownBlankAndCrossGameObserverIdsFailClosed()
+            throws Exception {
+        RuntimeDeck deck = loadRogShaiRuntimeDeck();
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageGameManager manager = new XmageGameManager(importer);
+
+        XmageGameManager.CreateResult first = manager.createCommanderGame(
+                "b4a-test/observer-first",
+                importCopies(importer, deck, 2),
+                0,
+                40
+        );
+        manager.startGame(first.gameHandle());
+
+        assertThrows(
+                XmageGameManager.GameException.class,
+                () -> manager.snapshotState(first.gameHandle(), "")
+        );
+        assertThrows(
+                XmageGameManager.GameException.class,
+                () -> manager.snapshotState(first.gameHandle(), "unknown-principal")
+        );
+        assertThrows(
+                XmageGameManager.GameException.class,
+                () -> manager.snapshotState(first.gameHandle(), "p3")
+        );
+
+        XmageGameManager.CreateResult second = manager.createCommanderGame(
+                "b4a-test/observer-second",
+                importCopies(importer, deck, 2),
+                1,
+                40
+        );
+        manager.startGame(second.gameHandle());
+        String foreignPlayerId = manager.requireGame(second.gameHandle())
+                .getPlayers()
+                .values()
+                .iterator()
+                .next()
+                .getId()
+                .toString();
+
+        XmageGameManager.GameException foreign = assertThrows(
+                XmageGameManager.GameException.class,
+                () -> manager.snapshotState(first.gameHandle(), foreignPlayerId)
+        );
+        assertTrue(foreign.getMessage().contains("UNKNOWN_OBSERVER_PLAYER_ID"));
+    }
+
+    private static void assertAllHidden(JsonArray values, int expectedCount) {
+        assertEquals(expectedCount, values.size());
+        for (var element : values) {
+            assertEquals("<hidden>", element.getAsString());
+        }
+    }
+
+    private static void assertNoHidden(JsonArray values, int expectedCount) {
+        assertEquals(expectedCount, values.size());
+        for (var element : values) {
+            assertNotEquals("<hidden>", element.getAsString());
+        }
     }
 
     private static List<String> importCopies(
