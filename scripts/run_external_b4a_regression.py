@@ -8,6 +8,7 @@ from pathlib import Path
 
 from commander_lab.engine.rules.base import RulesEngineProtocolError
 from commander_lab.engine.rules.bridge import ExternalRulesAdapter
+from commander_lab.qualification.current_boundary.full107 import validate_principal_scoping
 from commander_lab.models import (
     EngineMessageType,
     GameState,
@@ -237,6 +238,13 @@ def main() -> None:
                 f"B4-A principal views are not independently scoped: {len(canonical_states)} distinct"
             )
 
+        scoping = validate_principal_scoping(raw_views, requested_seats=requested)
+        if scoping.get("verdict") != "PRINCIPAL_SCOPED":
+            raise SystemExit(
+                "B4-A shared qualification validator rejected principal scoping: "
+                + json.dumps(scoping, sort_keys=True)
+            )
+
         engine_ids = {
             principal: str(raw_views[principal]["observer_engine_player_id"])
             for principal in requested
@@ -265,6 +273,9 @@ def main() -> None:
                     "foreign_live_principal_ids_absent": True,
                     "omitted_observer_fails_closed": True,
                     "unknown_observer_fails_closed": True,
+                    "shared_validator_verdict": scoping.get("verdict"),
+                    "shared_validator_attribution": scoping.get("attribution"),
+                    "shared_validator_findings": scoping.get("findings"),
                 },
                 "state_observation_offsets": offsets,
                 "turn_number": first_state.turn_number,
