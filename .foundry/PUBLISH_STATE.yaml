@@ -7,8 +7,8 @@ branch: "sbmax/final-pre-freeze-20260928"
 # than a rewrite: there is no pre-existing remote ref for this branch.
 audit_base_sha: "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd"
 audit_base_tree: "0d5b3f0d9020cc99131dd92a41a9615c61bbac8a"
-state_written_against_head: "57d6bb590fbdb2bf824e68dcc65c355dee21a0fb"
-validated_head: "57d6bb590fbdb2bf824e68dcc65c355dee21a0fb"
+state_written_against_head: "0f42054eae45e0ffe9fa0758bd41129d99280b69"
+validated_head: "0f42054eae45e0ffe9fa0758bd41129d99280b69"
 
 objective: >-
   Final pre-Freeze engineering campaign: drive Commander Simulator Next from the
