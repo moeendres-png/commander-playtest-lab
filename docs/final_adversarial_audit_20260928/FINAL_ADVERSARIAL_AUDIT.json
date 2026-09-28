@@ -985,6 +985,14 @@
    "detail": "At sol/final-candidate-successor-20260929 head 6f70e32e810, WsR24Pb07MechanicProbesTest#testFindAndAftermath fails deterministically with 'unexpected COPY_CHOICE for p1' because the harness does not answer the optional single-entity choice Finality's PutCounter requires. A validated 13-line harness repair makes the class 16/16. Product behavior is correct; the test as committed is not.",
    "status": "OPEN_ON_SUCCESSOR_BRANCH",
    "owner": "sol/final-candidate-successor-20260929"
+  },
+  {
+   "id": "DS-08",
+   "severity": "P1",
+   "title": "PR #6 changes the Rules Core engine tree; the bridge-only equivalence and the ef958 engine binding no longer hold",
+   "detail": "forge-game/src/main/java/forge/game/card/Card.java changed by the Aftermath fix (24 insertions). The Lab own verify_engine_identity(ef958 -> 6f70e32e810) raises CANDIDATE_IDENTITY_DIVERGENCE with differing=[forge-game]. All Lab evidence that relied on bridge-only descendant, engine identical to ef958 (native receipts, engine identity proofs, FORGE_CANDIDATE_COMMIT binding) must be re-bound to the PR #6 engine tree and impact-adjudicated; prior PASS may not be carried forward silently.",
+   "status": "OPEN",
+   "owner": "coordinator/lab-binding"
   }
  ],
  "candidate_specific_facts": {
@@ -1055,49 +1063,50 @@
   "WAIT_FOR_INTEGRATION": true
  },
  "drift_refresh": {
-  "refreshed_at_utc": "2026-09-28T23:05:26Z",
-  "LAST_REFRESHED_MAIN_SHA": "3910040b3ca4eb276f8895fa4c9801af3550f123",
-  "LAST_REFRESHED_MAIN_TREE": "a28d98b29c84342056e5658f8f4423f927999108",
+  "refreshed_at_utc": "2026-09-28T23:43:07Z",
+  "LAST_REFRESHED_MAIN_SHA": "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd",
+  "LAST_REFRESHED_MAIN_TREE": "0d5b3f0d9020cc99131dd92a41a9615c61bbac8a",
   "prior_lock_main": "3910040b3ca4eb276f8895fa4c9801af3550f123",
-  "main_drift": "NONE",
-  "relevant_merged_since_lock": [],
+  "main_drift": "PR_291_MERGED_MUSE_SALVAGE_PB03_ADMISSION; no overlap with docs/final_adversarial_audit_20260928; origin/main merged into the audit branch (369408b9)",
+  "relevant_merged_since_lock": [
+   {
+    "pr": 291,
+    "title": "terminal Muse salvage and PB-03 admission discriminator",
+    "merge_commit": "afe09c61"
+   }
+  ],
   "open_dependencies": [
    {
     "pr": 284,
-    "title": "Final integration: salvage donors and close pre-Freeze provider gaps",
     "head": "46e971c0be3b",
     "classification": "WAIT_FOR_MERGE",
-    "note": "advanced since last refresh; PB-03 integration writer; not raced"
+    "note": "PB-03 integration writer; unchanged"
    },
    {
     "pr": 289,
-    "title": "Final pre-Freeze completion: fresh XMage baseline on merged #283, START-2 repaired",
-    "head": "122e0eb7b3ae",
+    "head": "0d010fe16d0b",
     "classification": "WAIT_FOR_MERGE",
-    "note": "advanced since last refresh; changes the audit basis on merge"
+    "note": "advanced; changes the audit basis on merge"
    },
    {
-    "pr": 288,
-    "title": "Reject Windows junctions in run-manifest artifact inventories",
-    "head": "5cc7b43865ff",
-    "classification": "NON_OVERLAPPING"
+    "pr": 292,
+    "head": "2c1df76fc6a0",
+    "classification": "NON_OVERLAPPING_PB03_LANE",
+    "note": "Muse PB-03 runtime salvage"
    },
    {
     "pr": 290,
-    "title": "Validate run quarantine paths before filesystem mutation",
     "head": "72913be34154",
     "classification": "NON_OVERLAPPING"
    },
    {
-    "pr": 291,
-    "title": "Muse final salvage: integrate PB-03 dimension discriminator and terminal disposition ledge",
-    "head": "2e352c92cffa",
-    "classification": "NON_OVERLAPPING_PB03_LANE"
+    "pr": 288,
+    "head": "5cc7b43865ff",
+    "classification": "NON_OVERLAPPING"
    },
    {
     "pr": 287,
-    "title": "INDEPENDENT DEEPSEEK COMPLETION CANDIDATE \u2014 DO NOT AUTO-MERGE",
-    "head": "08b6b5a9543d",
+    "head": "a84a39d00ce6",
     "classification": "OWN_DRAFT"
    }
   ],
@@ -1111,7 +1120,7 @@
    "integration": "transplanted verbatim into sol/final-candidate-successor-20260929 at 49bcaed6517 (engine) and 6ea3d95357c (test)",
    "successor_caveat": "the successor's added bridge-level test 6f70e32e810 is red at its own head; see DS-07 and the validated minimal harness repair"
   },
-  "exact_next_action": "WAIT_FOR_INTEGRATION: the successor line needs the validated 13-line COPY_CHOICE harness repair (see successor_verification) before its PB-07 Finality test is green; then the 29-card denominator rerun at a pinned Lab head",
+  "exact_next_action": "Coordinator: (1) route the DS-07 13-line harness repair to PR #6; (2) re-bind the Lab engine identity to the PR #6 engine tree and impact-adjudicate native/engine evidence; (3) scope the 29-card Lab rerun: 11 rows are candidate-side inheritable via PR #6 CI, 16 need fresh execution, 2 are split-surface (Wear // Tear green, Find // Finality green after the harness repair). No PB-07 29/29 promotion from Forge unit tests alone.",
   "forge_successor_branch": {
    "name": "sol/final-candidate-successor-20260929",
    "head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
@@ -1140,6 +1149,302 @@
   },
   "notification": {
    "forge_pr_6_comment": "https://github.com/moeendres-png/forge/pull/6#issuecomment-5880329119"
+  },
+  "pr6_ci": {
+   "runs": [
+    "36493997829 (Java 17/21)",
+    "36494002120 (Java 17/21)"
+   ],
+   "result": "FAIL: Test with Java 17 and Java 21 fail; iOS/MobiVM pass",
+   "failure": "forge.bridge.WsR24Pb07MechanicProbesTest.testFindAndAftermath:676 -> drainToResolution:227 -> answerCommon:130 unexpected COPY_CHOICE for p1",
+   "bridge_suite": "301 tests, 1 failure (the same DS-07); desktop suite 456 tests, 0 failures, 6 skipped",
+   "conclusion": "the only red test in the 301-test bridge CI is DS-07; the validated 13-line answerCommon repair makes the class 16/16"
+  },
+  "collateral_checks": {
+   "wear_tear_fuse_at_pr6": {
+    "command": "mvn -o -pl forge-protocol2-bridge -am test -Dtest=WsR11FuseBridgeFamilyTest,WsR11BoseijuBridgeFamilyTest",
+    "result": "6 tests, 0 failures, 0 errors",
+    "coverage": "fused cast destroys both types, Wear-half alone, short-mana fused fails closed at payment decline; Boseiju is AlternateMode:DoubleFaced, not split, so unaffected by the change"
+   },
+   "split_cards_in_29_card_corpus": [
+    "Wear // Tear (Split/Fuse)",
+    "Find // Finality (Split/Aftermath)"
+   ],
+   "desktop_ci": "456 tests, 0 failures, 6 skipped at the PR #6 head (includes UnlockDoorAiTest, simulation/AI split-card tests)"
   }
+ },
+ "pb07_inheritance": {
+  "evaluated_at_head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
+  "split_card_surface": [
+   "Find // Finality",
+   "Wear // Tear"
+  ],
+  "committed_test_classes_found": {
+   "bridge": 39,
+   "desktop": 73
+  },
+  "classification_counts": {
+   "REQUALIFY_AT_PR6_HEAD": 16,
+   "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI": 11,
+   "REQUALIFY_SPLIT_SURFACE_AT_PR6": 2
+  },
+  "rows": [
+   {
+    "card": "Ishai, Ojutai Dragonspeaker",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: opponent Memnite cast puts exactly one +1/+1 counter on Ishai",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Rograkh, Son of Rohgahh",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "BridgeEngineTest commander cast+tax+battlefield; deck-rograkh fixtures",
+    "committed_tests_found_at_pr6": [
+     "BridgeEngineTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Esior, Wardwing Familiar",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: hardcast resolves, Flying verified, turn-2 combat evasion deals 1 through ground defenders (p2 40->39); partner mechanism covered by Kediss/Rograkh families, ward unasserted",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Kediss, Emberclaw Familiar",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR10KedissBridgeFamilyTest",
+    "committed_tests_found_at_pr6": [
+     "WsR10KedissBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Veyran, Voice of Duality",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WS236F4BridgeTest + WS234",
+    "committed_tests_found_at_pr6": [
+     "WS236F4BridgeTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Harmonic Prodigy",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WS236F4BridgeTest",
+    "committed_tests_found_at_pr6": [
+     "WS236F4BridgeTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Narset, Parter of Veils",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: hardcast resolves, CantDraw static active (conditions true), Opt scry resolves but extra draw prevented (hand keeps only turn-draw, library untouched). Harness lesson: zone-gated statics need real ETB (pre-placed permanents carry stale LKI).",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Jeska, Thrice Reborn",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR11JeskaBridgeFamilyTest (loyalty-cost shape)",
+    "committed_tests_found_at_pr6": [
+     "WsR11JeskaBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Magma Opus",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR10MagmaBridgeFamilyTest",
+    "committed_tests_found_at_pr6": [
+     "WsR10MagmaBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Wash Away",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: cleave {1}{U}{U} variant counters a hand-cast Memnite in response (graveyard, never lands)",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Wear // Tear",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR11FuseBridgeFamilyTest (fuse)",
+    "committed_tests_found_at_pr6": [
+     "WsR11FuseBridgeFamilyTest"
+    ],
+    "classification": "REQUALIFY_SPLIT_SURFACE_AT_PR6",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Dig Through Time",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe full runtime: delve framed+paid (6 exiled), look-7-pick-2 (21 options), bottom-5 ORDER_CHOICE (120 options), resolution end-state verified",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Flare of Duplication",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR9RetargetBridgeFamilyTest",
+    "committed_tests_found_at_pr6": [
+     "WsR9RetargetBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Vandalblast",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: normal and overload ({4}{R}) offered as distinct variants, both fully execute",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Finale of Revelation",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR9FinaleX10BridgeFamilyTest (X spell)",
+    "committed_tests_found_at_pr6": [
+     "WsR9FinaleX10BridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Psychosis Crawler",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: Opt draw drains each opponent to 39 (controller untouched)",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Kaervek the Merciless",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: opponent Bears (MV 2) burns p2 to 38 via any-target choice",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Shriekmaw",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: hardcast ETB destroy + evoke ({1}{B}) with sacrifice and second ETB verified",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Butcher of Malakir",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: Bolt kills own Memnite, each opponent sacrifices exactly their creature (p3 Ornithopter, p4 Walker in graveyards)",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Syphon Mind",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "new multiplayer-discard runtime (this campaign)",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Gratuitous Violence",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: cast + real combat, 1-power attacker deals exactly 2 (p2 40->38)",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Bolt Bend",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR9RetargetBridgeFamilyTest",
+    "committed_tests_found_at_pr6": [
+     "WsR9RetargetBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Makeshift Mannequin",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: reanimate with mannequin counter verified",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Warstorm Surge",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: Memnite entry hits p2 for its power (p2 39)",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Basilisk Collar",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: cast + equip + Deathtouch/Lifelink verified",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Burn Down the House",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "probe: Devils mode creates exactly three Devil tokens",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_AT_PR6_HEAD",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Path of Ancestry",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR13PathBridgeFamilyTest",
+    "committed_tests_found_at_pr6": [
+     "WsR13PathBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Find // Finality",
+    "recorded_status": "RUNTIME_QUALIFIED_FRONT_PLUS_ENGINE_GAP",
+    "evidence": "probe: front-face Find returns both creatures (runtime); aftermath Finality unoffered though engine grant index surfaces the card and enumerates zero abilities",
+    "committed_tests_found_at_pr6": [],
+    "classification": "REQUALIFY_SPLIT_SURFACE_AT_PR6",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   },
+   {
+    "card": "Boseiju Reaches Skyward // Branch of Boseiju",
+    "recorded_status": "RUNTIME_QUALIFIED",
+    "evidence": "WsR11BoseijuBridgeFamilyTest: saga cast, chapter-I search, full transform, Branch power tracking (front-face resolution rule)",
+    "committed_tests_found_at_pr6": [
+     "WsR11BoseijuBridgeFamilyTest"
+    ],
+    "classification": "INHERIT_CANDIDATE_SIDE_VIA_PR6_CI",
+    "lab_credit": "FRESH_PINNED_LAB_RERUN_REQUIRED"
+   }
+  ]
  }
 }
