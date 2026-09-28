@@ -149,6 +149,7 @@ NATIVE_SUITE_BINDING = {
                 "XmageFullGameCombatDamageTest",
                 "XmageDecisionRejectionWs229Test",
                 "XmageFullGameRulesSeedBindingTest",
+                "XmagePb03Tier1RowsTest",
             ],
         },
     },
@@ -194,6 +195,65 @@ NATIVE_SUITE_BINDING = {
             ],
         },
     },
+}
+
+
+XMAGE_PB03_POSITIVE_CASES: dict[str, tuple[str, str, str]] = {
+    "microCombatBearsTradeAndBothDie": (
+        "MICRO_COMBAT",
+        "native combat declarations, blocking, damage, and state-based cleanup",
+        "two restored 2/2 creatures traded through engine-offered combat decisions and both died",
+    ),
+    "microContinuousCrawlerPowerToughnessFromHand": (
+        "MICRO_CONTINUOUS_EFFECTS",
+        "continuous characteristic-defining power/toughness from hand size",
+        "the restored Bonehoard Dracosaur-era continuous-state fixture exposed the expected live power/toughness through XMage state",
+    ),
+    "microModesDevilTokensWithoutDamageMode": (
+        "MICRO_MODES",
+        "engine-offered modal spell choice and resolution",
+        "Burn Down the House resolved the chosen Devil-token mode without applying the unchosen damage mode",
+    ),
+    "microPreventionFogPreventsTwoCombatDamage": (
+        "MICRO_PREVENTION",
+        "prevention effect applied to genuine combat damage",
+        "Fog resolved through engine legality/payment and prevented the fixture's combat damage",
+    ),
+    "microReplacementDoublesThreeDamageToSix": (
+        "MICRO_REPLACEMENT",
+        "replacement effect transforms combat damage",
+        "the engine applied the restored replacement effect so three combat damage became six",
+    ),
+    "microCostsHexPaysBasePlusThreeWard": (
+        "MICRO_COSTS",
+        "timing and additional-cost enforcement including ward",
+        "the engine withheld Hex at illegal timing and required the spell cost plus Ward {3} when legal",
+    ),
+    "microStateBasedMemniteDiesAsZeroZero": (
+        "MICRO_STATE_BASED_ACTIONS",
+        "state-based action after a real spell resolves",
+        "Memnite resolved, became 0/0 under the restored state, and moved to the graveyard by engine state-based actions",
+    ),
+    "microTriggersWarstormSurgeDealsTwoToP2": (
+        "MICRO_TRIGGERS",
+        "trigger creation, target selection, stack resolution, and damage",
+        "Grizzly Bears entered, Warstorm Surge triggered, P2 was engine-targeted, and two damage resolved",
+    ),
+    "mpBlock4P2BlocksOnlyItsAttacker": (
+        "WS05-MP-BLOCK-4",
+        "four-player defender-scoped blocker declaration",
+        "P2's restored blocker was offered and assigned only against the attacker attacking P2",
+    ),
+    "mpCombat4AssignsTwoAttackersToTwoDefenders": (
+        "WS05-MP-COMBAT-4",
+        "four-player attacker-to-defender assignment",
+        "two restored attackers were declared through engine offers against the two requested defenders",
+    ),
+    "mpCombat5AssignsThreeAttackersToThreeDefenders": (
+        "WS05-MP-COMBAT-5",
+        "five-player attacker-to-defender assignment",
+        "three restored attackers were declared through engine offers against three distinct requested defenders",
+    ),
 }
 
 
@@ -385,6 +445,18 @@ def run_native_suite(
         print(f"native suite {candidate}:{group}: {exc}")
         summary = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     receipt_mod.verify_runner_unchanged(REPO_ROOT, runner)
+    positive_fixtures: tuple[dict[str, Any], ...] = ()
+    if candidate == "xmage" and "XmagePb03Tier1RowsTest" in spec["classes"][group]:
+        positive_fixtures = receipt_mod.positive_fixture_receipts_from_junit_xml(
+            spec["root"]
+            / "target"
+            / "surefire-reports"
+            / "TEST-org.commanderlab.xmage.XmagePb03Tier1RowsTest.xml",
+            candidate=candidate,
+            candidate_commit=spec["expected_engine_commit"],
+            class_name="XmagePb03Tier1RowsTest",
+            cases=XMAGE_PB03_POSITIVE_CASES,
+        )
     receipt = receipt_mod.NativeSuiteReceipt(
         candidate=candidate,
         group=group,
@@ -408,6 +480,7 @@ def run_native_suite(
         environment=receipt_mod.environment_identity(),
         runner=runner,
         classes=tuple(spec["classes"][group]),
+        positive_fixtures=positive_fixtures,
     )
     document = receipt.to_document()
     document["result_lines"] = [line.strip() for line in text.splitlines() if "Tests run:" in line][
