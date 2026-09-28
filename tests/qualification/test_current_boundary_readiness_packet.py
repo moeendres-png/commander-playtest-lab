@@ -174,7 +174,7 @@ def test_packet_never_claims_a_selection_or_a_freeze() -> None:
 def test_packet_binds_the_four_forge_identities_separately() -> None:
     for commit in (
         "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-        "d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa",
+        "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
         "4753bb7c72ea60d653121e0bab989077b4009f9c",
         "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
     ):

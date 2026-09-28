@@ -23,7 +23,7 @@ Rules Correctness, for reasons that are recorded per candidate below.
 | Rules clause in scope | 103.8a |
 | XMage candidate | `moeendres-png/mage@b19596980f2734496ea1896504253e1bdd2756dd`, bridge `xmage-engine-bridge 0.1.0-SNAPSHOT`, xmage `1.4.61` |
 | Forge Rules Core (`COMMANDER_LAB_FORGE_FORK`) | `moeendres-png/forge@ef958ee91ac6c9ce0152189f2654bf6e05abf273`, tree `fc3387bf37aab19d780b2939a235309ed32b0492` |
-| Forge bridge / evidence head | `moeendres-png/forge@d5bd22d1bf3c5cf7f98f768fdbb59f0ba841c3fa`, tree `575cbbd6de274036944ea7bd8d5c6ccb7fd55fc9`, PR #4, Draft, deliberately not merged to Forge master |
+| Forge bridge / evidence head | `moeendres-png/forge@e15f37d6b2b5c0ad682948f86f037e07b6aaded5`, tree `a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b`, PR #5, Draft, deliberately not merged to Forge master |
 | Forge Lab bridge-source pin of record | `4753bb7c72ea60d653121e0bab989077b4009f9c` |
 | Upstream Forge baseline (`UPSTREAM_FORGE_BASELINE`) | `Card-Forge/forge@a37a865a53280dd8ad6fad3384d69611e8c5a42f` — ancestry only, **not** verified pristine, upstream behaviour **not** observed |
 
@@ -32,7 +32,7 @@ and the upstream baseline are four distinct commits. None is collapsed into a
 single "Forge SHA", and no result observed on one is reported as evidence for
 another.
 
-**Measured, not assumed.** PR #4 head `d5bd22d1` is 22 commits above the
+**Measured, not assumed.** PR #5 head `e15f37d6` is 26 commits above the
 Rules-Core head and changes `forge-protocol2-bridge` only; zero files change
 outside that module. The six Rules-Core modules (`forge-game`, `forge-core`,
 `forge-ai`, `forge-gui`, `forge-gui-desktop`, `adventure-editor`) are

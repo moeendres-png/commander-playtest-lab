@@ -789,8 +789,9 @@ def verify_engine_identity(
 #
 # A provider that merely CLAIMS a commit is not a verified build. PB-05 previously
 # accepted an operator-supplied environment variable as the commit-to-build
-# binding, which is not build-proven. Forge PR #4 repairs this by recording the
-# build's own git commit, tree, dirty state and source, and by failing closed:
+# binding, which is not build-proven. Forge PR #5 (continuing the PR #4 repair)
+# records the build's own git commit, tree, dirty state and source, and fails
+# closed:
 # `git rev-parse HEAD` and `HEAD^{tree}` are admitted only on exit code 0,
 # `git status --porcelain` yields "unknown" rather than a false "clean" when it
 # fails, a malformed value is rejected rather than passed through, and
