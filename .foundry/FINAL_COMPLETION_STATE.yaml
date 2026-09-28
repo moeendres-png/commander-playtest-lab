@@ -78,23 +78,25 @@ files_modified:
 - scripts/run_current_boundary_qualification.py (transplanted)
 - scripts/assemble_current_boundary_evidence.py (transplanted)
 - tests/qualification/test_current_boundary_*.py (11 families, transplanted)
+- src/commander_lab/qualification/current_boundary/restoration_admission.py
+- src/commander_lab/qualification/current_boundary/game_driver.py
+- src/commander_lab/qualification/current_boundary/bridge_launcher.py
+- src/commander_lab/qualification/current_boundary/receipts.py
+- src/commander_lab/qualification/current_boundary/__init__.py
+- scripts/run_current_boundary_qualification.py
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java
+- tests/qualification/test_current_boundary_pb03_restoration_admission.py
+- tests/qualification/test_current_boundary_assembler_integrity.py
+- qualification/SHA256SUMS
+- WS17_SHA256SUMS
 tests_run:
-- 'pytest -q (full suite): 1699 passed / 1 failed / 5 skipped on the clean audit base; the single failure
-  was FOUNDRY-01 and is now repaired.'
-- 'pytest -q tests/foundry/test_launcher.py: 101 passed; the 5 new nested-launch tests were verified FAILING
-  with the repair reverted, so they discriminate.'
-- 'pytest -q tests/architecture/test_engine_runtime_state_isolation.py: 6 passed.'
-- 'ruff check .: clean. ruff format --check .: 999 files already formatted.'
-- 'mypy src/commander_lab: Success, no issues found in 263 source files.'
-- 'mvn -DskipTests install on the extracted pin b1959698: BUILD SUCCESS.'
-- 'mvn -DskipTests package in engine-bridge: BUILD SUCCESS.'
-- 'scripts/run_real_4p_full_game_smoke.py --smoke-decisions 40: status PASS, 40 decisions.'
-- 'pytest -q (full suite) at 74326d59: 1882 passed / 6 skipped / 0 failed.'
-- 'pytest -q tests/qualification: 231 passed / 3 skipped.'
-- 'ruff check .: clean. ruff format --check .: 1023 files already formatted.'
-- 'mypy src/commander_lab: Success, no issues found in 274 source files.'
-- 'Discriminating check: the 3 new selection-bound tests and the launcher nested-launch tests were each
-  verified FAILING with their repair reverted.'
+- 'pytest -q (full suite) at 139e5863: 1905 passed / 5 skipped / 0 failed.'
+- 'pytest -q tests/qualification: 254 passed / 2 skipped.'
+- 'mvn verify (engine-bridge): 314 run, 0 failures, 1 skipped.'
+- ruff check . clean; ruff format --check 1026 files; mypy strict clean (275 files).
+- 'New PB-03 admission tests: 22, including one verified FAILING with the fail-closed rule regressed into
+  a guess, and one proving the provenance guard still fails closed.'
+- 'Current-boundary XMage execution: exit 0, 107/107 rows, native suites 34+136+150 tests green.'
 evidence:
 - 'DIRECTLY_VERIFIED: pinned xmage b1959698 rebuilt from the exact git archive; all 34 org.mage artifact
   sha256 values differ from the pre-existing ~/.m2 set, proving the prior local install was NOT the pin.
@@ -152,13 +154,28 @@ evidence:
   11 supported / 11 unsupported) is now observable over the real JSONL protocol on full_game_lane.state_restoration_dimensions
   and agrees with starting_state_injection_supported in both directions. Before this it was computed and
   never left the JVM, so it could inform no admission decision.'
+- 'DIRECTLY_VERIFIED (PB-03, current boundary): the XMage FULL107 column was executed on this lineage
+  for the first time, against the pinned engine on a clean committed runner. 107/107 rows, no row omitted,
+  no hidden bucket: PASS 4, FAIL 0, CRASH 0, TIMEOUT 0, PROTOCOL_FAILURE 0, UNKNOWN 59, BLOCKED 44. PASS
+  is player cardinality established independently per count (PLAYER_COUNT_2P/3P/4P/5P).'
+- 'DIRECTLY_VERIFIED (PB-03, reclassification): of the 44 BLOCKED rows, 14 are now engine-attested SUPPORTED
+  (the mechanism is not an engine limitation; only the Lab transport seam is missing), 16 are engine-declared
+  unsupported or fail closed with the engine''s own wording quoted, and 14 remain NATIVE_MICRO lane-seam
+  rows. Previously all 33 were one Lab projection.'
+- 'DIRECTLY_VERIFIED (native suites, executed fresh): xmage:direct 34/34 and xmage:mechanism 136/136 with
+  justification LAB_OWNED_BRIDGE_MODULE; forge:direct 150/150 with ENGINE_MAIN_SOURCE_TREES_IDENTICAL.
+  The forge:mechanism receipt is bound to the FORK commit ef958ee9, not the pin, so it carries no weight
+  for the pinned Forge candidate.'
+- 'DIRECTLY_VERIFIED (live, PB-04): the compatibility lane refuses any seed option with ''unsupported_game_option:
+  B4-D does not support seed''. The driver always sent one, so game creation failed outright for a reason
+  unrelated to Rules. Fixed by reading the lane''s declared seed_supported.'
 artifacts:
-- docs/final_completion_20260928/RECEIPT.md (human-readable evidence receipt + reproduction)
-- docs/final_completion_20260928/RECEIPT.json (machine-readable, binds all 8 evidence artifacts)
-- docs/final_completion_20260928/terminal_single_20260923.json (real-deck 4P terminal game)
-- docs/final_completion_20260928/replay_twin_20260923.json (clean-process semantic replay twin)
-- docs/final_completion_20260928/*.json (6 fresh-process batch records)
-- artifacts/xmage-full-game/EVIDENCE_RECEIPT_20260928.json (cardinality, conformance, hidden-info)
+- 'qualification/final-current-boundary-20260927/ (executed current-boundary evidence: FULL107, AF01,
+  AF03, cardinality, hidden-info, RNG/replay, actual-card, manifest, receipts)'
+- docs/final_completion_20260928/RECEIPT.md (real-deck evidence receipt + reproduction)
+- docs/final_completion_20260928/RECEIPT.json
+- docs/final_completion_20260928/EVIDENCE_SUMMARY.json
+- artifacts/xmage-full-game/EVIDENCE_RECEIPT_20260928.json
 - .foundry/FINAL_COMPLETION_STATE.yaml
 technical_decisions:
 - id: EXEC-IDENTITY
@@ -228,6 +245,22 @@ technical_decisions:
     is the concrete reason the designed PB-03 fix was never implemented. A bare starting_state_injection_supported=false
     cannot support per-obligation admission. This changes reporting only: no game semantics, no capability
     promotion, no pin.'
+- id: PB03-MANIFEST-ADMISSION
+  decision: Consume the live engine restoration manifest and let it decide ADMISSIBILITY only, failing
+    closed for any family without a declared dimension mapping; publish the manifest on both transport
+    lanes; shape the game-creation request from the lane's declared seed support.
+  reasoning: The 33 blocked rows rested on a Lab projection that a bare starting_state_injection_supported=false
+    could not support. The engine's own manifest can, and it splits 30 starting-state rows into 14 engine-supported,
+    7 engine-declared unsupported and 9 fail-closed-unmapped. Admissibility must never become an outcome,
+    so no row is marked PASS from the manifest; only execution may do that.
+- id: ENGINE-IDENTITY-SCOPE
+  decision: Apply the Forge descendant-equivalence proof only to Forge, and add a distinct Lab-owned-bridge
+    identity proof for a suite that runs in this repository's own module.
+  reasoning: verify_engine_identity justifies a commit difference by comparing Forge engine module trees.
+    The XMage bridge tests live in this repository, so it compared the XMage pin against the Lab commit,
+    found zero Forge modules, compared nothing, and failed closed for the wrong reason. The honest proof
+    for a Lab-owned module is the Lab commit bound by the runner receipt plus the separately pinned, separately
+    hashed engine artifact.
 hypotheses_rejected:
 - 'REJECTED: "the pre-existing ~/.m2 org.mage 1.4.61 is the pinned engine because the version matches."
   Refuted by rebuilding from the pin: all 34 artifact hashes changed. Version equality is not identity
@@ -262,48 +295,44 @@ first_failing_boundary: 'CORRECTED. The earlier claim that terminal state was th
   of a stall. The genuine current first failing boundary is QUAL-01 -> PB-03: the 33 XMage BLOCKED FULL107
   rows still rest on a MODELED projection from the bridge dimension manifest rather than an executed result,
   because nothing consumes that manifest for admission.'
-current_failure: 'PB-03 admission is still a projection rather than an execution. Half of the fix is now
-  in place: the bridge publishes its live dimension manifest over the protocol. The executor half is not:
-  nothing in commander_lab.qualification.current_boundary reads state_restoration_dimensions, so the 33
-  blocked XMage rows still cannot be promoted from BLOCKED on evidence and remain MODELED.'
+current_failure: The 14 rows the engine says it can restore remain unexecuted because the qualification
+  lane exposes no protocol message that reaches the native state-restoration path. The engine half of
+  PB-03 is done and proven; the remaining work is a Lab transport seam (a restoration verb on the full-game
+  lane) plus the Lab request model to drive it. Separately, AF09 cannot be closed on the compat lane because
+  that lane declares no seed support, so its Rules RNG is honestly UNCONTROLLED.
 root_cause_class: UNKNOWN
 failure_class: UNKNOWN
-current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the manifest is sufficient
-  for per-obligation admission. MID_GAME_MECHANISM_FAMILIES already names the seven mechanisms, and each
-  maps onto manifest dimensions (for example stack_response onto ''stack spells'', which is unsupported,
-  and combat_declaration onto the qualified turn-1 allow-list, which is supported). Design constraint
-  that must hold: the manifest may decide ADMISSIBILITY only. It must never decide OUTCOME. A row whose
-  dimensions are all supported becomes attemptable, and its outcome is whatever execution reports. Competing
-  hypotheses to falsify: some family has no clean dimension mapping, in which case admission must fail
-  closed for that family rather than guess; or the supported dimensions are sufficient but the native
-  restore path still cannot construct the position, in which case the rows stay blocked for a real capability
-  reason and PB-03 must be reclassified from a Lab harness defect to an engine/bridge capability limit.'
+current_hypothesis: 'Leading hypothesis, to be tested rather than assumed: the transport seam is a thin
+  verb. XmageNativeStateRestoration already accepts a frozen-record JSON (planFromFrozenRecord: fixture_id,
+  players, commander_state, semantic_objects, temporal_state), so the engine side exists and the missing
+  pieces are a protocol message and a Lab request model. Competing hypotheses to falsify: the restoration
+  path cannot be reached from a live full-game session without breaking its lifecycle, in which case the
+  rows need a dedicated session type; or readback cannot satisfy the per-fixture required_events that
+  name specific fixture objects, in which case a Coordinator ruling on mechanism-equivalent evidence is
+  required before any of the 14 can close.'
 remaining_scope:
-- 'PB-03: consume the bridge dimension manifest for per-row admission, then EXECUTE the 33 blocked XMage
-  rows so their outcomes are observed rather than MODELED. This is the current first failing boundary.'
-- 'CAP/AF04: legal_actions_supported and action_submission_supported are still false. PB-01 is a contract-documentation
-  gap (the generic lane needs external_control=true) and PB-04 is a lane-inconsistent seed_supported report.
-  Both are repairable without an XMage change.'
-- 'PB-08: a per-fixture clean-process replay twin now exists for the real-deck 4P gate (semantic_replay_match=true,
-  two fresh processes) and must be extended across the corpus.'
-- 'PB-06 per-scenario hidden channels and PB-07 effective 29-card corpus: no execution path exists on
-  either candidate.'
-- 'PB-09: re-execute the Forge column at pinned upstream a37a865a with pinned bridge 4753bb7c. This is
-  the admissible half that needs no Coordinator decision and unblocks the comparison.'
-- 'Forge full-game lane: src/commander_lab/engine/rules/full_game.py hardcodes FULL_GAME_LANE=''xmage_full_game_external_pilots'',
-  so there is no provider-neutral full-game lane and no Forge full-game evidence at all.'
-- 'chooseRingBearer is an audited parent delegation: a genuinely discretionary Player callback that the
-  external pilot never sees. Adjudicated safe by the project and guarded by a test, but seat 3 of the
-  real 4P setup plays a ring-bearer deck (Sauron), so the path is plausibly live. Needs a ruling, not
-  a silent change.'
-- Then COORDINATOR_PROVIDER_SELECTION_REQUIRED, then COORDINATOR_ARCHITECTURE_FREEZE_REQUIRED.
-next_action: PB-03 executor half, then the pinned-Forge re-execution (PB-09 decision input), then the
-  capability flags (AF04/PB-01/PB-04).
-exact_next_action: 'Implement the PB-03 executor half: read full_game_lane.state_restoration_dimensions
-  from the live bridge capability payload, declare an explicit mechanism-family -> dimension mapping,
-  and let it decide admissibility ONLY (never outcome), failing closed for any family without a declared
-  mapping. Then execute the newly admissible rows so their outcomes are observed rather than MODELED.
-  See docs/final_completion_20260928/RECEIPT.md for the reproduction commands.'
+- 'PB-03 transport seam: expose the native state-restoration path as a full-game lane protocol message
+  plus a Lab request model, then execute the 14 engine-supported rows. Their obligations name fixture-specific
+  objects, so a Coordinator ruling on mechanism-equivalent evidence may also be required; that is not
+  assumed here.'
+- 'AF09: the current-boundary runner drives the compat lane, which declares no seed support. Either drive
+  the seed-capable full-game lane, or keep the honest UNCONTROLLED binding and close AF09 on the full-game
+  lane with its own evidence.'
+- 'AF07 / PB-07: execute the effective 29-card actual-card corpus; no execution path exists.'
+- 'AF05 / PB-06: per-scenario hidden-information channels; 19 HIDDEN_* rows remain UNKNOWN.'
+- 'PB-08: per-fixture clean-process replay twins across the corpus (a real-deck 4P twin already exists
+  on the full-game lane).'
+- 'PB-09 decision input: re-execute the Forge column at pinned upstream a37a865a with pinned bridge 4753bb7c.
+  A clean pin checkout exists at /home/moeen/code/forge-candidate-h4f; only the classpath manifest is
+  missing on disk and the Lab identity constants are still hardcoded to the fork.'
+- 'Forge full-game lane: none exists; full_game.py hardcodes the xmage lane.'
+- 'chooseRingBearer: an audited parent delegation, a genuinely discretionary Player callback the external
+  pilot never sees. Needs a ruling, not a silent change.'
+next_action: AF04/capability truth, then the Forge pin re-execution, which is the longest pole on the
+  path to a Coordinator provider decision.
+exact_next_action: Settle AF04 capability truth for the XMage candidate by separating manifest under-reporting
+  from genuinely unsupported behaviour, using the full-game lane's observed 10 decision classes as the
+  measured surface, and recording the outcome in the readiness packet and the evidence.
 do_not_rerun:
 - Do not re-transplant the WSR22 evidence bundle qualification/final-current-boundary-20260927/*. It is
   WSR22's result artifact, it is stale against this HEAD, and adopting it would present another workstream's
@@ -311,14 +340,20 @@ do_not_rerun:
 - Do not re-run the WSR25/PB-09 prose reconciliation; the machine-readable packet now carries engine_identity_pb09
   and the PB-09 prevented_by entry.
 invalidated_gates:
-- 'AF06/AF07/AF08/AF09 remain UNKNOWN for both candidates: the current-boundary executor is now on this
-  lineage but NO 107-row execution has been run here yet, so nothing has been recomputed.'
-- The WSR22 107x2 results are not inherited. They were produced at a different HEAD, before this campaign's
-  engine-CWD and pilot-policy changes, and are impact-adjudicated only for the engine-CWD change (semantic
-  transcript identical).
+- 'AF06 GENERAL_RULES_CORRECTNESS: UNKNOWN on this lineage. 44 rows are blocked and 59 unknown; the 14
+  engine-supported rows are blocked only by a missing transport seam, so the gate cannot be closed until
+  that seam exists and the rows are executed.'
+- 'AF07 ACTUAL_CARD_BEHAVIOR: UNKNOWN. Only the bounded Isamaru import probe executed; the effective 29-card
+  corpus (PB-07) still has no execution path.'
+- 'AF08 MULTIPLAYER_COMMANDER: UNKNOWN. Cardinality passes, but the mid-game Commander rows are blocked.'
+- 'AF09 RNG_REPLAY: UNKNOWN. The compat lane declares no seed support, so its Rules RNG binding is honestly
+  UNCONTROLLED and earns no RNG or replay credit. The seed-capable surface is the full-game lane, which
+  the current-boundary runner does not use.'
 validated_gates:
-- 'AF02 PLAYER_CARDINALITY: re-executed at the current pin, 2P/3P/4P/5P/6P PASS with a 7P FAIL_CLOSED
-  probe. All DIRECTLY_VERIFIED runtime at this HEAD.'
-- 'AF03 RULES_AUTHORITY: unchanged and still satisfied; no adapter or pilot legality introduced.'
-- 'AF10 RUNTIME_EVIDENCE_RELIABILITY: this campaign''s own batch run exposed a misclassification (an infrastructure
-  fault recorded as conformance), now repaired by cause, and the six-seed batch then ran 6/6 clean.'
+- 'AF02 PLAYER_CARDINALITY: PASS established independently for 2P, 3P, 4P and 5P on this lineage (PLAYER_COUNT_2P/3P/4P/5P
+  are the only PASS rows in the executed FULL107 column). Also re-executed 2P-6P with a 7P FAIL_CLOSED
+  probe in the full-game lane.'
+- 'AF03 RULES_AUTHORITY: unchanged and still satisfied; no adapter or pilot legality introduced by any
+  of this campaign''s changes.'
+- 'AF10 RUNTIME_EVIDENCE_RELIABILITY: denominator-complete at 107/107 with zero CRASH/TIMEOUT/PROTOCOL_FAILURE,
+  on a runner that fails closed on a dirty tree.'
