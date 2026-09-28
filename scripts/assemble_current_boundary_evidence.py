@@ -20,6 +20,9 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    hidden_obligations as hidden_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
@@ -383,6 +386,33 @@ def assemble() -> None:
             "results_runtime_identity": results["runtime_identity"],
         }
 
+    # ---- PB-06 per-obligation hidden-information disposition --------------
+    # The 20 HIDDEN rows carry one blanket reason today. The obligations are
+    # not uniform: some are stated purely over the principal-scoped state view
+    # the generic lane does expose, and the live observations either satisfy
+    # those or do not. Classifying per obligation names the specific missing
+    # channel instead of attributing it to the whole family. This only
+    # CLASSIFIES; row outcomes stay with the runner under its active owner.
+    hidden_catalog = hidden_mod.load_catalog(
+        REPO / "qualification" / "obligations" / "QUALIFICATION_OBLIGATION_CATALOG_v1.json"
+    )
+    hidden_dispositions: dict[str, Any] = {}
+    for cand in per_candidate:
+        observations = load(OUT / f"HIDDEN_INFO_{cand.upper()}.json").get(
+            "principal_observations", {}
+        )
+        hidden_dispositions[cand] = hidden_mod.assess_hidden_obligations(
+            observations, catalog=hidden_catalog
+        )
+        write(
+            f"PB06_HIDDEN_OBLIGATIONS_{cand.upper()}.json",
+            {
+                **hidden_dispositions[cand],
+                "candidate": cand,
+                "runtime_identity": per_candidate[cand]["results_runtime_identity"],
+            },
+        )
+
     # ---- AF00-AF11 matrix ------------------------------------------------
     af11_by_candidate = {
         cand: _af11_measure(per_candidate, cand, cdata) for cand, cdata in per_candidate.items()
@@ -530,6 +560,17 @@ def assemble() -> None:
                     "principal-scoped state read for four seats in a live 4P game",
                     f"HIDDEN_INFO_{candidate.upper()}.json",
                     f"native hidden/replay suites green: {native_tests} tests",
+                    "per-obligation PB-06 disposition: "
+                    f"{hidden_dispositions[candidate]['counts']} in "
+                    f"PB06_HIDDEN_OBLIGATIONS_{candidate.upper()}.json; satisfied: "
+                    + ", ".join(
+                        sorted(
+                            oid
+                            for oid, entry in hidden_dispositions[candidate]["dispositions"].items()
+                            if entry["disposition"] == hidden_mod.SATISFIED
+                        )
+                    )
+                    or "none",
                 ],
                 "blocking_rows": [
                     row
@@ -539,7 +580,13 @@ def assemble() -> None:
                 "nonblocking_limitations": [
                     "per-scenario hidden channels (face-down exile, "
                     "look, controlled-player, shuffle invalidation) are "
-                    "not reachable on the generic surface"
+                    "not reachable on the generic surface",
+                    f"{hidden_dispositions[candidate]['counts'][hidden_mod.NOT_OBSERVABLE]} "
+                    "of 20 catalogued hidden obligations remain unestablished, each attributed "
+                    "to its own missing channel rather than to the family",
+                    "AF05 stays UNKNOWN: a SATISFIED per-obligation disposition records that "
+                    "the observations support that obligation, but it is not a row promotion, "
+                    "and the family is not complete",
                 ],
             },
             {

@@ -1,0 +1,167 @@
+{
+ "candidate": "forge",
+ "counts": {
+  "NOT_OBSERVABLE_ON_GENERIC_SURFACE": 19,
+  "SATISFIED_BY_GENERIC_SCOPING": 1,
+  "total": 20
+ },
+ "dispositions": {
+  "HIDDEN_01": {
+   "description": "opponent hand identities absent while count remains visible",
+   "disposition": "SATISFIED_BY_GENERIC_SCOPING",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "reason": "the obligation is stated entirely over the hand scoping the generic projection does expose, and the live observations show it holds: scoped correctly across 4 established observation(s)"
+  },
+  "HIDDEN_02": {
+   "description": "library identities/order absent while count remains visible",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "evidence_class": "UNKNOWN",
+   "reason": "not established on the observations in hand: p1: the library count is not visible, so identity absence is unproven"
+  },
+  "HIDDEN_03": {
+   "description": "face-up exile identities public",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_04": {
+   "description": "face-down permanent controller sees identity while opponents do not",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_05": {
+   "description": "face-down exile actor-specific permission persists",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_06": {
+   "description": "face-down exile knowledge invalidates correctly",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_07": {
+   "description": "reveal reaches exactly legal audience",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_08": {
+   "description": "look reaches only specified audience",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_09": {
+   "description": "hidden-zone search inspection does not leak",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_10": {
+   "description": "scry/surveil top-N actor knowledge",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_11": {
+   "description": "shuffle invalidates order knowledge",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_12": {
+   "description": "controlled-player authority receives legally visible information",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_13": {
+   "description": "pile metadata does not leak",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_14": {
+   "description": "target option metadata does not leak",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_15": {
+   "description": "source metadata does not leak",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_16": {
+   "description": "ability metadata does not leak",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_17": {
+   "description": "copy/face-down interactions hide original identity",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_18": {
+   "description": "transcripts omit actor-private state",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_19": {
+   "description": "pilot code cannot access omniscient raw engine APIs",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  },
+  "HIDDEN_HONEYCARD_SENTINEL": {
+   "description": "Unique forbidden sentinels scanned across prompt/context/option IDs/labels/metadata/source/state/transcript/logs",
+   "disposition": "NOT_OBSERVABLE_ON_GENERIC_SURFACE",
+   "reason": "the obligation needs a per-scenario channel (a distinct game event, a face-down/revealed/shuffled zone, or an introspection boundary) that the generic principal-scoped state projection does not carry; it is not established and not refuted"
+  }
+ },
+ "principal_scoping_credible": true,
+ "principal_scoping_verdict": "PRINCIPAL_SCOPED",
+ "promotion_note": "A SATISFIED disposition records that the observations support the obligation. It does not itself flip a FULL107 row: row outcomes belong to scripts/run_current_boundary_qualification.py under an active owner, and promotion must be a separate, evidence-bound step.",
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": true,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 6,
+   "min_players": 2,
+   "mode_selection_supported": true,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms and priority concession; multi-target/divided, combat, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+    "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": true,
+   "seed_supported": true,
+   "stack_visible": true,
+   "starting_state_injection_supported": true,
+   "target_selection_supported": true,
+   "trigger_order_supported": true
+  },
+  "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
+  "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+  "scenario_injection_supported": true,
+  "seed_supported": true,
+  "starting_state_injection_supported": true,
+  "wsr20_evidence_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+ },
+ "schema_version": "commander-lab.hidden-obligation-disposition/1.0.0"
+}
