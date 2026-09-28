@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -17,9 +18,7 @@ def test_quarantine_rejects_destination_inside_run_without_mutation(
     (source / "evidence.json").write_bytes(b"preserved")
     with pytest.raises(ValueError):
         quarantine_run(source, source / relative)
-    assert sorted(p.relative_to(source).as_posix() for p in source.rglob("*")) == [
-        "evidence.json"
-    ]
+    assert sorted(p.relative_to(source).as_posix() for p in source.rglob("*")) == ["evidence.json"]
     assert (source / "evidence.json").read_bytes() == b"preserved"
 
 
@@ -52,7 +51,8 @@ def test_existing_entries_are_preserved_and_returned_path_is_exact(tmp_path: Pat
     assert (destination / "run-2").read_bytes() == b"existing file"
 
 
-def test_dangling_link_is_an_occupied_quarantine_name(tmp_path: Path) -> None:
+@pytest.mark.parametrize("link_kind", ["symlink", "junction"])
+def test_dangling_link_is_an_occupied_quarantine_name(tmp_path: Path, link_kind: str) -> None:
     source = tmp_path / "run"
     source.mkdir()
     (source / "evidence.json").write_bytes(b"preserved")
@@ -60,14 +60,26 @@ def test_dangling_link_is_an_occupied_quarantine_name(tmp_path: Path) -> None:
     destination.mkdir()
     link = destination / "run"
     missing = tmp_path / "missing"
-    try:
-        link.symlink_to(missing, target_is_directory=True)
-    except OSError as error:
-        if os.name == "nt" and getattr(error, "winerror", None) == 1314:
-            pytest.skip("Windows symlink privilege unavailable; Linux CI covers this case")
-        raise
+    if link_kind == "junction":
+        if os.name != "nt":
+            pytest.skip("Windows junction semantics")
+        subprocess.run(
+            ["cmd", "/d", "/c", "mklink", "/J", str(link), str(missing)],
+            capture_output=True,
+            check=True,
+        )
+        assert link.is_junction()
+    else:
+        try:
+            link.symlink_to(missing, target_is_directory=True)
+        except OSError as error:
+            if os.name == "nt" and getattr(error, "winerror", None) == 1314:
+                pytest.skip("Windows symlink privilege unavailable; Linux CI covers this case")
+            raise
+    before = os.readlink(link)
+    assert not link.exists()
     result = quarantine_run(source, destination)
-    assert link.is_symlink()
-    assert link.readlink() == missing
+    assert os.path.lexists(link)
+    assert os.readlink(link) == before
     assert result == destination / "run-2"
     assert (result / "evidence.json").read_bytes() == b"preserved"

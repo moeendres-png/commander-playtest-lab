@@ -221,12 +221,17 @@ def verify_run(run_directory: str | Path) -> RunVerification:
 
 
 def quarantine_run(run_directory: str | Path, quarantine_root: str | Path) -> Path:
-    source = Path(run_directory).resolve()
+    """Move a run between exclusively owned paths, preserving occupied names."""
+    source = Path(run_directory).resolve(strict=True)
+    if not source.is_dir():
+        raise NotADirectoryError("quarantine source must be a run directory")
     destination_root = Path(quarantine_root).resolve()
+    if destination_root.is_relative_to(source):
+        raise ValueError("quarantine destination must be outside the run directory")
     destination_root.mkdir(parents=True, exist_ok=True)
     destination = destination_root / source.name
     suffix = 1
-    while destination.exists():
+    while os.path.lexists(destination):
         suffix += 1
         destination = destination_root / f"{source.name}-{suffix}"
     shutil.move(str(source), str(destination))

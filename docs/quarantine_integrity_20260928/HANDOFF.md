@@ -34,7 +34,13 @@ integration. No claim of atomic exclusion against concurrent filesystem writers
 or rollback after a cross-filesystem copy failure. Exclusive/quiescent paths are
 required, as before.
 
-Checkpoint: failing-before tests persisted; production repair pending.
+Checkpoint 1: cdf0c940 persists failing-before tests and source lock, pushed.
+Checkpoint 2: production repair implemented. Real dangling Windows junction also
+reproduced against the original main function (1 failed) and now passes.
+Focused storage tests: 57 passed, 6 platform skips. Affected Ruff/format/strict
+mypy/compileall pass. Initial broader acceptance attempt: 2 failures because its
+source-integrity gate correctly rejects uncommitted tracked changes; rerun on the
+clean committed checkpoint is required. No acceptance PASS is claimed yet.
 
 ARCHITECTURE_FREEZE = NOT CLAIMED
 PRODUCTION_PROVIDER = NOT SELECTED
