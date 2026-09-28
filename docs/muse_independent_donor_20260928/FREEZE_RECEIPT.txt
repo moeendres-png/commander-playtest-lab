@@ -1,0 +1,13 @@
+MUSE_INDEPENDENT_BASELINE_FINAL
+
+branch=donor/muse-xhigh-independent-20260928
+pre_freeze_head=d6d071cd92e037efdc68d6585d7aceb9331acf5e
+pre_freeze_tree=e28c0d301d2230aed9b8ba2c7c8292d6d199378c
+canonical_main=c0915113626262843cb00801d7f6f76579654e9a
+merge_base=c9277b90ed3835985dcd21824cfe1762b3f65dcd
+
+Purpose:
+Preserve the terminated Muse XHIGH workstream as read-only donor material.
+No PASS credit is granted merely by this snapshot.
+No Production Provider selection.
+No Architecture Freeze.

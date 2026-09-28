@@ -1068,6 +1068,40 @@ def _canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
 
+# Requester-binding metadata keys: proof of ownership, never observed content.
+# Stripped ONLY for the distinctness comparison below; findings and attribution
+# always see the unstripped views.
+_BINDING_METADATA_KEYS: frozenset[str] = frozenset(
+    {
+        "observer_player_id",
+        "observerPlayerId",
+        "observer_engine_player_id",
+        "observerEnginePlayerId",
+        "observer_seat",
+        "observerSeat",
+        "is_actor",
+        "isActor",
+        "state_observation_offset",
+        "stateObservationOffset",
+        "observation_offset",
+        "observationOffset",
+    }
+)
+
+
+def _content_view(value: Any) -> Any:
+    """A state view with requester-binding metadata removed, recursively."""
+    if isinstance(value, dict):
+        return {
+            key: _content_view(item)
+            for key, item in value.items()
+            if key not in _BINDING_METADATA_KEYS
+        }
+    if isinstance(value, (list, tuple)):
+        return [_content_view(item) for item in value]
+    return value
+
+
 def validate_principal_scoping(
     observations: dict[str, Any], *, requested_seats: tuple[str, ...]
 ) -> dict[str, Any]:
@@ -1127,6 +1161,27 @@ def validate_principal_scoping(
             and expected_seat is not None
             and actors[0].get("seat") == expected_seat
         )
+        # Mechanism B names the requester inside the state projection itself
+        # (Forge: state.observer_player_id). When present it must agree with
+        # the requesting seat; a contradictory state marker fails closed and
+        # defeats marker binding for that seat.
+        state_view = _state_view(payload)
+        state_observer = (
+            state_view.get("observer_player_id")
+            if isinstance(state_view, dict)
+            else None
+        )
+        if isinstance(state_observer, str) and state_observer != seat:
+            findings.append(
+                {
+                    "check": "actor_binding_conflict",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "the in-state observer marker names "
+                    f"{state_observer!r}, but seat {seat} requested the observation",
+                }
+            )
+            marker_bound = False
 
         envelope_fields_present = any(
             key in payload
@@ -1203,8 +1258,12 @@ def validate_principal_scoping(
     # STATE VIEW, not the whole observation envelope. The envelope carries a
     # monotonically increasing `state_observation_offset`, so comparing it would
     # make four byte-identical states look like four distinct observations and
-    # mask exactly the leak this check exists to catch.
-    distinct = {_canonical(_state_view(usable[seat])) for seat in usable}
+    # mask exactly the leak this check exists to catch. Binding metadata inside
+    # the view itself is stripped for the same reason: `is_actor` and observer
+    # identity fields prove who an observation belongs to, but they are not
+    # observed game content, so differences solely in them must not fabricate
+    # distinctness either.
+    distinct = {_canonical(_content_view(_state_view(usable[seat]))) for seat in usable}
     if len(usable) > 1 and len(distinct) == 1:
         findings.append(
             {

@@ -26,6 +26,11 @@ source_lock:
   lab_head: c8cc9b399b94d3a9ba381350e4e8b7a22ab4b194
   sb_independent_baseline: SB_INDEPENDENT_BASELINE
   sb_baseline_note: endpoint-of-independent-model-comparison-phase-followup-is-CONVERGED_SHARED_PROJECT_WORK
+  muse_independent_baseline_final: MUSE_INDEPENDENT_BASELINE_FINAL
+  muse_baseline_head: 468360a8a60ae39838d9add957f1fb7cb89abfb3
+  muse_baseline_tree: a4a1ec3e5728d88582af3e82c2356390e4666408
+  converged_head: d6d071cd92e037efdc68d6585d7aceb9331acf5e
+  convergence_note: merged-c9277b90-PR283-plus-prior-933d5df5-6b8c2150-assessed-zero-surface-impact-no-remerge
   forge_head: 561023b5723d1a6dde296c2ac1e0811244217305
   forge_branch: muse-xhigh/full-completion
   mage_head: 8e1ee0b53d572ac636570c5fa0911b9c9d824e10
