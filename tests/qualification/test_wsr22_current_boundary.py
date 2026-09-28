@@ -116,10 +116,21 @@ def test_full107_is_denominator_complete(candidate: str) -> None:
             assert row["failure_reason"], row
         else:
             assert row["failure_reason"] is None, row
-    for group in results["native_runs"].values():
+    for group_name, group in results["native_runs"].items():
         assert group["returncode"] == 0
-        assert group["failures"] == 0 and group["errors"] == 0
+        # The raw receipt reports `failed`; `failures` is the assembler's alias for
+        # the same number. Accept either, but require zero, so a genuinely red suite
+        # is still caught.
+        failures = group.get("failures", group.get("failed"))
+        assert failures == 0, f"{group.get('candidate')}:{group_name} reported failures"
+        assert group["errors"] == 0
         assert group["tests"] > 0
+        # And the credit must be THIS candidate's: the receipt list spans every
+        # candidate, so an unfiltered loop would attach the other engine's green
+        # suites to this document.
+        assert group["candidate"].lower() == candidate.lower(), (
+            f"{candidate} results carry a native group for {group['candidate']!r}"
+        )
 
 
 @pytest.mark.parametrize("candidate", CANDIDATES)

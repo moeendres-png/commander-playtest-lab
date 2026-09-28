@@ -5,12 +5,12 @@
   "candidate": "xmage",
   "decision_tape": [
    {
-    "actor": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
-    "chosen_option_id": "31f1a56f160e827fdcdbce59c3a0e2711eb06160888928f43bb49539ce6063f5",
+    "actor": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
+    "chosen_option_id": "be3a006a6c0cde281d417578baa7904ccbf431daca87db8cc2e0759c5e18510a",
     "kind": "PRIORITY",
     "note": "external priority pass",
     "offered_option_ids": [
-     "31f1a56f160e827fdcdbce59c3a0e2711eb06160888928f43bb49539ce6063f5"
+     "be3a006a6c0cde281d417578baa7904ccbf431daca87db8cc2e0759c5e18510a"
     ],
     "policy": "pass_when_offered",
     "revision": 2,
@@ -25,31 +25,31 @@
   ],
   "failure": null,
   "failure_kind": null,
-  "game_id": "wsr22-xmage-4p-94ff53b8",
+  "game_id": "wsr22-xmage-4p-ba3732df",
   "observations": [
    {
     "payload": {
      "bounded_submission": true,
-     "engine_game_id": "a8241b0d-7f3c-44b5-91be-d50dc31f528b",
-     "executed_action_id": "31f1a56f160e827fdcdbce59c3a0e2711eb06160888928f43bb49539ce6063f5",
+     "engine_game_id": "f272fa80-4ee8-46ba-9e7d-a2d43082b857",
+     "executed_action_id": "be3a006a6c0cde281d417578baa7904ccbf431daca87db8cc2e0759c5e18510a",
      "executed_action_type": "pass_priority",
-     "executed_actor_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
-     "executed_decision_id": "1230b78cb43dcb7c8f9de7a443bcd342f657f93754e309f87701dff0da4447d8",
+     "executed_actor_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
+     "executed_decision_id": "18016682199009c0d417b15ab11c67cb5b03d9b8abe28c3f6af9a2dfc81b1d1c",
      "executed_source_name": null,
      "executed_source_object_id": null,
-     "game_id": "wsr22-xmage-4p-94ff53b8",
+     "game_id": "wsr22-xmage-4p-ba3732df",
      "global_capability_promoted": false,
      "next_decision": {
       "actions": [
        {
-        "action_id": "06ac3d5c33f00fda2b0c87277d9e26bde9018f458756b7392cb8dc811dd073fd",
+        "action_id": "26b16b3442310ccd543c10f78dd9236aad0eed137a8ed9837cb895518ab19d27",
         "action_type": "pass_priority",
-        "actor_id": "cc003bf8-b591-49cc-9dd3-3a08c59e0f8f",
+        "actor_id": "6c399e7a-9fe7-479c-8f89-409e2144955c",
         "allowed_target_ids": [],
         "choices_schema": {},
         "cost": {},
         "metadata": {
-         "decision_id": "c6bc49000d74cf61767cd0f2e5c314dbd680348b3f75fb3bf6b8b6d3d7c8be1e",
+         "decision_id": "f8ffadcc15dc3b2c7980f742b1826f6899cbdc69303fbc374552e9d7ce58a88b",
          "submission_ready": true
         },
         "modes": [],
@@ -57,21 +57,21 @@
         "target_ids": []
        }
       ],
-      "actor_id": "cc003bf8-b591-49cc-9dd3-3a08c59e0f8f",
+      "actor_id": "6c399e7a-9fe7-479c-8f89-409e2144955c",
       "complete": true,
-      "decision_id": "c6bc49000d74cf61767cd0f2e5c314dbd680348b3f75fb3bf6b8b6d3d7c8be1e",
+      "decision_id": "f8ffadcc15dc3b2c7980f742b1826f6899cbdc69303fbc374552e9d7ce58a88b",
       "decision_kind": "priority",
       "decision_offset": 3,
-      "engine_game_id": "a8241b0d-7f3c-44b5-91be-d50dc31f528b",
-      "game_id": "wsr22-xmage-4p-94ff53b8"
+      "engine_game_id": "f272fa80-4ee8-46ba-9e7d-a2d43082b857",
+      "game_id": "wsr22-xmage-4p-ba3732df"
      },
-     "observer_engine_player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
-     "observer_player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
+     "observer_engine_player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
+     "observer_player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
      "observer_seat": 0,
      "state": {
-      "active_player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
+      "active_player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
       "event_sequence": 3,
-      "game_id": "wsr22-xmage-4p-94ff53b8",
+      "game_id": "wsr22-xmage-4p-ba3732df",
       "legal_actions": [],
       "phase": "beginning",
       "players": [
@@ -89,24 +89,24 @@
          "red": 0,
          "white": 0
         },
-        "player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
+        "player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
         "poison_counters": 0,
         "seat": 0,
         "zones": {
          "battlefield": [],
          "command": [
-          "225ac537-41d3-4eaa-8bdd-2641eeb3a0f3"
+          "bab74f18-84a9-4c7b-9ee0-0fb3479b24fc"
          ],
          "exile": [],
          "graveyard": [],
          "hand": [
-          "264fcc32-9383-42a3-9f8d-ec3f7ac6a88c",
-          "2486d0a3-99fb-4581-8c81-9e34ef27c9ae",
-          "993ed596-726a-4356-8603-0da29dd0ad91",
-          "1d58fa07-74f9-4907-ae5b-19298c84dca7",
-          "c10315be-9b6d-4c29-b6e7-5412c2ba043e",
-          "156b6d0c-cc41-47c6-bab4-5a5ed36b58e4",
-          "532e98ca-30ae-4df0-8953-a5cbc38ffe28"
+          "8268ce63-975b-42f1-b4be-4db9d6580517",
+          "7d473bc3-ca8a-446d-87e3-e7a5d4cc38ca",
+          "6b2ac6a0-a6f7-4a3a-9bae-3e31ce4ec204",
+          "786b4370-5c9c-4f5e-83c4-4665d175b47a",
+          "df62e1e0-fbb1-46c4-a49e-530ab329517a",
+          "89510687-8812-47f8-96f4-26c4e71e6b58",
+          "ed80128f-74f6-45e4-b3c0-8818bb7ed183"
          ],
          "library": [
           "<hidden>",
@@ -217,7 +217,7 @@
         "zones": {
          "battlefield": [],
          "command": [
-          "01ff411c-8728-4592-b45e-21f948df7546"
+          "ca777c6c-0028-464d-8a8a-f8004865b57d"
          ],
          "exile": [],
          "graveyard": [],
@@ -339,7 +339,7 @@
         "zones": {
          "battlefield": [],
          "command": [
-          "7d571d54-5a79-44d9-b093-1375c0be7a35"
+          "f4d8d2b8-cfb5-4f07-8f10-5ffe0145ac24"
          ],
          "exile": [],
          "graveyard": [],
@@ -461,7 +461,7 @@
         "zones": {
          "battlefield": [],
          "command": [
-          "1aa0f261-f401-4d99-958c-75dfa43c6a58"
+          "e3534028-1f54-4991-9ef4-58d7e03fa166"
          ],
          "exile": [],
          "graveyard": [],
@@ -641,19 +641,19 @@
  },
  "principal_observations": {
   "p1": {
-   "engine_game_id": "a8241b0d-7f3c-44b5-91be-d50dc31f528b",
+   "engine_game_id": "f272fa80-4ee8-46ba-9e7d-a2d43082b857",
    "event_log_scope": "external_bridge_audit_boundaries",
    "event_log_supported": true,
-   "game_id": "wsr22-xmage-4p-94ff53b8",
+   "game_id": "wsr22-xmage-4p-ba3732df",
    "legal_actions_complete": false,
-   "observer_engine_player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
+   "observer_engine_player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
    "observer_player_id": "p1",
    "observer_seat": 0,
    "seed_controlled": false,
    "state": {
-    "active_player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
+    "active_player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
     "event_sequence": 3,
-    "game_id": "wsr22-xmage-4p-94ff53b8",
+    "game_id": "wsr22-xmage-4p-ba3732df",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -671,24 +671,24 @@
        "red": 0,
        "white": 0
       },
-      "player_id": "c7ed00dc-d61b-47e9-9d7a-d16019151ab6",
+      "player_id": "2801928a-c70d-4e5a-bb13-1ed8d1006fb6",
       "poison_counters": 0,
       "seat": 0,
       "zones": {
        "battlefield": [],
        "command": [
-        "225ac537-41d3-4eaa-8bdd-2641eeb3a0f3"
+        "bab74f18-84a9-4c7b-9ee0-0fb3479b24fc"
        ],
        "exile": [],
        "graveyard": [],
        "hand": [
-        "264fcc32-9383-42a3-9f8d-ec3f7ac6a88c",
-        "2486d0a3-99fb-4581-8c81-9e34ef27c9ae",
-        "993ed596-726a-4356-8603-0da29dd0ad91",
-        "1d58fa07-74f9-4907-ae5b-19298c84dca7",
-        "c10315be-9b6d-4c29-b6e7-5412c2ba043e",
-        "156b6d0c-cc41-47c6-bab4-5a5ed36b58e4",
-        "532e98ca-30ae-4df0-8953-a5cbc38ffe28"
+        "8268ce63-975b-42f1-b4be-4db9d6580517",
+        "7d473bc3-ca8a-446d-87e3-e7a5d4cc38ca",
+        "6b2ac6a0-a6f7-4a3a-9bae-3e31ce4ec204",
+        "786b4370-5c9c-4f5e-83c4-4665d175b47a",
+        "df62e1e0-fbb1-46c4-a49e-530ab329517a",
+        "89510687-8812-47f8-96f4-26c4e71e6b58",
+        "ed80128f-74f6-45e4-b3c0-8818bb7ed183"
        ],
        "library": [
         "<hidden>",
@@ -799,7 +799,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "01ff411c-8728-4592-b45e-21f948df7546"
+        "ca777c6c-0028-464d-8a8a-f8004865b57d"
        ],
        "exile": [],
        "graveyard": [],
@@ -921,7 +921,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "7d571d54-5a79-44d9-b093-1375c0be7a35"
+        "f4d8d2b8-cfb5-4f07-8f10-5ffe0145ac24"
        ],
        "exile": [],
        "graveyard": [],
@@ -1043,7 +1043,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "1aa0f261-f401-4d99-958c-75dfa43c6a58"
+        "e3534028-1f54-4991-9ef4-58d7e03fa166"
        ],
        "exile": [],
        "graveyard": [],
@@ -1165,19 +1165,19 @@
    "state_observation_offset": 2
   },
   "p2": {
-   "engine_game_id": "a8241b0d-7f3c-44b5-91be-d50dc31f528b",
+   "engine_game_id": "f272fa80-4ee8-46ba-9e7d-a2d43082b857",
    "event_log_scope": "external_bridge_audit_boundaries",
    "event_log_supported": true,
-   "game_id": "wsr22-xmage-4p-94ff53b8",
+   "game_id": "wsr22-xmage-4p-ba3732df",
    "legal_actions_complete": false,
-   "observer_engine_player_id": "715a3252-e533-43f8-9126-c30ee7b65cd3",
+   "observer_engine_player_id": "2fac32d1-ccca-41e5-9996-d55165983ed9",
    "observer_player_id": "p2",
    "observer_seat": 1,
    "seed_controlled": false,
    "state": {
     "active_player_id": "op-0",
     "event_sequence": 3,
-    "game_id": "wsr22-xmage-4p-94ff53b8",
+    "game_id": "wsr22-xmage-4p-ba3732df",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -1194,7 +1194,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "225ac537-41d3-4eaa-8bdd-2641eeb3a0f3"
+        "bab74f18-84a9-4c7b-9ee0-0fb3479b24fc"
        ],
        "exile": [],
        "graveyard": [],
@@ -1317,24 +1317,24 @@
        "red": 0,
        "white": 0
       },
-      "player_id": "715a3252-e533-43f8-9126-c30ee7b65cd3",
+      "player_id": "2fac32d1-ccca-41e5-9996-d55165983ed9",
       "poison_counters": 0,
       "seat": 1,
       "zones": {
        "battlefield": [],
        "command": [
-        "01ff411c-8728-4592-b45e-21f948df7546"
+        "ca777c6c-0028-464d-8a8a-f8004865b57d"
        ],
        "exile": [],
        "graveyard": [],
        "hand": [
-        "76b064ef-f9a4-498b-be4c-b05eaa0149c7",
-        "061cb1a0-3055-4928-83e6-5187e16832e7",
-        "6fc7d2c1-a454-45c9-a332-6ef59e59f03f",
-        "6931919a-0f5c-40f2-af71-91d5d60862bb",
-        "3dd53ce3-8c57-4341-87a7-286bf2466cdd",
-        "458a6332-2a64-44be-8383-66fdbeb73100",
-        "6c5c6852-10b1-4db3-806e-a66312e2ce44"
+        "71581af7-f1dc-46bb-b39c-d473950a5b06",
+        "6f828022-13be-431c-b89d-814e6744e566",
+        "f227007a-6bc2-4c95-ae55-5681b3b05787",
+        "26802cab-fec8-4ab2-b9b4-f99dec515132",
+        "fd72e59a-b89b-4e64-82f8-64e1c6261525",
+        "dfb91018-c744-4e4b-88a9-33223e4127ee",
+        "5e295cd8-62dc-4a9f-805a-6fb50367daa9"
        ],
        "library": [
         "<hidden>",
@@ -1445,7 +1445,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "7d571d54-5a79-44d9-b093-1375c0be7a35"
+        "f4d8d2b8-cfb5-4f07-8f10-5ffe0145ac24"
        ],
        "exile": [],
        "graveyard": [],
@@ -1567,7 +1567,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "1aa0f261-f401-4d99-958c-75dfa43c6a58"
+        "e3534028-1f54-4991-9ef4-58d7e03fa166"
        ],
        "exile": [],
        "graveyard": [],
@@ -1689,19 +1689,19 @@
    "state_observation_offset": 3
   },
   "p3": {
-   "engine_game_id": "a8241b0d-7f3c-44b5-91be-d50dc31f528b",
+   "engine_game_id": "f272fa80-4ee8-46ba-9e7d-a2d43082b857",
    "event_log_scope": "external_bridge_audit_boundaries",
    "event_log_supported": true,
-   "game_id": "wsr22-xmage-4p-94ff53b8",
+   "game_id": "wsr22-xmage-4p-ba3732df",
    "legal_actions_complete": false,
-   "observer_engine_player_id": "cb8aedb3-061e-4361-9f49-bad1cee89623",
+   "observer_engine_player_id": "31297fc0-8929-4017-89c4-e2401b2d9c14",
    "observer_player_id": "p3",
    "observer_seat": 2,
    "seed_controlled": false,
    "state": {
     "active_player_id": "op-0",
     "event_sequence": 3,
-    "game_id": "wsr22-xmage-4p-94ff53b8",
+    "game_id": "wsr22-xmage-4p-ba3732df",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -1718,7 +1718,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "225ac537-41d3-4eaa-8bdd-2641eeb3a0f3"
+        "bab74f18-84a9-4c7b-9ee0-0fb3479b24fc"
        ],
        "exile": [],
        "graveyard": [],
@@ -1840,7 +1840,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "01ff411c-8728-4592-b45e-21f948df7546"
+        "ca777c6c-0028-464d-8a8a-f8004865b57d"
        ],
        "exile": [],
        "graveyard": [],
@@ -1963,24 +1963,24 @@
        "red": 0,
        "white": 0
       },
-      "player_id": "cb8aedb3-061e-4361-9f49-bad1cee89623",
+      "player_id": "31297fc0-8929-4017-89c4-e2401b2d9c14",
       "poison_counters": 0,
       "seat": 2,
       "zones": {
        "battlefield": [],
        "command": [
-        "7d571d54-5a79-44d9-b093-1375c0be7a35"
+        "f4d8d2b8-cfb5-4f07-8f10-5ffe0145ac24"
        ],
        "exile": [],
        "graveyard": [],
        "hand": [
-        "5a467466-f616-468a-b06f-c71adbd548da",
-        "8792c878-358f-4ec2-bacf-8f8084dae44b",
-        "972178dd-6a14-4ffe-afc4-210703fb58cb",
-        "46908494-824b-483d-9cc8-29d67ae782bf",
-        "6de7eddd-cb93-471b-89ea-f7bf1b95fe58",
-        "9ad01d30-13c0-4225-9b13-f05872be6947",
-        "e31702dd-cc1c-4432-acdc-dc97b3313853"
+        "0973a495-89c7-428a-88a6-5c2a588c09e9",
+        "cb214d76-0bc5-43e6-98c4-96b12f71ab2f",
+        "db8943fe-19cf-49c9-97a2-a66617c51575",
+        "f3969c83-9375-4595-8437-289b76536cb9",
+        "0979a836-6338-444b-aacc-e8b5dcb41ef4",
+        "6a286a13-2755-490e-bf2a-1546af3d2c24",
+        "a1d7f3d9-43d1-42af-94ff-6b3ad7d3f876"
        ],
        "library": [
         "<hidden>",
@@ -2091,7 +2091,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "1aa0f261-f401-4d99-958c-75dfa43c6a58"
+        "e3534028-1f54-4991-9ef4-58d7e03fa166"
        ],
        "exile": [],
        "graveyard": [],
@@ -2213,19 +2213,19 @@
    "state_observation_offset": 4
   },
   "p4": {
-   "engine_game_id": "a8241b0d-7f3c-44b5-91be-d50dc31f528b",
+   "engine_game_id": "f272fa80-4ee8-46ba-9e7d-a2d43082b857",
    "event_log_scope": "external_bridge_audit_boundaries",
    "event_log_supported": true,
-   "game_id": "wsr22-xmage-4p-94ff53b8",
+   "game_id": "wsr22-xmage-4p-ba3732df",
    "legal_actions_complete": false,
-   "observer_engine_player_id": "cc003bf8-b591-49cc-9dd3-3a08c59e0f8f",
+   "observer_engine_player_id": "6c399e7a-9fe7-479c-8f89-409e2144955c",
    "observer_player_id": "p4",
    "observer_seat": 3,
    "seed_controlled": false,
    "state": {
     "active_player_id": "op-0",
     "event_sequence": 3,
-    "game_id": "wsr22-xmage-4p-94ff53b8",
+    "game_id": "wsr22-xmage-4p-ba3732df",
     "legal_actions": [],
     "phase": "beginning",
     "players": [
@@ -2242,7 +2242,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "225ac537-41d3-4eaa-8bdd-2641eeb3a0f3"
+        "bab74f18-84a9-4c7b-9ee0-0fb3479b24fc"
        ],
        "exile": [],
        "graveyard": [],
@@ -2364,7 +2364,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "01ff411c-8728-4592-b45e-21f948df7546"
+        "ca777c6c-0028-464d-8a8a-f8004865b57d"
        ],
        "exile": [],
        "graveyard": [],
@@ -2486,7 +2486,7 @@
       "zones": {
        "battlefield": [],
        "command": [
-        "7d571d54-5a79-44d9-b093-1375c0be7a35"
+        "f4d8d2b8-cfb5-4f07-8f10-5ffe0145ac24"
        ],
        "exile": [],
        "graveyard": [],
@@ -2609,24 +2609,24 @@
        "red": 0,
        "white": 0
       },
-      "player_id": "cc003bf8-b591-49cc-9dd3-3a08c59e0f8f",
+      "player_id": "6c399e7a-9fe7-479c-8f89-409e2144955c",
       "poison_counters": 0,
       "seat": 3,
       "zones": {
        "battlefield": [],
        "command": [
-        "1aa0f261-f401-4d99-958c-75dfa43c6a58"
+        "e3534028-1f54-4991-9ef4-58d7e03fa166"
        ],
        "exile": [],
        "graveyard": [],
        "hand": [
-        "3d303697-818d-4394-a9d7-51a01a144886",
-        "a95e273d-52d7-4f9c-8e93-3cca96a4d0b6",
-        "4fc9761f-4490-4c5c-9866-b221276500d6",
-        "c16d84a0-dd31-4ba1-9d12-5f133abc582c",
-        "91909530-f46f-409a-9a90-2c00641111c0",
-        "2f693aa8-6041-4d43-bea1-99a79170787e",
-        "34a45aab-c58d-42b1-b2db-ca115e7d7d2c"
+        "4e80acb1-5134-48b9-a6b0-224980fe4c10",
+        "82a8a03d-99c9-4ec8-a58e-2850a1b318eb",
+        "477498fa-09f0-4b7c-b992-b9732f14a72e",
+        "2cb1daf0-90c4-4799-b025-838132cfe25c",
+        "7e780437-4a3f-488e-a014-ee3cebd0b613",
+        "fe418f38-efa8-4f32-a808-2f017996793d",
+        "6afc6174-4edb-4abf-a6b6-c42fc2e7b409"
        ],
        "library": [
         "<hidden>",
@@ -2725,7 +2725,7 @@
       }
      }
     ],
-    "priority_player_id": "cc003bf8-b591-49cc-9dd3-3a08c59e0f8f",
+    "priority_player_id": "6c399e7a-9fe7-479c-8f89-409e2144955c",
     "rng_counter": null,
     "seed": null,
     "stack": [],
@@ -2765,7 +2765,7 @@
  },
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+  "adapter_commit": "1e71dc33c804fd199273339a3ba937d33760907e",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": false,
@@ -2805,8 +2805,8 @@
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "3910040b3ca4eb276f8895fa4c9801af3550f123",
-  "runner_tree": "a28d98b29c84342056e5658f8f4423f927999108",
+  "runner_commit": "1e71dc33c804fd199273339a3ba937d33760907e",
+  "runner_tree": "87b8b7e9aaa5a20d784677f29a18e8528f2f7492",
   "scenario_injection_supported": false,
   "seed_supported": false,
   "starting_state_injection_supported": false
