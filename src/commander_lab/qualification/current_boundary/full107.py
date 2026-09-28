@@ -31,6 +31,7 @@ from . import lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
     CommandedGameResult,
+    UnsupportedPlayerCount,
     drive_commander_game,
     poll_decision,
 )
@@ -315,6 +316,7 @@ def start2_row(
     *,
     candidate: str,
     runtime_identity: dict[str, Any],
+    player_count: int = 2,
 ) -> RowResult:
     """Execute WS05-CMD-START-2 under the v1.0.6 successor semantics.
 
@@ -326,14 +328,35 @@ def start2_row(
     fixture_id = record["fixture_id"]
     required = list(record["expected_events"]["required_events"])
     forbidden = list(record["expected_events"]["forbidden_events"])
-    game = drive_commander_game(
-        proc,
-        candidate=candidate,
-        player_count=2,
-        seed=424242,
-        drive_to="first_turn_draw_skip",
-        max_steps=60,
-    )
+    # The obligation is written for a two-player game, so two players is the
+    # faithful request. But a candidate need not qualify two players: the pinned
+    # Forge bridge qualifies exactly four. A refusal is therefore recorded as an
+    # explicit unestablished row rather than aborting the column, and never as a
+    # Rules verdict, because the engine declined before any obligation was tested.
+    try:
+        game = drive_commander_game(
+            proc,
+            candidate=candidate,
+            player_count=player_count,
+            seed=424242,
+            drive_to="first_turn_draw_skip",
+            max_steps=60,
+        )
+    except UnsupportedPlayerCount as exc:
+        return non_executed_row(
+            record,
+            candidate=candidate,
+            outcome="BLOCKED",
+            reason=(
+                "this obligation is written for a two-player game and was requested at "
+                f"{player_count} players, which the {candidate} engine does not qualify, so "
+                f"it refused by contract: {exc}. The obligation was therefore never "
+                "exercised. The row is BLOCKED: the engine declined before any required or "
+                "forbidden event could be observed. This is not a Rules verdict for this "
+                "candidate, and no candidate defect is implied."
+            ),
+            runtime_identity=runtime_identity,
+        )
     kinds = [entry.kind for entry in game.decision_tape]
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
     # Observations, not the fixture's expectations. The verdict below is derived
@@ -349,7 +372,7 @@ def start2_row(
         None,
     )
     evidence = {
-        "player_count": 2,
+        "player_count": player_count,
         "actual_cards": _actual_cards(),
         "decision_tape": [entry.__dict__ for entry in game.decision_tape],
         "semantic_events": game.semantic_events,
