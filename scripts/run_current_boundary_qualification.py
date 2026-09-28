@@ -150,6 +150,9 @@ NATIVE_SUITE_BINDING = {
                 "XmageDecisionRejectionWs229Test",
                 "XmageFullGameRulesSeedBindingTest",
                 "XmagePb03Tier1RowsTest",
+                "XmagePb03Tier2CmdZoneTest",
+                "XmagePb03Tier2ControlTurnTest",
+                "XmagePb03Tier2StackTest",
             ],
         },
     },
@@ -253,6 +256,51 @@ XMAGE_PB03_POSITIVE_CASES: dict[str, tuple[str, str, str]] = {
         "WS05-MP-COMBAT-5",
         "five-player attacker-to-defender assignment",
         "three restored attackers were declared through engine offers against three distinct requested defenders",
+    ),
+    "mpTurn5ExtraTurnsRunP3ThenP2": (
+        "WS05-MP-TURN-5",
+        "real extra-turn creation and multiplayer turn ordering",
+        "Time Warp and Nexus of Fate were genuinely cast/resolved and the engine advanced through the requested P3 then P2 extra-turn order",
+    ),
+    "microControlMagicTransfersBearsToP1": (
+        "MICRO_CONTROL",
+        "continuous control-changing effect from a genuine Aura cast",
+        "Control Magic was genuinely cast and the targeted Grizzly Bears became controlled by P1 through the engine effect layer",
+    ),
+    "microPriorityGrowthSavesBearsFromBolt": (
+        "MICRO_PRIORITY",
+        "priority response ordering with two real spells on the stack",
+        "Giant Growth was cast in response to Lightning Bolt and the target survived after top-down resolution",
+    ),
+    "microStackGrowthSavesBearsFromBolt": (
+        "MICRO_STACK",
+        "stack LIFO ordering with a real response",
+        "Giant Growth resolved above Lightning Bolt and the target survived the completed stack sequence",
+    ),
+    "microManaPaymentCounterspellPaidWithTwoBlue": (
+        "MICRO_MANA_PAYMENT",
+        "engine-owned colored mana payment for a real counterspell",
+        "Counterspell targeted the live Bolt, consumed exactly two blue mana through engine offers, and prevented Bolt damage",
+    ),
+    "microCopyFlareDuplicatesBoltOnStack": (
+        "MICRO_COPY",
+        "spell-copy creation on the authoritative stack",
+        "Flare of Duplication resolved and created a second Lightning Bolt stack object",
+    ),
+    "microZoneChangesBoltBecomesNewGraveyardObject": (
+        "MICRO_ZONE_CHANGES",
+        "zone-change object identity across stack to graveyard",
+        "Lightning Bolt resolved from the stack to its owner's graveyard as a new object identity",
+    ),
+    "mpPrio3RingOrderWithBoltResponse": (
+        "WS05-MP-PRIO-3",
+        "three-player live priority-ring ordering while a response remains on stack",
+        "the engine traversed the requested N-1 priority order with the Bolt response still live on stack",
+    ),
+    "mpPrio5RingOrderWithBoltResponse": (
+        "WS05-MP-PRIO-5",
+        "five-player live priority-ring ordering while a response remains on stack",
+        "the engine traversed the requested N-1 priority order with the Bolt response still live on stack",
     ),
 }
 
@@ -445,18 +493,28 @@ def run_native_suite(
         print(f"native suite {candidate}:{group}: {exc}")
         summary = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     receipt_mod.verify_runner_unchanged(REPO_ROOT, runner)
-    positive_fixtures: tuple[dict[str, Any], ...] = ()
-    if candidate == "xmage" and "XmagePb03Tier1RowsTest" in spec["classes"][group]:
-        positive_fixtures = receipt_mod.positive_fixture_receipts_from_junit_xml(
-            spec["root"]
-            / "target"
-            / "surefire-reports"
-            / "TEST-org.commanderlab.xmage.XmagePb03Tier1RowsTest.xml",
-            candidate=candidate,
-            candidate_commit=spec["expected_engine_commit"],
-            class_name="XmagePb03Tier1RowsTest",
-            cases=XMAGE_PB03_POSITIVE_CASES,
-        )
+    positive_fixture_rows: list[dict[str, Any]] = []
+    if candidate == "xmage":
+        for class_name in (
+            "XmagePb03Tier1RowsTest",
+            "XmagePb03Tier2ControlTurnTest",
+            "XmagePb03Tier2StackTest",
+        ):
+            if class_name not in spec["classes"][group]:
+                continue
+            positive_fixture_rows.extend(
+                receipt_mod.positive_fixture_receipts_from_junit_xml(
+                    spec["root"]
+                    / "target"
+                    / "surefire-reports"
+                    / f"TEST-org.commanderlab.xmage.{class_name}.xml",
+                    candidate=candidate,
+                    candidate_commit=spec["expected_engine_commit"],
+                    class_name=class_name,
+                    cases=XMAGE_PB03_POSITIVE_CASES,
+                )
+            )
+    positive_fixtures = tuple(positive_fixture_rows)
     receipt = receipt_mod.NativeSuiteReceipt(
         candidate=candidate,
         group=group,
