@@ -17,7 +17,8 @@
       "reason": "Foreign provider-adjudication lane. No qualification verdict reinterpreted or issue closed.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/255#issuecomment-5862736913"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/255#issuecomment-5862736913",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/255#issuecomment-5867374660"
     },
     {
       "number": 205,
@@ -26,7 +27,8 @@
       "reason": "Exact terminal Forge 07c0eec5992b1902183e39a141b19e32641ace92 is published on the named branch. #204 remediation is integrated. No retrospective assertion of launcher-held publication procedure or local evidence; Forge owner decides residual receipt closure.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/205#issuecomment-5863340156"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/205#issuecomment-5863340156",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/205#issuecomment-5867376073"
     },
     {
       "number": 204,
@@ -44,7 +46,8 @@
       "reason": "Mandatory safe_push-only publication authority superseded by current delegated Git policy. Optional canonical tool-discovery capability is not implemented (no FOUNDRY_CANONICAL_ROOT/FOUNDRY_SAFE_PUSH_TOOL in launcher). Preserve remaining capability; no permission bypass.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/196#issuecomment-5656589067"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/196#issuecomment-5656589067",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/196#issuecomment-5867377521"
     },
     {
       "number": 193,
@@ -53,7 +56,8 @@
       "reason": "Forge remote branch now exists at eb66d65a32b0ce845c6b1eda4060b43e06b3c780; technical 48daaf9b79929f80f0bd32bfc2bb50e97137f65b also resolves remotely. Local-only diagnosis superseded; Forge content/merge adjudication remains outside this workstream.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/193#issuecomment-5859039820"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/193#issuecomment-5859039820",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/193#issuecomment-5867378062"
     },
     {
       "number": 192,
@@ -62,7 +66,8 @@
       "reason": "Historical direct-main evidence removal/acceptance is an explicit reserved decision; file/provenance preserved, no history rewrite.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/192#issuecomment-5859040022"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/192#issuecomment-5859040022",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/192#issuecomment-5867378635"
     },
     {
       "number": 191,
@@ -71,7 +76,8 @@
       "reason": "Natural-session benchmark and rotation thresholds remain unmeasured. Session-stats integrity is repaired here; historic prices are dated provenance, not current economics. No paid benchmark or raw export collection.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/191#issuecomment-5656343527"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/191#issuecomment-5656343527",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/191#issuecomment-5867379261"
     },
     {
       "number": 190,
@@ -80,7 +86,8 @@
       "reason": "Launcher interruption/telemetry and session statistics exist; no bounded no-progress watchdog found. Retire Muse HIGH guidance; real long-turn measurements remain required.",
       "observed_state": "OPEN",
       "closed_at": null,
-      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/190#issuecomment-5656506832"
+      "existing_latest_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/190#issuecomment-5656506832",
+      "astra_comment": "https://github.com/moeendres-png/commander-playtest-lab/issues/190#issuecomment-5867379943"
     }
   ],
   "verified_main": "f96bc7ec6b7ea07c73f74282c16dcaf73daaad40"

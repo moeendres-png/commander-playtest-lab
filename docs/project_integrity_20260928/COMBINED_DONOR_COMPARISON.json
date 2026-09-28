@@ -38,7 +38,8 @@
         "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
         "identical": false
       }
-    ]
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
   },
   {
     "donor": "11822e99b048ceccf804eb334452ce3ac8fa1474",
@@ -79,7 +80,8 @@
         "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
         "identical": false
       }
-    ]
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
   },
   {
     "donor": "b048d682a59dda4623811738694f96028c96039d",
@@ -120,7 +122,8 @@
         "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
         "identical": true
       }
-    ]
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
   },
   {
     "donor": "0b6649edc4bf7cd95bed13cbaf382235b4f31483",
@@ -161,6 +164,7 @@
         "repaired_blob": "78f28f87994604f69f76f2a494ca9a93f92fc979",
         "identical": false
       }
-    ]
+    ],
+    "interpretation": "Identical blobs need no second port. Older session/capsule blobs are superseded by the individually recovered hardening. Exact b048d682 safe_push blob equals current main; its publisher implementation is already integrated. Other historical run artifacts remain provenance."
   }
 ]

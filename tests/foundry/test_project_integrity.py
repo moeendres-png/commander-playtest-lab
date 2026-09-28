@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
@@ -54,7 +55,7 @@ def test_launcher_native_pair_gap_has_an_explicit_foreign_owner():
     assert deferred["observed_head"] and deferred["exact_next_action"]
 
 
-def test_active_documented_launcher_examples_resolve():
+def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
     pairs = re.findall(r"--execution-profile (space-bunny|muse) --effort (\w+)", doc)
     assert set(pairs) == {("space-bunny", "max"), ("muse", "xhigh")}
@@ -82,3 +83,18 @@ def test_external_content_boundary_survives_policy_edits():
         "Workstream",
     ):
         assert concept in boundary
+
+
+def test_recovered_donor_receipts_bind_the_actual_transplanted_content():
+    receipts = json.loads(
+        (ROOT / "docs/project_integrity_20260928/LEGACY_PORT_RECEIPTS.json").read_text()
+    )
+    for donor in receipts:
+        assert set(donor["ported_paths"]) == set(donor["source_blobs"])
+        for name, expected in donor["source_blobs"].items():
+            # Git text content is LF; Windows checkout conversion is not drift.
+            actual = (ROOT / name).read_text(encoding="utf-8").encode("utf-8")
+            assert hashlib.sha256(actual).hexdigest() == expected, (
+                f"{name}: recovered donor content changed; adjudicate and update "
+                "the receipt instead of retaining a false exact-port claim"
+            )

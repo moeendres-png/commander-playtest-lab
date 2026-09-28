@@ -1,6 +1,6 @@
 {
-  "observed_at": "2026-09-28T09:38:46.467164+00:00",
-  "phase": "PRE_PUBLICATION",
+  "observed_at": "2026-09-28T09:41:18.505954+00:00",
+  "phase": "PUBLISHED_PENDING_EXACT_HEAD_CI",
   "main": "f96bc7ec6b7ea07c73f74282c16dcaf73daaad40",
   "tree": "c60a0ce2ffff404efcff9ada2b7979ec0cdc9346",
   "branch": "astra/project-integrity-20260928",
@@ -339,5 +339,18 @@
       "ruleset_source": "moeendres-png/commander-playtest-lab",
       "ruleset_id": 23547579
     }
-  ]
+  ],
+  "pr_url": "https://github.com/moeendres-png/commander-playtest-lab/pull/280",
+  "issue_comment_receipts": {
+    "267": "https://github.com/moeendres-png/commander-playtest-lab/issues/267#issuecomment-5863328985",
+    "255": "https://github.com/moeendres-png/commander-playtest-lab/issues/255#issuecomment-5867374660",
+    "205": "https://github.com/moeendres-png/commander-playtest-lab/issues/205#issuecomment-5867376073",
+    "204": "https://github.com/moeendres-png/commander-playtest-lab/issues/204#issuecomment-5863328357",
+    "196": "https://github.com/moeendres-png/commander-playtest-lab/issues/196#issuecomment-5867377521",
+    "193": "https://github.com/moeendres-png/commander-playtest-lab/issues/193#issuecomment-5867378062",
+    "192": "https://github.com/moeendres-png/commander-playtest-lab/issues/192#issuecomment-5867378635",
+    "191": "https://github.com/moeendres-png/commander-playtest-lab/issues/191#issuecomment-5867379261",
+    "190": "https://github.com/moeendres-png/commander-playtest-lab/issues/190#issuecomment-5867379943"
+  },
+  "final_readback_location": "PR #280 terminal integration comment binds exact head, merge commit, CI and final issue/ref state; repository snapshot intentionally does not self-reference its own containing commit."
 }

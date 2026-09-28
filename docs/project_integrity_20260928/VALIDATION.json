@@ -15,5 +15,10 @@
   "strict_mypy": "PASS (274 source files)",
   "compileall_tools_foundry_tests_foundry": "PASS",
   "provider_runtime": "NOT_RUN_OUT_OF_SCOPE",
-  "launcher_native_enforcement": "BLOCKED_FOREIGN_OWNER"
+  "launcher_native_enforcement": "BLOCKED_FOREIGN_OWNER",
+  "additional_receipt_binding_guard": {
+    "passed": 5,
+    "command": "pytest -q tests/foundry/test_project_integrity.py",
+    "note": "Four policy tests rerun and one new content-hash binding guard added; no production delta after full affected regression."
+  }
 }
