@@ -101,6 +101,13 @@ class XmageFullGameGenericBridgeTest {
                 assertEquals(
                         record.get("requested_state_digest").getAsString(),
                         payload.get("requested_state_digest").getAsString());
+                assertTrue(payload.has("restoration_requested_projection_digest"));
+                assertFalse(
+                        payload.get("restoration_requested_projection_digest")
+                                .getAsString()
+                                .isBlank());
+                assertTrue(payload.has("constructed_state_digest"));
+                assertFalse(payload.get("constructed_state_digest").getAsString().isBlank());
                 return;
             }
 
