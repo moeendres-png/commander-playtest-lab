@@ -27,6 +27,11 @@ import os
 import subprocess
 from pathlib import Path
 
+try:
+    from .source_lock import is_canonical_remote, remote_url_records
+except ImportError:
+    from source_lock import is_canonical_remote, remote_url_records
+
 REACHABLE_INSTRUCTION_FILES = ("AGENTS.md", "CLAUDE.md")
 REACHABLE_CONFIG_FILES = ("opencode.json", "opencode.jsonc")
 REACHABLE_DIRS = (".opencode", ".claude")
@@ -84,7 +89,7 @@ def check(
 
     # 1. repository identity.
     try:
-        url = _run(["git", "config", "--get", "remote.origin.url"], target_real)
+        urls = remote_url_records(target_real)
     except RuntimeError as exc:
         return {
             "profile": profile.get("profile"),
@@ -95,12 +100,12 @@ def check(
             ],
             "canonical_policy_hash": None,
         }
-    if profile.get("repo_slug", "") not in url:
+    if len(urls) != 1 or not is_canonical_remote(urls[0], profile.get("repo_slug", "")):
         findings.append(
             {
                 "surface": "(repo identity)",
                 "classification": "AMBIGUOUS",
-                "detail": f"target remote lacks profile slug {profile.get('repo_slug')!r}",
+                "detail": "target requires one exact canonical remote identity",
             }
         )
         failed = True

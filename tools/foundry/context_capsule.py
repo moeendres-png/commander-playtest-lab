@@ -30,6 +30,7 @@ STATE_ENV_VAR = "FOUNDRY_STATE_PATH"
 IN_WORKTREE_DEFAULT = Path(".foundry") / "WORKSTREAM_STATE.yaml"
 
 CAPSULE_KIND = "FOUNDRY CAPSULE (DERIVED/INDEX - not Source Authority)"
+GIT_FACT_TIMEOUT_SECONDS = 15
 
 
 class CapsuleError(ValueError):
@@ -47,9 +48,22 @@ def resolve_state_path(explicit: str | None) -> str:
 
 
 def _git(args: list[str], workdir: str) -> str:
-    proc = subprocess.run(["git", *args], cwd=workdir, capture_output=True, text=True, check=False)
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=workdir,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+            timeout=GIT_FACT_TIMEOUT_SECONDS,
+        )
+    except (OSError, UnicodeError, subprocess.SubprocessError):
+        raise CapsuleError(
+            "Git fact query unavailable; check the checkout and Git executable locally"
+        ) from None
     if proc.returncode != 0:
-        raise CapsuleError(f"cannot read git {' '.join(args)}: {proc.stderr.strip()[:160]}")
+        raise CapsuleError(f"Git fact query failed (exit {proc.returncode}); inspect Git locally")
     return proc.stdout.strip()
 
 
@@ -57,15 +71,22 @@ def _load_state(state_path: str) -> dict:
     try:
         with open(state_path, encoding="utf-8") as handle:
             data = yaml.safe_load(handle)
-    except OSError as exc:
-        raise CapsuleError(f"cannot read state file {state_path}: {exc}") from exc
-    except yaml.YAMLError as exc:
-        raise CapsuleError(f"state file is not parseable YAML: {exc}") from exc
+    except (OSError, UnicodeError):
+        raise CapsuleError(
+            "cannot read state file as UTF-8; inspect the explicit state path locally"
+        ) from None
+    except (yaml.YAMLError, RecursionError):
+        raise CapsuleError("state file is not parseable YAML; inspect its syntax locally") from None
     if not isinstance(data, dict):
         raise CapsuleError("state file must be a mapping")
-    errors = state_mod.validate(data)
+    try:
+        errors = state_mod.validate(data)
+    except (TypeError, ValueError, RecursionError):
+        raise CapsuleError(
+            "invalid state structure; inspect locally with state.py --state PATH"
+        ) from None
     if errors:
-        raise CapsuleError(f"invalid state: {errors[0]}")
+        raise CapsuleError("invalid state; inspect locally with state.py --state PATH")
     return data
 
 
@@ -85,7 +106,7 @@ def _check_identity(data: dict, facts: dict, workdir: str) -> list[str]:
     problems: list[str] = []
     if str(data.get("branch", "")) != facts["branch"]:
         problems.append(
-            f"branch mismatch: state={data.get('branch')!r} live={facts['branch']!r} "
+            "branch mismatch: explicit state and live Git disagree "
             "(live Git wins; update the state file)"
         )
     base = str(data.get("audit_base_sha", ""))
