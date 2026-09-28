@@ -50,8 +50,15 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `d5bd22d1bf3c` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `c2d9bafe` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 135 | 135 | Lab `c2d9bafe` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `4291377e` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 135 | 135 | Lab `4291377e` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+
+The XMage rows name the Lab commit that actually executed, which is **not** the
+candidate: `engine-bridge` is a module of this repository, so the executing head is
+the Lab's. The engine identity is the provider's reported commit, verified at AF00.
+These two figures were previously hand-written and had drifted from the receipts
+they summarise; the executing column is now checked against
+`receipt["executed_commit"]` by `test_receipt_counts_are_stated`.
 
 Each receipt binds the executing runner commit and tree, `dirty: false`, 28
 per-input sha256 digests, a runner digest, the exact command, build identity,
@@ -143,17 +150,37 @@ so this is a specific gap in Commander-legality enforcement rather than a broken
 import path. Recorded, not repaired in the Lab: masking it in the harness and
 awarding the gate would be a second source of legality.
 
-### 6.2 The XMage generic lane is not principal-scoped — engine defect
+### 6.2 Hidden information differs by candidate, and only one is a demonstrated leak
 
-`get_game_state` on the XMage generic B4-D lane returns **byte-identical** state to
-every observer. That state contains, for all four seats, the real `player_id`, the
-hand card object ids and the library contents. All four principal observations
-hash to a single state view. Attribution is `ENGINE_CANDIDATE_DEFECT`.
+The two candidates are **not** in the same state, and an earlier revision of this
+packet said they were. It accused Forge of a content leak that Forge does not
+commit. The corrected reading:
 
-The Lab does not mask this and the hidden-information gate earns no credit. The
-full-game lane uses a different protocol and is properly scoped through
-`XmageFullGameStateRedactor`, which this workstream repaired to emit seat-derived
-opaque tokens for every non-viewer principal.
+**XMage — demonstrated engine defect.** `get_game_state` on the generic B4-D lane
+returns **byte-identical** state to every observer: one distinct state view across
+four different requesters, containing, for all four seats, the real `player_id`,
+the hand card object ids and the library contents. Because the requester differs
+while the payload does not, each caller necessarily sees every other seat's cards.
+Attribution `ENGINE_CANDIDATE_DEFECT`.
+
+**Forge — unestablished, not defective.** The Forge bridge redacts correctly: it
+returns **four distinct** state views, the requesting seat's real card names and
+`"<hidden>"` for every opponent card. That is proper redaction. What Forge does
+*not* do is mark the observing principal, so the Lab cannot confirm from the
+response alone which seat was the requester's. Attribution is
+`SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT`, and AF05 stays `UNKNOWN` for Forge
+rather than reporting a confirmed engine failure.
+
+The distinction matters in both directions. A redaction placeholder is the
+*absence* of content, and counting a placeholder array as exposed hand content
+manufactures an accusation. Conversely, an undemonstrated leak must never be
+asserted: without actor marking, content on a seat that is not known to be the
+requester's may be the requester's own.
+
+The Lab does not mask the XMage finding and the hidden-information gate earns no
+credit on either candidate. The full-game lane uses a different protocol and is
+properly scoped through `XmageFullGameStateRedactor`, which this workstream
+repaired to emit seat-derived opaque tokens for every non-viewer principal.
 
 ### 6.3 Rules RNG is uncontrolled on both candidates
 
@@ -196,7 +223,7 @@ artifact is the Forge candidate is a Coordinator provider decision.
 |---|---|---|---|
 | PB-03 starting-state classification | both | **RESOLVED** (mechanism); block attribution now per candidate | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
 | PB-05 build provenance | forge | **RESOLVED** | Forge PR #4 repairs the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
-| PB-06 per-scenario hidden channels | both | **BLOCKED** | no principal-scoped observation is credible: the generic lane is unscoped (§6.2) and no per-scenario channel was executed |
+| PB-06 per-scenario hidden channels | both | **BLOCKED** | no principal-scoped observation is credible. XMage's generic lane returns one shared state view to every observer (a demonstrated leak); Forge redacts but does not mark the observing principal, so scoping cannot be established either way. No per-scenario channel was executed (§6.2) |
 | PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4) |
 | PB-08 clean-process replay twin | both | **BLOCKED** | Rules RNG is uncontrolled on both candidates, so a same-seed twin proves nothing |
 | PB-09 Forge candidate identity | coordinator | **OPEN — RESERVED** | which artifact is the candidate: pinned upstream `a37a865a` or the Lab fork `ef958ee9`. Not a coding question |
@@ -213,7 +240,7 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | Player cardinality 2P/3P/4P/5P (AF02) | PASS | PASS |
 | Bounded 6P | attempted, not separately credited | attempted, not separately credited |
 | Commander deck legality at import (AF03) | PASS | **FAIL** |
-| Principal-scoped hidden information | **FAIL (engine defect)** | **FAIL (engine defect)** |
+| Principal-scoped hidden information | **FAIL — demonstrated engine defect** | **UNKNOWN — redacted correctly, scoping unestablished** |
 | Rules RNG control (AF09) | **UNCONTROLLED** | **UNCONTROLLED** |
 | Semantic replay | UNKNOWN | UNKNOWN |
 | Actual-card runtime behaviour | UNKNOWN | UNKNOWN |
@@ -237,7 +264,9 @@ sit inside the 59 `UNKNOWN` and 44 `BLOCKED` rows.
    anything as a candidate measurement and whether AF11's licence posture is
    recomputed for a GPL-3.0 derivative.
 2. A principal-scoped observation surface for the generic lane, or a decision to
-   qualify the full-game lane only. This unblocks PB-06 and AF05.
+   qualify the full-game lane only. XMage additionally needs its projection fixed;
+   Forge needs the observing principal marked so its correct redaction can be
+   verified rather than merely trusted. This unblocks PB-06 and AF05.
 3. A seed-capable generic lane, or an engine-level RNG binding. This unblocks
    PB-08 and AF09.
 4. Execution of the 29-card corpus under the actual-behaviour standard. This

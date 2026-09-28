@@ -210,9 +210,25 @@ ACTUAL_CARD_NAMES: tuple[str, ...] = (
     "Wall of Faith",
 )
 
-# The 29-card corpus the effective contract requires. Declared so the artifact can
-# state the shortfall as a number instead of pointing at prose.
-REQUIRED_ACTUAL_CARD_CORPUS = 29
+# The actual-card corpus the effective contract requires. The IDENTITIES are
+# loaded from the frozen domain manifest rather than restated here: a local list
+# can drift from the contract, and measuring completion against a drifted list
+# would advertise a corpus nobody required. The declared ACTUAL_CARD_NAMES above
+# shares ZERO members with the frozen 29, so a count derived from it measured
+# nothing.
+ACTUAL_CARD_DOMAIN_MANIFEST = REPO_ROOT / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
+
+
+def frozen_actual_card_corpus() -> tuple[str, ...]:
+    """The frozen regression corpus identities, in manifest order."""
+    document = json.loads(ACTUAL_CARD_DOMAIN_MANIFEST.read_text(encoding="utf-8"))
+    corpus = document["regression_corpus_29"]
+    if not isinstance(corpus, list) or not corpus:
+        raise SystemExit(
+            f"{ACTUAL_CARD_DOMAIN_MANIFEST} carries no regression_corpus_29; the "
+            "actual-card obligation cannot be measured"
+        )
+    return tuple(str(name) for name in corpus)
 
 
 def git(*args: str, cwd: Path | None = None) -> str:
@@ -629,11 +645,14 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         behaviourally_executed_cards: set[str] = set()
         # Read the ACTUAL row result, not the materialization record: only a row
         # that executed and passed can contribute executed cards.
+        frozen_corpus = frozen_actual_card_corpus()
         card_result = next((row for row in rows if row.fixture_id == "CARD_02"), None)
         if card_result is not None and card_result.outcome == "PASS":
             executed = (card_result.evidence or {}).get("executed_cards")
             if isinstance(executed, list):
                 behaviourally_executed_cards = {str(name) for name in executed}
+        # Only identities the frozen contract actually requires can count.
+        covered_corpus = behaviourally_executed_cards & set(frozen_corpus)
 
         write(
             f"ACTUAL_CARD_{candidate.upper()}.json",
@@ -654,27 +673,32 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 # verdicts.
                 "engine_validated": af03_evidence,
                 "required_29_card_corpus": {
-                    "required_count": REQUIRED_ACTUAL_CARD_CORPUS,
+                    "required_count": len(frozen_corpus),
+                    "required_identities_source": ACTUAL_CARD_DOMAIN_MANIFEST.name,
                     "declared_in_this_artifact": len(ACTUAL_CARD_NAMES),
+                    "declared_identities_in_frozen_corpus": len(
+                        set(ACTUAL_CARD_NAMES) & set(frozen_corpus)
+                    ),
                     # Decks are per seat, not per card. Counting them said nothing
                     # about the corpus.
                     "decks_imported_at_runtime": len(hidden_game.deck_identity),
-                    # Completion is DERIVED from behaviourally executed cards.
-                    # Naming a card proves nothing: an earlier version could
-                    # advertise a complete corpus by adding 29 names to the list
-                    # with no probe executing any of them.
-                    "behaviorally_executed_cards": sorted(behaviourally_executed_cards),
-                    "behaviorally_executed_count": len(behaviourally_executed_cards),
-                    "complete": (len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS),
+                    # Counted against the FROZEN identities, not the local list.
+                    # ACTUAL_CARD_NAMES shares zero members with the required
+                    # corpus, and a row passing 29 arbitrary cards must not be able
+                    # to claim the corpus it never touched.
+                    "behaviorally_executed_cards": sorted(covered_corpus),
+                    "behaviorally_executed_count": len(covered_corpus),
+                    "missing_identities": sorted(set(frozen_corpus) - covered_corpus),
+                    "complete": not (set(frozen_corpus) - covered_corpus),
                     "statement": (
-                        f"this artifact names {len(ACTUAL_CARD_NAMES)} cards and executed "
-                        f"behaviour for {len(behaviourally_executed_cards)} of them; the "
-                        f"{REQUIRED_ACTUAL_CARD_CORPUS}-card corpus is "
+                        f"{len(covered_corpus)} of the {len(frozen_corpus)} frozen corpus "
+                        "identities have individually passing behavioural evidence; the corpus "
+                        "is "
                         + (
                             "complete"
-                            if len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS
-                            else "NOT executed, so the actual-card obligation is unestablished "
-                            "and the row cannot be credited"
+                            if not (set(frozen_corpus) - covered_corpus)
+                            else "NOT executed, so the actual-card obligation is "
+                            "unestablished and the row cannot be credited"
                         )
                     ),
                 },

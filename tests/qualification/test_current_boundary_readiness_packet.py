@@ -33,7 +33,7 @@ def _matrix(candidate: str) -> dict[str, str]:
 
 def _receipts() -> list[dict]:
     return [
-        json.loads(path.read_text(encoding="utf-8"))
+        (path, json.loads(path.read_text(encoding="utf-8")))
         for path in sorted((OUT / "receipts").glob("*.json"))
     ]
 
@@ -119,12 +119,34 @@ def test_the_two_candidate_columns_actually_differ_somewhere() -> None:
 def test_receipt_counts_are_stated() -> None:
     receipts = _receipts()
     assert len(receipts) == 4
-    for receipt in receipts:
+    for path, receipt in receipts:
         assert receipt["returncode"] == 0
         assert receipt["failed"] == 0 and receipt["errors"] == 0
-        assert f"| {receipt['tests']} | {receipt['passed']} |" in TEXT, receipt["group"]
         assert receipt["runner"]["dirty"] is False
         assert len(receipt["runner"]["input_digests"]) > 0
+        # The packet's executing column must be the receipt's own value, not a
+        # hand-written figure that can drift. It once said c2d9bafe while the
+        # receipts said 4291377e, misidentifying the code that ran the suites.
+        # The packet may abbreviate, so require the row to CARRY the receipt's
+        # own value. It once named c2d9bafe for the XMage suites while the
+        # receipts recorded 4291377e, misidentifying the code that ran them.
+        row = next(
+            (line for line in TEXT.splitlines() if line.startswith(f"| `{Path(str(path)).name}`")),
+            None,
+        )
+        assert row is not None, f"the packet has no row for {path.name}"
+        # The packet may abbreviate, so its cell must be a PREFIX of what the
+        # receipt recorded. It once named c2d9bafe for the XMage suites while the
+        # receipts recorded 4291377e, which is not a prefix of anything the run
+        # executed.
+        cells = [cell.strip().strip("*") for cell in row.strip().strip("|").split("|")]
+        stated = cells[5].replace("Lab ", "").strip().strip("`").strip()
+        assert stated, f"{path.name}: the packet row has no executing-commit cell"
+        assert receipt["executed_commit"].startswith(stated), (
+            f"the packet states {stated!r} as the executing commit for {path.name}, "
+            f"which is not a prefix of the recorded {receipt['executed_commit'][:12]}"
+        )
+        assert str(receipt["tests"]) in row and str(receipt["passed"]) in row, path.name
 
 
 def test_packet_names_no_winner() -> None:

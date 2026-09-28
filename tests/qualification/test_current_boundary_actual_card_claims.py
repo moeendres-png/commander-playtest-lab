@@ -61,15 +61,17 @@ def test_engine_validated_is_a_derived_mapping() -> None:
 def test_corpus_shortfall_is_a_number_not_a_prose_pointer() -> None:
     source = RUNNER.read_text(encoding="utf-8")
     assert "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF" not in source
-    assert "REQUIRED_ACTUAL_CARD_CORPUS = 29" in source
-    assert '"required_count": REQUIRED_ACTUAL_CARD_CORPUS,' in source
-    # Completion derives from behaviourally executed cards. An earlier version
+    assert "def frozen_actual_card_corpus() -> tuple[str, ...]:" in source
+    assert "ACTUAL_CARD_DOMAIN_MANIFEST" in source
+    assert "regression_corpus_29" in source
+    assert '"required_count": len(frozen_corpus),' in source
+    # Completion is measured against the frozen identities. An earlier version
     # compared the declared NAME count, so appending 29 names would have
     # advertised a complete runtime corpus with no probe behind it.
-    assert (
-        '"complete": (len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS)' in source
-    )
-    assert '"behaviorally_executed_count": len(behaviourally_executed_cards)' in source
+    assert '"complete": not (set(frozen_corpus) - covered_corpus)' in source
+    assert '"missing_identities": sorted(set(frozen_corpus) - covered_corpus)' in source
+    assert "behaviourally_executed_cards & set(frozen_corpus)" in source
+    assert '"behaviorally_executed_count": len(covered_corpus)' in source
 
 
 def test_card_list_is_declared_once() -> None:

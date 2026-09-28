@@ -28,17 +28,18 @@ PACKET_TEXT = PACKET.read_text(encoding="utf-8")
 
 
 def test_corpus_completion_is_not_derived_from_the_name_count() -> None:
-    assert '"complete": len(ACTUAL_CARD_NAMES) >=' not in SOURCE
-    assert (
-        '"complete": (len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS)' in SOURCE
-    )
+    assert '"complete": not (set(frozen_corpus) - covered_corpus)' in SOURCE
+    assert '"missing_identities": sorted(set(frozen_corpus) - covered_corpus)' in SOURCE
+    # Only identities the frozen contract requires may count toward completion.
+    assert "behaviourally_executed_cards & set(frozen_corpus)" in SOURCE
 
 
 def test_corpus_does_not_count_decks_as_cards() -> None:
     """deck_identity is one entry per seat, not one per card."""
     assert '"imported_at_runtime": len(hidden_game.deck_identity)' not in SOURCE
     assert '"decks_imported_at_runtime": len(hidden_game.deck_identity)' in SOURCE
-    assert '"behaviorally_executed_count": len(behaviourally_executed_cards)' in SOURCE
+    assert '"behaviorally_executed_count": len(covered_corpus)' in SOURCE
+    assert '"behaviorally_executed_count": len(covered_corpus)' in SOURCE
 
 
 def test_executed_cards_come_from_a_passing_probe_not_a_list() -> None:
