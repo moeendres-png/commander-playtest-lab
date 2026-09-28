@@ -558,6 +558,24 @@ def sleep(seconds: float) -> None:
 _HIDDEN_CONTENT_KEYS: frozenset[str] = frozenset({"hand", "library", "revealed", "face_down_cards"})
 
 
+def _state_view(payload: dict[str, Any]) -> dict[str, Any]:
+    """The state view inside a principal observation.
+
+    The observation wraps the state under ``state``; the players array lives
+    there, not at the top level. Reading the top level produced a false
+    "no players array" finding against a correctly shaped response, which is
+    exactly as bad as missing a real leak: a scoping verdict must be true, not
+    merely conservative.
+    """
+    state = payload.get("state")
+    return state if isinstance(state, dict) else payload
+
+
+def _players_of(payload: dict[str, Any]) -> list[Any]:
+    players = _state_view(payload).get("players")
+    return players if isinstance(players, list) else []
+
+
 def _canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
@@ -591,8 +609,8 @@ def validate_principal_scoping(
 
     # Each observation must mark exactly one actor, and it must be the requester.
     for seat, payload in usable.items():
-        players = payload.get("players")
-        if not isinstance(players, list) or not players:
+        players = _players_of(payload)
+        if not players:
             findings.append(
                 {
                     "check": "actor_marked",
@@ -628,9 +646,12 @@ def validate_principal_scoping(
                 }
             )
 
-    # Two principals cannot receive the same view. Identical payloads mean one
-    # unscoped projection was returned to every caller.
-    distinct = {_canonical(usable[seat]) for seat in usable}
+    # Two principals cannot receive the same view. The comparison is over the
+    # STATE VIEW, not the whole observation envelope. The envelope carries a
+    # monotonically increasing `state_observation_offset`, so comparing it would
+    # make four byte-identical states look like four distinct observations and
+    # mask exactly the leak this check exists to catch.
+    distinct = {_canonical(_state_view(usable[seat])) for seat in usable}
     if len(usable) > 1 and len(distinct) == 1:
         findings.append(
             {
@@ -643,13 +664,16 @@ def validate_principal_scoping(
 
     # No observation may carry another principal's hidden card content.
     for seat, payload in usable.items():
-        players = payload.get("players")
-        if not isinstance(players, list):
-            continue
-        for entry in players:
+        for entry in _players_of(payload):
             if not isinstance(entry, dict):
                 continue
-            exposed = sorted(key for key in _HIDDEN_CONTENT_KEYS if entry.get(key))
+            raw_zones = entry.get("zones")
+            zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else entry
+            exposed = sorted(
+                key
+                for key in _HIDDEN_CONTENT_KEYS
+                if zones.get(key) or (key == "library" and _library_present(zones))
+            )
             if exposed and entry.get("is_actor") is not True:
                 findings.append(
                     {
@@ -661,15 +685,68 @@ def validate_principal_scoping(
                     }
                 )
 
+    # Classify the defect, because the two have different owners and the
+    # difference matters. An ENGINE leak is a candidate defect: the provider
+    # returned unauthorised identity or content and the Lab must not mask it.
+    # A SERIALIZER leak is a Lab defect: the response was correctly scoped and
+    # the Lab persisted extra identity. Masking an engine leak in the serializer
+    # and then awarding engine correctness credit is forbidden, so the
+    # classification is derived from what the observation actually contains.
+    exposed_keys = sorted(
+        {
+            key
+            for finding in findings
+            if finding.get("check") == "no_opponent_hidden_content"
+            for key in _exposed_keys_of(finding.get("detail", ""))
+        }
+    )
+    engine_leak = bool(
+        exposed_keys
+        or any(finding.get("check") == "observations_differ_per_principal" for finding in findings)
+    )
+    if not findings:
+        attribution = "NONE"
+    elif engine_leak:
+        attribution = "ENGINE_CANDIDATE_DEFECT"
+    else:
+        attribution = "LAB_SERIALIZER_DEFECT"
+
     return {
         "verdict": "PRINCIPAL_SCOPED" if not findings else "SCOPING_NOT_ESTABLISHED",
+        "attribution": attribution,
+        "engine_leak_indicators": exposed_keys,
+        "attribution_rule": "unauthorised content or one shared view across principals is a "
+        "candidate defect the Lab must not mask; anything else is a Lab serialization "
+        "defect. A masked engine leak must never earn engine correctness credit.",
         "credible_as_principal_scoped_evidence": not findings,
         "principals_checked": sorted(usable),
-        "distinct_payloads": len(distinct),
+        "distinct_state_views": len(distinct),
+        "compared": "the state view, excluding the observation envelope whose "
+        "monotonic offset would otherwise make identical states look distinct",
         "findings": findings,
         "note": "an observation that is not principal-scoped is recorded as observed and is "
         "not presented as hidden-information evidence",
     }
+
+
+def _exposed_keys_of(detail: str) -> list[str]:
+    """Recover the exposed zone names from a finding's detail text."""
+    marker = "zone content ["
+    if marker not in detail:
+        return []
+    tail = detail.split(marker, 1)[1]
+    # The detail ends with prose after the bracketed list, so cut at "]".
+    inside = tail.split("]", 1)[0]
+    return [item.strip().strip("'\"") for item in inside.split(",") if item.strip()]
+
+
+def _library_present(zones: dict[str, Any]) -> bool:
+    """Whether a library zone was exposed, under any of its observed names."""
+    for name in ("library", "lib", "deck"):
+        value = zones.get(name)
+        if value:
+            return True
+    return False
 
 
 def _seat_index(seats: tuple[str, ...], seat: str) -> int | None:

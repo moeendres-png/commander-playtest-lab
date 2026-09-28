@@ -57,6 +57,8 @@ from .game_driver import (
 from .materialization import (
     EffectiveMaterialization,
     load_effective_materialization,
+    mid_game_mechanisms,
+    requires_starting_state,
 )
 from .source_lock import (
     CURRENT_QUALIFICATION_BOUNDARY,
@@ -101,8 +103,10 @@ __all__ = [
     "export_replay",
     "launch",
     "load_effective_materialization",
+    "mid_game_mechanisms",
     "non_executed_row",
     "observe_principal_state",
+    "requires_starting_state",
     "run_af01",
     "run_af03",
     "run_cardinality",
