@@ -204,8 +204,36 @@ def _payload(response: dict[str, Any]) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
-def _require_ok(response: dict[str, Any], step: str) -> dict[str, Any]:
+def _require_ok(
+    response: dict[str, Any],
+    step: str,
+    *,
+    requested_player_count: int | None = None,
+    candidate: str | None = None,
+) -> dict[str, Any]:
     if not _first_ok(response):
+        # The engine's own refusal of a player count is a capability fact, not a
+        # lifecycle failure, and must not be recorded as one.
+        #
+        # This matters because the pinned Forge bridge qualifies EXACTLY four
+        # players yet publishes only max_players=4 and advertises no minimum, so a
+        # 2-player request sits inside the advertised envelope and is attempted.
+        # Only the engine's refusal reveals the real contract. The engine is the
+        # authority on that, not the harness reading a flag.
+        code = ""
+        message = ""
+        errors = response.get("errors")
+        if isinstance(errors, list) and errors:
+            first = errors[0]
+            if isinstance(first, dict):
+                code = str(first.get("code", ""))
+                message = str(first.get("message", ""))
+        if code == "player_count_unsupported" and requested_player_count is not None:
+            raise UnsupportedPlayerCount(
+                f"the {candidate or 'engine'} engine refused {requested_player_count} "
+                f"players by contract: {message or code}. Nothing further was attempted, "
+                "and this is not a candidate capability result for that count."
+            )
         raise GameDriveError(f"{step} failed: status={response.get('status')!r}")
     return _payload(response)
 
@@ -466,6 +494,8 @@ def drive_commander_game(
                 timeout_s=300.0,
             ),
             "create_commander_game",
+            requested_player_count=player_count,
+            candidate=candidate,
         )
         # Seed control is derived from what the engine acknowledged, never from
         # the fact that the caller asked. An engine that echoes nothing is

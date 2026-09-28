@@ -29,7 +29,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from commander_lab.qualification.current_boundary import (  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402  # noqa: E402
     FORGE_CANDIDATE_COMMIT,
     FORGE_WSR20_EVIDENCE_TIP,
     NEGATIVE_ROWS,
@@ -46,6 +46,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     cardinality_row,
     drive_commander_game,
     export_replay,
+    game_driver,
     launch,
     load_effective_materialization,
     non_executed_row,
@@ -543,14 +544,43 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             af01_player_count = declared_min
         if isinstance(declared_max, int) and af01_player_count > declared_max:
             af01_player_count = declared_max
-        probes["af01_live_player_count"] = af01_player_count
-        af01_live = drive_commander_game(
-            proc,
-            candidate=candidate,
-            player_count=af01_player_count,
-            seed=int(identity.get("af01_probe_seed", 20260927)),
-            drive_to="priority",
-        )
+        probes["af01_live_player_count_requested"] = af01_player_count
+        # The engine, not the harness, decides which counts it qualifies. If it
+        # refuses the requested count by contract, that refusal is RECORDED and
+        # the drive is retried at the engine's own declared maximum. This is an
+        # explicit, evidenced adaptation: the refused count, the engine's reason
+        # and the count actually driven all appear in the evidence, so no reader
+        # can assume a surface the engine never ran.
+        refusals: list[dict[str, Any]] = []
+        af01_player_count_driven = af01_player_count
+        while True:
+            try:
+                af01_live = drive_commander_game(
+                    proc,
+                    candidate=candidate,
+                    player_count=af01_player_count_driven,
+                    seed=int(identity.get("af01_probe_seed", 20260927)),
+                    drive_to="priority",
+                )
+                break
+            except game_driver.UnsupportedPlayerCount as exc:
+                refusals.append(
+                    {
+                        "requested_player_count": af01_player_count_driven,
+                        "engine_reason": str(exc),
+                        "attempted_beyond_handshake": False,
+                    }
+                )
+                fallback = declared_max if isinstance(declared_max, int) else None
+                if (
+                    fallback is None
+                    or fallback == af01_player_count_driven
+                    or fallback in {r["requested_player_count"] for r in refusals}
+                ):
+                    raise
+                af01_player_count_driven = fallback
+        probes["af01_live_player_count_driven"] = af01_player_count_driven
+        probes["af01_live_player_count_refusals"] = refusals
         af01_game_id = af01_live.game_id
         probes["af01_live_game"] = {
             "game_id": af01_game_id,
