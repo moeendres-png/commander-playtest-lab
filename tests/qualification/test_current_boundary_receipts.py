@@ -198,6 +198,73 @@ def test_positive_fixture_credit_accepted() -> None:
     assert credit == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
 
 
+def test_nested_positive_fixture_in_verified_native_receipt_is_accepted() -> None:
+    child = _fixture_receipt()
+    # A nested child is cryptographically covered by the parent receipt. It
+    # therefore does not need the impossible circular parent receipt digest.
+    child.pop("runtime_receipt_digest", None)
+    parent = _good_receipt(positive_fixtures=[child])
+    credit = R.positive_fixture_credit(
+        [parent], candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
+    )
+    assert credit == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
+
+
+def test_nested_fixture_cannot_escape_parent_candidate_or_head() -> None:
+    wrong_candidate = _fixture_receipt(candidate="forge")
+    wrong_head = _fixture_receipt(candidate_commit="0" * 40)
+    parent = _good_receipt(positive_fixtures=[wrong_candidate, wrong_head])
+    credit = R.positive_fixture_credit(
+        [parent], candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
+    )
+    assert credit == {}
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("assertion_kind", "CONSTRUCTION_ONLY"),
+        ("outcome", "FAIL"),
+        ("observed_assertion", ""),
+        ("obligation_exercised", ""),
+        ("test_identity", ""),
+        ("schema_version", "wrong/1"),
+    ],
+)
+def test_nested_nonpositive_or_incomplete_fixture_cannot_promote(
+    field: str, value: str
+) -> None:
+    child = _fixture_receipt(**{field: value})
+    parent = _good_receipt(positive_fixtures=[child])
+    assert R.positive_fixture_credit(
+        [parent], candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
+    ) == {}
+
+
+def test_nested_fixture_in_failed_or_tampered_parent_cannot_promote() -> None:
+    child = _fixture_receipt()
+    failed_parent = _good_receipt(positive_fixtures=[child], failed=1, passed=33)
+    tampered_parent = _good_receipt(positive_fixtures=[child])
+    tampered_parent["tests"] = 999
+    assert R.positive_fixture_credit(
+        [failed_parent, tampered_parent],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=_DENOM,
+    ) == {}
+
+
+def test_collect_receipts_plus_nested_credit_is_end_to_end(tmp_path: Path) -> None:
+    child = _fixture_receipt()
+    child.pop("runtime_receipt_digest", None)
+    R.persist(tmp_path / "native.json", _good_receipt(positive_fixtures=[child]))
+    verified, rejected = R.collect_receipts(tmp_path)
+    assert rejected == []
+    assert R.positive_fixture_credit(
+        verified, candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
+    ) == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
+
+
 def test_negative_assertion_cannot_promote() -> None:
     """The exact HIDDEN_02 defect: a test asserting FAILURE must never promote."""
     credit = R.positive_fixture_credit(
