@@ -165,5 +165,14 @@
     "MUSE_UNRESOLVED_UNKNOWN": false,
     "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
     "PRODUCTION_PROVIDER": "NOT_SELECTED"
-  }
+  },
+  "historical_pr_hygiene": [
+    {
+      "pr": 165,
+      "head": "ebc318b3e90a92938e94da8067a78647ac7d304f",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION",
+      "receipt_comment_id": 5880021755,
+      "final_state": "CLOSED_UNMERGED_BRANCH_RETAINED"
+    }
+  ]
 }
