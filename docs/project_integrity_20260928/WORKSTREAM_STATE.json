@@ -9,7 +9,7 @@
     "foreign launcher enforcement",
     "replay owner intake"
   ],
-  "next_action": "Publish dedicated PR; exact-head CI; normal merge only if gates pass",
+  "next_action": "Read current PR #280 state and terminal receipt first. If already merged, report its exact merge commit and stop this owned workstream. Otherwise wait for exact-head required CI, resolve review findings and integrate by normal merge only when all gates pass. Do not create or republish another PR.",
   "architecture_freeze": "NOT CLAIMED",
   "production_provider": "NOT SELECTED",
   "pr": 280
