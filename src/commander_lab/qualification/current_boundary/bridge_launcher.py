@@ -105,6 +105,7 @@ class BridgeProcess:
             response = json.loads(raw)
         except json.JSONDecodeError as exc:
             raise BridgeLaunchError(f"non-JSON provider response: {raw[:200]!r}") from exc
+        assert isinstance(response, dict)
         self.transcript.append({"direction": "response", "received": response, "request": envelope})
         return response
 

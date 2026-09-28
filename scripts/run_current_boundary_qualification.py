@@ -52,6 +52,7 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     HIDDEN_SCENARIO_ROWS,
     NATIVE_MICRO_ROWS,
     RowResult,
+    admit_row,
     run_cardinality,
     summarize,
 )
@@ -382,14 +383,34 @@ def classify_remaining(
         fixture_id = record["fixture_id"]
         if fixture_id in executed:
             continue
-        if fixture_id.startswith(("WS05-MP-", "WS05-CMD-ZONE-", "WS05-CMD-DMG-", "WS05-CMD-ELIM-")):
+        # PB-03 dimension admission: mechanism per row, never fixture-id prefix.
+        tier, missing = admit_row(fixture_id)
+        if tier == "TIER_3":
             reason = (
-                "no current-boundary execution seam: the effective obligation requires a "
-                "frozen mid-game starting state, and the Lab execution path does not expose "
-                "generic starting-state injection (the XMage bridge reports "
-                "starting_state_injection_supported=false). Native causal-reconstruction "
-                "harnesses exist for adjacent mechanisms but are not the same obligation; "
-                "no credit is transferred."
+                "no genuine engine path for the required starting state: missing "
+                f"dimension(s) {', '.join(missing)}. The Lab execution path exposes "
+                "no generic starting-state injection (the XMage bridge truthfully "
+                "reports starting_state_injection_supported=false), and no qualified "
+                "genuine-causal transaction reproduces this precondition. Genuine "
+                "loss/divergence mechanisms are qualified separately (L5/L6) but "
+                "their credit is not transferred to this row."
+            )
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome="BLOCKED",
+                    reason=reason,
+                    runtime_identity=identity,
+                )
+            )
+        elif tier in ("TIER_1", "TIER_2"):
+            reason = (
+                f"admitted {tier}: routed to the native execution seam for a "
+                "positive row execution. This fallback BLOCKED applies only when "
+                "no positive native execution bound the row in assembly; an "
+                "admitted row is promoted exclusively by a fixture-loading "
+                "obligation-asserting native test, never by name mention."
             )
             rows.append(
                 non_executed_row(

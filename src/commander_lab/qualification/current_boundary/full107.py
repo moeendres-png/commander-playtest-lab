@@ -51,11 +51,425 @@ OUTCOMES = (
     "PROTOCOL_FAILURE",
 )
 
-# Rows the effective contract itself blocks on the XMage Lab path: the bridge
-# reports starting_state_injection_supported=false, so a frozen mid-game
-# starting state cannot be constructed. This is a contract-locked seam, not a
-# Rules incapability of XMage itself.
-INJECTION_BLOCKED_FAMILIES = ("WS05-MP-", "WS05-CMD-ZONE-", "WS05-CMD-DMG-", "WS05-CMD-ELIM-")
+# PB-03 dimension admission (Muse XHIGH Wave 1): the starting-state requirement
+# is classified by REQUIRED MECHANISM per row, never by fixture-id prefix.
+# The Lab-owned XMage restoration seam (`XmageNativeStateRestoration`) is the
+# admission oracle: TIER_1 rows construct as-is through `planFromFrozenRecord`;
+# TIER_2 rows need a qualified genuine-causal transaction on top of a
+# constructible pre-cause state (real cast / real choice / real declaration);
+# TIER_3 rows need dimensions with no genuine engine path and stay BLOCKED
+# with the exact missing dimension named. The Java suite
+# `XmagePb03DimensionAdmissionTest` pins this table against the live seam:
+# Python and Java must agree on every row, or the test fails.
+#
+# Dimension vocabulary (short keys for the seam's documented dimensions):
+#   ZONES_PUBLIC      battlefield/graveyard/exile placement of real cards
+#   HAND_IDENTITY     hand identity via the setup primitive (principal-scoped)
+#   COMMANDERS        commanders with prior cast counts (native game-load path)
+#   COMMANDER_DAMAGE  damage matrices through exact live CommanderInfo bindings
+#   LIFE_TOTALS       life totals (pre-start assembly; SBA stay authoritative)
+#   TURN1_TEMPORAL    qualified turn-1 temporal targets (RG-03 allow-list)
+#   RULES_SEED        explicit Rules-seed binding with replay determinism
+#   READBACK_DIGEST   strict native readback with field-level compare/digests
+#   STACK_SPELLS      live stack spells (unsupported: casting needs real costs)
+#   CONTROL_DIVERGENCE owner/controller divergence (unsupported: layers re-derive)
+#   EXTRA_TURN_QUEUE  a pre-existing extra-turn queue (unsupported: no restore
+#                     API exists; extra turns arise only from genuine casts)
+#   LIFE_ZERO_PRESTART a 0-life player in the requested pre-start state
+#                     (unsupported: the engine re-derives starting life at start)
+REQUIRED_DIMENSIONS: dict[str, tuple[str, ...]] = {
+    # ---- TIER_1: construct as-is, then native evaluate/observe ----
+    "MICRO_COMBAT": (
+        "ZONES_PUBLIC",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_CONTINUOUS_EFFECTS": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_MODES": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_PREVENTION": (
+        "ZONES_PUBLIC",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_REPLACEMENT": (
+        "ZONES_PUBLIC",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "WS05-MP-BLOCK-4": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "WS05-MP-COMBAT-4": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "WS05-MP-COMBAT-5": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "WS05-MP-TURN-5": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "EXTRA_TURN_QUEUE",
+    ),
+    # PB-10 demotion row, re-admitted by mechanism: 19 restored Commander damage
+    # plus a genuine combat-damage step reaches the 21-damage loss threshold.
+    "WS05-CMD-ELIM-4": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "COMMANDER_DAMAGE",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    # ---- TIER_2: constructible pre-cause state + genuine causal path ----
+    "WS05-CMD-ZONE-GY-YES": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-CMD-ZONE-GY-NO": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-CMD-ZONE-EXILE-YES": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-CMD-ZONE-EXILE-NO": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-CMD-ZONE-HAND-YES": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-CMD-ZONE-HAND-NO": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-CMD-ZONE-LIB-NO": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "MICRO_COSTS": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_MANA_PAYMENT": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "MICRO_PRIORITY": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "MICRO_STACK": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "MICRO_STATE_BASED_ACTIONS": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_TRIGGERS": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    ),
+    "MICRO_ZONE_CHANGES": (
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "MICRO_COPY": (
+        "ZONES_PUBLIC",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "MICRO_CONTROL": (
+        "ZONES_PUBLIC",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "CONTROL_DIVERGENCE",
+    ),
+    "MICRO_RULES_RANDOMNESS": (
+        "ZONES_PUBLIC",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-MP-PRIO-3": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-MP-PRIO-5": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    # PB-10 demotion rows: donor PASS rested on non-credit harnesses
+    # (rejection / blocker-characterization tests), so they re-enter
+    # admission by mechanism rather than inheriting PASS.
+    "WS05-CMD-ZONE-LIB-YES": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "STACK_SPELLS",
+    ),
+    "WS05-MP-ELIM-OWNED-3": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "LIFE_ZERO_PRESTART",
+    ),
+    # ---- TIER_3: no genuine engine path; BLOCKED with named dimension ----
+    "WS05-MP-ELIM-5": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "LIFE_ZERO_PRESTART",
+    ),
+    "WS05-MP-ELIM-CONTROL-3": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "LIFE_ZERO_PRESTART",
+        "CONTROL_DIVERGENCE",
+    ),
+    "WS05-MP-ELIM-PRIO-3": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "LIFE_ZERO_PRESTART",
+    ),
+    "WS05-MP-ELIM-TURN-3": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "LIFE_ZERO_PRESTART",
+    ),
+    "WS05-MP-ELIM-STACK-3": (
+        "ZONES_PUBLIC",
+        "COMMANDERS",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+        "LIFE_ZERO_PRESTART",
+        "STACK_SPELLS",
+    ),
+}
+
+# Dimensions the restoration seam supports today (mirror of
+# `XmageNativeStateRestoration.dimensionsPayload()` supported_dimensions).
+SEAM_SUPPORTED_DIMENSIONS = frozenset(
+    {
+        "ZONES_PUBLIC",
+        "HAND_IDENTITY",
+        "COMMANDERS",
+        "COMMANDER_DAMAGE",
+        "LIFE_TOTALS",
+        "TURN1_TEMPORAL",
+        "RULES_SEED",
+        "READBACK_DIGEST",
+    }
+)
+
+# Tiers route admitted rows to their execution seam.
+TIER_1_CONSTRUCT_ONLY: tuple[str, ...] = tuple(
+    fixture
+    for fixture, dims in REQUIRED_DIMENSIONS.items()
+    if set(dims) <= set(SEAM_SUPPORTED_DIMENSIONS)
+)
+TIER_2_GENUINE_CAUSAL: tuple[str, ...] = (
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "MICRO_COPY",
+    "MICRO_CONTROL",
+    "MICRO_RULES_RANDOMNESS",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_PRIORITY",
+    "MICRO_STACK",
+    "MICRO_ZONE_CHANGES",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TURN-5",
+)
+TIER_3_NO_GENUINE_PATH: tuple[str, ...] = (
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-OWNED-3",
+)
+
+
+def admit_row(fixture_id: str) -> tuple[str, tuple[str, ...]]:
+    """Classify one fixture by required mechanism.
+
+    Returns (tier, missing_dimensions) where tier is one of
+    TIER_1 / TIER_2 / TIER_3 / UNLISTED. TIER_3 rows name the exact missing
+    dimension; UNLISTED rows are not part of the PB-03 set.
+    """
+    if fixture_id in TIER_1_CONSTRUCT_ONLY:
+        return ("TIER_1", ())
+    if fixture_id in TIER_2_GENUINE_CAUSAL:
+        missing = tuple(
+            dim for dim in REQUIRED_DIMENSIONS[fixture_id] if dim not in SEAM_SUPPORTED_DIMENSIONS
+        )
+        return ("TIER_2", missing)
+    if fixture_id in TIER_3_NO_GENUINE_PATH:
+        missing = tuple(
+            dim for dim in REQUIRED_DIMENSIONS[fixture_id] if dim not in SEAM_SUPPORTED_DIMENSIONS
+        )
+        return ("TIER_3", missing)
+    return ("UNLISTED", ())
+
 
 # Rows whose obligation is a *per-scenario hidden-information probe* that needs
 # engine-native principal-scoped channel instrumentation which the generic

@@ -1,0 +1,289 @@
+{
+ "counts": {
+  "BLOCKED": 27,
+  "PASS": 35,
+  "UNKNOWN": 45
+ },
+ "donor_head": "208341c6124674046787f3a4b1d699c98c286a27",
+ "runtime_identity": {
+  "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+  "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+  "lane": "native current-boundary runtime (PB-03 Wave-1)",
+  "native_evidence": [
+   "XmagePb03DimensionAdmissionTest (5 tests: seam/table mirror over all 36 rows)",
+   "XmagePb03Tier1RowsTest (12 tests: 9 obligation executions + 3 characterizations)"
+  ],
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_branch": "muse-xhigh/full-completion",
+  "runner_commit": "022782ad380f9d5733596973360a2b6938ba0485",
+  "runner_tree": "66b8ea257fcd56083bbe654b82deb2bab5790d1a"
+ },
+ "schema_version": "pb03.wave1-receipt/1.0.0",
+ "terminal_states": {
+  "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+  "PRODUCTION_PROVIDER": "NOT SELECTED"
+ },
+ "transform_count": 37,
+ "transforms": [
+  {
+   "action": "CHARACTERIZE",
+   "basis": "XmageHiddenReplayIntegrationTest",
+   "donor_outcome": "PASS",
+   "fixture_id": "HIDDEN_02",
+   "new_outcome": "UNKNOWN"
+  },
+  {
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier1RowsTest",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_COSTS",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_PRIORITY",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_STACK",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microModesDevilTokensWithoutDamageMode",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_MODES",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microTriggersWarstormSurgeDealsTwoToP2",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_TRIGGERS",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microReplacementDoublesThreeDamageToSix",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microPreventionFogPreventsTwoCombatDamage",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_PREVENTION",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier1RowsTest",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microStateBasedMemniteDiesAsZeroZero",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_COPY",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=CONTROL_DIVERGENCE",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_CONTROL",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.microCombatBearsTradeAndBothDie",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_COMBAT",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-PRIO-3",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-PRIO-5",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.mpCombat4AssignsTwoAttackersToTwoDefenders",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.mpCombat5AssignsThreeAttackersToThreeDefenders",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "PROMOTE",
+   "basis": "XmagePb03Tier1RowsTest.mpBlock4P2BlocksOnlyItsAttacker",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "new_outcome": "PASS"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=EXTRA_TURN_QUEUE",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-TURN-5",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "CHARACTERIZE",
+   "basis": "XmageNativeStateRestorationTest,XmageFullGameElimExecutionTest",
+   "donor_outcome": "PASS",
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_3_BLOCKED",
+   "basis": "missing=LIFE_ZERO_PRESTART, CONTROL_DIVERGENCE",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_3_BLOCKED",
+   "basis": "missing=LIFE_ZERO_PRESTART, STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_3_BLOCKED",
+   "basis": "missing=LIFE_ZERO_PRESTART",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_3_BLOCKED",
+   "basis": "missing=LIFE_ZERO_PRESTART",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_3_BLOCKED",
+   "basis": "missing=LIFE_ZERO_PRESTART",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-MP-ELIM-5",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "CHARACTERIZE",
+   "basis": "XmageNativeStateRestorationTest",
+   "donor_outcome": "PASS",
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "ADMIT_TIER_2_PENDING",
+   "basis": "missing=STACK_SPELLS",
+   "donor_outcome": "BLOCKED",
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "new_outcome": "BLOCKED"
+  },
+  {
+   "action": "CHARACTERIZE",
+   "basis": "XmagePb03Tier1RowsTest",
+   "donor_outcome": "PASS",
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "new_outcome": "BLOCKED"
+  }
+ ]
+}

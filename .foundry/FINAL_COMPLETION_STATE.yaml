@@ -4,7 +4,7 @@ worktree: /home/moeen/code/csn-final-bakeoff/muse/lab
 branch: muse-xhigh/full-completion
 audit_base_sha: e91819ae18166a9f91ca52d101a72c8cb8eddade
 audit_base_tree: 3568047a171e84e8f57b3b8b6c013a92b05c9f0d
-state_written_against_head: 04d3e5997f12f1154b4bbf08ac6e5c8f0021c2d8
+state_written_against_head: null
 validated_head: null
 objective: 'Autonomous end-to-end Commander Simulator Next completion campaign: qualification,
   remediation, freeze readiness, production implementation, real full games, replay,
@@ -23,7 +23,7 @@ execution_identity:
   children: muse-xhigh-only
   space_bunny_invoked: false
 source_lock:
-  lab_head: 0f281841fab74dc0a5527fc09f8d840175aaf71f
+  lab_head: null
   main_base: e91819ae18166a9f91ca52d101a72c8cb8eddade
   origin_main_verified: e91819ae18166a9f91ca52d101a72c8cb8eddade
   no_main_drift: true
@@ -49,12 +49,21 @@ blocker_graph:
     order: before-PB-03
     fact: donor-forge-column-79-21-7-measures-lab-fork-ef958ee9-not-pinned-a37a865a
     remedy: pristine-upstream-forge-FULL107-at-a37a865a-plus-4753bb7c-then-decision-packet
+    progress: pristine-worktree-built-at-4753bb7c-zero-Rules-Core-drift-vs-a37a865a-bridge-jar-plus-classpath-ready
   PB-03:
     class: HARNESS_DEFECT
-    status: OPEN
+    status: WAVE-1-COMPLETE
     fact: 33-xmage-BLOCKED-by-fixture-id-prefix-hardcode-runner-385-not-by-capability
     correction: donor-reality-is-15-micro-plus-7-cmd-zone-plus-11-mp-NOT-doc-summary-15-12-6
-    remedy: dimension-admission-against-live-dimensionsPayload-then-execute-admitted-rows
+    remedy: dimension-admission-against-live-seam-then-execute-admitted-rows
+    wave1: admission-table-36-rows-12-18-6-plus-assembler-fix-plus-PB-10-plus-9-executions-plus-3-characterizations
+    recomputed_column: PASS-35-UNKNOWN-45-BLOCKED-27-at-qualification-pb03-wave1-20260928
+  PB-10:
+    class: EVIDENCE_INTEGRITY_DEFECT
+    status: OPEN-FINDING-WAVE-1-REMEDIATED
+    fact: donor-assembler-promoted-rows-by-test-source-name-mention-4-xmage-PASS-rows-rest-on-rejection-noncredit-failclosed-parse-tests
+    rows: WS05-CMD-ZONE-LIB-YES-WS05-MP-ELIM-OWNED-3-HIDDEN_02-WS05-CMD-ELIM-4
+    remedy: positive-binding-promotion-only-plus-characterization-binding-plus-demotion-rule
   PB-06: {status: OPEN, sides: both, scope: per-scenario-hidden-channels-af05}
   PB-07: {status: OPEN, sides: both, scope: 29-card-corpus-af07}
   PB-08: {status: OPEN, sides: both, scope: per-fixture-clean-process-replay-twins-af09}
@@ -62,10 +71,9 @@ blocker_graph:
     xmage: AF00-PASS AF01-UNKNOWN AF02-PASS AF03-PASS AF04-FAIL AF05-UNKNOWN AF06-UNKNOWN AF07-UNKNOWN AF08-UNKNOWN AF09-UNKNOWN AF10-PASS AF11-FAIL
     forge: AF00-REQUIRES_RECONCILIATION AF01-PASS AF02-PASS AF03-PASS AF04-UNKNOWN AF05-UNKNOWN AF06-UNKNOWN AF07-UNKNOWN AF08-UNKNOWN AF09-UNKNOWN AF10-PASS AF11-FAIL
   rules_receipt:
-    main_file: qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json
-    main_claim: 2026-08-07-REJECTS-2026-09-25
-    adjudication: adopt-2026-09-25-byte-exact-8d860e45
-    live_reverification: pending-this-session
+    file: qualification-pre-freeze-successor-CURRENT_RULES_AUTHORITY.json-schema-1-3-0
+    claim: 2026-09-25-byte-exact-8d860e45
+    live_reverification: DIRECTLY_VERIFIED_CURRENT_OFFICIAL-2026-09-28-page-links-plus-effective-sentence-plus-103-8a-identical
 environment:
   venv: /tmp/foundry-launch-final-completion-muse-xhigh/launch-final-completion-muse-xhigh-5z86ui59/venv
   venv_python: '3.12.14'
@@ -74,8 +82,9 @@ environment:
   java: 21.0.12.1
   maven: 3.9.12-vs-manifest-3.9.16
   mage_jar: /home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar-7110650B-present
-  xmage_bridge_jar: not-built
+  xmage_bridge_jar: built-78MB-313-tests-green-plus-17-pb03
   docker_binary: absent
+  baseline_suite: 1713-passed-5-skipped-0-failed-on-transplant-commit
 decisions:
 - id: D001
   content: treat-wsr22-successor-branch-as-foreign-active-off-limits-use-only-shared-donor-objects
@@ -85,5 +94,37 @@ decisions:
   content: dedicated-muse-venv-because-cpl-venv-editable-points-at-foreign-worktree
 - id: D004
   content: transplant-41-donor-paths-whole-file-then-write-fresh-receipt-with-supersedes-block
-rejected_hypotheses: []
-exact_next_action: Run-baseline-suite-in-muse-venv-then-transplant-41-donor-paths-from-208341c6.
+- id: D005
+  content: pb03-execution-via-java-native-fixture-corresponding-tests-plus-runner-binding-not-new-jsonl-protocol-surface
+- id: D006
+  content: pass-requires-row-own-record-plus-obligation-facts-rejection-tests-never-promote
+- id: D007
+  content: overturn-donor-pass-only-with-proof-lib-yes-elim-owned-3-hidden-02-elim-4-present-both-columns
+- id: D008
+  content: pristine-forge-run-via-separate-script-with-pin-overrides-never-edit-source-lock-constants
+- id: D009
+  content: lean-recompute-donor-rows-verbatim-plus-35-transforms-with-own-runtime-identity-no-lifecycle-rerun
+- id: D010
+  content: life-zero-elim-rows-blocked-manufactured-preconditions-forbidden-l6-precedent-slot-02-territory
+- id: D011
+  content: wave-1-framework-plus-tier-1-executions-wave-2-tier-2-genuine-causal
+- id: D012
+  content: tier-means-admission-routing-not-outcome-characterization-tests-stay-green-rows-stay-blocked
+- id: D013
+  content: null-pending-means-retry-not-terminal-30x100ms
+rejected_hypotheses:
+- content: lib-yes-pass-rests-on-obligation-evidence
+  reason: sole-harness-is-rejectsFrozenStackSpell
+- content: elim-owned-3-pass-rests-on-obligation-evidence
+  reason: sole-harnesses-are-non-credit-characterizations
+- content: continuous-5-5-reachable-by-construction
+  reason: hand-arithmetic-13-minimum-plus-start-triggers-proven
+- content: costs-executable-as-specified
+  reason: p2-sorcery-on-p1-turn-violates-307-5
+- content: elim-4-loss-via-setup-copy-attack
+  reason: commander-identity-duality-copies-do-not-accrue-plus-real-commander-sick-turn-1
+- content: p2-excluded-as-declare-defender
+  reason: defenderPid-mapping-proves-p2-offered-name-check-was-the-bug
+- content: block-options-filtered-to-legal
+  reason: engine-offers-liberally-a3-to-p2-offered-while-attacking-p3
+exact_next_action: Commit-Wave-1-then-full-validation-then-Wave-2-Tier-2-plus-pristine-Forge-run.

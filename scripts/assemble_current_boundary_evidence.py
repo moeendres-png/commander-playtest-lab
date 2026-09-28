@@ -20,6 +20,12 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    CHARACTERIZATION_XMAGE,
+    PB10_DEMOTIONS,
+    POSITIVE_NATIVE_BINDING_XMAGE,
+)
+
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
 FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 
@@ -110,9 +116,9 @@ NATIVE_RUNS = {
     },
 }
 
-# Forge native suite -> FULL107 obligations it exercises, taken from the
-# WSR20 107-item mapping that was ingested and re-verified in this workstream.
-FORGE_NATIVE_BINDING_PATH = OUT / "wsr20-ingest" / "FULL107_FORGE_MAPPING.json"
+# Forge native suite -> FULL107 obligations: Wave-F builds audited Forge
+# bindings mirroring the XMage package map. The donor WSR20 pointer mapping
+# stays preserved in the donor evidence directory, never reused blindly.
 
 
 def load(path: Path) -> Any:
@@ -126,76 +132,83 @@ def write(name: str, payload: Any) -> None:
     print("wrote", name)
 
 
-def native_bindings() -> dict[str, dict[str, list[str]]]:
-    """fixture_id -> {candidate: [classes]} from source-extracted evidence."""
-    import re
+def apply_evidence_rules(rows: dict[str, dict[str, Any]], candidate: str) -> tuple[int, int]:
+    """Apply promotion/demotion rules. Returns (promoted, demoted).
 
-    pattern = re.compile(
-        r"\b(PLAYER_COUNT_[2-6]P|PILOT_[A-Z_]+|NEGATIVE_[A-Z_]+|HIDDEN_HONEYCARD_SENTINEL"
-        r"|HIDDEN_\d{2}|RNG_[A-Z_]+|REPLAY_[A-Z_]+|MICRO_[A-Z_]+|CARD_02|WS05-[A-Z0-9-]+)\b"
-    )
-    denominator = set(
-        load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"][i]["fixture_id"] for i in range(107)
-    )
-    out: dict[str, dict[str, list[str]]] = {}
-
-    for group in NATIVE_RUNS["xmage"].values():
-        for name in group["classes"]:
-            source = REPO / "engine-bridge/src/test/java/org/commanderlab/xmage" / f"{name}.java"
-            if not source.is_file():
-                continue
-            for raw in sorted(set(pattern.findall(source.read_text(errors="replace")))):
-                fixture = raw.rstrip("-")
-                if fixture in denominator:
-                    out.setdefault(fixture, {}).setdefault("xmage", [])
-                    if name not in out[fixture]["xmage"]:
-                        out[fixture]["xmage"].append(name)
-
-    if FORGE_NATIVE_BINDING_PATH.is_file():
-        mapping = load(FORGE_NATIVE_BINDING_PATH)
-        direct_classes = NATIVE_RUNS["forge"]["direct"]["classes"]
-        for row in mapping["rows"]:
-            fixture = row["fixture_id"]
-            if fixture not in denominator:
-                continue
-            pointer = str(row.get("forge_evidence_pointer", ""))
-            hit = [c for c in direct_classes if c in pointer]
-            if hit:
-                out.setdefault(fixture, {}).setdefault("forge", [])
-                for name in hit:
-                    if name not in out[fixture]["forge"]:
-                        out[fixture]["forge"].append(name)
-    return out
-
-
-def assemble() -> None:
-    bindings = native_bindings()
-    per_candidate: dict[str, dict[str, Any]] = {}
-    for candidate in ("xmage", "forge"):
-        results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
-        rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
-        promoted = 0
-        for fixture, per in bindings.items():
-            classes = per.get(candidate)
-            if not classes or fixture not in rows:
-                continue
-            row = rows[fixture]
+    - Characterization rows take their proven non-PASS outcome even when the
+      runner left them PASS (demotion with mechanism) or BLOCKED/UNKNOWN.
+    - Rows with an audited positive binding promote to PASS when not already.
+    - Rows currently PASS/NATIVE with no audited positive binding demote to
+      BLOCKED (stale name-mention promotion); PB-10 rows carry exact reasons.
+    """
+    promoted = 0
+    demoted = 0
+    for fixture, row in rows.items():
+        if candidate != "xmage":
+            continue
+        characterization = CHARACTERIZATION_XMAGE.get(fixture)
+        if characterization is not None:
+            # Idempotent: characterization rows always carry their proven
+            # non-PASS outcome, whether the runner left them PASS (demotion),
+            # BLOCKED or UNKNOWN.
+            changed = (
+                row["exit_state"] != characterization["outcome"]
+                or row.get("execution_mode") != "NATIVE_CURRENT_BOUNDARY_RUNTIME"
+            )
+            row["exit_state"] = characterization["outcome"]
+            row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
+            row["failure_reason"] = characterization["reason"]
+            row["reason"] = characterization["reason"]
+            row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
+            row["native_harness_classes"] = characterization["classes"]
+            row.setdefault("terminal_facts", {})
+            row["terminal_facts"]["native_harness"] = characterization["classes"]
+            if changed:
+                demoted += 1
+            continue
+        bindings = POSITIVE_NATIVE_BINDING_XMAGE.get(fixture)
+        if bindings:
             if row["exit_state"] == "PASS":
                 continue
             row["exit_state"] = "PASS"
             row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
             row["failure_reason"] = None
             row["reason"] = (
-                f"fixture-corresponding native harness executed fresh under the current "
-                f"boundary ({', '.join(classes)}); the effective v1.0.6 record for this row "
-                f"is byte-identical to the frozen v1.0.5 record it loads, as proven in "
-                f"SUCCESSOR_INHERITANCE_PROOF.json"
+                "fixture-corresponding native harness executed fresh under the current "
+                f"boundary ({', '.join(bindings)}); the effective v1.0.6 record for this row "
+                "is byte-identical to the frozen v1.0.5 record it loads, as proven in "
+                "SUCCESSOR_INHERITANCE_PROOF.json"
             )
             row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
-            row["native_harness_classes"] = classes
+            row["native_harness_classes"] = bindings
             row.setdefault("terminal_facts", {})
-            row["terminal_facts"]["native_harness"] = classes
+            row["terminal_facts"]["native_harness"] = bindings
             promoted += 1
+            continue
+        if row["exit_state"] == "PASS" and row.get("execution_mode", "").startswith("NATIVE"):
+            demotion = PB10_DEMOTIONS.get(fixture, {})
+            row["exit_state"] = "BLOCKED"
+            row["failure_reason"] = (
+                "stale name-mention promotion without an audited positive binding; "
+                + str(demotion.get("proof", "flagged for audit"))
+            )
+            row["reason"] = row["failure_reason"]
+            demoted += 1
+    return promoted, demoted
+
+
+def assemble() -> None:
+    per_candidate: dict[str, dict[str, Any]] = {}
+    for candidate in ("xmage", "forge"):
+        results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
+        rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
+        promoted, demoted = apply_evidence_rules(rows, candidate)
+        results["pb03_evidence_rules"] = {
+            "promoted": promoted,
+            "demoted": demoted,
+            "rule": "positive native binding promotes; characterization binds non-PASS; "
+            "PASS without audited binding demotes",
+        }
         counts = {
             "PASS": 0,
             "FAIL": 0,

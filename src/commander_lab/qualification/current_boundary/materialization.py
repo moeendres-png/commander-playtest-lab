@@ -49,6 +49,7 @@ class EffectiveMaterialization:
     def record(self, fixture_id: str) -> dict[str, Any]:
         for item in self.bundle["records"]:
             if item["fixture_id"] == fixture_id:
+                assert isinstance(item, dict)
                 return item
         raise KeyError(f"fixture not in effective materialization: {fixture_id}")
 

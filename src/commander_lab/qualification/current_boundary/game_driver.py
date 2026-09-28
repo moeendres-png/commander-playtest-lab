@@ -90,7 +90,9 @@ def decision_identity_params(candidate: str, frame: dict[str, Any]) -> dict[str,
     shape = DECISION_IDENTITY_SHAPES[candidate]
     decision = frame["decision"]
     params: dict[str, Any] = {}
-    for key in (shape["field"], *shape["pass_extra"]):
+    pass_extra = shape["pass_extra"]
+    assert isinstance(pass_extra, list)
+    for key in (shape["field"], *pass_extra):
         if key == "action_id":
             for action in frame["actions"]:
                 if action.get("action_type") == "pass_priority":
