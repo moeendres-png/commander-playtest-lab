@@ -131,17 +131,18 @@ class XmagePb03DimensionAdmissionTest {
             assertTrue(lifeZeroFound,
                     fixture + " must request a 0-life player (LIFE_ZERO_PRESTART)");
         }
-        // The four rows without other blocking dimensions parse; the engine
-        // re-derives starting life at game start (pinned by
-        // XmageFullGameElimExecutionTest.characterizeElimBlocker), so arrival
-        // fail-closes and the rows stay BLOCKED with the named dimension.
-        for (String fixture : TIER_3_LIFE_ZERO_PARSES) {
-            XmageNativeStateRestoration.Plan plan =
-                    XmageNativeStateRestoration.planFromFrozenRecord(
-                            XmageNativeStateRestorationTest.frozenRecord(fixture),
-                            "pb03-admit-" + fixture, SEED);
-            assertTrue(plan.playerCount() >= 2, fixture + " must plan 2+ players");
-        }
+        // The four rows without other blocking dimensions are characterized
+        // through the real full-game arrival path. The engine re-derives
+        // starting life during game start, so the requested zero-life state
+        // fails closed instead of manufacturing elimination.
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-OWNED-3", "pb03-admit-elim-owned-3", "P2", 3);
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-PRIO-3", "pb03-admit-elim-prio-3", "P3", 3);
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-TURN-3", "pb03-admit-elim-turn-3", "P3", 3);
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-5", "pb03-admit-elim-5", "P3", 5);
     }
 
     @Test
@@ -157,16 +158,21 @@ class XmagePb03DimensionAdmissionTest {
         // genuine casts (TIER_2), never construction credit.
         JsonObject record =
                 XmageNativeStateRestorationTest.frozenRecord("WS05-MP-TURN-5");
-        boolean historyFound = false;
+        boolean timeWarpFound = false;
+        boolean nexusFound = false;
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
             JsonObject object = element.getAsJsonObject();
-            if ("graveyard".equals(object.get("zone").getAsString())
-                    && ("Time Warp".equals(object.get("card_identity").getAsString())
-                            || "Nexus of Fate".equals(
-                                    object.get("card_identity").getAsString()))) {
-                historyFound = true;
+            if (!"graveyard".equals(object.get("zone").getAsString())) {
+                continue;
+            }
+            String identity = object.get("card_identity").getAsString();
+            if ("Time Warp".equals(identity)) {
+                timeWarpFound = true;
+            } else if ("Nexus of Fate".equals(identity)) {
+                nexusFound = true;
             }
         }
-        assertTrue(historyFound, "TURN-5 must carry resolved extra-turn causal history");
+        assertTrue(timeWarpFound, "TURN-5 must carry resolved Time Warp history");
+        assertTrue(nexusFound, "TURN-5 must carry resolved Nexus of Fate history");
     }
 }
