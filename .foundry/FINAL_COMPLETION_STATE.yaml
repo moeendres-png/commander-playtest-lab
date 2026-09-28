@@ -243,6 +243,13 @@ hypotheses_rejected:
 - 'REJECTED: "PB-09 must be resolved before any other work because it is the highest-priority item." Refuted
   as an execution constraint: it is Coordinator-reserved, so it can only gate executable work by making
   the campaign wait, which the contract forbids.'
+- 'SELF-INFLICTED ERROR, corrected in a forward commit: I committed the generated full-game run artifacts
+  (six batch records plus the conformance artifact), which embed the complete per-decision engine transcript
+  at 8-15MB each, ~57MB and about 2 million lines. That is machine output, not source. Replaced with docs/final_completion_20260928/EVIDENCE_SUMMARY.json
+  carrying every evidentiary field plus each raw file''s exact sha256, and .gitignore now excludes the
+  one oversized artifact so a re-run cannot reintroduce it. No evidence claim changed and no raw bytes
+  became unverifiable. History was not rewritten: force-push is denied and rewriting pushed history would
+  be the wrong call regardless, so the correction is a forward commit and the size remains in the log.'
 authority_gates:
 - 'COORDINATOR_PROVIDER_SELECTION: which artifact is the Forge candidate — pinned upstream forge-2.0.14
   (a37a865a) or the Lab fork (ef958ee9) that the evidence executed. Reserved; not claimed. Emit COORDINATOR_PROVIDER_SELECTION_REQUIRED
