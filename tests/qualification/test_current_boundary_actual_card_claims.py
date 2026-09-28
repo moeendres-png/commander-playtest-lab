@@ -63,7 +63,13 @@ def test_corpus_shortfall_is_a_number_not_a_prose_pointer() -> None:
     assert "see ACTUAL_CARD_DENOMINATOR note in FINAL_HANDOFF" not in source
     assert "REQUIRED_ACTUAL_CARD_CORPUS = 29" in source
     assert '"required_count": REQUIRED_ACTUAL_CARD_CORPUS,' in source
-    assert '"complete": len(ACTUAL_CARD_NAMES) >= REQUIRED_ACTUAL_CARD_CORPUS,' in source
+    # Completion derives from behaviourally executed cards. An earlier version
+    # compared the declared NAME count, so appending 29 names would have
+    # advertised a complete runtime corpus with no probe behind it.
+    assert (
+        '"complete": (len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS)' in source
+    )
+    assert '"behaviorally_executed_count": len(behaviourally_executed_cards)' in source
 
 
 def test_card_list_is_declared_once() -> None:
@@ -100,4 +106,5 @@ def test_corpus_artifact_states_the_shortfall() -> None:
         if isinstance(corpus, str):
             continue
         assert corpus["required_count"] == 29, candidate
-        assert corpus["complete"] is (corpus["declared_in_this_artifact"] >= 29), candidate
+        if "behaviorally_executed_count" in corpus:
+            assert corpus["complete"] is (corpus["behaviorally_executed_count"] >= 29), candidate

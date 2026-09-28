@@ -455,6 +455,16 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         }
         write(f"AF01_{candidate.upper()}.json", af01_doc)
         probes["af01_verdict"] = af01.verdict
+        # Carry the provider's DECLARED capabilities into the run identity. Block
+        # attribution must consult what this candidate says it supports, not a
+        # hard-coded statement about one candidate applied to all of them.
+        declared = af01_doc.get("capabilities_provider_reported") or {}
+        identity["starting_state_injection_supported"] = declared.get(
+            "starting_state_injection_supported"
+        )
+        identity["scenario_injection_supported"] = declared.get("scenario_injection_supported")
+        identity["seed_supported"] = declared.get("seed_supported")
+        identity["capabilities_provider_reported"] = declared
 
         # ---- AF03 RULES_AUTHORITY: negative deck-import probes ----------
         af03 = run_af03(
@@ -614,6 +624,15 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- actual-card probe -------------------------------------------
+        # Cards whose behaviour was EXERCISED this run, derived from the
+        # actual-card row outcomes. Naming or importing a card is not execution.
+        behaviourally_executed_cards: set[str] = set()
+        card_row = by_id.get("CARD_02")
+        if card_row is not None and card_row["exit_state"] == "PASS":
+            executed = (card_row.evidence or {}).get("executed_cards")
+            if isinstance(executed, list):
+                behaviourally_executed_cards = {str(name) for name in executed}
+
         write(
             f"ACTUAL_CARD_{candidate.upper()}.json",
             {
@@ -635,13 +654,26 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "required_29_card_corpus": {
                     "required_count": REQUIRED_ACTUAL_CARD_CORPUS,
                     "declared_in_this_artifact": len(ACTUAL_CARD_NAMES),
-                    "imported_at_runtime": len(hidden_game.deck_identity),
-                    "complete": len(ACTUAL_CARD_NAMES) >= REQUIRED_ACTUAL_CARD_CORPUS,
+                    # Decks are per seat, not per card. Counting them said nothing
+                    # about the corpus.
+                    "decks_imported_at_runtime": len(hidden_game.deck_identity),
+                    # Completion is DERIVED from behaviourally executed cards.
+                    # Naming a card proves nothing: an earlier version could
+                    # advertise a complete corpus by adding 29 names to the list
+                    # with no probe executing any of them.
+                    "behaviorally_executed_cards": sorted(behaviourally_executed_cards),
+                    "behaviorally_executed_count": len(behaviourally_executed_cards),
+                    "complete": (len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS),
                     "statement": (
-                        f"this artifact names {len(ACTUAL_CARD_NAMES)} cards and imported "
-                        f"{len(hidden_game.deck_identity)} at runtime; the 29-card corpus is "
-                        "NOT executed, so the actual-card obligation is unestablished and the "
-                        "row cannot be credited"
+                        f"this artifact names {len(ACTUAL_CARD_NAMES)} cards and executed "
+                        f"behaviour for {len(behaviourally_executed_cards)} of them; the "
+                        f"{REQUIRED_ACTUAL_CARD_CORPUS}-card corpus is "
+                        + (
+                            "complete"
+                            if len(behaviourally_executed_cards) >= REQUIRED_ACTUAL_CARD_CORPUS
+                            else "NOT executed, so the actual-card obligation is unestablished "
+                            "and the row cannot be credited"
+                        )
                     ),
                 },
             },
@@ -666,20 +698,44 @@ def classify_remaining(
         # PB-03: decide from the obligation's mechanisms, not from the row name.
         mechanisms = mid_game_mechanisms(record)
         if mechanisms:
-            reason = (
-                "no current-boundary execution seam: the effective obligation requires a "
-                "frozen mid-game starting state because it requires the mid-game mechanisms "
-                f"{sorted(mechanisms)}, and the Lab execution path does not expose generic "
-                "starting-state injection (the XMage bridge reports "
-                "starting_state_injection_supported=false). Native causal-reconstruction "
-                "harnesses exist for adjacent mechanisms but are not the same obligation; "
-                "no credit is transferred."
-            )
+            # The mechanism requirement is candidate-neutral, but the CAPABILITY is
+            # not. This reason used to cite the XMage bridge's
+            # starting_state_injection_supported=false for every candidate, so
+            # Forge rows were attributed to a capability Forge actually declares
+            # it has: AF01_FORGE.json reports starting_state_injection_supported
+            # true and scenario_injection_supported true. Where the candidate
+            # declares the capability and this run did not exercise the seam, the
+            # block is a Lab EXECUTION-PATH gap, not a candidate capability gap,
+            # and saying otherwise would misdirect remediation away from the work
+            # that would actually unblock the rows.
+            declares_injection = identity.get("starting_state_injection_supported")
+            if declares_injection is True:
+                reason = (
+                    "no current-boundary execution seam, and this is a LAB EXECUTION-PATH "
+                    f"gap rather than a candidate capability gap: the obligation requires a "
+                    f"frozen mid-game starting state ({sorted(mechanisms)}), and this "
+                    f"candidate DECLARES starting_state_injection_supported=true, but this "
+                    "run did not exercise the injection seam. The rows stay unestablished "
+                    "and uncredited; closing them requires Lab execution work, not "
+                    "candidate remediation."
+                )
+                outcome = "BLOCKED"
+            else:
+                reason = (
+                    "no current-boundary execution seam: the effective obligation requires a "
+                    "frozen mid-game starting state because it requires the mid-game "
+                    f"mechanisms {sorted(mechanisms)}, and this candidate reports "
+                    "starting_state_injection_supported="
+                    f"{declares_injection!r}. Native causal-reconstruction harnesses exist "
+                    "for adjacent mechanisms but are not the same obligation; no credit is "
+                    "transferred."
+                )
+                outcome = "BLOCKED"
             rows.append(
                 non_executed_row(
                     record,
                     candidate=candidate,
-                    outcome="BLOCKED",
+                    outcome=outcome,
                     reason=reason,
                     runtime_identity=identity,
                 )

@@ -165,10 +165,17 @@ AF09 cannot be established for either candidate as a result.
 
 ### 6.4 Actual-card corpus is not executed — PB-07 open
 
-Both artifacts declare 12 card names against 29 required, `complete: false`. Four
-decks are imported at runtime, which proves import and engine-side rejection of
-unknown names, not card behaviour. `CARD_02` is `UNKNOWN` on both sides. Import,
-parsing, construction and lookup are not counted as runtime card behaviour.
+Both artifacts declare 12 card names against 29 required, `complete: false`.
+`CARD_02` is `UNKNOWN` on both sides, so no card has behaviourally executed and the
+executed set is empty. Four decks are imported at runtime, which proves import and
+engine-side rejection of unknown names, not card behaviour. Import, parsing,
+construction and lookup are not counted as runtime card behaviour.
+
+Completion is derived from the behaviourally executed set, never from the declared
+list. An earlier version computed `complete` from the number of names in the
+artifact, so simply appending 29 names would have advertised a complete runtime
+corpus with no probe behind it, and it also counted `len(deck_identity)`, which is
+a per-seat deck count and says nothing about cards.
 
 The Forge-side ceiling recorded on Forge PR #4 is 28 runtime-qualified with one
 documented engine gap, `Find // Finality` (the Aftermath back-half legal ability
@@ -187,10 +194,10 @@ artifact is the Forge candidate is a Coordinator provider decision.
 
 | Blocker | Side | Status after this workstream | Basis |
 |---|---|---|---|
-| PB-03 starting-state classification | both | **RESOLVED** | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved |
+| PB-03 starting-state classification | both | **RESOLVED** (mechanism); block attribution now per candidate | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
 | PB-05 build provenance | forge | **RESOLVED** | Forge PR #4 repairs the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
 | PB-06 per-scenario hidden channels | both | **BLOCKED** | no principal-scoped observation is credible: the generic lane is unscoped (§6.2) and no per-scenario channel was executed |
-| PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `complete: false`, `CARD_02` `UNKNOWN` (§6.4) |
+| PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4) |
 | PB-08 clean-process replay twin | both | **BLOCKED** | Rules RNG is uncontrolled on both candidates, so a same-seed twin proves nothing |
 | PB-09 Forge candidate identity | coordinator | **OPEN — RESERVED** | which artifact is the candidate: pinned upstream `a37a865a` or the Lab fork `ef958ee9`. Not a coding question |
 | Aftermath `Find // Finality` | forge | **NON_BLOCKING_CAPABILITY_GAP** | not decision- or release-blocking on current evidence; recorded, no engine mutation opened |
@@ -238,9 +245,25 @@ sit inside the 59 `UNKNOWN` and 44 `BLOCKED` rows.
 5. A starting-state materialization seam. This unblocks the 44 `BLOCKED` rows and
    AF08.
 
-None of these is blocked on further harness work. Items 2–5 are candidate
-capability gaps, not Lab defects, and the Lab has recorded them honestly rather
-than closing them on the strength of the harness.
+**Attribution is per candidate, and one item is a Lab defect, not a candidate
+gap.** `AF01_FORGE.json` reports `starting_state_injection_supported: true` and
+`scenario_injection_supported: true`, while `AF01_XMAGE.json` reports
+`starting_state_injection_supported: false` on the generic lane. Forge's 44
+`BLOCKED` rows were therefore attributed by a reason that cited XMage's `false`,
+which is wrong for Forge: the obligation is unestablished and uncredited either
+way, but for Forge the block is a **Lab execution-path gap** — the candidate
+declares the capability and this run did not exercise the seam — whereas for
+XMage it is a genuine capability gap.
+
+Consequence for remediation: item 5 is two different pieces of work. XMage needs
+a starting-state seam; Forge needs the Lab to exercise the seam it already
+declares. Closing Forge's rows is Lab work, and this packet no longer rules it out.
+
+Item 1 is also a Lab execution-path question rather than a candidate defect,
+because the fault is a shared classifier reason applied to a candidate that
+discloses the capability. The classifier's *mechanism* requirement is
+candidate-neutral and correct; only its capability attribution was wrong, and it
+is now taken from each candidate's own reported capabilities.
 
 ---
 
