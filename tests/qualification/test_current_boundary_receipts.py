@@ -234,9 +234,12 @@ def test_nested_fixture_cannot_escape_parent_candidate_or_head() -> None:
 def test_nested_nonpositive_or_incomplete_fixture_cannot_promote(field: str, value: str) -> None:
     child = _fixture_receipt(**{field: value})
     parent = _good_receipt(positive_fixtures=[child])
-    assert R.positive_fixture_credit(
-        [parent], candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
-    ) == {}
+    assert (
+        R.positive_fixture_credit(
+            [parent], candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
+        )
+        == {}
+    )
 
 
 def test_nested_fixture_in_failed_or_tampered_parent_cannot_promote() -> None:
