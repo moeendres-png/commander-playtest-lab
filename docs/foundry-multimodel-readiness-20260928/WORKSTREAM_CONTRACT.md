@@ -1,7 +1,7 @@
 # WSR27 — OpenCode Go Four-Model Foundry Readiness
 
 ## Objective
-Prepare Commander Simulator Next for one model-neutral OpenCode Go execution layer centered on DeepSeek V4.1 Flash MAX, Muse Spark 1.3 XHIGH, GLM 5.3 MAX, and Space Bunny MAX without breaking the currently qualified dual-executor runtime.
+Prepare Commander Simulator Next for one model-neutral OpenCode Go execution layer supporting DeepSeek V4.1 Flash MAX, Muse Spark 1.3 XHIGH, GLM 5.3 MAX, and Space Bunny MAX without breaking the currently qualified dual-executor runtime.
 
 ## Source Lock
 - Commander Lab main: `933d5df564b5dc77d678935bc79c6554459c347b`
@@ -10,17 +10,19 @@ Prepare Commander Simulator Next for one model-neutral OpenCode Go execution lay
 - Mage master: `798b75e582270aaec5cacf953b6e8cc09d2f59a3` / tree `e94a3b7bdcd855925a70e0834a94aa1b78e02d7c`
 
 ## Authority
-Latest user instruction > fresh repository state > current tests/source > exact engine pins > official Rules sources. Rules Core remains sole gameplay authority. Model routing never changes evidence or Rules authority.
+Latest user instruction > fresh repository state > current tests/source > exact engine pins > official Rules sources. Rules Core remains sole gameplay authority. Execution-model selection never changes evidence or Rules authority.
 
 ## In Scope
-- machine-readable four-model profile authority;
-- highest-supported native-effort locks;
+- machine-readable four-model execution-profile authority;
+- highest-supported/authorized native-effort locks;
 - model provenance fields in durable workstream state;
+- explicit-selection and no-automatic-fallback semantics;
 - current cross-repo injection/readiness audit;
 - hermetic regression tests for the preparation surfaces;
 - exact follow-up contract for runtime activation.
 
 ## Out of Scope
+- repository assignment of task classes, model roles, model ranking, usage frequency, or preferred model;
 - co-editing `tools/foundry/launcher.py` or `tests/foundry/test_launcher.py` while owned by `sbmax/full-completion`;
 - editing PR #280-owned governance files;
 - widening `opencode.json` before launcher support exists;
@@ -35,13 +37,14 @@ Branch `wsr27/multimodel-foundry-readiness-20260928`. Owned surfaces are new WSR
 - Active launcher ownership must be released or serially integrated before runtime activation.
 - DeepSeek/GLM must not be added to the live allowlist until launcher validation supports all four profiles.
 - No automatic model fallback.
-- Authenticated DeepSeek MAX smoke is required before changing the runtime default.
+- Every newly activated profile requires an authenticated bounded smoke before its runtime status can become `ACTIVE`.
+- Repository files must remain neutral about which authorized model the operator chooses for a task.
 
 ## Forbidden Shortcuts
-No partial allowlist widening, silent fallback, lower-effort substitution, historical PASS promotion, fork-master policy copies, secret inspection, or Rules/evidence weakening.
+No partial allowlist widening, silent fallback, lower-effort substitution, task-routing policy hidden in profile metadata, historical PASS promotion, fork-master policy copies, secret inspection, or Rules/evidence weakening.
 
 ## Evidence Requirements
-Fresh exact repository identities, machine-readable profile registry, schema acceptance tests, current fork-root governance observation, and exact activation blocker/next action.
+Fresh exact repository identities, machine-readable profile registry, schema acceptance tests, current fork-root governance observation, explicit neutrality regression coverage, and exact activation blocker/next action.
 
 ## Stop Condition
 This preparation workstream is COMPLETE when safe non-overlapping readiness work is persisted and the remaining launcher/config activation is isolated behind the active ownership gate. Runtime four-model activation remains BLOCKED until that gate clears.

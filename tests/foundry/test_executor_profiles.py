@@ -1,4 +1,4 @@
-"""Hermetic guards for prepared four-model OpenCode Go Foundry routing."""
+"""Hermetic guards for prepared four-model OpenCode Go Foundry execution."""
 
 from __future__ import annotations
 
@@ -28,11 +28,33 @@ def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     assert doc["policy"]["automatic_fallback"] is False
 
 
+def test_registry_does_not_prescribe_task_routing_or_model_preference() -> None:
+    doc = _registry()
+    assert doc["policy"]["repository_prescribes_task_routing"] is False
+    for forbidden in (
+        "preferred_future_workhorse_candidate",
+        "preferred_model",
+        "recommended_model",
+        "default_task_model",
+    ):
+        assert forbidden not in doc
+
+    for profile in doc["profiles"].values():
+        for forbidden in (
+            "intended_role",
+            "intended_frequency",
+            "task_role",
+            "task_classes",
+            "recommended_for",
+            "preferred_for",
+        ):
+            assert forbidden not in profile
+
+
 def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
     doc = _registry()
     assert doc["status"] == "PREPARED_NOT_RUNTIME_ACTIVE"
     assert doc["current_runtime_default"] == "space-bunny"
-    assert doc["preferred_future_workhorse_candidate"] == "deepseek"
     assert doc["profiles"]["deepseek"]["runtime_status"] == "BLOCKED_ON_LAUNCHER_INTEGRATION"
     assert doc["profiles"]["glm"]["runtime_status"] == "BLOCKED_ON_LAUNCHER_INTEGRATION"
     assert doc["profiles"]["muse"]["runtime_status"] == "ACTIVE"
@@ -47,7 +69,8 @@ def test_activation_gate_requires_atomic_launcher_and_config_change() -> None:
     assert "AGENTS.md" in required
     validations = set(_registry()["activation_gate"]["required_validation"])
     assert (
-        "DeepSeek MAX authenticated bounded smoke before making it runtime default" in validations
+        "authenticated bounded smoke for each newly activated profile before marking runtime ACTIVE"
+        in validations
     )
 
 
