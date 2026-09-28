@@ -11,13 +11,62 @@
     "own_session_opencode_pid": 1304315
   },
   "marker": "CONVERGENCE_START",
+  "merge": {
+    "commit": "50c0e313b03111dc66d26f01c4ec3e1a1a229d73",
+    "conflicted_paths_adjudicated": 40,
+    "method": "normal history-preserving merge; no rebase, no reset, no wholesale ours/theirs",
+    "parents": "c75b5744"
+  },
   "merge_base": "e91819ae18166a9f91ca52d101a72c8cb8eddade",
+  "not_claimed": [
+    "PRODUCTION_PROVIDER",
+    "ARCHITECTURE_FREEZE"
+  ],
   "origin_main": {
     "committed": "2026-09-28 14:15:44 +0200",
     "head": "933d5df564b5dc77d678935bc79c6554459c347b",
     "matches_instruction_expected_933d5df5": true,
     "subject": "Merge pull request #279 from moeendres-png/wsr26/final-provider-readiness-20260928",
     "tree": "3eee0692ff075dc5175795aea8da9f1e86696dfb"
+  },
+  "post_convergence_requalification": {
+    "bridge_rebuild": {
+      "bridge_suite_result": "327 run, 0 failures, 1 skipped",
+      "jar_sha256": "21c15de576a0e11297a55af1efa27f590042aac548f5e9999fa34712cf128594",
+      "note": "engine-bridge rebuilt on the converged source"
+    },
+    "forge_column": {
+      "BLOCKED": 48,
+      "FAIL": 0,
+      "PASS": 1,
+      "UNKNOWN": 58,
+      "candidate": "pinned upstream a37a865a via materializing bridge 4753bb7c",
+      "total": 107
+    },
+    "hidden_information_xmage": {
+      "attribution": "ENGINE_CANDIDATE_DEFECT",
+      "distinct_state_views": 1,
+      "note": "all four principals received a byte-identical state view; a DEMONSTRATED leak, not merely unestablished, because the monotonic observation offset that previously masked it is excluded from the comparison"
+    },
+    "native_suite_credit": {
+      "forge:direct": "NO_CREDIT - materialization export, no repository above it",
+      "forge:mechanism": "NO_CREDIT - same",
+      "xmage:direct": "34/34 credited",
+      "xmage:mechanism": "136/136 credited"
+    },
+    "validation": {
+      "full_suite": "2044 passed, 5 skipped",
+      "mypy_strict": "clean, 275 files",
+      "qualification": "393 passed, 2 skipped",
+      "ruff": "clean"
+    },
+    "xmage_column": {
+      "BLOCKED": 44,
+      "FAIL": 0,
+      "PASS": 4,
+      "UNKNOWN": 59,
+      "total": 107
+    }
   },
   "publication": {
     "attempted": false,
@@ -28,8 +77,9 @@
   },
   "sb_independent_baseline": {
     "head": "ea20cc759e3397810a7426115d7f59521d845942",
-    "marker_file": ".foundry/SB_INDEPENDENT_BASELINE.json",
-    "tree": "f5ad4837a529e17e12a7e94be0a2cf3bca19c92d"
+    "history_rewritten": false,
+    "preserved": true,
+    "tag": "sb-independent-baseline-20260928"
   },
   "sealed_at": "2026-09-28T15:31:11.918619+02:00"
 }
