@@ -613,10 +613,19 @@ def _canonical(value: Any) -> str:
 # check compares what each principal actually observed; if the binding fields
 # were included, a provider could return one identical unscoped payload to every
 # requester while varying only the marker, and four identical views would look
-# distinct. Excluding the marker makes the comparison stricter, which is the
-# safe direction for a leak check; the `is_actor` field itself is still consumed
-# by the actor-marking check above and by no_opponent_hidden_content below.
-_BINDING_STATE_KEYS: frozenset[str] = frozenset({"observer_player_id"})
+# distinct. Excluding the binding metadata makes the comparison stricter, which
+# is the safe direction for a leak check; the fields themselves are still
+# consumed by the binding checks above and by no_opponent_hidden_content below.
+# The monotonic `state_observation_offset` lives outside the state view and is
+# excluded by construction, because only the state view is compared.
+_BINDING_STATE_KEYS: frozenset[str] = frozenset(
+    {
+        "observer_player_id",
+        "observer_engine_player_id",
+        "observer_seat",
+        "state_observation_offset",
+    }
+)
 _BINDING_PLAYER_KEYS: frozenset[str] = frozenset({"is_actor"})
 
 
