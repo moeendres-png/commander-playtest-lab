@@ -19,6 +19,9 @@ final class XmageFullGameJsonlBridge {
 
     private final XmageDeckImporter deckImporter = new XmageDeckImporter();
     private XmageFullGameSession session;
+    private XmageNativeStateRestoration nativeRestoration;
+    private String nativeFixtureId;
+    private boolean nativeRestorationFinalized;
 
     record Result(String json, boolean shutdown) {
     }
@@ -58,7 +61,9 @@ final class XmageFullGameJsonlBridge {
             case "get_capabilities" -> success(requestId, capabilitiesPayload(), false);
             case "import_deck" -> importDeck(requestId, request);
             case "create_full_game" -> createFullGame(requestId, request);
+            case "create_native_state_game" -> createNativeStateGame(requestId, request);
             case "start_full_game" -> startFullGame(requestId);
+            case "get_native_state_restoration_receipt" -> getNativeStateRestorationReceipt(requestId);
             case "get_full_game_decision" -> getDecision(requestId);
             case "submit_full_game_decision" -> submitDecision(requestId, request);
             case "get_full_game_result" -> getResult(requestId);
@@ -222,6 +227,234 @@ final class XmageFullGameJsonlBridge {
                     false
             );
         }
+    }
+
+
+    /**
+     * PB-03 bounded native-state qualification entrypoint.
+     *
+     * <p>This is deliberately not generic starting-state injection. The record is
+     * parsed by {@link XmageNativeStateRestoration}, which rejects every
+     * unsupported dimension before mutation. The frozen requested-state digest is
+     * recomputed and must match before any session exists. No discretionary
+     * decision is taken here; after start, an external caller must drive the
+     * ordinary full-game decision boundary.</p>
+     */
+    private Result createNativeStateGame(String requestId, JsonObject request) {
+        try {
+            if (session != null) {
+                return error(
+                        requestId,
+                        "full_game_process_already_used",
+                        "Full-game lane permits exactly one game per JVM process",
+                        false
+                );
+            }
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "CREATE_NATIVE_STATE_GAME requires an object payload"
+            );
+            if (!payload.has("record") || !payload.get("record").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_native_state_record",
+                        "CREATE_NATIVE_STATE_GAME requires payload.record",
+                        false
+                );
+            }
+            JsonObject record = payload.getAsJsonObject("record").deepCopy();
+            String gameId = requiredText(payload, "game_id");
+            long seed = requiredLong(payload, "seed");
+            String fixtureId = requiredText(record, "fixture_id");
+            String frozenDigest = requiredText(record, "requested_state_digest");
+            String computedDigest = XmageNativeStateRestoration.requestedDigest(record);
+            if (!frozenDigest.equals(computedDigest)) {
+                return error(
+                        requestId,
+                        "native_state_digest_mismatch",
+                        "requested_state_digest mismatch for " + fixtureId,
+                        false
+                );
+            }
+
+            XmageNativeStateRestoration.Plan plan =
+                    XmageNativeStateRestoration.planFromFrozenRecord(
+                            record, "protocol2-" + fixtureId, seed);
+
+            List<String> identities = new ArrayList<>();
+            for (XmageNativeStateRestoration.RequestedObject object : plan.objects()) {
+                identities.add(object.cardIdentity());
+            }
+            nativeRestoration = new XmageNativeStateRestoration(
+                    plan,
+                    XmageNativeStateRestoration.materializeCards(identities)
+            );
+
+            List<String> handles = new ArrayList<>();
+            for (XmageNativeStateRestoration.RequestedPlayer player : plan.players()) {
+                List<String> commanders = new ArrayList<>();
+                for (XmageNativeStateRestoration.RequestedCommander commander : plan.commanders()) {
+                    if (commander.owner().equals(player.playerId())) {
+                        commanders.add(commander.cardIdentity());
+                    }
+                }
+                if (commanders.isEmpty() || commanders.size() > 2) {
+                    throw new XmageNativeStateRestoration.RestorationException(
+                            "INVALID_COMMANDER_SET",
+                            player.playerId() + " commanders=" + commanders.size()
+                    );
+                }
+                List<String> mainboard = new ArrayList<>();
+                for (int index = commanders.size(); index < 100; index++) {
+                    mainboard.add("Wastes");
+                }
+                XmageDeckImporter.ImportResult imported = deckImporter.importCommanderDeck(
+                        gameId + "-" + player.playerId(),
+                        gameId + "-" + player.playerId() + "-scaffold",
+                        mainboard,
+                        commanders
+                );
+                handles.add(imported.deckHandle());
+            }
+
+            int startingPlayerSeat = 0;
+            boolean activeSeatFound = false;
+            for (XmageNativeStateRestoration.RequestedPlayer player : plan.players()) {
+                if (player.playerId().equals(plan.activePlayer())) {
+                    startingPlayerSeat = player.seat() - 1;
+                    activeSeatFound = true;
+                    break;
+                }
+            }
+            if (!activeSeatFound) {
+                throw new XmageNativeStateRestoration.RestorationException(
+                        "UNKNOWN_ACTIVE_PLAYER", plan.activePlayer());
+            }
+
+            session = new XmageFullGameSession(
+                    gameId,
+                    handles,
+                    startingPlayerSeat,
+                    40,
+                    seed,
+                    deckImporter,
+                    nativeRestoration
+            );
+            nativeFixtureId = fixtureId;
+            nativeRestorationFinalized = false;
+
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", gameId);
+            responsePayload.addProperty("fixture_id", fixtureId);
+            responsePayload.addProperty("player_count", plan.playerCount());
+            responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
+            responsePayload.addProperty("seed", seed);
+            responsePayload.addProperty("requested_state_digest", frozenDigest);
+            responsePayload.addProperty("native_state_transport", true);
+            responsePayload.addProperty("generic_starting_state_capability_promoted", false);
+            responsePayload.add("state_restoration_dimensions",
+                    XmageNativeStateRestoration.dimensionsPayload());
+            return success(requestId, responsePayload, false);
+        } catch (XmageNativeStateRestoration.RestorationException exc) {
+            return error(
+                    requestId,
+                    "native_state_restoration_rejected",
+                    exceptionMessage(exc),
+                    false
+            );
+        } catch (XmageDeckImporter.ImportException exc) {
+            return error(
+                    requestId,
+                    "native_state_scaffolding_rejected",
+                    exceptionMessage(exc),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "native_state_creation_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    /**
+     * Evidence-only completion receipt for the bounded native restoration.
+     *
+     * <p>The caller must first reach the requested temporal checkpoint through
+     * the ordinary external decision surface. This method never chooses an
+     * action. Once parked at the exact target it restores native Commander
+     * history, revalidates XMage state, performs strict readback comparison, and
+     * returns only non-hidden evidence fields.</p>
+     */
+    private Result getNativeStateRestorationReceipt(String requestId) {
+        try {
+            XmageFullGameSession active = requireSession();
+            if (nativeRestoration == null || nativeFixtureId == null) {
+                return error(
+                        requestId,
+                        "native_state_session_required",
+                        "No bounded native-state qualification session exists",
+                        false
+                );
+            }
+            var seats = active.restorationSeats();
+            JsonObject observed = XmageNativeStateRestoration.readback(
+                    active.restorationGame(), seats);
+            XmageNativeStateRestoration.Plan plan = nativeRestoration.plan();
+            if (!nativeTemporalTargetReached(observed, plan)) {
+                return error(
+                        requestId,
+                        "native_state_target_not_reached",
+                        "External decisions have not reached the requested temporal checkpoint",
+                        false
+                );
+            }
+            if (!nativeRestorationFinalized) {
+                nativeRestoration.restoreCommanderCasts(active.restorationGame(), seats);
+                XmageNativeStateRestoration.revalidate(active.restorationGame());
+                nativeRestorationFinalized = true;
+            }
+            observed = XmageNativeStateRestoration.readback(active.restorationGame(), seats);
+            XmageNativeStateRestoration.CompareVerdict verdict =
+                    nativeRestoration.compare(observed, seats);
+
+            JsonObject payload = new JsonObject();
+            payload.addProperty("fixture_id", nativeFixtureId);
+            payload.addProperty("match", verdict.match());
+            payload.addProperty("mismatch_count", verdict.mismatches().size());
+            payload.addProperty("requested_state_digest", verdict.requestedDigest());
+            payload.addProperty("constructed_state_digest", verdict.constructedDigest());
+            payload.addProperty("turn_number", observed.get("turn_number").getAsInt());
+            payload.addProperty("phase", observed.get("phase").getAsString());
+            payload.addProperty("step", observed.get("step").getAsString());
+            payload.addProperty("active_player", observed.get("active_player").getAsString());
+            payload.addProperty("priority_player", observed.get("priority_player").getAsString());
+            payload.add("rules_seed_binding", active.rulesSeedBindingPayload());
+            payload.addProperty("native_state_transport", true);
+            payload.addProperty("hidden_identity_emitted", false);
+            payload.addProperty("generic_starting_state_capability_promoted", false);
+            return success(requestId, payload, false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "native_state_receipt_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private static boolean nativeTemporalTargetReached(
+            JsonObject observed,
+            XmageNativeStateRestoration.Plan plan
+    ) {
+        return observed.get("turn_number").getAsInt() == plan.turnNumber()
+                && plan.phase().name().equals(observed.get("phase").getAsString())
+                && plan.step().name().equals(observed.get("step").getAsString())
+                && plan.activePlayer().equals(observed.get("active_player").getAsString())
+                && plan.priorityPlayer().equals(observed.get("priority_player").getAsString());
     }
 
     private Result startFullGame(String requestId) {
