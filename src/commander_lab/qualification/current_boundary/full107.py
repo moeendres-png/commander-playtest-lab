@@ -697,7 +697,22 @@ def validate_principal_scoping(
                 }
             )
 
-        if marker_bound or envelope_bound:
+        # If both mechanisms are present they may not disagree. A valid
+        # envelope must not be allowed to hide a contradictory in-state actor
+        # marker, nor vice versa.
+        marker_conflicts = bool(actors) and not marker_bound
+        if envelope_bound and marker_conflicts:
+            findings.append(
+                {
+                    "check": "actor_binding_conflict",
+                    "seat": seat,
+                    "ok": False,
+                    "detail": "the response envelope binds the requester but the in-state "
+                    "actor marker identifies a different or ambiguous principal",
+                }
+            )
+
+        if marker_bound or (envelope_bound and not marker_conflicts):
             established_requester[seat] = True
             actor_seat_by_observation[seat] = expected_seat
             continue
