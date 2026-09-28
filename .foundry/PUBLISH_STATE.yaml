@@ -7,8 +7,8 @@ branch: "sbmax/full-completion"
 # checkpoint push is a fast-forward with no history rewrite and no force.
 audit_base_sha: "55d35dec6cc0258f7b1ae12e90e1554537d86b0c"
 audit_base_tree: "3c2997c07504a69a1fdff96369dba3fc9dd3bedb"
-state_written_against_head: "b1c2c911be14acc213ae32d35427ebe7d09e3c62"
-validated_head: "b1c2c911be14acc213ae32d35427ebe7d09e3c62"
+state_written_against_head: "057ee568dc205eaf3bb6e23c2c2459b7ff4e6e98"
+validated_head: "057ee568dc205eaf3bb6e23c2c2459b7ff4e6e98"
 
 objective: >-
   Converge the Space Bunny independent campaign into current canonical Commander-Lab
