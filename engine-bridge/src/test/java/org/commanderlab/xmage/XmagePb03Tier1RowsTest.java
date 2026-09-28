@@ -596,7 +596,17 @@ class XmagePb03Tier1RowsTest {
                 continue;
             }
             if ("mana_payment".equals(pending)) {
-                payHomogeneous(session, "pb03-modes", "Mountain \u2014 {T}: Add {R}.");
+                payFromSemanticSources(
+                        session,
+                        arrived.restoration(),
+                        "pb03-modes",
+                        List.of(
+                                "obj:micro-modes-mana-0",
+                                "obj:micro-modes-mana-1",
+                                "obj:micro-modes-mana-2",
+                                "obj:micro-modes-mana-3",
+                                "obj:micro-modes-mana-4"),
+                        java.util.Set.of("Mountain \u2014 {T}: Add {R}."));
                 assertSpellOnStack(session, "Burn Down the House", "pb03-modes");
                 continue;
             }
@@ -668,7 +678,12 @@ class XmagePb03Tier1RowsTest {
 
         assertPlacementMatches(arrived, "MICRO_PREVENTION", "pb03-prevention");
         castSpellAs(session, seats, "pb03-prevention", "Fog", "P2");
-        payHomogeneous(session, "pb03-prevention", "Forest \u2014 {T}: Add {G}.");
+        payFromSemanticSources(
+                session,
+                arrived.restoration(),
+                "pb03-prevention",
+                List.of("obj:fog-forest-1"),
+                java.util.Set.of("Forest \u2014 {T}: Add {G}."));
         assertSpellOnStack(session, "Fog", "pb03-prevention");
 
         // Drive into the record's declare-attackers checkpoint; Fog resolves
@@ -1001,7 +1016,12 @@ class XmagePb03Tier1RowsTest {
         int lifeBefore = p2.getLife();
 
         castSpellAs(session, seats, "pb03-triggers", "Grizzly Bears", "P1");
-        payHomogeneous(session, "pb03-triggers", "Forest \u2014 {T}: Add {G}.");
+        payFromSemanticSources(
+                session,
+                arrived.restoration(),
+                "pb03-triggers",
+                List.of("obj:trigger-forest-1", "obj:trigger-forest-2"),
+                java.util.Set.of("Forest \u2014 {T}: Add {G}."));
         assertSpellOnStack(session, "Grizzly Bears", "pb03-triggers");
         // Bears resolves, Surge triggers, P2 is targeted, damage resolves;
         // the game then continues into combat, which is answered neutrally.
