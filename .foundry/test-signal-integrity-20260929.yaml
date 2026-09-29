@@ -1,4 +1,24 @@
+schema_version: "2.0"
 workstream: MAINTENANCE-TEST-SIGNAL-INTEGRITY-20260929
+repository: moeendres-png/commander-playtest-lab
+ownership: >-
+  MAINTENANCE-TEST-SIGNAL-INTEGRITY-20260929 (Space Bunny MAX, sole writer; the same writer
+  owned the predecessor PROJECT-HYGIENE-CANONICALIZATION-20260929 campaign).
+status: COMPLETE
+in_scope:
+  - tests/conftest.py shared subprocess_env fixture, and the 4 subprocess-spawning tests it fixes
+  - tests/foundry/test_telemetry.py hermetic replacement for a permanently-skipped live probe
+  - tests/foundry/test_project_integrity.py regression guard over docs/foundry-execution/README.md
+  - .foundry state-file parseability and conformance to the enforced validator
+  - .gitignore additions, each with a written justification
+  - documentation canonicalization for the decision_quality / decision-quality separator twins
+  - 5 forensic decision packages under docs/test_signal_integrity_20260929/
+out_of_scope:
+  - MTG Rules semantics, hidden information, Rules RNG, and replay (no change permitted)
+  - the expected_evidence_class vocabulary and all evidence classifications (Coordinator)
+  - engine pin selection and the RULES_CORE_DEFECT issues (Coordinator)
+  - other live workstreams' state files, branches and worktrees (pb03, wsr24, engine lanes)
+  - PRODUCTION_PROVIDER selection and ARCHITECTURE_FREEZE
 objective: >-
   Restore trustworthy red/green signal in the test suite, close the 10 hygiene findings raised
   after the project-hygiene campaign, and turn four read-only forensics into decision packages
@@ -11,6 +31,18 @@ source_lock:
   note: >-
     main advanced 5 merged PRs during the previous campaign; this workstream re-measured the
     baseline on the fresh head rather than reusing the earlier numbers.
+
+# Immutable bootstrap identity, per the state.py 2.0 contract. Same values as
+# source_lock.origin_main_at_start / origin_main_tree_at_start above; recorded
+# top-level as well because that is the field name the enforced validator reads.
+audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
+audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
+# Descriptive HEAD this document was produced against. Never a validation claim.
+state_written_against_head: 2ea1391a9bc32d66f0a1248163e4cfc4bf208a16
+# Newest commit whose tests/evidence were actually validated. Re-pointed from a3ffa44a to the
+# merge commit after main drifted to 57b233fb; the merge brought in engine-bridge and CI changes,
+# so the earlier validated_head no longer described the content under test.
+validated_head: 2ea1391a9bc32d66f0a1248163e4cfc4bf208a16
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -203,6 +235,26 @@ validation:
     ruff_check: clean
     ruff_format: 1096 files formatted
     regression_guard_proof: fails on pre-fix index, passes on fixed index
+  on_2ea1391a_after_main_drift_merge:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1125 files formatted
+    note: >-
+      main drifted to 57b233fb (#300, #374) between push and merge; the drift touched no
+      .foundry or tests/foundry path, and the guard still passes. Re-validated rather than
+      reusing the pre-merge numbers.
+  on_a3ffa44a_state_conformance:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2349 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
+    state_py_validate: STATE_OK (schema=2.0 status=COMPLETE)
+    ruff_check: clean
+    ruff_format: 1125 files formatted
+    fail_before_proof: >-
+      the new guard was placed in the working tree before the state fix and failed with
+      "missing required field: schema_version" naming this workstream's own file; it passes
+      after the fix. The guard therefore detects the defect it was written for.
   on_canonical_main_12d3e1ac_after_merge:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2251 passed, 7 skipped
     tests_foundry: 632 passed, 0 skipped
@@ -225,6 +277,27 @@ not_actioned_and_why:
   - correcting the ACTIVE status in claude-mp-campaign-20260929.json - would rewrite a recorded state
   - the schema execution_profile enum - correct, it must record historical provenance
   - branch deletion, artifact expiry, PR closures - denied by project policy
+
+post_completion_repairs:
+  - id: R1
+    summary: >-
+      Conformed this file to the enforced state.py validator and added
+      tests/foundry/test_foundry_state_conformance.py to guard the class. As merged, this file
+      FAILED safe_push.py gate 1 ("state schema 2.0 required"), so the workstream could not push
+      through the project's own canonical gate. Deliverable only, no change to prior findings.
+    delivered_on: maintenance/test-signal-integrity-20260929
+    evidence: validation.on_a3ffa44a_state_conformance
+    discovered_by: >-
+      re-reading the schema against the real files after the merge, not by a failing push, which
+      is why it survived the original campaign
+
+exact_next_action: >-
+  NONE. The objective is complete and merged as PR #371, with #372 and #373 carrying the receipt
+  and its correction, and R1 above conforming this file after the fact. Two items sit with the Coordinator by design and are decision packages
+  rather than unfinished work: docs/test_signal_integrity_20260929/EVIDENCE_VOCABULARY_DECISION.md
+  (the expected_evidence_class singleton enum rejects all seven AGENTS.md section 4 classes) and
+  docs/test_signal_integrity_20260929/ENGINE_PIN_DIVERGENCE.md (facts for the engine repin lane).
+  Read those two documents rather than this file to continue.
 
 next_action: >-
   NONE for this workstream. All ten findings are closed and merged as PR #371. Two items remain
