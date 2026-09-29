@@ -349,7 +349,7 @@
   },
   "validation_final": {
     "qualification": "471 passed, 2 skipped",
-    "full_suite": "pending (last full run: 2272 passed, 5 skipped)",
+    "full_suite": "2288 passed, 5 skipped",
     "bridge": "344 tests, 0 failures, 0 errors",
     "mypy": "clean, 280 files",
     "ruff": "clean (tree-wide)"
