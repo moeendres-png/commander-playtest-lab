@@ -175,15 +175,16 @@
     "result": {
       "forge/FULL107_FORGE_RESULTS": "STALE_FOR_PUBLISHED_HEAD",
       "forge/ACTUAL_CARD_FORGE": "STALE_FOR_PUBLISHED_HEAD",
-      "xmage/FULL107_XMAGE_RESULTS": "BOUND_TO_CONSUMED_HEAD",
-      "xmage/ACTUAL_CARD_XMAGE": "BOUND_TO_CONSUMED_HEAD"
+      "xmage/FULL107_XMAGE_RESULTS": "STALE_FOR_PUBLISHED_HEAD",
+      "xmage/ACTUAL_CARD_XMAGE": "STALE_FOR_PUBLISHED_HEAD"
     },
     "purpose": "Prevents a stale artifact from being cited for a candidate head it did not consume. Such a relabel is silent: the JSON stays well-formed, row outcomes do not move, and the denominators still add up.",
     "boundaries": [
       "descriptive only: never relabels an artifact, never changes a gate verdict, never asserts a head is correct",
       "per-surface lineage: a single base cannot describe a candidate forked along two lineages",
       "an unrelated base cannot supersede; a change touching neither consumed surface leaves evidence valid"
-    ]
+    ],
+    "rule_correction": "a parallel-lineage rewrite DOES invalidate evidence: comparing bases missed XMage's in-repo bridge rewrite, which is not an ancestor of the workstream commit that produced the committed evidence. Supersede now means touches-surface AND not-already-contained."
   },
   "validation_after_binding": {
     "qualification": "411 passed, 2 skipped",
@@ -249,5 +250,55 @@
       "58_UNKNOWN": "each now attributed to a named missing channel/seam rather than a family: 18/19 PB-06 per-scenario hidden channels, 4/5 PB-08 replay seam, PB-07 corpus partly a denominator question, decision-family and no-execution-path rows",
       "forge_evidence": "STALE for PR #6; requalification at the actually consumed head is required and is not owned here"
     }
+  },
+  "drift_refresh_2": {
+    "classification": "B: relevant drift, merged normally (no rebase, no rewrite)",
+    "main_before": "afe09c61",
+    "main_now": "adee8b16a5c3f3807304c6718b83e11f86ab4c1c",
+    "merged": "PR #293 (938719d0) via merge commit 669c5022",
+    "why_relevant": "PR #293 removed the XMage generic-lane shuffleLibrary no-op, a silent skip of CR 103.3 that left every library in decklist order, and bound the generic-lane Rules RNG seed.",
+    "open_prs": {
+      "284": "OPEN (still the active owner of the runner and bridge test surfaces)",
+      "287": "OPEN DeepSeek completion candidate",
+      "288": "OPEN storage integrity",
+      "290": "OPEN storage integrity",
+      "289": "this workstream"
+    }
+  },
+  "xmage_shuffle_impact": {
+    "classification": "DIRECTLY_VERIFIED",
+    "defect": "XmageBridgePlayer.shuffleLibrary was a no-op on the XMage generic lane: CR 103.3 opening shuffles, mulligan shuffles and search-then-shuffle never ran, libraries stayed in decklist order, and SHUFFLE_LIBRARY replacements / LIBRARY_SHUFFLED events were suppressed.",
+    "repaired_by": "PR #293, merged 669c5022",
+    "adjudicated_findings": {
+      "xmage_hidden_01": "IMPACTED_REQUALIFICATION_REQUIRED",
+      "xmage_hidden_02": "IMPACTED_REQUALIFICATION_REQUIRED",
+      "xmage_pb08_seed_precondition": "IMPACTED_REQUALIFICATION_REQUIRED",
+      "af11_technical_facts": "UNAFFECTED_BY_THE_DEFECT"
+    },
+    "why_hidden_rows_are_impacted": "the obligations forbid disclosure of hand and library identity/order, and the defect made both derivable from a decklist. The projection did mask the arrays; the lane still failed the obligation.",
+    "no_verdict_moved": true,
+    "artifact": "qualification/final-current-boundary-20260927/XMAGE_SHUFFLE_IMPACT_ADJUDICATION.json"
+  },
+  "bridge_validation": {
+    "classification": "DIRECTLY_VERIFIED",
+    "artifact": "qualification/final-current-boundary-20260927/BRIDGE_VALIDATION_XMAGE.json",
+    "result": "engine-bridge suite 344 tests, 0 failures, 0 errors, 1 skipped",
+    "captured_at": "fae5819a, bridge clean; engine-bridge unchanged at HEAD",
+    "focus_cases": [
+      "genericBridgePlayerNeverOverridesTheEngineShuffle",
+      "differentSeedChangesTheOpeningShuffle",
+      "bridgeAcknowledgesTheSeedFromEngineReadback",
+      "principalScopedStateNeverCarriesTheSeedValue",
+      "sameSeedReproducesEveryOpeningLibraryAndHandForTwoToFivePlayers"
+    ],
+    "scope_limit": "bridge-level capability only. The FULL107 column is produced by run_current_boundary_qualification.py, so AF05/AF09 stay UNKNOWN and no row is promoted."
+  },
+  "commit_message_note": "A commit intended as 'Record both candidates as stale...' failed on shell quoting; its content landed in f8345152 'Rebind publish state'. No history was rewritten.",
+  "validation_after_pr293": {
+    "qualification": "441 passed, 2 skipped",
+    "full_suite": "2258 passed, 5 skipped",
+    "bridge": "344 tests, 0 failures",
+    "mypy": "clean, 278 files",
+    "ruff": "clean (tree-wide)"
   }
 }

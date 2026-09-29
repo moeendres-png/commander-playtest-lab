@@ -5,10 +5,10 @@ branch: "sbmax/final-pre-freeze-20260928"
 
 # A fresh branch created from canonical main, so the push is a creation rather
 # than a rewrite: there is no pre-existing remote ref for this branch.
-audit_base_sha: "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd"
-audit_base_tree: "0d5b3f0d9020cc99131dd92a41a9615c61bbac8a"
-state_written_against_head: "db59d84b680f4471f2528d9a83b9f760c64e7297"
-validated_head: "db59d84b680f4471f2528d9a83b9f760c64e7297"
+audit_base_sha: "adee8b16a5c3f3807304c6718b83e11f86ab4c1c"
+audit_base_tree: "3e9282c1bf208bb7e9b0b5faa38947c755b8b10e"
+state_written_against_head: "f834515273b15c59dd5882296464fccfd3fe2a1b"
+validated_head: "f834515273b15c59dd5882296464fccfd3fe2a1b"
 
 objective: >-
   Final pre-Freeze engineering campaign: drive Commander Simulator Next from the
