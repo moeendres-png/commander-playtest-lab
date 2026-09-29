@@ -182,11 +182,17 @@ def test_no_credit_without_receipts_end_to_end(tmp_path: Path) -> None:
     assert rejected  # absent directory is itself a no-credit condition
     assert (
         R.positive_fixture_credit(
-            valid, candidate="xmage", expected_commit="a" * 40, denominator={"MICRO_STACK"}
+            valid,
+            candidate="xmage",
+            expected_commit="a" * 40,
+            denominator={"MICRO_STACK"},
+            expected_runner_digest="a" * 64,
         )
         == {}
     )
-    credit = R.native_suite_credit(valid, candidate="xmage", expected_commit="a" * 40)
+    credit = R.native_suite_credit(
+        valid, candidate="xmage", expected_commit="a" * 40, expected_runner_digest="a" * 64
+    )
     assert credit["groups_credited"] == []
     assert credit["tests"] == 0
     assert credit["passed"] == 0

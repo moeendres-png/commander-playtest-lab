@@ -34,6 +34,10 @@ owned_files:
 - scripts/run_external_full_game_conformance.py
 - scripts/run_real_4p_full_game_smoke.py
 - scripts/run_real_deck_gate.py
+- src/commander_lab/qualification/current_boundary/receipts.py
+- scripts/assemble_current_boundary_evidence.py
+- tests/qualification/test_current_boundary_receipts.py
+- tests/qualification/test_current_boundary_assembler_integrity.py
 forbidden_files:
 - midgame PB-03 implementation / dimension admission / PB-03 receipt binding / runner assembler semantics
 - Mulligan / START-2 donor fc801c97118c6eed86f72105f5a4900a1094d0bb
@@ -57,6 +61,9 @@ rejected_units:
   reason: out of scope, Mulligan/START-2 reserved
 - id: 284-full-game-batch-infra-classification
   reason: not in authorized salvage list, no current-main gap proven
+- id: 289-A
+  disposition: IMPLEMENTED
+  note: native_suite_credit and positive_fixture_credit now require expected_runner_digest in addition to engine candidate commit; mismatch/missing/empty fails closed with zero credit and auditable stale_runner_excluded; assembler binds live_runner_digest and records it in provenance; demonstrated on 4 committed receipts (all stale-excluded, zero credited)
 tests_run:
 - tests/architecture/test_engine_runtime_state_isolation.py: 7 passed (fail-before ImportError proven)
 - tests/foundry/test_launcher.py: 99 passed (2 new fail-before failures proven, then green)
@@ -64,6 +71,9 @@ tests_run:
 - tests/unit/test_xmage_full_game.py + test_full_game_shutdown.py + contract/test_phase85_protocol.py: 23 passed
 - tests/unit/test_xmage_variable_player.py + test_ws224_name_canary.py + test_ws223_cardinality_regression.py + contract/test_phase1213_provider_surface.py: 92 passed
 - tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
+- tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed (7 new stale-identity tests)
+- tests/qualification/test_wsr22_current_boundary.py + test_wsr24_freeze_readiness.py + test_current_boundary_readiness_packet.py: 59 passed
+- live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
 - ruff check on all touched files: clean
 - ruff format --check on all touched files: clean
 evidence:
@@ -93,8 +103,12 @@ drift_checks:
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
   delta_since_last: none
   verdict: NO_DRIFT safe to commit milestone
+- time_utc: '2026-09-29T17:00:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-A milestone
 unknowns: []
 blockers: []
-next_action: adjudicate 289-A (evidence freshness guard) against current receipts.py and assembler credit path
+next_action: adjudicate 289-B (AF11 hardcoded FAIL) — replace with measured technical facts or classify ALREADY_CANONICAL/DEFERRED
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED

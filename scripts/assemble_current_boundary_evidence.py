@@ -45,6 +45,21 @@ def write(name: str, payload: Any) -> None:
     print("wrote", name)
 
 
+def live_runner_digest() -> str:
+    """Digest of the Lab-side qualification code executing this assembly.
+
+    Native credit is bound to this identity in addition to the engine candidate
+    commit, so a Lab adapter/runner change invalidates old receipts even when
+    the engine head is unchanged. An unmeasurable identity fails closed: the
+    caller receives an empty digest and every credit call yields zero.
+    """
+    try:
+        return receipt_mod.capture_runner_identity(REPO).digest()
+    except receipt_mod.ReceiptError as exc:
+        print(f"runner identity unmeasurable ({exc}); native credit is unavailable")
+        return ""
+
+
 def native_bindings() -> dict[str, dict[str, list[str]]]:
     """Fixture -> test identities, derived from persisted positive receipts only.
 
@@ -68,17 +83,24 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
         for c in ("xmage", "forge")
     }
     out: dict[str, dict[str, list[str]]] = {}
+    runner_digest = live_runner_digest()
     for candidate in ("xmage", "forge"):
         commit = identity[candidate].get("engine_candidate_commit", "")
         credited = receipt_mod.positive_fixture_credit(
-            receipts, candidate=candidate, expected_commit=commit, denominator=denominator
+            receipts,
+            candidate=candidate,
+            expected_commit=commit,
+            denominator=denominator,
+            expected_runner_digest=runner_digest,
         )
         for fixture, tests in credited.items():
             out.setdefault(fixture, {})[candidate] = tests
     return out
 
 
-def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
+def native_credit(
+    candidate: str, expected_commit: str, expected_runner_digest: str
+) -> dict[str, Any]:
     """Native-suite credit for one candidate, from receipts only.
 
     `native_runs` keeps its established shape: a mapping of group name to that
@@ -88,7 +110,10 @@ def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
     """
     receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
     credit = receipt_mod.native_suite_credit(
-        receipts, candidate=candidate, expected_commit=expected_commit
+        receipts,
+        candidate=candidate,
+        expected_commit=expected_commit,
+        expected_runner_digest=expected_runner_digest,
     )
     # PURELY a per-group mapping. Every value must be subscriptable, because
     # consumers iterate it directly; scalar metadata lives beside it.
@@ -112,16 +137,23 @@ def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
     }
 
 
-def native_credit_provenance(candidate: str, expected_commit: str) -> dict[str, Any]:
+def native_credit_provenance(
+    candidate: str, expected_commit: str, expected_runner_digest: str
+) -> dict[str, Any]:
     """The provenance statement that accompanies `native_runs`."""
     receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
     credit = receipt_mod.native_suite_credit(
-        receipts, candidate=candidate, expected_commit=expected_commit
+        receipts,
+        candidate=candidate,
+        expected_commit=expected_commit,
+        expected_runner_digest=expected_runner_digest,
     )
     return {
         "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
         "absent_receipts_yield_no_credit": True,
         "expected_engine_commit": expected_commit,
+        "expected_runner_digest": expected_runner_digest,
+        "stale_runner_excluded": credit["stale_runner_excluded"],
         "summary": {
             "groups_credited": credit["groups_credited"],
             "tests": credit["tests"],
@@ -190,6 +222,10 @@ def af03_gate(candidate: str) -> dict[str, Any]:
 
 def assemble() -> None:
     bindings = native_bindings()
+    # The Lab-side identity every native credit in this assembly is bound to.
+    # Engine-commit equality alone no longer suffices: an adapter/runner change
+    # with an unchanged engine head must invalidate old receipts.
+    assembly_runner_digest = live_runner_digest()
     per_candidate: dict[str, dict[str, Any]] = {}
     for candidate in ("xmage", "forge"):
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
@@ -232,10 +268,14 @@ def assemble() -> None:
         results["counts"] = counts
         results["native_promotions"] = promoted
         results["native_runs"] = native_credit(
-            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+            candidate,
+            results["runtime_identity"].get("engine_candidate_commit", ""),
+            assembly_runner_digest,
         )
         results["native_runs_provenance"] = native_credit_provenance(
-            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+            candidate,
+            results["runtime_identity"].get("engine_candidate_commit", ""),
+            assembly_runner_digest,
         )
         write(f"FULL107_{candidate.upper()}_RESULTS.json", results)
         per_candidate[candidate] = {
