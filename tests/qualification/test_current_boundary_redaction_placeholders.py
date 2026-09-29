@@ -227,11 +227,27 @@ def test_attribution_rule_is_stated() -> None:
 # --- against the committed artifacts --------------------------------------- #
 
 
-def test_committed_xmage_evidence_is_a_demonstrated_defect() -> None:
+def test_committed_xmage_evidence_is_now_principal_scoped() -> None:
+    """Requalified on the successor current-boundary epoch (2026-09-29).
+
+    The sealed WSR22 evidence demonstrated an engine candidate defect: all four
+    principals received one byte-identical state view. The successor run
+    executed on the current main bridge shows the observation surface is now
+    principal-scoped: four distinct views, every requester established by an
+    authoritative binding, no engine leak indicator and no unestablished
+    observer. The stronger claim is asserted here so a regression back to a
+    shared view fails this test rather than silently passing as "not a defect".
+    """
     document = json.loads((OUT / "HIDDEN_INFO_XMAGE.json").read_text(encoding="utf-8"))
     result = validate_principal_scoping(document["principal_observations"], requested_seats=SEATS)
-    assert result["distinct_state_views"] == 1, "XMage returns one shared view"
-    assert result["attribution"] == "ENGINE_CANDIDATE_DEFECT"
+    assert result["distinct_state_views"] == 4, "each requester must get its own view"
+    assert result["attribution"] == "NONE"
+    assert result["verdict"] == "PRINCIPAL_SCOPED"
+    assert result["credible_as_principal_scoped_evidence"] is True
+    assert result["engine_leak_indicators"] == []
+    assert result["zones_observed_on_unmarked_seats"] == []
+    assert sorted(result["observations_with_established_requester"]) == sorted(SEATS)
+    assert result["observations_without_established_requester"] == []
 
 
 def test_committed_forge_evidence_is_not_a_demonstrated_defect() -> None:

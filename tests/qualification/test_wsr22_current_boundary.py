@@ -146,10 +146,22 @@ def test_af01_is_current_boundary_and_exact_identity(candidate: str) -> None:
         "fail_closed_unsupported_decision",
     ):
         assert required in names, required
-    assert af01["engine_commit_reported"] in {
-        "b19596980f2734496ea1896504253e1bdd2756dd",
-        "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-    }
+    # The successor current-boundary epoch binds the canonical live XMage pin
+    # (config/rules_engines.json). The prior WSR22 pin stays accepted as a
+    # documented historical epoch; the artifact is regenerated in place, so a
+    # fresh run must name the live pin.
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_xmage_engine_pin,
+    )
+
+    expected = {
+        "XMAGE": {
+            canonical_xmage_engine_pin(),
+            "b19596980f2734496ea1896504253e1bdd2756dd",
+        },
+        "FORGE": {"ef958ee91ac6c9ce0152189f2654bf6e05abf273"},
+    }[candidate]
+    assert af01["engine_commit_reported"] in expected, (candidate, af01["engine_commit_reported"])
 
 
 @pytest.mark.parametrize("candidate", CANDIDATES)
