@@ -89,6 +89,10 @@ Classification: `DIRECTLY_VERIFIED` for these four surfaces on XMage. Two protoc
 - **"Any player may":** Book Burning in 4P. The caster decides first, then each player in turn order; one payer prevents the mill. **UNKNOWN:** whether players after the first payer must still be asked (Forge asks them). The official Comprehensive Rules are blocked by this environment's egress policy, so the test does not assert it.
 - **Six simultaneous Blood Artist triggers after Wrath of God (4P):** ordered in five picks; p1 gains 6.
 - **Targeting among 12 legal targets:** Shock, Arc Trail (the second target excludes the first) and Redirect (4P).
+- **Goad (CR 701.38), both engines, 4P, actual cards:** Disrupt Decorum by P1 goads P2's Grizzly Bears.
+  - On P2's turn, Forge offers exactly "attack p3" and "attack p4" (forge#7 `b2ce9ced`).
+  - XMage (`XmageMultiplayerGoadTest`) asks one required choice between seats 3 and 4.
+  - Neither engine offers "no attack" or an attack on the goader.
 
 XMage already covers multiplayer combat and elimination (`XmagePb03Tier1RowsTest` mpCombat4/5, mpBlock4P; `XmageCausalEliminationReconstructionTest`), and it asks trigger order one ability at a time.
 
