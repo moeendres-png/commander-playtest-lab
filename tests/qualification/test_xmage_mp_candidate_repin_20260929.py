@@ -1,14 +1,16 @@
-"""Successor guard for the 2026-09-29 XMage multiplayer-candidate repin.
+"""Historical guard for the 2026-09-29 XMage multiplayer-candidate repin.
 
-The live XMage pin is the integrated candidate (Mage PR #24). The frozen WSR22
-current-boundary identity stays on the prior pin and is historical: this repin
-opens a successor epoch, it does not relabel WSR22 evidence.
+On its own epoch, the live XMage pin was Mage PR #24. A later successor may move
+the live pin again; in that case current-pin assertions skip while the historical
+source-lock and WSR22 provenance assertions remain active.
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CURRENT_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
@@ -48,6 +50,11 @@ def _lock() -> dict:
 
 
 def test_live_pin_is_the_integrated_candidate() -> None:
+    if _manifest()["primary_engine"]["commit"] != CURRENT_PIN:
+        pytest.skip(
+            "superseded: live XMage pin moved forward "
+            "(see test_xmage_f22_f23_successor_repin_20260929.py)"
+        )
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
     assert primary["source_archive"].endswith(f"/{CURRENT_PIN}.tar.gz")
@@ -65,7 +72,7 @@ def test_successor_lock_binds_the_same_candidate_and_the_prior_pin() -> None:
     lock = _lock()
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
     assert lock["new_live_pin"]["tree"] == CURRENT_TREE
-    assert lock["new_live_pin"]["source_archive"] == _manifest()["primary_engine"]["source_archive"]
+    assert lock["new_live_pin"]["source_archive"].endswith(f"/{CURRENT_PIN}.tar.gz")
     assert lock["prior_live_pin"]["commit"] == PRIOR_PIN
     donors = {donor["finding"]: donor for donor in lock["donors"]}
     assert donors["F-18"]["head"] == "6044132ecde384997d23121a8622ed308f68ae5d"
@@ -77,12 +84,22 @@ def test_successor_lock_binds_the_same_candidate_and_the_prior_pin() -> None:
 
 
 def test_provider_reports_the_candidate() -> None:
+    if _manifest()["primary_engine"]["commit"] != CURRENT_PIN:
+        pytest.skip(
+            "superseded: provider now reports the F-22/F-23 successor "
+            "(see test_xmage_f22_f23_successor_repin_20260929.py)"
+        )
     provider = (REPO_ROOT / ACTIVE_LITERAL_CONSUMERS[0]).read_text()
     assert CURRENT_PIN in provider
     assert PRIOR_PIN not in provider
 
 
 def test_all_active_literal_pin_consumers_migrated() -> None:
+    if _manifest()["primary_engine"]["commit"] != CURRENT_PIN:
+        pytest.skip(
+            "superseded: active literal consumers moved to the F-22/F-23 successor "
+            "(see test_xmage_f22_f23_successor_repin_20260929.py)"
+        )
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
         assert CURRENT_PIN in text, rel
