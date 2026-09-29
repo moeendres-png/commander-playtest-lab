@@ -11,7 +11,7 @@ Real Commander decks win or lose through combat, and many staples use optional c
 - **Missing options:** a legal decision is never offered.
 - **Blocked play:** a legal decision halts or ends the game.
 
-Every defect below was demonstrated with actual cards: the test fails on the previous head and passes after the fix.
+Every **Forge** defect below was demonstrated with actual cards: the test fails on the previous head and passes after the fix. The **XMage** defect is evidenced differently (see its section): `CODE_DERIVED` from the pinned engine source plus a unit test of the extracted helper, with no actual-card runtime test yet.
 
 ## Forge — moeendres-png/forge#7 (stacked on #5, **not merged by design**)
 
@@ -32,11 +32,16 @@ Evidence:
 - Full `forge.bridge.**` suite 310/310 (301 on `e15f37d6`); project checkstyle green.
 - Classification: `DIRECTLY_VERIFIED` (bridge runtime tests).
 
-**To consume it in the Lab**, point `FORGE_WORKSPACE` (see `scripts/run_current_boundary_qualification.py`) at a checkout of `claude/optimistic-bohr-6asye6` in `moeendres-png/forge`. The Forge capability note no longer claims that combat or optional costs fail closed.
+**To consume it in the Lab**, moving `FORGE_WORKSPACE` is not enough. `src/commander_lab/qualification/current_boundary/source_lock.py` binds the Forge bridge evidence identity to #5 (`FORGE_BRIDGE_EVIDENCE_COMMIT` / `_TREE` / `_PR`). Receipts produced from #7 while that lock still names #5 would be internally inconsistent. The current-boundary owner must:
+
+1. re-pin those three constants to #7's exact head commit and tree at the time of the run;
+2. then point `FORGE_WORKSPACE` at that checkout and regenerate the column.
+
+`engine_tree_equivalence` still applies unchanged, because #7 touches only `forge-protocol2-bridge`. The Forge capability note no longer claims that combat or optional costs fail closed.
 
 ## XMage — PR #298 (merged as `2e28866f`)
 
-XMage encodes "can block any number of creatures" as `maxBlocks == 0`; the pinned engine says so in `CanBlockAdditionalCreatureEffect`. `XmageFullGamePlayer.selectBlockers` computed `min(maxBlocks, offered) = 0` and skipped the blocker, so those creatures could never block and the decision was silently dropped. `blockCapacity()` now maps 0 to every offered attacker.
+XMage encodes "can block any number of creatures" as `maxBlocks == 0`; the pinned engine says so in `CanBlockAdditionalCreatureEffect`. The evidence is `CODE_DERIVED` from that source plus `XmageBlockCapacityTest`, a unit test of the extracted `blockCapacity()` helper. **No actual-card runtime test** (Palace Guard in a live full-game combat) exists yet; it is owed before this counts as card-behaviour evidence. `XmageFullGamePlayer.selectBlockers` computed `min(maxBlocks, offered) = 0` and skipped the blocker, so those creatures could never block and the decision was silently dropped. `blockCapacity()` now maps 0 to every offered attacker.
 
 The rest of XMage's combat surface is already sound:
 
