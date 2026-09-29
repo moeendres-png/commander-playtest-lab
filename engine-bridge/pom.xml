@@ -38,6 +38,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.mage</groupId>
+            <artifactId>mage-game-commanderduel</artifactId>
+            <version>${xmage.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>

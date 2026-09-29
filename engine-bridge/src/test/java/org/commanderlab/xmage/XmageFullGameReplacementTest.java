@@ -388,7 +388,22 @@ class XmageFullGameReplacementTest {
      * non-transport decision (the replacement question) and returns it.
      */
     private static JsonObject advanceToFirstReplacementQuestion(Started started, String tag) {
+        return advanceCountingP1Discards(started, tag).question();
+    }
+
+    /**
+     * Replacement question plus the number of cards P1 discarded to hand size
+     * on the way there. Hand/graveyard expectations are derived from this
+     * observed count instead of assuming a cleanup discard: in a two-player
+     * game the starting player skips their first draw step (CR 103.8a), so P1
+     * enters their next turn at seven cards and discards nothing.
+     */
+    private record Advance(JsonObject question, int p1Discards) {
+    }
+
+    private static Advance advanceCountingP1Discards(Started started, String tag) {
         XmageFullGameSession session = started.session();
+        int p1Discards = 0;
         for (int step = 0; step < 300; step++) {
             JsonObject payload = session.pendingDecisionPayload();
             if (payload.get("decision").isJsonNull()) {
@@ -410,10 +425,17 @@ class XmageFullGameReplacementTest {
                     // select exactly the required amount, deterministically
                     // first in offered order. A non-discard choose_object
                     // shape fails closed below via the bounds check.
-                    submitFirstMaxChoice(session, tag + "-discard-" + step, pending);
+                    String chooser = XmageNativeStateRestorationTest.pidOf(
+                            started.seats(),
+                            session.legalActionsPayload().get("actor_id").getAsString());
+                    int discarded = submitFirstMaxChoice(
+                            session, tag + "-discard-" + step, pending);
+                    if ("P1".equals(chooser)) {
+                        p1Discards += discarded;
+                    }
                 }
                 case "choose_use", "replacement_effect" -> {
-                    return pending;
+                    return new Advance(pending, p1Discards);
                 }
                 default -> fail("[RG-08] unexpected class before replacement: " + decisionClass);
             }
@@ -447,13 +469,13 @@ class XmageFullGameReplacementTest {
                 after.get("executed_decision_id").getAsString());
     }
 
-    private static void submitFirstMaxChoice(
+    private static int submitFirstMaxChoice(
             XmageFullGameSession session, String tag, JsonObject pending) {
         int min = pending.get("minimum_selections").getAsInt();
         int max = pending.get("maximum_selections").getAsInt();
         if (min == 0) {
             submitEmptyChoice(session, tag, pending, "choose_object");
-            return;
+            return 0;
         }
         JsonObject legal = session.legalActionsPayload();
         List<String> offered = new ArrayList<>();
@@ -484,6 +506,13 @@ class XmageFullGameReplacementTest {
         proposal.add("choices", choices);
         JsonObject after = session.submitAction(proposal);
         assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+        return selected.size();
+    }
+
+    private static void assertTwoPlayerStarterDidNotDiscard(Advance advance) {
+        assertEquals(0, advance.p1Discards(),
+                "[RG-08] CR 103.8a: the 2P starting player skips their first draw, so P1 "
+                        + "reaches cleanup at seven cards and discards nothing");
     }
 
     @Test
@@ -496,7 +525,10 @@ class XmageFullGameReplacementTest {
         int handBefore = seats.get("P1").getHand().size();
         int graveBefore = seats.get("P1").getGraveyard().size();
 
-        JsonObject question = advanceToFirstReplacementQuestion(started, "rg08-dredge-yes");
+        Advance advance = advanceCountingP1Discards(started, "rg08-dredge-yes");
+        assertTwoPlayerStarterDidNotDiscard(advance);
+        int discarded = advance.p1Discards();
+        JsonObject question = advance.question();
         assertEquals("choose_use", question.get("decision_class").getAsString(),
                 "[RG-08] Dredge must surface as an explicit use choice, not a silent skip");
         submitYes(started, "rg08-dredge-yes-accept");
@@ -504,9 +536,11 @@ class XmageFullGameReplacementTest {
         // Rider as part of the same replacement: Imp to hand AND mill five.
         assertEquals(1, handCount(started, "P1", "Stinkweed Imp"),
                 "[RG-08] accepted Dredge must return the Imp to hand");
-        assertEquals(handBefore, seats.get("P1").getHand().size(),
+        // The Imp returning is the only hand gain: no card is also drawn.
+        assertEquals(handBefore - discarded + 1, seats.get("P1").getHand().size(),
                 "[RG-08] the replaced draw must not also draw a card");
-        assertEquals(graveBefore + 5, seats.get("P1").getGraveyard().size(),
+        // Discards in, the Imp out, five milled.
+        assertEquals(graveBefore + discarded - 1 + 5, seats.get("P1").getGraveyard().size(),
                 "[RG-08] Dredge 5 must mill exactly five as the same replacement");
         // No loop: the game continues to a normal priority decision.
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
@@ -523,7 +557,10 @@ class XmageFullGameReplacementTest {
         int handBefore = seats.get("P1").getHand().size();
         int graveBefore = seats.get("P1").getGraveyard().size();
         int libBefore = seats.get("P1").getLibrary().size();
-        JsonObject question = advanceToFirstReplacementQuestion(started, "rg08-dredge-no");
+        Advance advance = advanceCountingP1Discards(started, "rg08-dredge-no");
+        assertTwoPlayerStarterDidNotDiscard(advance);
+        int discarded = advance.p1Discards();
+        JsonObject question = advance.question();
         assertEquals("choose_use", question.get("decision_class").getAsString());
         JsonObject legal = session.legalActionsPayload();
         JsonObject no = null;
@@ -541,12 +578,12 @@ class XmageFullGameReplacementTest {
         XmageFullGameTaxExecutionTest.submit(session, "rg08-dredge-no-decline", no);
         assertEquals(0, handCount(started, "P1", "Stinkweed Imp"),
                 "[RG-08] declined Dredge must leave the Imp in the graveyard");
-        // Transport discard (-1) plus exactly one normal draw (+1) net to the
-        // arrival baseline; the library delta proves a single draw left it.
-        assertEquals(handBefore, seats.get("P1").getHand().size(),
+        // Exactly one normal draw (+1) after any observed transport discard;
+        // the library delta proves a single draw left it.
+        assertEquals(handBefore - discarded + 1, seats.get("P1").getHand().size(),
                 "[RG-08] declined Dredge must draw exactly one card");
-        assertEquals(graveBefore + 1, seats.get("P1").getGraveyard().size(),
-                "[RG-08] only the transport discard may enter the graveyard");
+        assertEquals(graveBefore + discarded, seats.get("P1").getGraveyard().size(),
+                "[RG-08] only transport discards may enter the graveyard");
         assertEquals(libBefore - 1, seats.get("P1").getLibrary().size(),
                 "[RG-08] exactly one drawn card may leave the library: no mill, no loop");
     }
@@ -562,7 +599,10 @@ class XmageFullGameReplacementTest {
         int graveBefore = seats.get("P1").getGraveyard().size();
         int impHandBefore = handCount(started, "P1", "Stinkweed Imp");
 
-        JsonObject question = advanceToFirstReplacementQuestion(started, "rg08-dredge-two");
+        Advance advance = advanceCountingP1Discards(started, "rg08-dredge-two");
+        assertTwoPlayerStarterDidNotDiscard(advance);
+        int discarded = advance.p1Discards();
+        JsonObject question = advance.question();
         // Two applicable replacements: the engine offers the affected player
         // an explicit selection (choose_use per dredger or one
         // replacement_effect choice). Either native shape is accepted; what
@@ -628,7 +668,8 @@ class XmageFullGameReplacementTest {
                 "[RG-08] chosen Troll must return to hand");
         assertEquals(impHandBefore, handCount(started, "P1", "Stinkweed Imp"),
                 "[RG-08] the unchosen dredger must stay where arrival left it");
-        assertEquals(graveBefore + 6, seats.get("P1").getGraveyard().size(),
+        // Discards in, the Troll out, six milled.
+        assertEquals(graveBefore + discarded - 1 + 6, seats.get("P1").getGraveyard().size(),
                 "[RG-08] Dredge 6 must mill exactly six");
     }
 
@@ -776,7 +817,10 @@ class XmageFullGameReplacementTest {
         int graveBefore = seats.get("P1").getGraveyard().size();
         int trollHandBefore = handCount(started, "P1", "Golgari Grave-Troll");
 
-        JsonObject question = advanceToFirstReplacementQuestion(started, "rg08-dredge-imp");
+        Advance advance = advanceCountingP1Discards(started, "rg08-dredge-imp");
+        assertTwoPlayerStarterDidNotDiscard(advance);
+        int discarded = advance.p1Discards();
+        JsonObject question = advance.question();
         assertEquals("replacement_effect", question.get("decision_class").getAsString(),
                 "[RG-08] two dredgers must offer an explicit replacement selection");
         JsonObject legal = session.legalActionsPayload();
@@ -791,7 +835,8 @@ class XmageFullGameReplacementTest {
         assertEquals(1, handCount(started, "P1", "Stinkweed Imp"),
                 "[RG-08] chosen Imp must return to hand");
         assertEquals(trollHandBefore, handCount(started, "P1", "Golgari Grave-Troll"));
-        assertEquals(graveBefore + 5, seats.get("P1").getGraveyard().size(),
+        // Discards in, the Imp out, five milled.
+        assertEquals(graveBefore + discarded - 1 + 5, seats.get("P1").getGraveyard().size(),
                 "[RG-08] Dredge 5 mills five while the Imp leaves the graveyard");
     }
 

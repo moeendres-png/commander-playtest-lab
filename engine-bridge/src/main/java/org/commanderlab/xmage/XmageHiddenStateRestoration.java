@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.abilities.effects.common.continuous.BecomesFaceDownCreatureEffect;
 import mage.cards.Card;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
 
@@ -154,7 +154,7 @@ final class XmageHiddenStateRestoration {
     }
 
     static Receipt apply(
-            CommanderFreeForAll game,
+            GameCommanderImpl game,
             Map<String, Player> playersByPid,
             XmageNativeStateRestoration restoration,
             Request request
@@ -219,7 +219,7 @@ final class XmageHiddenStateRestoration {
     }
 
     private static Map<String, List<UUID>> prepareLibraries(
-            CommanderFreeForAll game,
+            GameCommanderImpl game,
             Map<String, Player> playersByPid,
             List<LibraryOrder> requests
     ) {
@@ -289,7 +289,7 @@ final class XmageHiddenStateRestoration {
     }
 
     private static PreparedFaceDown prepareFaceDown(
-            CommanderFreeForAll game,
+            GameCommanderImpl game,
             XmageNativeStateRestoration restoration,
             List<FaceDownState> requests
     ) {

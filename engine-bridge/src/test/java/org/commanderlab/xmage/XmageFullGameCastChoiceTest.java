@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mage.abilities.SpellAbility;
 import mage.cards.Card;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ class XmageFullGameCastChoiceTest {
                 importer
         );
 
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         @SuppressWarnings("unchecked")
         List<XmageFullGamePlayer> players = (List<XmageFullGamePlayer>) field(
                 session,

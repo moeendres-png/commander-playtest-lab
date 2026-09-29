@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.cards.Card;
 import mage.constants.CommanderCardType;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
 import org.junit.jupiter.api.Test;
@@ -369,7 +369,7 @@ class XmageFull107ResidualRequalificationTest {
             XmageNativeStateRestoration restoration,
             Map<String, Player> seats
     ) {
-        CommanderFreeForAll game() {
+        GameCommanderImpl game() {
             return session.restorationGame();
         }
     }

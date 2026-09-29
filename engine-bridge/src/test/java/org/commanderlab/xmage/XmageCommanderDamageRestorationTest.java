@@ -3,7 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonObject;
 import mage.cards.Card;
 import mage.constants.CommanderCardType;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
@@ -91,7 +91,7 @@ class XmageCommanderDamageRestorationTest {
     }
 
     private static UUID commanderId(
-            CommanderFreeForAll game, Player owner, String name) {
+            GameCommanderImpl game, Player owner, String name) {
         List<UUID> matches = new ArrayList<>();
         for (UUID id : game.getCommandersIds(owner, CommanderCardType.ANY, false)) {
             Card card = game.getCard(id);
@@ -269,7 +269,7 @@ class XmageCommanderDamageRestorationTest {
             XmageNativeStateRestoration restoration,
             Map<String, Player> seats
     ) {
-        CommanderFreeForAll game() {
+        GameCommanderImpl game() {
             return session.restorationGame();
         }
     }
