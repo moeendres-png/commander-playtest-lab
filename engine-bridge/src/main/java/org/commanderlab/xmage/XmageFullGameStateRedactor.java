@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,15 +87,22 @@ final class XmageFullGameStateRedactor {
 
     /** {@code title} is the engine's own window title for the look (CardUtil). */
     static void recordLookedAt(Game game, UUID viewerId, String title, Collection<Card> cards) {
-        record(game, false, viewerId, title, cards);
+        record(game, false, viewerId, title, cards, false);
     }
 
-    static void recordRevealed(Game game, UUID revealerId, String title, Collection<Card> cards) {
-        record(game, true, revealerId, title, cards);
+    /**
+     * {@code update} mirrors XMage's own split: a logged reveal is a new
+     * event (Revealed.add), an unlogged one refreshes a standing display
+     * such as a hand played revealed (Revealed.update) and so replaces the
+     * earlier entry of the same revealer and title instead of appending.
+     */
+    static void recordRevealed(Game game, UUID revealerId, String title, Collection<Card> cards,
+                               boolean update) {
+        record(game, true, revealerId, title, cards, update);
     }
 
     private static void record(Game game, boolean revealed, UUID principalId, String title,
-                               Collection<Card> cards) {
+                               Collection<Card> cards, boolean update) {
         if (game == null || principalId == null || cards == null || cards.isEmpty()) {
             return;
         }
@@ -104,10 +112,15 @@ final class XmageFullGameStateRedactor {
             names.add(card.getName());
             owners.add(card.getOwnerId());
         }
-        OBSERVED_CARDS
-                .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>())
-                .add(new ObservedCards(revealed, principalId, game.getState().getTurnNum(),
-                        title, names, owners));
+        List<ObservedCards> log = OBSERVED_CARDS
+                .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>());
+        ObservedCards entry = new ObservedCards(revealed, principalId, game.getState().getTurnNum(),
+                title, names, owners);
+        if (update) {
+            log.removeIf(old -> old.revealed == revealed && old.principalId.equals(principalId)
+                    && Objects.equals(old.title, title));
+        }
+        log.add(entry);
     }
 
     private static JsonArray observedView(Game game, Player viewer, boolean revealed) {

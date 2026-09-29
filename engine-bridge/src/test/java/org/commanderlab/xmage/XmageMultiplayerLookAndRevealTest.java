@@ -82,6 +82,40 @@ class XmageMultiplayerLookAndRevealTest {
         assertEquals(1, publicRevealed.size(), "a reveal is public");
     }
 
+    /**
+     * Telepathy ("Your opponents play with their hands revealed.") refreshes a
+     * standing reveal every time effects apply. Each opponent's hand is shown
+     * as one current entry; repeated refreshes never pile up.
+     */
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {4, 5})
+    void aStandingRevealStaysOneCurrentEntryPerPlayer(int playerCount) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Telepathy", 0, Zone.HAND));
+        objects.add(XmageMultiplayerScenario.obj("P1", "Island", 1, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj("P3", "Craw Wurm", 0, Zone.HAND));
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("telepathy-" + playerCount + "p",
+                playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
+        int p3Seat = XmageFullGameStateRedactor.seat(game, s.seats.get("P3").getId());
+        s.submit(s.action("activate_ability", "Cast Telepathy"));
+        s.payWith("Island");
+        for (int pass = 0; pass < 3 * playerCount; pass++) {
+            assertEquals("priority", s.decisionClass());
+            s.submit(s.action("pass_priority", "Pass"));
+        }
+        JsonArray revealed = pilotState(s).getAsJsonArray("revealed");
+        assertEquals(playerCount - 1, revealed.size(), "one standing entry per opponent: " + revealed);
+        boolean p3Shown = false;
+        for (JsonElement e : revealed) {
+            JsonObject entry = e.getAsJsonObject();
+            if (entry.get("revealed_by_seat").getAsInt() == p3Seat) {
+                p3Shown = hasCard(entry, "Craw Wurm", p3Seat);
+            }
+        }
+        assertTrue(p3Shown, "P3's current hand is shown: " + revealed);
+    }
+
     /** P1 casts the spell at P3, who holds only Craw Wurm; returns at P1's next empty-stack priority. */
     private static XmageMultiplayerScenario castAtP3(String spell, String land, String tag, int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();

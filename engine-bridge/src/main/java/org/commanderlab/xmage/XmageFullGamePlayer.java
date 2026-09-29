@@ -159,7 +159,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         super.revealCards(source, titleSuffix, cards, game, postToLog);
         if (cards != null && !cards.isEmpty() && game != null && !game.isSimulation()) {
             XmageFullGameStateRedactor.recordRevealed(game, getId(),
-                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game));
+                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game),
+                    !postToLog);
         }
     }
 
