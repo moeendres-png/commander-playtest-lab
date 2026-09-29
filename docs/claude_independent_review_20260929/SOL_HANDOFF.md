@@ -72,5 +72,6 @@ Merge this branch after green CI. Then adjudicate F-11 before any Forge PB-07 or
 - **F-12 fixed (production bridge change, full-game lane).** `XmageFullGamePlayer.playMana` now projects the engine-authored special mana actions (delve, convoke, improvise), as XMage's human player does. `XmageFullGameActionProjection` maps `special_mana_action` to `pay_cost`, and its projection test pins that.
   - Impact: this adds payment options only where the engine offers them. Pilots of already-qualified games with no delve/convoke/improvise cards see no difference, so evidence for those runs is NON_IMPACTING. Any lane evidence involving such cards needs re-execution.
 - **F-14 resolved.** Divided damage needs target plus amount in one response; Magma Opus passes.
-- **XMage corpus:** 25 of 29 cards now have native Oracle-derived runtime probes. Missing: CARD_04 Kediss, CARD_27 Path (F-13, UNKNOWN) and CARD_29 Boseiju; CARD_02 has older tests.
-- Validation: engine-bridge suite 416 run, 0 failures, 2 skipped (START-2 provenance; F-13).
+- **XMage corpus:** 26 of 29 cards now have native Oracle-derived runtime probes. Missing: CARD_04 Kediss and CARD_29 Boseiju; CARD_02 has older tests.
+- **F-13 withdrawn:** my test assumed the wrong commander type (Rograkh is a Kobold Warrior). XMage handles Path of Ancestry correctly in both directions.
+- Validation: see the final validation line in the PR.

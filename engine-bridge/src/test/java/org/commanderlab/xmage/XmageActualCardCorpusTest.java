@@ -41,6 +41,11 @@ class XmageActualCardCorpusTest {
     private static final String ISLAND_LABEL = "Island — {T}: Add {U}.";
     private static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
     private static final long SEED = 424242L;
+    private static final String PATH_LABEL = "Path of Ancestry \u2014 {T}: Add one mana of any "
+            + "color in your commander's color identity. When that mana is spent to cast a "
+            + "creature spell that shares a creature type with your commander, scry 1. "
+            + "<i>(Look at the top card of your library. You may put that card on the bottom "
+            + "of your library.)</i>";
 
     record Started(
             XmageFullGameSession session,
@@ -437,6 +442,9 @@ class XmageActualCardCorpusTest {
             case "Swamp" -> "black";
             case "Mountain" -> "red";
             case "Forest" -> "green";
+            // Fixture-scoped: every commander here is Rograkh (colour identity
+            // red), so Path of Ancestry can only produce red.
+            case "Path of Ancestry" -> "red";
             default -> throw new AssertionError("unsupported scripted basic source " + sourceName);
         };
     }
@@ -448,6 +456,7 @@ class XmageActualCardCorpusTest {
             case "Swamp" -> "{B}";
             case "Mountain" -> "{R}";
             case "Forest" -> "{G}";
+            case "Path of Ancestry" -> "{R}";
             default -> throw new AssertionError("unsupported scripted basic source " + sourceName);
         };
     }
@@ -1501,14 +1510,16 @@ class XmageActualCardCorpusTest {
      * CARD_27 Path of Ancestry: "{T}: Add one mana of any color in your
      * commander's color identity. When that mana is spent to cast a creature
      * spell that shares a creature type with your commander, scry 1." Rograkh
-     * is an Ape Ninja: Kird Ape (Ape) scries, Gray Ogre (Ogre) does not.
+     * is a Kobold Warrior (Oracle): Goblin Piker (Goblin Warrior) paid partly
+     * with Path mana scries; Kird Ape (Ape) paid with Path mana does not.
      */
     @Test
-    @org.junit.jupiter.api.Disabled("UNKNOWN (possible engine or lane gap): paying Kird Ape (Ape) "
-            + "entirely with Path of Ancestry mana under Rograkh (Ape Ninja) produced no scry "
-            + "decision on the full-game lane, although Oracle and the 2020-11-10 ruling require "
-            + "scry 1. Not yet attributed: engine delayed trigger vs restored board vs bridge.")
     void pathOfAncestryScriesForACreatureSharingACommanderType() {
+        pathOfAncestryProbe("Goblin Piker");
+    }
+
+    @Test
+    void pathOfAncestryDoesNotScryForACreatureSharingNoCommanderType() {
         pathOfAncestryProbe("Kird Ape");
     }
 
@@ -1516,18 +1527,19 @@ class XmageActualCardCorpusTest {
      * CARD_27 Path of Ancestry: "{T}: Add one mana of any color in your
      * commander's color identity. When that mana is spent to cast a creature
      * spell that shares a creature type with your commander, scry 1." Rograkh
-     * is an Ape Ninja: Kird Ape (Ape) scries, Gray Ogre (Ogre) does not.
+     * is a Kobold Warrior (Oracle): Goblin Piker (Goblin Warrior) paid partly
+     * with Path mana scries; Kird Ape (Ape) paid with Path mana does not.
      */
     private static void pathOfAncestryProbe(String creature) {
         {
-            boolean shares = "Kird Ape".equals(creature);
+            boolean shares = "Goblin Piker".equals(creature);
             List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
             objects.add(battlefield("P1", "Path of Ancestry", 0));
-            if (!shares) {
-                objects.addAll(lands("P1", "Mountain", 2));
+            if (shares) {
+                objects.add(battlefield("P1", "Mountain", 0));
             }
             objects.add(hand("P1", creature, 0));
-            String tag = "card27-" + (shares ? "ape" : "ogre");
+            String tag = "card27-" + (shares ? "piker" : "ape");
             Started started = start(tag, 2, objects);
             cast(started, tag + "-cast", creature);
             boolean[] scried = {false};
@@ -1535,8 +1547,7 @@ class XmageActualCardCorpusTest {
                 if ("mana_payment".equals(cls)) {
                     return payOneFromRestoredMana(started, tag + "-pay-" + step,
                             List.of("Path of Ancestry", "Mountain"),
-                            java.util.Set.of("Path of Ancestry — {T}: Add one mana of any color in your commander's color identity.",
-                                    MOUNTAIN_LABEL));
+                            java.util.Set.of(PATH_LABEL, MOUNTAIN_LABEL));
                 }
                 if ("choice".equals(cls) && prompt(started).toLowerCase().contains("color")) {
                     submit(started, tag + "-red-" + step, labelled(started, "Red"));
@@ -1556,7 +1567,7 @@ class XmageActualCardCorpusTest {
             });
             assertEquals(1, onBattlefield(started, "P1", creature));
             assertEquals(shares, scried[0], shares
-                    ? "Path mana on a creature sharing Rograkh's Ape type must scry 1"
+                    ? "Path mana spent on a creature sharing Rograkh's Warrior type must scry 1"
                     : "a creature sharing no type with the commander must not scry");
         }
     }
