@@ -149,35 +149,74 @@ class XmagePb03RuntimeGapClosureTest {
 
     private static JsonObject exactAttackOffer(
             JsonObject legal, UUID attacker, UUID defender) {
+        assertEquals(
+                attacker.toString(),
+                decisionCreatureId(legal),
+                "the declare-attacker frame must be bound to the exact frozen attacker");
         JsonObject match = null;
         for (JsonElement element : legal.getAsJsonArray("actions")) {
             JsonObject action = element.getAsJsonObject();
             JsonObject metadata = action.getAsJsonObject("metadata");
             String optionType = metadata.has("option_type")
+                    && !metadata.get("option_type").isJsonNull()
                     ? metadata.get("option_type").getAsString() : "";
             JsonObject nativeMeta = metadata.has("xmage_option_metadata")
                     && metadata.get("xmage_option_metadata").isJsonObject()
                     ? metadata.getAsJsonObject("xmage_option_metadata")
                     : new JsonObject();
-            String objectId = string(nativeMeta, "object_id");
-            String sourceId = string(nativeMeta, "source_object_id");
-            String attackerId = string(nativeMeta, "attacker_id");
             String defenderId = string(nativeMeta, "defender_id");
-            boolean objectMatch =
-                    attacker.toString().equals(objectId)
-                    || attacker.toString().equals(sourceId)
-                    || attacker.toString().equals(attackerId);
-            if ("declare_attacker".equals(optionType)
-                    && objectMatch
-                    && defender.toString().equals(defenderId)) {
-                if (match != null) {
-                    fail("multiple exact attacker offers for " + attacker + " -> " + defender);
-                }
-                match = action;
+            if (!"declare_attacker".equals(optionType)
+                    || !defender.toString().equals(defenderId)
+                    || hasConflictingIdentity(nativeMeta, attacker)) {
+                continue;
             }
+            if (match != null) {
+                fail("multiple exact attacker offers for " + attacker + " -> " + defender);
+            }
+            match = action;
         }
         assertNotNull(match, "exact attacker/defender offer must be engine-authored");
         return match;
+    }
+
+    private static String decisionCreatureId(JsonObject legal) {
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = action.getAsJsonObject("metadata");
+            String optionType = metadata.has("option_type")
+                    && !metadata.get("option_type").isJsonNull()
+                    ? metadata.get("option_type").getAsString() : "";
+            if (!("declare_attacker".equals(optionType)
+                    || "hold_attacker".equals(optionType))) {
+                continue;
+            }
+            JsonObject nativeMeta = metadata.has("xmage_option_metadata")
+                    && metadata.get("xmage_option_metadata").isJsonObject()
+                    ? metadata.getAsJsonObject("xmage_option_metadata")
+                    : new JsonObject();
+            if (nativeMeta.has("object_id") && !nativeMeta.get("object_id").isJsonNull()) {
+                return nativeMeta.get("object_id").getAsString();
+            }
+        }
+        return null;
+    }
+
+    private static boolean hasConflictingIdentity(JsonObject nativeMeta, UUID expected) {
+        for (Map.Entry<String, JsonElement> entry : nativeMeta.entrySet()) {
+            if (!entry.getValue().isJsonPrimitive()) {
+                continue;
+            }
+            String key = entry.getKey();
+            String value = entry.getValue().getAsString();
+            if (("object_id".equals(key)
+                    || "source_object_id".equals(key)
+                    || "attacker_id".equals(key))
+                    && !value.isEmpty()
+                    && !expected.toString().equals(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static JsonObject exactBlockOffer(
@@ -187,14 +226,30 @@ class XmagePb03RuntimeGapClosureTest {
             JsonObject action = element.getAsJsonObject();
             JsonObject metadata = action.getAsJsonObject("metadata");
             String optionType = metadata.has("option_type")
+                    && !metadata.get("option_type").isJsonNull()
                     ? metadata.get("option_type").getAsString() : "";
             JsonObject nativeMeta = metadata.has("xmage_option_metadata")
                     && metadata.get("xmage_option_metadata").isJsonObject()
                     ? metadata.getAsJsonObject("xmage_option_metadata")
                     : new JsonObject();
-            if ("declare_blocker".equals(optionType)
-                    && blocker.toString().equals(string(nativeMeta, "blocker_id"))
-                    && attacker.toString().equals(string(nativeMeta, "attacker_id"))) {
+            if (!"declare_blocker".equals(optionType)) {
+                continue;
+            }
+            boolean hitsBlocker = false;
+            boolean hitsAttacker = false;
+            for (Map.Entry<String, JsonElement> entry : nativeMeta.entrySet()) {
+                if (!entry.getValue().isJsonPrimitive()) {
+                    continue;
+                }
+                String value = entry.getValue().getAsString();
+                if (blocker.toString().equals(value)) {
+                    hitsBlocker = true;
+                }
+                if (attacker.toString().equals(value)) {
+                    hitsAttacker = true;
+                }
+            }
+            if (hitsBlocker && hitsAttacker) {
                 if (match != null) {
                     fail("multiple exact blocker offers for " + blocker + " -> " + attacker);
                 }
