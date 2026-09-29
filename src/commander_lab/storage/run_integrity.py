@@ -37,8 +37,9 @@ def _artifact_paths(root: Path) -> dict[str, Path]:
     for directory, directories, names in os.walk(root, onerror=unreadable, followlinks=False):
         directories[:] = sorted(name for name in directories if name != ".quarantine")
         for name in directories:
-            if (Path(directory) / name).is_symlink():
-                raise ValueError("run contains a symbolic-link directory")
+            child = Path(directory) / name
+            if child.is_symlink() or child.is_junction():
+                raise ValueError("run contains a linked directory")
         for name in sorted(names):
             path = Path(directory) / name
             relative = path.relative_to(root).as_posix()
@@ -177,9 +178,14 @@ def create_run_manifest(
 def verify_run(run_directory: str | Path) -> RunVerification:
     checked = 0
     try:
-        root = Path(run_directory).resolve()
-        manifest_path = root / _MANIFEST_NAME
         try:
+            try:
+                root = Path(run_directory).resolve(strict=True)
+            except RuntimeError as exc:
+                # Python 3.12 reports link loops as RuntimeError. Limit this
+                # translation to resolution so unrelated programming errors escape.
+                raise ValueError("run path cannot be resolved") from exc
+            manifest_path = root / _MANIFEST_NAME
             manifest_stat = manifest_path.lstat()
         except FileNotFoundError:
             return RunVerification(False, "incomplete", ("run-manifest.json is missing",), 0)
@@ -221,12 +227,17 @@ def verify_run(run_directory: str | Path) -> RunVerification:
 
 
 def quarantine_run(run_directory: str | Path, quarantine_root: str | Path) -> Path:
-    source = Path(run_directory).resolve()
+    """Move a run between exclusively owned paths, preserving occupied names."""
+    source = Path(run_directory).resolve(strict=True)
+    if not source.is_dir():
+        raise NotADirectoryError("quarantine source must be a run directory")
     destination_root = Path(quarantine_root).resolve()
+    if destination_root.is_relative_to(source):
+        raise ValueError("quarantine destination must be outside the run directory")
     destination_root.mkdir(parents=True, exist_ok=True)
     destination = destination_root / source.name
     suffix = 1
-    while destination.exists():
+    while os.path.lexists(destination):
         suffix += 1
         destination = destination_root / f"{source.name}-{suffix}"
     shutil.move(str(source), str(destination))

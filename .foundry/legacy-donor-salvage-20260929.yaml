@@ -86,7 +86,7 @@ tests_run:
 - tests/unit/test_xmage_full_game.py + test_full_game_shutdown.py + contract/test_phase85_protocol.py: 23 passed
 - tests/unit/test_xmage_variable_player.py + test_ws224_name_canary.py + test_ws223_cardinality_regression.py + contract/test_phase1213_provider_surface.py: 92 passed
 - tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
-- tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed, then 20+ after AF11 tests, then full tests/qualification/: 410 passed, 5 skipped (pre-existing skips)
+- "tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed, then 20+ after AF11 tests, then full tests/qualification/: 410 passed, 5 skipped (pre-existing skips)"
 - tests/qualification/test_current_boundary_shortcut_campaign.py: 16 passed (fail-before ModuleNotFoundError proven)
 - live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
 - full repo suite (minus agent_evals/differential/fuzz/mutation + 2 uncollectable files): 2195 passed, 7 skipped, 6 failed — all 6 fail identically on pristine d40dda9f baseline worktree (missing httpx2/pytest_asyncio packages, bare-subprocess ModuleNotFoundError without installed distribution); classified PRE_EXISTING_ENVIRONMENT, not attributable

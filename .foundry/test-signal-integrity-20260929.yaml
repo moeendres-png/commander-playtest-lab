@@ -1,0 +1,238 @@
+workstream: MAINTENANCE-TEST-SIGNAL-INTEGRITY-20260929
+objective: >-
+  Restore trustworthy red/green signal in the test suite, close the 10 hygiene findings raised
+  after the project-hygiene campaign, and turn four read-only forensics into decision packages
+  the Coordinator can act on without re-deriving them.
+
+source_lock:
+  repository: moeendres-png/commander-playtest-lab
+  origin_main_at_start: 7055740ec2f08d4864bf7e200f7b48ace521fe57
+  origin_main_tree_at_start: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
+  note: >-
+    main advanced 5 merged PRs during the previous campaign; this workstream re-measured the
+    baseline on the fresh head rather than reusing the earlier numbers.
+worktree: /home/moeen/code/lab-test-signal-20260929
+branch: maintenance/test-signal-integrity-20260929
+
+outcome: MERGED
+merge_receipt:
+  pr: 371
+  merged_at: "2026-09-29T21:24:55Z"
+  merge_commit: 12d3e1ac30c85533010e5855148b92bf0367c77a
+  target_main_before_merge: 203a17e484f396b4d1c926e30e08945fae624912
+  canonical_main_head_after: 12d3e1ac30c85533010e5855148b92bf0367c77a
+  canonical_main_tree_after: d56840f30ac15b5c5e1bb7c3561c4a348b3531a0
+  branch_head_merged: 21ec51a1fec16656bfc466a7ceb279ef14ce039f
+  path: normal GitHub PR merge; no force, no admin bypass, no history rewrite
+  remote_branch_retained: false
+  remote_branch_correction: >-
+    CORRECTED. An earlier revision of this receipt claimed branch_retained: true. That claim was
+    written from the intent not to pass --delete-branch, and it was never verified against the
+    remote. It is false. The repository has delete_branch_on_merge enabled, so GitHub removed
+    BOTH branches on merge: maintenance/test-signal-integrity-20260929 and
+    maintenance/test-signal-integrity-state-receipt. Verified by ls-remote returning no matching
+    refs and by `gh api repos/.../commander-playtest-lab --jq .delete_branch_on_merge` returning
+    true. Not passing the flag is not sufficient to retain a branch.
+  local_branches_retained:
+    - maintenance/test-signal-integrity-20260929 at 21ec51a1
+    - maintenance/test-signal-integrity-state-receipt at 641213f9
+  nothing_lost: >-
+    Both branch heads are reachable from canonical main through merge commits 12d3e1ac and
+    f64798d0 respectively, verified with git merge-base --is-ancestor. No unique unintegrated
+    work existed, so the remote deletion destroyed nothing. It is recorded because a future
+    session looking for the remote branch would otherwise not find it and could not tell whether
+    that was expected.
+  policy_note: >-
+    AGENTS.md section 10 lists destructive branch/worktree deletion as a hard boundary. No
+    executor action deleted these branches, and no force, rewrite, or authority was involved.
+    The deletion came from repository configuration and is outside workstream control.
+
+active_foreign_surfaces:
+  - owner: sol/xmage-f22-f23-repin-20260929
+    path: config/rules_engines.json, 4 workflows, XmageProvider.java, 7 tests/unit pin assertions
+    note: unmerged branch proposing a third engine pin; NOT edited here
+  - owner: WSR24 (PR #274)
+    path: .foundry/wsr24-freeze-production-bootstrap-readiness-20260927.json
+    note: pre-schema v0 state file; migration recommended, not performed
+
+baseline_before:
+  failing: 6
+  passing: 2242
+  skipped: 8
+  classification_of_the_6:
+    subprocess_import_4: pyproject pythonpath=["src"] is pytest-internal and not inherited by children
+    missing_httpx2_1: declared dev dependency, not installed in this environment
+    cascade_of_httpx2_1: >-
+      phase10.py:604 catches the exception and :720 then returns failed instead of
+      passed_with_limitations. This corrects the earlier campaign's classification of it as a
+      possibly-genuine assertion failure.
+
+baseline_after:
+  at_branch_head_21ec51a1:
+    failing: 2
+    passing: 2249
+    skipped: 7
+    note: >-
+      CORRECTED. An earlier revision of this file recorded passing: 2252, which matches no run
+      performed. The observed figure at the merged branch head was 2249 passed plus 2 failed,
+      and 2249 + 2 = 2251 matches the 2251 total measured on main afterwards.
+  remaining_2_reason: >-
+    At PR time both were one root cause: the httpx2 dev dependency (pyproject.toml:25) was not
+    installed locally. That was classified as environmental rather than a code defect.
+  resolved_after_merge:
+    how: httpx2 2.13.0 was subsequently installed in this environment
+    result: both tests pass; tests/integration/test_phase10_acceptance.py reports 5 passed
+    significance: >-
+      DIRECTLY VERIFIED, upgrading the earlier CODE_DERIVED classification. The prediction that
+      test_phase10_smoke_never_claims_external_validation was a cascade of the missing
+      dependency rather than a real assertion failure was correct.
+  final_state_on_canonical_main_12d3e1ac:
+    failing: 0
+    passing: 2251
+    skipped: 7
+    note: The suite is fully green. No known-failing test remains.
+
+fixes_applied:
+  - id: F1
+    surface: tests/conftest.py
+    change: new subprocess_env fixture prepending src to PYTHONPATH
+    consumers: [tests/unit/test_structural_profiles.py, tests/unit/test_snapshot_reproducibility.py,
+                tests/unit/test_first_run_preparation.py, tests/integration/test_priority_racing_benchmark.py]
+    result: 4 failed -> 4 passed
+  - id: F2
+    surface: tests/foundry/test_telemetry.py
+    change: replaced a permanently-skipped live-/tmp probe with a hermetic multi-turn test
+    rationale: >-
+      the old test read a path nothing in the repo creates (zero effective coverage) and asserted
+      muse-spark-1.3-contributor, a retired executor under AGENTS.md section 7
+    result: 11 passed 1 skipped -> 12 passed 0 skipped
+  - id: F3
+    surface: tests/foundry/test_project_integrity.py
+    change: >-
+      extended test_inactive_executors_are_declared_inactive_in_canonical_docs to
+      docs/foundry-execution/README.md and added two discriminating assertions
+    rejected_alternative: >-
+      merely adding the file to the existing forbidden-phrase loop would have been a false
+      guarantee; the stale text "Space Bunny MAX default" matches none of those phrases
+    proof: replaying the pre-fix index from 72665dce makes the test fail; restoring makes it pass
+  - id: F4
+    surface: .foundry/legacy-donor-salvage-20260929.yaml
+    change: "quoted one unquoted scalar containing a colon-space sequence"
+    rationale: the file was unparseable by every YAML loader, making a committed continuity record machine-dead
+    result: both .foundry YAML files now parse; content verified byte-identical
+  - id: F5
+    surface: .gitignore
+    change: added target/, db/, vendor/engine-source/, vendor/engine-binaries/ with justifications
+    deliberately_not_added: node_modules/ - this repo has no JS build and no package.json
+  - id: F6
+    surface: docs/decision_quality/README.md, docs/decision-quality/README.md, docs/README.md
+    note: >-
+      the docs/README.md update was initially written into the previous campaign's
+      already-merged worktree and never reached main; re-applied here
+    change: adjudicated the separator twins
+    correction: >-
+      the prior campaign claimed the separator difference was not meaningful. It is: the
+      underscore directory is live and machine-enforced, the hyphen directory is orphaned.
+  - id: F7
+    surface: artifacts/phase12_20/final_package/README.md
+    change: new SUPERSEDED banner
+    evidence: snapshot reports 1460 unsupported / 1349 candidates vs live 1443 / 1335
+  - id: F8
+    surface: README.md
+    change: documented the supported local test invocation and the two environmental failures
+  - id: F9
+    surface: docs/project_hygiene_20260929/DOCUMENTATION_CANONICALIZATION.md
+    change: corrected a false claim carried over from the previous campaign
+    detail: >-
+      it stated QUALIFIED was a positive class in 12 md files; word-boundary search at base
+      7055740e shows 15 tokens / 7 files of which 4 are "NOT QUALIFIED" in quoted PR titles
+      and 1 a quoted commit subject. Never a positive class. RUNTIME_VERIFIED is 26 tokens /
+      16 md files at that base, not 19. Counts are now pinned to the base commit because they
+      are self-referential.
+
+corrected_classifications:
+  - prior: test_phase10_smoke_never_claims_external_validation may be a real assertion failure
+    now: cascade of the same missing httpx2; proven via phase10.py:604 then :720
+  - prior: test_drift.py live mage test is a permanently-skipped marker
+    now: environment-dependent, not permanently skipped; it runs here (16 passed) because the hardcoded path exists
+  - prior: docs/decision-quality and docs/decision_quality are equivalent twins
+    now: inverted; decision_quality is live and machine-enforced, decision-quality is orphaned
+  - prior: QUALIFIED is an undefined evidence class in positive use
+    now: substring artifact; refuted, never a positive class
+  - prior: the four RULES_CORE_DEFECT issues are filed against the wrong engine
+    now: filed against an ANCESTOR of the CI pin on a single linear line; materially different
+
+forensics_completed:
+  - id: X1
+    title: Evidence-classification vocabulary decision package
+    artifact: docs/test_signal_integrity_20260929/EVIDENCE_VOCABULARY_DECISION.md
+    headline: >-
+      candidate_fixture_manifest_v1.schema.json constrains expected_evidence_class to the
+      singleton enum ["RUNTIME_VERIFIED"] and empirically rejects all 7 documented AGENTS.md
+      classes, verified with jsonschema 4.19.2.
+    disposition: EVIDENCE_POLICY_GATE - not actioned, two branches laid out with file lists
+  - id: X2
+    title: Engine pin divergence fact package
+    artifact: docs/test_signal_integrity_20260929/ENGINE_PIN_DIVERGENCE.md
+    headline: >-
+      f79e4168 is a strict descendant of b1959698, which is a strict descendant of db134b97;
+      zero divergence. All four open defects are filed against an ancestor of the CI pin.
+    disposition: RULES_AUTHORITY_GATE - facts only, no rules adjudication
+  - id: X3
+    title: Branch forensics across 347 remote branches
+    artifact: docs/test_signal_integrity_20260929/BRANCH_FORENSICS.md
+    headline: >-
+      only 3 branches are true content-duplicates of main (13 files total); 146 have genuinely
+      unique content; 106 are ancestors of siblings but that is lineage, not main duplication.
+    disposition: >-
+      CONFIRMS the previous campaign's never-delete recommendation with evidence rather than
+      caution. Expected value of further branch forensics is low.
+  - id: X4
+    title: .foundry state-file conformance
+    artifact: docs/test_signal_integrity_20260929/FOUNDRY_STATE_CONFORMANCE.md
+    headline: >-
+      WORKSTREAM_STATE.schema.json is read by zero production code paths; state.py is a
+      hand-mirrored reimplementation weaker on 8 dimensions. No test validates any real state
+      file. One test asserts only that the schema file exists.
+    disposition: one real bug fixed (F4), rest recommendations
+
+validation:
+  on_branch_head_21ec51a1:
+    full_suite_excluding_2_env_bound_modules: 2 failed, 2249 passed, 7 skipped
+    tests_foundry: 632 passed, 0 skipped
+    ruff_check: clean
+    ruff_format: 1096 files formatted
+    regression_guard_proof: fails on pre-fix index, passes on fixed index
+  on_canonical_main_12d3e1ac_after_merge:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2251 passed, 7 skipped
+    tests_foundry: 632 passed, 0 skipped
+    ruff_check: clean
+    ruff_format: 1100 files formatted
+    foundry_yaml_parses: 3 of 3
+    note: >-
+      Requalification performed on a detached worktree of the merge commit itself, not on the
+      feature branch, so the numbers describe the integrated main rather than the PR head.
+  excluded_modules_and_why: >-
+    tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py fail
+    COLLECTION here because their dev dependencies are absent; they are not test failures and
+    they do not run locally in either arm of the comparison, so excluding them is consistent
+    and is not a denominator being hidden.
+
+not_actioned_and_why:
+  - the 2 httpx2 failures - environmental; RESOLVED independently after merge, see baseline_after
+  - tests/foundry/test_drift.py:26 hardcoded local path - environment-dependent, not broken
+  - migrating wsr24 state file to schema 2.0 - touches a dated record
+  - correcting the ACTIVE status in claude-mp-campaign-20260929.json - would rewrite a recorded state
+  - the schema execution_profile enum - correct, it must record historical provenance
+  - branch deletion, artifact expiry, PR closures - denied by project policy
+
+next_action: >-
+  NONE for this workstream. All ten findings are closed and merged as PR #371. Two items remain
+  with the Coordinator by design and are decision packages, not unfinished work:
+  EVIDENCE_VOCABULARY_DECISION.md (the expected_evidence_class singleton enum rejects all seven
+  AGENTS.md section 4 classes) and ENGINE_PIN_DIVERGENCE.md (facts for the engine repin lane).
+  A reviewer who wants to continue should read those two documents rather than this file.
+
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+claude_md: NOT_PRESENT - verified absent and never committed; not touched

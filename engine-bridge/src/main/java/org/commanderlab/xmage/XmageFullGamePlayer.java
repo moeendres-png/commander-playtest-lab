@@ -28,6 +28,7 @@ import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.combat.CombatGroup;
+import mage.game.stack.Spell;
 import mage.game.stack.StackObject;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
@@ -159,7 +160,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         super.revealCards(source, titleSuffix, cards, game, postToLog);
         if (cards != null && !cards.isEmpty() && game != null && !game.isSimulation()) {
             XmageFullGameStateRedactor.recordRevealed(game, getId(),
-                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game));
+                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game),
+                    !postToLog);
         }
     }
 
@@ -1448,7 +1450,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         Player lookOwner = lookOwnerFor(restrictedCards, game);
         boolean lookGranted = false;
         if (lookOwner != null) {
-            XmageFullGameStateRedactor.beginZoneFullLook(this, lookOwner, game);
+            XmageFullGameStateRedactor.beginZoneFullLook(this, lookOwner, game, restrictedCards);
             lookGranted = true;
         }
         try {
@@ -1771,6 +1773,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
         Player player = game.getPlayer(id);
         if (player != null) {
             return player.getName();
+        }
+        // F-33: a face-down spell's identity is its controller's alone (CR 708.4-5).
+        Spell spell = game.getStack().getSpell(id);
+        if (spell != null && spell.isFaceDown(game) && !getId().equals(spell.getControllerId())) {
+            return "Face-down spell";
         }
         Permanent permanent = game.getPermanent(id);
         if (permanent != null) {

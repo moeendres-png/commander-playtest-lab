@@ -43,7 +43,7 @@ from .canonicalization import (
 )
 
 SEMANTIC_OPTION_IDENTITY_VERSION = "semantic-option-identity-1.0.0"
-STATE_DIGEST_VERSION = "semantic-state-digest-1.0.0"
+STATE_DIGEST_VERSION = "semantic-state-digest-1.1.0"
 
 _OBJECT_CLASSES = frozenset(
     {"target", "choose_object", "target_amount", "declare_attacker", "declare_blocker"}
@@ -113,6 +113,7 @@ def _public_permanent_key(item: dict[str, Any], mapping: dict[str, int]) -> dict
         "controller": seat_of(mapping, controller),
         "counters": counter_rows,
         "damage": item.get("damage"),
+        "face_down": item.get("face_down") is True,
         "name": item.get("name"),
         "power": item.get("power"),
         "tapped": item.get("tapped"),
@@ -138,7 +139,7 @@ def build_object_index(
             pid = entry.get("player_id")
             if isinstance(pid, str):
                 index[pid] = {"kind": "player", **seat_of(mapping, pid)}
-            for zone in ("battlefield", "graveyard", "command", "hand"):
+            for zone in ("battlefield", "graveyard", "command", "hand", "exile"):
                 items = entry.get(zone)
                 if not isinstance(items, list):
                     continue
@@ -166,6 +167,8 @@ def build_object_index(
                             "owner": seat_of(mapping, entry.get("player_id")),
                             "zone": zone,
                         }
+                        if zone == "exile":
+                            proj["face_down"] = item.get("face_down") is True
                     index[oid] = proj
             granted = entry.get("granted_library")
             if isinstance(granted, list):
@@ -198,6 +201,7 @@ def build_object_index(
                     "kind": "stack_object",
                     "name": item.get("name"),
                     "position": position,
+                    "face_down": item.get("face_down") is True,
                 }
     return index
 
@@ -357,6 +361,52 @@ def legal_set_digest(
     )
 
 
+def _canonical_exile(raw: object) -> list[dict[str, Any]]:
+    """Visible exile identities only; unordered zone, no raw object ids."""
+    rows: list[dict[str, Any]] = []
+    if isinstance(raw, list):
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            row: dict[str, Any] = {"name": item.get("name")}
+            if item.get("face_down") is True:
+                row["face_down"] = True
+            rows.append(row)
+    rows.sort(key=lambda row: (bool(row.get("face_down")), str(row.get("name"))))
+    return rows
+
+
+def _canonical_revealed_top(raw: object) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    return {"name": raw.get("name")}
+
+
+def _canonical_observations(raw: object, *, revealed: bool) -> list[dict[str, Any]]:
+    """Preserve observation/event order and card order; both are pilot-visible."""
+    rows: list[dict[str, Any]] = []
+    if not isinstance(raw, list):
+        return rows
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        cards: list[dict[str, Any]] = []
+        raw_cards = item.get("cards")
+        if isinstance(raw_cards, list):
+            for card in raw_cards:
+                if isinstance(card, dict):
+                    cards.append({"name": card.get("name"), "owner_seat": card.get("owner_seat")})
+        row: dict[str, Any] = {
+            "turn": item.get("turn"),
+            "title": item.get("title"),
+            "cards": cards,
+        }
+        if revealed:
+            row["revealed_by_seat"] = item.get("revealed_by_seat")
+        rows.append(row)
+    return rows
+
+
 def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
     """Principal-scoped canonical observation (UUIDs -> seat/occurrence keys)."""
     mapping = seat_map_from_pilot_state(pilot_state)
@@ -375,14 +425,19 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             [e for e in players if isinstance(e, dict)],
             key=lambda e: int(e.get("seat", 0)),
         ):
+            private_visible = (
+                entry.get("is_actor") is True or entry.get("private_state_visible") is True
+            )
             row: dict[str, Any] = {
                 "exile_count": entry.get("exile_count"),
+                "exile": _canonical_exile(entry.get("exile")),
                 "graveyard_count": entry.get("graveyard_count"),
                 "hand_count": entry.get("hand_count"),
                 "has_lost": entry.get("has_lost"),
                 "has_won": entry.get("has_won"),
                 "is_actor": entry.get("is_actor"),
                 "library_count": entry.get("library_count"),
+                "library_top_revealed": _canonical_revealed_top(entry.get("library_top_revealed")),
                 "life": entry.get("life"),
                 "player": seat_of(mapping, entry.get("player_id")),
                 "poison_counters": entry.get("poison_counters"),
@@ -390,11 +445,14 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             }
             battlefield = entry.get("battlefield")
             if isinstance(battlefield, list):
-                perms = [
-                    _public_permanent_key(item, mapping)
-                    for item in battlefield
-                    if isinstance(item, dict)
-                ]
+                perms = []
+                for item in battlefield:
+                    if not isinstance(item, dict):
+                        continue
+                    permanent = _public_permanent_key(item, mapping)
+                    if private_visible and isinstance(item.get("private_identity"), str):
+                        permanent["private_identity"] = item.get("private_identity")
+                    perms.append(permanent)
                 perms.sort(
                     key=lambda p: (
                         str(p.get("name")),
@@ -416,7 +474,7 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
                 cmds = [{"name": item.get("name")} for item in command if isinstance(item, dict)]
                 cmds.sort(key=lambda c: str(c.get("name")))
                 row["command"] = cmds
-            if entry.get("is_actor") is True:
+            if private_visible:
                 hand = entry.get("hand")
                 if isinstance(hand, list):
                     names = sorted(
@@ -440,8 +498,15 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
     view["players"] = players_out
     stack = pilot_state.get("stack")
     if isinstance(stack, list):
-        # Stack order is semantic: preserve order, drop raw ids.
-        view["stack"] = [{"name": item.get("name")} for item in stack if isinstance(item, dict)]
+        # Stack order is semantic: preserve order, drop raw ids. Face-down is
+        # public; its name remains only when this principal was entitled to see it.
+        view["stack"] = [
+            {"name": item.get("name"), "face_down": item.get("face_down") is True}
+            for item in stack
+            if isinstance(item, dict)
+        ]
+    view["looked_at"] = _canonical_observations(pilot_state.get("looked_at"), revealed=False)
+    view["revealed"] = _canonical_observations(pilot_state.get("revealed"), revealed=True)
     commander_status = pilot_state.get("commander_status")
     if isinstance(commander_status, list):
         rows: list[dict[str, Any]] = []
@@ -490,26 +555,47 @@ def public_state_digest(pilot_state: dict[str, Any]) -> str:
     view = canonical_actor_view(pilot_state)
     public_players: list[dict[str, Any]] = []
     for entry in view.get("players", []):
-        public_players.append(
-            {
-                k: entry.get(k)
-                for k in (
-                    "battlefield",
-                    "command",
-                    "exile_count",
-                    "graveyard",
-                    "graveyard_count",
-                    "hand_count",
-                    "has_lost",
-                    "has_won",
-                    "is_actor",
-                    "library_count",
-                    "life",
-                    "player",
-                    "poison_counters",
-                    "seat",
-                )
-            }
+        public_entry = {
+            k: entry.get(k)
+            for k in (
+                "command",
+                "exile_count",
+                "graveyard",
+                "graveyard_count",
+                "hand_count",
+                "has_lost",
+                "has_won",
+                "is_actor",
+                "library_count",
+                "library_top_revealed",
+                "life",
+                "player",
+                "poison_counters",
+                "seat",
+            )
+        }
+        exile = entry.get("exile")
+        if isinstance(exile, list):
+            public_entry["exile"] = [
+                dict(card)
+                for card in exile
+                if isinstance(card, dict) and card.get("face_down") is not True
+            ]
+        battlefield = entry.get("battlefield")
+        if isinstance(battlefield, list):
+            public_entry["battlefield"] = [
+                {key: value for key, value in permanent.items() if key != "private_identity"}
+                for permanent in battlefield
+                if isinstance(permanent, dict)
+            ]
+        public_players.append(public_entry)
+    public_stack: list[dict[str, Any]] = []
+    for item in view.get("stack", []):
+        if not isinstance(item, dict):
+            continue
+        face_down = item.get("face_down") is True
+        public_stack.append(
+            {"name": None if face_down else item.get("name"), "face_down": face_down}
         )
     return canonical_hash(
         {
@@ -518,7 +604,8 @@ def public_state_digest(pilot_state: dict[str, Any]) -> str:
             "phase": view.get("phase"),
             "players": public_players,
             "priority_player": view.get("priority_player"),
-            "stack": view.get("stack"),
+            "revealed": view.get("revealed"),
+            "stack": public_stack,
             "step": view.get("step"),
             "turn_number": view.get("turn_number"),
             "digest_version": STATE_DIGEST_VERSION,
