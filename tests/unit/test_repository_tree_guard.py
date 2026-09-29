@@ -14,6 +14,13 @@ guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guard)
 
 
+def test_guard_cannot_silently_drop_its_own_entrypoints() -> None:
+    assert {
+        "scripts/verify_repository_tree.py",
+        ".github/workflows/repository-tree-integrity.yml",
+    } <= set(guard.REQUIRED_FILES)
+
+
 def git(repo: Path, *args: str) -> str:
     return subprocess.check_output(
         [

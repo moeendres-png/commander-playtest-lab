@@ -24,7 +24,8 @@ No instruction to repair, rewrite or close the foreign branch was issued.
 
 ## Implementation and trust boundary
 
-Reuse Git object inspection and six existing operating entrypoints. The checker
+Reuse Git object inspection and protect six existing operating entrypoints
+plus the verifier and its workflow (eight required files total). The checker
 requires a full commit SHA and validates regular-file modes; it never imports,
 checks out or runs candidate code. Candidate paths are not shell input. Git
 failures return a structured negative result without raw diagnostics.
@@ -37,7 +38,7 @@ https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-t
 
 This detects missing/replaced entrypoints, NOT arbitrary semantic corruption,
 all possible deletions, authenticity, or full repository/qualification correctness.
-The existing six-file policy is intentionally small; deliberate migrations must
+The eight-file policy is intentionally small; deliberate migrations must
 update the policy on the trusted base. The workflow does not configure branch
 protection and is not claimed as an unbypassable merge lock. Draft is a reversible
 merge safety measure, not a permissions boundary.
@@ -73,3 +74,17 @@ Affected Ruff, formatting, strict mypy and compileall pass. Current main still
 matches the source lock; PR #285 readback confirms Draft at the same damaged head.
 Publication/remote exact-head CI and review follow. Live pull_request_target
 activation remains explicitly post-merge verification, not inherited local PASS.
+
+## Review remediation: retain the guard itself
+
+Review correctly identified that retaining only legacy entrypoints allows removal
+of the new workflow/verifier to pass. Both files are now required; per-file removal
+regressions exercise each, and an independent assertion prevents accidentally
+dropping self-protection from the policy. The previous six-file sweep and baseline
+main acceptance remain historical pre-remediation evidence only.
+
+After deployment, candidate heads predating the guard must incorporate the trusted
+base before this raw-head presence check passes. This is intentional conservative
+source-lock behavior; it does not claim to compute a prospective merge tree.
+No old-head exemption or silent policy downgrade is added. Deliberate removal needs
+an explicit staged trusted-base policy change. Current PR head contains all eight.

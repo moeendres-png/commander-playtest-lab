@@ -16,6 +16,8 @@ REQUIRED_FILES = (
     "src/commander_lab/__init__.py",
     "tools/project_invariant_audit.py",
     ".github/workflows/ci.yml",
+    "scripts/verify_repository_tree.py",
+    ".github/workflows/repository-tree-integrity.yml",
 )
 
 
