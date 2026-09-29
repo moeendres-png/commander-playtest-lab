@@ -46,9 +46,18 @@ import java.util.UUID;
  * auto-passed, the init-phase starting-player selection honors the requested
  * seat by self-selecting, and every other discretionary Player callback fails
  * closed with UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning
- * a tactical default. ChooseMulligan (keep), shuffleLibrary (no-op, unseeded),
- * and the GUI/out-of-scope lifecycle methods remain bounded compatibility
- * behavior on both paths; they are not gameplay evidence.</p>
+ * a tactical default. ChooseMulligan (keep) and the GUI/out-of-scope
+ * lifecycle methods remain bounded compatibility behavior on both paths; they
+ * are not gameplay evidence.</p>
+ *
+ * <p>Library shuffling is never overridden: it is Rules randomness owned by
+ * XMage ({@code PlayerImpl.shuffleLibrary}: SHUFFLE_LIBRARY replacement,
+ * the per-game Rules RNG, LIBRARY_SHUFFLED event). A bridge-side no-op would
+ * silently skip CR 103.3 and every later shuffle, leave each library in
+ * decklist order (disclosing it to anyone who knows the list), and suppress
+ * shuffle replacements and triggers. Determinism comes from binding an
+ * explicit seed to the Rules RNG ({@link XmageRulesSeedBinding}), not from
+ * not shuffling.</p>
  */
 final class XmageBridgePlayer extends PlayerImpl {
 
@@ -273,17 +282,6 @@ final class XmageBridgePlayer extends PlayerImpl {
             UUID cardId
     ) {
         return false;
-    }
-
-    @Override
-    public void shuffleLibrary(
-            Ability source,
-            Game game
-    ) {
-        /*
-         * B3/B4 compatibility bridge testing is not seeded gameplay evidence.
-         * Deterministic/randomized gameplay is promoted only after a real gate.
-         */
     }
 
     @Override
