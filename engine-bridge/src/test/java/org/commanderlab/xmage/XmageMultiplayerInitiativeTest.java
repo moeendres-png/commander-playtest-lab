@@ -62,12 +62,18 @@ class XmageMultiplayerInitiativeTest {
         f.takeInitiative();
         String pn = "P" + playerCount;
 
+        // after PN's draw step (the libraries are all Mountains), before combat
+        f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.PRECOMBAT_MAIN
+                && f.game.getStack().isEmpty(), null);
+        long mountainsBefore = f.mountainsInHand(pn);
         f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.POSTCOMBAT_MAIN
                 && f.game.getStack().isEmpty(), pn);
         assertEquals(38, f.life("P1"));
         assertEquals(f.id(pn), f.game.getInitiativeId(),
                 pn + "'s Bears dealt combat damage to the player with the initiative");
         assertEquals(SECRET_ENTRANCE, f.room(pn), pn + " ventured when it took the initiative");
+        assertEquals(mountainsBefore + 1, f.mountainsInHand(pn),
+                "Secret Entrance put a basic land from " + pn + "'s library into its hand");
     }
 
     /** PN takes the initiative, then concedes on its own turn: P(N−1) is next in turn order. */
@@ -83,6 +89,7 @@ class XmageMultiplayerInitiativeTest {
         f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.POSTCOMBAT_MAIN
                 && f.game.getStack().isEmpty(), pn);
         assertEquals(f.id(pn), f.game.getInitiativeId());
+        long mountainsBefore = f.mountainsInHand(prev);
 
         f.concede(pn);
         assertEquals(f.id(prev), f.game.getInitiativeId(),
@@ -90,6 +97,8 @@ class XmageMultiplayerInitiativeTest {
                         + "order (" + prev + ") takes the initiative");
         f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(prev) != null, null);
         assertEquals(SECRET_ENTRANCE, f.room(prev), prev + " ventured when it took the initiative");
+        assertEquals(mountainsBefore + 1, f.mountainsInHand(prev),
+                "Secret Entrance put a basic land from " + prev + "'s library into its hand");
     }
 
     /** P1 (not active) concedes during P(N−1)'s turn: the active player, not PN. */
@@ -105,6 +114,7 @@ class XmageMultiplayerInitiativeTest {
         f.driveUntil(() -> f.active(prev) && f.step() == PhaseStep.PRECOMBAT_MAIN
                 && f.game.getStack().isEmpty(), null);
         assertEquals(f.id("P1"), f.game.getInitiativeId(), "nobody dealt combat damage to P1");
+        long mountainsBefore = f.mountainsInHand(prev);
 
         f.concede("P1");
         assertEquals(f.id(prev), f.game.getInitiativeId(),
@@ -112,6 +122,8 @@ class XmageMultiplayerInitiativeTest {
                         + pn + " (next after P1)");
         f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(prev) != null, null);
         assertEquals(SECRET_ENTRANCE, f.room(prev), prev + " ventured when it took the initiative");
+        assertEquals(mountainsBefore + 1, f.mountainsInHand(prev),
+                "Secret Entrance put a basic land from " + prev + "'s library into its hand");
         assertEquals(null, f.room(pn), pn + " did not take the initiative");
     }
 
