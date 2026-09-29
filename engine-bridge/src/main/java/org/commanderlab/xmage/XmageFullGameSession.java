@@ -5,9 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.cards.decks.Deck;
-import mage.constants.MultiplayerAttackOption;
 import mage.constants.RangeOfInfluence;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.GameOptions;
 import mage.game.events.TableEvent;
 import mage.game.mulligan.MulliganType;
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class XmageFullGameSession {
 
-    /** WS215 variable-player contract, R19 widened: Commander Free-for-All for 2..6 principals. */
+    /** WS215 variable-player contract, R19 widened: Commander tables for 2..6 principals. */
     static final int MIN_PLAYERS = 2;
     static final int MAX_PLAYERS = 6;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
@@ -47,7 +46,7 @@ final class XmageFullGameSession {
     private final String protocolGameId;
     private final long seed;
     private final int playerCount;
-    private final CommanderFreeForAll game;
+    private final GameCommanderImpl game;
     private final List<XmageFullGamePlayer> players;
     private final XmageFullGameDecisionController controller;
     private final int startingPlayerSeat;
@@ -128,12 +127,12 @@ final class XmageFullGameSession {
         // card while 3..6P keep the free first mulligan. A blanket grant
         // would silently zero the 2P bottom count the fixtures require.
         int freeMulligans = sessionsPlayers > 2 ? 1 : 0;
-        this.game = new CommanderFreeForAll(
-                MultiplayerAttackOption.MULTIPLE,
-                RangeOfInfluence.ALL,
+        // Two-player tables use the engine's own two-player Commander type so
+        // the engine applies CR 103.8a (see XmageCommanderGames).
+        this.game = XmageCommanderGames.create(
+                playerCount,
                 MulliganType.LONDON.getMulligan(freeMulligans),
-                startingLife,
-                7
+                startingLife
         );
         // WS213 authoritative Rules-RNG binding (WS212 engine contract): the
         // explicit orchestration seed replaces the per-game Rules stream and
@@ -144,7 +143,6 @@ final class XmageFullGameSession {
         // choosing-player pick and opening hands. The legacy process-global
         // seed call is retired here: it never was Rules-RNG authority.
         XmageRulesSeedBinding.bind(game, seed);
-        game.setNumPlayers(playerCount);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         game.setGameOptions(options);
@@ -195,7 +193,7 @@ final class XmageFullGameSession {
      * be parked on an external decision (or not yet started) when the caller
      * touches game state.
      */
-    CommanderFreeForAll restorationGame() {
+    GameCommanderImpl restorationGame() {
         return game;
     }
 

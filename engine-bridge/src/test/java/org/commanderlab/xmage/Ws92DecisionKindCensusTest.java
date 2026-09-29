@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -176,7 +176,7 @@ class Ws92DecisionKindCensusTest {
             String stoppedBy,
             JsonObject stopDetail
     ) throws Exception {
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         XmageFullGameDecisionController controller =
                 field(session, "controller", XmageFullGameDecisionController.class);
 
