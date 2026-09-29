@@ -88,10 +88,26 @@ def test_b4d_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path)
     workflow = (repo_root / ".github/workflows/external-engine-integration.yml").read_text(
         encoding="utf-8"
     )
+    engine_action = (repo_root / ".github/actions/pinned-xmage-engine/action.yml").read_text(
+        encoding="utf-8"
+    )
+    conformance = (repo_root / ".github/workflows/xmage-full-game-conformance.yml").read_text(
+        encoding="utf-8"
+    )
 
-    assert "-DskipTests install" in workflow
+    # The pinned engine is built from source (cached by the exact checked-out commit),
+    # the bridge is compiled and packaged here, and the bridge test suite runs in the
+    # conformance workflow, which also triggers on every bridge or pin change.
+    assert "uses: ./.github/actions/pinned-xmage-engine" in workflow
+    assert "-DskipTests install" in engine_action
+    assert 'full="$(git rev-parse HEAD)"' in engine_action
+    assert "xmage-engine-${{ steps.resolve.outputs.commit }}" in engine_action
     assert "working-directory: engine-bridge" in workflow
-    assert "mvn -B -ntp verify" in workflow
+    assert "-DskipTests test-compile package" in workflow
+    assert "uses: ./.github/actions/pinned-xmage-engine" in conformance
+    assert "mvn -B -ntp verify" in conformance
+    assert '"engine-bridge/**"' in conformance
+    assert '"config/rules_engines.json"' in conformance
 
     windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
     linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")

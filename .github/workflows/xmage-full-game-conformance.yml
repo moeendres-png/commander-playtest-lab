@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "engine-bridge/**"
+      - "config/rules_engines.json"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
       - "src/commander_lab/agents/**"
@@ -19,6 +20,7 @@ on:
     branches: [main]
     paths:
       - "engine-bridge/**"
+      - "config/rules_engines.json"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
       - "src/commander_lab/agents/**"
@@ -71,11 +73,10 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
-      - name: Build pinned XMage
-        working-directory: vendor/engine-source/xmage
-        run: |
-          set -euo pipefail
-          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
       - name: Install lab
         run: |
           python -m pip install --require-hashes -r requirements/lock.txt

@@ -82,11 +82,10 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
-      - name: Build pinned XMage
-        working-directory: vendor/engine-source/xmage
-        run: |
-          set -euo pipefail
-          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
 
       - name: Install lab
         run: |
@@ -100,9 +99,11 @@ jobs:
       - name: Preflight exact real 4P deck inputs
         run: python scripts/run_real_4p_full_game_smoke.py --preflight-only
 
-      - name: Build and verify XMage bridge
+      - name: Package XMage bridge
+        # The bridge test suite runs in XMage Full Game Conformance (and H4); this
+        # smoke only needs the packaged bridge, so it does not run it a third time.
         working-directory: engine-bridge
-        run: mvn -B -ntp verify
+        run: mvn -B -ntp -DskipTests package
 
       - name: Run bounded real 4P technical smoke
         run: python scripts/run_real_4p_full_game_smoke.py --smoke-decisions 40

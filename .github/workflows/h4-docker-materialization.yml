@@ -65,9 +65,43 @@ jobs:
   preflight:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      xmage: ${{ steps.scope.outputs.xmage }}
+      forge: ${{ steps.scope.outputs.forge }}
     steps:
       - name: Checkout lab
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # The PR merge commit and its base parent, for the provider scope below.
+          fetch-depth: 2
+      - name: Provider scope of this change
+        id: scope
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          xmage=true
+          forge=true
+          changed=""
+          if [ "$EVENT" = "pull_request" ]; then
+            changed="$(git diff --name-only HEAD^1 HEAD)"
+          fi
+          if [ -n "$changed" ]; then
+            printf '%s\n' "$changed"
+            # Skip a provider's image build only when every changed file is provably
+            # irrelevant to it: XMage-bridge sources or Markdown for Forge, Forge-only
+            # container inputs or Markdown for XMage. Anything else builds both.
+            if ! printf '%s\n' "$changed" | grep -vE '^engine-bridge/|\.md$' | grep -q .; then
+              forge=false
+            fi
+            if ! printf '%s\n' "$changed" | grep -vE '^docker/forge/|^integrations/forge/|\.md$' | grep -q .; then
+              xmage=false
+            fi
+          fi
+          echo "xmage=$xmage" >> "$GITHUB_OUTPUT"
+          echo "forge=$forge" >> "$GITHUB_OUTPUT"
+          echo "H4 provider scope: xmage=$xmage forge=$forge"
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
         with:
           python-version: "3.12"
@@ -117,6 +151,7 @@ jobs:
 
   h4-xmage:
     needs: [preflight]
+    if: needs.preflight.outputs.xmage == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
@@ -338,6 +373,7 @@ jobs:
 
   h4-forge:
     needs: [preflight]
+    if: needs.preflight.outputs.forge == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:

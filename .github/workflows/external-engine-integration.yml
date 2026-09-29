@@ -96,10 +96,10 @@ jobs:
           git show --no-patch --format=fuller "$XMAGE_COMMIT"
           mkdir -p ../../../artifacts/external-engine
           git describe --tags --always "$XMAGE_COMMIT" | tee ../../../artifacts/external-engine/xmage-source-description.txt
-      - name: Build pinned XMage
-        working-directory: vendor/engine-source/xmage
-        run: |
-          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
       - name: Install lab
         run: |
           python -m pip install --require-hashes -r requirements/lock.txt
@@ -110,27 +110,16 @@ jobs:
             echo 'Provider-specific XMage Java bridge is missing. This is a hard failure, not a fallback.' >&2
             exit 1
           }
-      - name: Compile XMage bridge main sources
+      - name: Compile XMage bridge (main and test sources) and package
+        # test-compile keeps test-source compilation checked on every trigger of this
+        # workflow; the bridge test suite itself runs in XMage Full Game Conformance
+        # (and H4), so it is not executed here a third time.
         working-directory: engine-bridge
         shell: bash
         run: |
           set -o pipefail
           mkdir -p ../artifacts/external-engine
-          mvn -B -ntp -DskipTests compile 2>&1 | tee ../artifacts/external-engine/b4d-main-compile.log
-      - name: Compile XMage bridge test sources
-        working-directory: engine-bridge
-        shell: bash
-        run: |
-          set -o pipefail
-          mkdir -p ../artifacts/external-engine
-          mvn -B -ntp -DskipTests test-compile 2>&1 | tee ../artifacts/external-engine/b4d-test-compile.log
-      - name: Run XMage bridge tests and package
-        working-directory: engine-bridge
-        shell: bash
-        run: |
-          set -o pipefail
-          mkdir -p ../artifacts/external-engine
-          mvn -B -ntp verify 2>&1 | tee ../artifacts/external-engine/b4d-bridge-verify.log
+          mvn -B -ntp -DskipTests test-compile package 2>&1 | tee ../artifacts/external-engine/b4d-bridge-package.log
       - name: Verify current provider capability truth
         run: pytest -q tests/unit/test_xmage_compatibility_provider.py tests/unit/test_phase8_rules_models.py tests/unit/test_models.py
       - name: Run real B3 JSONL process regression
