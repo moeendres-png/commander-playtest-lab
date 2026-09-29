@@ -13,6 +13,14 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
+from commander_lab.qualification.current_boundary import full107
+from commander_lab.qualification.current_boundary.game_driver import (
+    CommandedGameResult,
+    DecisionTapeEntry,
+)
+
 REPO = Path(__file__).resolve().parents[2]
 FULL107 = REPO / "src/commander_lab/qualification/current_boundary/full107.py"
 DRIVER = REPO / "src/commander_lab/qualification/current_boundary/game_driver.py"
@@ -70,18 +78,20 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     zones of that principal's row.
     """
     source = DRIVER.read_text(encoding="utf-8")
-    block = source[source.index('if drive_to == "first_turn_draw_skip":') :]
-    block = block[: block.index('result.terminal_facts["decision_identity_shape"]')]
-    # Explicit principal, stated by the engine frame; never inferred from cards.
+    helper_start = source.index("def _observe_principal_checkpoint(")
+    helper_end = source.index("\ndef drive_commander_game(", helper_start)
+    block = source[helper_start:helper_end]
+    # The helper names the Lab principal explicitly and never persists a live
+    # engine identity.
     assert '{"observer_player_id": principal}' in block
-    assert 'decision.get("actor")' in block
-    # Counts come from the acting seat's row only.
+    assert "seat_index = _SEATS.index(principal)" in block
+    # Counts come from the requested seat's row only.
     assert 'actor_row.get("seat") != seat_index' in block
     assert 'zones.get("library_size")' in block
     assert "hand=hand" in block
     assert "library_size=library_size" in block
     helper = source[source.index("def _zone_count_record(") :]
-    helper = helper[: helper.index("\ndef drive_commander_game(")]
+    helper = helper[: helper.index("\ndef _observe_principal_checkpoint(")]
     assert "len(hand)" in helper
     assert '"hand_count"' in helper
     assert '"library_count"' in helper
@@ -97,8 +107,9 @@ def test_start2_observation_validates_both_authoritative_binding_shapes() -> Non
     that contradicts itself.
     """
     source = DRIVER.read_text(encoding="utf-8")
-    block = source[source.index('if drive_to == "first_turn_draw_skip":') :]
-    block = block[: block.index('result.terminal_facts["decision_identity_shape"]')]
+    helper_start = source.index("def _observe_principal_checkpoint(")
+    helper_end = source.index("\ndef drive_commander_game(", helper_start)
+    block = source[helper_start:helper_end]
     # Mechanism A: the live-engine envelope with the resolved id checked
     # against the acting seat's own player row.
     assert 'payload.get("observer_player_id") == principal' in block
@@ -109,9 +120,9 @@ def test_start2_observation_validates_both_authoritative_binding_shapes() -> Non
     assert 'marked[0].get("seat") == seat_index' in block
     # Neither binds, or a conflicting one binds: fail closed.
     assert "if not (envelope_bound or marker_bound):" in block
-    assert "establishes no authoritative acting principal" in block
-    assert "does not bind the acting principal" in block
-    assert "does not identify exactly the acting" in block
+    assert "establishes no authoritative requested principal" in block
+    assert "does not bind the requested principal" in block
+    assert "does not identify exactly the requested principal" in block
     # A marker-bound response emits no engine-id proof: there was no envelope
     # id to compare, and recording false would read as a failed proof.
     helper = source[source.index("def _zone_count_record(") :]
@@ -162,16 +173,158 @@ def test_driver_observes_engine_reported_zone_counts() -> None:
 def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     """Record only the acting principal's counts; never persist another live principal id."""
     source = DRIVER.read_text(encoding="utf-8")
-    start = source.index("seat_index = seats_known.index(principal)")
-    end = source.index('result.terminal_facts["observed_zone_count_source"]')
+    start = source.index("def _observe_principal_checkpoint(")
+    end = source.index("\ndef drive_commander_game(", start)
     block = source[start:end]
     assert '{"observer_player_id": principal}' in block
     assert 'actor_row.get("seat") != seat_index' in block
-    helper = source[source.index("def _zone_count_record(") :]
-    helper = helper[: helper.index("\ndef drive_commander_game(")]
-    assert '"hand_count"' in helper
-    assert '"library_count"' in helper
-    # The engine id may be used transiently to prove the binding but must not
-    # be stored in the terminal-facts record.
-    assert '"observer_engine_player_id"' not in helper
-    assert '"player_id"' not in helper
+    record_start = source.index("def _zone_count_record(")
+    record_end = source.index("\ndef _observe_principal_checkpoint(", record_start)
+    record_helper = source[record_start:record_end]
+    assert '"hand_count"' in record_helper
+    assert '"library_count"' in record_helper
+    # The live engine id is intentionally consumed by the observation helper to
+    # prove the requester→engine-row binding. The privacy invariant is that the
+    # persisted zone-count record itself never contains a live engine identity.
+    assert '"observer_engine_player_id"' not in record_helper
+    assert '"player_id"' not in record_helper
+
+
+def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> None:
+    """The engine's actor is a LIVE identity and must never be a Lab principal.
+
+    This is the defect that made WS05-CMD-START-2 UNKNOWN after PR #283. The
+    driver took the acting principal from the engine's reported actor and then
+    checked it against the Lab's own seat namespace. Before #283 the engine
+    happened to answer with a seat label and the check passed by coincidence. After
+    #283 the engine answers with a live engine identity, a UUID, so the check failed
+    for every observation and the draw-skip postcondition could never be read, even
+    though the engine was reporting principal-scoped state correctly.
+
+    Using the engine actor as a Lab principal was wrong in both directions: it could
+    not work once the engine used live identities, and had it ever succeeded it would
+    have persisted a live engine identity into Lab evidence.
+    """
+    source = DRIVER.read_text(encoding="utf-8")
+
+    # The START-2 observer is pinned to the fixture-scripted Lab principal,
+    # never to a live engine actor id.
+    assert "principal=scripted_starting_seat" in source
+    assert "seat_index = _SEATS.index(principal)" in source
+    assert '"observer_player_id": principal' in source
+    assert "principal = str(stated)" not in source
+    # The live engine id may still be used transiently to prove the envelope.
+    assert "observer_engine_player_id" in source
+
+
+def _record() -> dict:
+    return {
+        "fixture_id": "WS05-CMD-START-2",
+        "expected_events": {"required_events": [], "forbidden_events": []},
+    }
+
+
+def _result(
+    *,
+    baseline: tuple[int, int] | None = (7, 92),
+    post: tuple[int, int] | None = (7, 92),
+    post_phase: str = "precombat_main",
+) -> CommandedGameResult:
+    result = CommandedGameResult(
+        candidate="xmage",
+        player_count=2,
+        deck_identity=["d1", "d2"],
+        game_id="g",
+    )
+    if baseline is not None:
+        result.terminal_facts["start2_baseline_zone_counts"] = [
+            {"hand_count": baseline[0], "library_count": baseline[1]}
+        ]
+        result.terminal_facts["start2_baseline_checkpoint"] = {
+            "turn_number": 1,
+            "phase": "beginning",
+            "step": "upkeep",
+        }
+    if post is not None:
+        result.terminal_facts["start2_post_zone_counts"] = [
+            {"hand_count": post[0], "library_count": post[1]}
+        ]
+        result.terminal_facts["observed_actor_zone_counts"] = [
+            {"hand_count": post[0], "library_count": post[1]}
+        ]
+        result.terminal_facts["start2_post_checkpoint"] = {
+            "turn_number": 1,
+            "phase": post_phase,
+            "step": "main",
+        }
+    result.terminal_facts["draw_step_decision_frames"] = []
+    result.terminal_facts["priority_reached"] = True
+    result.decision_tape = []
+    return result
+
+
+@pytest.mark.parametrize(
+    ("baseline", "post"),
+    [
+        ((7, 92), (8, 91)),
+        ((7, 92), (7, 91)),
+        ((7, 92), (8, 92)),
+    ],
+)
+def test_start2_changed_hand_or_library_is_fail(
+    monkeypatch: pytest.MonkeyPatch,
+    baseline: tuple[int, int],
+    post: tuple[int, int],
+) -> None:
+    monkeypatch.setattr(
+        full107,
+        "drive_commander_game",
+        lambda *args, **kwargs: _result(baseline=baseline, post=post),
+    )
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "FAIL"
+    assert "counts changed" in row.reason
+
+
+def test_start2_identical_upkeep_to_precombat_counts_can_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result = _result()
+    result.decision_tape = [
+        DecisionTapeEntry(
+            "priority", "PRIORITY", "p1", 1, "pass_when_offered", "a", ["a"], "observed"
+        )
+    ]
+    monkeypatch.setattr(full107, "drive_commander_game", lambda *args, **kwargs: result)
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "PASS"
+
+
+def test_start2_missing_baseline_is_unknown(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        full107,
+        "drive_commander_game",
+        lambda *args, **kwargs: _result(baseline=None),
+    )
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+
+
+def test_start2_stopping_before_precombat_main_is_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        full107,
+        "drive_commander_game",
+        lambda *args, **kwargs: _result(post_phase="beginning"),
+    )
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+
+
+def test_driver_no_longer_uses_priority_count_as_start2_completion() -> None:
+    source = DRIVER.read_text(encoding="utf-8")
+    assert 'drive_to == "first_turn_draw_skip" and steps >= 2' not in source
+    assert 'phase == "precombat_main"' in source
+    assert 'step == "upkeep"' in source
+    assert 'step == "draw"' in source

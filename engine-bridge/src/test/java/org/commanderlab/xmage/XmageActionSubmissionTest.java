@@ -38,6 +38,8 @@ class XmageActionSubmissionTest {
                 true
         );
         manager.startGame(created.gameHandle());
+        XmageGenericExternalMulliganSupport.keepAllToPriority(
+                manager, created.gameHandle(), 4);
         Game game = manager.requireGame(created.gameHandle());
 
         XmageGameManager.LegalActionsSnapshot first = manager.legalActions(created.gameHandle());

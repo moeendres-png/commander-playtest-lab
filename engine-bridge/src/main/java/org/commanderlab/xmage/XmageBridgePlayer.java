@@ -44,11 +44,14 @@ import java.util.UUID;
  * and pass priority. When an ExternalDecisionController is attached (B4
  * external control), priority is paused and published rather than silently
  * auto-passed, the init-phase starting-player selection honors the requested
- * seat by self-selecting, and every other discretionary Player callback fails
- * closed with UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning
- * a tactical default. ChooseMulligan (keep) and the GUI/out-of-scope
- * lifecycle methods remain bounded compatibility behavior on both paths; they
- * are not gameplay evidence.</p>
+ * seat by self-selecting, and the engine-authored keep/mulligan domain is
+ * published and externally resolved. London bottom-card selection is explicitly
+ * fail-closed until that separate callback is projected. Every other
+ * discretionary Player callback fails closed with
+ * UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning a tactical
+ * default. The no-controller B3 path retains bounded compatibility behavior and
+ * is not gameplay evidence.
+ * GUI/out-of-scope lifecycle methods remain bounded compatibility behavior.</p>
  *
  * <p>Library shuffling is never overridden: it is Rules randomness owned by
  * XMage ({@code PlayerImpl.shuffleLibrary}: SHUFFLE_LIBRARY replacement,
@@ -60,6 +63,9 @@ import java.util.UUID;
  * not shuffling.</p>
  */
 final class XmageBridgePlayer extends PlayerImpl {
+
+    private static final ThreadLocal<Boolean> BOTTOM_SELECTION =
+            ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private final ExternalDecisionController externalDecisionController;
 
@@ -233,6 +239,12 @@ final class XmageBridgePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
+        if (externalDecisionController != null && BOTTOM_SELECTION.get()) {
+            throw new XmageGameManager.GameException(
+                    "UNSUPPORTED_COMPATIBILITY_DECISION: London bottom-card selection "
+                            + "requires external decision control; no default card choice is permitted"
+            );
+        }
         failIfExternallyControlled("choose(Cards,TargetCard)");
         cards.getCards(game)
                 .stream()
@@ -355,7 +367,31 @@ final class XmageBridgePlayer extends PlayerImpl {
     public boolean chooseMulligan(
             Game game
     ) {
-        return false;
+        if (externalDecisionController == null) {
+            // B3 lifecycle-only compatibility path. This path is explicitly
+            // non-gameplay evidence; the externally controlled path below has
+            // no keep/mulligan default.
+            return false;
+        }
+        return externalDecisionController.requestMulligan(this, game);
+    }
+
+    @Override
+    public boolean putCardsOnBottomOfLibrary(
+            Cards cards,
+            Game game,
+            Ability source,
+            boolean anyOrder
+    ) {
+        if (externalDecisionController == null) {
+            return super.putCardsOnBottomOfLibrary(cards, game, source, anyOrder);
+        }
+        BOTTOM_SELECTION.set(Boolean.TRUE);
+        try {
+            return super.putCardsOnBottomOfLibrary(cards, game, source, anyOrder);
+        } finally {
+            BOTTOM_SELECTION.set(Boolean.FALSE);
+        }
     }
 
     @Override
