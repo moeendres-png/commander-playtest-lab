@@ -240,10 +240,22 @@ final class XmageBridgePlayer extends PlayerImpl {
             Game game
     ) {
         if (externalDecisionController != null && BOTTOM_SELECTION.get()) {
-            throw new XmageGameManager.GameException(
-                    "UNSUPPORTED_COMPATIBILITY_DECISION: London bottom-card selection "
-                            + "requires external decision control; no default card choice is permitted"
+            // London bottoming is an authoritative engine decision: the engine
+            // supplies the acting player's own cards and the required count, and
+            // the external control thread submits an explicit selection. No
+            // default, First-N or engine-AI choice exists on this path.
+            List<Card> offered = new ArrayList<>(cards.getCards(game));
+            List<String> selected = externalDecisionController.requestMulliganBottom(
+                    this,
+                    game,
+                    offered,
+                    target.getMinNumberOfTargets(),
+                    target.getMaxNumberOfTargets()
             );
+            for (String selectedId : selected) {
+                target.add(UUID.fromString(selectedId), game);
+            }
+            return true;
         }
         failIfExternallyControlled("choose(Cards,TargetCard)");
         cards.getCards(game)

@@ -3,6 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mage.abilities.Ability;
+import mage.cards.Card;
 import mage.abilities.ActivatedAbility;
 import mage.constants.AbilityType;
 import mage.constants.CommanderCardType;
@@ -45,6 +46,7 @@ final class ExternalDecisionController {
 
     private Decision currentDecision;
     private String submittedActionId;
+    private List<String> submittedSelection;
     private RuntimeException terminalFailure;
     private boolean terminal;
     private long decisionOffset = 0L;
@@ -347,6 +349,189 @@ final class ExternalDecisionController {
         currentDecision = null;
         notifyAll();
         return "mulligan".equals(optionType);
+    }
+
+    /**
+     * Publish the engine-authored London-bottoming domain and block the XMage
+     * engine thread until the JSONL control thread submits an explicit
+     * selection from the offered cards.
+     *
+     * <p>The offered identities are the acting player's own cards as the engine
+     * supplied them, so the projection stays actor-scoped. The cardinality is
+     * the engine's own minimum and maximum for this choice; the controller
+     * derives no Mulligan rule of its own and applies no default selection.</p>
+     */
+    synchronized List<String> requestMulliganBottom(
+            Player player,
+            Game game,
+            List<Card> offered,
+            int minCount,
+            int maxCount
+    ) {
+        requireLiveController();
+        if (currentDecision != null) {
+            throw new IllegalStateException("CONCURRENT_EXTERNAL_DECISION");
+        }
+        if (offered == null || offered.isEmpty()) {
+            throw new IllegalStateException(
+                    "MULLIGAN_BOTTOM_DOMAIN_INVALID: engine offered no card to choose from"
+            );
+        }
+        if (minCount < 0 || maxCount < minCount || maxCount > offered.size()) {
+            throw new IllegalStateException(
+                    "MULLIGAN_BOTTOM_DOMAIN_INVALID: engine declared min=" + minCount
+                            + " max=" + maxCount + " for " + offered.size() + " offered cards"
+            );
+        }
+
+        decisionOffset++;
+        String gameId = game.getId().toString();
+        String actorId = player.getId().toString();
+        String decisionId = stableId(
+                gameId,
+                Long.toString(decisionOffset),
+                actorId,
+                "mulligan_bottom"
+        );
+
+        List<JsonObject> actions = new ArrayList<>(offered.size());
+        for (int ordinal = 0; ordinal < offered.size(); ordinal++) {
+            Card card = offered.get(ordinal);
+            JsonObject metadata = new JsonObject();
+            metadata.addProperty("option_type", "mulligan_bottom_card");
+            metadata.addProperty("card_id", card.getId().toString());
+            metadata.addProperty("card_name", card.getName());
+            actions.add(legalAction(
+                    decisionId,
+                    ordinal,
+                    actorId,
+                    "mulligan_bottom",
+                    card.getId().toString(),
+                    null,
+                    true,
+                    List.of(),
+                    new JsonObject(),
+                    new JsonObject(),
+                    metadata
+            ));
+        }
+
+        JsonObject context = new JsonObject();
+        context.addProperty("min_selection", minCount);
+        context.addProperty("max_selection", maxCount);
+
+        Decision pending = new Decision(
+                gameId,
+                gameId,
+                decisionOffset,
+                decisionId,
+                actorId,
+                "mulligan_bottom",
+                true,
+                actions
+        );
+        currentDecision = pending;
+        submittedActionId = null;
+        submittedSelection = null;
+        notifyAll();
+
+        long deadlineNanos = System.nanoTime() + RESPONSE_TIMEOUT_MILLIS * 1_000_000L;
+        while (submittedSelection == null && terminalFailure == null && !terminal) {
+            long remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos <= 0L) {
+                RuntimeException failure = new IllegalStateException(
+                        "EXTERNAL_DECISION_TIMEOUT: " + decisionId + " kind=mulligan_bottom"
+                );
+                terminalFailure = failure;
+                currentDecision = null;
+                notifyAll();
+                throw failure;
+            }
+            try {
+                wait(Math.max(1L, remainingNanos / 1_000_000L));
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                RuntimeException failure = new IllegalStateException(
+                        "EXTERNAL_DECISION_TIMEOUT: interrupted while awaiting " + decisionId,
+                        exc
+                );
+                terminalFailure = failure;
+                currentDecision = null;
+                notifyAll();
+                throw failure;
+            }
+        }
+
+        if (terminalFailure != null) {
+            throw terminalFailure;
+        }
+        if (submittedSelection == null) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_ENDED_WITHOUT_RESPONSE: " + decisionId
+            );
+        }
+
+        List<String> selection = List.copyOf(submittedSelection);
+        submittedSelection = null;
+        currentDecision = null;
+        notifyAll();
+        return selection;
+    }
+
+    /**
+     * Resolve the pending London-bottoming decision from an explicit external
+     * selection. Validation fails closed and in this order: live controller,
+     * decision kind, decision id, actor id, membership of every selected
+     * identity in the offered set, then authoritative cardinality.
+     */
+    synchronized List<String> submitMulliganBottom(
+            String engineGameId,
+            String decisionId,
+            String actorId,
+            List<String> selectedCardIds
+    ) {
+        requireLiveController();
+        Decision decision = requireCurrentDecision(engineGameId);
+        if (!"mulligan_bottom".equals(decision.decisionKind())) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_KIND_MISMATCH: expected mulligan_bottom, observed "
+                            + decision.decisionKind()
+            );
+        }
+        if (!decision.decisionId().equals(decisionId)) {
+            throw new IllegalStateException("STALE_EXTERNAL_DECISION");
+        }
+        if (!decision.actorId().equals(actorId)) {
+            throw new IllegalStateException("EXTERNAL_DECISION_ACTOR_MISMATCH");
+        }
+        if (selectedCardIds == null) {
+            throw new IllegalStateException("MULLIGAN_BOTTOM_SELECTION_INVALID: null selection");
+        }
+
+        List<String> offeredIds = decision.actions().stream()
+                .filter(action -> action.has("metadata") && action.get("metadata").isJsonObject())
+                .map(action -> action.getAsJsonObject("metadata"))
+                .filter(metadata -> metadata.has("card_id"))
+                .map(metadata -> metadata.get("card_id").getAsString())
+                .toList();
+        for (String selected : selectedCardIds) {
+            if (selected == null || !offeredIds.contains(selected)) {
+                throw new IllegalStateException(
+                        "MULLIGAN_BOTTOM_SELECTION_INVALID: identity " + selected
+                                + " is not among the offered cards"
+                );
+            }
+        }
+        if (selectedCardIds.size() != offeredIds.size()) {
+            throw new IllegalStateException(
+                    "MULLIGAN_BOTTOM_SELECTION_INVALID: the engine requires exactly "
+                            + offeredIds.size() + " card(s), got " + selectedCardIds.size()
+            );
+        }
+
+        submittedSelection = new ArrayList<>(selectedCardIds);
+        notifyAll();
+        return selectedCardIds;
     }
 
     /**

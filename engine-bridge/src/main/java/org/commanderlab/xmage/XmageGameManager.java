@@ -774,6 +774,68 @@ final class XmageGameManager {
         }
     }
 
+    XmageActionExecutor.ExecutionResult resolveMulliganBottom(
+            String gameHandle,
+            String decisionId,
+            String actorId,
+            List<String> selectedCardIds
+    ) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException("MULLIGAN_BOTTOM_UNAVAILABLE: game must be started");
+            }
+            if (!managed.externalControl || managed.externalDecisionController == null) {
+                throw new GameException(
+                        "MULLIGAN_BOTTOM_UNAVAILABLE: game was not created with external_control=true"
+                );
+            }
+
+            ExternalDecisionController.Decision before;
+            List<String> submitted;
+            try {
+                before = managed.externalDecisionController.requireCurrentDecision(
+                        managed.game.getId().toString()
+                );
+                submitted = managed.externalDecisionController.submitMulliganBottom(
+                        managed.game.getId().toString(),
+                        decisionId,
+                        actorId,
+                        selectedCardIds
+                );
+                managed.externalDecisionController.awaitDecisionAdvance(
+                        managed.game.getId().toString(),
+                        before.decisionId(),
+                        Duration.ofSeconds(20)
+                );
+            } catch (RuntimeException exc) {
+                throw new GameException(
+                        "MULLIGAN_BOTTOM_RESOLUTION_FAILED: " + exc.getMessage(),
+                        exc
+                );
+            }
+
+            if (managed.engineFailure != null) {
+                throw new GameException(
+                        "MULLIGAN_BOTTOM_RESOLUTION_FAILED: "
+                                + managed.engineFailure.getClass().getSimpleName()
+                                + ": "
+                                + String.valueOf(managed.engineFailure.getMessage()),
+                        managed.engineFailure
+                );
+            }
+
+            return new XmageActionExecutor.ExecutionResult(
+                    before.decisionId(),
+                    String.join(",", submitted),
+                    "mulligan_bottom",
+                    before.actorId(),
+                    null,
+                    "bottom:" + submitted.size()
+            );
+        }
+    }
+
     StateSnapshot snapshotState(String gameHandle, String observerPlayerId) {
         ManagedGame managed = requireManagedGame(gameHandle);
         synchronized (managed) {
