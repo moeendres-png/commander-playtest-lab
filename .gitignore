@@ -38,3 +38,5 @@ engine-bridge/target/cp-wsr22.txt
 
 # WSR22 successor: test-local bridge stub processes (generated, not source)
 tests/qualification/_bridge_stubs/
+docs/pb09_20260929/evidence/forge-pristine-20260929/
+docs/muse_final_convergence_20260928/evidence/
