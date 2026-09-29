@@ -184,7 +184,6 @@ def run_live_smoke(
 
     try:
         result = XmageFullGameRunner(
-            cwd=root,
             request_timeout_seconds=120.0,
             max_decisions=max(smoke_decisions + 10, 100),
         ).run_smoke(

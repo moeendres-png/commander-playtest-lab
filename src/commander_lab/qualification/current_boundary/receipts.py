@@ -402,18 +402,34 @@ def load_native_receipt(path: Path) -> dict[str, Any]:
 
 
 def native_suite_credit(
-    receipts: list[dict[str, Any]], *, candidate: str, expected_commit: str
+    receipts: list[dict[str, Any]],
+    *,
+    candidate: str,
+    expected_commit: str,
+    expected_runner_digest: str,
 ) -> dict[str, Any]:
     """Summarise credit from *observed* receipts only.
 
     A group with no receipt contributes nothing. A receipt bound to a different
-    candidate head is stale and contributes nothing.
+    candidate head is stale and contributes nothing. A receipt whose Lab-side
+    runner identity differs from the currently executing qualification code is
+    likewise stale: the engine commit alone cannot prove the adapter, runner and
+    protocol semantics that produced the observation are the ones running now.
+    A missing or empty ``expected_runner_digest`` fails closed with zero credit
+    rather than skipping the check, and a receipt without a recorded
+    ``runner_digest`` can never satisfy it, so pre-guard receipts become
+    stale/UNKNOWN instead of being grandfathered in.
     """
     credited: list[dict[str, Any]] = []
+    stale_runner_excluded: list[str] = []
     for doc in receipts:
         if doc.get("candidate") != candidate:
             continue
         if doc.get("candidate_commit") != expected_commit:
+            continue
+        recorded = doc.get("runner_digest")
+        if not expected_runner_digest or not recorded or recorded != expected_runner_digest:
+            stale_runner_excluded.append(f"{doc.get('candidate')}:{doc.get('group')}")
             continue
         credited.append(doc)
     return {
@@ -445,6 +461,11 @@ def native_suite_credit(
         "receipt_digests": {
             f"{d['candidate']}:{d['group']}": d["receipt_digest"] for d in credited
         },
+        # The runner identity this credit decision was bound to, plus every
+        # engine-commit-matching group excluded for runner staleness, so a zero
+        # is auditable as STALE rather than silently absent.
+        "expected_runner_digest": expected_runner_digest,
+        "stale_runner_excluded": sorted(stale_runner_excluded),
     }
 
 
@@ -459,13 +480,18 @@ def positive_fixture_credit(
     candidate: str,
     expected_commit: str,
     denominator: set[str],
+    expected_runner_digest: str,
 ) -> dict[str, list[str]]:
     """Fixture -> test identities, from positive observations only.
 
     A fixture earns native-test credit only when a positive receipt states the
     fixture, the test, the candidate head, the obligation exercised, the observed
     assertion, and PASS. A negative assertion, a bare mention, a stale head or a
-    missing observation yields nothing.
+    missing observation yields nothing. The receipt must additionally be bound to
+    the currently executing Lab-side runner identity: an engine-commit match with
+    a mismatched or missing ``runner_digest``, or a missing expected identity,
+    yields nothing, so adapter/runner drift cannot inherit credit and pre-guard
+    receipts become stale rather than grandfathered.
     """
     out: dict[str, list[str]] = {}
     for doc in receipts:
@@ -474,6 +500,9 @@ def positive_fixture_credit(
         if doc.get("candidate") != candidate:
             continue
         if doc.get("candidate_commit") != expected_commit:
+            continue
+        recorded = doc.get("runner_digest")
+        if not expected_runner_digest or not recorded or recorded != expected_runner_digest:
             continue
         if doc.get("outcome") != "PASS":
             continue

@@ -59,7 +59,6 @@ def main() -> None:
     )
     adapter = ExternalRulesAdapter(
         RulesBackend.XMAGE,
-        cwd=ROOT,
         request_timeout_seconds=request_timeout_seconds,
     )
     evidence: dict[str, object] = {

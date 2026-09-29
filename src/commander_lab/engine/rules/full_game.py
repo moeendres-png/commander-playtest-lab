@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from commander_lab.agents import BasePilot, build_pilot
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.engine.rules.base import resolve_engine_working_directory
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     CardRole,
@@ -186,7 +187,7 @@ class _RawFullGameClient:
                 "full-game bridge command must explicitly include the full-game subcommand"
             )
         self.command = command
-        self.cwd = None if cwd is None else str(cwd)
+        self.cwd = resolve_engine_working_directory(cwd)
         self.request_timeout_seconds = request_timeout_seconds
         self._process: subprocess.Popen[str] | None = None
         self._stdout_queue: queue.Queue[str | None] = queue.Queue()
