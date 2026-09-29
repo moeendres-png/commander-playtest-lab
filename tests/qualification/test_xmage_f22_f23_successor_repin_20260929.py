@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CURRENT = "9cb5fb9e9558f980da81c85ca3fdc595161c8d34"
-CURRENT_TREE = "54aabe958a1d748c8fb509d66ee25b0900bc8e90"
+CURRENT = "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c"
+CURRENT_TREE = "ba0d02bdf5e9d62361d68dbdfb7e729d46ce9aed"
 PRIOR = "f79e4168902e65063034b21be6f4585397fd43b3"
 LOCK = ROOT / "qualification/xmage-f22-f23-successor-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
 
