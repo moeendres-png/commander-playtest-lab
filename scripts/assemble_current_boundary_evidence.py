@@ -67,6 +67,13 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
         c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
         for c in ("xmage", "forge")
     }
+    pb03_path = OUT / "PB03_DIMENSION_ADMISSION.json"
+    pb03 = load(pb03_path) if pb03_path.is_file() else {}
+    pb03_admitted = {str(item) for item in pb03.get("admitted", [])}
+    pb03_blocked = {
+        str(item) for item in (pb03.get("blocked", {}) or {}).keys()
+    }
+    pb03_managed = pb03_admitted | pb03_blocked
     out: dict[str, dict[str, list[str]]] = {}
     for candidate in ("xmage", "forge"):
         commit = identity[candidate].get("engine_candidate_commit", "")
@@ -74,6 +81,19 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
             receipts, candidate=candidate, expected_commit=commit, denominator=denominator
         )
         for fixture, tests in credited.items():
+            # Defense in depth: a positive native testcase cannot override
+            # PB-03's live capability admission. Admission itself grants no
+            # credit, but blocked admission is a hard routing prohibition.
+            if (
+                candidate == "xmage"
+                and fixture in pb03_managed
+                and fixture not in pb03_admitted
+            ):
+                print(
+                    "PB-03 blocked admission cannot be overridden by positive receipt: "
+                    + fixture
+                )
+                continue
             out.setdefault(fixture, {})[candidate] = tests
     return out
 
@@ -257,18 +277,8 @@ def assemble() -> None:
         # counts only what a verified receipt observed, and it is empty when no
         # receipt exists, so the gate cannot inherit a historical count.
         native = data["native_runs"]
-        native_summary = native.get("summary", {})
-        native_groups = [
-            k
-            for k in native
-            if k
-            not in {
-                "source",
-                "summary",
-                "absent_receipts_yield_no_credit",
-                "expected_engine_commit",
-            }
-        ]
+        native_summary = data["native_runs_provenance"].get("summary", {})
+        native_groups = list(native)
         native_tests = int(native_summary.get("tests", 0))
         native_green = (
             bool(native_groups)
