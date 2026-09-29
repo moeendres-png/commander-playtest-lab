@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,29 @@ from commander_lab.models import CardIdentity
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture
+def subprocess_env() -> dict[str, str]:
+    """Environment for a child interpreter that must import ``commander_lab``.
+
+    ``pyproject.toml`` sets ``pythonpath = ["src"]``, which applies to the *pytest
+    process only* and is not inherited by child interpreters. CI installs the project
+    (``pip install --no-deps -e .``), so child processes import it there; a bare local
+    ``pytest`` run does not, and any test spawning ``sys.executable`` then fails with
+    ``ModuleNotFoundError: No module named 'commander_lab'``.
+
+    Prepending ``src`` makes those tests behave identically whether or not the project
+    happens to be installed, instead of silently depending on ambient install state.
+    ``src`` goes first so the checked-out tree wins over any stale installed copy.
+
+    Function-scoped and freshly built per test; copy it before mutating.
+    """
+    environment = os.environ.copy()
+    src = str(Path(__file__).resolve().parents[1] / "src")
+    existing = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = f"{src}{os.pathsep}{existing}" if existing else src
+    return environment
 
 
 @pytest.fixture(autouse=True)

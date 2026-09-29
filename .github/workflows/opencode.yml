@@ -79,7 +79,7 @@ jobs:
         run: opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/space-bunny-free
+          MODEL: opencode-go/deepseek-v4.1-flash
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''

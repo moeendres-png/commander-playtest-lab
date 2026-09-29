@@ -1,0 +1,159 @@
+{
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/home/moeen/code/foundry-deepseek-primary-20260929",
+  "branch": "foundry/deepseek-primary-migration-20260929",
+  "audit_base_sha": "f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1",
+  "audit_base_tree": "d8b05127f3fb60ccde5c183fef66c2e4c7198945",
+  "state_written_against_head": "7e0721c2e4b87177dbbb403f4652c1b0e1345be1",
+  "validated_head": "7e0721c2e4b87177dbbb403f4652c1b0e1345be1",
+  "objective": "FOUNDRY-DEEPSEEK-PRIMARY-MIGRATION-20260929: migrate the complete canonical OpenCode execution contract to DeepSeek MAX primary and Space Bunny MAX secondary, and make Muse and GLM unreachable through active routing, with no automatic fallback.",
+  "in_scope": [
+    "tools/foundry/launcher.py execution profile table, execution_identity, content bundle pinning, and CLI surface",
+    "opencode.json model, small_model, build agent, provider whitelist and model variants",
+    ".foundry/executor-profiles.json policy, routing policy and runtime status",
+    ".opencode/agents/foundry-implementer.md, foundry-adjudicator.md, foundry-reviewer.md hard-coded model identity and executor prose",
+    "AGENTS.md execution routing, execution effort and technical decision authority sections",
+    "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+    "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
+    "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+    ".github/workflows/opencode.yml default executor for the comment-triggered OpenCode lane",
+    "tests that intentionally lock active executor policy",
+    "tools/foundry/drift_check.py canonical model constant"
+  ],
+  "out_of_scope": [
+    "simulator, Rules-Core, PB-03, qualification, deckbuilding, Forge or XMage semantic work",
+    "rewriting historical research, archived handoffs or evidence records that mention Muse or GLM",
+    "PRODUCTION_PROVIDER selection and ARCHITECTURE_FREEZE",
+    "any Rules authority, evidence-semantics or qualification-policy change"
+  ],
+  "ownership": "FOUNDRY-DEEPSEEK-PRIMARY-MIGRATION-20260929",
+  "dependencies": [
+    "Newest direct user statement of 2026-09-29 changing the preferred OpenCode execution policy"
+  ],
+  "hard_gates": [
+    "exact two-profile routing allowlist, primary first, and exactly one reachable native variant per model",
+    "explicit profile selection with a pinned child --model; no automatic fallback on quota/auth/catalog/tool/child failure",
+    "telemetry, launch context and durable state record the actual selected profile, model and native variant",
+    "no retired executor reachable through the canonical launcher or config",
+    "existing safety permissions, single-writer locking, worktree isolation, provider restrictions, safe-push semantics and secret protections at least as strong",
+    "authenticated bounded runtime smoke before marking any profile runtime ACTIVE"
+  ],
+  "forbidden_shortcuts": [
+    "patching only one config file instead of the whole canonical contract",
+    "global search-and-replace of Muse or GLM, which would rewrite historical provenance",
+    "substituting a different model identity if the exact expected one is absent from the live catalog",
+    "marking runtime_status ACTIVE from config parsing alone",
+    "weakening tests, denominators or assertions to obtain green results"
+  ],
+  "validated_gates": [
+    "live catalog exposes the exact expected DeepSeek identity = PASS [DIRECTLY_VERIFIED]: `opencode models opencode-go` on 2026-09-29 lists opencode-go/deepseek-v4.1-flash and opencode-go/space-bunny-free exactly. No identity was substituted.",
+    "authenticated bounded DeepSeek runtime smoke = PASS [RUNTIME_VERIFIED]: `opencode run --model opencode-go/deepseek-v4.1-flash` under the exact bundle produced by launcher.build_content_bundle returned DEEPSEEK_SMOKE_OK with exit 0; DEBUG logs show providerID=opencode-go modelID=deepseek-v4.1-flash agent=foundry-implementer.",
+    "authenticated bounded Space Bunny runtime smoke = PASS [RUNTIME_VERIFIED]: Same bounded smoke under the explicitly selected space-bunny bundle returned SPACE_BUNNY_SMOKE_OK with exit 0.",
+    "exact two-profile allowlist and one native variant per model = PASS [DIRECTLY_VERIFIED]: opencode.json whitelist is [deepseek-v4.1-flash, space-bunny-free]; each model enables only the max variant with reasoningEffort=max. build_content_bundle fails closed on allowlist or authorized-variant drift.",
+    "Muse and GLM unreachable through canonical routing = PASS [DIRECTLY_VERIFIED]: EXECUTION_PROFILES=(deepseek, space-bunny); muse/glm/muse-free-zen are refused as unknown profiles; the retired zen provider override is always refused; ZEN_MODEL is removed; no muse or glm string survives in the injected bundle for any profile.",
+    "no automatic fallback between executors = PASS [DIRECTLY_VERIFIED]: Exactly one child process is spawned, pinned by --model; tests assert a DeepSeek failure and a Space Bunny failure each produce exactly one child with no other executor invoked and telemetry naming only the selected executor.",
+    "telemetry, context and state record the actual executor = PASS [DIRECTLY_VERIFIED]: launch-context.json execution block and both metrics.jsonl records carry profile, model, native_variant and variant_resolution for each reachable profile; FOUNDRY_EXECUTION_PROFILE and FOUNDRY_NATIVE_VARIANT are injected.",
+    "main, small and default model configuration internally consistent = PASS [DIRECTLY_VERIFIED]: model == small_model == deepseek-v4.1-flash; build agent variant max; the deepseek row is first in the whitelist; DEFAULT_EXECUTION_PROFILE is deepseek; the GitHub lane MODEL matches config model.",
+    "safety surfaces at least as strong = PASS [DIRECTLY_VERIFIED]: opencode.json permission, experimental provider policies, tool_output, default_agent and share are byte-identical to origin/main. validate_child_options still refuses caller --model/--variant/--continue. Single-writer locking, cross-WS sandbox, safe-push hook and secret denials untouched.",
+    "Foundry, executor-profile, project-integrity, token-economy and routing policy tests = PASS [DIRECTLY_VERIFIED]: 653 passed, 1 skipped (no live export snapshot) across tests/foundry and tests/unit/test_ws78_token_economy.py on the exact head.",
+    "ruff and ruff format = PASS [DIRECTLY_VERIFIED]: `ruff check .` All checks passed; `ruff format --check .` 1082 files already formatted.",
+    "strict mypy on modified Python = PASS [DIRECTLY_VERIFIED]: mypy --strict on tools/foundry/launcher.py and tools/foundry/drift_check.py produces a finding set byte-identical to the origin/main baseline (44 pre-existing findings, all outside the project's strict mypy gate of packages=[commander_lab]); diff of normalized findings is empty, so no new finding was introduced.",
+    "complete Foundry test suite = PASS [DIRECTLY_VERIFIED]: Full suite on the exact head: 2242 passed, 8 skipped, 6 failed. The 6 failures are the identical pre-existing set observed on the origin/main baseline before any edit, all caused by `commander_lab` not being importable in spawned /usr/bin/python3 subprocesses in this environment.",
+    "main drift adjudication and repair = PASS [DIRECTLY_VERIFIED]: origin/main advanced f7bbeb93 -> a13db63d and touched tools/foundry/launcher.py and tests/foundry/test_launcher.py. Normal merge performed. The launcher hardening that clears inherited FOUNDRY_NATIVE_VARIANT / OPENCODE_DISABLE_PROJECT_CONFIG / FOUNDRY_ROUTING_SUPPRESSED is preserved. Main's new test_nested_muse_launch_clears_ambient_native_variant selected the retired Muse profile and was repaired to assert per-profile overwrite of an ambient identity instead."
+  ],
+  "failed_gates": [],
+  "invalidated_gates": [],
+  "do_not_rerun": [
+    "the 6 pre-existing environment failures: tests/integration/test_phase10_acceptance.py (2), tests/integration/test_priority_racing_benchmark.py (1), tests/unit/test_first_run_preparation.py (1), tests/unit/test_snapshot_reproducibility.py (1), tests/unit/test_structural_profiles.py (1). Root cause is ModuleNotFoundError: No module named 'commander_lab' in spawned subprocesses because the package is not installed in this environment; pyproject pythonpath=[src] applies only to the pytest process. Identical on the origin/main baseline and not attributable to this workstream."
+  ],
+  "current_failure": "NONE",
+  "failure_class": "NONE",
+  "current_hypothesis": "N/A",
+  "files_modified": [
+    ".foundry/executor-profiles.json",
+    ".github/workflows/opencode.yml",
+    ".opencode/agents/foundry-adjudicator.md",
+    ".opencode/agents/foundry-implementer.md",
+    ".opencode/agents/foundry-reviewer.md",
+    "AGENTS.md",
+    "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+    "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
+    "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+    "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS_RESOLUTION_20260929.json",
+    "opencode.json",
+    "tests/foundry/test_executor_profiles.py",
+    "tests/foundry/test_foundry_tools.py",
+    "tests/foundry/test_launcher.py",
+    "tests/foundry/test_project_integrity.py",
+    "tools/foundry/drift_check.py",
+    "tools/foundry/launcher.py",
+    "tests/unit/test_ws78_token_economy.py",
+    ".foundry/foundry-deepseek-primary-migration-20260929.json"
+  ],
+  "tests_run": [
+    "tests/foundry/test_launcher.py: 112 passed",
+    "tests/foundry + tests/unit/test_ws78_token_economy.py: 653 passed, 1 skipped",
+    "full suite (excluding two files that cannot be collected in this environment): 2242 passed, 8 skipped, 6 pre-existing environment failures",
+    "ruff check .: pass",
+    "ruff format --check .: pass",
+    "mypy --strict tools/foundry/launcher.py tools/foundry/drift_check.py: finding set identical to baseline"
+  ],
+  "evidence": [
+    "authenticated DeepSeek smoke under the exact injected bundle, exit 0",
+    "authenticated Space Bunny smoke under the exact injected bundle, exit 0",
+    "opencode.json safety surfaces byte-identical to origin/main (permission, experimental, tool_output, default_agent, share)",
+    "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json left byte-identical as historical provenance"
+  ],
+  "artifacts": [
+    ".foundry/executor-profiles.json activation_gate.activation_evidence_2026_09_29",
+    "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS_RESOLUTION_20260929.json"
+  ],
+  "remaining_scope": [],
+  "status": "COMPLETE",
+  "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
+  "current_reasoning_tier": "max",
+  "hypotheses_rejected": [
+    "The 55 full-suite failures observed before the first commit were a semantic regression from the migration. -> REJECTED: Root cause is tests/commander_lab/tools/service.py tracked_worktree_dirty, computed from `git status --porcelain --untracked-files=no`. The uncommitted migration edits made the tracked worktree dirty, which those tests treat as stale canonical inputs. The same run on a clean worktree at the same head yields only the 6 pre-existing failures. Reproduced and then re-confirmed after a second dirty run post-merge.",
+    "A caller could select a non-max native variant, since `opencode run --variant high` was not rejected by the raw CLI. -> REJECTED: That probe deliberately bypassed the launcher. The launcher's validate_child_options refuses --variant in both `--variant X` and `--variant=X` spellings, and the injected bundle enables only the max variant. Verified directly: all four caller-flag spellings raise 'model/variant/continue child flags are launcher-controlled'.",
+    "Retiring the legacy Zen provider override should delete the flag so it is unrecognized. -> REJECTED: parse_known_args would forward an unrecognized --execution-provider into the child argv instead of failing. Keeping the flag as an always-refused tombstone fails closed and is directly testable."
+  ],
+  "technical_decisions": [
+    {
+      "decision": "Retire the legacy `--execution-provider zen` override entirely rather than keep it working.",
+      "rationale": "It resolved to opencode/muse-spark-1.3-contributor-free, a Muse identity. Keeping it reachable would violate MUSE_ACTIVE = NO.",
+      "evidence": "The flag is retained as an always-refused tombstone so parse_known_args cannot forward it to the child argv."
+    },
+    {
+      "decision": "Integrate DeepSeek generically via one PROFILE_MODELS table rather than adding a third conditional branch.",
+      "rationale": "Both reachable executors are on opencode-go at native max, so executor identity is data. A future profile is one row plus one whitelist row.",
+      "evidence": "build_content_bundle now has a single unconditional pin block driven by execution['profile']."
+    },
+    {
+      "decision": "Model and small_model are both deepseek-v4.1-flash.",
+      "rationale": "Internal consistency of main/small/default configuration, matching the prior contract where model equalled small_model. Per-profile runs pin small_model to the selected executor.",
+      "evidence": "test_main_small_and_default_model_configuration_is_internally_consistent"
+    },
+    {
+      "decision": "Preserve docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json byte-identical and add an additive resolution record instead of editing the historical file.",
+      "rationale": "The deferral is true dated provenance that the operator's own prior authority created. Superseding it by the same operator does not license rewriting history; it licenses recording the supersession.",
+      "evidence": "test_launcher_native_pair_gap_deferral_is_preserved_and_superseded asserts both halves."
+    },
+    {
+      "decision": "Repair main's added test_nested_muse_launch_clears_ambient_native_variant by migrating its intent rather than deleting it.",
+      "rationale": "The hardening is valuable and current; only the Muse profile it selected is retired. Under the new policy every profile pins max, so the enforceable property becomes per-profile overwrite of an ambient identity, which is strictly stronger than absence.",
+      "evidence": "test_nested_launch_overwrites_ambient_native_variant seeded with the retired xhigh level"
+    }
+  ],
+  "authority_gates": [],
+  "first_failing_boundary": "NONE",
+  "root_cause_class": "NONE",
+  "next_action": "Open the single owned PR and monitor exact-head CI; do not merge while any relevant required gate is UNKNOWN, FAIL or BLOCKED.",
+  "exact_next_action": "Open PR for branch foundry/deepseek-primary-migration-20260929 against main, then monitor exact-head CI and repair any attributable failure. Merge only if every relevant required gate is PASS on the exact head and no P1/P2 is unresolved.",
+  "execution_profile": "deepseek",
+  "executor_model": "opencode-go/deepseek-v4.1-flash",
+  "native_variant": "max",
+  "variant_resolution": "native_max",
+  "executor_handoff_from": "space-bunny",
+  "executor_handoff_reason": "Operator execution-policy change of 2026-09-29: DeepSeek MAX becomes the primary autonomous engineering executor and Space Bunny MAX becomes the explicit bounded/mechanical/token-heavy secondary. This is an explicit policy rerouting, not an automatic quota or runtime fallback."
+}

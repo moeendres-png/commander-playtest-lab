@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/space-bunny-free",
+  "model": "opencode-go/deepseek-v4.1-flash",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -184,11 +184,11 @@
   "provider": {
     "opencode-go": {
       "whitelist": [
-        "space-bunny-free",
-        "muse-spark-1.3-contributor"
+        "deepseek-v4.1-flash",
+        "space-bunny-free"
       ],
       "models": {
-        "space-bunny-free": {
+        "deepseek-v4.1-flash": {
           "options": {
             "reasoningEffort": "max"
           },
@@ -217,9 +217,9 @@
             "max": {}
           }
         },
-        "muse-spark-1.3-contributor": {
+        "space-bunny-free": {
           "options": {
-            "reasoningEffort": "xhigh"
+            "reasoningEffort": "max"
           },
           "variants": {
             "none": {
@@ -240,7 +240,10 @@
             "high": {
               "disabled": true
             },
-            "xhigh": {}
+            "xhigh": {
+              "disabled": true
+            },
+            "max": {}
           }
         }
       }
@@ -265,5 +268,5 @@
       }
     ]
   },
-  "small_model": "opencode-go/space-bunny-free"
+  "small_model": "opencode-go/deepseek-v4.1-flash"
 }

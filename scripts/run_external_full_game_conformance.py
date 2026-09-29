@@ -19,7 +19,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
+XMAGE_COMMIT = "f79e4168902e65063034b21be6f4585397fd43b3"
 
 # WS223 cardinality contract. 4P keeps the full game-over + replay gate
 # (continuity with WS213/WS215 evidence, same seed). 2P/3P/5P run the bounded
@@ -134,7 +134,7 @@ def _out_dir() -> Path:
 
 def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
     scenario, decks, pilots = build_setup(player_count)
-    runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
+    runner = XmageFullGameRunner(request_timeout_seconds=120.0, max_decisions=50_000)
     first = runner.run(scenario=scenario, decks=decks, pilots=pilots)
     second = runner.run(scenario=scenario, decks=decks, pilots=pilots)
 
@@ -240,7 +240,7 @@ def run_bounded_smoke(
     if smoke_decision_target is None:
         smoke_decision_target = SMOKE_DECISION_TARGETS[player_count]
     scenario, decks, pilots = build_setup(player_count)
-    runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
+    runner = XmageFullGameRunner(request_timeout_seconds=120.0, max_decisions=50_000)
     smoke = runner.run_smoke(
         scenario=scenario, decks=decks, pilots=pilots, smoke_decision_target=smoke_decision_target
     )

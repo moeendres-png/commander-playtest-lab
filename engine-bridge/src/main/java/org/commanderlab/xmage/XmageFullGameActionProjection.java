@@ -621,7 +621,8 @@ final class XmageFullGameActionProjection {
         if ("target".equals(ot) || "choice".equals(ot) || "target_amount".equals(ot)) {
             return "choose_targets";
         }
-        if ("mana_pool".equals(ot) || "mana_ability".equals(ot) || "cancel_mana_payment".equals(ot)) {
+        if ("mana_pool".equals(ot) || "mana_ability".equals(ot) || "cancel_mana_payment".equals(ot)
+                || "special_mana_action".equals(ot)) {
             return "pay_cost";
         }
         return "structural_decision";
