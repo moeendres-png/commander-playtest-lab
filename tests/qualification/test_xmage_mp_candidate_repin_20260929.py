@@ -94,5 +94,5 @@ def test_wsr22_boundary_stays_explicitly_historical_on_the_prior_pin() -> None:
 
     # Answers "what was the WSR22 candidate?" only, never "what is pinned now?".
     assert source_lock.XMAGE_CANDIDATE_COMMIT == PRIOR_PIN
-    assert source_lock.XMAGE_CANDIDATE_COMMIT != _manifest()["primary_engine"]["commit"]
+    assert _manifest()["primary_engine"]["commit"] != source_lock.XMAGE_CANDIDATE_COMMIT
     assert "not repinned" in _lock()["prior_live_pin"]["wsr22_source_lock"].lower()
