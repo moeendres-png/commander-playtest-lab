@@ -119,7 +119,6 @@ class XmageBridgePlayerFailClosedTest {
                 (Game) null));
         assertUnsupported(() -> player.chooseTargetAmount(
                 Outcome.Neutral, (TargetAmount) null, (Ability) null, (Game) null));
-        assertUnsupported(() -> player.chooseMulligan((Game) null));
         assertUnsupported(() -> player.chooseUse(
                 Outcome.Neutral, "use?", (Ability) null, (Game) null));
         assertUnsupported(() -> player.chooseUse(
@@ -173,11 +172,9 @@ class XmageBridgePlayerFailClosedTest {
         );
         assertTrue(replacement.getMessage().contains("UNSUPPORTED_COMPATIBILITY_DECISION"));
 
-        XmageGameManager.GameException mulligan = assertThrows(
-                XmageGameManager.GameException.class,
-                () -> externallyControlled.chooseMulligan(null)
-        );
-        assertTrue(mulligan.getMessage().contains("chooseMulligan"));
+        // chooseMulligan is no longer an old default: it is now an explicit
+        // engine-authored external decision. Its positive and wrong-reason
+        // fail-closed coverage lives in XmageGenericExternalMulliganTest.
 
         assertThrows(
                 XmageGameManager.GameException.class,
