@@ -58,3 +58,12 @@ This lane therefore does **not** change `Game.java`. The class is handed to that
 2. Or fix each consumer.
 
 The `OpponentsCount` branch is donor evidence.
+
+## Random-opponent consumers (code inspection only, not proven at runtime)
+These pick "an opponent at random" from `getOpponents(controller)`, which does not exclude players who left. A departed player can therefore be chosen, which also shifts the Rules-RNG index mapping:
+- `IndoraptorThePerfectHybrid`
+- `TheRuinousPowers`
+
+By contrast, `VialSmasherTheFierce` filters out `hasLeft()`/`hasLost()` and `MaddeningHex` passes `excludeLeavedPlayers = true`, both correctly.
+
+A runtime proof needs a seeded Rules-RNG harness that forces the departed index.
