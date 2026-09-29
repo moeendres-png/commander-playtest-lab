@@ -2008,7 +2008,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** Answers a numeric decision (e.g. announce X) with an in-range value. */
-    private static void submitNumeric(Started started, String tag, int value) {
+    static void submitNumeric(Started started, String tag, int value) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
