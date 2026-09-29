@@ -110,7 +110,7 @@ was not permitted to weaken a detector or fixture to preserve them, and did not.
 The 44 `BLOCKED` rows on each side are the obligations that require a frozen
 mid-game starting state, classified by mechanism rather than by fixture-id prefix.
 PB-03 now has a production-reachable mid-game lane on the XMage side: the live
-per-dimension manifest admits 14 of the 30 frozen-state rows
+per-dimension manifest admits 12 of the 30 frozen-state rows
 (`TECHNICALLY_CONFORMANT`), 16 stay blocked on dimensions the engine does not
 declare, and the bound native runtime ledger proves all 30 exact audited
 testcases ran green (`FRESH_EXACT`). Reachability is not FULL107 credit and no row
@@ -311,7 +311,7 @@ discovery). That 28/29 is Forge-local and is **not** consumed as Lab credit here
 
 PB-03's original XMage shape was a Lab harness shortcut; the successor run
 replaced it with a production-reachable mid-game lane and record-aware dimension
-admission (14 admitted / 16 blocked, runtime ledger 30/30 fresh), while keeping
+admission (12 admitted / 18 blocked, runtime ledger 30/30 fresh), while keeping
 FULL107 row credit unaffected. PB-09 shows the Forge column is shaped by Lab
 engine modification. Neither column is a clean candidate measurement. This is
 recorded rather than resolved, because which artifact is the Forge candidate is a
@@ -323,7 +323,7 @@ Coordinator provider decision.
 
 | Blocker | Side | Status after this workstream | Basis |
 |---|---|---|---|
-| PB-03 starting-state classification | both | **RESOLVED** (mechanism); XMage also has a production-reachable starting-state lane; FULL107 rows stay uncredited | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Successor evidence: the live per-dimension manifest admits 14/30 frozen-state rows, 16 are blocked on undeclared dimensions, and the bound native runtime ledger executes all 30 exact audited testcases (`FRESH_EXACT`); qualification credit remains NONE. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
+| PB-03 starting-state classification | both | **RESOLVED** (mechanism); XMage also has a production-reachable starting-state lane; FULL107 rows stay uncredited | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Successor evidence: the live per-dimension manifest admits 12/30 frozen-state rows, 18 are blocked (16 on undeclared dimensions, 2 on the declared controller/owner divergence), and the bound native runtime ledger executes all 30 exact audited testcases (`FRESH_EXACT`); qualification credit remains NONE. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
 | PB-05 build provenance | forge | **RESOLVED** | Forge PR #5 (continuing the PR #4 repair) removes the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
 | PB-06 per-scenario hidden channels | both | **SPLIT: Forge RESOLVED on this boundary; XMage historical** | Forge now marks the observing principal (`observer_player_id` + exactly one `players[].is_actor`); `HIDDEN_INFO_FORGE.json` is `PRINCIPAL_SCOPED`, attribution `NONE`, four established requesters, and the distinctness comparison is content-only. The committed XMage artifact remains the pre-#283 demonstrated leak; PR #283 carries the XMage remediation and its own exact-head runtime verification, and this workstream does not re-run it. Per-scenario channels remain unexecuted (§6.2) |
 | PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4) |
@@ -346,7 +346,7 @@ Coordinator provider decision.
 | Rules RNG control (AF09) | **ACKNOWLEDGED_ENGINE_SEED** — creation-transaction acknowledgement; no engine root-seed readback; twin rows keep AF09 `UNKNOWN` | **ACKNOWLEDGED_ENGINE_SEED** — create response acknowledges the engine-accepted root seed; twin rows keep AF09 `UNKNOWN` |
 | Semantic replay | UNKNOWN | UNKNOWN |
 | Actual-card runtime behaviour | UNKNOWN | UNKNOWN |
-| Mid-game starting-state materialization | production-reachable lane exists (admission 14/30, runtime ledger 30/30 fresh); FULL107 still BLOCKED, 44 rows | BLOCKED, 44 rows (Lab execution-path gap on its declared seam) |
+| Mid-game starting-state materialization | production-reachable lane exists (admission 12/30, runtime ledger 30/30 fresh); FULL107 still BLOCKED, 44 rows | BLOCKED, 44 rows (Lab execution-path gap on its declared seam) |
 | Failure semantics | fail-closed on unknown messages and illegal actions | fail-closed, confirmed against a live game at event offset 17 |
 | Process isolation | per-decision-process lane | clean-process twin exists Forge-side, unconsumed |
 | Build provenance | handshake-reported, verified at AF00 | build-derived, verified at AF00 |
@@ -377,7 +377,7 @@ sit inside the `UNKNOWN` and `BLOCKED` rows (XMage 59 UNKNOWN / 44 BLOCKED; Forg
 4. Execution of the 29-card corpus under the actual-behaviour standard. This
    unblocks PB-07 and AF07.
 5. For XMage the starting-state seam now exists as a production-reachable
-   mid-game lane (admission 14/30, bound runtime ledger 30/30 fresh); the
+   mid-game lane (admission 12/30, bound runtime ledger 30/30 fresh); the
    remaining work is converting reachability into exact semantic-obligation
    credit, which the PB-03 record model does not grant and must not fake.
    Forge needs the Lab to exercise the seam the candidate declares. Either way

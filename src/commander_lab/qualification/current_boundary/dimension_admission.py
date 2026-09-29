@@ -7,8 +7,11 @@ admitted row may still have no runtime harness. Admission therefore grants no
 runtime or FULL107 credit.
 
 The PB-03 denominator is explicit, but a fixture id never decides admission.
-Required dimensions are derived only from required events and semantic-object
-zones. Unknown dimensions and unavailable manifests fail closed.
+Required dimensions are derived from required events, semantic-object zones and
+the record's own declared object attributes: a semantic object that declares a
+controller different from its owner requires the manifest's controller/owner
+divergence dimension, because the record itself asks for a state the seam must
+restore. Unknown dimensions and unavailable manifests fail closed.
 """
 
 from __future__ import annotations
@@ -96,9 +99,26 @@ _ZONE_TOKENS: dict[str, tuple[str, ...]] = {
     "stack": ("stack spells",),
 }
 
-_DECLARED_TOKENS = frozenset(
-    token for _prefix, tokens in _EVENT_TOKENS for token in tokens
-) | frozenset(token for tokens in _ZONE_TOKENS.values() for token in tokens)
+# Dimensions a record declares through object attributes rather than events or
+# zones. Each token is the manifest's own wording, so a manifest that does not
+# declare the dimension cannot silently admit a record that asks for it. Only
+# attributes the record actually declares are derived; an untapped permanent
+# (tapped=false), empty counters and an empty attachment map declare nothing.
+_OWNER_CONTROLLER_DIVERGENCE = "controller/owner divergence"
+_TAPPED_UNQUALIFIED = "tapped permanents"
+_ATTACHMENTS_AND_COUNTERS = "attachments and counters"
+
+_DECLARED_TOKENS = (
+    frozenset(token for _prefix, tokens in _EVENT_TOKENS for token in tokens)
+    | frozenset(token for tokens in _ZONE_TOKENS.values() for token in tokens)
+    | frozenset(
+        {
+            _OWNER_CONTROLLER_DIVERGENCE,
+            _TAPPED_UNQUALIFIED,
+            _ATTACHMENTS_AND_COUNTERS,
+        }
+    )
+)
 
 
 def _normalise(entry: Any) -> str:
@@ -145,7 +165,34 @@ def _zones(record: dict[str, Any]) -> list[str]:
     return sorted(zones)
 
 
-def required_tokens(required_events: list[str], zones: list[str]) -> list[str]:
+def _object_attribute_tokens(record: dict[str, Any]) -> list[str]:
+    """Dimensions the record declares through its own object attributes.
+
+    Each derived dimension is a state the record asks the seam to restore, so
+    admission must consult the manifest's own declaration for it instead of
+    silently admitting the row and leaving the engine to reject it at
+    construction time. Only declared non-default attributes count.
+    """
+    tokens: set[str] = set()
+    for obj in record.get("semantic_objects") or []:
+        if not isinstance(obj, dict):
+            continue
+        owner = obj.get("owner")
+        controller = obj.get("controller")
+        if owner and controller and str(owner) != str(controller):
+            tokens.add(_OWNER_CONTROLLER_DIVERGENCE)
+        if obj.get("tapped") is True:
+            tokens.add(_TAPPED_UNQUALIFIED)
+        if obj.get("counters") or obj.get("attached_to"):
+            tokens.add(_ATTACHMENTS_AND_COUNTERS)
+    return sorted(tokens)
+
+
+def required_tokens(
+    required_events: list[str],
+    zones: list[str],
+    object_attributes: list[str] | None = None,
+) -> list[str]:
     tokens: list[str] = []
     for event in required_events:
         matched = False
@@ -163,11 +210,15 @@ def required_tokens(required_events: list[str], zones: list[str]) -> list[str]:
             tokens.append(_UNMAPPED)
         else:
             tokens.extend(zone_tokens)
+
+    tokens.extend(object_attributes or [])
     return sorted(set(tokens))
 
 
 def admit_record(record: dict[str, Any], manifest: dict[str, Any] | None) -> dict[str, Any]:
-    tokens = required_tokens(_required_events(record), _zones(record))
+    tokens = required_tokens(
+        _required_events(record), _zones(record), _object_attribute_tokens(record)
+    )
     if not tokens:
         return {
             "verdict": BLOCKED_UNKNOWN_DIMENSION,
@@ -260,7 +311,10 @@ def admit_manifest(
     return {
         "schema_version": "commander-lab.pb03-dimension-admission/3.0.0",
         "classification": "TECHNICALLY_CONFORMANT",
-        "derivation": "required_events + semantic_objects[].zone only",
+        "derivation": (
+            "required_events + semantic_objects[].zone + semantic_objects[].owner/controller "
+            "declared attributes only"
+        ),
         "rows_total": len(PB03_FIXTURE_IDS),
         "admitted": sorted(admitted),
         "blocked": dict(sorted(blocked.items())),

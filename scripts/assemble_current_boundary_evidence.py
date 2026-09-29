@@ -589,6 +589,30 @@ def assemble() -> None:
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
         extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        extra_note: str | None = None
+        if extra is not None:
+            # An auxiliary artifact produced by an earlier boundary epoch must
+            # never be quoted as current evidence. It is dropped from the gate
+            # and its exclusion is recorded instead of silently inherited.
+            expected_engine = str(
+                data["results_runtime_identity"].get("engine_candidate_commit", "")
+            )
+            if str(extra.get("engine_commit_reported") or "") != expected_engine:
+                extra_note = (
+                    "the auxiliary full-game-lane AF01 artifact is bound to a different "
+                    f"engine epoch ({str(extra.get('engine_commit_reported') or 'unknown')[:12]}) "
+                    "than this assembly; its verdict is not cited as current evidence"
+                )
+                extra = None
+        seed_supported = (af01.get("capabilities_provider_reported") or {}).get("seed_supported")
+        rng_clause = next(
+            (
+                item.get("verdict")
+                for item in af01.get("invariants", [])
+                if item.get("invariant") == "rules_randomness_core_owned"
+            ),
+            "absent",
+        )
         # Receipt-derived, never the retired NATIVE_RUNS literal. The summary
         # counts only what a verified receipt observed, and it is empty when no
         # receipt exists, so the gate cannot inherit a historical count.
@@ -654,14 +678,16 @@ def assemble() -> None:
                 "blocking_rows": [],
                 "nonblocking_limitations": (
                     [
-                        "the generic compatibility lane reports seed_supported=false, so the "
-                        "Rules-RNG invariant is UNKNOWN on that lane; the full-game lane reports "
-                        "seed_supported=true and AF01 PASS"
+                        "the generic compatibility lane reports "
+                        f"seed_supported={seed_supported}; the rules_randomness_core_owned "
+                        f"invariant verdict is {rng_clause}, and any engine seed "
+                        "acknowledgement is recorded in the candidate's HIDDEN_INFO artifact"
                     ]
                     if candidate == "xmage"
                     else []
                 )
-                + ([f"full-game lane AF01 verdict: {extra['verdict']}"] if extra else []),
+                + ([f"full-game lane AF01 verdict: {extra['verdict']}"] if extra else [])
+                + ([extra_note] if extra_note else []),
             },
             {
                 "gate": "AF02",

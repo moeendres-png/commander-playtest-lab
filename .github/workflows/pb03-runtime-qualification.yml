@@ -1,0 +1,244 @@
+name: PB-03 Current Boundary Runtime Qualification
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/pb03-runtime-qualification.yml"
+      - "config/rules_engines.json"
+      - "engine-bridge/**"
+      - "scripts/run_current_boundary_qualification.py"
+      - "scripts/assemble_current_boundary_evidence.py"
+      - "scripts/run_midgame_capability_probe.py"
+      - "src/commander_lab/qualification/current_boundary/**"
+      - "tests/qualification/test_current_boundary_dimension_admission.py"
+      - "tests/qualification/test_current_boundary_midgame_lane.py"
+      - "tests/qualification/test_current_boundary_pb03_runtime.py"
+      - "tests/qualification/test_current_boundary_receipts.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pb03-runtime-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  pb03-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Resolve the canonical XMage pin
+        run: |
+          set -euo pipefail
+          # config/rules_engines.json is the sole machine-readable pin authority;
+          # the workflow must not hard-code a pin that can drift from it.
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json
+          commit = json.load(open("config/rules_engines.json"))["primary_engine"]["commit"]
+          assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
+          print(f"XMAGE_COMMIT={commit}")
+          PY
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Exclude external XMage checkout from Lab dirty-state accounting
+        run: |
+          set -euo pipefail
+          printf '/vendor/engine-source/\n' >> .git/info/exclude
+          test -z "$(git status --porcelain -- vendor/engine-source/)"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then
+            ./mvnw -B -ntp -DskipTests install
+          else
+            mvn -B -ntp -DskipTests install
+          fi
+
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Build current XMage bridge and exact classpath
+        working-directory: engine-bridge
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -DskipTests -Dcheckstyle.skip=true test-compile
+          mvn -B -ntp -DskipTests -Dcheckstyle.skip=true dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
+          test -s target/cp-wsr22.txt
+
+      - name: Validate PB-03 Python contracts
+        run: |
+          pytest -q \
+            tests/qualification/test_current_boundary_dimension_admission.py \
+            tests/qualification/test_current_boundary_midgame_lane.py \
+            tests/qualification/test_current_boundary_pb03_runtime.py \
+            tests/qualification/test_current_boundary_receipts.py
+
+      - name: Execute the production-reachable mid-game probe and verify receipt freshness
+        run: |
+          set -euo pipefail
+          python scripts/run_midgame_capability_probe.py --out "$RUNNER_TEMP/MIDGAME_CAPABILITY_PROBE.json"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from commander_lab.qualification.current_boundary import bridge_launcher
+          from commander_lab.qualification.current_boundary import midgame_lane as ml
+          from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+          receipt = json.loads(
+              (Path(os.environ["RUNNER_TEMP"]) / "MIDGAME_CAPABILITY_PROBE.json").read_text()
+          )
+          runner = receipt_mod.capture_runner_identity(Path("."))
+          expected_engine = bridge_launcher.canonical_xmage_engine_pin()
+          classification = ml.receipt_freshness(
+              receipt,
+              expected_runner_digest=runner.digest(),
+              expected_engine_commit=expected_engine,
+          )
+          assert classification == ml.MIDGAME_RECEIPT_FRESH, classification
+          assert receipt["engine_commit"] == expected_engine, receipt["engine_commit"]
+          assert receipt["counts"]["probed"] == len(receipt["rows"])
+          assert receipt["counts"]["transport_failure"] == 0, receipt["counts"]
+          print(
+              json.dumps(
+                  {
+                      "receipt_freshness": classification,
+                      "engine_commit": receipt["engine_commit"],
+                      "counts": receipt["counts"],
+                  },
+                  sort_keys=True,
+              )
+          )
+          PY
+
+      - name: Execute authoritative XMage current-boundary runner
+        run: python scripts/run_current_boundary_qualification.py --candidate xmage
+
+      - name: Assemble source-bound current-boundary evidence
+        run: python scripts/assemble_current_boundary_evidence.py
+
+      - name: Assert PB-03 evidence boundaries
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from commander_lab.qualification.current_boundary import bridge_launcher
+          from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+          root = Path("qualification/final-current-boundary-20260927")
+          admission = json.loads((root / "PB03_DIMENSION_ADMISSION.json").read_text())
+          execution = json.loads((root / "PB03_RUNTIME_EXECUTION.json").read_text())
+          matrix = json.loads((root / "PB03_RUNTIME_EXECUTION_MATRIX.json").read_text())
+
+          assert admission["rows_total"] == 30
+          assert admission["counts"] == {"admitted": 12, "blocked": 18}
+          assert admission["classification"] == "TECHNICALLY_CONFORMANT"
+          assert admission["manifest_source"].endswith("state_restoration_dimensions")
+
+          assert execution["rows_total"] == 30
+          assert execution["executed_pass"] == 30
+          assert execution["not_run_or_failed"] == 0
+          assert execution["classification"] == "PASS"
+          assert all(row["runtime_execution"] == "PASS" for row in execution["rows"])
+
+          # The ledger and the matrix are bound to the exact executing runner and
+          # to the canonical engine pin. A stale ledger earns zero runtime credit.
+          live_runner_digest = receipt_mod.capture_runner_identity(Path(".")).digest()
+          expected_engine = bridge_launcher.canonical_xmage_engine_pin()
+          assert execution["runner_digest"] == live_runner_digest
+          assert execution["candidate_commit"] == expected_engine
+
+          assert matrix["PB03_DIMENSION_ADMISSION"] == "TECHNICALLY_CONFORMANT"
+          assert matrix["PB03_RUNTIME_EXECUTION"] == "PASS"
+          assert matrix["native_receipt"] == "FRESH_EXACT"
+          assert matrix["runtime_credit"] == "EXECUTED_PASS"
+          assert matrix["rows_total"] == 30
+          assert matrix["architecture_freeze"] == "NOT_CLAIMED"
+          assert matrix["production_provider"] == "NOT_SELECTED"
+          assert all(row["full107_credit"] == "NONE_FROM_PB03_MATRIX" for row in matrix["rows"])
+
+          by_id = {row["fixture_id"]: row for row in matrix["rows"]}
+          for fixture_id in (
+              "MICRO_RULES_RANDOMNESS",
+              "WS05-MP-ELIM-STACK-3",
+              "WS05-MP-TURN-5",
+              "WS05-CMD-ZONE-LIB-YES",
+          ):
+              assert by_id[fixture_id]["admission_verdict"] != "ADMITTED_TO_NATIVE_RESTORATION"
+              assert by_id[fixture_id]["runtime_execution"] == "PASS"
+
+          print(json.dumps({
+              "admission_counts": admission["counts"],
+              "runtime_classification": execution["classification"],
+              "runtime_executed_pass": execution["executed_pass"],
+              "native_receipt": matrix["native_receipt"],
+              "runtime_credit": matrix["runtime_credit"],
+          }, sort_keys=True))
+          PY
+
+      - name: Hash PB-03 runtime evidence
+        run: |
+          set -euo pipefail
+          root=qualification/final-current-boundary-20260927
+          sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
+
+      - name: Upload PB-03 runtime evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: pb03-runtime-${{ github.sha }}
+          path: |
+            qualification/final-current-boundary-20260927/PB03_ADMISSION_MATRIX.json
+            qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json
+            qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json
+            qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json
+            qualification/final-current-boundary-20260927/PB03_RUNTIME_SHA256SUMS
+            qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json
+            qualification/final-current-boundary-20260927/NATIVE_SUITE_RECEIPTS.json
+            qualification/final-current-boundary-20260927/receipts/native-xmage-*.json
+          if-no-files-found: warn
+          retention-days: 90

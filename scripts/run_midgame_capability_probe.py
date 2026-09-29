@@ -1219,20 +1219,23 @@ def execute_turn_sequence(
             client.submit_options(decision, [kept])
             continue
         if decision_class == "choose_object":
-            # Cleanup discard: discard scaffolding filler first. An external
-            # discretionary choice among engine-offered options; it cannot
-            # create an extra turn.
+            # Cleanup discard: discard a declared scaffolding filler (a basic
+            # land) by identity. This is an external discretionary choice among
+            # the engine's own offered options, and it cannot create an extra
+            # turn. When no declared filler is offered the probe fails the row
+            # closed instead of silently taking the engine's first option: a
+            # first-option fallback would be an internal policy substitute for
+            # the external decision, which this lane forbids.
             options = decision.get("legal_options") or []
             choice = None
             for option in options:
                 label = str(option.get("label") or "")
                 if any(
-                    land in label for land in ("Mountain", "Plains", "Island", "Swamp", "Forest")
+                    land in label
+                    for land in ("Mountain", "Plains", "Island", "Swamp", "Forest", "Wastes")
                 ):
                     choice = str(option.get("option_id"))
                     break
-            if choice is None and options:
-                choice = str(options[0].get("option_id"))
             if choice is None:
                 break
             client.submit_options(decision, [choice])
@@ -1526,12 +1529,28 @@ def drive_causal_elimination(
             expected_life,
         )
     verdict = complete_causal(client, "elimination").get("verdict") or {}
+    victim_lost = verdict.get("victim_lost") is True
+    victim_left = verdict.get("victim_left") is True
+    eliminated = victim_lost or victim_left
+    # The terminal obligation is the engine's own elimination verdict, recorded
+    # explicitly. It is never inferred from the row's requested terminal.
+    terminal = {
+        "kind": "victim_eliminated_by_engine",
+        "observed": eliminated,
+        "victim_lost": victim_lost,
+        "victim_left": victim_left,
+        "detail": (
+            "the engine reported the victim lost/left the game"
+            if eliminated
+            else "the engine did not report the victim as lost or left"
+        ),
+    }
     row_verdict = ml.classification_from_causal_verdict(
         fixture_id,
         ml.MIDGAME_LANE,
         "causal_elimination",
         verdict,
-        None,
+        terminal,
         engine_commit=client.engine_commit,
     )
     return row_verdict.as_dict()

@@ -229,6 +229,14 @@ class RowVerdict:
     engine_accepted_starting_state: bool = False
     entry_mode: str = "placement"
     causal_verdict: dict[str, Any] | None = None
+    # The construction classification, stated explicitly instead of leaving a
+    # reader to infer it from outcome + the raw engine bit: EXACT when the
+    # engine's own compare matched; ALLOWED_VARIANCE when the only reported
+    # mismatches are the documented declaration-step priority allowance (the raw
+    # ``engine_construction_match`` stays false and visible); MISMATCH when a
+    # real mismatch exists; UNRECOGNIZED when the verdict was uninterpretable.
+    # None means the row carries no construction verdict (transport failure).
+    construction_verdict: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -238,6 +246,7 @@ class RowVerdict:
             "code": self.code,
             "detail": self.detail,
             "engine_construction_match": self.construction_match,
+            "construction_verdict": self.construction_verdict,
             "mismatches": list(self.mismatches),
             "declaration_step_priority_allowance_applied": list(self.allowance_applied),
             "entry_mode": self.entry_mode,
@@ -650,6 +659,7 @@ def classification_from_arrival(
             lane=lane,
             engine_commit=engine_commit,
             engine_accepted_starting_state=False,
+            construction_verdict="UNRECOGNIZED",
         )
     allowance = tuple(
         mismatch
@@ -678,12 +688,14 @@ def classification_from_arrival(
             lane=lane,
             engine_commit=engine_commit,
             engine_accepted_starting_state=False,
+            construction_verdict="UNRECOGNIZED",
         )
     elif construction_match:
         outcome = "ENGINE_NATIVE_REACHABLE"
     elif mismatches and allowance:
         # A negative raw bit survives only as the explicitly modeled
-        # declaration-step allowance, which the contract permits.
+        # declaration-step allowance, which the contract permits. The raw bit,
+        # the allowance, and the resulting classification are all reported.
         outcome = "ENGINE_NATIVE_REACHABLE"
     else:
         # construction_match is false and the mismatch list is empty: the engine
@@ -703,6 +715,7 @@ def classification_from_arrival(
             lane=lane,
             engine_commit=engine_commit,
             engine_accepted_starting_state=False,
+            construction_verdict="UNRECOGNIZED",
         )
     return RowVerdict(
         fixture_id=fixture_id,
@@ -719,6 +732,13 @@ def classification_from_arrival(
         # An acceptance statement is made only for a row that actually reached
         # the engine's native reachability. A construction mismatch does not.
         engine_accepted_starting_state=outcome == "ENGINE_NATIVE_REACHABLE",
+        construction_verdict=(
+            "EXACT"
+            if outcome == "ENGINE_NATIVE_REACHABLE" and construction_match
+            else "ALLOWED_VARIANCE"
+            if outcome == "ENGINE_NATIVE_REACHABLE"
+            else "MISMATCH"
+        ),
     )
 
 
@@ -770,7 +790,14 @@ def classification_from_causal_verdict(
     if not causal_match or mismatches:
         outcome = "CONSTRUCTION_MISMATCH"
         detail = "; ".join(mismatches) or "the engine did not produce the causal route"
-    elif terminal_obligation is None or terminal_obligation.get("observed"):
+    elif terminal_obligation is None:
+        # An unrecorded terminal is not an observed one. The causal route may
+        # have executed, but reachability requires the row's terminal
+        # obligation to be produced and recorded, so a caller that supplies no
+        # terminal gets MEASURED_BLOCKED rather than credit.
+        outcome = "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        detail = "the engine produced the causal route but no terminal obligation was recorded"
+    elif terminal_obligation.get("observed"):
         outcome = "CAUSAL_ROUTE_REACHABLE"
         detail = None
     else:

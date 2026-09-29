@@ -46,15 +46,21 @@ NATIVE_SUITE_RECEIPT_SCHEMA = "commander-lab.native-suite-receipt/1.0.0"
 POSITIVE_FIXTURE_RECEIPT_SCHEMA = "commander-lab.positive-fixture-receipt/1.0.0"
 SEED_BINDING_SCHEMA = "commander-lab.seed-binding/1.0.0"
 
-#: Classes the runner digest must cover. A change to any of these changes what the
-#: evidence means, so the receipt must change with it.
+#: Inputs the runner digest must cover. A change to any of these changes what the
+#: evidence means, so the receipt must change with it. The Lab XMage adapter is
+#: included: a bridge-source change with an unchanged engine candidate is still
+#: an adapter drift, and a receipt produced by the old bridge must not survive
+#: it. The probe is included for the same reason on the PB-03 route.
 _EXECUTED_INPUT_GLOBS = (
     "scripts/run_current_boundary_qualification.py",
     "scripts/assemble_current_boundary_evidence.py",
+    "scripts/run_midgame_capability_probe.py",
     "src/commander_lab/qualification/current_boundary/*.py",
     "src/commander_lab/engine/rules/*.py",
     "schemas/engine_adapter_protocol.schema.json",
     "config/rules_engines.json",
+    "engine-bridge/pom.xml",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/*.java",
 )
 
 _NO_CREDIT = "NO_CREDIT"

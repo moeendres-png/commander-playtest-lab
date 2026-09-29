@@ -108,9 +108,15 @@ class TestRowClassification:
         assert verdict.outcome == "ENGINE_NATIVE_REACHABLE"
         assert verdict.engine_accepted_starting_state is True
         assert verdict.mismatches == ()
+        assert verdict.construction_verdict == "EXACT"
 
     def test_declaration_step_priority_mismatch_is_named_not_hidden(self) -> None:
-        """The documented allowance is applied, and reported, never erased."""
+        """The documented allowance is applied, and reported, never erased.
+
+        The classification is stated explicitly as ALLOWED_VARIANCE rather than
+        being inferable only from outcome + raw bit: the engine's own compare
+        reported a mismatch, and the row must never read as an exact match.
+        """
         verdict = ml.classification_from_arrival(
             "WS05-MP-COMBAT-4",
             ml.MIDGAME_LANE,
@@ -121,7 +127,39 @@ class TestRowClassification:
         )
         assert verdict.outcome == "ENGINE_NATIVE_REACHABLE"
         assert verdict.construction_match is False, "the engine's own raw bit must be reported"
+        assert verdict.construction_verdict == "ALLOWED_VARIANCE"
         assert verdict.allowance_applied == ("priority_player: requested P1 observed P2",)
+
+    def test_the_allowance_is_never_vacuous_or_inferred(self) -> None:
+        """Only the exact declared prefix is an allowance; nothing else is."""
+        exact = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            _arrival(construction_match=True, mismatches=[]),
+            engine_commit="abc",
+        )
+        assert exact.construction_verdict == "EXACT"
+        mismatched = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            _arrival(
+                construction_match=False,
+                mismatches=["priority_player: requested P1 observed P2", "hand count mismatch"],
+            ),
+            engine_commit="abc",
+        )
+        assert mismatched.outcome == "CONSTRUCTION_MISMATCH"
+        assert mismatched.construction_verdict == "MISMATCH"
+        assert mismatched.engine_accepted_starting_state is False
+        # A negative raw bit with no recognized mismatch is uninterpretable.
+        unrecognized = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            _arrival(construction_match=False, mismatches=[]),
+            engine_commit="abc",
+        )
+        assert unrecognized.outcome == "UNRECOGNIZED_CONSTRUCTION_VERDICT"
+        assert unrecognized.construction_verdict == "UNRECOGNIZED"
 
     def test_a_zone_mismatch_is_never_allowanced(self) -> None:
         verdict = ml.classification_from_arrival(
@@ -179,6 +217,25 @@ class TestRowClassification:
         )
         assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
         assert verdict.detail is not None and "absent" in verdict.detail
+
+    def test_an_unrecorded_terminal_is_not_reachability_credit(self) -> None:
+        """A produced route without a recorded terminal is measured blocked.
+
+        Reachability requires the row's terminal obligation to be produced and
+        recorded; a caller that supplies no terminal must not inherit credit
+        for a route whose terminal was never observed.
+        """
+        verdict = ml.classification_from_causal_verdict(
+            "WS05-MP-ELIM-PRIO-3",
+            ml.MIDGAME_LANE,
+            "causal_elimination",
+            {"causal_match": True, "mismatches": []},
+            None,
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        assert verdict.detail is not None and "terminal" in verdict.detail
+        assert verdict.engine_accepted_starting_state is True
 
     def test_causal_mismatch_is_never_promoted(self) -> None:
         stack_verdict = {"causal_match": False, "mismatches": ["STACK_SOURCE_ABSENT: x"]}

@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -140,6 +141,12 @@ NATIVE_SUITE_BINDING = {
                 "XmageFullGameDecisionExecutionTest",
             ],
             "mechanism": [
+                # The declared engine commit is a constant; this runtime
+                # fingerprint proves the loaded mage artifact actually carries
+                # the candidate's APNAP primitives. Binding it here makes the
+                # executing engine identity part of the observed suite evidence
+                # instead of an assertion.
+                "XmageCandidateEngineFingerprintTest",
                 "XmageNativeStateRestorationTest",
                 "XmageTemporalProgressionDriverTest",
                 "XmageTemporalAdvancedProgressionTest",
@@ -512,7 +519,7 @@ def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
             ),
         }
     )
-    if document["counts"] != {"admitted": 14, "blocked": 16}:
+    if document["counts"] != {"admitted": 12, "blocked": 18}:
         raise SystemExit(
             "PB-03 admission projection drifted from the adjudicated current "
             f"30-row boundary: {document['counts']}"
@@ -1080,6 +1087,14 @@ def main() -> int:
             indent=1,
         ),
     )
+    # The PB-03 runtime ledger is derived from the surefire XML of the suites
+    # that just ran. Clear the previous reports first so a class that failed to
+    # compile or was not executed in this run cannot be credited from a stale
+    # report left by an earlier run.
+    if "xmage" in candidates:
+        shutil.rmtree(
+            REPO_ROOT / "engine-bridge" / "target" / "surefire-reports", ignore_errors=True
+        )
     native_receipts = run_all_native_suites(runner, tuple(candidates))
     if "xmage" in candidates:
         pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(

@@ -18,11 +18,9 @@ EXPECTED_ADMITTED = {
     "WS05-MP-BLOCK-4",
     "WS05-MP-COMBAT-4",
     "WS05-MP-COMBAT-5",
-    "WS05-CMD-DMG-CONTROL",
     "WS05-CMD-DMG-SAME-21",
     "WS05-CMD-DMG-SPLIT",
     "WS05-MP-ELIM-5",
-    "WS05-MP-ELIM-CONTROL-3",
     "WS05-MP-ELIM-OWNED-3",
     "WS05-MP-ELIM-PRIO-3",
     "WS05-MP-ELIM-TURN-3",
@@ -51,6 +49,8 @@ def manifest() -> dict:
         "unsupported_dimensions": [
             "stack spells (casting requires real costs/timing: executor scope)",
             "legacy/frozen partial library identity: no complete permutation, fail closed",
+            "controller/owner divergence (engine layers re-derive control)",
+            "attachments and counters",
             "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
         ],
     }
@@ -61,22 +61,34 @@ def test_pb03_scope_is_exactly_thirty_unique_rows() -> None:
     assert len(set(A.PB03_FIXTURE_IDS)) == 30
 
 
-def test_current_boundary_projection_is_exact_14_admitted_16_blocked(
+def test_current_boundary_projection_is_exact_12_admitted_18_blocked(
     materialization, manifest
 ) -> None:
     doc = A.admit_manifest(materialization.denominator_records(), manifest)
     assert doc["rows_total"] == 30
-    assert doc["counts"] == {"admitted": 14, "blocked": 16}
+    assert doc["counts"] == {"admitted": 12, "blocked": 18}
     assert set(doc["admitted"]) == EXPECTED_ADMITTED
     assert set(doc["blocked"]) == EXPECTED_BLOCKED
-    assert doc["derivation"] == "required_events + semantic_objects[].zone only"
+    assert "owner/controller" in doc["derivation"]
 
 
-def test_control_divergence_and_zero_life_do_not_decide_admission(
-    materialization, manifest
-) -> None:
+def test_declared_control_divergence_decides_admission(materialization, manifest) -> None:
+    """A record that declares owner != controller asks for a divergent state.
+
+    The live manifest marks controller/owner divergence unsupported, and the
+    restoration seam rejects both rows, so admission must block them instead of
+    admitting them and leaving the engine to reject at construction time.
+    """
+    for fixture_id in ("WS05-MP-ELIM-CONTROL-3", "WS05-CMD-DMG-CONTROL"):
+        result = A.admit_record(materialization.record(fixture_id), manifest)
+        assert result["verdict"] == A.BLOCKED_MISSING_DIMENSION, fixture_id
+        assert "controller/owner divergence" in result["missing_tokens"], fixture_id
+        assert "controller/owner divergence" in result["required_tokens"], fixture_id
+
+
+def test_zero_life_preconditions_do_not_decide_admission(materialization, manifest) -> None:
+    """A 0-life precondition is a runtime/engine concern, not a manifest dimension."""
     for fixture_id in (
-        "WS05-MP-ELIM-CONTROL-3",
         "WS05-MP-ELIM-5",
         "WS05-MP-ELIM-OWNED-3",
         "WS05-MP-ELIM-PRIO-3",
