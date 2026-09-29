@@ -42,7 +42,7 @@
  "decision_probe_game": {
   "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
   "decisions_observed": 4,
-  "game_id": "wsr22-forge-2p-d00851a9",
+  "game_id": "wsr22-forge-2p-d93deadf",
   "player_count": 2,
   "steps_completed": [
    "handshake",
@@ -116,9 +116,9 @@
    "detail": "every response echoed the exact request_id",
    "evidence": {
     "request_ids": {
-     "get_capabilities": "a03a6b8a-4775-4e4a-bc6f-1931b2fa58d4",
-     "get_provider_version": "8bf9ef8c-1b34-4173-bed0-260804530274",
-     "start_engine": "f8e6114a-6c03-493b-9446-155dc0a3d7fd"
+     "get_capabilities": "bb4f8643-874a-42b6-9dd0-0098cab00e4f",
+     "get_provider_version": "23136c92-7a96-4dc6-bebd-78442a4bf386",
+     "start_engine": "cc15a21a-53b6-4f98-a070-e0d4161906af"
     }
    },
    "invariant": "request_id_matches",
@@ -246,10 +246,10 @@
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "4d3f6f37-75fe-4fe9-97ce-cfaff6ba7cb2",
+     "request_id": "c44bb6b0-58ae-4113-9df6-6892312709f2",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-28T18:06:02.208920846Z",
+     "timestamp": "2026-09-29T20:43:19.306465488Z",
      "warnings": []
     },
     "legacy_alias_in_credit_set": false,
@@ -278,10 +278,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "0ab09497-bbee-45d4-9314-cd2ad92ee106",
+    "request_id": "10f828ec-1c9e-4692-914d-f3b13facf124",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-28T18:06:02.209535726Z",
+    "timestamp": "2026-09-29T20:43:19.306901759Z",
     "warnings": []
    },
    "invariant": "fail_closed_protocol_mismatch",
@@ -307,10 +307,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "a2f4967b-ad57-4c4d-9514-4bcad6d3ca1c",
+    "request_id": "e3de4419-428d-4e13-a1b8-94eeeaff25a6",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-28T18:06:02.209916729Z",
+    "timestamp": "2026-09-29T20:43:19.307184593Z",
     "warnings": []
    },
    "invariant": "fail_closed_unknown_message",
@@ -320,7 +320,7 @@
    "af01_v2_clause": "fail_closed_invariants.illegal_action",
    "detail": "provider rejected an unrecognised legal_action_id for a live game",
    "evidence": {
-    "game_id": "wsr22-forge-2p-d00851a9",
+    "game_id": "wsr22-forge-2p-d93deadf",
     "response": {
      "engine_event_offset": 18,
      "error": {
@@ -338,10 +338,10 @@
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "68ad2224-88d6-486c-8f85-10265b549fe9",
+     "request_id": "a8da16f8-a009-4e42-90a7-51db014fb7e2",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-28T18:06:02.210298711Z",
+     "timestamp": "2026-09-29T20:43:19.307584423Z",
      "warnings": []
     }
    },
@@ -352,7 +352,7 @@
    "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
    "detail": "provider rejected an unknown decision identity for a live game",
    "evidence": {
-    "game_id": "wsr22-forge-2p-d00851a9",
+    "game_id": "wsr22-forge-2p-d93deadf",
     "response": {
      "engine_event_offset": 18,
      "error": {
@@ -370,10 +370,10 @@
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "e5fa4b2b-ea47-4253-bcf8-b3de85ed2cb6",
+     "request_id": "a6955a80-0dee-48ba-9b47-70b8dd8dc43c",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-28T18:06:02.210779911Z",
+     "timestamp": "2026-09-29T20:43:19.307908352Z",
      "warnings": []
     }
    },
@@ -384,7 +384,7 @@
    "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
    "detail": "an unsupported decision class failed closed for a live game without a default option",
    "evidence": {
-    "game_id": "wsr22-forge-2p-d00851a9",
+    "game_id": "wsr22-forge-2p-d93deadf",
     "response": {
      "engine_event_offset": 18,
      "error": {
@@ -402,10 +402,10 @@
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "57290988-b583-4372-bb1d-9c616f5fa02b",
+     "request_id": "1c541f81-64e5-49b4-8fd9-7e114c87495c",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-28T18:06:02.211183088Z",
+     "timestamp": "2026-09-29T20:43:19.308220362Z",
      "warnings": []
     }
    },
@@ -423,14 +423,14 @@
   },
   {
    "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
-   "detail": "a scan of 11 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
+   "detail": "a scan of 15 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
    "evidence": {
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "777dd48901b47a2fc2ada467991ef7d569185f59",
+    "runner_tree": "11ea1e22ef71a47f0e40149551057735610ceb40",
     "scan": {
      "complete": true,
      "hits": [],
-     "scanned_files": 11
+     "scanned_files": 15
     }
    },
    "invariant": "no_adapter_legality_reconstruction",
@@ -444,7 +444,7 @@
     "scan": {
      "complete": true,
      "hits": [],
-     "scanned_files": 11
+     "scanned_files": 15
     }
    },
    "invariant": "no_fabricated_legal_options",
@@ -467,7 +467,7 @@
   "AF01 PASS does not imply provider release eligibility",
   "AF01 PASS does not select a provider or claim Architecture Freeze"
  ],
- "protocol_transcript_digest": "e4f7dc3bce02e3bb7c08199c2f502f3328b89f160f3d40c5712fff516c62bb67",
+ "protocol_transcript_digest": "693ea1795758f26cd00a14729a760ecb28c57eca6b83362286905b06b1a3ac70",
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af01-current-boundary/1.0.0",
  "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
