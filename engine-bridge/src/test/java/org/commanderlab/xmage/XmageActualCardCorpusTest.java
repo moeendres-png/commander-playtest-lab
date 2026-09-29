@@ -37,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 class XmageActualCardCorpusTest {
 
     private static final String ROGRAKH = "Rograkh, Son of Rohgahh";
-    private static final String MOUNTAIN_LABEL = "Mountain — {T}: Add {R}.";
+    static final String MOUNTAIN_LABEL = "Mountain — {T}: Add {R}.";
     private static final String ISLAND_LABEL = "Island — {T}: Add {U}.";
-    private static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
+    static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
     private static final long SEED = 424242L;
     private static final String PATH_LABEL = "Path of Ancestry \u2014 {T}: Add one mana of any "
             + "color in your commander's color identity. When that mana is spent to cast a "
@@ -86,7 +86,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** Restores the board at turn-1 precombat main with P1 active and holding priority. */
-    private static Started start(
+    static Started start(
             String tag, int playerCount,
             List<XmageNativeStateRestoration.RequestedObject> objects) {
         return start(tag, playerCount, objects, Map.of(), 0);
@@ -99,7 +99,7 @@ class XmageActualCardCorpusTest {
      * players only (a basic Forest has green colour identity, so it needs a
      * green partner commander).
      */
-    private static Started start(
+    static Started start(
             String tag, int playerCount,
             List<XmageNativeStateRestoration.RequestedObject> objects,
             Map<String, String> extraCommanders, int forests) {
@@ -153,7 +153,7 @@ class XmageActualCardCorpusTest {
         return started.seats().get(pid).getHand().size();
     }
 
-    private static int onBattlefield(Started started, String pid, String name) {
+    static int onBattlefield(Started started, String pid, String name) {
         int count = 0;
         for (Permanent permanent : started.session().restorationGame()
                 .getBattlefield().getAllPermanents()) {
@@ -179,7 +179,7 @@ class XmageActualCardCorpusTest {
         return found;
     }
 
-    private static int inGraveyard(Started started, String pid, String name) {
+    static int inGraveyard(Started started, String pid, String name) {
         int count = 0;
         for (Card card : started.seats().get(pid).getGraveyard()
                 .getCards(started.session().restorationGame())) {
@@ -190,7 +190,7 @@ class XmageActualCardCorpusTest {
         return count;
     }
 
-    private static String decisionClass(Started started) {
+    static String decisionClass(Started started) {
         JsonObject payload = started.session().pendingDecisionPayload();
         if (payload.get("decision").isJsonNull()) {
             fail("engine terminal while a decision was expected");
@@ -198,7 +198,7 @@ class XmageActualCardCorpusTest {
         return payload.getAsJsonObject("decision").get("decision_class").getAsString();
     }
 
-    private static String actorPid(Started started) {
+    static String actorPid(Started started) {
         return XmageNativeStateRestorationTest.pidOf(started.seats(),
                 started.session().legalActionsPayload().get("actor_id").getAsString());
     }
@@ -209,12 +209,12 @@ class XmageActualCardCorpusTest {
         XmageFullGameTaxExecutionTest.submit(started.session(), tag, action);
     }
 
-    private static void pass(Started started, String tag) {
+    static void pass(Started started, String tag) {
         submit(started, tag, XmageFullGameTaxExecutionTest.singleActionOfType(
                 started.session().legalActionsPayload(), "pass_priority", null));
     }
 
-    private static void cast(Started started, String tag, String cardName) {
+    static void cast(Started started, String tag, String cardName) {
         submit(started, tag, XmageExternalRiskSignalTest.spellOffer(
                 started.session().legalActionsPayload(), cardName));
     }
@@ -282,7 +282,7 @@ class XmageActualCardCorpusTest {
      * offered option must carry {@code requiredName}, so the selected set is
      * semantically identical to any other selection of the same size.
      */
-    private static void chooseNamed(Started started, String tag, String requiredName, int count) {
+    static void chooseNamed(Started started, String tag, String requiredName, int count) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
@@ -326,7 +326,7 @@ class XmageActualCardCorpusTest {
      * pending. Any other decision is handed to {@code handler}, which must
      * return true when it answered; unanswered decisions fail the test.
      */
-    private static void resolveAll(
+    static void resolveAll(
             Started started, String tag, String manaLabel,
             BiFunction<String, Integer, Boolean> handler) {
         for (int step = 0; step < 80; step++) {
@@ -363,7 +363,7 @@ class XmageActualCardCorpusTest {
         fail("[" + tag + "] resolution bound breached");
     }
 
-    private static final BiFunction<String, Integer, Boolean> NONE = (cls, step) -> false;
+    static final BiFunction<String, Integer, Boolean> NONE = (cls, step) -> false;
 
     /** Cast offers for {@code cardName} whose label does / does not contain {@code fragment}. */
     private static List<JsonObject> offers(Started started, String cardName, String fragment,
@@ -1558,7 +1558,7 @@ class XmageActualCardCorpusTest {
      * that may also offer other cards. Same-named cards are rules-identical
      * here, so which copy is taken does not matter.
      */
-    private static void chooseByExactName(Started started, String tag, String name, int count) {
+    static void chooseByExactName(Started started, String tag, String name, int count) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
@@ -1708,7 +1708,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** Submits an empty selection for an optional (minimum 0) target/object choice. */
-    private static void chooseNone(Started started, String tag) {
+    static void chooseNone(Started started, String tag) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         assertEquals(0, pending.get("minimum_selections").getAsInt(),

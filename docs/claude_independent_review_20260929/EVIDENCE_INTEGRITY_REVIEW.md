@@ -189,6 +189,38 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Kird Ape (Ape) was paid entirely with Path mana under Rograkh (Ape Ninja). No scry decision followed, although Oracle and the 2020-11-10 ruling require scry 1.
   - Candidates: the engine's delayed `MANA_PAID` trigger, an artefact of the restored board, or a bridge gap. Not attributed. Disabled test `pathOfAncestryScriesForACreatureSharingACommanderType`.
 - **F-14 — RESOLVED, test-harness shape, not a defect: Magma Opus divided damage.** The lane expects the target and its share in one `target_amount` response (selected option plus `numeric_choice`). With that, Magma Opus passes: 4 damage to P2, two permanents tapped, a 4/4 Elemental, two cards drawn. Original note: Answering the `target_amount` decision ("Select targets (selected 0 of 4) (damage)") with a single-target selection ended the game. The accepted response shape is not established. Disabled test `magmaOpusDividesFourTapsTwoMakesAFourFourAndDrawsTwo`. This is not a Rules claim.
+- **F-15, P2: restoration arrival runs beginning-phase triggers of restored permanents (XMage native state restoration).**
+  - `applyPreStart` puts requested permanents onto the battlefield before the game starts.
+  - Arrival then plays the restored turn through untap, upkeep and draw to the requested main phase, so those permanents' triggers fire and resolve.
+  - Example: with one Sulfuric Vortex per seat, the restored active player arrives at 40 − 2N life, although the plan requests 40.
+  - `compare()` detects this (life mismatch), but `XmageNativeStateRestorationTest.completeArrival`, which most runtime tests use, never runs `compare()`, so the drift is silent.
+  - An experiment enforcing `compare()` in that helper across the bridge suite found no existing test affected by *trigger* drift. Its other mismatches are intentional: requested life 0 settled by state-based actions, and later combat steps driven after arrival.
+  - Impact: any restored plan containing permanents with untap/upkeep/draw triggers (for example Phyrexian Arena, Howling Mine, Sulfuric Vortex) starts from a state other than the requested one.
+  - Owner decision (restoration lane / #304): fail closed on such plans, restore after arrival, or compare after arrival. This review does not change the shared helper, because the fix changes restoration semantics.
+  - Also observed: the engine seats counterclockwise (turns, priority and APNAP pass P1 → PN → … → P2). This is consistent and already documented in `XmagePb03Tier2StackTest`. Consumers must take turn order from the engine, not assume ascending seat numbers.
+  - `XmageMultiplayerApnapTriggerTest` measures against the post-arrival baseline and pins the drift.
+- **F-16, P1: FIXED. The full-game lane offered blocks against creatures attacking other players (CR 802.4a).**
+  - `XmageFullGamePlayer.selectBlockers` built block options from `Permanent.canBlock`, which checks only that the attacker's controller is an opponent.
+  - In any game with attacks at two or more players, each defending player's creature was offered every attacker.
+  - When the pilot picked an attacker attacking someone else, the engine's `declareBlocker` rejected it through `CombatGroup.canBlock` and dropped it silently, because non-human players get no notice. This is a forbidden silent skip on an over-offered option.
+  - Fix: offer exactly what the engine will accept (`CombatGroup.canBlock`, which covers the defending player plus every attacker in the group).
+  - Pinned by `XmageMultiplayerSplitCombatTest` (Hellrider + Raging Goblin attacking P3 and P2; 3–6P). The test is red before the fix.
+  - `XmagePb03Tier1RowsTest.mpBlock4P2BlocksOnlyItsAttacker` had worked around it by holding the second attacker.
+  - Impact: any full-game-lane evidence from 3+P games in which one combat attacked two or more players has different block option sets and may contain silently dropped blocks, so it needs impact adjudication. 2P and single-defender combats are unaffected. The generic lane fails closed on blocks and is unaffected.
+- **F-17, P3: per-blocker block decisions can offer a block that is illegal only as a whole declaration. Outcome is rules-correct.**
+  - The full-game lane asks one `declare_blocker` decision per blocker. Menace (702.111b) and similar "two or more" restrictions are judged on the whole declaration (509.1b), so a lone blocker is still offered the menace attacker.
+  - The engine settles it in `Combat.selectBlockers` / `CombatGroup.checkBlockRestrictions`:
+    - if a legal menace block exists, it rejects the declaration and re-asks every blocker;
+    - if none exists, it discards the lone block, which is the only legal declaration, and logs the discard with `informPlayers`.
+  - Pinned by `XmageMultiplayerMenaceTest` (Broadside Bombardiers; 3–6P; P2 with one or two Bears). Other players' creatures are never offered the menace attacker (802.4b, via F-16).
+  - Consequence for decision analytics: the pilot's recorded choice can differ from the executed declaration. Evidence consumers must read blocks from engine combat state, not from pilot selections.
+  - A declaration-level blocker surface would remove this. That is a protocol change, left to the decision-surface owner.
+- **F-18, P3: engine (pinned `b19596980f27` and upstream master): simultaneous command-zone choices are not asked in APNAP order.**
+  - `GameImpl.checkStateBasedActions` handles CR 903.9a / 704.6d by looping over `state.getPlayers().values()`. That is seat insertion order (P1, P2, …, PN), whereas the engine's turn order is counterclockwise (P1, PN, …, P2), so the choices should run in that APNAP order (101.4).
+  - Each player's commanders are also moved before the next player chooses, where the state-based action should apply to all players simultaneously.
+  - Every owner is still asked exactly once through the external surface, and every choice is honoured. In the probed case outcomes are unaffected, because each choice concerns only the chooser's own commander.
+  - Pinned by `XmageMultiplayerCommanderZoneChoiceTest` (Pyroclasm kills every Rograkh; 3–6P). The CR order is a `@Disabled` test naming F-18.
+  - The fix is an engine-fork change (iterate `state.getPlayerList(activePlayerId)` and move after all choices). That needs Sol's Rules Core / pin authority and is not done here.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
