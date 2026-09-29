@@ -53,7 +53,6 @@ def _timeout_from_environment(name: str, default: float) -> float:
     return value
 
 
-
 def _keep_all_mulligans(client, game_id: str, player_count: int, label: str) -> dict:
     """Choose the semantic keep option from each live engine-authored mulligan frame."""
     latest: dict = {}
@@ -104,6 +103,7 @@ def _keep_all_mulligans(client, game_id: str, player_count: int, label: str) -> 
             f"observed {priority.get('decision_kind')!r}"
         )
     return priority
+
 
 def _unique_pass(decision: dict[str, Any]) -> dict[str, Any]:
     matches = [
