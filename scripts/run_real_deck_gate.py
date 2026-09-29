@@ -168,7 +168,7 @@ def summarize_result(result, gate: str) -> dict:
 def cmd_single(args: argparse.Namespace) -> int:
     root = Path(args.root)
     scenario, decks, pilots = build_gate_setup(root, args.seed)
-    runner = XmageFullGameRunner(cwd=root)
+    runner = XmageFullGameRunner()
     result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
     summary = summarize_result(result, GATE_LABEL)
     out = Path(args.out)
@@ -180,7 +180,7 @@ def cmd_single(args: argparse.Namespace) -> int:
 
 def cmd_replay(args: argparse.Namespace) -> int:
     root = Path(args.root)
-    runner = XmageFullGameRunner(cwd=root)
+    runner = XmageFullGameRunner()
     runs = []
     for _ in range(2):
         scenario, decks, pilots = build_gate_setup(root, args.seed)
@@ -205,7 +205,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
 
 def cmd_batch(args: argparse.Namespace) -> int:
     root = Path(args.root)
-    runner = XmageFullGameRunner(cwd=root)
+    runner = XmageFullGameRunner()
     batch = XmageFullGameBatchRunner(runner, Path(args.out_dir))
     cases: list[FullGameBatchCase] = []
     for offset in range(args.count):

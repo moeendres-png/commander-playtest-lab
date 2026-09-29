@@ -15,7 +15,25 @@ observed_main_history:
   note: fresh origin/main at worktree creation; delta ba629ce..d40dda9f is XMage multiplayer lane only (10 files, java + evidence review docs), no overlap with salvage surfaces
 branch: integration/legacy-donor-salvage-20260929
 worktree: /home/moeen/code/lab-legacy-donor-salvage-20260929
-owned_files: []
+owned_files:
+- src/commander_lab/engine/rules/base.py
+- src/commander_lab/engine/rules/bridge.py
+- src/commander_lab/engine/rules/full_game.py
+- src/commander_lab/qualification/current_boundary/bridge_launcher.py
+- tools/foundry/launcher.py
+- tests/architecture/test_engine_runtime_state_isolation.py
+- tests/foundry/test_launcher.py
+- scripts/run_external_b3_regression.py
+- scripts/run_external_b4a_regression.py
+- scripts/run_external_b4b_regression.py
+- scripts/run_external_b4c_regression.py
+- scripts/run_external_b4d_regression.py
+- scripts/run_external_b4f_capability_closeout.py
+- scripts/run_external_b4f_illegal_action_regression.py
+- scripts/run_external_b4f_provider_pin_validation.py
+- scripts/run_external_full_game_conformance.py
+- scripts/run_real_4p_full_game_smoke.py
+- scripts/run_real_deck_gate.py
 forbidden_files:
 - midgame PB-03 implementation / dimension admission / PB-03 receipt binding / runner assembler semantics
 - Mulligan / START-2 donor fc801c97118c6eed86f72105f5a4900a1094d0bb
@@ -27,10 +45,30 @@ donor_heads:
   pr289: 16e0ef194b7d200da7eb5e4208d606a44a4011b3
   merge_base_284: ca9356e3da662ce9e246e7f896f1a99772d59065
   merge_base_289: adee8b16a5c3f3807304c6718b83e11f86ab4c1c
-implemented_units: []
-rejected_units: []
-tests_run: []
-evidence: []
+implemented_units:
+- id: 284-A
+  disposition: IMPLEMENTED
+  note: isolated candidate runtime CWD via resolve_engine_working_directory in base.py, wired into JsonLineBridgeClient and _RawFullGameClient, per-candidate current-boundary runtime dirs in bridge_launcher, explicit cwd=ROOT/root removed from all 11 engine-lane scripts; donor mulligan decision_id change and full_game_batch infrastructure classification explicitly NOT ported
+- id: 284-B
+  disposition: IMPLEMENTED
+  note: child-launch env clearing of FOUNDRY_NATIVE_VARIANT, OPENCODE_DISABLE_PROJECT_CONFIG, FOUNDRY_ROUTING_SUPPRESSED before plan application in tools/foundry/launcher.py
+rejected_units:
+- id: 284-mulligan-decision-id
+  reason: out of scope, Mulligan/START-2 reserved
+- id: 284-full-game-batch-infra-classification
+  reason: not in authorized salvage list, no current-main gap proven
+tests_run:
+- tests/architecture/test_engine_runtime_state_isolation.py: 7 passed (fail-before ImportError proven)
+- tests/foundry/test_launcher.py: 99 passed (2 new fail-before failures proven, then green)
+- tests/architecture/: 8 passed
+- tests/unit/test_xmage_full_game.py + test_full_game_shutdown.py + contract/test_phase85_protocol.py: 23 passed
+- tests/unit/test_xmage_variable_player.py + test_ws224_name_canary.py + test_ws223_cardinality_regression.py + contract/test_phase1213_provider_surface.py: 92 passed
+- tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
+- ruff check on all touched files: clean
+- ruff format --check on all touched files: clean
+evidence:
+- classification: DIRECTLY_VERIFIED for above runs on workstream head 21367e35-derived tree
+- strict mypy unavailable in this environment (NO module named mypy); deferred to CI
 drift_checks:
 - time_utc: '2026-09-29T16:00:00Z'
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
@@ -51,8 +89,12 @@ drift_checks:
   - 287
   - 285
   - 284
+- time_utc: '2026-09-29T16:30:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit milestone
 unknowns: []
 blockers: []
-next_action: adjudicate 284-A and 284-B against current main, then 289-A through 289-D
+next_action: adjudicate 289-A (evidence freshness guard) against current receipts.py and assembler credit path
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
