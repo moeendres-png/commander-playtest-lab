@@ -84,14 +84,34 @@ class XmagePb03Tier2ControlTurnTest {
         XmagePb03Tier1RowsTest.castSpellAs(
                 session, seats, "pb03-turn5", "Time Warp", "P1");
         answerPlayerTarget(session, seats, "P2", "pb03-turn5-warp");
-        XmagePb03Tier1RowsTest.payHomogeneous(
-                session, "pb03-turn5-warp", "Island \u2014 {T}: Add {U}.");
+        XmagePb03Tier1RowsTest.payFromSemanticSources(
+                session,
+                restoration,
+                "pb03-turn5-warp",
+                List.of(
+                        "obj:fuel-p1a",
+                        "obj:fuel-p1b",
+                        "obj:fuel-p1c",
+                        "obj:fuel-p1d",
+                        "obj:fuel-p1e"),
+                java.util.Set.of("Island \u2014 {T}: Add {U}."));
         assertSpellOnStack(session, "Time Warp", "pb03-turn5");
         resolveUntilStackEmpty(session, seats, "pb03-turn5-warp");
         XmagePb03Tier1RowsTest.castSpellAs(
                 session, seats, "pb03-turn5", "Nexus of Fate", "P3");
-        XmagePb03Tier1RowsTest.payHomogeneous(
-                session, "pb03-turn5-nexus", "Island \u2014 {T}: Add {U}.");
+        XmagePb03Tier1RowsTest.payFromSemanticSources(
+                session,
+                restoration,
+                "pb03-turn5-nexus",
+                List.of(
+                        "obj:fuel-p3a",
+                        "obj:fuel-p3b",
+                        "obj:fuel-p3c",
+                        "obj:fuel-p3d",
+                        "obj:fuel-p3e",
+                        "obj:fuel-p3f",
+                        "obj:fuel-p3g"),
+                java.util.Set.of("Island \u2014 {T}: Add {U}."));
         assertSpellOnStack(session, "Nexus of Fate", "pb03-turn5");
         resolveUntilStackEmpty(session, seats, "pb03-turn5-nexus");
         // Complete turn 1 neutrally; the extra turns run P3 then P2 (LIFO).
@@ -307,8 +327,16 @@ class XmagePb03Tier2ControlTurnTest {
                     XmagePb03Tier1RowsTest.findTargetOffer(
                             session, bearsId.toString(), "obj:micro-controlled"));
         }
-        XmagePb03Tier1RowsTest.payHomogeneous(
-                session, "pb03-control", "Island \u2014 {T}: Add {U}.");
+        XmagePb03Tier1RowsTest.payFromSemanticSources(
+                session,
+                restoration,
+                "pb03-control",
+                List.of(
+                        "obj:fuel-island-a",
+                        "obj:fuel-island-b",
+                        "obj:fuel-island-c",
+                        "obj:fuel-island-d"),
+                java.util.Set.of("Island \u2014 {T}: Add {U}."));
         // Control must resolve precombat (no cleanup traversal: P1's hand
         // is mixed and no discard may be chosen). Break at the Aura ETB.
         for (int step = 0; step < 40; step++) {

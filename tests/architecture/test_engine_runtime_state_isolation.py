@@ -12,7 +12,6 @@ from commander_lab.engine.rules.base import (
     resolve_engine_working_directory,
 )
 
-
 ENGINE_LANE_CALLS = {"JsonLineBridgeClient", "ExternalRulesAdapter", "XmageFullGameRunner"}
 ENGINE_LANE_FILES = (
     "src/commander_lab/engine/rules/bridge.py",

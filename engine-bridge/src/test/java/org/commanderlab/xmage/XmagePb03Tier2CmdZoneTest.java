@@ -335,13 +335,25 @@ class XmagePb03Tier2CmdZoneTest {
                                 session, targetId.toString(), target.getAsString()));
             }
         }
+        List<String> fuelOrder = fuel.stream().map(FuelLand::semanticId).toList();
         if (fuelLabel != null) {
-            XmagePb03Tier1RowsTest.payHomogeneous(session, tag, fuelLabel);
+            XmagePb03Tier1RowsTest.payFromSemanticSources(
+                    session,
+                    restoration,
+                    tag,
+                    fuelOrder,
+                    java.util.Set.of(fuelLabel));
         } else {
-            XmagePb03Tier1RowsTest.payFromLabels(session, tag, java.util.Set.of(
-                    "Forest \u2014 {T}: Add {G}.",
-                    "Plains \u2014 {T}: Add {W}.",
-                    "Island \u2014 {T}: Add {U}."));
+            XmagePb03Tier1RowsTest.payFromSemanticSources(
+                    session,
+                    restoration,
+                    tag,
+                    fuelOrder,
+                    java.util.Set.of(
+                            "Forest \u2014 {T}: Add {G}.",
+                            "Plains \u2014 {T}: Add {W}.",
+                            "Island \u2014 {T}: Add {U}."),
+                    List.of("GREEN", "WHITE", "BLUE"));
         }
         assertSpellOnStack(session, causeCard, tag);
 

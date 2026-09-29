@@ -57,12 +57,6 @@ class XmagePb03DimensionAdmissionTest {
             "WS05-MP-PRIO-5",
             "WS05-MP-ELIM-STACK-3");
 
-    private static final List<String> TIER_3_LIFE_ZERO_PARSES = List.of(
-            "WS05-MP-ELIM-5",
-            "WS05-MP-ELIM-PRIO-3",
-            "WS05-MP-ELIM-TURN-3",
-            "WS05-MP-ELIM-OWNED-3");
-
     @Test
     void tier1RowsParseAsIs() {
         for (String fixture : TIER_1) {
@@ -111,7 +105,7 @@ class XmagePb03DimensionAdmissionTest {
     }
 
     @Test
-    void tier3LifeZeroPreconditionPresentInRecord() {
+    void tier3LifeZeroPreconditionsFailClosedAtRuntime() {
         for (String fixture : List.of(
                 "WS05-MP-ELIM-5",
                 "WS05-MP-ELIM-PRIO-3",
@@ -131,42 +125,33 @@ class XmagePb03DimensionAdmissionTest {
             assertTrue(lifeZeroFound,
                     fixture + " must request a 0-life player (LIFE_ZERO_PRESTART)");
         }
-        // The four rows without other blocking dimensions parse; the engine
-        // re-derives starting life at game start (pinned by
-        // XmageFullGameElimExecutionTest.characterizeElimBlocker), so arrival
-        // fail-closes and the rows stay BLOCKED with the named dimension.
-        for (String fixture : TIER_3_LIFE_ZERO_PARSES) {
-            XmageNativeStateRestoration.Plan plan =
-                    XmageNativeStateRestoration.planFromFrozenRecord(
-                            XmageNativeStateRestorationTest.frozenRecord(fixture),
-                            "pb03-admit-" + fixture, SEED);
-            assertTrue(plan.playerCount() >= 2, fixture + " must plan 2+ players");
-        }
+        // The four rows without other blocking dimensions are characterized
+        // through the real full-game arrival path. The engine re-derives
+        // starting life during game start, so the requested zero-life state
+        // fails closed instead of manufacturing elimination.
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-OWNED-3", "pb03-admit-elim-owned-3", "P2", 3);
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-PRIO-3", "pb03-admit-elim-prio-3", "P2", 3);
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-TURN-3", "pb03-admit-elim-turn-3", "P2", 3);
+        XmageFullGameElimExecutionTest.characterizeElimBlocker(
+                "WS05-MP-ELIM-5", "pb03-admit-elim-5", "P3", 5);
     }
 
     @Test
-    void turn5ParsesButDemandsExtraTurnsWithoutRestoreApi() {
+    void turn5ParsesButDoesNotEarnExtraTurnBehaviorCredit() {
         XmageNativeStateRestoration.Plan plan =
                 XmageNativeStateRestoration.planFromFrozenRecord(
                         XmageNativeStateRestorationTest.frozenRecord("WS05-MP-TURN-5"),
                         "pb03-admit-turn5", SEED);
         assertEquals(5, plan.playerCount());
-        // The extra-turn history (Time Warp / Nexus of Fate already resolved)
-        // is present only as graveyard causal history; the seam has no
-        // extra-turn-queue restore dimension, so the order obligation needs
-        // genuine casts (TIER_2), never construction credit.
-        JsonObject record =
-                XmageNativeStateRestorationTest.frozenRecord("WS05-MP-TURN-5");
-        boolean historyFound = false;
-        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
-            JsonObject object = element.getAsJsonObject();
-            if ("graveyard".equals(object.get("zone").getAsString())
-                    && ("Time Warp".equals(object.get("card_identity").getAsString())
-                            || "Nexus of Fate".equals(
-                                    object.get("card_identity").getAsString()))) {
-                historyFound = true;
-            }
-        }
-        assertTrue(historyFound, "TURN-5 must carry resolved extra-turn causal history");
+
+        // Admission/construction is deliberately not extra-turn behavior proof.
+        // In particular, a frozen graveyard placement for Nexus of Fate cannot
+        // be treated as a resolved-spell postcondition because the card's own
+        // replacement effect prevents that graveyard outcome. TURN-5 therefore
+        // requires genuine runtime casts/order observation in the Tier-2 suite;
+        // this discriminator grants no row credit.
     }
 }

@@ -106,6 +106,15 @@ class XmagePb03Tier2StackTest {
             String tag,
             List<FuelLand> fuel,
             Map<String, List<String>> manaOrderByPid) {
+        return reconstructRow(fixtureId, tag, fuel, manaOrderByPid, Map.of());
+    }
+
+    private static Reconstructed reconstructRow(
+            String fixtureId,
+            String tag,
+            List<FuelLand> fuel,
+            Map<String, List<String>> manaOrderByPid,
+            Map<String, List<String>> poolManaOrderByPid) {
         JsonObject record = recordWithFuel(fixtureId, fuel);
         XmageCausalStackReconstruction.Prepared prepared =
                 XmageCausalStackReconstruction.prepare(record, tag, SEED);
@@ -127,13 +136,18 @@ class XmagePb03Tier2StackTest {
                         return null;
                     }
                     if ("mana_payment".equals(dc)) {
-                        JsonObject proposal = XmageCausalStackReconstructionTest.manaProposal(
-                                tag + "-mana-" + index, frame.controller(), legal,
-                                prepared, manaOrderByPid);
-                        if (proposal != null) {
-                            return proposal;
-                        }
-                        return firstPoolSpend(tag, legal, index);
+                        // The canonical helper binds mana abilities to exact
+                        // semantic source ids and accepts pool spend only when
+                        // the engine offers exactly one option. Null therefore
+                        // means the scripted payment is unavailable/ambiguous
+                        // and reconstruction must fail closed.
+                        return XmageCausalStackReconstructionTest.manaProposal(
+                                tag + "-mana-" + index,
+                                frame.controller(),
+                                legal,
+                                prepared,
+                                manaOrderByPid,
+                                poolManaOrderByPid);
                     }
                     if ("choice".equals(dc)) {
                         return null;
@@ -145,26 +159,6 @@ class XmagePb03Tier2StackTest {
                         session, seats, prepared, arrivalSource(tag), stackSource, 240);
         assertTrue(result.submittedDecisions() > 0, tag + ": reconstruction must submit");
         return new Reconstructed(session, seats, prepared, result);
-    }
-
-    private static JsonObject firstPoolSpend(String tag, JsonObject legal, int index) {
-        List<JsonObject> pool = new ArrayList<>();
-        for (JsonElement element : legal.getAsJsonArray("actions")) {
-            JsonObject action = element.getAsJsonObject();
-            if ("mana_pool".equals(action.getAsJsonObject("metadata")
-                    .get("option_type").getAsString())) {
-                pool.add(action);
-            }
-        }
-        pool.sort((left, right) -> left.get("action_id").getAsString()
-                .compareTo(right.get("action_id").getAsString()));
-        if (pool.isEmpty()) {
-            return null;
-        }
-        return XmageCausalStackReconstruction.proposal(
-                tag + "-pool-" + index,
-                legal.get("actor_id").getAsString(),
-                pool.get(0));
     }
 
     private static void passPriority(
@@ -256,7 +250,12 @@ class XmagePb03Tier2StackTest {
         // genuinely at the reconstructed Bolt, then resolve top-down.
         XmagePb03Tier1RowsTest.castSpellAs(session, seats, tag, "Giant Growth", "P2");
         answerRecordTargets(session, seats, run, "obj:micro-target", tag);
-        XmagePb03Tier1RowsTest.payHomogeneous(session, tag, "Forest \u2014 {T}: Add {G}.");
+        XmagePb03Tier1RowsTest.payFromSemanticSources(
+                session,
+                run.prepared().restoration(),
+                tag,
+                List.of("obj:micro-forest"),
+                java.util.Set.of("Forest \u2014 {T}: Add {G}."));
         // Growth must resolve (leaving only Bolt); then proceed. Without
         // this break the loop passes through resolution into combat.
         for (int step = 0; step < 20; step++) {
@@ -317,8 +316,12 @@ class XmagePb03Tier2StackTest {
         UUID boltStackId = run.result().nativeStackObjectIds().get("obj:micro-bolt");
         assertNotNull(boltStackId, "reconstructed Bolt must be on the stack");
         answerNativeTarget(session, boltStackId.toString(), "obj:micro-bolt", "pb03-manapay");
-        XmagePb03Tier1RowsTest.payHomogeneous(
-                session, "pb03-manapay", "Island \u2014 {T}: Add {U}.");
+        XmagePb03Tier1RowsTest.payFromSemanticSources(
+                session,
+                run.prepared().restoration(),
+                "pb03-manapay",
+                List.of("obj:micro-island-a", "obj:micro-island-b"),
+                java.util.Set.of("Island \u2014 {T}: Add {U}."));
         assertSpellOnStack(session, "Counterspell", "pb03-manapay");
         for (int step = 0; step < 60; step++) {
             if (session.restorationGame().getStack().isEmpty()) {
@@ -461,7 +464,8 @@ class XmagePb03Tier2StackTest {
                         new FuelLand("obj:fuel-mountain-p1", "Mountain", "P1"),
                         new FuelLand("obj:fuel-mountain-p1b", "Mountain", "P1")),
                 Map.of("P1", List.of("obj:fuel-island-p1", "obj:fuel-mountain-p1",
-                        "obj:fuel-mountain-p1b")));
+                        "obj:fuel-mountain-p1b")),
+                Map.of("P1", List.of("blue", "red", "red")));
         XmageFullGameSession session = run.session();
         Map<String, Player> seats = run.seats();
         boolean callSeen = false;

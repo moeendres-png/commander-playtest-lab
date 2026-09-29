@@ -577,4 +577,3 @@ def test_junit_positive_fixture_receipts_fail_closed_on_malformed_xml(tmp_path: 
         cases={"pass_case": ("MICRO_COMBAT", "combat obligation", "combat assertion")},
     )
     assert rows == ()
-

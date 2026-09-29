@@ -114,11 +114,14 @@ def main() -> None:
     if provider.get("protocol_version") != configured_protocol:
         raise SystemExit("B4-F live provider protocol does not match the configured protocol")
 
+    # seed_supported is a separately validated generic-lane capability (explicit
+    # create-game seed bound to the native Rules RNG; XmageGenericLaneRulesSeedTest).
+    # B4-F evidence below is produced unseeded, so B4-F itself still proves no seed
+    # control and the descriptor keeps seed_control NOT_PROVEN for this scope.
     broad_claims_expected_false = {
         "legal_actions_supported": handshake.legal_actions_supported,
         "action_submission_supported": handshake.action_submission_supported,
         "replay_supported": handshake.replay_supported,
-        "seed_supported": handshake.seed_supported,
         "starting_state_injection_supported": handshake.starting_state_injection_supported,
         "scenario_injection_supported": handshake.scenario_injection_supported,
     }

@@ -596,7 +596,17 @@ class XmagePb03Tier1RowsTest {
                 continue;
             }
             if ("mana_payment".equals(pending)) {
-                payHomogeneous(session, "pb03-modes", "Mountain \u2014 {T}: Add {R}.");
+                payFromSemanticSources(
+                        session,
+                        arrived.restoration(),
+                        "pb03-modes",
+                        List.of(
+                                "obj:micro-modes-mana-0",
+                                "obj:micro-modes-mana-1",
+                                "obj:micro-modes-mana-2",
+                                "obj:micro-modes-mana-3",
+                                "obj:micro-modes-mana-4"),
+                        java.util.Set.of("Mountain \u2014 {T}: Add {R}."));
                 assertSpellOnStack(session, "Burn Down the House", "pb03-modes");
                 continue;
             }
@@ -668,7 +678,12 @@ class XmagePb03Tier1RowsTest {
 
         assertPlacementMatches(arrived, "MICRO_PREVENTION", "pb03-prevention");
         castSpellAs(session, seats, "pb03-prevention", "Fog", "P2");
-        payHomogeneous(session, "pb03-prevention", "Forest \u2014 {T}: Add {G}.");
+        payFromSemanticSources(
+                session,
+                arrived.restoration(),
+                "pb03-prevention",
+                List.of("obj:fog-forest-1"),
+                java.util.Set.of("Forest \u2014 {T}: Add {G}."));
         assertSpellOnStack(session, "Fog", "pb03-prevention");
 
         // Drive into the record's declare-attackers checkpoint; Fog resolves
@@ -1001,7 +1016,12 @@ class XmagePb03Tier1RowsTest {
         int lifeBefore = p2.getLife();
 
         castSpellAs(session, seats, "pb03-triggers", "Grizzly Bears", "P1");
-        payHomogeneous(session, "pb03-triggers", "Forest \u2014 {T}: Add {G}.");
+        payFromSemanticSources(
+                session,
+                arrived.restoration(),
+                "pb03-triggers",
+                List.of("obj:trigger-forest-1", "obj:trigger-forest-2"),
+                java.util.Set.of("Forest \u2014 {T}: Add {G}."));
         assertSpellOnStack(session, "Grizzly Bears", "pb03-triggers");
         // Bears resolves, Surge triggers, P2 is targeted, damage resolves;
         // the game then continues into combat, which is answered neutrally.
@@ -1538,63 +1558,163 @@ class XmagePb03Tier1RowsTest {
         fail(tag + ": bound exceeded seeking priority to cast " + cardName);
     }
 
-    static void payHomogeneous(
-            XmageFullGameSession session, String tag, String expectedLabel) {
-        payFromLabels(session, tag, java.util.Set.of(expectedLabel));
+    static void payFromSemanticSources(
+            XmageFullGameSession session,
+            XmageNativeStateRestoration restoration,
+            String tag,
+            List<String> semanticSourceOrder,
+            java.util.Set<String> allowedLabels) {
+        payFromSemanticSources(
+                session,
+                restoration,
+                tag,
+                semanticSourceOrder,
+                allowedLabels,
+                List.of());
     }
 
-    static void payFromLabels(
-            XmageFullGameSession session, String tag, java.util.Set<String> allowedLabels) {
-        // Taps and pool spends each consume a round; size the bound for the
-        // largest homogeneous payment (Nexus of Fate: 7 taps + 7 spends).
+    static void payFromSemanticSources(
+            XmageFullGameSession session,
+            XmageNativeStateRestoration restoration,
+            String tag,
+            List<String> semanticSourceOrder,
+            java.util.Set<String> allowedLabels,
+            List<String> poolSpendOrder) {
+        assertTrue(!semanticSourceOrder.isEmpty(), tag + ": explicit mana source script required");
+        assertEquals(
+                semanticSourceOrder.size(),
+                new java.util.LinkedHashSet<>(semanticSourceOrder).size(),
+                tag + ": semantic mana source script must not contain duplicates");
+
+        int poolSpendIndex = 0;
+
+        // This is an explicit test decision script, not an ordering heuristic:
+        // each mana ability must match the next available frozen semantic
+        // source by the engine-authored source_object_id. Pool spending is
+        // accepted only when the engine offers exactly one spend.
         for (int round = 0; round < 30; round++) {
             String pending = pendingClass(session);
             if (pending == null) {
                 fail(tag + ": engine terminal during payment");
             }
             if ("priority".equals(pending)) {
+                assertEquals(
+                        poolSpendOrder.size(),
+                        poolSpendIndex,
+                        tag + ": payment completed before scripted pool sequence was exhausted");
                 return;
             }
-            assertEquals("mana_payment", pending,
+            assertEquals(
+                    "mana_payment",
+                    pending,
                     tag + ": only engine-driven mana payment may follow");
+
             JsonObject legal = session.legalActionsPayload();
             List<JsonObject> mana = new ArrayList<>();
             List<JsonObject> pool = new ArrayList<>();
             for (JsonElement element : legal.getAsJsonArray("actions")) {
                 JsonObject action = element.getAsJsonObject();
                 JsonObject metadata = action.getAsJsonObject("metadata");
-                String optionType = metadata.has("option_type")
-                        && !metadata.get("option_type").isJsonNull()
-                        ? metadata.get("option_type").getAsString() : "";
+                String optionType =
+                        metadata.has("option_type") && !metadata.get("option_type").isJsonNull()
+                                ? metadata.get("option_type").getAsString()
+                                : "";
                 if ("mana_ability".equals(optionType)) {
                     mana.add(action);
                 } else if ("mana_pool".equals(optionType)) {
                     pool.add(action);
                 }
             }
+
             if (!mana.isEmpty()) {
-                List<JsonObject> allowed = new ArrayList<>();
-                for (JsonObject action : mana) {
-                    String candidate = action.getAsJsonObject("metadata")
-                            .get("label").getAsString();
-                    assertTrue(allowedLabels.contains(candidate),
-                            tag + ": only allowed mana labels may pay, got " + candidate);
-                    allowed.add(action);
+                JsonObject selected = null;
+                String selectedSemantic = null;
+                for (String semanticSource : semanticSourceOrder) {
+                    UUID sourceId = restoration.injectedObjectId(semanticSource);
+                    List<JsonObject> matches = new ArrayList<>();
+                    for (JsonObject action : mana) {
+                        JsonObject metadata = action.getAsJsonObject("metadata");
+                        JsonObject engine =
+                                metadata.has("xmage_option_metadata")
+                                                && metadata.get("xmage_option_metadata")
+                                                        .isJsonObject()
+                                        ? metadata.getAsJsonObject("xmage_option_metadata")
+                                        : new JsonObject();
+                        if (engine.has("source_object_id")
+                                && !engine.get("source_object_id").isJsonNull()
+                                && sourceId.toString()
+                                        .equals(engine.get("source_object_id").getAsString())) {
+                            matches.add(action);
+                        }
+                    }
+                    assertTrue(
+                            matches.size() <= 1,
+                            tag + ": ambiguous mana action for semantic source "
+                                    + semanticSource);
+                    if (matches.size() == 1) {
+                        selected = matches.get(0);
+                        selectedSemantic = semanticSource;
+                        break;
+                    }
                 }
-                allowed.sort((left, right) -> left.get("action_id").getAsString()
-                        .compareTo(right.get("action_id").getAsString()));
-                submit(session, tag + "-pay-" + round, allowed.get(0));
-            } else if (!pool.isEmpty()) {
-                // Mana-pool spends arrive one per mana unit for heterogeneous
-                // payments: spend the first offered unit and re-poll. Every
-                // unit must eventually be spent for exact-color costs.
-                pool.sort((left, right) -> left.get("action_id").getAsString()
-                        .compareTo(right.get("action_id").getAsString()));
-                submit(session, tag + "-spend-" + round, pool.get(0));
-            } else {
-                fail(tag + ": payment offers neither mana abilities (" + mana.size()
-                        + ") nor exactly one pool spend (" + pool.size() + ")");
+                assertNotNull(
+                        selected,
+                        tag + ": none of the explicitly scripted mana sources are offered");
+                String label =
+                        selected.getAsJsonObject("metadata").get("label").getAsString();
+                assertTrue(
+                        allowedLabels.contains(label),
+                        tag + ": scripted source "
+                                + selectedSemantic
+                                + " offered unexpected mana label "
+                                + label);
+                submit(session, tag + "-pay-" + round + "-" + selectedSemantic, selected);
+                continue;
             }
+
+            if (!pool.isEmpty()) {
+                JsonObject selectedPool;
+                if (poolSpendOrder.isEmpty()) {
+                    assertEquals(
+                            1,
+                            pool.size(),
+                            tag + ": mana-pool spend is discretionary unless exactly one option exists");
+                    selectedPool = pool.get(0);
+                } else {
+                    assertTrue(
+                            poolSpendIndex < poolSpendOrder.size(),
+                            tag + ": engine requests more pool spends than the explicit script");
+                    String expectedManaType = poolSpendOrder.get(poolSpendIndex);
+                    List<JsonObject> matches = new ArrayList<>();
+                    for (JsonObject action : pool) {
+                        JsonObject metadata = action.getAsJsonObject("metadata");
+                        JsonObject engine =
+                                metadata.has("xmage_option_metadata")
+                                                && metadata.get("xmage_option_metadata")
+                                                        .isJsonObject()
+                                        ? metadata.getAsJsonObject("xmage_option_metadata")
+                                        : new JsonObject();
+                        if (engine.has("mana_type")
+                                && !engine.get("mana_type").isJsonNull()
+                                && expectedManaType.equalsIgnoreCase(
+                                        engine.get("mana_type").getAsString())) {
+                            matches.add(action);
+                        }
+                    }
+                    assertEquals(
+                            1,
+                            matches.size(),
+                            tag + ": expected exactly one engine-offered "
+                                    + expectedManaType
+                                    + " pool spend");
+                    selectedPool = matches.get(0);
+                    poolSpendIndex++;
+                }
+                submit(session, tag + "-spend-" + round, selectedPool);
+                continue;
+            }
+
+            fail(tag + ": payment offers neither scripted mana ability nor pool spend");
         }
         fail(tag + ": payment bound breached");
     }
