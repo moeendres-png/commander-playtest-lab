@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Blocking, fail-closed decision handoff for full-game XMage external control.
@@ -99,6 +100,12 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        // CR 723 (controlling another player): XMage remains the sole authority
+        // for whether this player's turn is controlled. The bridge only routes
+        // the engine-generated decision to that controller's principal.
+        Player controlled = actor;
+        actor = decidingPlayer(game, actor);
+
         decisionOffset++;
         String actorId = actor.getId().toString();
         String gameId = game.getId().toString();
@@ -121,6 +128,12 @@ final class XmageFullGameDecisionController {
         request.addProperty("decision_offset", decisionOffset);
         request.addProperty("actor_id", actorId);
         request.addProperty("seat", XmageFullGameStateRedactor.seat(game, actor.getId()));
+        if (!controlled.getId().equals(actor.getId())) {
+            request.addProperty(
+                    "acting_for_seat",
+                    XmageFullGameStateRedactor.seat(game, controlled.getId())
+            );
+        }
         request.addProperty("decision_class", decisionClass);
         request.addProperty("prompt", prompt == null ? "" : prompt);
         request.add("context", context == null ? new JsonObject() : context.deepCopy());
@@ -331,6 +344,9 @@ final class XmageFullGameDecisionController {
         event.addProperty("kind", "decision_requested");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        if (request.has("acting_for_seat") && !request.get("acting_for_seat").isJsonNull()) {
+            event.addProperty("acting_for_seat", request.get("acting_for_seat").getAsInt());
+        }
         event.addProperty("prompt", request.get("prompt").getAsString());
         event.addProperty(
                 "public_state_reference",
@@ -359,6 +375,9 @@ final class XmageFullGameDecisionController {
         event.addProperty("kind", "decision_accepted");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        if (request.has("acting_for_seat") && !request.get("acting_for_seat").isJsonNull()) {
+            event.addProperty("acting_for_seat", request.get("acting_for_seat").getAsInt());
+        }
         event.addProperty("prompt", request.get("prompt").getAsString());
         JsonArray selectedTypes = new JsonArray();
         JsonArray selectedLabels = new JsonArray();
@@ -490,6 +509,22 @@ final class XmageFullGameDecisionController {
         event.addProperty("event_type", eventType);
         event.add("payload", payload == null ? new JsonObject() : payload.deepCopy());
         transcript.add(event);
+    }
+
+    /**
+     * Principal that makes this player's decision under the engine's current
+     * turn-control relationship. Missing controller state fails closed.
+     */
+    static Player decidingPlayer(Game game, Player player) {
+        UUID controllerId = player.getTurnControlledBy();
+        if (controllerId == null || controllerId.equals(player.getId())) {
+            return player;
+        }
+        Player controller = game.getPlayer(controllerId);
+        if (controller == null) {
+            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: turn controller unavailable");
+        }
+        return controller;
     }
 
     static JsonObject option(String optionId, String label, String optionType, JsonObject metadata) {
