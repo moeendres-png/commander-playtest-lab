@@ -118,17 +118,29 @@ def assess_artifact_binding(
         # a bridge head while rewriting a Rules Core that descends from a
         # different fork point. Each surface therefore declares the prior head
         # it was built on, and only that surface can supersede.
-        bases = change.get("base_by_surface") or {}
+        # A change supersedes a surface when it touches that surface and the
+        # artifact did NOT already run code containing it.
+        #
+        # This is deliberately not an ancestry test against the artifact's own
+        # commit. Candidates are forked along parallel lineages, so a change can
+        # rewrite the same module without ever descending from the commit an
+        # artifact ran: XMage's bridge lives in this repository, and a rewrite
+        # merged to main is not an ancestor of the workstream commit that
+        # produced the committed evidence. Comparing bases would silently treat
+        # that rewrite as irrelevant, which is exactly the failure this guard
+        # exists to prevent.
+        #
+        # ``contained_in`` is the set of heads already known to include the
+        # change. When the artifact's consumed commit is one of them, the run
+        # already exercised the change and the artifact is not stale.
+        contained_in = {str(h) for h in change.get("contained_in") or []}
         for surface, field, consumed in (
             ("rules_core", _RULES_CORE_FIELD, consumed_rules_core),
             ("adapter", _ADAPTER_FIELD, consumed_adapter),
         ):
-            # A change supersedes this artifact only when it was published on
-            # top of exactly what the artifact consumed. A change built from an
-            # unrelated branch says nothing about these artifacts, and one that
-            # touches neither consumed surface leaves them valid.
-            base = str(bases.get(surface) or "")
-            if not consumed or not base or base != consumed:
+            if not consumed:
+                continue
+            if consumed in contained_in or consumed == str(change.get("head") or ""):
                 continue
             if not _surface_touched(change, surface):
                 continue

@@ -49,10 +49,7 @@ PUBLISHED_CANDIDATE_HEADS: dict[str, list[dict[str, Any]]] = {
     "forge": [
         {
             "head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
-            "base_by_surface": {
-                "rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-                "adapter": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
-            },
+            "contained_in": [],
             "paths": [
                 "forge-game/src/main/java/forge/game/card/Card.java",
                 "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
@@ -65,7 +62,32 @@ PUBLISHED_CANDIDATE_HEADS: dict[str, list[dict[str, Any]]] = {
             "source": "moeendres-png/forge PR #6, OPEN draft, Rules Core + bridge rewrite",
         }
     ],
-    "xmage": [],
+    # XMage #293 (merged to main as adee8b16) rewrites the generic-lane bridge
+    # this repository owns: it deletes the shuffleLibrary no-op that silently
+    # skipped CR 103.3, binds the Rules RNG seed, and flips seed_supported to
+    # true. The committed XMage artifacts consumed adapter commit f432605e, which
+    # is on a parallel lineage and does NOT contain this change, so they no
+    # longer describe the bridge that exists.
+    "xmage": [
+        {
+            "head": "938719d0",
+            "contained_in": [],
+            "paths": [
+                "engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java",
+                "engine-bridge/src/main/java/org/commanderlab/xmage/XmageRulesSeedBinding.java",
+                "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java",
+                "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java",
+                "engine-bridge/src/main/java/org/commanderlab/xmage/JsonlBridge.java",
+                "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
+            ],
+            "rules_core_paths": [],
+            "adapter_paths": ["engine-bridge/src/main/java/org/commanderlab/xmage/"],
+            "source": (
+                "commander-playtest-lab PR #293, MERGED; removed the shuffleLibrary no-op "
+                "(silent Rules-randomness skip of CR 103.3) and bound the generic-lane Rules RNG"
+            ),
+        }
+    ],
 }
 
 # The artifacts whose validity depends on which candidate head they consumed.

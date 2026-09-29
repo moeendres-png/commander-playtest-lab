@@ -42,13 +42,13 @@ def _forge_artifact() -> dict[str, Any]:
 def _pr6_like_change() -> dict[str, Any]:
     """The shape of Forge PR #6: a Rules Core edit plus bridge edits.
 
-    The change is published on top of the bridge head while rewriting a Rules
-    Core forked from the fork point, which is why the two bases are declared
-    separately.
+    Published on a parallel lineage, so it cannot be recognised by ancestry
+    against what the artifact consumed; it is recognised because it touches the
+    same surface.
     """
     return {
         "head": "6f70e32e81025fd8a6eaf08d475f8282b7f03dc9",
-        "base_by_surface": {"rules_core": FORGE_RULES_CORE, "adapter": FORGE_ADAPTER},
+        "contained_in": [],
         "paths": [
             "forge-game/src/main/java/forge/game/card/Card.java",
             "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
@@ -87,7 +87,7 @@ def test_an_unrelated_change_does_not_invalidate_evidence() -> None:
     """A docs-only change must not discard a real run."""
     docs_only = {
         "head": "1111111111111111111111111111111111111111",
-        "base_by_surface": {"rules_core": FORGE_RULES_CORE, "adapter": FORGE_ADAPTER},
+        "contained_in": [],
         "paths": ["README.md", "docs/notes.md"],
         "rules_core_paths": ["forge-game/src/main/java/forge/game/card/Card.java"],
         "adapter_paths": ["forge-protocol2-bridge/"],
@@ -96,19 +96,40 @@ def test_an_unrelated_change_does_not_invalidate_evidence() -> None:
     assert result["disposition"] == BOUND
 
 
-def test_a_change_from_an_unrelated_branch_cannot_supersede() -> None:
-    """Published on a different base, so it says nothing about this evidence."""
-    unrelated = {
-        "head": "2222222222222222222222222222222222222222",
-        "base_by_surface": {
-            "rules_core": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-            "adapter": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-        },
-        "paths": ["forge-game/src/main/java/forge/game/card/Card.java"],
-        "rules_core_paths": ["forge-game/src/main/java/forge/game/card/Card.java"],
+def test_a_parallel_lineage_rewrite_does_supersede() -> None:
+    """A rewrite of the same module supersedes even without shared ancestry.
+
+    XMage's bridge lives in this repository, so a rewrite merged to main is not
+    an ancestor of the workstream commit that produced the committed evidence.
+    Treating that as irrelevant is exactly the silent failure being guarded.
+    """
+    parallel = {
+        "head": "938719d0",
+        "contained_in": [],
+        "paths": ["engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java"],
+        "rules_core_paths": [],
+        "adapter_paths": ["engine-bridge/src/main/java/org/commanderlab/xmage/"],
+    }
+    artifact = {
+        "runtime_identity": {
+            "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+            "adapter_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b",
+        }
+    }
+    result = assess_artifact_binding(artifact, [parallel])
+    assert result["disposition"] == STALE
+
+
+def test_an_artifact_that_already_contains_the_change_is_not_stale() -> None:
+    """contained_in is what suppresses a false positive when the run is newer."""
+    change = {
+        "head": "938719d0",
+        "contained_in": [FORGE_ADAPTER],
+        "paths": ["forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java"],
+        "rules_core_paths": [],
         "adapter_paths": ["forge-protocol2-bridge/"],
     }
-    result = assess_artifact_binding(_forge_artifact(), [unrelated])
+    result = assess_artifact_binding(_forge_artifact(), [change])
     assert result["disposition"] == BOUND
 
 
