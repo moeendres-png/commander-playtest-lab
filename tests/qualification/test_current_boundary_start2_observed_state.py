@@ -178,14 +178,16 @@ def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     block = source[start:end]
     assert '{"observer_player_id": principal}' in block
     assert 'actor_row.get("seat") != seat_index' in block
-    helper = source[source.index("def _zone_count_record(") :]
-    helper = helper[: helper.index("\ndef drive_commander_game(")]
-    assert '"hand_count"' in helper
-    assert '"library_count"' in helper
-    # The engine id may be used transiently to prove the binding but must not
-    # be stored in the terminal-facts record.
-    assert '"observer_engine_player_id"' not in helper
-    assert '"player_id"' not in helper
+    record_start = source.index("def _zone_count_record(")
+    record_end = source.index("\ndef _observe_principal_checkpoint(", record_start)
+    record_helper = source[record_start:record_end]
+    assert '"hand_count"' in record_helper
+    assert '"library_count"' in record_helper
+    # The live engine id is intentionally consumed by the observation helper to
+    # prove the requester→engine-row binding. The privacy invariant is that the
+    # persisted zone-count record itself never contains a live engine identity.
+    assert '"observer_engine_player_id"' not in record_helper
+    assert '"player_id"' not in record_helper
 
 
 def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> None:
