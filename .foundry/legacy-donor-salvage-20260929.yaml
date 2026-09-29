@@ -14,7 +14,9 @@ observed_main_history:
 - sha: d40dda9fc7590746c3453d449a0828cb69ea1e12
   note: worktree base; delta ba629ce..d40dda9f is XMage multiplayer lane only, no overlap with salvage surfaces
 - sha: 3d15bbe80849f84814a35d0d397955fa4eac28b4
-  note: fresh origin/main at push time; delta d40dda9f..3d15bbe8 is 5 Java XMage-MP test files, NO_RELEVANT_OVERLAP; branch NOT rebased
+  note: origin/main at push time; delta is 5 Java XMage-MP test files, NO_RELEVANT_OVERLAP; branch NOT rebased
+- sha: f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1
+  note: current origin/main; delta is 1 Java XMage-MP overload test, NO_RELEVANT_OVERLAP; PR344 CLEAN/MERGEABLE
 branch: integration/legacy-donor-salvage-20260929
 worktree: /home/moeen/code/lab-legacy-donor-salvage-20260929
 owned_files:
@@ -139,8 +141,19 @@ drift_checks:
   delta_since_branch_base: 5 Java XMage-MP test files only, NO_RELEVANT_OVERLAP
   open_pr_union_checked: PR333 paths disjoint from owned files
   verdict: NO_RELEVANT_OVERLAP, no rebase, proceed to push + PR against current main
+- time_utc: '2026-09-29T20:00:00Z'
+  observed_main: f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1
+  delta_since_last: 1 Java XMage-MP overload test file, NO_RELEVANT_OVERLAP
+  pr_state: PR344 MERGEABLE/CLEAN at head 661d3743
+  verdict: NO_RELEVANT_OVERLAP, no merge per contract
 unknowns: []
 blockers: []
-next_action: final validation (complete qualification suite already green; run full repo Python suite + integrity/hash tests if justified), then push branch, create PR, monitor workflows, terminal handoff
+outputs:
+- branch: integration/legacy-donor-salvage-20260929
+  head: 661d3743cd8edbd65cda24f8df2c93c95323b158
+  tree: a0f9e2d934c48dbd5864ce4bd0aed6660da26d43
+  pr: 344
+  ci_exact_head_661d3743: 11 pass + 1 skipping (build-and-integrate, conformance, quality incl. mypy, security, windows-runtime, decision-workflow-contract, infrastructure, preflight, real-4p-smoke, h4-forge, h4-xmage pass; exact-main-admission skipping by design)
+next_action: terminal handoff LEGACY_DONOR_SALVAGE_HANDOFF_20260929; no merge without coordinator review
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
