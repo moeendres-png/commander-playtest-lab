@@ -328,8 +328,8 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
     bundle = json.loads(env["OPENCODE_CONFIG_CONTENT"])
-    # The omitted execution profile resolves to the primary executor.
-    assert bundle["model"] == "opencode-go/space-bunny-free"
+    # The omitted execution profile resolves to the primary DeepSeek executor.
+    assert bundle["model"] == "opencode-go/deepseek-v4.1-flash"
     assert bundle["permission"]["bash"]["git push*"] == "allow"
     assert bundle["permission"]["bash"]["git push origin main*"] == "deny"
     assert bundle["permission"]["bash"]["git push --force*"] == "deny"
@@ -472,7 +472,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         "sys.path.insert(0, os.environ['FOUNDARY_TOOLS'])\n"
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
-        "assert bundle['model'] == 'opencode-go/space-bunny-free', 'model lock missing'\n"
+        "assert bundle['model'] == 'opencode-go/deepseek-v4.1-flash', 'model lock missing'\n"
         "assert bundle['permission']['bash']['git push*'] == 'allow', 'delegated push missing'\n"
         "assert bundle['permission']['bash']['git push origin main*'] == 'deny', 'main-push deny missing'\n"
         "assert bundle['permission']['bash']['git push --force*'] == 'deny', 'force-push deny missing'\n"
@@ -654,8 +654,8 @@ def test_init_ready_for_all_three_profiles(
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    # The omitted execution profile resolves to the primary executor.
-    assert bundle["model"] == "opencode-go/space-bunny-free"
+    # The omitted execution profile resolves to the primary DeepSeek executor.
+    assert bundle["model"] == "opencode-go/deepseek-v4.1-flash"
     assert bundle["permission"]["bash"]["git push*"] == "allow"
     assert bundle["permission"]["bash"]["git push origin main*"] == "deny"
     assert bundle["permission"]["bash"]["git push --force*"] == "deny"
@@ -899,24 +899,16 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
     "override,profile,provider,model,resolved_override,variant",
     [
         # No flag resolves to the primary executor; an omitted profile must never
-        # fall through to the alternate.
-        (None, None, "opencode-go", "opencode-go/space-bunny-free", "space-bunny", "max"),
-        (None, "space-bunny", "opencode-go", "opencode-go/space-bunny-free", "space-bunny", "max"),
+        # fall through to the secondary.
+        (None, None, "opencode-go", "opencode-go/deepseek-v4.1-flash", "deepseek", "max"),
+        (None, "deepseek", "opencode-go", "opencode-go/deepseek-v4.1-flash", "deepseek", "max"),
         (
             None,
-            "muse",
+            "space-bunny",
             "opencode-go",
-            "opencode-go/muse-spark-1.3-contributor",
-            "muse",
-            "xhigh",
-        ),
-        (
-            "zen",
-            None,
-            "opencode",
-            "opencode/muse-spark-1.3-contributor-free",
-            "zen",
-            "",
+            "opencode-go/space-bunny-free",
+            "space-bunny",
+            "max",
         ),
     ],
 )
@@ -945,41 +937,40 @@ def test_ws190_execution_identity(
     context = json.loads(Path(plan["context_path"]).read_text())
     assert context["execution"]["provider"] == provider
     assert context["execution"]["model"] == model
-    # Telemetry must name the executor that actually runs: a "muse" label over a
-    # Space Bunny run would be a silent fallback.
+    # Telemetry must name the executor that actually runs: a "space-bunny" label over
+    # a DeepSeek run would be a silent fallback.
     assert context["execution"]["override"] == resolved_override
     assert context["execution"]["requested_effort"] == "high"
-    if override == "zen":
-        assert bundle["disabled_providers"] == ["opencode-go"]
-        assert bundle["small_model"] == model
-        variants = bundle["provider"][provider]["models"][model.split("/")[1]]["variants"]
-        assert all(v == {"disabled": True} for v in variants.values())
-        assert "reasoningEffort" not in json.dumps(bundle["provider"][provider])
-        for agent in bundle["agent"].values():
-            assert agent["model"] == model
-            assert agent["variant"] == ""
-    else:
-        assert "opencode" not in bundle["provider"]
-        # Every reachable agent is pinned to the selected executor at exactly one
-        # authorized native level, so no agent can silently run at another level.
-        for agent in bundle["agent"].values():
-            assert agent["model"] == model, agent
-            assert agent["variant"] == variant, agent
-        short = model.split("/", 1)[1]
-        assert bundle["provider"][provider]["whitelist"] == [short]
-        enabled = sorted(
-            name
-            for name, spec in bundle["provider"][provider]["models"][short]["variants"].items()
-            if spec != {"disabled": True}
-        )
-        assert enabled == [variant]
+    assert "opencode" not in bundle["provider"]
+    # Every reachable agent is pinned to the selected executor at exactly one
+    # authorized native level, so no agent can silently run at another level.
+    for agent in bundle["agent"].values():
+        assert agent["model"] == model, agent
+        assert agent["variant"] == variant, agent
+    short = model.split("/", 1)[1]
+    assert bundle["provider"][provider]["whitelist"] == [short]
+    enabled = sorted(
+        name
+        for name, spec in bundle["provider"][provider]["models"][short]["variants"].items()
+        if spec != {"disabled": True}
+    )
+    assert enabled == [variant]
     assert (canon / "opencode.json").read_bytes() == before
 
 
-@pytest.mark.parametrize("override", ["auto", "openai", "", "opencode"])
+@pytest.mark.parametrize("profile", ["muse", "glm", "muse-free-zen", "openai", "other", ""])
+def test_inactive_or_unknown_executor_profiles_are_refused(target, canon, profile):
+    """Muse and GLM are inactive; anything outside the two-profile set is refused."""
+    plan = _plan(target, canon, execution_profile=profile)
+    assert plan["verdict"] == "LAUNCH_REFUSED", plan
+    assert "unknown execution profile" in plan["error"]
+
+
+@pytest.mark.parametrize("override", ["zen", "auto", "openai", "", "opencode"])
 def test_ws190_unknown_override_refused(target, canon, override):
     plan = _plan(target, canon, execution_provider=override)
     assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "retired" in plan["error"]
 
 
 @pytest.mark.parametrize("effort", ["medium", "low", "minimal", "none", "off"])
@@ -990,9 +981,9 @@ def test_ws190_zen_below_high_refused(target, canon, effort):
 
 
 @pytest.mark.parametrize("result", [0, 7, 130, -2, "interrupt", "spawn-error"])
-@pytest.mark.parametrize("override", [None, "zen"])
-def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
-    plan = _plan(target, canon, **({"execution_provider": override} if override else {}))
+@pytest.mark.parametrize("profile", [None, "space-bunny"])
+def test_ws190_child_lifecycle(target, canon, monkeypatch, result, profile):
+    plan = _plan(target, canon, **({"execution_profile": profile} if profile else {}))
     assert plan["verdict"] == "LAUNCH_READY", plan
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
     real_run = subprocess.run
@@ -1015,8 +1006,7 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
     expected = 130 if result in ("interrupt", -2) else 127 if result == "spawn-error" else result
     assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == expected
     assert len(calls) == 1  # no fallback/retry, including provider failure
-    if override:
-        assert calls[0][3:5] == ["--model", launcher_mod.ZEN_MODEL]
+    assert calls[0][3:5] == ["--model", plan["execution"]["model"]]
     records = [
         json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
@@ -1024,7 +1014,8 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
     for record in records:
         assert record["model"] == plan["execution"]["model"]
         assert record["execution_provider"] == plan["execution"]["provider"]
-        assert record["execution_override"] == (override or "space-bunny")
+        assert record["execution_override"] == (profile or "deepseek")
+        assert record["native_variant"] == "max"
     assert records[-1]["exit_status"] == expected
     assert records[-1]["completed"] is (result == 0)
     assert records[-1]["interrupted"] is (result in ("interrupt", -2, 130))
@@ -1046,7 +1037,8 @@ def test_ws190_child_cannot_override_policy(target, canon, extra, monkeypatch):
 
 def test_ws190_ambient_permission_override_removed(target, canon, monkeypatch):
     monkeypatch.setenv("OPENCODE_PERMISSION", '{"bash":"allow"}')
-    plan = _plan(target, canon, execution_provider="zen")
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_READY", plan
     assert "OPENCODE_PERMISSION" not in plan["_env"]
 
 
@@ -1068,14 +1060,8 @@ def test_ws190_end_telemetry_failure_still_releases(target, canon, monkeypatch):
     lock.release()
 
 
-def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys):
-    captured = {}
-
-    def fake_init(**kwargs):
-        captured.update(kwargs)
-        return {"verdict": "LAUNCH_READY"}
-
-    monkeypatch.setattr(launcher_mod, "init", fake_init)
+def test_ws190_cli_refuses_retired_zen_provider_override(target, canon, capsys):
+    """The Zen Muse provider override is retired and always fails closed."""
     rc = launcher_mod.main(
         [
             "init",
@@ -1092,8 +1078,8 @@ def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys
             str(target["wt"].parent / "cli-run"),
         ]
     )
-    assert rc == 0
-    assert captured["execution_provider"] == "zen"
+    assert rc == 1
+    assert "retired" in capsys.readouterr().out
 
 
 # --- explicit Space Bunny execution profile ---------------------------------
@@ -1140,7 +1126,7 @@ def test_space_bunny_profile_rejects_conflicting_zen_override(target, canon):
         execution_provider="zen",
     )
     assert plan["verdict"] == "LAUNCH_REFUSED"
-    assert "cannot select different executors" in plan["error"]
+    assert "retired" in plan["error"]
 
 
 def test_space_bunny_profile_rejects_unknown_api_profile(target, canon):
@@ -1187,13 +1173,141 @@ def test_space_bunny_project_effort_maps_to_native_max(target, canon, effort):
     assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
 
 
-def test_muse_xhigh_does_not_fabricate_top_level_native_variant(target, canon):
-    plan = _plan(target, canon, execution_profile="muse", effort="xhigh")
+def test_no_executor_runs_below_its_native_max(target, canon):
+    """Both reachable profiles are native MAX; project effort never lowers them."""
+    for profile in launcher_mod.EXECUTION_PROFILES:
+        for effort in ("high", "xhigh"):
+            plan = _plan(target, canon, execution_profile=profile, effort=effort)
+            assert plan["verdict"] == "LAUNCH_READY", plan
+            assert plan["execution"]["native_variant"] == "max", profile
+            assert plan["execution"]["variant_resolution"] == "native_max", profile
+            assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max", profile
+            assert plan["_env"]["FOUNDRY_EFFORT"] == effort, profile
+            bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+            short = plan["execution"]["model"].split("/", 1)[1]
+            entry = bundle["provider"]["opencode-go"]["models"][short]
+            assert entry["options"] == {"reasoningEffort": "max"}
+            assert entry["variants"] == {"max": {}}
+
+
+@pytest.mark.parametrize("retired_name", ["muse-spark", "muse-free-zen", "glm-5"])
+def test_inactive_executors_absent_from_every_profile_bundle(target, canon, retired_name):
+    for profile in launcher_mod.EXECUTION_PROFILES:
+        plan = _plan(target, canon, execution_profile=profile)
+        assert plan["verdict"] == "LAUNCH_READY", plan
+        assert retired_name not in json.dumps(json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"]))
+
+
+def test_deepseek_primary_failure_never_falls_back_to_space_bunny(target, canon, monkeypatch):
+    """A DeepSeek child failure must not invoke any other executor."""
+    plan = _plan(target, canon, execution_profile="deepseek")
     assert plan["verdict"] == "LAUNCH_READY", plan
-    assert plan["execution"]["requested_effort"] == "xhigh"
-    assert plan["execution"]["variant_resolution"] == "canonical_agent_variant"
-    assert plan["execution"]["native_variant"] is None
-    assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    real_run = subprocess.run
+    calls = []
+
+    def child(args, **kwargs):
+        if args[0] == "git":
+            return real_run(args, **kwargs)
+        calls.append(args)
+        return subprocess.CompletedProcess(args, 7)
+
+    monkeypatch.setattr(launcher_mod.subprocess, "run", child)
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 7
+    # Exactly one child, pinned to DeepSeek. No retry, no switch to Space Bunny.
+    assert len(calls) == 1
+    assert calls[0][3:5] == ["--model", "opencode-go/deepseek-v4.1-flash"]
+    assert "opencode-go/space-bunny-free" not in " ".join(calls[0])
+    records = [
+        json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
+    ]
+    assert {r["execution_profile"] for r in records} == {"deepseek"}
+    assert {r["model"] for r in records} == {"opencode-go/deepseek-v4.1-flash"}
+
+
+def test_space_bunny_failure_never_invokes_another_executor(target, canon, monkeypatch):
+    """A Space Bunny child failure must not invoke any other executor."""
+    plan = _plan(target, canon, execution_profile="space-bunny")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    real_run = subprocess.run
+    calls = []
+
+    def child(args, **kwargs):
+        if args[0] == "git":
+            return real_run(args, **kwargs)
+        calls.append(args)
+        return subprocess.CompletedProcess(args, 7)
+
+    monkeypatch.setattr(launcher_mod.subprocess, "run", child)
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 7
+    assert len(calls) == 1
+    assert calls[0][3:5] == ["--model", "opencode-go/space-bunny-free"]
+    assert "deepseek" not in " ".join(calls[0])
+    records = [
+        json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
+    ]
+    assert {r["execution_profile"] for r in records} == {"space-bunny"}
+    assert {r["model"] for r in records} == {"opencode-go/space-bunny-free"}
+
+
+def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, monkeypatch):
+    """Telemetry/context must name the executor that actually ran."""
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    # Capture the real runner exactly once: re-reading it inside the loop would
+    # pick up the monkeypatch installed by the previous iteration.
+    real_run = subprocess.run
+
+    def child(args, **kwargs):
+        # Only the OpenCode child is stubbed; git and the CLI version probe must
+        # still run for real so the next profile can prepare and revalidate.
+        if "--auto" not in args:
+            return real_run(args, **kwargs)
+        return subprocess.CompletedProcess(args, 0)
+
+    for profile, model in launcher_mod.PROFILE_MODELS.items():
+        # A distinct run_dir per profile so each metrics.jsonl is this profile's own.
+        plan = _plan(
+            target,
+            canon,
+            execution_profile=profile,
+            run_dir=str(target["wt"].parent / f"rundir-{profile}"),
+        )
+        assert plan["verdict"] == "LAUNCH_READY", plan
+        monkeypatch.setattr(launcher_mod.subprocess, "run", child)
+        assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 0
+        context = json.loads(Path(plan["context_path"]).read_text())
+        assert context["execution"]["profile"] == profile
+        assert context["execution"]["model"] == model
+        assert context["execution"]["native_variant"] == "max"
+        assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == profile
+        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
+        records = [
+            json.loads(s)
+            for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
+        ]
+        assert {r["execution_profile"] for r in records} == {profile}
+        assert {r["model"] for r in records} == {model}
+        assert {r["native_variant"] for r in records} == {"max"}
+    monkeypatch.undo()
+
+
+def test_main_small_and_default_model_configuration_is_internally_consistent():
+    """model, small_model, build agent, and the GitHub lane must agree on one default."""
+    config = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
+    assert config["model"] == config["small_model"] == launcher_mod.CANONICAL_MODEL
+    assert launcher_mod.CANONICAL_MODEL == launcher_mod.DEEPSEEK_MODEL
+    models = config["provider"][launcher_mod.CANONICAL_PROVIDER]["models"]
+    short = config["model"].split("/", 1)[1]
+    assert config["provider"][launcher_mod.CANONICAL_PROVIDER]["whitelist"][0] == short
+    assert config["agent"]["build"] == {"variant": "max"}
+    assert models[short]["options"] == {"reasoningEffort": "max"}
+    assert [v for v, o in models[short]["variants"].items() if o != {"disabled": True}] == ["max"]
+    # The default profile must be the first whitelist row: no silent fallback.
+    assert launcher_mod.DEFAULT_EXECUTION_PROFILE == "deepseek"
+    assert launcher_mod.PRIMARY_EXECUTION_PROFILE == launcher_mod.DEFAULT_EXECUTION_PROFILE
+    assert launcher_mod.EXECUTION_PROFILES == ("deepseek", "space-bunny")
+    assert set(launcher_mod.PROFILE_MODELS) == set(launcher_mod.EXECUTION_PROFILES)
 
 
 def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
