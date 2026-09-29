@@ -795,6 +795,287 @@ class XmageActualCardCorpusTest {
         assertEquals(40, life(started, "P1"));
     }
 
+    /**
+     * Pays by the remaining unpaid symbols: the first coloured symbol still
+     * unpaid picks its land, otherwise {@code genericLand} pays generic. The
+     * pool only ever holds mana just produced, so pool choices are equivalent.
+     */
+    private static boolean payBySymbols(Started started, String tag,
+            Map<String, String> landForSymbol, String genericLand) {
+        JsonObject pending = started.session().pendingDecisionPayload()
+                .getAsJsonObject("decision");
+        String unpaid = pending.get("prompt").getAsString();
+        unpaid = unpaid.contains("<") ? unpaid.substring(0, unpaid.indexOf('<')) : unpaid;
+        String want = genericLand;
+        for (Map.Entry<String, String> entry : landForSymbol.entrySet()) {
+            if (unpaid.contains(entry.getKey())) {
+                want = entry.getValue();
+                break;
+            }
+        }
+        JsonObject pool = null;
+        JsonObject tap = null;
+        for (JsonElement element : started.session().legalActionsPayload()
+                .getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject meta = action.getAsJsonObject("metadata");
+            String type = meta.get("option_type").getAsString();
+            String label = meta.get("label").getAsString();
+            if ("mana_pool".equals(type) && pool == null) {
+                pool = action;
+            } else if ("mana_ability".equals(type) && label.startsWith(want)
+                    && (tap == null || action.get("action_id").getAsString()
+                            .compareTo(tap.get("action_id").getAsString()) < 0)) {
+                tap = action;
+            }
+        }
+        JsonObject pick = pool != null ? pool : tap;
+        assertNotNull(pick, "no " + want + " source for unpaid " + unpaid);
+        submit(started, tag, pick);
+        return true;
+    }
+
+    /** Names of the permanents offered by the current target decision. */
+    private static List<String> offeredTargetNames(Started started) {
+        List<String> names = new ArrayList<>();
+        for (JsonElement element : started.session().legalActionsPayload()
+                .getAsJsonArray("actions")) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata")
+                    .getAsJsonObject("xmage_option_metadata");
+            if (meta != null && meta.has("name")) {
+                names.add(meta.get("name").getAsString());
+            }
+        }
+        return names;
+    }
+
+    // ---------------------------------------------------------- batch 3 cards
+
+    /**
+     * CARD_07 Narset, Parter of Veils: "Each opponent can't draw more than one
+     * card each turn." P1 (Narset's opponent) casts Divination and draws one.
+     */
+    @Test
+    void narsetLimitsAnOpponentToOneDrawPerTurn() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(battlefield("P2", "Narset, Parter of Veils", 0));
+        objects.addAll(lands("P1", "Island", 3));
+        objects.add(hand("P1", "Divination", 0));
+        Started started = start("card07-narset", 2, objects);
+        int handBefore = handSize(started, "P1");
+        cast(started, "card07-cast", "Divination");
+        resolveAll(started, "card07", ISLAND_LABEL, NONE);
+        assertEquals(handBefore - 1 + 1, handSize(started, "P1"),
+                "Divination would draw two; Narset allows only one");
+    }
+
+    /**
+     * CARD_11 Wear // Tear with fuse: "Wear: Destroy target artifact. /
+     * Tear: Destroy target enchantment." Fused from hand, both halves resolve.
+     */
+    @Test
+    void wearTearFusedDestroysAnArtifactAndAnEnchantment() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Mountain", 2));
+        objects.add(battlefield("P1", "Plains", 0));
+        objects.add(hand("P1", "Wear // Tear", 0));
+        objects.add(battlefield("P2", "Ornithopter", 0));
+        objects.add(battlefield("P2", "Warstorm Surge", 0));
+        Started started = start("card11-weartear", 2, objects);
+
+        List<JsonObject> fused = offers(started, "Wear // Tear", "fuse", true);
+        if (fused.isEmpty()) {
+            fused = offers(started, "Wear // Tear", "Fuse", true);
+        }
+        assertEquals(1, fused.size(), "the fused cast must be offered from hand");
+        submit(started, "card11-fuse", fused.get(0));
+        resolveAll(started, "card11", null, (cls, step) -> {
+            if ("target".equals(cls)) {
+                List<String> names = offeredTargetNames(started);
+                String pick = names.contains("Ornithopter") && !names.contains("Warstorm Surge")
+                        ? "Ornithopter" : "Warstorm Surge";
+                chooseNamed(started, "card11-target-" + step, pick, 1);
+                return true;
+            }
+            if ("mana_payment".equals(cls)) {
+                return payBySymbols(started, "card11-pay-" + step,
+                        new java.util.LinkedHashMap<>(Map.of("{W}", "Plains")), "Mountain");
+            }
+            return false;
+        });
+        assertEquals(0, onBattlefield(started, "P2", "Ornithopter"), "Wear destroyed the artifact");
+        assertEquals(0, onBattlefield(started, "P2", "Warstorm Surge"),
+                "Tear destroyed the enchantment");
+    }
+
+    /**
+     * CARD_18 Shriekmaw: "When this creature enters, destroy target
+     * nonartifact, nonblack creature." Artifact and black creatures are never
+     * offered as targets.
+     */
+    @Test
+    void shriekmawDestroysOnlyANonartifactNonblackCreature() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Swamp", 5));
+        objects.add(hand("P1", "Shriekmaw", 0));
+        objects.add(battlefield("P2", "Grizzly Bears", 0));
+        objects.add(battlefield("P2", "Ornithopter", 0));
+        objects.add(battlefield("P2", "Vampire Nighthawk", 0));
+        Started started = start("card18-shriek", 2, objects);
+
+        cast(started, "card18-cast", "Shriekmaw");
+        List<List<String>> offered = new ArrayList<>();
+        resolveAll(started, "card18", SWAMP_LABEL, (cls, step) -> {
+            if ("choice".equals(cls)) {
+                // Evoke is an alternative cost chosen during casting: hardcast.
+                submit(started, "card18-normal-" + step, labelledWithout(started, "voke"));
+                return true;
+            }
+            if ("target".equals(cls)) {
+                offered.add(offeredTargetNames(started));
+                chooseNamed(started, "card18-target-" + step, "Grizzly Bears", 1);
+                return true;
+            }
+            return false;
+        });
+        assertEquals(List.of(List.of("Grizzly Bears")), offered,
+                "only the nonartifact, nonblack creature may be targeted");
+        assertEquals(0, onBattlefield(started, "P2", "Grizzly Bears"));
+        assertEquals(1, onBattlefield(started, "P2", "Ornithopter"));
+        assertEquals(1, onBattlefield(started, "P2", "Vampire Nighthawk"));
+        assertEquals(1, onBattlefield(started, "P1", "Shriekmaw"), "hardcast Shriekmaw stays");
+    }
+
+    /** CARD_18 Shriekmaw evoke {1}{B}: the ETB still destroys, then it is sacrificed. */
+    @Test
+    void shriekmawEvokeDestroysThenIsSacrificed() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Swamp", 2));
+        objects.add(hand("P1", "Shriekmaw", 0));
+        objects.add(battlefield("P2", "Grizzly Bears", 0));
+        Started started = start("card18-evoke", 2, objects);
+
+        cast(started, "card18e-cast", "Shriekmaw");
+        boolean[] evoked = {false};
+        resolveAll(started, "card18e", SWAMP_LABEL, (cls, step) -> {
+            if ("choice".equals(cls)) {
+                submit(started, "card18e-evoke-" + step, labelled(started, "voke"));
+                evoked[0] = true;
+                return true;
+            }
+            if ("target".equals(cls)) {
+                chooseNamed(started, "card18e-target-" + step, "Grizzly Bears", 1);
+                return true;
+            }
+            if ("trigger_order".equals(cls)) {
+                // Sacrifice and destroy are independent; either order ends
+                // with both creatures in their graveyards.
+                submit(started, "card18e-order-" + step, anyOrderingOption(started));
+                return true;
+            }
+            return false;
+        });
+        assertEquals(0, onBattlefield(started, "P2", "Grizzly Bears"));
+        assertEquals(0, onBattlefield(started, "P1", "Shriekmaw"));
+        assertTrue(evoked[0], "evoke must be offered as an alternative cost");
+        assertEquals(1, inGraveyard(started, "P1", "Shriekmaw"), "evoked Shriekmaw is sacrificed");
+    }
+
+    /**
+     * CARD_25 Basilisk Collar: "Equipped creature has deathtouch and
+     * lifelink. Equip {2}."
+     */
+    @Test
+    void basiliskCollarGrantsDeathtouchAndLifelinkWhenEquipped() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(battlefield("P1", "Basilisk Collar", 0));
+        objects.add(battlefield("P1", "Grizzly Bears", 0));
+        objects.addAll(lands("P1", "Mountain", 2));
+        Started started = start("card25-collar", 2, objects);
+        Permanent bears = permanent(started, "P1", "Grizzly Bears");
+        assertTrue(!bears.hasAbility(mage.abilities.keyword.DeathtouchAbility.getInstance(),
+                started.session().restorationGame()));
+
+        JsonObject equip = null;
+        for (JsonElement element : started.session().legalActionsPayload()
+                .getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            String label = action.getAsJsonObject("metadata").get("label").getAsString();
+            if (label.startsWith("Basilisk Collar") && label.contains("Equip")) {
+                assertTrue(equip == null, "unique equip offer");
+                equip = action;
+            }
+        }
+        assertNotNull(equip, "equip must be offered at sorcery speed in main phase");
+        submit(started, "card25-equip", equip);
+        resolveAll(started, "card25", MOUNTAIN_LABEL, (cls, step) -> {
+            if ("target".equals(cls)) {
+                submit(started, "card25-target-" + step, permanentTarget(started, bears));
+                return true;
+            }
+            return false;
+        });
+        Permanent equipped = permanent(started, "P1", "Grizzly Bears");
+        mage.game.Game game = started.session().restorationGame();
+        assertTrue(equipped.hasAbility(mage.abilities.keyword.DeathtouchAbility.getInstance(), game),
+                "equipped creature has deathtouch");
+        assertTrue(equipped.hasAbility(mage.abilities.keyword.LifelinkAbility.getInstance(), game),
+                "equipped creature has lifelink");
+    }
+
+    /** CARD_26 Burn Down the House, mode 1: 5 damage to each creature and planeswalker. */
+    @Test
+    void burnDownTheHouseDealsFiveToEachCreature() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Mountain", 5));
+        objects.add(hand("P1", "Burn Down the House", 0));
+        objects.add(battlefield("P1", "Shivan Dragon", 0));
+        objects.add(battlefield("P2", "Grizzly Bears", 0));
+        objects.add(battlefield("P2", "Narset, Parter of Veils", 0));
+        Started started = start("card26-burn", 2, objects);
+        cast(started, "card26-cast", "Burn Down the House");
+        resolveAll(started, "card26", MOUNTAIN_LABEL, (cls, step) -> {
+            if ("mode".equals(cls) || "choose_mode".equals(cls)) {
+                submit(started, "card26-mode-" + step, labelled(started, "5 damage"));
+                return true;
+            }
+            return false;
+        });
+        assertEquals(0, onBattlefield(started, "P1", "Shivan Dragon"), "5/5 takes 5: dies");
+        assertEquals(0, onBattlefield(started, "P2", "Grizzly Bears"));
+        assertEquals(0, onBattlefield(started, "P2", "Narset, Parter of Veils"),
+                "planeswalkers are hit too (Narset has 5 loyalty)");
+        assertEquals(40, life(started, "P2"), "players are not damaged");
+    }
+
+    /** CARD_26 Burn Down the House, mode 2: three 1/1 red Devils with haste. */
+    @Test
+    void burnDownTheHouseMakesThreeHastyDevils() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Mountain", 5));
+        objects.add(hand("P1", "Burn Down the House", 0));
+        Started started = start("card26-devils", 2, objects);
+        cast(started, "card26d-cast", "Burn Down the House");
+        resolveAll(started, "card26d", MOUNTAIN_LABEL, (cls, step) -> {
+            if ("mode".equals(cls) || "choose_mode".equals(cls)) {
+                submit(started, "card26d-mode-" + step, labelled(started, "Devil"));
+                return true;
+            }
+            return false;
+        });
+        assertEquals(3, onBattlefield(started, "P1", "Devil Token"), "three Devil tokens");
+        mage.game.Game game = started.session().restorationGame();
+        for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
+            if ("Devil Token".equals(permanent.getName())) {
+                assertEquals(1, permanent.getPower().getValue());
+                assertEquals(1, permanent.getToughness().getValue());
+                assertTrue(permanent.hasAbility(
+                        mage.abilities.keyword.HasteAbility.getInstance(), game),
+                        "Devils gain haste until end of turn");
+            }
+        }
+    }
+
     /** The source name of the spell or ability asking for the current target. */
     private static String targetSourceName(Started started) {
         JsonArray actions = started.session().legalActionsPayload().getAsJsonArray("actions");
@@ -847,6 +1128,21 @@ class XmageActualCardCorpusTest {
             }
         }
         assertNotNull(match, "no option labelled *" + fragment + "*: " + actions);
+        return match;
+    }
+
+    /** The single option whose label does not contain {@code fragment}. */
+    private static JsonObject labelledWithout(Started started, String fragment) {
+        JsonObject match = null;
+        JsonArray actions = started.session().legalActionsPayload().getAsJsonArray("actions");
+        for (JsonElement element : actions) {
+            JsonObject action = element.getAsJsonObject();
+            if (!action.getAsJsonObject("metadata").get("label").getAsString().contains(fragment)) {
+                assertTrue(match == null, "unique option without " + fragment + ": " + actions);
+                match = action;
+            }
+        }
+        assertNotNull(match, "no option without *" + fragment + "*: " + actions);
         return match;
     }
 

@@ -167,6 +167,17 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - At least one string does not describe its test: `microContinuousCrawlerPowerToughnessFromHand` is described as a "Bonehoard Dracosaur-era continuous-state fixture".
   - The Coordinator's known P1 (sorted-first mana helpers) applies.
   - Once receipts carry these, the assembler's native promotion would flip BLOCKED rows to PASS. A per-case wrong-reason audit is required before merge.
+- **F-11, P1: the Forge candidate executes a Lab-authored Rules change that contradicts Oracle for CARD_28 Find // Finality.** Added 2026-09-29; `DV`.
+  - Lab Forge commit `bc347e62` ("WS234: systemic Cleave identity plus Aftermath script fix", 2026-09-15) is part of the executing Rules Core `ef958ee9`.
+  - It added `K:Aftermath` to Finality in `forge-gui/res/cardsfolder/f/find_finality.txt` and rewrote the Oracle line to "Aftermath (Cast this spell only from your graveyard. Then exile it.)".
+  - Upstream Forge at the pinned baseline `a37a865a` has no aftermath, which is correct. Oracle (Scryfall, layout `split`, keywords `[]`) and the official WotC rulings (2018-10-05, 2022-12-08) treat Find // Finality as an ordinary split card. The 2018 ruling says: "Finality doesn't target the creature… You can cast it even if you control no creatures". Scryfall's 27-card `keyword:aftermath` list does not include it.
+  - The frozen CARD_28 fixture only names the card and states no aftermath obligation.
+  - Consequences:
+    - On the Forge candidate, Finality cannot be cast from hand and can be cast from the graveyard, both contrary to the rules.
+    - Forge's Forge-local "28/29, Find // Finality aftermath gap" framing, DeepSeek DS-01 (PR #287) and Forge PR #6 ("require Finality aftermath cast and real resolution") are built on the false premise. Forge #6's test asserts a graveyard Finality cast.
+  - XMage handles the card correctly: `XmageActualCardCorpusTest.findFinalityIsAPlainSplitCardCastableFromHandOnly`, runtime.
+  - The smallest remediation is reverting the WS234 hunk for `find_finality.txt` in the Forge fork. The Forge lane owner and the Coordinator decide, because it changes the executing Rules Core (PB-09) and PR #6's premise. Before crediting Forge #6, its test must be re-derived from Oracle.
+  - Scope check (`DV`): `find_finality.txt` is the only card script that Lab-authored commits changed between `a37a865a` and `ef958ee9`; the other 464 changed scripts come from upstream sync commits. Whether the Lab's Java changes in `forge-game` drift from Oracle is not covered here and remains UNKNOWN.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
   - The directory `SOURCE_LOCK.json` is stale.
