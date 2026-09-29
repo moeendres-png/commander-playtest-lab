@@ -15,7 +15,7 @@ Every defect below was demonstrated with actual cards: the test fails on the pre
 
 ## Forge — moeendres-png/forge#7 (stacked on #5, **not merged by design**)
 
-Head `d7d547f2`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as an exact head. Only `forge-protocol2-bridge` changes.
+Head `09427f5a`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as an exact head. Only `forge-protocol2-bridge` changes.
 
 | Defect | Rule | Before | After |
 |---|---|---|---|
@@ -33,12 +33,13 @@ Head `d7d547f2`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as 
 | Scry kept the library order; surveil, protection type, creature type, vote and pile choices not represented | CR 701.22a / 701.25a | scry could not reorder; the rest ended the session | away-subset, then top order one position at a time; engine-supplied choices framed (`ffde1b9e`) |
 | More than 4 simultaneous triggers (Wrath of God under Blood Artist, "each opponent" triggers) | CR 603.3b | `session_failed` | order chosen one position at a time (`d7d547f2`) |
 | More than 9 legal targets, including single-target spells, and retargeting | CR 115.3 / 601.2c | `session_failed` on any real 4P board ("any target" = 4 players plus creatures) | one target at a time from engine candidates, rechecked with `canTarget` (`d7d547f2`) |
+| Player options labelled only `[player]`; legal actions carried names only | — (multiplayer-only) | "choose an opponent" in 4P showed identical options; equally named objects of different players (two Sol Rings) could not be told apart | players named (`[player p3]`); every action carries `metadata.object_refs` (card id, name, controller, zone / `player_id`). Additive: labels and fingerprints unchanged (`09427f5a`) |
 | Emerge / offering (Elder Deep-Fiend, Distended Mindbender, …) | CR 702.119 / 702.48 | could never be cast that way (payment refused) | caster chooses the sacrifice, cost reduced, sacrifice only after payment; failed payment sacrifices nothing |
 
 Evidence:
 
-- `CombatBlockLegalityTest` 5/5, `OptionalCostChoiceTest` 2/2, `PayToPreventChoiceTest` 2/2, `ShockLandChoiceTest` 2/2, `TapTypeCostTest` 1/1, `CrewCostTest` 1/1, `NonManaCostPartsTest` 11/11 (Longtusk Cub, Induce Despair, Fervent Paincaster, Ninja of the Deep Hours, Wretched Gryff, Blazing Salvo, Windrider Wizard), `LibraryArrangementTest` 3/3, `ChoiceSurfacesTest` 3/3, `MultiplayerCombatTest` 2/2, `MultiplayerEliminationTest` 5/5, `MultiplayerTargetingTest` 3/3.
-- Full `forge.bridge.**` suite 341 (the one failure in the last full run was the Redirect test racing its own setup; after the fix it passed 3/3) (301 on `e15f37d6`); project checkstyle green.
+- `CombatBlockLegalityTest` 5/5, `OptionalCostChoiceTest` 2/2, `PayToPreventChoiceTest` 2/2, `ShockLandChoiceTest` 2/2, `TapTypeCostTest` 1/1, `CrewCostTest` 1/1, `NonManaCostPartsTest` 11/11 (Longtusk Cub, Induce Despair, Fervent Paincaster, Ninja of the Deep Hours, Wretched Gryff, Blazing Salvo, Windrider Wizard), `LibraryArrangementTest` 3/3, `ChoiceSurfacesTest` 4/4 (including Fact or Fiction in 4P), `MultiplayerCombatTest` 3/3 (including goad), `MultiplayerEliminationTest` 5/5, `MultiplayerTargetingTest` 3/3.
+- Full `forge.bridge.**` suite 343/343 (301 on `e15f37d6`); project checkstyle green.
 - Classification: `DIRECTLY_VERIFIED` (bridge runtime tests).
 
 **To consume it in the Lab**, moving `FORGE_WORKSPACE` is not enough. `src/commander_lab/qualification/current_boundary/source_lock.py` binds the Forge bridge evidence identity to #5 (`FORGE_BRIDGE_EVIDENCE_COMMIT` / `_TREE` / `_PR`). Receipts produced from #7 while that lock still names #5 would be internally inconsistent. The current-boundary owner must:
