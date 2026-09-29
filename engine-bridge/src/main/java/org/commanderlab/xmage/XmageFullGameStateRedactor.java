@@ -321,6 +321,13 @@ final class XmageFullGameStateRedactor {
             // card identities are deliberately absent until XMage marks them publicly known.
             p.addProperty("exile_count", game.getExile().getCardsOwned(game, player.getId()).size());
 
+            // CR 723.4: mark exactly the rows whose private in-game state this
+            // principal may observe. Downstream replay canonicalization relies on
+            // this explicit authorization rather than trusting stray private fields.
+            boolean privateStateVisible =
+                    canViewPrivateStateFor(game, actor, player.getId());
+            p.addProperty("private_state_visible", privateStateVisible);
+
             // WS92-D1 grant-scoped library identities (systemic reacquisition).
             // Populated ONLY while the viewer holds a Rules-entitled full look
             // at this library (D2 window around a library-zone decision);
@@ -330,7 +337,7 @@ final class XmageFullGameStateRedactor {
 
             // CR 723.4: the controller of a player sees the private in-game
             // information that player can see while the control relationship exists.
-            if (canViewPrivateStateFor(game, actor, player.getId())) {
+            if (privateStateVisible) {
                 JsonArray hand = new JsonArray();
                 for (Card card : player.getHand().getCards(game)) {
                     hand.add(publicCard(card));
@@ -400,6 +407,7 @@ final class XmageFullGameStateRedactor {
             JsonObject player = element.getAsJsonObject();
             replacePrincipalId(player, "player_id", rawAnchorId, publicAnchorId);
             player.remove("is_actor");
+            player.remove("private_state_visible");
             player.remove("hand");
             player.remove("mana_pool");
             player.remove("land_plays_remaining");

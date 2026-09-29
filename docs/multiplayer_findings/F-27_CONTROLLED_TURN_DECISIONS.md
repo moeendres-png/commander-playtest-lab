@@ -66,7 +66,7 @@ creates a second legality model. A missing engine controller fails closed.
 - `XmageMultiplayerTurnControlTest`: actual Mindslaver + Lightning Bolt at 4P
   and 5P; controlled player is never addressed during the controlled turn,
   `acting_for_seat` is explicit, and normal routing resumes next turn.
-- `XmageMultiplayerTurnControlPrivacyTest`: actual Mindslaver at 4P and 5P plus
+- `XmageMultiplayerTurnControlPrivacyTest`: actual Mindslaver at 2P through 5P plus
   actual Grizzly Bears identities restored face down. It proves:
   - no pre-control leak;
   - controlled face-down identity is visible to the controller;
@@ -78,3 +78,19 @@ creates a second legality model. A missing engine controller fails closed.
 
 No provider selection, Architecture Freeze, or global qualification credit is
 claimed by this bounded remediation.
+
+
+## Review remediation on merge path
+
+Three independent P1 findings were addressed before merge:
+
+- exported `decision_requested` and `decision_accepted` transcript events now
+  preserve `acting_for_seat`, so semantic audit records distinguish decisions
+  made for different controlled principals;
+- actor-state rows carry an explicit `private_state_visible` authorization bit
+  from the redactor. Replay canonicalization includes private fields only for
+  the actor or a row carrying that authorization, preserving the downstream
+  smuggled-opponent-field defense while binding controlled-player hand, mana,
+  land-play state, granted-library data, and face-down private identity;
+- actual-card Mindslaver routing and privacy qualification now executes at every
+  mandatory player count, 2P/3P/4P/5P.

@@ -344,6 +344,9 @@ final class XmageFullGameDecisionController {
         event.addProperty("kind", "decision_requested");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        if (request.has("acting_for_seat") && !request.get("acting_for_seat").isJsonNull()) {
+            event.addProperty("acting_for_seat", request.get("acting_for_seat").getAsInt());
+        }
         event.addProperty("prompt", request.get("prompt").getAsString());
         event.addProperty(
                 "public_state_reference",
@@ -372,6 +375,9 @@ final class XmageFullGameDecisionController {
         event.addProperty("kind", "decision_accepted");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
         event.addProperty("actor_seat", request.get("seat").getAsInt());
+        if (request.has("acting_for_seat") && !request.get("acting_for_seat").isJsonNull()) {
+            event.addProperty("acting_for_seat", request.get("acting_for_seat").getAsInt());
+        }
         event.addProperty("prompt", request.get("prompt").getAsString());
         JsonArray selectedTypes = new JsonArray();
         JsonArray selectedLabels = new JsonArray();

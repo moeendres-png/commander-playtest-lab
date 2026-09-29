@@ -21,20 +21,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-27 privacy companion: actual Mindslaver control at 4P/5P must inherit
- * exactly the controlled player's private in-game visibility under CR 723.4.
+ * F-27 privacy companion: actual Mindslaver control at 2P through 5P must
+ * inherit exactly the controlled player's private in-game visibility under CR 723.4.
  */
 class XmageMultiplayerTurnControlPrivacyTest {
 
     @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {4, 5})
+    @ValueSource(ints = {2, 3, 4, 5})
     void controllerGetsControlledPrivateVisibilityWithoutLeakingOtherPrincipals(int playerCount)
             throws Exception {
         String pn = "P" + playerCount;
-        String unrelated = "P2";
+        String unrelated = playerCount > 2 ? "P2" : null;
         String afterPn = "P" + (playerCount - 1);
         String pnBearSemantic = "obj:battlefield-" + pn + "-2-GrizzlyBears";
-        String otherBearSemantic = "obj:battlefield-" + unrelated + "-9-GrizzlyBears";
+        String otherBearSemantic = unrelated == null
+                ? null
+                : "obj:battlefield-" + unrelated + "-9-GrizzlyBears";
 
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Mindslaver", 0, Zone.BATTLEFIELD));
@@ -44,8 +46,10 @@ class XmageMultiplayerTurnControlPrivacyTest {
         objects.add(XmageMultiplayerScenario.obj(pn, "Lightning Bolt", 0, Zone.HAND));
         objects.add(XmageMultiplayerScenario.obj(pn, "Mountain", 1, Zone.BATTLEFIELD));
         objects.add(XmageMultiplayerScenario.obj(pn, "Grizzly Bears", 2, Zone.BATTLEFIELD));
-        objects.add(XmageMultiplayerScenario.obj(
-                unrelated, "Grizzly Bears", 9, Zone.BATTLEFIELD));
+        if (unrelated != null) {
+            objects.add(XmageMultiplayerScenario.obj(
+                    unrelated, "Grizzly Bears", 9, Zone.BATTLEFIELD));
+        }
 
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
                 "turn-control-privacy-" + playerCount + "p",
@@ -57,7 +61,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
         XmageNativeStateRestoration restoration = restoration(s.session);
         Player controller = s.seats.get("P1");
         Player controlled = s.seats.get(pn);
-        Player unrelatedPlayer = s.seats.get(unrelated);
+        Player unrelatedPlayer = unrelated == null ? null : s.seats.get(unrelated);
 
         XmageHiddenStateRestoration.apply(
                 game,
@@ -71,23 +75,29 @@ class XmageMultiplayerTurnControlPrivacyTest {
                         ))
                 )
         );
-        XmageHiddenStateRestoration.apply(
-                game,
-                s.seats,
-                restoration,
-                new XmageHiddenStateRestoration.Request(
-                        List.of(),
-                        List.of(new XmageHiddenStateRestoration.FaceDownState(
-                                otherBearSemantic,
-                                BecomesFaceDownCreatureEffect.FaceDownType.MANIFESTED
-                        ))
-                )
-        );
+        if (otherBearSemantic != null) {
+            XmageHiddenStateRestoration.apply(
+                    game,
+                    s.seats,
+                    restoration,
+                    new XmageHiddenStateRestoration.Request(
+                            List.of(),
+                            List.of(new XmageHiddenStateRestoration.FaceDownState(
+                                    otherBearSemantic,
+                                    BecomesFaceDownCreatureEffect.FaceDownType.MANIFESTED
+                            ))
+                    )
+            );
+        }
 
         String pnBearId = restoration.injectedObjectId(pnBearSemantic).toString();
-        String otherBearId = restoration.injectedObjectId(otherBearSemantic).toString();
+        String otherBearId = otherBearSemantic == null
+                ? null
+                : restoration.injectedObjectId(otherBearSemantic).toString();
         int pnSeat = XmageFullGameStateRedactor.seat(game, controlled.getId());
-        int unrelatedSeat = XmageFullGameStateRedactor.seat(game, unrelatedPlayer.getId());
+        int unrelatedSeat = unrelatedPlayer == null
+                ? -1
+                : XmageFullGameStateRedactor.seat(game, unrelatedPlayer.getId());
         int pnLife = controlled.getLife();
 
         // Before Mindslaver takes effect P1 has no derived entitlement.
@@ -143,15 +153,19 @@ class XmageMultiplayerTurnControlPrivacyTest {
                         battlefieldItem(pilot, pnBearId).get("private_identity").getAsString(),
                         "controller sees the controlled player's face-down identity"
                 );
-                assertFalse(
-                        battlefieldItem(pilot, otherBearId).has("private_identity"),
-                        "controller must not inherit an unrelated player's face-down identity"
-                );
+                if (otherBearId != null) {
+                    assertFalse(
+                            battlefieldItem(pilot, otherBearId).has("private_identity"),
+                            "controller must not inherit an unrelated player's face-down identity"
+                    );
+                }
                 assertTrue(playerRow(pilot, pnSeat).has("hand"));
-                assertFalse(
-                        playerRow(pilot, unrelatedSeat).has("hand"),
-                        "unrelated hand remains principal-scoped"
-                );
+                if (unrelatedPlayer != null) {
+                    assertFalse(
+                            playerRow(pilot, unrelatedSeat).has("hand"),
+                            "unrelated hand remains principal-scoped"
+                    );
+                }
 
                 XmageFullGameStateRedactor.beginZoneFullLook(controlled, controlled, game);
                 try {
@@ -163,12 +177,14 @@ class XmageMultiplayerTurnControlPrivacyTest {
                             controlledLibrary.size() > 0,
                             "controller inherits the controlled player's active library-look grant"
                     );
-                    assertEquals(
-                            0,
-                            playerRow(inheritedLook, unrelatedSeat)
-                                    .getAsJsonArray("granted_library").size(),
-                            "unrelated library remains hidden"
-                    );
+                    if (unrelatedPlayer != null) {
+                        assertEquals(
+                                0,
+                                playerRow(inheritedLook, unrelatedSeat)
+                                        .getAsJsonArray("granted_library").size(),
+                                "unrelated library remains hidden"
+                        );
+                    }
                 } finally {
                     XmageFullGameStateRedactor.endZoneFullLook(controlled, controlled);
                 }
@@ -190,13 +206,15 @@ class XmageMultiplayerTurnControlPrivacyTest {
                         ),
                         "controller receives the controlled player's look observation"
                 );
-                assertFalse(
-                        hasObservedTitle(
-                                XmageFullGameStateRedactor.actorView(game, unrelatedPlayer),
-                                "F-27 controlled look"
-                        ),
-                        "look observation must not leak to an unrelated principal"
-                );
+                if (unrelatedPlayer != null) {
+                    assertFalse(
+                            hasObservedTitle(
+                                    XmageFullGameStateRedactor.actorView(game, unrelatedPlayer),
+                                    "F-27 controlled look"
+                            ),
+                            "look observation must not leak to an unrelated principal"
+                    );
+                }
                 privacyChecked = true;
             }
 

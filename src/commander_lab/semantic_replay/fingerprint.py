@@ -375,6 +375,10 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             [e for e in players if isinstance(e, dict)],
             key=lambda e: int(e.get("seat", 0)),
         ):
+            private_visible = (
+                entry.get("is_actor") is True
+                or entry.get("private_state_visible") is True
+            )
             row: dict[str, Any] = {
                 "exile_count": entry.get("exile_count"),
                 "graveyard_count": entry.get("graveyard_count"),
@@ -390,11 +394,14 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             }
             battlefield = entry.get("battlefield")
             if isinstance(battlefield, list):
-                perms = [
-                    _public_permanent_key(item, mapping)
-                    for item in battlefield
-                    if isinstance(item, dict)
-                ]
+                perms = []
+                for item in battlefield:
+                    if not isinstance(item, dict):
+                        continue
+                    permanent = _public_permanent_key(item, mapping)
+                    if private_visible and isinstance(item.get("private_identity"), str):
+                        permanent["private_identity"] = item.get("private_identity")
+                    perms.append(permanent)
                 perms.sort(
                     key=lambda p: (
                         str(p.get("name")),
@@ -416,7 +423,7 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
                 cmds = [{"name": item.get("name")} for item in command if isinstance(item, dict)]
                 cmds.sort(key=lambda c: str(c.get("name")))
                 row["command"] = cmds
-            if entry.get("is_actor") is True:
+            if private_visible:
                 hand = entry.get("hand")
                 if isinstance(hand, list):
                     names = sorted(

@@ -1,5 +1,6 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.constants.Zone;
@@ -16,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-27: controlling another player's turn, with actual cards at 4P and 5P on
- * the full-game lane.
+ * F-27: controlling another player's turn, with actual cards at 2P through 5P
+ * on the full-game lane.
  *
  * <p>Mindslaver's Oracle reminder text says the controller sees all cards the
  * player could see and makes all decisions for that player. P1 targets PN, the
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class XmageMultiplayerTurnControlTest {
 
     @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {4, 5})
+    @ValueSource(ints = {2, 3, 4, 5})
     void theControllerMakesEveryDecisionForTheControlledPlayer(int playerCount) {
         String pn = "P" + playerCount;
         String afterPn = "P" + (playerCount - 1);
@@ -61,6 +62,7 @@ class XmageMultiplayerTurnControlTest {
                 assertEquals(afterPn, actor, "the next turn is decided by its own player");
                 assertFalse(actingFor, "no one acts for another player now");
                 assertEquals(pnLife - 3, s.seats.get(pn).getLife(), "P1 made PN bolt itself");
+                assertControlledSeatInExportedTranscript(s.session, pnSeat);
                 return;
             }
             if (pn.equals(active)) {
@@ -108,6 +110,25 @@ class XmageMultiplayerTurnControlTest {
             }
         }
         fail("the turn after PN's was not reached");
+    }
+
+    private static void assertControlledSeatInExportedTranscript(
+            XmageFullGameSession session, int controlledSeat) {
+        JsonArray transcript = session.resultPayload().getAsJsonArray("transcript");
+        boolean requested = false;
+        boolean accepted = false;
+        for (JsonElement element : transcript) {
+            JsonObject event = element.getAsJsonObject();
+            if (!event.has("acting_for_seat")
+                    || event.get("acting_for_seat").getAsInt() != controlledSeat) {
+                continue;
+            }
+            String kind = event.has("kind") ? event.get("kind").getAsString() : "";
+            requested |= "decision_requested".equals(kind);
+            accepted |= "decision_accepted".equals(kind);
+        }
+        assertTrue(requested, "exported transcript binds controlled seat on request");
+        assertTrue(accepted, "exported transcript binds controlled seat on acceptance");
     }
 
     private static List<String> handOf(JsonObject pilotState, int seat) {
