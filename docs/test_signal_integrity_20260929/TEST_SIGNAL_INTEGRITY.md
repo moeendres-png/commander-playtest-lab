@@ -131,7 +131,13 @@ model id was also removed from the file's `_export_fixture()` so no stale execut
 remains as test data. `tests/foundry/test_telemetry.py` now reports **12 passed, 0 skipped**
 instead of 11 passed, 1 skipped.
 
-Coverage went **up**, not down. The docstring records what was replaced and why.
+Coverage in CI terms went **up**: a test that never ran now runs. Honest accounting of
+the dimensions — the replacement is stronger on hermeticity, on executor correctness,
+and on exact token arithmetic, but **weaker on scale**: the old assertion
+`model_turns > 100` became `model_turns == 4`. That reduction is not hidden here. The
+old scale claim had zero CI coverage, so nothing that actually gated anything was lost,
+but the replacement is not a superset on that one axis. The docstring in the test records
+what was replaced and why.
 
 ---
 

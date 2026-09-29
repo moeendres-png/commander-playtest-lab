@@ -49,9 +49,26 @@ attached. Read the packet's own status/contract before relying on it.
 
 ## Two directories that differ only by separator
 
-`decision-quality/` (hyphen) and `decision_quality/` (underscore) both exist and are
-non-empty. Neither is referenced by `AGENTS.md` or by `foundry-execution/README.md`.
-Read the `README.md` inside each before assuming either is canonical.
+`decision_quality/` (underscore) and `decision-quality/` (hyphen) both exist and are
+non-empty. **They are not equivalent, and an earlier version of this file wrongly implied
+they were.** Adjudicated 2026-09-29:
+
+| | `decision_quality/` | `decision-quality/` |
+|---|---|---|
+| Referenced by workflows / `src/` | 2 / 1 | 0 / 0 |
+| Last content change | 2026-08-20 / 08-21 | 2026-08-15 |
+| Status | **live and machine-enforced** | **orphaned provenance** |
+
+`decision_quality/MODEL_PRECISION_POLICY_CURRENT.md` is read by a CI gate that fails the job
+unless three exact retirement markers are present
+(`.github/workflows/model-resolution-measurement.yml:65-72`), and by production code
+(`src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py:49`).
+
+That makes it a **documented exception** to the `AGENTS.md` §3 rule below: the rule is the
+correct default, and this one file is independently corroborated by enforcement. It is not a
+precedent for naming other documents `..._CURRENT`.
+
+Read the `README.md` inside each directory before assuming anything about either.
 
 ## Filename traps
 

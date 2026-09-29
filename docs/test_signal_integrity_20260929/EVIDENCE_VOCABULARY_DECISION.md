@@ -199,6 +199,18 @@ enumerated:
 **Zero** machine-readable assignments, **zero** prose class-position assignments.
 `QUALIFIED` is not a defect. Stated here so it is not raised a third time.
 
+**Reproduce (note the pinned base):**
+
+```bash
+git grep -o -w QUALIFIED 7055740ec2f08d4864bf7e200f7b48ace521fe57 | wc -l   # -> 15
+git grep -o -w RUNTIME_VERIFIED 7055740e -- '*.md' | wc -l                      # -> 26
+```
+
+The base commit is pinned deliberately. Both counts are **self-referential**: every
+document that reports them adds occurrences of the same token, so on this branch the
+same commands return 27 and 38. An unanchored count is stale the moment it is written,
+which is itself a small instance of the problem this package is about.
+
 ---
 
 ## 6. The decision surface

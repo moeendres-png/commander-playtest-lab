@@ -76,6 +76,9 @@ fixes_applied:
     deliberately_not_added: node_modules/ - this repo has no JS build and no package.json
   - id: F6
     surface: docs/decision_quality/README.md, docs/decision-quality/README.md, docs/README.md
+    note: >-
+      the docs/README.md update was initially written into the previous campaign's
+      already-merged worktree and never reached main; re-applied here
     change: adjudicated the separator twins
     correction: >-
       the prior campaign claimed the separator difference was not meaningful. It is: the
@@ -91,9 +94,11 @@ fixes_applied:
     surface: docs/project_hygiene_20260929/DOCUMENTATION_CANONICALIZATION.md
     change: corrected a false claim carried over from the previous campaign
     detail: >-
-      it stated QUALIFIED was a positive class in 12 md files; word-boundary search shows 15
-      occurrences of which 4 are "NOT QUALIFIED" in quoted PR titles and 1 a quoted commit
-      subject. Never a positive class. RUNTIME_VERIFIED is 26 occurrences / 16 md files, not 19.
+      it stated QUALIFIED was a positive class in 12 md files; word-boundary search at base
+      7055740e shows 15 tokens / 7 files of which 4 are "NOT QUALIFIED" in quoted PR titles
+      and 1 a quoted commit subject. Never a positive class. RUNTIME_VERIFIED is 26 tokens /
+      16 md files at that base, not 19. Counts are now pinned to the base commit because they
+      are self-referential.
 
 corrected_classifications:
   - prior: test_phase10_smoke_never_claims_external_validation may be a real assertion failure
