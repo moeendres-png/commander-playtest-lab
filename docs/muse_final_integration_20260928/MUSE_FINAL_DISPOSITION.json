@@ -97,30 +97,28 @@
   "assets": [
     {
       "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03DimensionAdmissionTest.java",
-      "disposition": "PORTED_TO_CLEAN_SALVAGE_BRANCH",
+      "disposition": "MERGED_CURRENT_MAIN_PR291",
       "credit": "ZERO_FULL107_CREDIT_BY_ITSELF"
     },
     {
       "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier1RowsTest.java",
-      "disposition": "PORTED_TO_INTEGRATION_PR_284",
-      "credit": "BLOCKED_PENDING_DISCRETION_HARDENING",
-      "finding": "payFromLabels selects sorted element zero when multiple mana offers exist"
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CURRENT_RUNTIME_REGRESSION_ASSET__QUALIFICATION_CREDIT_REQUIRES_NORMAL_RECEIPTS"
     },
     {
       "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2CmdZoneTest.java",
-      "disposition": "PORTED_TO_INTEGRATION_PR_284_CHARACTERIZATION",
-      "credit": "NOT_AUTO_PROMOTED"
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CHARACTERIZATION_REGRESSION__NOT_AUTO_PROMOTED"
     },
     {
       "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2ControlTurnTest.java",
-      "disposition": "PORTED_TO_INTEGRATION_PR_284",
-      "credit": "BLOCKED_PENDING_SHARED_MANA_HELPER_HARDENING"
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CURRENT_RUNTIME_REGRESSION_ASSET__QUALIFICATION_CREDIT_REQUIRES_NORMAL_RECEIPTS"
     },
     {
       "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2StackTest.java",
-      "disposition": "PORTED_TO_INTEGRATION_PR_284",
-      "credit": "BLOCKED_PENDING_DISCRETION_HARDENING",
-      "finding": "firstPoolSpend selects sorted element zero when multiple pool offers exist"
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CURRENT_RUNTIME_REGRESSION_ASSET__RNG_CHOICE_REMAINS_FAIL_CLOSED"
     },
     {
       "path": "qualification/pb03-wave1-20260928",
@@ -155,13 +153,18 @@
   "coordinator_gate": {
     "pr284_comment_id": 5879829287,
     "classification": "P1_EVIDENCE_INTEGRITY",
-    "requirement": "remove or semantically justify unscripted sorted-first mana/pool selections before affected current behavior credit"
+    "requirement": "remove or semantically justify unscripted sorted-first mana/pool selections before affected current behavior credit",
+    "original_pr284_comment_id": 5879829287,
+    "resolution": "RESOLVED_BY_CLEAN_HARDENED_PORT_PR292",
+    "canonical_merge_commit": "ca9356e3da662ce9e246e7f896f1a99772d59065",
+    "overlap_guard_pr284_comment_id": 5881400780
   },
   "flags": {
     "MUSE_INVENTORY_COMPLETE": true,
     "MUSE_UNIQUE_CODE_ADJUDICATED": true,
-    "MUSE_SAFE_VALUE_INTEGRATED": "PARTIAL_CLEAN_SALVAGE_BRANCH",
-    "MUSE_REMAINING_INTEGRATION_READY": true,
+    "MUSE_CODE_SALVAGE": "COMPLETE",
+    "MUSE_SAFE_VALUE_INTEGRATED": true,
+    "MUSE_REMAINING_INTEGRATION_READY": false,
     "MUSE_UNRESOLVED_UNKNOWN": false,
     "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
     "PRODUCTION_PROVIDER": "NOT_SELECTED"
@@ -174,5 +177,40 @@
       "receipt_comment_id": 5880021755,
       "final_state": "CLOSED_UNMERGED_BRANCH_RETAINED"
     }
-  ]
+  ],
+  "terminal_integration": {
+    "completed_at": "2026-09-29",
+    "main_after_pr292": "ca9356e3da662ce9e246e7f896f1a99772d59065",
+    "pr291": {
+      "merge_commit": "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd",
+      "disposition": "MERGED_CANONICAL",
+      "scope": "dimension admission discriminator + terminal Muse inventory"
+    },
+    "pr292": {
+      "merge_commit": "ca9356e3da662ce9e246e7f896f1a99772d59065",
+      "disposition": "MERGED_CANONICAL",
+      "scope": "hardened PB-03 Tier-1/Tier-2 runtime tests",
+      "exact_head": "dfb033675a8604d7827d09d69dca9691a201475c",
+      "exact_head_gates": [
+        "Production Qualification",
+        "CI",
+        "External XMage Integration",
+        "XMage Full Game Conformance",
+        "XMage Real 4P Technical Smoke",
+        "H4 Docker Materialization"
+      ],
+      "mana_selection_contract": [
+        "semantic_source_id_to_native_source_object_id",
+        "explicit_mana_type_for_multi_option_pool_spend",
+        "missing_or_ambiguous_match_fail_closed",
+        "no_sorted_first_or_firstPoolSpend"
+      ]
+    },
+    "pr284": {
+      "disposition": "ACTIVE_BROADER_CARRIER",
+      "muse_overlap": "SUPERSEDED_BY_CURRENT_MAIN_PR292",
+      "coordinator_overlap_receipt_comment_id": 5881400780
+    },
+    "historical_pass_transfer": false
+  }
 }

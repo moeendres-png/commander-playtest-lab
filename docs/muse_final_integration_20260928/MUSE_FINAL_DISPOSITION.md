@@ -1,5 +1,39 @@
 # Muse final integration disposition — 2026-09-29
 
+## Post-audit terminal integration update — 2026-09-29
+
+This section supersedes all audit-time statements below that describe the PB-03 Tier-1/Tier-2 Muse tests as still gated on PR #284.
+
+Canonical integration is now complete:
+
+- PR #291 merged at `afe09c61d4ad90f89c28ff75ac7439a20b89cfdd`.
+  - integrated `XmagePb03DimensionAdmissionTest.java` and the terminal Muse inventory/ledger;
+  - exact PR head passed Production Qualification, CI, External XMage Integration, XMage Full Game Conformance, XMage Real 4P Technical Smoke and H4 Docker Materialization;
+  - zero FULL107 behavior credit is granted merely from the dimension discriminator.
+- PR #292 merged at `ca9356e3da662ce9e246e7f896f1a99772d59065`.
+  - integrated the remaining Muse PB-03 Tier-1/Tier-2 runtime-test family on a clean current-main branch;
+  - removed donor-era sorted-first/action-id mana selection and `firstPoolSpend`;
+  - mana ability selection is bound by semantic test source id -> native `source_object_id`;
+  - multi-option pool spending is permitted only through an explicit engine-authored `mana_type` script;
+  - missing/ambiguous matches fail closed;
+  - `MICRO_RULES_RANDOMNESS` still stops at the real Heads/Tails choice because the frozen fixture supplies no legal discretionary call;
+  - exact PR head passed all six current gates listed above.
+- PR #284 remains active for independent non-Muse/current-boundary work. Its overlapping Muse test paths are superseded by current main and must not overwrite #292 semantics.
+
+No generated historical Muse PASS count was transferred. The merged tests are current regression assets; any qualification credit remains subject to the normal current receipt/impact-adjudication pipeline.
+
+`MUSE_CODE_SALVAGE = COMPLETE`
+
+`MUSE_SAFE_VALUE_INTEGRATED = YES`
+
+`MUSE_REMAINING_INTEGRATION_READY = NO`
+
+`MUSE_UNRESOLVED_UNKNOWN = NO`
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED`
+
+`PRODUCTION_PROVIDER = NOT SELECTED`
+
 ## Scope and source lock
 
 This ledger closes the repository-wide Muse salvage question for Commander Simulator Next.
@@ -347,15 +381,11 @@ No generated Muse PASS count or old provider result is copied.
 
 ## Remaining integration-ready Muse value
 
-The only remaining unique Muse code with current technical value is the PB-03 Tier-1/Tier-2 actual-runtime test family already ported on PR #284.
+None.
 
-Its status is fully known, not UNKNOWN:
-- implementation value: high;
-- production Rules code impact: none (test/evidence only);
-- automatic positive credit: blocked until unscripted mana selection is hardened and exact-head execution/receipts are regenerated;
-- command-zone characterization may remain non-credit test coverage.
+The remaining PB-03 Tier-1/Tier-2 runtime-test family was independently ported, discretion-hardened and merged through PR #292. The donor-era mana-choice P1 is resolved on current main.
 
-Once that P1 is fixed, the tests can be ported/cherry-picked independently of #284's four overlapping Lab paths if needed.
+PR #284 still contains overlapping historical/current variants of some of these test paths because it evolved into a broader completion carrier. Those Muse overlaps are not remaining value; current main is authoritative for the Muse test implementations.
 
 ## Historical Muse PR hygiene
 
@@ -372,7 +402,7 @@ PR #165 was closed without merge and without branch deletion.
 Disposition:
 `SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION`.
 
-Active PR #284 is not hygiene-closed because it still carries current integration-ready PB-03 test work. PR #291 is this clean final Muse-salvage carrier.
+PR #284 is not hygiene-closed because it has evolved into an active broader completion/current-boundary carrier. Its Muse PB-03 test overlap is superseded by current main through PR #292. PR #291 and PR #292 are both merged canonical Muse-salvage carriers.
 
 ## Terminal status
 
@@ -380,9 +410,9 @@ Active PR #284 is not hygiene-closed because it still carries current integratio
 
 `MUSE_UNIQUE_CODE_ADJUDICATED = YES`
 
-`MUSE_SAFE_VALUE_INTEGRATED = PARTIAL` — DimensionAdmission is integrated on the clean salvage branch; larger behavior suites are integration-ready but gated.
+`MUSE_SAFE_VALUE_INTEGRATED = YES` — DimensionAdmission and the hardened PB-03 Tier-1/Tier-2 runtime-test family are merged on current main through PRs #291 and #292.
 
-`MUSE_REMAINING_INTEGRATION_READY = YES`
+`MUSE_REMAINING_INTEGRATION_READY = NO`
 
 `MUSE_UNRESOLVED_UNKNOWN = NO`
 
