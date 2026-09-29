@@ -69,7 +69,9 @@ Rationale, verified against current source truth at Source Lock
    profile as `SUPERSEDED_BUT_REACHABLE` (stale markers) or `AMBIGUOUS`
    (marker-free), and either verdict fails the check and blocks unattended
    launch. A merged F1/F2 pointer file would therefore permanently trip the
-   gate it was meant to satisfy.
+   gate it was meant to satisfy. (These markers are inspected in *fork*
+   roots. This Lab repository has no `CLAUDE.md`, and never has; the
+   `AGENTS.md` name is the one that exists here.)
 3. Mirror discipline forbids the landing zone. Both fork `master` branches
    are upstream mirrors (fast-forward-only sync; no project-only commits —
    contract hard gate). Landing a project pointer on mirror `master` would

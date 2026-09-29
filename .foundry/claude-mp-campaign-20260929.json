@@ -2,11 +2,11 @@
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
   "worktree": "/home/moeen/code/claude-mp-apnap-20260929",
-  "branch": "claude/mp-campaign-handoff-20260929",
-  "audit_base_sha": "128e91185b66df92e4bec726abb89c7c20fbbb11",
-  "audit_base_tree": "aa0ccafd1105eb0c98bbdeb604328e1e0af25d97",
-  "state_written_against_head": "35025ff8561f6969d5395bff6439740da54056e7",
-  "validated_head": "35025ff8561f6969d5395bff6439740da54056e7",
+  "branch": "claude/mp-campaign-checkpoint-2-20260929",
+  "audit_base_sha": "72665dcea00d3c74b3272586a9b2794bb86fd93c",
+  "audit_base_tree": "bc16a510b2ff120298035af61372354b9dac422a",
+  "state_written_against_head": "72665dcea00d3c74b3272586a9b2794bb86fd93c",
+  "validated_head": "72665dcea00d3c74b3272586a9b2794bb86fd93c",
   "objective": "Autonomous multiplayer simulator advancement: actual-card 3-6P rules probes on the XMage full-game lane (APNAP triggers, each-player choices, split-attack block legality); fix defects at the correct layer.",
   "in_scope": [
     "engine-bridge full-game lane multiplayer decision surfaces (XmageFullGamePlayer)",
@@ -48,7 +48,12 @@
     "PR #319 MERGED: ReplacementOrder 8/8 (3-6P x both orders)",
     "PR #320, #322, #324, #329 MERGED",
     "PR #331 tempting offer 3-6P (4 pass + 1 disabled F-21); bridge suite 518/0/7 on main 92ac1cec",
-    "F-20/F-21 duplicate resolved: this campaign's #330 and mage#23 closed in favour of the parallel lane's #328 / mage#22 (opened earlier); coordination note on #328"
+    "F-20/F-21 duplicate resolved: this campaign's #330 and mage#23 closed in favour of the parallel lane's #328 / mage#22 (opened earlier); coordination note on #328",
+    "XMage candidate integration: moeendres-png/mage#24 f79e4168 (F-18+F-19+F-20+bounded F-21), native 72/72, full Mage.Tests 7001/0/0/125",
+    "Lab successor repin #337 MERGED (ba629ced): live pin f79e4168; WSR22 source_lock kept historical; successor lock qualification/xmage-mp-candidate-repin-20260929; bridge 538/0/1 via isolated Maven; h4-xmage PASS",
+    "F-24 (#338) attack-tax payments: fixed in #339 MERGED; XmageMultiplayerAttackTaxTest 6/6 (red 6/6 before)",
+    "Probes MERGED: #341 player protection (Teferi's Protection), #342 join forces (Minds Aglow), #343 overload (Cyclonic Rift); in CI: #352 APNAP replay 4P/5P, #353 extort",
+    "Forge unified successor moeendres-png/forge#11 (draft, not for master): #6 + #7 + #9 Finality correction; bridge 347/0, gui-desktop 458/0/6, checkstyle pass, exact-head CI all PASS"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -91,12 +96,11 @@
   ],
   "artifacts": [],
   "remaining_scope": [
-    "Lab repin + enable disabled F-18/F-19/F-21 Lab tests",
-    "F-15 restoration compare (restoration lane #304/#316)",
-    "Forge multiplayer ports (Forge lanes)",
-    "F-17 declaration-level blocker surface (P3)"
+    "F-15 restoration (restoration lane #304/#333)",
+    "~70 card-local each-player sacrifice loops starting at the controller (candidate for a later engine candidate)",
+    "further multiplayer actual-card probes"
   ],
-  "status": "COMPLETE",
+  "status": "ACTIVE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "hypotheses_rejected": [
     "APNAP mis-ordering: engine turn order is counterclockwise (PlayerList built by prepending); APNAP, priority and turns are consistent",
@@ -107,12 +111,13 @@
     "ENGINE_NATIVE_REUSE: block offers use CombatGroup.canBlock, the engine's own declareBlocker acceptance test"
   ],
   "authority_gates": [
-    "Lab repin onto an engine containing mage#19 (F-18), mage#20 (F-19) and the parallel lane's mage#21/#22 (F-20/F-21), then enable the disabled Lab tests: separate repin/impact-adjudication workstream (Coordinator)"
+    "Forge #11: Coordinator to accept #9 (Find // Finality Oracle correction) inclusion or require pure #6+#7",
+    "Successor current-boundary (FULL107) run on the new XMage pin before any current-boundary credit"
   ],
   "first_failing_boundary": "XmageFullGamePlayer.selectBlockers option construction (Permanent.canBlock)",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Coordinator: authorize the repin workstream.",
-  "exact_next_action": "Repin workstream: build an engine = pin + mage#19 + #20 + #21 + #22, re-pin the Lab, enable the disabled F-18/F-19/F-21 Lab tests, run the engine-bridge suite, impact-adjudicate.",
+  "exact_next_action": "Continue multiplayer probes; Coordinator decisions on Forge #11 and successor current-boundary run.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,
