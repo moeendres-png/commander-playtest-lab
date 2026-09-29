@@ -172,6 +172,10 @@ class XmageBridgePlayerFailClosedTest {
         );
         assertTrue(replacement.getMessage().contains("UNSUPPORTED_COMPATIBILITY_DECISION"));
 
+        // chooseMulligan is no longer an old default: it is now an explicit
+        // engine-authored external decision. Its positive and wrong-reason
+        // fail-closed coverage lives in XmageGenericExternalMulliganTest.
+
         assertThrows(
                 XmageGameManager.GameException.class,
                 () -> externallyControlled.selectAttackers(null, null)

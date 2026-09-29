@@ -36,6 +36,8 @@ class XmageEventLogLifecycleTest {
                 true
         );
         manager.startGame(first.gameHandle());
+        XmageGenericExternalMulliganSupport.keepAllToPriority(
+                manager, first.gameHandle(), 4);
 
         XmageGameManager.EventLogSnapshot started = manager.exportEventLog(
                 first.gameHandle(),

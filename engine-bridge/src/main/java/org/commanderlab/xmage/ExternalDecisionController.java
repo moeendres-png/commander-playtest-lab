@@ -13,6 +13,7 @@ import mage.target.Target;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
@@ -40,7 +41,12 @@ final class ExternalDecisionController {
     ) {
     }
 
+    private static final long RESPONSE_TIMEOUT_MILLIS = Duration.ofMinutes(2).toMillis();
+
     private Decision currentDecision;
+    private String submittedActionId;
+    private RuntimeException terminalFailure;
+    private boolean terminal;
     private long decisionOffset = 0L;
 
     synchronized Decision capturePriority(
@@ -220,9 +226,265 @@ final class ExternalDecisionController {
         return currentDecision;
     }
 
+    /**
+     * Publish the engine-authored keep/mulligan domain and block the XMage
+     * engine thread until the JSONL control thread submits one of those exact
+     * options. No keep/mulligan default exists on this path.
+     */
+    synchronized boolean requestMulligan(
+            Player player,
+            Game game
+    ) {
+        requireLiveController();
+        if (currentDecision != null) {
+            throw new IllegalStateException("CONCURRENT_EXTERNAL_DECISION");
+        }
+
+        decisionOffset++;
+        String gameId = game.getId().toString();
+        String actorId = player.getId().toString();
+        String decisionId = stableId(
+                gameId,
+                Long.toString(decisionOffset),
+                actorId,
+                "mulligan"
+        );
+
+        JsonObject keepMetadata = new JsonObject();
+        keepMetadata.addProperty("option_type", "keep");
+        JsonObject mulliganMetadata = new JsonObject();
+        mulliganMetadata.addProperty("option_type", "mulligan");
+
+        List<JsonObject> actions = List.of(
+                legalAction(
+                        decisionId,
+                        0,
+                        actorId,
+                        "mulligan",
+                        null,
+                        null,
+                        true,
+                        List.of(),
+                        new JsonObject(),
+                        new JsonObject(),
+                        keepMetadata
+                ),
+                legalAction(
+                        decisionId,
+                        1,
+                        actorId,
+                        "mulligan",
+                        null,
+                        null,
+                        true,
+                        List.of(),
+                        new JsonObject(),
+                        new JsonObject(),
+                        mulliganMetadata
+                )
+        );
+
+        Decision pending = new Decision(
+                gameId,
+                gameId,
+                decisionOffset,
+                decisionId,
+                actorId,
+                "mulligan",
+                true,
+                actions
+        );
+        currentDecision = pending;
+        submittedActionId = null;
+        notifyAll();
+
+        long deadlineNanos = System.nanoTime() + RESPONSE_TIMEOUT_MILLIS * 1_000_000L;
+        while (submittedActionId == null && terminalFailure == null && !terminal) {
+            long remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos <= 0L) {
+                RuntimeException failure = new IllegalStateException(
+                        "EXTERNAL_DECISION_TIMEOUT: " + decisionId + " kind=mulligan"
+                );
+                terminalFailure = failure;
+                currentDecision = null;
+                notifyAll();
+                throw failure;
+            }
+            try {
+                wait(Math.max(1L, remainingNanos / 1_000_000L));
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                RuntimeException failure = new IllegalStateException(
+                        "EXTERNAL_DECISION_TIMEOUT: interrupted while awaiting " + decisionId,
+                        exc
+                );
+                terminalFailure = failure;
+                currentDecision = null;
+                notifyAll();
+                throw failure;
+            }
+        }
+
+        if (terminalFailure != null) {
+            throw terminalFailure;
+        }
+        if (submittedActionId == null) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_ENDED_WITHOUT_RESPONSE: " + decisionId
+            );
+        }
+
+        JsonObject selected = pending.actions().stream()
+                .filter(action -> submittedActionId.equals(action.get("action_id").getAsString()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "EXTERNAL_DECISION_RESPONSE_NOT_IN_OFFER: " + submittedActionId
+                ));
+        String optionType = selected.getAsJsonObject("metadata")
+                .get("option_type").getAsString();
+
+        submittedActionId = null;
+        currentDecision = null;
+        notifyAll();
+        return "mulligan".equals(optionType);
+    }
+
+    /**
+     * Resolve the currently pending mulligan decision from an explicit external
+     * choice. bottom_card_ids must be empty here: London bottoming is a separate
+     * engine callback and remains fail-closed until that callback is projected.
+     */
+    synchronized String submitMulligan(
+            String engineGameId,
+            String decisionId,
+            String actorId,
+            boolean keep,
+            List<String> bottomCardIds
+    ) {
+        requireLiveController();
+        Decision decision = requireCurrentDecision(engineGameId);
+        if (!"mulligan".equals(decision.decisionKind())) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_KIND_MISMATCH: expected mulligan, observed "
+                            + decision.decisionKind()
+            );
+        }
+        if (!decision.decisionId().equals(decisionId)) {
+            throw new IllegalStateException("STALE_EXTERNAL_DECISION");
+        }
+        if (!decision.actorId().equals(actorId)) {
+            throw new IllegalStateException("EXTERNAL_DECISION_ACTOR_MISMATCH");
+        }
+        if (bottomCardIds != null && !bottomCardIds.isEmpty()) {
+            throw new IllegalStateException(
+                    "UNSUPPORTED_COMPATIBILITY_DECISION: London bottom-card selection "
+                            + "is a separate engine decision and cannot be injected here"
+            );
+        }
+
+        String wanted = keep ? "keep" : "mulligan";
+        List<JsonObject> matches = decision.actions().stream()
+                .filter(action -> action.has("metadata")
+                        && action.get("metadata").isJsonObject()
+                        && wanted.equals(action.getAsJsonObject("metadata")
+                                .get("option_type").getAsString()))
+                .toList();
+        if (matches.size() != 1) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_DOMAIN_INVALID: expected one " + wanted
+                            + " option, observed " + matches.size()
+            );
+        }
+        submittedActionId = matches.get(0).get("action_id").getAsString();
+        notifyAll();
+        return submittedActionId;
+    }
+
+    synchronized Decision awaitCurrentDecision(
+            String engineGameId,
+            Duration timeout
+    ) {
+        long timeoutMillis = timeout == null ? 20_000L : timeout.toMillis();
+        long deadlineNanos = System.nanoTime() + timeoutMillis * 1_000_000L;
+        while (currentDecision == null && terminalFailure == null && !terminal) {
+            long remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos <= 0L) {
+                throw new IllegalStateException("NO_EXTERNAL_DECISION_AVAILABLE");
+            }
+            try {
+                wait(Math.max(1L, remainingNanos / 1_000_000L));
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException(
+                        "EXTERNAL_DECISION_WAIT_INTERRUPTED", exc
+                );
+            }
+        }
+        return requireCurrentDecision(engineGameId);
+    }
+
+    synchronized Decision awaitDecisionAdvance(
+            String engineGameId,
+            String previousDecisionId,
+            Duration timeout
+    ) {
+        long timeoutMillis = timeout == null ? 20_000L : timeout.toMillis();
+        long deadlineNanos = System.nanoTime() + timeoutMillis * 1_000_000L;
+        while (terminalFailure == null && !terminal) {
+            if (currentDecision != null
+                    && !previousDecisionId.equals(currentDecision.decisionId())) {
+                return requireCurrentDecision(engineGameId);
+            }
+            long remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos <= 0L) {
+                throw new IllegalStateException(
+                        "EXTERNAL_DECISION_ADVANCE_TIMEOUT: " + previousDecisionId
+                );
+            }
+            try {
+                wait(Math.max(1L, remainingNanos / 1_000_000L));
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException(
+                        "EXTERNAL_DECISION_ADVANCE_INTERRUPTED", exc
+                );
+            }
+        }
+        if (terminalFailure != null) {
+            throw terminalFailure;
+        }
+        throw new IllegalStateException(
+                "EXTERNAL_DECISION_TERMINAL_WITHOUT_SUCCESSOR: " + previousDecisionId
+        );
+    }
+
+    synchronized void failClosed(String message, Throwable cause) {
+        if (terminalFailure == null) {
+            terminalFailure = new IllegalStateException(message, cause);
+        }
+        notifyAll();
+    }
+
+    synchronized void markTerminal() {
+        terminal = true;
+        notifyAll();
+    }
+
+    private void requireLiveController() {
+        if (terminalFailure != null) {
+            throw terminalFailure;
+        }
+        if (terminal) {
+            throw new IllegalStateException("EXTERNAL_DECISION_CONTROLLER_TERMINAL");
+        }
+    }
+
     synchronized Decision requireCurrentDecision(
             String engineGameId
     ) {
+        if (terminalFailure != null) {
+            throw terminalFailure;
+        }
         if (currentDecision == null) {
             throw new IllegalStateException(
                     "NO_EXTERNAL_DECISION_AVAILABLE"
