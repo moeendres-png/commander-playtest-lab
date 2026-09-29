@@ -4,10 +4,10 @@
 - Commander Lab audit base: `main@9e5788364dfc1d73af4912cc8a1e5e1b71b8353a`
 - Audit-base tree: `875f9810230b6cea4bf3e7341dd34aa3bef2eecf`
 - Prior live XMage pin: `f79e4168902e65063034b21be6f4585397fd43b3`
-- Frozen successor: `9cb5fb9e9558f980da81c85ca3fdc595161c8d34`
-- Successor tree: `54aabe958a1d748c8fb509d66ee25b0900bc8e90`
+- Frozen successor: `fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c`
+- Successor tree: `ba0d02bdf5e9d62361d68dbdfb7e729d46ce9aed`
 - Mage final PR: #26
-- Final candidate CI: Actions run `36621195990`
+- Final candidate CI: Actions run `36622158243`
 
 ## Semantic delta
 
