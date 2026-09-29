@@ -185,10 +185,10 @@ PB03_RUNTIME_CASES: dict[str, RuntimeCase] = {
         "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION",
     },
     "WS05-CMD-DMG-SAME-21": {
-        "class_name": "XmageCommanderDamageRestorationTest",
-        "method_name": "frozenDamageMatrixParsesAndBindsToGenuineCommanderNotSetupCopy",
-        "route": RESTORATION_PLUS_CAUSAL,
-        "semantic_relation": "NATIVE_RESTORATION_AND_WATCHER_EXECUTION",
+        "class_name": "XmageCausalEliminationReconstructionTest",
+        "method_name": "nineteenCommanderDamagePlusRealHastyCommanderCombatCausesLossAndCleanup",
+        "route": GENUINE_CAUSAL_DEVIATION,
+        "semantic_relation": "GENUINE_COMMANDER_COMBAT_FROM_RESTORED_19_DAMAGE",
     },
     "WS05-CMD-DMG-SPLIT": {
         "class_name": "XmageFull107ResidualRequalificationTest",
@@ -198,9 +198,9 @@ PB03_RUNTIME_CASES: dict[str, RuntimeCase] = {
     },
     "WS05-CMD-DMG-CONTROL": {
         "class_name": "XmageControlDivergenceReconstructionTest",
-        "method_name": "stolenCommanderKeepsNativeCommanderIdentityAndDamageWatcher",
+        "method_name": "stolenCommanderCombatDamageUsesOwnerIdentityAfterControlChange",
         "route": GENUINE_CAUSAL_DEVIATION,
-        "semantic_relation": "CONTROLLED_COMMANDER_IDENTITY_RUNTIME",
+        "semantic_relation": "CONTROLLED_COMMANDER_COMBAT_PRESERVES_OWNER_DAMAGE_IDENTITY",
     },
     "WS05-CMD-ELIM-4": {
         "class_name": "XmagePb03Tier1RowsTest",
