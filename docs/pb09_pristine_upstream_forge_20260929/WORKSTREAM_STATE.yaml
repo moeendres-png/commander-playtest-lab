@@ -70,7 +70,7 @@ forbidden:
   - no weakening of any test/detector to preserve a PASS figure
   - no mutation of foreign worktrees or Forge PR #5/#6 branches
 
-current_phase: PB09_RUNNER_AUTHORING
+current_phase: PB09_EVIDENCE_COMPLETE_HANDOFF
 completed_phases:
   - SOURCE_TRUTH_RECONCILIATION (origin/main afe09c61 read; open PRs inspected;
     PB-09 unclaimed verified; pin manifest + PB09 identity doc read)
@@ -82,18 +82,24 @@ completed_phases:
   - PHASE-3 pinned-bridge-materialization-and-build (4753bb7c Rules-Core
     byte-identical to a37a865a in all six modules; bridge built; cp-wsr22.txt
     resolves 2.0.14 only; BUILD SUCCESS)
-  - PHASE-4a runtime-reachability probe (RUNTIME_REACHABILITY.json; 4P lifecycle
-    observed live; PRISTINE_FORGE_RUNTIME_REACHABLE=YES for the pin lane)
-  - PHASE-6-partial hidden-info live observation (p1/p2 hand redaction observed;
-    no requester binding at the pin)
-  - Lane-B materialization (pristine + e15f37d6 bridge + 1 pom line; NOT built)
+  - PHASE-4 runtime-reachability (RUNTIME_REACHABILITY.json; 4P lifecycle
+    observed live; PRISTINE_FORGE_RUNTIME_REACHABLE=YES on the pin lane)
+  - PHASE-5 full107-execution (107 rows accounted: PASS 1, FAIL 4, UNKNOWN 58,
+    BLOCKED 44, 0 CRASH/TIMEOUT/PROTOCOL_FAILURE; denominator unchanged)
+  - PHASE-6 native-suite (59/59 green on the pristine candidate, receipt bound
+    to the pin with RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL)
+  - PHASE-7 wrong-reason-falsification (WRONG_REASON_FALSIFICATION.json; every
+    positive claim attacked; 3 candidate properties established, 1 attestation
+    gap recorded as UNKNOWN)
+  - PHASE-8 af-matrix-and-delta (AF00_AF11_PRISTINE_PIN.json,
+    PRISTINE_VS_FORK_DELTA_PIN.json; 8 BRIDGE_DIFFERENCE, 1
+    LAB_FORK_REGRESSION_OR_REPAIR_ABSENT_ON_PRISTINE (AF03), 4
+    PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED)
+  - PHASE-9 lane-b compile probe (LANE_B_CURRENT_BRIDGE_RECEIPT.json; the
+    current bridge does NOT compile against pristine; missing symbols traced
+    to WS40, WS217 and the fork seed surface)
 
-active_blockers:
-  - EXECUTOR_CONTINGENT: the GLM 5.3 session's model contingent was exhausted
-    before the PB-09 qualification runner was authored and the Lane-B compile
-    probe was run. This is an executor change directed by the user, not a
-    technical blocker and not an authority gate; the workstream resumes under
-    opencode-go/space-bunny-free at native max. Recorded, not hidden.
+active_blockers: []
 
 executor_handoff:
   from: opencode-go/glm-5.3 (max, direct manual session, FOUNDRY_RUNTIME_ACTIVE=NO)

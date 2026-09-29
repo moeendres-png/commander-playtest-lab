@@ -1,0 +1,108 @@
+{
+ "schema_version": "pb09.lane-b-receipt/1.0.0",
+ "workstream": "PB09-PRISTINE-UPSTREAM-FORGE-RUNTIME-BASELINE-20260929",
+ "lane": "current_bridge",
+ "question": "can the CURRENT provider architecture (the Lab's bridge head of record) be built and executed on the PRISTINE upstream Forge Rules Core, with no Lab Rules modification?",
+ "answer": "NO. The current bridge does not compile against the pristine upstream Rules Core. Its build fails closed on Rules-Core APIs that exist only in the Commander-Lab fork.",
+ "classification": "MISSING_ENGINE_CAPABILITY (pristine upstream lacks the Lab-added Rules-Core APIs the current bridge requires)",
+ "materialization": {
+  "workspace": "/home/moeen/code/pb09-forge-bridge-current-20260929",
+  "rules_core": {
+   "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+   "tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+   "source": "pristine upstream tag forge-2.0.14, checked out clean and detached"
+  },
+  "bridge_source": {
+   "commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+   "role": "the Lab's current bridge/evidence head of record (Forge PR #5, Draft), which is Rules-Core-identical to the fork head",
+   "materialisation": "forge-protocol2-bridge/ directory checked out from e15f37d6 into the pristine tree; the pristine root pom was given the same single <module> line the pin uses"
+  },
+  "build_configuration_repairs_applied": [
+   {
+    "item": "parent coordinate",
+    "problem": "the current bridge pom inherits ${revision} from the fork root pom, which uses the flatten-maven-plugin CI-friendly version idiom; the pristine 2.0.14 parent declares a literal <version>2.0.14</version> and defines no such property, so the parent could not be resolved",
+    "repair": "the bridge pom's parent coordinate was stated literally as 2.0.14, exactly as the pin-lane bridge pom already does",
+    "scope": "build configuration only; no bridge behaviour and no Rules-Core source were changed",
+    "classification": "ENVIRONMENT_DEFECT / BUILD_CONFIGURATION"
+   }
+  ],
+  "forbidden_repairs_not_applied": [
+   "the missing Rules-Core APIs were NOT ported into the pristine candidate",
+   "no Lab Rules semantic patch was copied into forge-game",
+   "no card-name hack, no expected-result edit, no engine-decision bypass, no manual outcome injection",
+   "no stub or shim was introduced to make the missing APIs resolve"
+  ]
+ },
+ "build_result": {
+  "command": "mvn -o -pl forge-protocol2-bridge -Dcheckstyle.skip=true -DskipTests test-compile",
+  "result": "BUILD FAILURE (COMPILATION ERROR)",
+  "rc": 1,
+  "meaning": "the current provider architecture cannot be realised on the pristine upstream engine without either changing the pristine Rules Core (forbidden) or giving up the capabilities the current bridge provides"
+ },
+ "missing_rules_core_apis": [
+  {
+   "symbol": "forge.game.player.PlayerController#assignCombatDamage(Card, CardCollectionView, CardCollectionView, int, GameEntity, boolean)",
+   "kind": "abstract method on the Rules-Core player-controller contract",
+   "lab_rules_workstream": "WS40",
+   "note": "WS40 'migrate combat damage legality into Forge Core' extended the upstream PlayerController contract; the bridge implements it to answer engine-owned damage assignment questions",
+   "consequence_without_it": "combat-damage allocation decisions cannot be answered externally on pristine upstream, because the upstream engine does not ask the question through this seam"
+  },
+  {
+   "symbol": "forge.game.combat.CombatDamageSelection",
+   "lab_rules_workstream": "WS40",
+   "note": "materialised WS40 combat-damage decision value type"
+  },
+  {
+   "symbol": "forge.game.combat.CombatDamageDecisionView",
+   "lab_rules_workstream": "WS40",
+   "note": "materialised WS40 combat-damage decision view"
+  },
+  {
+   "symbol": "forge.game.player.AmountDistributionDecisionView",
+   "lab_rules_workstream": "WS40",
+   "note": "materialised WS40 noncombat amount-distribution view"
+  },
+  {
+   "symbol": "forge.game.player.AmountDistributionSelection",
+   "lab_rules_workstream": "WS40",
+   "note": "materialised WS40 noncombat amount-distribution selection"
+  },
+  {
+   "symbol": "forge.game.player.DividedAllocationDecision",
+   "lab_rules_workstream": "WS217",
+   "note": "native Core-owned chooser-divided allocation seam (CR 601.2d)"
+  },
+  {
+   "symbol": "forge.game.player.DividedAllocationSelection",
+   "lab_rules_workstream": "WS217",
+   "note": "native Core-owned chooser-divided allocation seam (CR 601.2d)"
+  },
+  {
+   "symbol": "forge.game.player.DividedAllocationDecisionView",
+   "lab_rules_workstream": "WS217",
+   "note": "native Core-owned chooser-divided allocation seam (CR 601.2d)"
+  },
+  {
+   "symbol": "MyRandom#bindSeed(long) / getRootSeed() / isExplicitSeed() / clearBinding() / getCallCount()",
+   "lab_rules_workstream": "PB-08 / WSR28-WSR30 seed acknowledgement",
+   "note": "the fork's Rules-RNG seed surface; the current bridge reads the engine's accepted root seed from it to acknowledge a seed in the creation transaction",
+   "consequence_without_it": "no engine-accepted seed can be read back, so AF09-style controlled Rules RNG cannot be established on pristine upstream through this bridge even if it compiled"
+  }
+ ],
+ "root_cause": {
+  "statement": "the capabilities the fork-lane evidence measures are, in these specific respects, capabilities of the Commander-Lab Rules-Core fork rather than of pristine upstream Forge",
+  "detail": "each missing symbol is a type or method that exists at the fork head and is absent at the pinned upstream release. The current bridge compiles against them, so the current provider architecture is coupled to Lab Rules-Core additions. This is direct compile evidence for the PB-09 hypothesis that part of the Forge column measures Lab's own engine work.",
+  "attribution": "LAB_FORK_ADDED_CAPABILITY (confirmed by compilation, not by chronology alone)"
+ },
+ "what_remains_possible_on_the_pristine_candidate": {
+  "statement": "a narrower provider surface does run on pristine upstream",
+  "evidence": "the pinned bridge source 4753bb7c carries the pristine Rules Core byte-identically and executed a full four-player Commander lifecycle in this workstream with 59 native tests green; see RUNTIME_REACHABILITY.json and FULL107_PRISTINE_PIN_RESULTS.json",
+  "tradeoff": "that surface is four-player only, declares seed_supported=false, refuses replay and event-log export, and does not enforce Commander deck legality at import"
+ },
+ "not_claimed": [
+  "no claim that pristine upstream Forge is inferior as a Rules engine; the measurement is of the provider surface available, not of Magic legality",
+  "no claim that any missing symbol is unnecessary; each may be a legitimate design, and their absence upstream is a fact about upstream, not a verdict on it",
+  "PRODUCTION_PROVIDER = NOT SELECTED; ARCHITECTURE_FREEZE = NOT CLAIMED; PB-09 remains OPEN for the Coordinator"
+ ],
+ "classification_note": "DIRECTLY_VERIFIED: the build failure and every missing symbol were observed by executing the real build against the real pristine candidate; the mapping to a workstream tag is traced from the symbol's documented provenance, not inferred from date order"
+}

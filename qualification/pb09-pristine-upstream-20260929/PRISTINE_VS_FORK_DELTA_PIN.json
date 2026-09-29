@@ -1,0 +1,351 @@
+{
+ "compared": {
+  "fork_lane": {
+   "engine_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+   "engine_identity": "COMMANDER_LAB_FORGE_FORK (Lab-modified Rules Core)"
+  },
+  "pristine": {
+   "bridge": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+   "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+   "engine_identity": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD"
+  }
+ },
+ "counts_by_classification": {
+  "BRIDGE_DIFFERENCE": 8,
+  "DIFFERENT_VALUES": 2,
+  "EVIDENCE_PRESENCE_DIFFERENCE": 2,
+  "LAB_FORK_REGRESSION_OR_REPAIR_ABSENT_ON_PRISTINE": 1,
+  "PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED": 4,
+  "SAME_ON_BOTH_SURFACES": 18,
+  "SAME_VERDICT": 9
+ },
+ "dimensions": [
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:action_submission_supported",
+   "fork_lane_surface": false,
+   "note": "no difference",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:commander_damage_visible",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:commander_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:commander_tax_visible",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:concede_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:deck_import_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:engine_shutdown_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:event_log_supported",
+   "fork_lane_surface": false,
+   "note": "no difference",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:game_shutdown_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:headless_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:healthcheck_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:legal_actions_supported",
+   "fork_lane_surface": false,
+   "note": "no difference",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "DIFFERENT_VALUES",
+   "dimension": "capability:max_players",
+   "fork_lane_surface": 6,
+   "note": "pinned=4 fork=6",
+   "pristine_pinned_surface": 4
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:min_players",
+   "fork_lane_surface": 2,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": null
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:mode_selection_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:mulligan_supported",
+   "fork_lane_surface": false,
+   "note": "no difference",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:multiplayer_supported",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "DIFFERENT_VALUES",
+   "dimension": "capability:notes",
+   "fork_lane_surface": [
+    "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms and priority concession; multi-target/divided, combat, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+    "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "note": "pinned=['bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies', 'partner commanders import but pod-level partner lifecycle is not yet qualified', 'mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly', 'seeds are rejected: engine RNG is global and same-seed determinism is not claimed', 'external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only', 'replay is not offered: deterministic replay is not claimed'] fork=['WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms and priority concession; multi-target/divided, combat, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies', 'partner commanders import but pod-level partner lifecycle is not yet qualified', 'mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly', 'seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism', 'scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected', 'external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only', 'replay is not offered: deterministic replay is not claimed']",
+   "pristine_pinned_surface": [
+    "bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are rejected: engine RNG is global and same-seed determinism is not claimed",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ]
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:partner_supported",
+   "fork_lane_surface": false,
+   "note": "no difference",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:priority_visible",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:replay_supported",
+   "fork_lane_surface": false,
+   "note": "no difference",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:runtime_kind",
+   "fork_lane_surface": "external_rules_engine",
+   "note": "no difference",
+   "pristine_pinned_surface": "external_rules_engine"
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:scenario_injection_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:seed_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_ON_BOTH_SURFACES",
+   "dimension": "capability:stack_visible",
+   "fork_lane_surface": true,
+   "note": "no difference",
+   "pristine_pinned_surface": true
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:starting_state_injection_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:target_selection_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "BRIDGE_DIFFERENCE",
+   "dimension": "capability:trigger_order_supported",
+   "fork_lane_surface": true,
+   "note": "the current fork-lane provider surface offers this capability and the pinned bridge surface does not; it is a transport/provider-surface difference, not a difference in the Rules Core",
+   "pristine_pinned_surface": false
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF00",
+   "fork_lane_surface": "PASS",
+   "note": "SOURCE_AND_BUILD_LOCK",
+   "pristine_pinned_surface": "PASS"
+  },
+  {
+   "classification": "EVIDENCE_PRESENCE_DIFFERENCE",
+   "dimension": "gate:AF01",
+   "fork_lane_surface": "PASS",
+   "note": "PROTOCOL_HANDSHAKE",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "EVIDENCE_PRESENCE_DIFFERENCE",
+   "dimension": "gate:AF02",
+   "fork_lane_surface": "PASS",
+   "note": "PLAYER_CARDINALITY",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "LAB_FORK_REGRESSION_OR_REPAIR_ABSENT_ON_PRISTINE",
+   "dimension": "gate:AF03",
+   "fork_lane_surface": "PASS",
+   "note": "RULES_AUTHORITY",
+   "pristine_pinned_surface": "FAIL"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF04",
+   "fork_lane_surface": "UNKNOWN",
+   "note": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF05",
+   "fork_lane_surface": "UNKNOWN",
+   "note": "HIDDEN_INFORMATION",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF06",
+   "fork_lane_surface": "UNKNOWN",
+   "note": "GENERAL_RULES_CORRECTNESS",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF07",
+   "fork_lane_surface": "UNKNOWN",
+   "note": "ACTUAL_CARD_BEHAVIOR",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF08",
+   "fork_lane_surface": "UNKNOWN",
+   "note": "MULTIPLAYER_COMMANDER",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF09",
+   "fork_lane_surface": "UNKNOWN",
+   "note": "RNG_REPLAY",
+   "pristine_pinned_surface": "UNKNOWN"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF10",
+   "fork_lane_surface": "PASS",
+   "note": "RUNTIME_EVIDENCE_RELIABILITY",
+   "pristine_pinned_surface": "PASS"
+  },
+  {
+   "classification": "SAME_VERDICT",
+   "dimension": "gate:AF11",
+   "fork_lane_surface": "FAIL",
+   "note": "INTEROP_LICENSE_TOPOLOGY",
+   "pristine_pinned_surface": "FAIL"
+  },
+  {
+   "classification": "PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED",
+   "dimension": "row:PLAYER_COUNT_2P",
+   "fork_lane_surface": "PASS",
+   "note": "lifecycle runtime failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 2",
+   "pristine_pinned_surface": "FAIL"
+  },
+  {
+   "classification": "PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED",
+   "dimension": "row:PLAYER_COUNT_3P",
+   "fork_lane_surface": "PASS",
+   "note": "lifecycle runtime failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 3",
+   "pristine_pinned_surface": "FAIL"
+  },
+  {
+   "classification": "PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED",
+   "dimension": "row:PLAYER_COUNT_5P",
+   "fork_lane_surface": "PASS",
+   "note": "lifecycle runtime failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 5",
+   "pristine_pinned_surface": "FAIL"
+  },
+  {
+   "classification": "PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED",
+   "dimension": "row:WS05-CMD-START-2",
+   "fork_lane_surface": "PASS",
+   "note": "START-2 lifecycle failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 2",
+   "pristine_pinned_surface": "FAIL"
+  }
+ ],
+ "lane": "pin",
+ "method": "per-dimension comparison of observed state, classified by owner. Aggregate PASS counts are deliberately not compared: the two columns executed different engines, so a count difference would measure the difference between the two artifacts rather than the capability of either one.",
+ "no_ranking": "this packet contains no score, no ranking and no preferred provider",
+ "schema_version": "pb09.pristine-vs-fork-delta/1.0.0"
+}

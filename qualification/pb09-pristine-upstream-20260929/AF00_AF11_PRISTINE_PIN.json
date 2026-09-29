@@ -1,0 +1,584 @@
+{
+ "boundary": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+ "candidate": "forge",
+ "candidate_identity": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+ "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+ "full107_counts": {
+  "BLOCKED": 44,
+  "CRASH": 0,
+  "FAIL": 4,
+  "PASS": 1,
+  "PROTOCOL_FAILURE": 0,
+  "TIMEOUT": 0,
+  "UNKNOWN": 58
+ },
+ "gate_verdict_summary": {
+  "AF00": "PASS",
+  "AF01": "UNKNOWN",
+  "AF02": "UNKNOWN",
+  "AF03": "FAIL",
+  "AF04": "UNKNOWN",
+  "AF05": "UNKNOWN",
+  "AF06": "UNKNOWN",
+  "AF07": "UNKNOWN",
+  "AF08": "UNKNOWN",
+  "AF09": "UNKNOWN",
+  "AF10": "PASS",
+  "AF11": "FAIL"
+ },
+ "gates": [
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "provider reported engine commit a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "evidence is about a37a865a53280dd8ad6fad3384d69611e8c5a42f (the pinned pristine candidate)",
+    "provenance: env:FORGE_ENGINE_SHA",
+    "executing checkout adapter commit: 4753bb7c72ea60d653121e0bab989077b4009f9c",
+    "Rules-Core equivalence re-proven at run time: \"RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL\""
+   ],
+   "gate": "AF00",
+   "name": "SOURCE_AND_BUILD_LOCK",
+   "nonblocking_limitations": [
+    "the provider reports its engine commit from the FORGE_ENGINE_SHA environment variable rather than deriving it from the built Forge bytes, so the commit-to-build binding is operator-supplied, not build-proven (PB-05)",
+    "the commit itself is proven pristine independently of the provider, by the upstream tag dereference and the two-remote object check"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "20 AF01 v2 invariants executed under Protocol 2.0.0",
+    "lane: protocol2-jsonl",
+    "capabilities provider-reported: {\"action_submission_supported\": false, \"commander_damage_visible\": true, \"commander_supported\": true, \"commander_tax_visible\": true, \"concede_supported\": false, \"deck_import_supported\": true, \"engine_shutdown_supported\": true, \"event_log_supported\": false, \"game_shutdown_supported\": true, \"headless_supported\": true, \"healthcheck_supported\": true, \"legal_actions_supported\": false, \"max_players\": 4, \"mode_selection_supported\": false, \"mulligan_supported\": false, \"multiplayer_supported\": true, \"notes\": [\"bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies\", \"partner commanders import but pod-level partner lifecycle is not yet qualified\", \"mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly\", \"seeds are rejected: engine RNG is global and same-seed determinism is not claimed\", \"external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only\", \"replay is not offered: deterministic replay is not claimed\"], \"partner_supported\": false, \"priority_visible\": true, \"replay_supported\": false, \"runtime_kind\": \"external_rules_engine\", \"scenario_injection_supported\": false, \"seed_supported\": false, \"stack_visible\": true, \"starting_state_injection_supported\": false, \"target_selection_supported\": false, \"trigger_order_supported\": false}"
+   ],
+   "gate": "AF01",
+   "name": "PROTOCOL_HANDSHAKE",
+   "nonblocking_limitations": [
+    "the decision-time invariants were probed against a live four-player game, because this provider surface refuses every other player count; the invariants are player-count independent, and the count used is recorded"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "all_or_nothing": true,
+   "blocking_rows": [
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_5P"
+   ],
+   "evidence": [
+    "counts without a complete lifecycle are UNKNOWN, not a candidate failure: [2, 3, 5] are incomplete",
+    "counts with a complete lifecycle: [4]",
+    "counts without one: [2, 3, 5]",
+    "every count 2P-6P was ATTEMPTED; the refusals are the provider's own player_count_unsupported responses, not unexecuted rows"
+   ],
+   "gate": "AF02",
+   "lifecycle_assessment": {
+    "all_or_nothing": true,
+    "complete_counts": [
+     4
+    ],
+    "detail": {
+     "2P": {
+      "bound_external_choices": 0,
+      "complete": false,
+      "completed_steps": [
+       "handshake",
+       "import_deck"
+      ],
+      "missing_steps": [
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "reasons": [
+       "the lifecycle reported a failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 2",
+       "the lifecycle never completed: create_commander_game, start_game, decision_drive",
+       "no external priority decision was ever reached",
+       "no externally supplied discretionary decision was bound to an engine-offered option"
+      ],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "3P": {
+      "bound_external_choices": 0,
+      "complete": false,
+      "completed_steps": [
+       "handshake",
+       "import_deck"
+      ],
+      "missing_steps": [
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "reasons": [
+       "the lifecycle reported a failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 3",
+       "the lifecycle never completed: create_commander_game, start_game, decision_drive",
+       "no external priority decision was ever reached",
+       "no externally supplied discretionary decision was bound to an engine-offered option"
+      ],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "4P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "5P": {
+      "bound_external_choices": 0,
+      "complete": false,
+      "completed_steps": [
+       "handshake",
+       "import_deck"
+      ],
+      "missing_steps": [
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "reasons": [
+       "the lifecycle reported a failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 5",
+       "the lifecycle never completed: create_commander_game, start_game, decision_drive",
+       "no external priority decision was ever reached",
+       "no externally supplied discretionary decision was bound to an engine-offered option"
+      ],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     }
+    },
+    "incomplete_counts": [
+     2,
+     3,
+     5
+    ],
+    "reason": "counts without a complete lifecycle are UNKNOWN, not a candidate failure: [2, 3, 5] are incomplete",
+    "required_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "verdict": "UNKNOWN"
+   },
+   "name": "PLAYER_CARDINALITY",
+   "nonblocking_limitations": [
+    "2P, 3P, 5P and 6P are refused by the provider's bridge surface, so AF02 cannot be established for the pristine candidate on this surface"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "accepted_illegal_decks": [
+    "commander_not_in_pool",
+    "colour_identity_violation"
+   ],
+   "authority": "ENGINE_ONLY",
+   "blocking_rows": [
+    "commander_not_in_pool",
+    "colour_identity_violation"
+   ],
+   "evidence": [
+    "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_non_commander: FAIL (the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules)",
+    "deck_import_rejects_colour_identity_violation: FAIL (the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules)",
+    "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+   ],
+   "gate": "AF03",
+   "name": "RULES_AUTHORITY",
+   "observed_probe_count": 5,
+   "reading": "the pristine engine accepted a deck with a real non-Commander as commander and a deck whose colour identity violates the commander's, while refusing an unknown card name, a short mainboard and an empty mainboard. Deck-size and name validity are enforced at this import boundary; Commander format legality is not.",
+   "verdict": "FAIL"
+  },
+  {
+   "blocking_rows": [
+    "PILOT_PRIORITY",
+    "PILOT_TARGET",
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_TARGET_AMOUNT",
+    "PILOT_MULLIGAN",
+    "PILOT_CHOOSE_USE",
+    "PILOT_CHOICE",
+    "PILOT_PILE",
+    "PILOT_MANA_PAYMENT",
+    "PILOT_ANNOUNCE_X",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_REPLACEMENT_EFFECT",
+    "PILOT_TRIGGER_ORDER",
+    "PILOT_CHOOSE_MODE",
+    "PILOT_CHOOSE_ABILITY",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER"
+   ],
+   "evidence": [
+    "decision classes bound externally in this lane: ['MULLIGAN', 'PRIORITY', 'STARTING_PLAYER']",
+    "externally bound decisions recorded: 2",
+    "every bound choice was an option the provider had published in that frame",
+    "fail-closed probes against a live game: {\"fail_closed_illegal_action\": \"PASS\", \"fail_closed_protocol_mismatch\": \"PASS\", \"fail_closed_stale_or_unknown_decision\": \"PASS\", \"fail_closed_unknown_message\": \"PASS\", \"fail_closed_unsupported_decision\": \"PASS\"}"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [
+    "the provider reports legal_actions_supported=false and action_submission_supported=false while still publishing decision frames, so the offered-option surface is narrower than the current fork-lane surface and no target, mode or combat decision family was reachable",
+    "the full decision boundary is therefore unestablished, not refuted"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
+    "HIDDEN_05",
+    "HIDDEN_06",
+    "HIDDEN_07",
+    "HIDDEN_08",
+    "HIDDEN_09",
+    "HIDDEN_10",
+    "HIDDEN_11",
+    "HIDDEN_12",
+    "HIDDEN_13",
+    "HIDDEN_14",
+    "HIDDEN_15",
+    "HIDDEN_16",
+    "HIDDEN_17",
+    "HIDDEN_18",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL"
+   ],
+   "evidence": [
+    "principal scoping verdict: SCOPING_NOT_ESTABLISHED (attribution SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT)",
+    "distinct state views across four requesters: 4",
+    "requesters with an established binding: []",
+    "per-scenario hidden rows not established: 20",
+    "falsification: repeat reads by one seat are byte-identical, no seat's real cards appear in another seat's view, and an unknown observer id reveals nothing, so the projection is genuinely driven by the requested principal"
+   ],
+   "gate": "AF05",
+   "name": "HIDDEN_INFORMATION",
+   "nonblocking_limitations": [
+    "content is correctly per-principal and non-overlapping, but the response carries no is_actor marker and no observer envelope, so the standard's authoritative requester binding is absent and the gate cannot be credited",
+    "the per-scenario hidden channels are unreachable on this surface"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "MICRO_COMBAT",
+    "MICRO_CONTINUOUS_EFFECTS",
+    "MICRO_CONTROL",
+    "MICRO_COPY",
+    "MICRO_COSTS",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_MODES",
+    "MICRO_PREVENTION",
+    "MICRO_PRIORITY",
+    "MICRO_REPLACEMENT",
+    "MICRO_RULES_RANDOMNESS",
+    "MICRO_STACK",
+    "MICRO_STATE_BASED_ACTIONS",
+    "MICRO_TRIGGERS",
+    "MICRO_ZONE_CHANGES",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
+   ],
+   "evidence": [
+    "1 of 107 rows PASS, 4 FAIL, 44 BLOCKED, 58 UNKNOWN",
+    "native provider suite: 59 tests, 59 passed, 0 failed"
+   ],
+   "gate": "AF06",
+   "name": "GENERAL_RULES_CORRECTNESS",
+   "nonblocking_limitations": [
+    "the single PASS is a four-player lifecycle; no micro-rules mechanism row was executed, and the mid-game obligations remain blocked by the absence of a starting-state seam on this provider surface"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "CARD_01",
+    "CARD_02",
+    "CARD_03",
+    "CARD_04",
+    "CARD_05",
+    "CARD_06",
+    "CARD_07",
+    "CARD_08",
+    "CARD_09",
+    "CARD_10",
+    "CARD_11",
+    "CARD_12",
+    "CARD_13",
+    "CARD_14",
+    "CARD_15",
+    "CARD_16",
+    "CARD_17",
+    "CARD_18",
+    "CARD_19",
+    "CARD_20",
+    "CARD_21",
+    "CARD_22",
+    "CARD_23",
+    "CARD_24",
+    "CARD_25",
+    "CARD_26",
+    "CARD_27",
+    "CARD_28",
+    "CARD_29"
+   ],
+   "evidence": [
+    "behaviourally executed corpus identities: 0 of 29",
+    "card fixtures passed: 0 of 29"
+   ],
+   "gate": "AF07",
+   "name": "ACTUAL_CARD_BEHAVIOR",
+   "nonblocking_limitations": [
+    "importing and constructing a deck is not card behaviour; no mandatory card fixture row executed, so the corpus is not credited"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-ELIM-5",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-ELIM-4"
+   ],
+   "evidence": [
+    "cardinality lifecycles recorded for 2P/3P/4P/5P/6P: ['2P', '3P', '4P', '5P', '6P']",
+    "four-player lifecycle completed with bound decisions: [4]",
+    "START-2 (CR 103.8a two-player draw skip): FAIL"
+   ],
+   "gate": "AF08",
+   "name": "MULTIPLAYER_COMMANDER",
+   "nonblocking_limitations": [
+    "the two-player START-2 obligation could not be exercised because this provider surface refuses any count other than four; that is an unmeasured obligation, not a Rules finding about the pristine engine"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_STATE_HASHES",
+    "RNG_RULES_TAPE"
+   ],
+   "evidence": [
+    "Rules RNG binding: {\"acknowledged_seed\": null, \"acknowledgement_source\": \"create_commander_game_response\", \"classification\": \"UNCONTROLLED_ENGINE_RNG\", \"controlled\": false, \"requested_seed\": 424242, \"rng_credit\": false, \"schema_version\": \"commander-lab.seed-binding/1.0.0\"}",
+    "semantic replay export: {\"error\": [{\"code\": \"unknown_message\", \"details\": {}, \"message\": \"export_replay is not supported: deterministic replay is not claimed\", \"retryable\": false}]}",
+    "event log export: {}"
+   ],
+   "gate": "AF09",
+   "name": "RNG_REPLAY",
+   "nonblocking_limitations": [
+    "the provider declares seed_supported=false, so the run is UNCONTROLLED and earns no RNG credit; replay and event-log exports are refused by the provider",
+    "no clean-process twin is executed, so the replay half is unproven regardless"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "denominator accounting complete: 107 explicit outcomes for 107 rows",
+    "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+    "native provider suite: 59 tests green",
+    "every positive claim was attacked: 6 did not survive, all of them established candidate properties rather than harness artifacts"
+   ],
+   "gate": "AF10",
+   "name": "RUNTIME_EVIDENCE_RELIABILITY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "the pristine candidate runs as a genuine separate external process over stdin/stdout JSONL; no engine code is embedded in the Lab",
+    "upstream Forge licence: GPL-3.0 (recorded in the pin manifest)",
+    "this lane executes the pristine upstream candidate, so the licence posture is the upstream one and is NOT the posture of a GPL-3.0 derivative fork"
+   ],
+   "gate": "AF11",
+   "name": "INTEROP_LICENSE_TOPOLOGY",
+   "nonblocking_limitations": [
+    "GPL-3.0 is incompatible with a proprietary production distribution; that is a Coordinator decision, recorded here as a fact about the candidate"
+   ],
+   "verdict": "FAIL"
+  }
+ ],
+ "lane": "pin",
+ "native_runs": {
+  "groups": [
+   {
+    "candidate": "forge",
+    "candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+    "errors": 0,
+    "executed_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+    "failed": 0,
+    "group": "pin",
+    "passed": 59,
+    "receipt_digest": "b9884f26e75afd5f83a2a2a2f2255d6a171237877084bef2fa8cfce68d611510",
+    "returncode": 0,
+    "tests": 59
+   }
+  ],
+  "rejected_receipts": [],
+  "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
+  "summary": {
+   "errors": 0,
+   "failed": 0,
+   "groups_credited": [
+    "forge:pin"
+   ],
+   "passed": 59,
+   "tests": 59
+  }
+ },
+ "nonclaims": [
+  "this matrix describes the pinned pristine candidate on the pinned bridge surface",
+  "no gate here is a comparison against the Commander-Lab fork and no gate selects a provider",
+  "PRODUCTION_PROVIDER = NOT SELECTED; ARCHITECTURE_FREEZE = NOT CLAIMED"
+ ],
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge @ /home/moeen/code/pb09-forge-bridge-pin-20260929",
+  "adapter_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "adapter_manifest_pin": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "adapter_repository": "https://github.com/moeendres-png/forge.git",
+  "boundary": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+  "bridge_note": "the manifest's own bridge_source pin (secondary_engine.bridge_source.commit), whose six Rules-Core modules are byte-identical to the pristine candidate",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": false,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 4,
+   "mode_selection_supported": false,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are rejected: engine RNG is global and same-seed determinism is not claimed",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": false,
+   "seed_supported": false,
+   "stack_visible": true,
+   "starting_state_injection_supported": false,
+   "target_selection_supported": false,
+   "trigger_order_supported": false
+  },
+  "engine_candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "engine_candidate_release": "forge-2.0.14",
+  "engine_candidate_repository": "https://github.com/Card-Forge/forge.git",
+  "engine_identity_class": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+  "lab_fork_reference_not_executed": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "pin",
+  "nonclaims": [
+   "this run is about the pinned pristine candidate, not the Commander-Lab fork",
+   "no result here is evidence for the fork column, and no fork result transfers here",
+   "PB-09 itself remains OPEN and is a Coordinator decision"
+  ],
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "74f26b8f6dd2ad796f4ac6518a451a1589f8699d",
+  "runner_tree": "414393c24f0f9201c69540ddcf15bf3eae9bfd4e",
+  "scenario_injection_supported": false,
+  "seed_supported": false,
+  "starting_state_injection_supported": false
+ },
+ "schema_version": "pb09.af-matrix/1.0.0"
+}
