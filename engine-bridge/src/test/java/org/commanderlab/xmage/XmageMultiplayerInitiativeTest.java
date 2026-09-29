@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *       libraries are Mountains.</li>
  *   <li>A creature dealing combat damage to the player with the initiative
  *       gives its controller the initiative, and that player ventures.</li>
- *   <li>CR 725.4: if the holder leaves the game, the active player takes the
+ *   <li>CR 726.4: if the holder leaves the game, the active player takes the
  *       initiative. If the holder is the active player, the next player in
  *       turn order takes it. Either way the new holder ventures. The pin
  *       {@code b19596980f} leaves the initiative with the player who left.
@@ -41,6 +41,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  *       moeendres-png/mage#21), so those expectations stay disabled until a
  *       repin admits that fix.</li>
  * </ul>
+ *
+ * <p>Rule numbers are inferred: the initiative section follows the
+ * monarch's, which is CR 725 in the edition cited by
+ * {@link XmageMultiplayerMonarchTest}. The CR text was not re-read in the
+ * session that wrote this test.</p>
  */
 class XmageMultiplayerInitiativeTest {
 
@@ -81,7 +86,7 @@ class XmageMultiplayerInitiativeTest {
 
         f.concede(pn);
         assertEquals(f.id(prev), f.game.getInitiativeId(),
-                "725.4: the holder was the active player, so the next player in turn "
+                "726.4: the holder was the active player, so the next player in turn "
                         + "order (" + prev + ") takes the initiative");
         f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(prev) != null, null);
         assertEquals(SECRET_ENTRANCE, f.room(prev), prev + " ventured when it took the initiative");
@@ -103,7 +108,7 @@ class XmageMultiplayerInitiativeTest {
 
         f.concede("P1");
         assertEquals(f.id(prev), f.game.getInitiativeId(),
-                "725.4: the active player (" + prev + ") takes the initiative, not "
+                "726.4: the active player (" + prev + ") takes the initiative, not "
                         + pn + " (next after P1)");
         f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(prev) != null, null);
         assertEquals(SECRET_ENTRANCE, f.room(prev), prev + " ventured when it took the initiative");
