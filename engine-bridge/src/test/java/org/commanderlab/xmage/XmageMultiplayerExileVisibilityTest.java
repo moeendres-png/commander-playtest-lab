@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * F-32: exiled cards are shown to exactly the principals entitled to them,
- * with actual cards at 4P and 5P on the full-game lane.
+ * with actual cards at 2P through 5P on the full-game lane.
  *
  * <p>Swords to Plowshares exiles P3's Grizzly Bears face up: a face-up exiled
  * card is public, so every principal and the public view are shown it. Gonti,
@@ -30,32 +30,33 @@ import static org.junit.jupiter.api.Assertions.fail;
 class XmageMultiplayerExileVisibilityTest {
 
     @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {4, 5})
+    @ValueSource(ints = {2, 3, 4, 5})
     void aFaceUpExiledCardIsPublic(int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Swords to Plowshares", 0, Zone.HAND));
         objects.add(XmageMultiplayerScenario.obj("P1", "Plains", 1, Zone.BATTLEFIELD));
-        objects.add(XmageMultiplayerScenario.obj("P3", "Grizzly Bears", 0, Zone.BATTLEFIELD));
+        String targetPlayer = "P" + Math.min(3, playerCount);
+        objects.add(XmageMultiplayerScenario.obj(targetPlayer, "Grizzly Bears", 0, Zone.BATTLEFIELD));
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start("stp-" + playerCount + "p",
                 playerCount, "P1", objects);
         Game game = s.session.restorationGame();
-        int p3Seat = XmageFullGameStateRedactor.seat(game, s.seats.get("P3").getId());
+        int targetSeat = XmageFullGameStateRedactor.seat(game, s.seats.get(targetPlayer).getId());
         for (String pid : s.seats.keySet()) {
-            assertEquals(0, exileOf(XmageFullGameStateRedactor.actorView(game, s.seats.get(pid)), p3Seat).size(),
+            assertEquals(0, exileOf(XmageFullGameStateRedactor.actorView(game, s.seats.get(pid)), targetSeat).size(),
                     "control: nothing exiled yet");
         }
         resolve(s, "Swords to Plowshares", "Plains", "Grizzly Bears");
         for (String pid : s.seats.keySet()) {
-            JsonArray exile = exileOf(XmageFullGameStateRedactor.actorView(game, s.seats.get(pid)), p3Seat);
+            JsonArray exile = exileOf(XmageFullGameStateRedactor.actorView(game, s.seats.get(pid)), targetSeat);
             assertEquals(1, exile.size(), pid + " is shown P3's exile: " + exile);
             assertEquals("Grizzly Bears", exile.get(0).getAsJsonObject().get("name").getAsString());
         }
-        assertEquals(1, exileOf(XmageFullGameStateRedactor.publicView(game), p3Seat).size(),
+        assertEquals(1, exileOf(XmageFullGameStateRedactor.publicView(game), targetSeat).size(),
                 "a face-up exiled card is public");
     }
 
     @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {4, 5})
+    @ValueSource(ints = {2, 3, 4, 5})
     void aFaceDownExiledCardIsShownOnlyToWhoMayLookAtIt(int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Gonti, Lord of Luxury", 0, Zone.HAND));
@@ -65,22 +66,23 @@ class XmageMultiplayerExileVisibilityTest {
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start("gonti-" + playerCount + "p",
                 playerCount, "P1", objects);
         Game game = s.session.restorationGame();
-        int p3Seat = XmageFullGameStateRedactor.seat(game, s.seats.get("P3").getId());
-        resolve(s, "Gonti, Lord of Luxury", "Swamp", "Seat 3");
-        assertEquals(1, game.getExile().getCardsOwned(game, s.seats.get("P3").getId()).size(),
-                "engine: one of P3's cards is exiled face down");
+        String targetPlayer = "P" + Math.min(3, playerCount);
+        int targetSeat = XmageFullGameStateRedactor.seat(game, s.seats.get(targetPlayer).getId());
+        resolve(s, "Gonti, Lord of Luxury", "Swamp", "Seat " + (targetSeat + 1));
+        assertEquals(1, game.getExile().getCardsOwned(game, s.seats.get(targetPlayer).getId()).size(),
+                "engine: one target-opponent card is exiled face down");
         for (String pid : s.seats.keySet()) {
             JsonObject view = XmageFullGameStateRedactor.actorView(game, s.seats.get(pid));
-            JsonArray exile = exileOf(view, p3Seat);
+            JsonArray exile = exileOf(view, targetSeat);
             if ("P1".equals(pid)) {
                 assertEquals(1, exile.size(), "P1 may look at the card: " + exile);
                 assertTrue(exile.get(0).getAsJsonObject().get("face_down").getAsBoolean());
             } else {
                 assertEquals(0, exile.size(), pid + " must not see the face-down card: " + exile);
             }
-            assertEquals(1, countOf(view, p3Seat), pid + " sees the exile count");
+            assertEquals(1, countOf(view, targetSeat), pid + " sees the exile count");
         }
-        assertEquals(0, exileOf(XmageFullGameStateRedactor.publicView(game), p3Seat).size(),
+        assertEquals(0, exileOf(XmageFullGameStateRedactor.publicView(game), targetSeat).size(),
                 "the public view carries no face-down identity");
     }
 
