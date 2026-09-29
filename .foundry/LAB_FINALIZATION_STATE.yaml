@@ -1,0 +1,48 @@
+schema_version: '1.0'
+workstream: lab-finalization
+phase: pb09-complete
+executor: Space Bunny MAX
+model: opencode-go/space-bunny-free
+variant: max
+branch: muse-xhigh/pb09-pristine-forge-20260929
+worktree: /home/moeen/code/csn-final-bakeoff/muse/pb09-lab
+source_lock_sha: 105f6d27d4856868e19497424d59d959ed2d2014
+last_refreshed_main_sha: ca9356e3da662ce9e246e7f896f1a99772d59065
+last_refreshed_main_tree: 0d5b3f0d9020cc99131dd92a41a9615c61bbac8a
+engine_candidate: pristine-upstream Forge
+engine_sha: a37a865a53280dd8ad6fad3384d69611e8c5a42f
+engine_tree: 4471ff068dd23127fc5878bdffa0c0e6de8e6c28
+bridge_sha: ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b
+harness_sha: f522713184fbf2c588867a645d135595f6e49774
+completed_phases:
+- pb09-phase-a-runtime-reachable
+- pb09-phase-b-full107-executed
+- pb09-wrong-reason-defects-fixed
+active_owners:
+- sol/final-integration-salvage-20260928 (PR #284, PB-03)
+- sbmax/final-pre-freeze-20260928 (PR #289, XMage baseline)
+- docs/final-adversarial-audit-20260928 (PR #287, DeepSeek audit)
+- claude/xmage-2p-draw-skip-20260929
+counts:
+  PASS: 5
+  FAIL: 0
+  UNKNOWN: 58
+  BLOCKED: 44
+  NOT_RUN: 0
+  TOTAL: 107
+artifacts:
+- docs/pb09_20260929/PB09_COMPLETE.md
+- docs/pb09_20260929/PB09_PHASE_A_EVIDENCE.md
+- docs/pb09_20260929/smoke_pristine_runtime.py
+- docs/pb09_20260929/evidence/forge-pristine-20260929/rerun/ (gitignored runtime evidence)
+last_validated_commands:
+- mvn -o -pl forge-protocol2-bridge -am install (BUILD SUCCESS)
+- scripts/run_current_boundary_qualification.py --candidate forge (PB-09 isolated out dir)
+- pytest tests/qualification (381 passed, 2 skipped)
+- ruff check on all touched files (clean)
+open_defects: []
+exact_next_action: >-
+  Select the highest-value unowned simulator-completion task after a fresh
+  global blocker/ownership assessment. Candidate lanes not owned by #284/#289:
+  6P bounded secondary for the pristine candidate, or replay/actual-card harness
+  work that does not overlap active owners.
