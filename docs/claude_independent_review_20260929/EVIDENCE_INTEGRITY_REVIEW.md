@@ -207,6 +207,14 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Pinned by `XmageMultiplayerSplitCombatTest` (Hellrider + Raging Goblin attacking P3 and P2; 3–6P). The test is red before the fix.
   - `XmagePb03Tier1RowsTest.mpBlock4P2BlocksOnlyItsAttacker` had worked around it by holding the second attacker.
   - Impact: any full-game-lane evidence from 3+P games in which one combat attacked two or more players has different block option sets and may contain silently dropped blocks, so it needs impact adjudication. 2P and single-defender combats are unaffected. The generic lane fails closed on blocks and is unaffected.
+- **F-17, P3: per-blocker block decisions can offer a block that is illegal only as a whole declaration. Outcome is rules-correct.**
+  - The full-game lane asks one `declare_blocker` decision per blocker. Menace (702.111b) and similar "two or more" restrictions are judged on the whole declaration (509.1b), so a lone blocker is still offered the menace attacker.
+  - The engine settles it in `Combat.selectBlockers` / `CombatGroup.checkBlockRestrictions`:
+    - if a legal menace block exists, it rejects the declaration and re-asks every blocker;
+    - if none exists, it discards the lone block, which is the only legal declaration, and logs the discard with `informPlayers`.
+  - Pinned by `XmageMultiplayerMenaceTest` (Broadside Bombardiers; 3–6P; P2 with one or two Bears). Other players' creatures are never offered the menace attacker (802.4b, via F-16).
+  - Consequence for decision analytics: the pilot's recorded choice can differ from the executed declaration. Evidence consumers must read blocks from engine combat state, not from pilot selections.
+  - A declaration-level blocker surface would remove this. That is a protocol change, left to the decision-surface owner.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
