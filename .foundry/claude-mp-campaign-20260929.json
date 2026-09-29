@@ -44,7 +44,8 @@
     "PR #320 random-opponent RNG 4P/5P (8 seeds, twin runs); bridge suite 476/0/2",
     "PR #322 simultaneous losses 4-6P + all-lose draw 3-5P; bridge suite 482/0/2",
     "F-19 engine fix moeendres-png/mage#20 (draft) head 0962f0b5 on pin: native UnlessThatPlayerPaysOrderTest 6/6 (red 6/6 on pin); org.mage.test.multiplayer 75/75",
-    "branch claude/xmage-mp-unless-cost-20260929: XmageMultiplayerUnlessCostTest 4 pass + 1 disabled (F-19)"
+    "branch claude/xmage-mp-unless-cost-20260929: XmageMultiplayerUnlessCostTest 4 pass + 1 disabled (F-19)",
+    "PR #319 MERGED: ReplacementOrder 8/8 (3-6P x both orders)"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -72,7 +73,8 @@
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerRandomOpponentTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerSimultaneousLossTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerUnlessCostTest.java",
-    "moeendres-png/mage#20: RhysticStudy.java, MysticRemora.java, UnlessThatPlayerPaysOrderTest, research/f19-unless-pays-order/HANDOFF.md"
+    "moeendres-png/mage#20: RhysticStudy.java, MysticRemora.java, UnlessThatPlayerPaysOrderTest, research/f19-unless-pays-order/HANDOFF.md",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerReplacementOrderTest.java"
   ],
   "tests_run": [
     "mvn -o -Dcheckstyle.skip=true test (engine-bridge)"
