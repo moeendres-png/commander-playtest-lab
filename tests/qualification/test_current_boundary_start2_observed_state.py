@@ -13,6 +13,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
+from commander_lab.qualification.current_boundary import full107
+from commander_lab.qualification.current_boundary.game_driver import CommandedGameResult
+
 REPO = Path(__file__).resolve().parents[2]
 FULL107 = REPO / "src/commander_lab/qualification/current_boundary/full107.py"
 DRIVER = REPO / "src/commander_lab/qualification/current_boundary/game_driver.py"
@@ -210,3 +215,114 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
     ), "the engine actor must not be read as the acting principal at all"
     # The live engine id may still be used to PROVE the binding, transiently.
     assert "observer_engine_player_id" in source
+
+
+def _record() -> dict:
+    return {
+        "fixture_id": "WS05-CMD-START-2",
+        "expected_events": {"required_events": [], "forbidden_events": []},
+    }
+
+
+def _result(
+    *,
+    baseline: tuple[int, int] | None = (7, 92),
+    post: tuple[int, int] | None = (7, 92),
+    post_phase: str = "precombat_main",
+) -> CommandedGameResult:
+    result = CommandedGameResult(
+        candidate="xmage",
+        player_count=2,
+        deck_identity=["d1", "d2"],
+        game_id="g",
+    )
+    if baseline is not None:
+        result.terminal_facts["start2_baseline_zone_counts"] = [
+            {"hand_count": baseline[0], "library_count": baseline[1]}
+        ]
+        result.terminal_facts["start2_baseline_checkpoint"] = {
+            "turn_number": 1,
+            "phase": "beginning",
+            "step": "upkeep",
+        }
+    if post is not None:
+        result.terminal_facts["start2_post_zone_counts"] = [
+            {"hand_count": post[0], "library_count": post[1]}
+        ]
+        result.terminal_facts["observed_actor_zone_counts"] = [
+            {"hand_count": post[0], "library_count": post[1]}
+        ]
+        result.terminal_facts["start2_post_checkpoint"] = {
+            "turn_number": 1,
+            "phase": post_phase,
+            "step": "main",
+        }
+    result.terminal_facts["draw_step_decision_frames"] = []
+    result.terminal_facts["priority_reached"] = True
+    result.decision_tape = []
+    return result
+
+
+@pytest.mark.parametrize(
+    ("baseline", "post"),
+    [
+        ((7, 92), (8, 91)),
+        ((7, 92), (7, 91)),
+        ((7, 92), (8, 92)),
+    ],
+)
+def test_start2_changed_hand_or_library_is_fail(
+    monkeypatch: pytest.MonkeyPatch,
+    baseline: tuple[int, int],
+    post: tuple[int, int],
+) -> None:
+    monkeypatch.setattr(full107, "drive_commander_game", lambda *args, **kwargs: _result(
+        baseline=baseline, post=post
+    ))
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "FAIL"
+    assert "counts changed" in row.reason
+
+
+def test_start2_identical_upkeep_to_precombat_counts_can_pass(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result = _result()
+    result.decision_tape = [
+        full107.DecisionTapeEntry(
+            "priority", "PRIORITY", "p1", 1, "pass_when_offered", "a", ["a"], "observed"
+        )
+    ]
+    monkeypatch.setattr(full107, "drive_commander_game", lambda *args, **kwargs: result)
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "PASS"
+
+
+def test_start2_missing_baseline_is_unknown(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        full107,
+        "drive_commander_game",
+        lambda *args, **kwargs: _result(baseline=None),
+    )
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+
+
+def test_start2_stopping_before_precombat_main_is_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        full107,
+        "drive_commander_game",
+        lambda *args, **kwargs: _result(post_phase="beginning"),
+    )
+    row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+
+
+def test_driver_no_longer_uses_priority_count_as_start2_completion() -> None:
+    source = DRIVER.read_text(encoding="utf-8")
+    assert 'drive_to == "first_turn_draw_skip" and steps >= 2' not in source
+    assert 'phase == "precombat_main"' in source
+    assert 'step == "upkeep"' in source
+    assert 'step == "draw"' in source
