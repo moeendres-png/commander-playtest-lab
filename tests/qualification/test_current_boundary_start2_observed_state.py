@@ -91,7 +91,7 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     assert "hand=hand" in block
     assert "library_size=library_size" in block
     helper = source[source.index("def _zone_count_record(") :]
-    helper = helper[: helper.index("\ndef drive_commander_game(")]
+    helper = helper[: helper.index("\ndef _observe_principal_checkpoint(")]
     assert "len(hand)" in helper
     assert '"hand_count"' in helper
     assert '"library_count"' in helper
@@ -120,9 +120,9 @@ def test_start2_observation_validates_both_authoritative_binding_shapes() -> Non
     assert 'marked[0].get("seat") == seat_index' in block
     # Neither binds, or a conflicting one binds: fail closed.
     assert "if not (envelope_bound or marker_bound):" in block
-    assert "establishes no authoritative acting principal" in block
-    assert "does not bind the acting principal" in block
-    assert "does not identify exactly the acting" in block
+    assert "establishes no authoritative requested principal" in block
+    assert "does not bind the requested principal" in block
+    assert "does not identify exactly the requested principal" in block
     # A marker-bound response emits no engine-id proof: there was no envelope
     # id to compare, and recording false would read as a failed proof.
     helper = source[source.index("def _zone_count_record(") :]
@@ -274,9 +274,11 @@ def test_start2_changed_hand_or_library_is_fail(
     baseline: tuple[int, int],
     post: tuple[int, int],
 ) -> None:
-    monkeypatch.setattr(full107, "drive_commander_game", lambda *args, **kwargs: _result(
-        baseline=baseline, post=post
-    ))
+    monkeypatch.setattr(
+        full107,
+        "drive_commander_game",
+        lambda *args, **kwargs: _result(baseline=baseline, post=post),
+    )
     row = full107.start2_row(_record(), object(), candidate="xmage", runtime_identity={})
     assert row.outcome == "FAIL"
     assert "counts changed" in row.reason
