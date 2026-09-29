@@ -115,6 +115,21 @@ class XmageMultiplayerTurnControlPrivacyTest {
             if (afterPn.equals(active)) {
                 assertTrue(privacyChecked, "controlled-turn privacy assertions ran");
                 assertEquals(pnLife - 3, controlled.getLife(), "controlled Bolt resolved");
+
+                JsonObject afterControl =
+                        XmageFullGameStateRedactor.actorView(game, controller);
+                assertFalse(
+                        battlefieldItem(afterControl, pnBearId).has("private_identity"),
+                        "current face-down entitlement ends with the controlled turn"
+                );
+                assertFalse(
+                        playerRow(afterControl, pnSeat).has("hand"),
+                        "current hand entitlement ends with the controlled turn"
+                );
+                assertTrue(
+                        hasObservedTitle(afterControl, "F-27 controlled look"),
+                        "information already seen during control remains observed"
+                );
                 return;
             }
 
