@@ -70,7 +70,7 @@ forbidden:
   - no weakening of any test/detector to preserve a PASS figure
   - no mutation of foreign worktrees or Forge PR #5/#6 branches
 
-current_phase: PB09_EVIDENCE_COMPLETE_HANDOFF
+current_phase: COMPLETE_PENDING_COORDINATOR_ADJUDICATION
 completed_phases:
   - SOURCE_TRUTH_RECONCILIATION (origin/main afe09c61 read; open PRs inspected;
     PB-09 unclaimed verified; pin manifest + PB09 identity doc read)
@@ -100,6 +100,18 @@ completed_phases:
     to WS40, WS217 and the fork seed surface)
 
 active_blockers: []
+  # none technical. The lane is complete to the currently reachable boundary.
+  # The one open item is a decision, not a defect: which artifact is the Forge
+  # candidate for Architecture Freeze (pinned upstream a37a865a vs the Lab fork
+  # ef958ee9). That is a Coordinator provider/architecture decision, and this
+  # workstream deliberately does not make it.
+
+publication:
+  branch: glm-max/pb09-pristine-forge-20260929
+  head_at_state_write: 589d41b6
+  pr: 299
+  pr_state: OPEN (Draft; not merged by this workstream)
+  main_merged_at: yes (origin/main @ 878125ab, no overlap with PB-09 surfaces)
 
 executor_handoff:
   from: opencode-go/glm-5.3 (max, direct manual session, FOUNDRY_RUNTIME_ACTIVE=NO)
