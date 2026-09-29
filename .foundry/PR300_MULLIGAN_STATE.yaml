@@ -17,18 +17,25 @@ OWNERSHIP_ENTRY_DETERMINATION:
     - author active elsewhere, so the branch was left untouched
   method: own branch rooted at 71ebc911, no push, no merge, no rebase
 
-PHASE: pr300-mulligan-gap-specified
+PHASE: pr300-mulligan-spec-refined-not-implemented
 COMPLETED_PHASES:
   - ownership-verified
   - panache-source-refresh-and-cell-verification
   - pr300-baseline-reproduced-at-runtime
   - projection-gap-located-in-code
 
-W1_GAP_SPEC:
-  callback: engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java line 380
-            putCardsOnBottomOfLibrary - currently throws UNSUPPORTED_COMPATIBILITY_DECISION (line 244)
-            or delegates to super. (lines 387, 391), which is an engine-internal default selection
-  seam_rejection: ExternalDecisionController.java line 378 rejects non-empty bottomCardIds by design
+W1_GAP_SPEC_REFINED:
+  artifact: docs/pb03_wave2_20260929/PR300_MULLIGAN_REFINED_SPEC.md
+  correction_1: putCardsOnBottomOfLibrary super. delegation is engine orchestration, not a hidden default; no change needed there
+  correction_2_seam: XmageBridgePlayer.choose(Outcome, Cards cards, TargetCard target, Ability, Game) line 235
+  seam_current_behavior: throws UNSUPPORTED_COMPATIBILITY_DECISION when external control and BOTTOM_SELECTION; adds every card on the non-external path
+  authoritative_inputs:
+    actor: this player
+    offered_identities: cards.getCards(game) - actor-scoped, engine supplied
+    cardinality: target.getMinNumberOfTargets() / getMaxNumberOfTargets()
+    effect: target.add(cardId, game) for exactly the selected ids then return true
+  latent_default: chooseDiscardBottom line 284 returns subList(0, count); unreachable on the external lane because failIfExternallyControlled throws first; fence or remove
+  rejected_seam: ExternalDecisionController.submitMulligan line 378 rejects bottomCardIds by design (bottoming is a separate decision)
   required_projection:
     - new decision kind mulligan_bottom, separate from mulligan
     - actor-scoped offered identities from the engine's cards argument
