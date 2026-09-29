@@ -321,7 +321,7 @@ class XmageActualCardCorpusTest {
                         payFromRestoredMana(
                                 started,
                                 tag + "-pay-" + step,
-                                java.util.Set.of(manaSourceName(manaLabel)),
+                                List.of(manaSourceName(manaLabel)),
                                 java.util.Set.of(manaLabel));
                     }
                 }
@@ -411,35 +411,164 @@ class XmageActualCardCorpusTest {
         return label.substring(0, separator);
     }
 
+    private static String manaTypeForBasic(String sourceName) {
+        return switch (sourceName) {
+            case "Plains" -> "white";
+            case "Island" -> "blue";
+            case "Swamp" -> "black";
+            case "Mountain" -> "red";
+            case "Forest" -> "green";
+            default -> throw new AssertionError("unsupported scripted basic source " + sourceName);
+        };
+    }
+
+    private static String manaSymbolForBasic(String sourceName) {
+        return switch (sourceName) {
+            case "Plains" -> "{W}";
+            case "Island" -> "{U}";
+            case "Swamp" -> "{B}";
+            case "Mountain" -> "{R}";
+            case "Forest" -> "{G}";
+            default -> throw new AssertionError("unsupported scripted basic source " + sourceName);
+        };
+    }
+
+    private static String unpaidMana(Started started) {
+        JsonObject pending = started.session().pendingDecisionPayload().getAsJsonObject("decision");
+        assertEquals("mana_payment", pending.get("decision_class").getAsString());
+        JsonObject context =
+                pending.has("context") && pending.get("context").isJsonObject()
+                        ? pending.getAsJsonObject("context")
+                        : new JsonObject();
+        if (context.has("unpaid_mana") && !context.get("unpaid_mana").isJsonNull()) {
+            return context.get("unpaid_mana").getAsString();
+        }
+        String prompt =
+                pending.has("prompt") && !pending.get("prompt").isJsonNull()
+                        ? pending.get("prompt").getAsString()
+                        : "";
+        return prompt.contains("<") ? prompt.substring(0, prompt.indexOf('<')) : prompt;
+    }
+
+    /**
+     * Submits exactly one engine-offered mana decision from an explicit
+     * fixture-scripted semantic source. Returning after one decision is
+     * intentional: legal target/trigger choices may intervene between payment
+     * callbacks and must return to resolveAll rather than being swallowed by a
+     * payment helper.
+     */
     private static boolean payFromRestoredMana(
             Started started,
             String tag,
-            java.util.Set<String> sourceNames,
+            List<String> sourcePreference,
             java.util.Set<String> allowedLabels) {
+        assertTrue(!sourcePreference.isEmpty(), "[" + tag + "] scripted mana source required");
         String pid = actorPid(started);
-        List<String> semanticSources = started.restoration().plan().objects().stream()
-                .filter(object -> object.zone() == mage.constants.Zone.BATTLEFIELD)
-                .filter(object -> pid.equals(object.controller()))
-                .filter(object -> sourceNames.contains(object.cardIdentity()))
-                .map(XmageNativeStateRestoration.RequestedObject::semanticId)
-                .toList();
-        assertTrue(
-                !semanticSources.isEmpty(),
-                "[" + tag + "] no restored semantic mana sources for " + pid + " " + sourceNames);
-        XmagePb03Tier1RowsTest.payFromSemanticSources(
-                started.session(),
-                started.restoration(),
-                tag,
-                semanticSources,
-                allowedLabels);
-        return true;
+        String unpaid = unpaidMana(started);
+
+        List<String> desired = new ArrayList<>();
+        for (String sourceName : sourcePreference) {
+            if (unpaid.contains(manaSymbolForBasic(sourceName))) {
+                desired.add(sourceName);
+            }
+        }
+        if (desired.isEmpty()) {
+            desired.addAll(sourcePreference);
+        }
+
+        JsonArray actions = started.session().legalActionsPayload().getAsJsonArray("actions");
+        List<JsonObject> mana = new ArrayList<>();
+        List<JsonObject> pool = new ArrayList<>();
+        for (JsonElement element : actions) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = action.getAsJsonObject("metadata");
+            String optionType =
+                    metadata.has("option_type") && !metadata.get("option_type").isJsonNull()
+                            ? metadata.get("option_type").getAsString()
+                            : "";
+            if ("mana_ability".equals(optionType)) {
+                mana.add(action);
+            } else if ("mana_pool".equals(optionType)) {
+                pool.add(action);
+            }
+        }
+
+        for (String sourceName : desired) {
+            String wantedManaType = manaTypeForBasic(sourceName);
+            List<JsonObject> poolMatches = new ArrayList<>();
+            for (JsonObject action : pool) {
+                JsonObject metadata = action.getAsJsonObject("metadata");
+                JsonObject engine =
+                        metadata.has("xmage_option_metadata")
+                                        && metadata.get("xmage_option_metadata").isJsonObject()
+                                ? metadata.getAsJsonObject("xmage_option_metadata")
+                                : new JsonObject();
+                String manaType =
+                        engine.has("mana_type") && !engine.get("mana_type").isJsonNull()
+                                ? engine.get("mana_type").getAsString()
+                                : metadata.has("mana_type") && !metadata.get("mana_type").isJsonNull()
+                                        ? metadata.get("mana_type").getAsString()
+                                        : "";
+                if (wantedManaType.equalsIgnoreCase(manaType)) {
+                    poolMatches.add(action);
+                }
+            }
+            assertTrue(
+                    poolMatches.size() <= 1,
+                    "[" + tag + "] ambiguous " + wantedManaType + " pool spend");
+            if (poolMatches.size() == 1) {
+                submit(started, tag + "-spend-" + wantedManaType, poolMatches.get(0));
+                return true;
+            }
+
+            for (XmageNativeStateRestoration.RequestedObject object
+                    : started.restoration().plan().objects()) {
+                if (object.zone() != mage.constants.Zone.BATTLEFIELD
+                        || !pid.equals(object.controller())
+                        || !sourceName.equals(object.cardIdentity())) {
+                    continue;
+                }
+                String sourceId =
+                        started.restoration().injectedObjectId(object.semanticId()).toString();
+                List<JsonObject> matches = new ArrayList<>();
+                for (JsonObject action : mana) {
+                    JsonObject metadata = action.getAsJsonObject("metadata");
+                    JsonObject engine =
+                            metadata.has("xmage_option_metadata")
+                                            && metadata.get("xmage_option_metadata").isJsonObject()
+                                    ? metadata.getAsJsonObject("xmage_option_metadata")
+                                    : new JsonObject();
+                    if (engine.has("source_object_id")
+                            && !engine.get("source_object_id").isJsonNull()
+                            && sourceId.equals(engine.get("source_object_id").getAsString())) {
+                        matches.add(action);
+                    }
+                }
+                assertTrue(
+                        matches.size() <= 1,
+                        "[" + tag + "] ambiguous mana action for " + object.semanticId());
+                if (matches.size() == 1) {
+                    JsonObject selected = matches.get(0);
+                    String label = selected.getAsJsonObject("metadata").get("label").getAsString();
+                    assertTrue(
+                            allowedLabels.contains(label),
+                            "[" + tag + "] scripted source offered unexpected label " + label);
+                    submit(started, tag + "-tap-" + object.semanticId(), selected);
+                    return true;
+                }
+            }
+        }
+
+        fail("[" + tag + "] no scripted mana decision for unpaid " + unpaid
+                + "; actions=" + actions);
+        return false;
     }
 
     private static boolean payGolgari(Started started, String tag) {
         return payFromRestoredMana(
                 started,
                 tag,
-                java.util.Set.of("Swamp", "Forest"),
+                List.of("Forest", "Swamp"),
                 java.util.Set.of(
                         SWAMP_LABEL,
                         "Forest — {T}: Add {G}."));
@@ -654,7 +783,7 @@ class XmageActualCardCorpusTest {
         payFromRestoredMana(
                 started,
                 "card10-bolt-pay",
-                java.util.Set.of("Mountain"),
+                List.of("Mountain"),
                 java.util.Set.of(MOUNTAIN_LABEL));
         XmageExternalRiskSignalTest.passToActor(
                 started.session(), "card10-respond", started.seats(), "P1");
@@ -691,7 +820,7 @@ class XmageActualCardCorpusTest {
         payFromRestoredMana(
                 started,
                 "card13-bolt-pay",
-                java.util.Set.of("Mountain"),
+                List.of("Mountain"),
                 java.util.Set.of(MOUNTAIN_LABEL));
         List<JsonObject> flare = offers(started, "Flare of Duplication", "", true);
         submit(
@@ -762,7 +891,7 @@ class XmageActualCardCorpusTest {
         payFromRestoredMana(
                 started,
                 "card22-bolt-pay",
-                java.util.Set.of("Mountain"),
+                List.of("Mountain"),
                 java.util.Set.of(MOUNTAIN_LABEL));
         XmageExternalRiskSignalTest.passToActor(
                 started.session(), "card22-respond", started.seats(), "P1");
@@ -922,7 +1051,7 @@ class XmageActualCardCorpusTest {
                 return payFromRestoredMana(
                         started,
                         "card11-pay-" + step,
-                        java.util.Set.of("Mountain", "Plains"),
+                        List.of("Plains", "Mountain"),
                         java.util.Set.of(
                                 MOUNTAIN_LABEL,
                                 "Plains — {T}: Add {W}."));
