@@ -1,13 +1,13 @@
 {
-  "status": "LOCAL_VALIDATED_READY_FOR_PR",
+  "status": "JUNCTION_FOLLOWUP_VALIDATED_READY_FOR_PUBLICATION",
   "source_head": "7890aed0f692e67052dd51925575380828996ab4",
   "branch": "astra/run-manifest-integrity-20260928",
   "baseline": "19 failed, 2 passed on unchanged main",
   "first_linux_followup": "24 passed before WSL became unavailable",
-  "current_windows_followup": "48 passed, 5 skipped; includes existing Phase10 acceptance consumer",
+  "current_windows_followup": "56 passed, 5 skipped on junction follow-up based on current main",
   "required_next": [
-    "Exact-head Linux CI including the five native-Windows capability skips",
-    "Review findings and fresh refs/ownership before normal Sol integration"
+    "Publish follow-up PR, read back exact head and CI",
+    "Sol: refresh main/head and review threads; merge through normal PR path only after required exact-head checks and windows-manifest-integrity pass; persist merged main HEAD/TREE"
   ],
   "limitations": [
     "File integrity only; not authenticity or Rules qualification",
@@ -17,7 +17,7 @@
   "production_provider": "NOT SELECTED",
   "ruff": "PASS",
   "ruff_format": "PASS",
-  "strict_mypy": "PASS: 274 source files",
+  "strict_mypy": "PASS affected storage module; historical primary repair full source result retained in PR282",
   "compileall": "PASS",
   "validation_environment": "Isolated Windows Python 3.12 venv with pinned lock packages; Linux CI required for platform-specific cases",
   "ownership": [
@@ -36,5 +36,20 @@
       "head": "b0286f2e2c5e92371e7dac45533b327be59295ef",
       "overlap": []
     }
-  ]
+  ],
+  "historical_primary_repair": {
+    "pr": 282,
+    "state": "MERGED",
+    "head": "3017ee312ca2faa74988df37cc3cb2c32f072df8"
+  },
+  "followup": {
+    "branch": "astra/run-manifest-junction-20260928",
+    "base_head": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+    "base_tree": "a28d98b29c84342056e5658f8f4423f927999108",
+    "repair_commit": "09ab49c05af8c006d9c5a371a5d5032b4478c607",
+    "windows_validation": "56 passed, 5 skipped; includes Phase10 acceptance and actual junction regression",
+    "workflow_contracts": "14 passed",
+    "baseline": "Junction regression failed before guard; PR282 merged source retains the same missing guard",
+    "ownership": "Published active PR285, PR284, PR287 and Muse donor have no overlap with storage repair; existing windows-runtime.yml is foreign-active and untouched. Dedicated run-manifest-integrity.yml owns this bounded Windows gate."
+  }
 }
