@@ -27,7 +27,7 @@ Once the spell resolves, the face-down permanent has an empty engine name, so th
 
 ## Test
 
-`XmageMultiplayerFaceDownSpellTest` runs at 4P and 5P and checks that:
+`XmageMultiplayerFaceDownSpellTest` runs at 2P through 5P and checks that:
 
 - every opponent is asked for priority while the spell is on the stack, and none of their decisions names the card;
 - P1 is shown the name, and the public view is not;
@@ -42,3 +42,14 @@ Once the morph resolves, its controller may still look at it (CR 708.5).
 - **Bug:** `private_identity` came only from the registry used for restored face-down permanents. A controller who cast a morph in-game was never told which card it is.
 - **Fix:** the identity now falls back to the engine's own card behind the permanent. It is shown to the controller, to the controller of that player's turn (CR 723.4), and to anyone the engine grants `LOOK_AT_FACE_DOWN`. A face-down token has no hidden card, so it shows nothing. `publicView` still strips `private_identity`.
 - **Test:** `aFaceDownPermanentIsIdentifiedOnlyToItsController` (4P/5P) fails before the fix and passes after. It checks that P1 is shown "Exalted Angel" and that no other view, and not the public view, contains it.
+
+
+## Replay and conformance completion
+
+Replay canonicalization now preserves the public `face_down` flag for stack
+objects and battlefield permanents. A face-down stack name or battlefield
+`private_identity` is bound into the entitled principal digest but is removed
+from the public digest; the fact that the object is face down remains public.
+Object indexing also carries the public `face_down` characteristic.
+
+Both actual-card morph regressions now run at **2P, 3P, 4P and 5P**.
