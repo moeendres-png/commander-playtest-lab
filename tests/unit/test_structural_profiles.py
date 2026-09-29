@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -48,7 +47,7 @@ def test_strength_for_absent_role_is_rejected() -> None:
 
 
 def test_profile_generation_is_stable_across_python_hash_seeds(
-    repo_root: Path, tmp_path: Path
+    repo_root: Path, tmp_path: Path, subprocess_env: dict[str, str]
 ) -> None:
     sandbox = tmp_path / "profiles-root"
     for relative in ("data/cards/oracle_subset.json",):
@@ -66,7 +65,7 @@ def test_profile_generation_is_stable_across_python_hash_seeds(
 
     outputs: list[bytes] = []
     for seed in ("1", "8675309"):
-        environment = os.environ.copy()
+        environment = dict(subprocess_env)
         environment["PYTHONHASHSEED"] = seed
         subprocess.run(command, check=True, env=environment)
         outputs.append((sandbox / "data/cards/structural_role_profiles.json").read_bytes())

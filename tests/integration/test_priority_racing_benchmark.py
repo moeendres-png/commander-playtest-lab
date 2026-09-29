@@ -8,7 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_frozen_adaptive_budget_policy_gate_preserves_material_finalists(tmp_path: Path) -> None:
+def test_frozen_adaptive_budget_policy_gate_preserves_material_finalists(
+    tmp_path: Path, subprocess_env: dict[str, str]
+) -> None:
     output = tmp_path / "adaptive_budget_benchmark.json"
     subprocess.run(
         [
@@ -18,6 +20,7 @@ def test_frozen_adaptive_budget_policy_gate_preserves_material_finalists(tmp_pat
             str(output),
         ],
         cwd=ROOT,
+        env=subprocess_env,
         check=True,
         capture_output=True,
         text=True,
