@@ -1,0 +1,104 @@
+state_version: foundry-workstream-state/1.0.0
+workstream: PB03-304-TERMINAL-HARDENING
+workstream_id: pb03-304-terminal-hardening-20260929
+owner: single terminal hardening workstream for the #304 PB-03 midgame / production-reachable surface
+objective: >-
+  Finish the production-reachable PB-03/midgame transport surface to a terminal,
+  remotely preserved, exact-head validated state: principal-scoped, fail-closed,
+  causally honest, WS17-sealed.
+
+identity:
+  worktree: /home/moeen/code/lab-pb03-remediation2-20260929
+  branch: pb03/304-remediation-on-dafe2ac6
+  head: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+  tree: f5dd631e9475a11518a3924c6fa54abbd8e22d36
+  first_parent_chain: ["1b772706 (merge of main 83a547f7)", "dafe2ac6 (PR #304 causal completion)", "08d23aa4 (this remediation)"]
+  merge_base_vs_origin_main: 83a547f739cc1a7072798c55e10829032df8fe88
+  relationship_to_pr304_head: "dafe2ac6 is an ancestor of HEAD: clean continuation, no history rewrite"
+  origin_main_at_state_write: 29fd96d537c461e3c9258f01ec006160a107d324
+  coordinator_stated_main: 9d5b17af35dbb8bae83e8d698d8a29329532dc64 (main has advanced; not rebased on purpose)
+  remote_pr304_head_at_state_write: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c (this remediation, already pushed)
+  ahead_behind_vs_remote_pr304: "0 / 0"
+  unattributed_foreign_changes: none
+  attribution_note: >-
+    The 4 uncommitted files are this session's F1 (mismatch redaction) and F7
+    (causal gate + placement classifier) work. Verified line-by-line: every changed
+    line carries a remediation marker; no foreign symbol or unexplained content.
+
+preservation:
+  previous_worktree: /home/moeen/code/lab-pb03-remediation-20260929 (branch pb03/304-remediation-20260929, head e4edcd05)
+  preserved_foreign_work: /tmp/opencode/foreign-preserve (full file copies + FULL-UNCOMMITTED-DELTA.patch, hashed 1519 lines)
+  note: >-
+    The earlier worktree held concurrent-session content that was later committed by
+    that session as dafe2ac6. Nothing of it was destroyed or reverted by this
+    workstream; this branch was rebased onto it instead.
+
+f_dispositions:
+  F1_hidden_information:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    privileged_internal_readback: kept internal for the exact construction compare
+    pilot_facing: principal-scoped observation via the existing policy (own hand full, every other principal counts-only, no hand at all when unbound)
+    second_redactor_created: false
+    mismatch_diagnostics: hand card identities redacted for any principal other than the owner (this session, uncommitted)
+    digests: constructed_state_digest covers the redacted observation; digest scope published
+    honeycard_tests: present for the observation and the mismatch redactor; to be re-confirmed at final head
+  F2_negative_construction_verdict:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    arrival: strict JSON boolean + strict mismatch list; empty/missing/malformed/unknown fails closed as UNRECOGNIZED_CONSTRUCTION_VERDICT
+    causal: same strictness; non-boolean causal_match fails closed
+    placement: dedicated classifier that claims only the measured terminal obligation and no fabricated causal_match
+    layers_kept_distinguishable: transport / construction / causal / obligation
+  F3_timeout:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    mechanism: reuses the established bridge_launcher deadline-read shape (daemon thread + deadline, kill + reap)
+    competing_subsystem_created: false
+    regression: deterministic stalled-child test with a 1s deadline
+  F4_transport_classification:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    hierarchy: MidgameLaneTransportError / MidgameLaneTimeout / MidgameLaneProtocolError / MidgameLaneArrivalRejected under MidgameLaneError
+    mapping: single failure_verdict; non-lane exceptions refused
+    credit: transport/protocol/timeout grant zero credit and are not reported as accepted
+  F5_concession:
+    status: KEPT_AS_BOUNDED_SCHEMA_ALIGNMENT
+    justification: >-
+      The lane advertises concede_supported=true, so the endpoints are
+      production-reachable and a wrong request schema is a defect, not scope
+      expansion. get_concede_offer reads payload.player_id and submit_concede reads
+      payload.proposal, matching semantic_replay/consumer.py::_replay_concede.
+      Rules Core remains authoritative (Game.canConcede + native concede); no
+      outcome is injected.
+  F6_colorless_commander:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    root_cause: the lane threw UNSUPPORTED_COMMANDER_COLOR for a legal empty color identity
+    fix: scaffolding falls back to the colorless basic land (Wastes); engine import still decides legality
+    card_name_special_case_in_production: none
+  F7_causal_credit_gating:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    causal_stack_causal_elimination: gated on the engine's real arrival construction verdict (this session, uncommitted)
+    placement: no fabricated causal_match; dedicated classifier
+    wrong_reason_controls: to be added
+  F8_ws17_manifest:
+    status: REPAIRED_AT_08d23aa4_PENDING_RESEAL
+    cause: the midgame receipt was never registered in either manifest
+    repair: appended with its real digest to qualification/SHA256SUMS and WS17_SHA256SUMS, nested manifest re-hashed
+    test_weakened: false
+    exclusion_added: false
+    evidence_file_removed: false
+
+orthogonal_donors:
+  pr316: FROZEN_EVIDENCE_DONOR_ONLY_not_merged_not_modified_not_imported
+  muse_donor_fc801c97: FROZEN_not_integrated
+  pb03_runtime_execution_on_316: "bound JUnit execution only; not imported as semantic evidence"
+
+governance:
+  production_provider: NOT_SELECTED
+  architecture_freeze: NOT_CLAIMED
+  merge_to_main: forbidden
+  force_push: forbidden
+
+next_actions:
+  - "Add F1 honeycard adversarial test and a redaction-does-not-weaken-the-internal-verdict test."
+  - "Add F7 causal_credit_gate wrong-reason controls and placement-classifier controls."
+  - "Add F3 no-zombie assertion and a second generic colorless commander."
+  - "Re-run: focused Python, focused Java, the probe (re-derive the 29-row partition from runtime), qualification pytest, privacy tests, full engine-bridge, ruff, format, mypy, full pytest, WS17."
+  - "Push as a clearly named successor branch with its own PR; verify exact-head workflows."

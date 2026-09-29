@@ -909,12 +909,13 @@ def drive_placement_obligation(
         terminal = execute_turn_sequence(client, fixture_id, record)
     else:
         raise ml.MidgameLaneError(f"unknown placement terminal: {terminal_kind}")
-    verdict = {"causal_match": True, "mismatches": []}
-    row_verdict = ml.classification_from_causal_verdict(
+    # A placement row is placed, not causally reconstructed, so no engine
+    # causal_match exists for it. The engine verdict this path actually has is
+    # the measured terminal obligation, and the row says exactly that instead of
+    # asserting a causal match the engine never reported.
+    row_verdict = ml.classification_from_placement_obligation(
         fixture_id,
         ml.MIDGAME_LANE,
-        "placement",
-        verdict,
         terminal,
         engine_commit=client.engine_commit,
     )
@@ -1404,7 +1405,14 @@ def drive_causal_stack(
         for card in (spec.get("fuel") or [])
         if isinstance(card, dict) and card.get("semantic_id") in placed
     ]
-    drive_arrival(client, record)
+    withheld = ml.causal_credit_gate(
+        fixture_id,
+        "causal_stack",
+        drive_arrival(client, record),
+        engine_commit=client.engine_commit,
+    )
+    if withheld is not None:
+        return withheld
     causal_stack_frames(client, f"probe-{fixture_id}", causal_plan, placed, fuel_native_ids)
     stack_verdict = complete_causal(client, "stack").get("verdict") or {}
     terminal_kind = str(spec.get("terminal"))
@@ -1487,7 +1495,14 @@ def drive_causal_elimination(
     victim_seat = seat_label(str(spec["elimination_victim"]))
     bolt_count = int(spec.get("bolt_count") or 0)
     assert len(bolt_ids) == bolt_count and len(mountain_ids) == bolt_count
-    drive_arrival(client, record)
+    withheld = ml.causal_credit_gate(
+        fixture_id,
+        "causal_elimination",
+        drive_arrival(client, record),
+        engine_commit=client.engine_commit,
+    )
+    if withheld is not None:
+        return withheld
     expected_life: int | None = None
     for index in range(bolt_count):
         cast_frame_source(client, f"probe-{fixture_id}-cast-{index}", bolt_ids[index])

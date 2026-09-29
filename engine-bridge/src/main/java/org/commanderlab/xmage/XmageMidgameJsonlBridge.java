@@ -59,6 +59,9 @@ import java.util.UUID;
  */
 final class XmageMidgameJsonlBridge {
 
+    /** Placeholder that replaces a hand identity withheld from a wrong principal. */
+    private static final String REDACTED_HAND_IDENTITY = "<hand-identity-redacted>";
+
     private final XmageDeckImporter deckImporter = new XmageDeckImporter();
 
     private XmageFullGameSession session;
@@ -666,7 +669,9 @@ final class XmageMidgameJsonlBridge {
             response.addProperty(
                     "constructed_state_digest_scope", "principal_scoped_observation");
             JsonArray mismatches = new JsonArray();
-            verdict.mismatches().forEach(mismatches::add);
+            for (String mismatch : verdict.mismatches()) {
+                mismatches.add(redactMismatch(mismatch, requesterPrincipal));
+            }
             response.add("mismatches", mismatches);
             response.add("observation", observation);
             response.addProperty(
@@ -712,6 +717,41 @@ final class XmageMidgameJsonlBridge {
             }
         }
         throw new IllegalArgumentException("unknown requester principal: " + actorId);
+    }
+
+    /**
+     * Removes a hand card identity from one of the engine's mismatch messages
+     * unless the hand belongs to the requester.
+     *
+     * <p>{@code XmageNativeStateRestoration.compare} reports a missing requested
+     * hand card as {@code hand subset <owner>|HAND|<cardIdentity>|tapped=...: requested
+     * N observed M}. The count and the owning seat are public, but the card
+     * identity is that principal's hidden information, so a mismatch list handed
+     * to a different principal (or to an unbound caller) must not carry it. Every
+     * other mismatch the engine produces names only public zones, seats,
+     * commanders or counts and is returned unchanged.</p>
+     */
+    static String redactMismatch(String mismatch, String requesterPrincipal) {
+        final String handMarker = "|HAND|";
+        if (mismatch == null) {
+            return null;
+        }
+        int marker = mismatch.indexOf(handMarker);
+        if (marker < 0) {
+            return mismatch;
+        }
+        int ownerStart = mismatch.lastIndexOf(' ', marker) + 1;
+        String owner = mismatch.substring(ownerStart, marker);
+        if (requesterPrincipal != null && requesterPrincipal.equals(owner)) {
+            // The requester's own hand identity is legitimately observable to them.
+            return mismatch;
+        }
+        int tapped = mismatch.indexOf("|tapped=", marker);
+        int identityEnd = tapped >= 0 ? tapped : mismatch.indexOf(": ", marker);
+        if (identityEnd < 0) {
+            identityEnd = mismatch.length();
+        }
+        return mismatch.substring(0, marker) + REDACTED_HAND_IDENTITY + mismatch.substring(identityEnd);
     }
 
     /**

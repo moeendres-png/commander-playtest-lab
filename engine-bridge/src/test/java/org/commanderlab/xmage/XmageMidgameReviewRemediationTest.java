@@ -59,6 +59,13 @@ class XmageMidgameReviewRemediationTest {
     /** A colorless Commander that is legal, so the scaffold must be colorless. */
     private static final String COLORLESS_COMMANDER = "Karn, Silver Golem";
 
+    /**
+     * A second, different legal colorless Commander. The scaffold rule is a
+     * property of an empty color identity, not of one card name, so the
+     * regression covers more than one identity.
+     */
+    private static final String SECOND_COLORLESS_COMMANDER = "Kozilek, Butcher of Truth";
+
     private record Lane(
             XmageMidgameJsonlBridge bridge,
             List<JsonObject> tape) {
@@ -346,6 +353,101 @@ class XmageMidgameReviewRemediationTest {
     }
 
     // ------------------------------------------------------------------
+    // Hidden information in mismatch details.
+    // ------------------------------------------------------------------
+
+    /**
+     * The engine reports a missing requested hand card as
+     * {@code hand subset <owner>|HAND|<cardIdentity>|tapped=...: requested N observed M}.
+     * The identity is that principal's hidden information, so it may only reach
+     * the principal that owns it.
+     */
+    @Test
+    void aMismatchNeverDisclosesAnotherPrincipalsHandIdentity() {
+        String engineMessage =
+                "hand subset P2|HAND|Grizzly Bears|tapped=false|controller=P2: requested 1 "
+                        + "observed 0";
+
+        // A different principal must not learn the card identity.
+        String forP1 = XmageMidgameJsonlBridge.redactMismatch(engineMessage, "P1");
+        assertFalse(forP1.contains("Grizzly Bears"),
+                "P1 must not receive P2's hidden hand identity: " + forP1);
+        assertTrue(forP1.contains("P2"),
+                "the owning seat and the counts are public and stay visible: " + forP1);
+        assertTrue(forP1.contains("requested 1 observed 0"),
+                "the counts are public and stay visible: " + forP1);
+
+        // An unbound caller learns no hand identity either.
+        String unbound = XmageMidgameJsonlBridge.redactMismatch(engineMessage, null);
+        assertFalse(unbound.contains("Grizzly Bears"),
+                "an unbound caller must not receive any hand identity: " + unbound);
+
+        // The owner keeps its own identity: it is that principal's own information.
+        String forP2 = XmageMidgameJsonlBridge.redactMismatch(engineMessage, "P2");
+        assertEquals(engineMessage, forP2,
+                "the owning principal keeps its own hand identity");
+    }
+
+    @Test
+    void aMismatchWithoutAHandKeyIsUnchanged() {
+        String publicMessage =
+                "zone multiset P1|BATTLEFIELD|Grizzly Bears|tapped=false|controller=P1: "
+                        + "requested 3 observed 1";
+        assertEquals(publicMessage,
+                XmageMidgameJsonlBridge.redactMismatch(publicMessage, "P1"),
+                "a public-zone mismatch carries no hidden identity and stays verbatim");
+        String priority = "priority_player: requested P1 observed P2";
+        assertEquals(priority, XmageMidgameJsonlBridge.redactMismatch(priority, "P1"));
+    }
+
+    /*
+     * KNOWN GAP (recorded, not silently accepted): an END-TO-END honeycard
+     * control over the wire is not yet provable with the fixtures available to
+     * this lane.
+     *
+     * The project's own adversarial sentinel `HIDDEN_HONEYCARD_SENTINEL` (P2 holds
+     * `Demonic Tutor`) is rejected before any arrival:
+     *   midgame_starting_state_rejected
+     *   RestorationException: UNSUPPORTED_ZONE: HIDDEN_HONEYCARD_SENTINEL
+     *   obj:hidden-lib-0 requests library
+     * and the only other lane-supported records carrying a hand identity,
+     * `WS05-MP-PRIO-3` / `WS05-MP-PRIO-5` (Giant Growth), are rejected too:
+     *   RestorationException: UNSUPPORTED_ZONE: WS05-MP-PRIO-3 obj:mp-bolt requests stack
+     *
+     * So the honeycard is unreachable by this lane's own create step, and there is
+     * no way to plant a distinctive identity in a non-requester's hand with the
+     * current frozen corpus. What IS proven here and below is the disclosure
+     * machinery itself: `redactMismatch` withholds a hand identity from any
+     * principal other than its owner (unit controls) and the live arrival mismatch
+     * list carries no foreign hand identity. A true end-to-end honeycard control
+     * needs a lane-supported frozen fixture with a hand-planted sentinel, which is
+     * Lab qualification data and therefore an authorization question, not
+     * something this workstream may fabricate.
+     *
+     * Separately, the arrival response still includes `pending_decision`
+     * unconditionally, and that frame's `legal_options` labels can name the acting
+     * principal's hand cards. That is an OPEN leak vector for a wrong requester and
+     * is recorded in the handoff; it is NOT fixed here.
+     */
+
+    @Test
+    void theLiveArrivalMismatchListCarriesNoForeignHandIdentity() {
+        Lane lane = newLane();
+        JsonObject arrival = driveToArrivalCheckpoint(
+                lane, PRIVACY_FIXTURE, actorPayload("P1"));
+        for (JsonElement element : arrival.getAsJsonArray("mismatches")) {
+            String mismatch = element.getAsString();
+            assertFalse(mismatch.contains("<hand-identity-redacted>") && mismatch.contains("P1"),
+                    "P1's own hand identity is not redacted for P1: " + mismatch);
+            if (mismatch.contains("|HAND|")) {
+                assertFalse(mismatch.contains("P2|HAND|") || mismatch.contains("P3|HAND|")
+                                || mismatch.contains("P4|HAND|"),
+                        "a foreign hand identity must have been redacted: " + mismatch);
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
     // Concession: the lane uses the established Protocol-2 schema.
     // ------------------------------------------------------------------
 
@@ -435,18 +537,21 @@ class XmageMidgameReviewRemediationTest {
     }
 
     @Test
-    void aColorlessCommanderDeckImportsThroughTheEngineAuthority() {
+    void everyColorlessCommanderDeckImportsThroughTheEngineAuthority() {
         XmageDeckImporter.ensureRepositoryReady();
         XmageDeckImporter importer = new XmageDeckImporter();
         List<String> mainboard = XmageNativeStateRestoration.scaffoldingFiller(99, Set.of());
-        XmageDeckImporter.ImportResult imported = importer.importCommanderDeck(
-                "remediation-colorless", "remediation-colorless-hash", mainboard,
-                List.of(COLORLESS_COMMANDER));
-        assertNotNull(imported.deckHandle(),
-                "the engine's own real-cards-only Commander import accepted the colorless scaffold");
-        assertEquals(1, imported.commanderCount());
-        assertEquals(99, imported.mainboardCount(),
-                "the scaffold is the requested size; the engine accepted every card");
+        for (String commander : List.of(COLORLESS_COMMANDER, SECOND_COLORLESS_COMMANDER)) {
+            XmageDeckImporter.ImportResult imported = importer.importCommanderDeck(
+                    "remediation-colorless-" + commander.length(), "remediation-hash", mainboard,
+                    List.of(commander));
+            assertNotNull(imported.deckHandle(),
+                    "the engine's own real-cards-only Commander import accepted the colorless "
+                            + "scaffold for " + commander);
+            assertEquals(1, imported.commanderCount());
+            assertEquals(99, imported.mainboardCount(),
+                    "the scaffold is the requested size; the engine accepted every card");
+        }
     }
 
     @Test

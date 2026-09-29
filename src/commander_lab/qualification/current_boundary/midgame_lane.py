@@ -91,6 +91,17 @@ class MidgameLaneTimeout(MidgameLaneTransportError):
     """
 
 
+class MidgameLaneArrivalRejected(MidgameLaneError):
+    """The engine answered the arrival request with a refusal.
+
+    This is not a transport failure and not an accepted starting state: the lane
+    reached the engine and the engine declined to complete the arrival (for
+    example restoration, revalidation or the readback failed). It therefore earns
+    no acceptance statement and no reachability credit, and it must not be mapped
+    to ``ENGINE_STATE_ACCEPTED``.
+    """
+
+
 class MidgameLaneProtocolError(MidgameLaneTransportError):
     """The child answered outside the Protocol-2 envelope.
 
@@ -448,7 +459,9 @@ class MidgameLaneClient:
         """
         response = self.request("complete_midgame_arrival", {})
         if not response.get("success"):
-            raise MidgameLaneError(
+            # The engine answered and refused, so this is an engine rejection of
+            # the arrival. It must never be reported as an accepted state.
+            raise MidgameLaneArrivalRejected(
                 f"complete_midgame_arrival failed closed: {_error_code(response)}"
             )
         return response.get("payload") or {}
@@ -733,6 +746,37 @@ def transport_failure_verdict(
     )
 
 
+def causal_credit_gate(
+    fixture_id: str,
+    entry_mode: str,
+    arrival_verdict: RowVerdict | None,
+    *,
+    engine_commit: str | None,
+) -> dict[str, Any] | None:
+    """Return a row that withholds causal credit, or None when credit may proceed.
+
+    A causal route may only be credited when the engine's own construction verdict
+    for the pre-causal arrival established bounded native reachability. Anything
+    else — a construction mismatch, an uninterpretable verdict, a rejection, or no
+    verdict at all — is returned as the row verdict instead, so a stack or
+    elimination outcome the engine produced cannot be reported as a reachable row
+    whose requested starting state was never constructed.
+    """
+    if arrival_verdict is not None and arrival_verdict.outcome == "ENGINE_NATIVE_REACHABLE":
+        return None
+    if arrival_verdict is None:
+        withheld = rejected_verdict(
+            fixture_id,
+            MIDGAME_LANE,
+            code="ARRIVAL_VERDICT_MISSING",
+            detail="the engine returned no construction verdict at the requested checkpoint",
+            engine_commit=engine_commit,
+        )
+    else:
+        withheld = arrival_verdict
+    return withheld.as_dict() | {"entry_mode": entry_mode}
+
+
 def failure_verdict(
     fixture_id: str,
     lane: str,
@@ -793,6 +837,20 @@ def failure_verdict(
             ),
             "TRANSPORT_FAILURE",
         )
+    if isinstance(exc, MidgameLaneArrivalRejected):
+        # The engine refused the arrival: an engine rejection with no acceptance
+        # statement, never the bounded accepted-obligation disposition.
+        return (
+            rejected_verdict(
+                fixture_id,
+                lane,
+                code="ARRIVAL_REJECTED",
+                detail=str(exc),
+                engine_commit=engine_commit,
+                state_accepted=False,
+            ),
+            "ENGINE_REJECTED",
+        )
     if isinstance(exc, MidgameLaneError):
         return (
             rejected_verdict(
@@ -807,6 +865,61 @@ def failure_verdict(
         )
     raise TypeError(
         f"refusing to classify a non-lane failure as an engine verdict: {type(exc).__name__}: {exc}"
+    )
+
+
+def classification_from_placement_obligation(
+    fixture_id: str,
+    lane: str,
+    terminal_obligation: dict[str, Any] | None,
+    *,
+    engine_commit: str | None,
+) -> RowVerdict:
+    """Classify a placement row by its measured terminal obligation.
+
+    A placement row's requested starting state is constructed by the placement
+    seam and the row's temporal point is reached by the obligation executor, so
+    there is no engine ``causal_match`` for this entry: the engine never reports
+    one. This classifier therefore claims only what the engine produced — the
+    measured terminal obligation — and records that explicitly instead of
+    asserting a causal match the engine did not report.
+
+    The outcome label is the one the lane already publishes for a measured
+    obligation so the row set and its partition stay stable; the honest evidence
+    lives in ``causal_verdict``, which no longer contains a fabricated
+    ``causal_match``.
+    """
+    observed = bool(terminal_obligation is not None and terminal_obligation.get("observed"))
+    outcome: Outcome = "CAUSAL_ROUTE_REACHABLE" if observed else "CAUSAL_ROUTE_MEASURED_BLOCKED"
+    detail = (
+        None
+        if observed
+        else str((terminal_obligation or {}).get("detail") or "terminal obligation not observed")
+    )
+    evidence: dict[str, Any] = {
+        "entry_mode": "placement",
+        "entry_kind": "placement_obligation_no_stack_route",
+        "engine_reports_causal_match": False,
+        "note": (
+            "a placement entry has no stack route to reconstruct; the engine "
+            "produced the terminal obligation and reported no causal_match"
+        ),
+        "terminal_obligation": terminal_obligation,
+    }
+    return RowVerdict(
+        fixture_id=fixture_id,
+        outcome=outcome,
+        code=None,
+        detail=detail,
+        construction_match=None,
+        mismatches=(),
+        requested_state_digest=None,
+        constructed_state_digest=None,
+        lane=lane,
+        engine_commit=engine_commit,
+        engine_accepted_starting_state=observed,
+        entry_mode="placement",
+        causal_verdict=evidence,
     )
 
 

@@ -585,3 +585,205 @@ class TestReceiptCarriesNoHiddenIdentity:
         assert len(receipt["rows"]) == receipt["counts"]["probed"] > 0, (
             "the control must run against a receipt that actually carries rows"
         )
+
+
+class TestRedactionAndVerdictIntegrity:
+    """The external response is redacted; the engine's verdict consequence is not.
+
+    Redaction itself is proven at the protocol boundary in
+    ``XmageMidgameReviewRemediationTest`` (the process that owns the response).
+    These controls prove the consumer side: a mismatch the engine reported is
+    still a mismatch after redaction, and a clean arrival is still exactly a
+    match, so redaction cannot launder credit in either direction.
+    """
+
+    REDACTED_HAND_MISMATCH = "hand subset P2|HAND|<hand-identity-redacted>: requested 1 observed 0"
+
+    def test_a_redacted_hand_mismatch_still_denies_credit(self) -> None:
+        verdict = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            {
+                "construction_match": False,
+                "mismatches": [self.REDACTED_HAND_MISMATCH],
+                "requested_state_digest": "a" * 64,
+                "constructed_state_digest": "b" * 64,
+            },
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CONSTRUCTION_MISMATCH"
+        assert verdict.engine_accepted_starting_state is False
+        assert verdict.outcome not in ("ENGINE_NATIVE_REACHABLE", "CAUSAL_ROUTE_REACHABLE")
+
+    def test_redaction_never_appears_as_a_recognized_allowance(self) -> None:
+        # A redacted hand identity must not be mistaken for the documented
+        # declaration-step allowance, which is the only negative-verdict case the
+        # contract lets keep its bounded classification.
+        verdict = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            {
+                "construction_match": False,
+                "mismatches": [self.REDACTED_HAND_MISMATCH],
+                "requested_state_digest": "a" * 64,
+                "constructed_state_digest": "b" * 64,
+            },
+            engine_commit="abc",
+        )
+        assert verdict.allowance_applied == ()
+
+    def test_a_clean_arrival_still_reports_an_exact_internal_verdict(self) -> None:
+        verdict = ml.classification_from_arrival(
+            "WS05-CMD-TAX-2",
+            ml.MIDGAME_LANE,
+            {
+                "construction_match": True,
+                "mismatches": [],
+                "requested_state_digest": "a" * 64,
+                "constructed_state_digest": "b" * 64,
+            },
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "ENGINE_NATIVE_REACHABLE"
+        assert verdict.engine_accepted_starting_state is True
+        assert verdict.mismatches == ()
+
+
+class TestCausalCreditGating:
+    """A causal route may only be credited when the engine's own construction
+    verdict for the pre-causal arrival established bounded native reachability.
+
+    Layers kept distinct: transport success, construction success, causal-route
+    success and obligation satisfaction are separate facts, and only the
+    strongest fact actually observed is credited.
+    """
+
+    @staticmethod
+    def _arrival(outcome: str) -> ml.RowVerdict:
+        return ml.RowVerdict(
+            fixture_id="WS05-MP-BLOCK-4",
+            outcome=outcome,  # type: ignore[arg-type]
+            code=None,
+            detail=None,
+            construction_match=outcome == "ENGINE_NATIVE_REACHABLE",
+            mismatches=(),
+            requested_state_digest=None,
+            constructed_state_digest=None,
+            lane=ml.MIDGAME_LANE,
+            engine_commit="abc",
+        )
+
+    def test_a_reachable_arrival_lets_the_causal_route_proceed(self) -> None:
+        assert (
+            ml.causal_credit_gate(
+                "WS05-MP-BLOCK-4",
+                "causal_stack",
+                self._arrival("ENGINE_NATIVE_REACHABLE"),
+                engine_commit="abc",
+            )
+            is None
+        )
+
+    def test_a_construction_mismatch_withholds_causal_credit(self) -> None:
+        withheld = ml.causal_credit_gate(
+            "WS05-MP-BLOCK-4",
+            "causal_stack",
+            self._arrival("CONSTRUCTION_MISMATCH"),
+            engine_commit="abc",
+        )
+        assert withheld is not None
+        assert withheld["outcome"] == "CONSTRUCTION_MISMATCH"
+        assert withheld["engine_accepted_starting_state"] is False
+        assert withheld["outcome"] != "CAUSAL_ROUTE_REACHABLE"
+
+    def test_an_unrecognized_verdict_withholds_causal_credit(self) -> None:
+        withheld = ml.causal_credit_gate(
+            "WS05-MP-BLOCK-4",
+            "causal_elimination",
+            self._arrival("UNRECOGNIZED_CONSTRUCTION_VERDICT"),
+            engine_commit="abc",
+        )
+        assert withheld is not None
+        assert withheld["outcome"] == "UNRECOGNIZED_CONSTRUCTION_VERDICT"
+        assert withheld["engine_accepted_starting_state"] is False
+
+    def test_a_transport_failure_withholds_causal_credit(self) -> None:
+        withheld = ml.causal_credit_gate(
+            "WS05-MP-BLOCK-4",
+            "causal_stack",
+            self._arrival("TRANSPORT_FAILURE"),
+            engine_commit="abc",
+        )
+        assert withheld is not None
+        assert withheld["outcome"] == "TRANSPORT_FAILURE"
+        assert withheld["engine_accepted_starting_state"] is False
+
+    def test_a_rejected_arrival_withholds_causal_credit(self) -> None:
+        withheld = ml.causal_credit_gate(
+            "WS05-MP-BLOCK-4",
+            "causal_stack",
+            self._arrival("ENGINE_REJECTED"),
+            engine_commit="abc",
+        )
+        assert withheld is not None
+        assert withheld["outcome"] == "ENGINE_REJECTED"
+        assert withheld["engine_accepted_starting_state"] is False
+
+    def test_a_missing_arrival_verdict_withholds_causal_credit(self) -> None:
+        withheld = ml.causal_credit_gate(
+            "WS05-MP-BLOCK-4", "causal_stack", None, engine_commit="abc"
+        )
+        assert withheld is not None
+        assert withheld["code"] == "ARRIVAL_VERDICT_MISSING"
+        assert withheld["engine_accepted_starting_state"] is False
+        assert withheld["outcome"] == "ENGINE_REJECTED"
+
+    def test_the_gate_names_the_entry_mode_so_the_row_stays_diagnosable(self) -> None:
+        withheld = ml.causal_credit_gate(
+            "WS05-MP-BLOCK-4",
+            "causal_elimination",
+            self._arrival("CONSTRUCTION_MISMATCH"),
+            engine_commit="abc",
+        )
+        assert withheld is not None
+        assert withheld["entry_mode"] == "causal_elimination"
+
+
+class TestPlacementObligationClassification:
+    """A placement entry has no stack route to reconstruct, so it may not claim a
+    causal match the engine never reported, and an unobserved obligation earns no
+    acceptance statement.
+    """
+
+    def test_an_observed_obligation_is_the_only_credbearing_case(self) -> None:
+        verdict = ml.classification_from_placement_obligation(
+            "WS05-MP-BLOCK-4",
+            ml.MIDGAME_LANE,
+            {"kind": "blocker_partition", "observed": True},
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_REACHABLE"
+        assert verdict.engine_accepted_starting_state is True
+        assert verdict.causal_verdict is not None
+        assert verdict.causal_verdict["engine_reports_causal_match"] is False, (
+            "the lane must not present a fabricated engine causal_match"
+        )
+        assert "causal_match" not in verdict.causal_verdict
+
+    def test_an_unobserved_obligation_earns_no_acceptance(self) -> None:
+        verdict = ml.classification_from_placement_obligation(
+            "WS05-MP-BLOCK-4",
+            ml.MIDGAME_LANE,
+            {"kind": "blocker_partition", "observed": False, "detail": "no partition"},
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        assert verdict.engine_accepted_starting_state is False
+        assert verdict.detail is not None and "partition" in verdict.detail
+
+    def test_a_missing_obligation_record_earns_no_acceptance(self) -> None:
+        verdict = ml.classification_from_placement_obligation(
+            "WS05-MP-BLOCK-4", ml.MIDGAME_LANE, None, engine_commit="abc"
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        assert verdict.engine_accepted_starting_state is False
