@@ -75,6 +75,12 @@ class XmageMultiplayerVoteTest {
         return false;
     }
 
+    private static boolean inExile(XmageMultiplayerScenario s, String name) {
+        mage.game.Game game = s.session.restorationGame();
+        return game.getExile().getAllCards(game).stream()
+                .anyMatch(card -> card.getName().equals(name));
+    }
+
     private static List<XmageNativeStateRestoration.RequestedObject> board(String caster,
             List<String> others) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
@@ -100,8 +106,10 @@ class XmageMultiplayerVoteTest {
                 "P3", "Craw Wurm", "P2", "Grizzly Bears"));
         assertEquals(List.of("P1", "P4", "P3", "P2"), voters,
                 "starting with the caster, then the engine's turn order");
-        assertEquals(false, onBattlefield(s, "Craw Wurm"), "tied 2-2: Craw Wurm exiled");
-        assertEquals(false, onBattlefield(s, "Grizzly Bears"), "tied 2-2: Grizzly Bears exiled");
+        assertEquals(false, onBattlefield(s, "Craw Wurm"), "tied 2-2: Craw Wurm left the battlefield");
+        assertEquals(false, onBattlefield(s, "Grizzly Bears"), "tied 2-2: Grizzly Bears left the battlefield");
+        assertEquals(true, inExile(s, "Craw Wurm"), "tied 2-2: Craw Wurm is in exile");
+        assertEquals(true, inExile(s, "Grizzly Bears"), "tied 2-2: Grizzly Bears is in exile");
         assertEquals(true, onBattlefield(s, "Runeclaw Bear"), "no votes: Runeclaw Bear stays");
     }
 
@@ -115,7 +123,8 @@ class XmageMultiplayerVoteTest {
                 "P5", "Raging Goblin", "P4", "Craw Wurm"));
         assertEquals(List.of("P3", "P2", "P1", "P5", "P4"), voters,
                 "starting with the caster P3, then the engine's turn order");
-        assertEquals(false, onBattlefield(s, "Raging Goblin"), "3 votes: exiled");
+        assertEquals(false, onBattlefield(s, "Raging Goblin"), "3 votes: left the battlefield");
+        assertEquals(true, inExile(s, "Raging Goblin"), "3 votes: in exile");
         assertEquals(true, onBattlefield(s, "Craw Wurm"), "2 votes: stays");
         assertEquals(true, onBattlefield(s, "Grizzly Bears"), "no votes: stays");
         assertEquals(true, onBattlefield(s, "Runeclaw Bear"), "no votes: stays");
