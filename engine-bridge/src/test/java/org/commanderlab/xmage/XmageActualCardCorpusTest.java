@@ -42,7 +42,10 @@ class XmageActualCardCorpusTest {
     private static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
     private static final long SEED = 424242L;
 
-    record Started(XmageFullGameSession session, Map<String, Player> seats) {
+    record Started(
+            XmageFullGameSession session,
+            Map<String, Player> seats,
+            XmageNativeStateRestoration restoration) {
     }
 
     // ------------------------------------------------------------------ setup
@@ -112,7 +115,7 @@ class XmageActualCardCorpusTest {
         session.start();
         Map<String, Player> seats = session.restorationSeats();
         XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
-        return new Started(session, seats);
+        return new Started(session, seats, restoration);
     }
 
     // ---------------------------------------------------------------- queries
@@ -315,8 +318,11 @@ class XmageActualCardCorpusTest {
                             fail("[" + tag + "] mana payment needs a handler");
                         }
                     } else {
-                        XmageExternalRiskSignalTest.payHomogeneous(
-                                started.session(), tag + "-pay-" + step, manaLabel, 12);
+                        payFromRestoredMana(
+                                started,
+                                tag + "-pay-" + step,
+                                java.util.Set.of(manaSourceName(manaLabel)),
+                                java.util.Set.of(manaLabel));
                     }
                 }
                 default -> {
@@ -346,6 +352,15 @@ class XmageActualCardCorpusTest {
             }
         }
         return out;
+    }
+
+    private static JsonObject singleOffer(
+            List<JsonObject> options, String description) {
+        assertEquals(
+                1,
+                options.size(),
+                description + " must have exactly one engine-offered option: " + options);
+        return options.get(0);
     }
 
     /** The single target option naming a stack object (spell) by name. */
@@ -390,32 +405,44 @@ class XmageActualCardCorpusTest {
      * generic and {B}, the Forest pays only a lone remaining {G}. The pool
      * only ever holds the mana just produced, so pool choices are equivalent.
      */
-    private static boolean payGolgari(Started started, String tag) {
-        JsonObject pending = started.session().pendingDecisionPayload()
-                .getAsJsonObject("decision");
-        String unpaid = pending.get("prompt").getAsString();
-        unpaid = unpaid.contains("<") ? unpaid.substring(0, unpaid.indexOf('<')) : unpaid;
-        String want = unpaid.equals("{G}") ? "Forest" : "Swamp";
-        JsonObject pool = null;
-        JsonObject tap = null;
-        for (JsonElement element : started.session().legalActionsPayload()
-                .getAsJsonArray("actions")) {
-            JsonObject action = element.getAsJsonObject();
-            JsonObject meta = action.getAsJsonObject("metadata");
-            String type = meta.get("option_type").getAsString();
-            String label = meta.get("label").getAsString();
-            if ("mana_pool".equals(type) && pool == null) {
-                pool = action;
-            } else if ("mana_ability".equals(type) && label.startsWith(want)
-                    && (tap == null || action.get("action_id").getAsString()
-                            .compareTo(tap.get("action_id").getAsString()) < 0)) {
-                tap = action;
-            }
-        }
-        JsonObject pick = pool != null ? pool : tap;
-        assertNotNull(pick, "no " + want + " source for unpaid " + unpaid);
-        submit(started, tag, pick);
+    private static String manaSourceName(String label) {
+        int separator = label.indexOf(" — ");
+        assertTrue(separator > 0, "mana label must expose a semantic source name: " + label);
+        return label.substring(0, separator);
+    }
+
+    private static boolean payFromRestoredMana(
+            Started started,
+            String tag,
+            java.util.Set<String> sourceNames,
+            java.util.Set<String> allowedLabels) {
+        String pid = actorPid(started);
+        List<String> semanticSources = started.restoration().plan().objects().stream()
+                .filter(object -> object.zone() == mage.constants.Zone.BATTLEFIELD)
+                .filter(object -> pid.equals(object.controller()))
+                .filter(object -> sourceNames.contains(object.cardIdentity()))
+                .map(XmageNativeStateRestoration.RequestedObject::semanticId)
+                .toList();
+        assertTrue(
+                !semanticSources.isEmpty(),
+                "[" + tag + "] no restored semantic mana sources for " + pid + " " + sourceNames);
+        XmagePb03Tier1RowsTest.payFromSemanticSources(
+                started.session(),
+                started.restoration(),
+                tag,
+                semanticSources,
+                allowedLabels);
         return true;
+    }
+
+    private static boolean payGolgari(Started started, String tag) {
+        return payFromRestoredMana(
+                started,
+                tag,
+                java.util.Set.of("Swamp", "Forest"),
+                java.util.Set.of(
+                        SWAMP_LABEL,
+                        "Forest — {T}: Add {G}."));
     }
 
     // ---------------------------------------------------------- batch 2 cards
@@ -436,9 +463,12 @@ class XmageActualCardCorpusTest {
         objects.add(battlefield("P2", "Grizzly Bears", 0));
         Started started = start("card28-finality", 2, objects);
 
-        assertEquals(1, offers(started, "Finality", "Cast Finality", true).size(),
-                "Finality is castable from hand (no aftermath)");
-        submit(started, "card28-cast", offers(started, "Finality", "Cast Finality", true).get(0));
+        List<JsonObject> finality =
+                offers(started, "Finality", "Cast Finality", true);
+        submit(
+                started,
+                "card28-cast",
+                singleOffer(finality, "Finality cast from hand (no aftermath)"));
         resolveAll(started, "card28", null, (cls, step) -> {
             if ("mana_payment".equals(cls)) {
                 return payGolgari(started, "card28-pay-" + step);
@@ -494,7 +524,12 @@ class XmageActualCardCorpusTest {
         objects.add(hand("P1", "Vandalblast", 0));
         Started started = start("card14-vandal", 2, objects);
 
-        submit(started, "card14-cast", offers(started, "Vandalblast", "overload", false).get(0));
+        submit(
+                started,
+                "card14-cast",
+                singleOffer(
+                        offers(started, "Vandalblast", "overload", false),
+                        "normal Vandalblast cast"));
         assertEquals("target", decisionClass(started));
         Player p1 = started.seats().get("P1");
         for (JsonElement element : started.session().legalActionsPayload()
@@ -506,9 +541,7 @@ class XmageActualCardCorpusTest {
             assertTrue(offered != null && !p1.getId().equals(offered.getControllerId()),
                     "only artifacts P1 doesn't control may be targeted");
         }
-        JsonObject first = started.session().legalActionsPayload()
-                .getAsJsonArray("actions").get(0).getAsJsonObject();
-        submit(started, "card14-target", first);
+        chooseNamed(started, "card14-target", "Ornithopter", 1);
         resolveAll(started, "card14", MOUNTAIN_LABEL, NONE);
 
         assertEquals(1, onBattlefield(started, "P2", "Ornithopter"), "exactly one destroyed");
@@ -527,8 +560,10 @@ class XmageActualCardCorpusTest {
         Started started = start("card14-overload", 2, objects);
 
         List<JsonObject> overload = offers(started, "Vandalblast", "overload", true);
-        assertEquals(1, overload.size(), "overload must be offered as its own cast");
-        submit(started, "card14o-cast", overload.get(0));
+        submit(
+                started,
+                "card14o-cast",
+                singleOffer(overload, "Vandalblast overload cast"));
         resolveAll(started, "card14o", MOUNTAIN_LABEL, NONE);
 
         assertEquals(0, onBattlefield(started, "P2", "Ornithopter"), "each opposing artifact");
@@ -581,7 +616,13 @@ class XmageActualCardCorpusTest {
         submit(started, "card06-target", playerTarget(started, "P2"));
         resolveAll(started, "card06", MOUNTAIN_LABEL, (cls, step) -> {
             if ("trigger_order".equals(cls)) {
-                submit(started, "card06-order-" + step, anyOrderingOption(started));
+                submit(
+                        started,
+                        "card06-order-" + step,
+                        triggerOrderOption(
+                                started,
+                                "Harmonic Prodigy",
+                                "Young Pyromancer"));
                 return true;
             }
             return false;
@@ -610,15 +651,20 @@ class XmageActualCardCorpusTest {
                 started.session(), "card10", started.seats(), "P2");
         cast(started, "card10-bolt", "Lightning Bolt");
         submit(started, "card10-bolt-target", playerTarget(started, "P1"));
-        XmageExternalRiskSignalTest.payHomogeneous(
-                started.session(), "card10-bolt-pay", MOUNTAIN_LABEL, 6);
+        payFromRestoredMana(
+                started,
+                "card10-bolt-pay",
+                java.util.Set.of("Mountain"),
+                java.util.Set.of(MOUNTAIN_LABEL));
         XmageExternalRiskSignalTest.passToActor(
                 started.session(), "card10-respond", started.seats(), "P1");
         assertEquals(0, offers(started, "Wash Away", "leave", false).size(),
                 "uncleaved Wash Away has no legal target: the Bolt was cast from hand");
         List<JsonObject> cleave = offers(started, "Wash Away", "leave", true);
-        assertEquals(1, cleave.size(), "the cleave cast must be offered");
-        submit(started, "card10-cleave", cleave.get(0));
+        submit(
+                started,
+                "card10-cleave",
+                singleOffer(cleave, "Wash Away cleave cast"));
         submit(started, "card10-cleave-target", spellTarget(started, "Lightning Bolt"));
         resolveAll(started, "card10", ISLAND_LABEL, NONE);
 
@@ -642,11 +688,16 @@ class XmageActualCardCorpusTest {
 
         cast(started, "card13-bolt", "Lightning Bolt");
         submit(started, "card13-bolt-target", playerTarget(started, "P2"));
-        XmageExternalRiskSignalTest.payHomogeneous(
-                started.session(), "card13-bolt-pay", MOUNTAIN_LABEL, 6);
+        payFromRestoredMana(
+                started,
+                "card13-bolt-pay",
+                java.util.Set.of("Mountain"),
+                java.util.Set.of(MOUNTAIN_LABEL));
         List<JsonObject> flare = offers(started, "Flare of Duplication", "", true);
-        assertTrue(!flare.isEmpty(), "Flare must be castable by sacrificing the Goblin");
-        submit(started, "card13-flare", flare.get(0));
+        submit(
+                started,
+                "card13-flare",
+                singleOffer(flare, "Flare of Duplication cast"));
         boolean[] sacrificed = {false};
         resolveAll(started, "card13", MOUNTAIN_LABEL, (cls, step) -> {
             JsonObject pending = started.session().pendingDecisionPayload()
@@ -708,8 +759,11 @@ class XmageActualCardCorpusTest {
                 started.session(), "card22", started.seats(), "P2");
         cast(started, "card22-bolt", "Lightning Bolt");
         submit(started, "card22-bolt-target", playerTarget(started, "P1"));
-        XmageExternalRiskSignalTest.payHomogeneous(
-                started.session(), "card22-bolt-pay", MOUNTAIN_LABEL, 6);
+        payFromRestoredMana(
+                started,
+                "card22-bolt-pay",
+                java.util.Set.of("Mountain"),
+                java.util.Set.of(MOUNTAIN_LABEL));
         XmageExternalRiskSignalTest.passToActor(
                 started.session(), "card22-respond", started.seats(), "P1");
         cast(started, "card22-bend", "Bolt Bend");
@@ -800,41 +854,6 @@ class XmageActualCardCorpusTest {
      * unpaid picks its land, otherwise {@code genericLand} pays generic. The
      * pool only ever holds mana just produced, so pool choices are equivalent.
      */
-    private static boolean payBySymbols(Started started, String tag,
-            Map<String, String> landForSymbol, String genericLand) {
-        JsonObject pending = started.session().pendingDecisionPayload()
-                .getAsJsonObject("decision");
-        String unpaid = pending.get("prompt").getAsString();
-        unpaid = unpaid.contains("<") ? unpaid.substring(0, unpaid.indexOf('<')) : unpaid;
-        String want = genericLand;
-        for (Map.Entry<String, String> entry : landForSymbol.entrySet()) {
-            if (unpaid.contains(entry.getKey())) {
-                want = entry.getValue();
-                break;
-            }
-        }
-        JsonObject pool = null;
-        JsonObject tap = null;
-        for (JsonElement element : started.session().legalActionsPayload()
-                .getAsJsonArray("actions")) {
-            JsonObject action = element.getAsJsonObject();
-            JsonObject meta = action.getAsJsonObject("metadata");
-            String type = meta.get("option_type").getAsString();
-            String label = meta.get("label").getAsString();
-            if ("mana_pool".equals(type) && pool == null) {
-                pool = action;
-            } else if ("mana_ability".equals(type) && label.startsWith(want)
-                    && (tap == null || action.get("action_id").getAsString()
-                            .compareTo(tap.get("action_id").getAsString()) < 0)) {
-                tap = action;
-            }
-        }
-        JsonObject pick = pool != null ? pool : tap;
-        assertNotNull(pick, "no " + want + " source for unpaid " + unpaid);
-        submit(started, tag, pick);
-        return true;
-    }
-
     /** Names of the permanents offered by the current target decision. */
     private static List<String> offeredTargetNames(Started started) {
         List<String> names = new ArrayList<>();
@@ -887,8 +906,10 @@ class XmageActualCardCorpusTest {
         if (fused.isEmpty()) {
             fused = offers(started, "Wear // Tear", "Fuse", true);
         }
-        assertEquals(1, fused.size(), "the fused cast must be offered from hand");
-        submit(started, "card11-fuse", fused.get(0));
+        submit(
+                started,
+                "card11-fuse",
+                singleOffer(fused, "Wear // Tear fused cast"));
         resolveAll(started, "card11", null, (cls, step) -> {
             if ("target".equals(cls)) {
                 List<String> names = offeredTargetNames(started);
@@ -898,8 +919,13 @@ class XmageActualCardCorpusTest {
                 return true;
             }
             if ("mana_payment".equals(cls)) {
-                return payBySymbols(started, "card11-pay-" + step,
-                        new java.util.LinkedHashMap<>(Map.of("{W}", "Plains")), "Mountain");
+                return payFromRestoredMana(
+                        started,
+                        "card11-pay-" + step,
+                        java.util.Set.of("Mountain", "Plains"),
+                        java.util.Set.of(
+                                MOUNTAIN_LABEL,
+                                "Plains — {T}: Add {W}."));
             }
             return false;
         });
@@ -970,7 +996,10 @@ class XmageActualCardCorpusTest {
             if ("trigger_order".equals(cls)) {
                 // Sacrifice and destroy are independent; either order ends
                 // with both creatures in their graveyards.
-                submit(started, "card18e-order-" + step, anyOrderingOption(started));
+                submit(
+                        started,
+                        "card18e-order-" + step,
+                        triggerOrderByLabel(started, "destroy target"));
                 return true;
             }
             return false;
@@ -1082,11 +1111,28 @@ class XmageActualCardCorpusTest {
         if (actions.isEmpty()) {
             return "";
         }
-        JsonObject meta = actions.get(0).getAsJsonObject().getAsJsonObject("metadata");
-        JsonObject source = meta.has("source_object") && meta.get("source_object").isJsonObject()
-                ? meta.getAsJsonObject("source_object") : null;
-        return source != null && source.has("source_name")
-                ? source.get("source_name").getAsString() : "";
+        String sourceName = null;
+        for (JsonElement element : actions) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+            JsonObject source =
+                    meta.has("source_object") && meta.get("source_object").isJsonObject()
+                            ? meta.getAsJsonObject("source_object")
+                            : null;
+            String current =
+                    source != null && source.has("source_name")
+                            ? source.get("source_name").getAsString()
+                            : "";
+            assertTrue(!current.isEmpty(), "every target option must expose its source name");
+            if (sourceName == null) {
+                sourceName = current;
+            } else {
+                assertEquals(
+                        sourceName,
+                        current,
+                        "all options of one target decision must share the same source");
+            }
+        }
+        return sourceName;
     }
 
     /** Answers a numeric decision (e.g. announce X) with an in-range value. */
@@ -1094,7 +1140,12 @@ class XmageActualCardCorpusTest {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
-        JsonObject numeric = legal.getAsJsonArray("actions").get(0).getAsJsonObject();
+        JsonArray numericActions = legal.getAsJsonArray("actions");
+        assertEquals(
+                1,
+                numericActions.size(),
+                "numeric decisions must expose exactly one structural action envelope");
+        JsonObject numeric = numericActions.get(0).getAsJsonObject();
         assertEquals("numeric", numeric.getAsJsonObject("choices_schema")
                 .get("response_kind").getAsString());
         String decisionId = pending.get("decision_id").getAsString();
@@ -1146,16 +1197,85 @@ class XmageActualCardCorpusTest {
         return match;
     }
 
-    /** Any option of a trigger-ordering choice (orders are equivalent where asserted). */
-    private static JsonObject anyOrderingOption(Started started) {
-        List<JsonObject> options = new ArrayList<>();
+    /**
+     * Chooses a semantic trigger-order option. A unique preferred source is
+     * selected explicitly. If that source is absent, every remaining option
+     * must have the same source and the same Rules-visible label before any
+     * stable ordering is used; only then are the alternatives equivalent.
+     */
+    private static JsonObject triggerOrderOption(
+            Started started, String preferredUniqueSource, String equivalentFallbackSource) {
+        List<JsonObject> actions = new ArrayList<>();
+        List<JsonObject> preferred = new ArrayList<>();
+        String fallbackLabel = null;
         for (JsonElement element : started.session().legalActionsPayload()
                 .getAsJsonArray("actions")) {
-            options.add(element.getAsJsonObject());
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = action.getAsJsonObject("metadata");
+            JsonObject nativeMetadata = metadata.getAsJsonObject("xmage_option_metadata");
+            String source =
+                    nativeMetadata != null && nativeMetadata.has("source_name")
+                            ? nativeMetadata.get("source_name").getAsString()
+                            : "";
+            String label = metadata.get("label").getAsString();
+            assertTrue(
+                    preferredUniqueSource.equals(source)
+                            || equivalentFallbackSource.equals(source),
+                    "unexpected trigger-order source " + source + ": "
+                            + started.session().legalActionsPayload().getAsJsonArray("actions"));
+            actions.add(action);
+            if (preferredUniqueSource.equals(source)) {
+                preferred.add(action);
+            } else {
+                if (fallbackLabel == null) {
+                    fallbackLabel = label;
+                } else {
+                    assertEquals(
+                            fallbackLabel,
+                            label,
+                            "fallback trigger-order alternatives must be Rules-visible equivalents");
+                }
+            }
         }
-        options.sort((left, right) -> left.get("action_id").getAsString()
+        assertTrue(!actions.isEmpty(), "trigger-order decision must offer an option");
+        assertTrue(
+                preferred.size() <= 1,
+                "preferred trigger source must be unique: " + preferredUniqueSource);
+        if (preferred.size() == 1) {
+            return preferred.get(0);
+        }
+        for (JsonObject action : actions) {
+            JsonObject nativeMetadata = action.getAsJsonObject("metadata")
+                    .getAsJsonObject("xmage_option_metadata");
+            assertEquals(
+                    equivalentFallbackSource,
+                    nativeMetadata.get("source_name").getAsString(),
+                    "remaining trigger-order alternatives must be semantically equivalent");
+        }
+        actions.sort((left, right) -> left.get("action_id").getAsString()
                 .compareTo(right.get("action_id").getAsString()));
-        return options.get(0);
+        return actions.get(0);
+    }
+
+    /** Selects one explicitly named Rules-visible trigger, never a positional option. */
+    private static JsonObject triggerOrderByLabel(Started started, String fragment) {
+        JsonObject match = null;
+        String wanted = fragment.toLowerCase(java.util.Locale.ROOT);
+        JsonArray actions = started.session().legalActionsPayload().getAsJsonArray("actions");
+        for (JsonElement element : actions) {
+            JsonObject action = element.getAsJsonObject();
+            String label = action.getAsJsonObject("metadata").get("label").getAsString();
+            if (label.toLowerCase(java.util.Locale.ROOT).contains(wanted)) {
+                assertTrue(
+                        match == null,
+                        "trigger-order label fragment must identify exactly one option: " + fragment);
+                match = action;
+            }
+        }
+        assertNotNull(
+                match,
+                "no trigger-order option labelled *" + fragment + "*: " + actions);
+        return match;
     }
 
     /** The option of an amount/X choice whose value is exactly {@code value}. */
