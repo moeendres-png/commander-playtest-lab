@@ -8,6 +8,9 @@ silent failure this exists to catch.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from commander_lab.qualification.current_boundary.impact_adjudication import (
     IMPACTED,
     UNAFFECTED,
@@ -74,3 +77,58 @@ def test_a_finding_that_does_not_depend_on_the_defect_is_not_marked() -> None:
 def test_counts_cover_every_disposition() -> None:
     out = adjudicate_xmage_shuffle_impact(defect_change=default_defect_change())
     assert out["counts"][IMPACTED] + out["counts"][UNAFFECTED] == out["counts"]["total"]
+
+
+# ---------------------------------------------------------------------------
+# The durable bridge-validation artifact must be reproducible and must not
+# overclaim: the bridge suite passing is not the current-boundary column
+# passing.
+# ---------------------------------------------------------------------------
+
+ARTIFACT = Path("qualification/final-current-boundary-20260927/BRIDGE_VALIDATION_XMAGE.json")
+
+
+def _artifact() -> dict:
+    return json.loads(ARTIFACT.read_text(encoding="utf-8"))
+
+
+def test_bridge_validation_artifact_exists_and_binds_a_revision() -> None:
+    document = _artifact()
+    assert document["lab_revision"]["commit"]
+    assert document["lab_revision"]["tree"]
+
+
+def test_bridge_validation_was_captured_on_a_clean_bridge() -> None:
+    """The bridge is what was tested, so its cleanliness is the binding fact."""
+    revision = _artifact()["lab_revision"]
+    assert revision["bridge_dirty"] is False
+    assert revision["bridge_matches_recorded_revision"] is True
+
+
+def test_bridge_validation_records_no_failures() -> None:
+    totals = _artifact()["suite_totals"]
+    assert totals["failures"] == 0
+    assert totals["errors"] == 0
+    assert totals["tests"] > 0
+
+
+def test_bridge_validation_covers_the_shuffle_and_seed_suites() -> None:
+    document = _artifact()
+    assert document["focus_suites_missing"] == []
+    names = {str(s["suite"]).split(".")[-1] for s in document["focus_suites"]}
+    assert names == {
+        "XmageGenericLaneRulesSeedTest",
+        "XmageBridgePlayerFailClosedTest",
+        "XmageFullGameRulesSeedBindingTest",
+    }
+    cases = {case for suite in document["focus_suites"] for case in suite["cases"]}
+    # The two claims the adjudication rests on must be directly covered.
+    assert "genericBridgePlayerNeverOverridesTheEngineShuffle" in cases
+    assert "differentSeedChangesTheOpeningShuffle" in cases
+
+
+def test_bridge_validation_does_not_claim_the_column_is_requalified() -> None:
+    document = _artifact()
+    joined = " ".join(document["what_this_does_not_establish"])
+    assert "run_current_boundary_qualification.py" in joined
+    assert "AF05/AF09 stay UNKNOWN" in joined

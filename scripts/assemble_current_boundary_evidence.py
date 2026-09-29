@@ -23,6 +23,9 @@ sys.path.insert(0, str(REPO / "src"))
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     hidden_obligations as hidden_mod,
 )
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    impact_adjudication as impact_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     provider_binding as binding_mod,
@@ -548,6 +551,18 @@ def assemble() -> None:
         binding_inputs, PUBLISHED_CANDIDATE_HEADS
     )
     write("PROVIDER_EVIDENCE_BINDING.json", provider_bindings)
+
+    # ---- XMage shuffle-defect impact adjudication ---------------------------
+    # PR #293 removed a shuffleLibrary no-op that silently skipped CR 103.3 on
+    # the generic lane, which is the lane the committed XMage column ran on. The
+    # findings this workstream derived from that column are adjudicated against
+    # the defect rather than silently carried forward or silently discarded.
+    write(
+        "XMAGE_SHUFFLE_IMPACT_ADJUDICATION.json",
+        impact_mod.adjudicate_xmage_shuffle_impact(
+            defect_change=impact_mod.default_defect_change()
+        ),
+    )
 
     # ---- PB-08 per-obligation replay/RNG disposition ------------------------
     # Seed acknowledgement and the replay export seam are different obligations

@@ -1,0 +1,57 @@
+{
+ "candidate": "xmage",
+ "consequences": {
+  "dispositions_rewritten": false,
+  "gate_verdicts_changed": false,
+  "requalification_required": [
+   "xmage_hidden_01",
+   "xmage_hidden_02",
+   "xmage_pb08_seed_precondition"
+  ],
+  "why_not_requalified_here": "requalification needs scripts/run_current_boundary_qualification.py, which is under PR #284's active writer lock; the requirement is recorded and handed over rather than raced"
+ },
+ "counts": {
+  "IMPACTED_REQUALIFICATION_REQUIRED": 3,
+  "UNAFFECTED_BY_THE_DEFECT": 1,
+  "total": 4
+ },
+ "defect": {
+  "impact_scope_statement": "PR #293's handoff states that any generic-lane observation depending on library order, opening hands or shuffle events was produced under this defect, explicitly including the committed current-boundary XMage column, and asks for adjudication rather than deciding it",
+  "repaired_by": "938719d0",
+  "repaired_in": [],
+  "source": "commander-playtest-lab PR #293, MERGED to main as adee8b16: deleted the XmageBridgePlayer.shuffleLibrary no-op in favour of PlayerImpl.shuffleLibrary",
+  "summary": "XmageBridgePlayer.shuffleLibrary was a no-op, silently skipping CR 103.3 opening shuffles, mulligan shuffles and search-then-shuffle effects, leaving every library in decklist order and suppressing SHUFFLE_LIBRARY replacements and LIBRARY_SHUFFLED events"
+ },
+ "dispositions": {
+  "af11_technical_facts": {
+   "channel": "process/adapter topology, not game state",
+   "description": "interop and licence topology",
+   "disposition": "UNAFFECTED_BY_THE_DEFECT",
+   "reason": "the obligation does not depend on library order, opening hands or shuffle events, so the defect does not bear on it"
+  },
+  "xmage_hidden_01": {
+   "channel": "hand identity and opening-hand derivation",
+   "description": "opponent hand identities absent while count remains visible",
+   "disposition": "IMPACTED_REQUALIFICATION_REQUIRED",
+   "reason": "the obligation depends on library order, opening-hand contents or shuffle events, which the removed shuffleLibrary no-op corrupted: every library stayed in decklist order and every opening hand was derivable from it, so the observation cannot be cited for the current bridge"
+  },
+  "xmage_hidden_02": {
+   "channel": "library order",
+   "description": "library identities/order absent while count remains visible",
+   "disposition": "IMPACTED_REQUALIFICATION_REQUIRED",
+   "reason": "the obligation depends on library order, opening-hand contents or shuffle events, which the removed shuffleLibrary no-op corrupted: every library stayed in decklist order and every opening hand was derivable from it, so the observation cannot be cited for the current bridge"
+  },
+  "xmage_pb08_seed_precondition": {
+   "channel": "Rules randomness binding",
+   "description": "Rules RNG seed control on the generic lane",
+   "disposition": "IMPACTED_REQUALIFICATION_REQUIRED",
+   "reason": "the obligation depends on library order, opening-hand contents or shuffle events, which the removed shuffleLibrary no-op corrupted: every library stayed in decklist order and every opening hand was derivable from it, so the observation cannot be cited for the current bridge"
+  }
+ },
+ "schema_version": "commander-lab.impact-adjudication/1.0.0",
+ "what_this_does_not_say": [
+  "that the repaired bridge now satisfies any impacted obligation, which only a fresh run at the repaired revision can establish",
+  "that the pre-repair run was fabricated, which it was not: it faithfully reports the lane that existed",
+  "that any gate verdict moves, in either direction"
+ ]
+}

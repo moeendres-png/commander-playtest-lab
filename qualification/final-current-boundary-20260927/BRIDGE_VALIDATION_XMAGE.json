@@ -1,12 +1,14 @@
 {
   "schema_version": "commander-lab.bridge-validation/1.0.0",
   "candidate": "xmage",
-  "captured_utc": "2026-09-29T00:42:53+00:00",
+  "captured_utc": "2026-09-29T00:43:19+00:00",
   "lab_revision": {
-    "commit": "669c502276d31fb32decd2f16493c2bfa68e9ea0",
-    "tree": "db378e7e59f7dc2153d52286e756d2ee1caf9a19",
-    "dirty": true,
-    "note": "a dirty tree means this run is not reproducible from the commit alone"
+    "commit": "fae5819a42a20f8055d17e007ee24ee779d522ea",
+    "tree": "2da579159916f20eec56e7940cb11873d5b352b3",
+    "tree_dirty": false,
+    "bridge_dirty": false,
+    "bridge_matches_recorded_revision": true,
+    "note": "bridge_dirty=false and bridge_matches_recorded_revision=true mean this result is reproducible from the recorded commit; tree_dirty describes the whole worktree and is expected to be true while the capturing script itself is being added"
   },
   "suite_totals": {
     "tests": 344,

@@ -41,7 +41,66 @@ on every run and refuses credit if any differ.
 
 ---
 
-## 1b. Published candidate heads newer than the consumed evidence
+## 1b. Candidate heads newer than the consumed evidence — BOTH candidates are stale
+
+**All four committed candidate artifacts are now `STALE_FOR_PUBLISHED_HEAD`:
+both XMage artifacts and both Forge artifacts.** Neither candidate column
+describes the bridge that currently exists. This is recorded rather than
+resolved, because regenerating either column needs
+`scripts/run_current_boundary_qualification.py`, which is under PR #284's active
+writer lock.
+
+### XMage — PR #293, merged, Rule-randomness defect repaired
+
+PR #293 (merged to `main` as `adee8b16`) found and removed a silent skip of
+Rules randomness on the XMage **generic lane** — the lane the current-boundary
+pipeline uses. `XmageBridgePlayer.shuffleLibrary` was overridden as a no-op, so:
+
+* CR 103.3 opening shuffles never happened, and neither did mulligan shuffles nor
+  any "search … then shuffle";
+* every library stayed in decklist order, so a principal who knew the decklist
+  knew every library order **and every opening hand**;
+* the engine's `SHUFFLE_LIBRARY` replacement check and `LIBRARY_SHUFFLED` event
+  were suppressed, so shuffle replacements and triggers could never fire.
+
+The same change binds the generic-lane Rules RNG seed and flips
+`seed_supported` to `true`. The committed XMage artifacts consumed adapter commit
+`f432605e`, which is on a parallel lineage and does not contain this change, so
+they describe the old bridge.
+
+**Directly verified at the repaired revision** (`BRIDGE_VALIDATION_XMAGE.json`,
+bridge clean, `bridge_matches_recorded_revision: true`): the engine-bridge suite
+is **344 tests, 0 failures, 0 errors**, and the focus suites pass —
+`genericBridgePlayerNeverOverridesTheEngineShuffle`,
+`differentSeedChangesTheOpeningShuffle`,
+`bridgeAcknowledgesTheSeedFromEngineReadback`,
+`principalScopedStateNeverCarriesTheSeedValue`, and
+`sameSeedReproducesEveryOpeningLibraryAndHandForTwoToFivePlayers` (2P–5P).
+
+That is a **bridge-level capability result, not a column requalification.** The
+FULL107 rows are produced by the runner, so AF05/AF09 stay `UNKNOWN`.
+
+### XMage — impact on findings this workstream derived
+
+`XMAGE_SHUFFLE_IMPACT_ADJUDICATION.json` classifies the XMage-derived findings.
+The rule is deliberately narrow: a finding is impacted only when its obligation
+depends on library order, opening-hand contents or shuffle events.
+
+| Finding | Disposition | Why |
+|---|---|---|
+| `xmage_hidden_01` opponent hand identities absent, count visible | **IMPACTED — requalification required** | opening hands were the first seven cards of the decklist, so hand contents were derivable from the ordering |
+| `xmage_hidden_02` library identities/order absent, count visible | **IMPACTED — requalification required** | the defect made library order derivable from the decklist, which is the disclosure this obligation forbids |
+| `xmage_pb08_seed_precondition` | **IMPACTED — requalification required** | the same change flipped the lane from `seed_supported: false` to a validated Rules seed |
+| `af11_technical_facts` | unaffected | process topology and licence metadata do not depend on library order or RNG |
+
+The projection did mask the arrays in both hidden rows; the **lane** still failed
+the obligation, because a principal holding the decklist read both off the
+ordering. No verdict moves and no disposition is rewritten — the findings are
+marked as no longer citable for the current bridge.
+
+### Forge — PR #6, still open
+
+
 
 Two Forge pull requests are published against the head the committed evidence
 consumed. Neither is merged, and **no committed Forge artifact is valid for
@@ -398,10 +457,11 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | Blocker | Side | Status after this workstream | Basis |
 |---|---|---|---|
 | PB-03 starting-state classification | both | **RESOLVED** (mechanism); block attribution now per candidate | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
+| XMage evidence staleness | xmage | **STALE — REQUALIFICATION REQUIRED** | PR #293 (merged `adee8b16`) removed the `shuffleLibrary` no-op that silently skipped CR 103.3 opening/mulligan shuffles and left every library in decklist order, then bound the generic-lane Rules RNG seed. Committed XMage artifacts consumed adapter `f432605e`, which does not contain the change. Bridge capability is directly verified at the repaired revision (344 tests, 0 failures); the FULL107 column is not, and needs `run_current_boundary_qualification.py` under PR #284's lock. HIDDEN_01, HIDDEN_02 and the PB-08 seed precondition are marked IMPACTED (§1b) |
 | PB-05 build provenance | forge | **RESOLVED** | Forge PR #5 (continuing the PR #4 repair) removes the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
 | PB-06 per-scenario hidden channels | both | **SPLIT: Forge RESOLVED on this boundary; XMage historical** | Forge now marks the observing principal (`observer_player_id` + exactly one `players[].is_actor`); `HIDDEN_INFO_FORGE.json` is `PRINCIPAL_SCOPED`, attribution `NONE`, four established requesters, and the distinctness comparison is content-only. The committed XMage artifact remains the pre-#283 demonstrated leak; PR #283 carries the XMage remediation and its own exact-head runtime verification, and this workstream does not re-run it. Per-scenario channels remain unexecuted (§6.2) |
 | PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4). Additionally **28 of the 29 mandatory `CARD_nn` fixtures are not rows in the 107 denominator at all** (§6.5), so AF07 is partly a denominator-accounting question; the execution dispatch is under PR #284's active writer lock |
-| PB-08 clean-process replay twin | both | **SPLIT: Forge seed acknowledgement RESOLVED; twin rows BLOCKED** | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge now acknowledges the accepted seed from engine state in the creation transaction (`ACKNOWLEDGED_ENGINE_SEED`, `rng_credit: true`); the clean-process twin half per fixture remains unproven and is what keeps AF09 `UNKNOWN`. Per-obligation: Forge observes 1 precondition and 4 unestablished, XMage 0 and 5; **both candidates refuse the semantic replay export**, so the four `REPLAY_*` obligations need that seam on either side (§6.6) |
+| PB-08 clean-process replay twin | both | **SPLIT: both seed paths now exist at bridge level; twin rows BLOCKED; XMage column STALE** | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge now acknowledges the accepted seed from engine state in the creation transaction (`ACKNOWLEDGED_ENGINE_SEED`, `rng_credit: true`); the clean-process twin half per fixture remains unproven and is what keeps AF09 `UNKNOWN`. Per-obligation: Forge observes 1 precondition and 4 unestablished, XMage 0 and 5; **both candidates refuse the semantic replay export**, so the four `REPLAY_*` obligations need that seam on either side (§6.6). XMage's recorded 0 preconditions is a statement about the pre-#293 bridge and is **IMPACTED**: the repaired lane binds a validated Rules seed (`BRIDGE_VALIDATION_XMAGE.json`), so the XMage column must be regenerated before its PB-08 disposition is cited (§1b) |
 | PB-09 Forge candidate identity | coordinator | **RESOLVED — IDENTITY SPLIT** | resolved as an identity split: the production candidate is the Lab fork `ef958ee9` (tree `fc3387bf`), and upstream `a37a865a` is retained for attribution and control only. The four Forge commits are kept distinct and no result is transferred between them (§1) |
 | Aftermath `Find // Finality` | forge | **NON_BLOCKING_CAPABILITY_GAP** | not decision- or release-blocking on current evidence; recorded, no engine mutation opened |
 | Forge PR #6 supersedes consumed evidence | forge | **STALE — REQUALIFICATION REQUIRED** | PR #6 (`6f70e32e`, OPEN draft) rewrites the production Rules Core `forge-game/.../card/Card.java` and the bridge. Committed Forge artifacts consumed Rules Core `ef958ee9` + bridge `e15f37d6`, so **nothing transfers**; split/fuse aftermath semantics are directly affected. Enforced by `PROVIDER_EVIDENCE_BINDING.json` (§1b) |
