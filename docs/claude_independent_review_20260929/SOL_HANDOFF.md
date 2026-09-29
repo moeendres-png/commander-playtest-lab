@@ -66,3 +66,11 @@ Obsolete worktree: `/home/moeen/code/claude-xmage-2p-draw-skip-20260929`; its br
 ## Exact next action
 
 Merge this branch after green CI. Then adjudicate F-11 before any Forge PB-07 or Forge #6 credit. Then land #300 and requalify the XMage 2P rows.
+
+## Addendum — branch `claude/xmage-special-mana-actions-20260929` (after #305)
+
+- **F-12 fixed (production bridge change, full-game lane).** `XmageFullGamePlayer.playMana` now projects the engine-authored special mana actions (delve, convoke, improvise), as XMage's human player does. `XmageFullGameActionProjection` maps `special_mana_action` to `pay_cost`, and its projection test pins that.
+  - Impact: this adds payment options only where the engine offers them. Pilots of already-qualified games with no delve/convoke/improvise cards see no difference, so evidence for those runs is NON_IMPACTING. Any lane evidence involving such cards needs re-execution.
+- **F-14 resolved.** Divided damage needs target plus amount in one response; Magma Opus passes.
+- **XMage corpus:** 25 of 29 cards now have native Oracle-derived runtime probes. Missing: CARD_04 Kediss, CARD_27 Path (F-13, UNKNOWN) and CARD_29 Boseiju; CARD_02 has older tests.
+- Validation: engine-bridge suite 416 run, 0 failures, 2 skipped (START-2 provenance; F-13).

@@ -1435,6 +1435,43 @@ class XmageActualCardCorpusTest {
         assertEquals(decisionId, after.get("executed_decision_id").getAsString());
     }
 
+    /** Answers a divided-amount target decision: one target by engine id plus its amount. */
+    private static void submitTargetAmount(Started started, String tag, String objectId, int amount) {
+        XmageFullGameSession session = started.session();
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        JsonObject legal = session.legalActionsPayload();
+        String optionId = null;
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+            JsonObject engine = meta.getAsJsonObject("xmage_option_metadata");
+            if (engine != null && engine.has("object_id")
+                    && objectId.equals(engine.get("object_id").getAsString())) {
+                assertTrue(optionId == null, "unique target option expected");
+                optionId = meta.get("option_id").getAsString();
+            }
+        }
+        assertNotNull(optionId, "target must be engine-offered: " + objectId);
+        String decisionId = pending.get("decision_id").getAsString();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", decisionId + ":" + optionId);
+        proposal.addProperty("action_type", "choose_targets");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", decisionId);
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        JsonArray selected = new JsonArray();
+        selected.add(optionId);
+        choices.add("selected_option_ids", selected);
+        choices.addProperty("numeric_choice", amount);
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        JsonObject after = session.submitAction(proposal);
+        assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+    }
+
     /** Submits an empty selection for an optional (minimum 0) target/object choice. */
     private static void chooseNone(Started started, String tag) {
         XmageFullGameSession session = started.session();
@@ -1531,10 +1568,6 @@ class XmageActualCardCorpusTest {
      * Islands pay {U}{U}.
      */
     @Test
-    @org.junit.jupiter.api.Disabled("FINDING F-12: the full-game lane's mana_payment decision "
-            + "offers only mana abilities and 'Cancel mana payment' (pay_cost); delve is not "
-            + "projected, so an external pilot cannot pay Dig Through Time's {6} by exiling "
-            + "graveyard cards. Observed 2026-09-29 on pin b1959698. Enable once delve is exposed.")
     void digThroughTimeDelvesSixAndKeepsTwoOfSeven() {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.addAll(lands("P1", "Island", 2));
@@ -1547,15 +1580,57 @@ class XmageActualCardCorpusTest {
         int libraryBefore = started.seats().get("P1").getLibrary().size();
 
         cast(started, "card12-cast", "Dig Through Time");
-        resolveAll(started, "card12", ISLAND_LABEL, (cls, step) -> {
+        boolean[] delved = {false};
+        int[] delvePicks = {0};
+        resolveAll(started, "card12", null, (cls, step) -> {
             String text = prompt(started);
-            if (("choose_object".equals(cls) || "target".equals(cls)) && text.contains("xile")) {
-                chooseNamed(started, "card12-delve-" + step, "Memnite", 6);
+            if ("mana_payment".equals(cls)) {
+                JsonObject delve = null;
+                boolean islandOffered = false;
+                for (JsonElement element : started.session().legalActionsPayload()
+                        .getAsJsonArray("actions")) {
+                    JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+                    String type = meta.get("option_type").getAsString();
+                    String label = meta.get("label").getAsString();
+                    if (("mana_ability".equals(type) && label.equals(ISLAND_LABEL))
+                            || "mana_pool".equals(type)) {
+                        islandOffered = true;
+                    }
+                    if ("special_mana_action".equals(type) && label.contains("Delve")) {
+                        assertTrue(delve == null, "unique delve action expected");
+                        delve = element.getAsJsonObject();
+                    }
+                }
+                if (islandOffered) {
+                    return payOneFromRestoredMana(started, "card12-pay-" + step,
+                            List.of("Island"), java.util.Set.of(ISLAND_LABEL));
+                }
+                assertNotNull(delve, "delve must be engine-offered once only {6} remains: "
+                        + started.session().legalActionsPayload().getAsJsonArray("actions"));
+                submit(started, "card12-delve-action-" + step, delve);
+                delved[0] = true;
+                return true;
+            }
+            if (("choose_object".equals(cls) || "target".equals(cls))
+                    && started.session().legalActionsPayload().getAsJsonArray("actions")
+                            .toString().contains("Memnite")) {
+                // Delve's exile choice, one card per request: the graveyard
+                // holds exactly six Memnites and {6} is owed, so six picks.
+                if (delvePicks[0] < 6) {
+                    chooseNamed(started, "card12-delve-" + step, "Memnite", 1);
+                    delvePicks[0]++;
+                } else {
+                    chooseNone(started, "card12-delve-done-" + step);
+                }
                 return true;
             }
             if ("choose_object".equals(cls) || "target".equals(cls)) {
                 // The top seven are all Mountains: every pick is equivalent.
-                chooseNamed(started, "card12-pick-" + step, "Mountain", 2);
+                // The engine asks one card at a time.
+                JsonObject pending = started.session().pendingDecisionPayload()
+                        .getAsJsonObject("decision");
+                chooseNamed(started, "card12-pick-" + step, "Mountain",
+                        Math.max(1, pending.get("minimum_selections").getAsInt()));
                 return true;
             }
             if ("choose_use".equals(cls) && text.toLowerCase().contains("delve")) {
@@ -1565,6 +1640,7 @@ class XmageActualCardCorpusTest {
             return false;
         });
 
+        assertTrue(delved[0], "delve was chosen as an engine-offered special mana action");
         long exiledMemnites = started.session().restorationGame().getExile()
                 .getAllCards(started.session().restorationGame()).stream()
                 .filter(card -> "Memnite".equals(card.getName())).count();
@@ -1583,10 +1659,6 @@ class XmageActualCardCorpusTest {
      * Bears.
      */
     @Test
-    @org.junit.jupiter.api.Disabled("UNKNOWN: the divided-damage target_amount decision "
-            + "(\"Select targets (selected 0 of 4) (damage)\") ended the game when answered with "
-            + "a single-target selection; the lane's accepted response shape for divided damage "
-            + "is not yet established. Not a Rules claim either way.")
     void magmaOpusDividesFourTapsTwoMakesAFourFourAndDrawsTwo() {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(battlefield("P1", "Island", 0));
@@ -1600,6 +1672,7 @@ class XmageActualCardCorpusTest {
         submit(started, "card09-cast",
                 singleOffer(offers(started, "Magma Opus", "Cast Magma Opus", true), "Magma Opus cast"));
         int[] targetRounds = {0};
+        int[] tapPicks = {0};
         resolveAll(started, "card09", null, (cls, step) -> {
             if ("mana_payment".equals(cls)) {
                 return payOneFromRestoredMana(started, "card09-pay-" + step,
@@ -1608,14 +1681,30 @@ class XmageActualCardCorpusTest {
             }
             String text = prompt(started).toLowerCase();
             if ("target".equals(cls) && text.contains("tap")) {
-                chooseNamed(started, "card09-tap-" + step, "Grizzly Bears", 2);
+                // "Tap two target permanents": P2's two Bears, by engine identity.
+                List<String> bears = new ArrayList<>();
+                for (Permanent permanent : started.session().restorationGame()
+                        .getBattlefield().getAllPermanents()) {
+                    if ("Grizzly Bears".equals(permanent.getName())) {
+                        bears.add(permanent.getId().toString());
+                    }
+                }
+                int max = started.session().pendingDecisionPayload().getAsJsonObject("decision")
+                        .get("maximum_selections").getAsInt();
+                chooseByObjectIds(started, "card09-tap-" + step,
+                        max >= 2 ? bears : List.of(bears.get(tapPicks[0]++)));
                 return true;
             }
             if ("target_amount".equals(cls) && targetRounds[0] == 0) {
-                // Divided damage: all 4 at P2 (one target receives all).
-                chooseByObjectIds(started, "card09-dmg-" + step,
-                        List.of(started.seats().get("P2").getId().toString()));
+                // Divided damage: the target and its share are one response
+                // (options + numeric). All 4 at P2.
+                submitTargetAmount(started, "card09-dmg-" + step,
+                        started.seats().get("P2").getId().toString(), 4);
                 targetRounds[0]++;
+                return true;
+            }
+            if ("target_amount".equals(cls)) {
+                chooseNone(started, "card09-dmg-done-" + step);
                 return true;
             }
             return false;
