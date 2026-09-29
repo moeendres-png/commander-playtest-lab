@@ -127,6 +127,172 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "bolt_count": 14,
         "terminal": "victim_eliminated_by_engine",
     },
+    "WS05-CMD-ZONE-GY-NO": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-swamp-a",
+                "card_identity": "Swamp",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-swamp-b",
+                "card_identity": "Swamp",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-CMD-ZONE-EXILE-YES": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-plains-a",
+                "card_identity": "Plains",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-CMD-ZONE-EXILE-NO": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-plains-a",
+                "card_identity": "Plains",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-CMD-ZONE-HAND-YES": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-island-a",
+                "card_identity": "Island",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-CMD-ZONE-HAND-NO": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-island-a",
+                "card_identity": "Island",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-CMD-ZONE-LIB-YES": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-forest-a",
+                "card_identity": "Forest",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-plains-a",
+                "card_identity": "Plains",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-island-a",
+                "card_identity": "Island",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-CMD-ZONE-LIB-NO": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-forest-a",
+                "card_identity": "Forest",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-plains-a",
+                "card_identity": "Plains",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-island-a",
+                "card_identity": "Island",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "commander_zone_choice",
+    },
+    "WS05-MP-ELIM-OWNED-3": {
+        "entry_mode": "causal_elimination",
+        "elimination_actor": "P1",
+        "elimination_victim": "P2",
+        "bolt_count": 14,
+        "terminal": "victim_eliminated_by_engine",
+    },
+    "WS05-MP-ELIM-CONTROL-3": {
+        "entry_mode": "causal_elimination",
+        "elimination_actor": "P1",
+        "elimination_victim": "P2",
+        "bolt_count": 14,
+        "terminal": "victim_eliminated_by_engine",
+    },
+    "WS05-MP-ELIM-TURN-3": {
+        "entry_mode": "causal_elimination",
+        "elimination_actor": "P1",
+        "elimination_victim": "P2",
+        "bolt_count": 14,
+        "terminal": "victim_eliminated_by_engine",
+    },
+    "WS05-MP-ELIM-5": {
+        "entry_mode": "causal_elimination",
+        "elimination_actor": "P1",
+        "elimination_victim": "P3",
+        "bolt_count": 14,
+        "terminal": "victim_eliminated_by_engine",
+    },
+    "WS05-MP-ELIM-STACK-3": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "stack_with_elimination_pending",
+    },
+    "WS05-MP-TURN-5": {
+        "entry_mode": "placement",
+        "terminal": "extra_turns_in_order",
+    },
+    "WS05-MP-BLOCK-4": {
+        "entry_mode": "placement",
+        "terminal": "blocker_partition",
+    },
+    "MICRO_REPLACEMENT": {
+        "entry_mode": "placement",
+        "terminal": "damage_doubled_to_six",
+    },
 }
 
 
@@ -290,11 +456,43 @@ def probe_row(workspace: Path, classpath: str, fixture_id: str) -> dict[str, Any
             return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         try:
             row_verdict = drive_arrival(client, record)
+        except ml.MidgameLaneTimeout as exc:
+            # The child accepted a request and never answered. Nothing about the
+            # engine's starting-state capability can be concluded from this, so
+            # the row is a transport failure with no reachability credit.
+            verdict = ml.transport_failure_verdict(
+                fixture_id,
+                ml.MIDGAME_LANE,
+                code="MIDGAME_LANE_TIMEOUT",
+                detail=str(exc),
+                engine_commit=client.engine_commit,
+            )
+            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
+        except ml.MidgameLaneProtocolError as exc:
+            verdict = ml.transport_failure_verdict(
+                fixture_id,
+                ml.MIDGAME_LANE,
+                code="MIDGAME_LANE_PROTOCOL_VIOLATION",
+                detail=str(exc),
+                engine_commit=client.engine_commit,
+            )
+            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
+        except ml.MidgameLaneTransportError as exc:
+            verdict = ml.transport_failure_verdict(
+                fixture_id,
+                ml.MIDGAME_LANE,
+                code="MIDGAME_LANE_TRANSPORT_FAILURE",
+                detail=str(exc),
+                engine_commit=client.engine_commit,
+            )
+            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         except ml.MidgameLaneError as exc:
             # The engine accepted the explicit starting state; the probe only
             # failed to execute the row's own scripted obligation. Recorded
             # distinctly so an accepted starting state is never reported as an
-            # engine rejection, and never as a row-level pass either.
+            # engine rejection, and never as a row-level pass either. Only an
+            # explicitly recognized obligation case reaches this handler;
+            # transport, protocol and timeout failures are handled above.
             verdict = ml.rejected_verdict(
                 fixture_id,
                 ml.MIDGAME_LANE,
@@ -382,15 +580,6 @@ def find_native_offer(legal: dict[str, Any], native_id: str) -> dict[str, Any] |
             if value == native_id:
                 return action
     return None
-
-
-def find_pool_spend(legal: dict[str, Any]) -> dict[str, Any] | None:
-    spends = [
-        action
-        for action in legal.get("actions") or ()
-        if (action.get("metadata") or {}).get("option_type") == "mana_pool"
-    ]
-    return spends[0] if len(spends) == 1 else None
 
 
 def drain_combat_to_priority(client: ml.MidgameLaneClient, tag: str) -> None:
@@ -505,6 +694,58 @@ def answer_player_target(
     raise ml.MidgameLaneError(f"{tag}: the target was never offered")
 
 
+def normalize_words(text: str) -> list[str]:
+    import re
+
+    return [w for w in re.sub(r"[^a-z ]", "", text.lower()).split() if w]
+
+
+def is_subsequence(needles: list[str], haystack: list[str]) -> bool:
+    cursor = 0
+    for needle in needles:
+        while cursor < len(haystack) and haystack[cursor] != needle:
+            cursor += 1
+        if cursor >= len(haystack):
+            return False
+        cursor += 1
+    return True
+
+
+def answer_mode(
+    client: ml.MidgameLaneClient,
+    tag: str,
+    mode_token: str,
+) -> None:
+    """Select the engine-offered mode matching the frame's mode token.
+
+    The frame names a mode by its rules token (e.g.
+    put_creature_on_bottom_of_owners_library); the engine offers labels
+    (e.g. "put target creature on the bottom of its owner's library.").
+    The token's words must appear in order in exactly one offered label.
+    Zero or multiple matches fail closed rather than guessing.
+    """
+    wanted = normalize_words(mode_token.replace("_", " "))
+    for _ in range(10):
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError(f"{tag}: the engine went terminal seeking the mode")
+        if str(decision.get("decision_class")) != "mode":
+            raise ml.MidgameLaneError(
+                f"{tag}: expected a mode decision, observed {decision.get('decision_class')}"
+            )
+        matches: list[str] = []
+        for option in decision.get("legal_options") or ():
+            if is_subsequence(wanted, normalize_words(str(option.get("label") or ""))):
+                matches.append(str(option.get("option_id")))
+        if len(matches) != 1:
+            raise ml.MidgameLaneError(
+                f"{tag}: expected exactly one mode matching {mode_token}, observed {len(matches)}"
+            )
+        client.submit_options(decision, matches)
+        return
+    raise ml.MidgameLaneError(f"{tag}: the mode was never offered")
+
+
 def answer_fuel_mana(
     client: ml.MidgameLaneClient,
     tag: str,
@@ -518,7 +759,7 @@ def answer_fuel_mana(
     once each. A fuel card the engine never offers is never touched.
     """
     fuel_set = set(fuel_native_ids)
-    for _ in range(40):
+    for _ in range(60):
         decision = client.pending_decision()
         if decision is None:
             raise ml.MidgameLaneError(f"{tag}: the engine went terminal seeking mana")
@@ -538,9 +779,25 @@ def answer_fuel_mana(
                 break
         if tapped:
             continue
-        spend = find_pool_spend(legal)
+        # Spend pool mana the engine marks as advancing the payment. The
+        # engine withdraws spent mana from later offers, so a repeated color
+        # across polls is fresh mana, not a repeat.
+        spend = None
+        for action in legal.get("actions") or ():
+            metadata = action.get("metadata") or {}
+            if metadata.get("option_type") != "mana_pool":
+                continue
+            engine = metadata.get("xmage_option_metadata") or {}
+            advances = (
+                "advances_payment" not in engine
+                or engine.get("advances_payment") is None
+                or bool(engine.get("advances_payment"))
+            )
+            if advances:
+                spend = action
+                break
         if spend is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no single pool spend")
+            raise ml.MidgameLaneError(f"{tag}: the engine offered no advancing pool spend")
         submit_proposal(client, legal, spend, f"{tag}-spend")
 
 
@@ -566,6 +823,8 @@ def causal_stack_frames(
     for frame in causal_plan.get("frames_bottom_to_top") or ():
         frame_tag = f"{tag}-{frame.get('semantic_id')}"
         cast_frame_source(client, frame_tag, str(frame.get("native_source_id")))
+        for mode in frame.get("modes") or ():
+            answer_mode(client, f"{frame_tag}-mode", str(mode))
         for target in frame.get("targets") or ():
             if target in placed:
                 answer_object_target(client, f"{frame_tag}-target", placed[target])
@@ -658,6 +917,412 @@ def resolve_and_record_classes(
     }
 
 
+def drive_placement_obligation(
+    client: ml.MidgameLaneClient,
+    fixture_id: str,
+    record: dict[str, Any],
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    """Execute a placement row's scripted obligation through the lane.
+
+    The starting state is placed (not causally reconstructed); the pilot then
+    drives the engine through the record's own decision script — declarations,
+    blocks, damage steps, turn progressions — selecting only engine-offered
+    options. Used for rows whose requested state needs no stack but whose
+    obligation needs gameplay.
+    """
+    terminal_kind = str(spec.get("terminal"))
+    drive_to_precombat_main(client, record)
+    if terminal_kind == "blocker_partition":
+        terminal = execute_block_partition(client, fixture_id, record)
+    elif terminal_kind == "damage_doubled_to_six":
+        terminal = execute_damage_observation(client, fixture_id, record)
+    elif terminal_kind == "extra_turns_in_order":
+        terminal = execute_turn_sequence(client, fixture_id, record)
+    else:
+        raise ml.MidgameLaneError(f"unknown placement terminal: {terminal_kind}")
+    verdict = {"causal_match": True, "mismatches": []}
+    row_verdict = ml.classification_from_causal_verdict(
+        fixture_id,
+        ml.MIDGAME_LANE,
+        "placement",
+        verdict,
+        terminal,
+        engine_commit=client.engine_commit,
+    )
+    return row_verdict.as_dict()
+
+
+def execute_block_partition(
+    client: ml.MidgameLaneClient,
+    fixture_id: str,
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    """Declare a2->P2 and a3->P3, then have P2 block a2 with the Bear.
+
+    Routes attackers by engine-offered defender labels and records native
+    attacker identities for the partition proof. Holds all other attackers.
+    """
+    script = record.get("decision_script") or []
+    block_step = next((s for s in script if s.get("decision_family") == "declare_blocker"), None)
+    if block_step is None:
+        raise ml.MidgameLaneError(f"{fixture_id}: the record names no block step")
+    # The record's combat_state names the obligated attacks.
+    combat = record.get("combat_state") or {}
+    obligated = dict(combat.get("attackers") or {})
+    defender_by_attacker: dict[str, str] = {}
+    remaining = set(obligated.values())
+    for _ in range(60):
+        if not remaining:
+            break
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError(f"{fixture_id}: terminal while declaring")
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "priority":
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError(f"{fixture_id}: no pass offered")
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class != "declare_attacker":
+            break
+        answered = False
+        for option in decision.get("legal_options") or ():
+            if option.get("option_type") != "declare_attacker":
+                continue
+            label = str(option.get("label") or "")
+            for defender_principal in obligated.values():
+                seat = seat_label(str(defender_principal))
+                if label.endswith("attacks " + seat) and defender_principal in remaining:
+                    client.submit_options(decision, [str(option.get("option_id"))])
+                    # Record the native attacker behind this declaration from
+                    # the option metadata for the partition proof.
+                    metadata = option.get("metadata") or {}
+                    native_id = str(metadata.get("object_id") or "")
+                    if native_id:
+                        defender_by_attacker[native_id] = seat
+                    remaining.remove(defender_principal)
+                    answered = True
+                    break
+            if answered:
+                break
+        if not answered:
+            held = option_of_type(decision, "hold_attacker")
+            if held is None:
+                raise ml.MidgameLaneError(f"{fixture_id}: no hold offered")
+            client.submit_options(decision, [held])
+    if remaining:
+        raise ml.MidgameLaneError(
+            f"{fixture_id}: obligated attacks never declared: {sorted(remaining)}"
+        )
+    # Hold the rest so the engine reaches blockers.
+    for _ in range(20):
+        decision = client.pending_decision()
+        if decision is None:
+            break
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "priority":
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                break
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class != "declare_attacker":
+            break
+        held = option_of_type(decision, "hold_attacker")
+        if held is None:
+            break
+        client.submit_options(decision, [held])
+    # P2 blocks. Route by seat; identify the Bear by the engine prompt.
+    p2_attackers = {nid for nid, seat in defender_by_attacker.items() if "Seat 2" in seat}
+    other_attackers = set(defender_by_attacker) - p2_attackers
+    for _ in range(60):
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError(f"{fixture_id}: terminal seeking the block")
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "priority":
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError(f"{fixture_id}: no pass offered")
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class != "declare_blocker":
+            break
+        if int(decision.get("seat") or -1) != 1:
+            submit_empty_block(client, f"probe-{fixture_id}")
+            continue
+        prompt = str(decision.get("prompt") or "")
+        if "Runeclaw Bear" not in prompt:
+            submit_empty_block(client, f"probe-{fixture_id}")
+            continue
+        legal = legal_actions(client)
+        offered: set[str] = set()
+        bear_offer: dict[str, Any] | None = None
+        for action in legal.get("actions") or ():
+            metadata = action.get("metadata") or {}
+            if metadata.get("option_type") != "declare_blocker":
+                continue
+            engine = metadata.get("xmage_option_metadata") or {}
+            attacker_id = str(engine.get("attacker_id") or "")
+            if attacker_id:
+                offered.add(attacker_id)
+                bear_offer = action
+        if not (p2_attackers & offered):
+            raise ml.MidgameLaneError(f"{fixture_id}: P2 was never offered its obligated attacker")
+        if other_attackers & offered:
+            raise ml.MidgameLaneError(
+                f"{fixture_id}: P2 was offered an attacker it does not defend "
+                f"(CR 802.4a partition violated)"
+            )
+        if bear_offer is None:
+            raise ml.MidgameLaneError(f"{fixture_id}: no block action offered")
+        submit_proposal(client, legal, bear_offer, f"probe-{fixture_id}-block")
+        return {
+            "kind": "blocker_partition",
+            "observed": True,
+            "detail": f"P2 blocked exactly its obligated attacker; "
+            f"{len(other_attackers)} non-defended attacker(s) correctly absent",
+        }
+    raise ml.MidgameLaneError(f"{fixture_id}: P2 never executed the block")
+
+
+def submit_empty_block(client: ml.MidgameLaneClient, tag: str) -> None:
+    legal = legal_actions(client)
+    proposal = {
+        "proposal_id": f"{tag}-noblock",
+        "actor_id": legal["actor_id"],
+        "legal_action_id": None,
+        "action_type": "structural_decision",
+        "target_ids": [],
+        "selected_modes": [],
+        "choices": {"ordering": []},
+        "decision_tier": 1,
+        "policy_name": "midgame-causal-external-pilot",
+    }
+    response = client.request("submit_action", {"proposal": proposal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError(f"{tag}: empty block rejected")
+
+
+def execute_damage_observation(
+    client: ml.MidgameLaneClient,
+    fixture_id: str,
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    """Declare the Giant at P2, walk to combat damage, read P2's life."""
+    before = arrival_life(client, "P2")
+    giant_declared = False
+    for _ in range(60):
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError(f"{fixture_id}: terminal while declaring")
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "priority":
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError(f"{fixture_id}: no pass offered")
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class != "declare_attacker":
+            break
+        answered = False
+        for option in decision.get("legal_options") or ():
+            if option.get("option_type") != "declare_attacker":
+                continue
+            label = str(option.get("label") or "")
+            if label.startswith("Hill Giant") and label.endswith("attacks Full Game Seat 2"):
+                client.submit_options(decision, [str(option.get("option_id"))])
+                giant_declared = True
+                answered = True
+                break
+        if not answered:
+            held = option_of_type(decision, "hold_attacker")
+            if held is None:
+                raise ml.MidgameLaneError(f"{fixture_id}: no hold offered")
+            client.submit_options(decision, [held])
+        if giant_declared:
+            break
+    if not giant_declared:
+        raise ml.MidgameLaneError(f"{fixture_id}: the Hill Giant never attacked P2")
+    for _ in range(20):
+        decision = client.pending_decision()
+        if decision is None:
+            break
+        if str(decision.get("decision_class")) != "declare_attacker":
+            break
+        held = option_of_type(decision, "hold_attacker")
+        if held is None:
+            break
+        client.submit_options(decision, [held])
+    for _ in range(80):
+        observation = client.complete_arrival().get("readback") or {}
+        if observation.get("step") == "COMBAT_DAMAGE":
+            after = arrival_life(client, "P2")
+            return {
+                "kind": "damage_doubled_to_six",
+                "observed": after == before - 6,
+                "detail": f"P2 life moved {before} -> {after} (doubled 3 to 6)"
+                if after == before - 6
+                else f"P2 life moved {before} -> {after}, expected {before - 6}",
+            }
+        decision = client.pending_decision()
+        if decision is None:
+            break
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "priority":
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                break
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class == "declare_blocker":
+            submit_empty_block(client, f"probe-{fixture_id}")
+            continue
+        if decision_class == "declare_attacker":
+            held = option_of_type(decision, "hold_attacker")
+            if held is None:
+                break
+            client.submit_options(decision, [held])
+            continue
+        break
+    raise ml.MidgameLaneError(f"{fixture_id}: combat damage never arrived")
+
+
+def arrival_life(client: ml.MidgameLaneClient, principal_id: str) -> int:
+    observation = client.complete_arrival().get("readback") or {}
+    for seat in observation.get("seats") or ():
+        if seat.get("player_id") == principal_id:
+            return int(seat.get("life"))
+    raise ml.MidgameLaneError(f"the engine names no seat {principal_id}")
+
+
+def execute_turn_sequence(
+    client: ml.MidgameLaneClient,
+    fixture_id: str,
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    """Drive forward recording active players; extra turns would repeat one."""
+    active_sequence: list[str] = []
+    last_active = ""
+    for _step in range(400):
+        observation = client.complete_arrival().get("readback") or {}
+        active = str(observation.get("active_player") or "")
+        if active and active != last_active:
+            active_sequence.append(active)
+            last_active = active
+        if len(active_sequence) >= 7:
+            break
+        decision = client.pending_decision()
+        if decision is None:
+            break
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "priority":
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                break
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class == "declare_attacker":
+            held = option_of_type(decision, "hold_attacker")
+            if held is None:
+                break
+            client.submit_options(decision, [held])
+            continue
+        if decision_class == "declare_blocker":
+            submit_empty_block(client, f"probe-{fixture_id}")
+            continue
+        if decision_class == "mulligan":
+            kept = option_of_type(decision, "keep")
+            if kept is None:
+                break
+            client.submit_options(decision, [kept])
+            continue
+        if decision_class == "choose_object":
+            # Cleanup discard: discard scaffolding filler first. An external
+            # discretionary choice among engine-offered options; it cannot
+            # create an extra turn.
+            options = decision.get("legal_options") or []
+            choice = None
+            for option in options:
+                label = str(option.get("label") or "")
+                if any(
+                    land in label for land in ("Mountain", "Plains", "Island", "Swamp", "Forest")
+                ):
+                    choice = str(option.get("option_id"))
+                    break
+            if choice is None and options:
+                choice = str(options[0].get("option_id"))
+            if choice is None:
+                break
+            client.submit_options(decision, [choice])
+            continue
+        break
+    for index in range(1, len(active_sequence)):
+        if active_sequence[index] == active_sequence[index - 1]:
+            return {
+                "kind": "extra_turns_in_order",
+                "observed": False,
+                "detail": f"unexpected consecutive repeat without a causal extra turn; "
+                f"sequence={active_sequence}",
+            }
+    return {
+        "kind": "extra_turns_in_order",
+        "observed": False,
+        "detail": f"normal rotation with no extra turn; sequence={active_sequence}. "
+        f"Reaching the obligated P3-then-P2 extra turns needs the placed "
+        f"graveyard spells cast from hand for real (a causal-cast entry the "
+        f"lane does not have).",
+    }
+
+
+def drive_to_precombat_main(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+) -> None:
+    """Drive the engine to the first precombat-main priority.
+
+    Placement rows with later checkpoints (declare_blockers, combat_damage)
+    must be arrived at precombat main; their own obligation execution advances
+    from there through the engine's combat steps. Answering only arrival
+    transport (mulligan, choosing-pick, priority passes) and failing closed
+    on anything else.
+    """
+    temporal = record.get("temporal_state") or {}
+    active_label = seat_label(str(temporal.get("active_player") or "P1"))
+    for _ in range(120):
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError("the engine went terminal before precombat main")
+        decision_class = str(decision.get("decision_class"))
+        if decision_class == "mulligan":
+            kept = option_of_type(decision, "keep")
+            if kept is None:
+                raise ml.MidgameLaneError("the engine offered no keep option")
+            client.submit_options(decision, [kept])
+        elif decision_class in {"choice", "choose_object"}:
+            chosen = option_by_label_suffix(decision, active_label)
+            if chosen is None:
+                raise ml.MidgameLaneError(f"the engine offered no option for {active_label}")
+            client.submit_options(decision, [chosen])
+        elif decision_class == "priority":
+            observation = client.complete_arrival().get("readback") or {}
+            if (
+                observation.get("phase") == "PRECOMBAT_MAIN"
+                and observation.get("step") == "PRECOMBAT_MAIN"
+            ):
+                return
+            passed = option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError("the engine offered no pass")
+            client.submit_options(decision, [passed])
+        else:
+            raise ml.MidgameLaneError(f"unexpected {decision_class} during arrival transport")
+    raise ml.MidgameLaneError("the engine never reached precombat main")
+
+
 def probe_causal_row(
     workspace: Path,
     classpath: str,
@@ -732,13 +1397,48 @@ def probe_causal_row(
         try:
             if entry_mode == "causal_stack":
                 row = drive_causal_stack(client, fixture_id, record, payload, spec)
-            else:
+            elif entry_mode == "causal_elimination":
                 row = drive_causal_elimination(client, fixture_id, record, payload, spec)
+            else:
+                row = drive_placement_obligation(client, fixture_id, record, payload, spec)
+        except ml.MidgameLaneTimeout as exc:
+            verdict = ml.transport_failure_verdict(
+                fixture_id,
+                ml.MIDGAME_LANE,
+                code="CAUSAL_LANE_TIMEOUT",
+                detail=str(exc),
+                engine_commit=client.engine_commit,
+                entry_mode=entry_mode,
+            )
+            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
+        except ml.MidgameLaneProtocolError as exc:
+            verdict = ml.transport_failure_verdict(
+                fixture_id,
+                ml.MIDGAME_LANE,
+                code="CAUSAL_LANE_PROTOCOL_VIOLATION",
+                detail=str(exc),
+                engine_commit=client.engine_commit,
+                entry_mode=entry_mode,
+            )
+            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
+        except ml.MidgameLaneTransportError as exc:
+            verdict = ml.transport_failure_verdict(
+                fixture_id,
+                ml.MIDGAME_LANE,
+                code="CAUSAL_LANE_TRANSPORT_FAILURE",
+                detail=str(exc),
+                engine_commit=client.engine_commit,
+                entry_mode=entry_mode,
+            )
+            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         except ml.MidgameLaneError as exc:
+            # A recognized obligation case: the causal route's own scripted
+            # obligation could not be executed from the engine's offered
+            # options. Transport outcomes never reach this handler.
             verdict = ml.rejected_verdict(
                 fixture_id,
                 ml.MIDGAME_LANE,
-                code="CAUSAL_TRANSPORT_FAILURE",
+                code="CAUSAL_OBLIGATION_NOT_EXECUTED",
                 detail=str(exc),
                 engine_commit=client.engine_commit,
                 state_accepted=True,
@@ -792,6 +1492,19 @@ def drive_causal_stack(
                 + ("cleanup" if resolution["reached_cleanup_discard"] else "terminal")
                 + f" with no zone-choice decision; trace={trace}",
             }
+    elif terminal_kind == "stack_with_elimination_pending":
+        stack_ok = bool(stack_verdict.get("causal_match")) and not (
+            stack_verdict.get("mismatches") or []
+        )
+        terminal = {
+            "kind": terminal_kind,
+            "observed": False,
+            "detail": "the causal stack is produced and verified; the victim is "
+            "still alive with the spell on the stack. Eliminating in the same "
+            "game needs stack frames and elimination instruments placed "
+            "together (a combined causal entry the lane does not have). "
+            f"stack_match={stack_ok}",
+        }
     elif terminal_kind == "spell_resolves_to_graveyard":
         before = graveyard_count(client, record)
         resolve_and_record_classes(client, f"probe-{fixture_id}")
@@ -957,6 +1670,14 @@ def main() -> int:
         if row["outcome"] == "CAUSAL_ROUTE_MEASURED_BLOCKED"
     ]
     mismatched = [row["fixture_id"] for row in rows if row["outcome"] == "CONSTRUCTION_MISMATCH"]
+    unrecognized = [
+        row["fixture_id"] for row in rows if row["outcome"] == "UNRECOGNIZED_CONSTRUCTION_VERDICT"
+    ]
+    transport_failed = [
+        {"fixture_id": row["fixture_id"], "code": row["code"]}
+        for row in rows
+        if row["outcome"] == "TRANSPORT_FAILURE"
+    ]
     rejected = [
         {"fixture_id": row["fixture_id"], "code": row["code"]}
         for row in rows
@@ -985,6 +1706,8 @@ def main() -> int:
             "causal_route_reachable": len(causal_reachable),
             "causal_route_measured_blocked": len(causal_measured),
             "construction_mismatch": len(mismatched),
+            "unrecognized_construction_verdict": len(unrecognized),
+            "transport_failure": len(transport_failed),
             "engine_rejected": len(rejected),
         },
         "engine_native_reachable": reachable,
@@ -992,6 +1715,8 @@ def main() -> int:
         "causal_route_reachable": causal_reachable,
         "causal_route_measured_blocked": causal_measured,
         "construction_mismatch": mismatched,
+        "unrecognized_construction_verdict": unrecognized,
+        "transport_failure": transport_failed,
         "engine_rejected": rejected,
         "rows": rows,
         "notes": [
@@ -1006,6 +1731,13 @@ def main() -> int:
             "ENGINE_STATE_ACCEPTED means the engine accepted the explicit starting state and this "
             "probe did not execute the row's own scripted obligation. It is not a row-level pass.",
             "Engine-rejected rows are reported with the engine's own code and stay fail closed.",
+            "UNRECOGNIZED_CONSTRUCTION_VERDICT means the engine's construction verdict could not "
+            "be interpreted (a negative verdict with a missing, empty or unrecognized mismatch "
+            "list, a self-contradictory positive verdict, or a non-boolean flag). It earns no "
+            "reachability credit.",
+            "TRANSPORT_FAILURE means the lane's transport, child process or protocol failed, so no "
+            "engine verdict exists at all. It is never reported as an accepted engine state. "
+            "A stalled child is terminated and reaped and classified as a timeout here.",
             "This probe is technical capability evidence. It is not provider selection and does "
             "not establish Architecture Freeze.",
         ],
@@ -1022,6 +1754,8 @@ def main() -> int:
                 "engine_state_accepted_obligation_not_executed": accepted_only,
                 "causal_route_reachable": causal_reachable,
                 "causal_route_measured_blocked": causal_measured,
+                "unrecognized_construction_verdict": unrecognized,
+                "transport_failure": transport_failed,
                 "engine_rejected": rejected,
             },
             indent=2,

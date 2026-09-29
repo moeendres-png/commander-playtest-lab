@@ -30,6 +30,7 @@ from __future__ import annotations
 import contextlib
 import json
 import subprocess
+import threading
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -53,13 +54,49 @@ Outcome = Literal[
     "CAUSAL_ROUTE_REACHABLE",
     "CAUSAL_ROUTE_MEASURED_BLOCKED",
     "CONSTRUCTION_MISMATCH",
+    "UNRECOGNIZED_CONSTRUCTION_VERDICT",
     "ENGINE_REJECTED",
     "TRANSPORT_FAILURE",
 ]
 
 
 class MidgameLaneError(RuntimeError):
-    """The mid-game lane could not be launched or answered."""
+    """The mid-game lane could not be launched or answered.
+
+    Raised when the engine is engaged and the lane's own scripted obligation
+    could not be carried out from the engine's offered options. It never means
+    the transport failed; transport and protocol failures are raised as the
+    subclasses below so a caller cannot fold them into an engine verdict.
+    """
+
+
+class MidgameLaneTransportError(MidgameLaneError):
+    """The transport or the child process failed, so no engine verdict exists.
+
+    Broken pipe, a closed or terminated child, a rejected submission that never
+    reached the engine and a failed arrival readback are all transport outcomes.
+    None of them is evidence about the engine's starting-state capability, so
+    none may be reported as an accepted engine state.
+    """
+
+
+class MidgameLaneTimeout(MidgameLaneTransportError):
+    """The child accepted a request and did not answer inside the deadline.
+
+    Distinct from a launch failure and from a protocol failure so a stalled
+    candidate is classified as a timeout rather than folded into either,
+    mirroring the established ``BridgeLauncher`` classification. It subclasses
+    the transport error so every fail-closed handler still catches it; nothing
+    converts it into a PASS or a default.
+    """
+
+
+class MidgameLaneProtocolError(MidgameLaneTransportError):
+    """The child answered outside the Protocol-2 envelope.
+
+    A non-JSON line, a non-object line or a line that does not carry the
+    expected response shape is a protocol violation, never an engine verdict.
+    """
 
 
 @dataclass(frozen=True)
@@ -145,6 +182,7 @@ class MidgameLaneClient:
         self._engine_commit: str | None = None
         self._tape: list[dict[str, Any]] = []
         self.manifest: DimensionManifest | None = None
+        self._last_timeout_s: float | None = None
 
     # -- transport ---------------------------------------------------
 
@@ -190,12 +228,17 @@ class MidgameLaneClient:
     ) -> dict[str, Any]:
         """Send exactly one Protocol-2 request and return the parsed response.
 
+        The advertised ``timeout_s`` bounds the response wait. A child that
+        accepts a request and then stalls or deadlocks is terminated and reaped
+        and the call raises a transport timeout, so the qualification run can
+        classify the row instead of hanging.
+
         A failed or malformed provider response is returned verbatim, including
         its error code. It is never converted into a success, a default or a
-        pass.
+        pass. Transport and protocol failures raise rather than return.
         """
         if self._process is None or self._process.stdin is None or self._process.stdout is None:
-            raise MidgameLaneError("the mid-game lane process is not running")
+            raise MidgameLaneTransportError("the mid-game lane process is not running")
         envelope: dict[str, Any] = {
             "protocol_version": PROTOCOL_VERSION,
             "request_id": f"{message_type}-{uuid.uuid4()}",
@@ -208,23 +251,24 @@ class MidgameLaneClient:
         try:
             self._process.stdin.write(line + "\n")
             self._process.stdin.flush()
-        except (BrokenPipeError, ValueError) as exc:
-            raise MidgameLaneError(f"mid-game lane stdin unavailable: {exc}") from exc
-        raw = self._process.stdout.readline()
+        except (BrokenPipeError, OSError, ValueError) as exc:
+            raise MidgameLaneTransportError(f"mid-game lane stdin unavailable: {exc}") from exc
+        request_id = envelope["request_id"]
+        raw = self._read_line_with_deadline(timeout_s, message_type, request_id)
         if not raw:
             stderr = ""
             if self._process.stderr is not None:
                 stderr = self._process.stderr.read()[-2000:]
-            raise MidgameLaneError(
+            raise MidgameLaneTransportError(
                 f"mid-game lane closed stdout for {message_type} (stderr tail: {stderr})"
             )
         parsed: dict[str, Any]
         try:
             decoded = json.loads(raw)
         except json.JSONDecodeError as exc:
-            raise MidgameLaneError(f"non-JSON mid-game response: {raw[:200]!r}") from exc
+            raise MidgameLaneProtocolError(f"non-JSON mid-game response: {raw[:200]!r}") from exc
         if not isinstance(decoded, dict):
-            raise MidgameLaneError(f"mid-game response is not a JSON object: {raw[:200]!r}")
+            raise MidgameLaneProtocolError(f"mid-game response is not a JSON object: {raw[:200]!r}")
         parsed = decoded
         entry = {"message_type": message_type, "request": envelope, "response": parsed}
         self._tape.append(entry)
@@ -234,6 +278,73 @@ class MidgameLaneClient:
                 commit = payload_obj.get("engine_commit")
                 self._engine_commit = commit if isinstance(commit, str) else None
         return parsed
+
+    def _read_line_with_deadline(self, timeout_s: float, message_type: str, request_id: str) -> str:
+        """Read exactly one response line under a real wall-clock deadline.
+
+        This is the mechanism already established for the current boundary in
+        ``bridge_launcher.BridgeProcess._read_line_with_deadline``: the read runs
+        on a daemon thread and is joined against the deadline, because the stream
+        is a buffered ``TextIOWrapper`` whose fd-level readiness does not imply a
+        complete line is available, so ``select`` is not usable here. On expiry
+        the child is terminated and reaped so no zombie survives, the applied
+        timeout is recorded on the tape, and a timeout error is raised. The
+        mechanism is mirrored rather than imported: the established helper is a
+        private method on a class in a module four concurrent PRs are editing,
+        and no independent transport model is introduced by reusing its exact
+        shape and its classification.
+        """
+        process = self._process
+        if process is None or process.stdout is None:
+            raise MidgameLaneTransportError("the mid-game lane process is not running")
+        self._last_timeout_s = timeout_s
+        result: list[str] = []
+        finished = threading.Event()
+
+        def _read() -> None:
+            try:
+                result.append(process.stdout.readline())  # type: ignore[union-attr]
+            except (OSError, ValueError):
+                result.append("")
+            finally:
+                finished.set()
+
+        worker = threading.Thread(target=_read, name="midgame-lane-read", daemon=True)
+        worker.start()
+        if not finished.wait(timeout_s):
+            self._tape.append(
+                {
+                    "message_type": message_type,
+                    "direction": "timeout",
+                    "request_id": request_id,
+                    "timeout_s": timeout_s,
+                    "classification": "TIMEOUT",
+                }
+            )
+            self._terminate_stalled_child()
+            raise MidgameLaneTimeout(
+                f"MIDGAME_LANE_TIMEOUT: no response to {message_type} within {timeout_s}s; "
+                "child terminated and reaped, classified TRANSPORT_FAILURE"
+            )
+        return result[0] if result else ""
+
+    def _terminate_stalled_child(self) -> None:
+        """Kill and reap a stalled child so no zombie is left behind."""
+        process = self._process
+        self._process = None
+        if process is None:
+            return
+        with contextlib.suppress(OSError, ValueError):
+            if process.stdin is not None:
+                process.stdin.close()
+        with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
+            process.kill()
+        with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
+            process.wait(timeout=10)
+        for stream in (process.stdout, process.stderr):
+            if stream is not None:
+                with contextlib.suppress(OSError):
+                    stream.close()
 
     @property
     def tape(self) -> list[dict[str, Any]]:
@@ -370,6 +481,28 @@ def _error_message(response: dict[str, Any]) -> str:
     return ""
 
 
+def _strict_boolean(value: Any) -> bool | None:
+    """Return the value only when it is a real JSON boolean.
+
+    ``bool()`` would accept the string ``"false"`` as true, which is exactly how
+    a malformed or version-skewed response would otherwise be promoted. Anything
+    that is not a JSON boolean is unknown, and unknown fails closed.
+    """
+    return value if isinstance(value, bool) else None
+
+
+def _strict_mismatch_list(value: Any) -> tuple[str, ...] | None:
+    """Return the mismatch list only when the response carries a real list.
+
+    A missing field, an explicit null, a bare string or a mapping is not a
+    mismatch list. Those are unrecognized responses, not empty ones, so they must
+    not be read as "no mismatch was reported".
+    """
+    if value is None or not isinstance(value, (list, tuple)):
+        return None
+    return tuple(str(item) for item in value)
+
+
 def classification_from_arrival(
     fixture_id: str,
     lane: str,
@@ -379,19 +512,97 @@ def classification_from_arrival(
 ) -> RowVerdict:
     """Classify the engine's own construction verdict for one row.
 
-    The decision is entirely the engine's. A row is reachable only when the
-    engine reported no mismatch outside the documented declaration-step
-    priority allowance. Nothing here relaxes a mismatch into a pass.
+    The decision is entirely the engine's, and a negative verdict is binding.
+
+    ``ENGINE_NATIVE_REACHABLE`` requires all three of:
+
+    * the engine's own ``construction_match`` is the JSON boolean ``true``; or it
+      is ``false`` and every reported mismatch is a recognized, explicitly
+      modeled disposition (the documented declaration-step priority allowance),
+      which is the only case where the contract permits the bounded
+      classification to survive a negative raw bit;
+    * the mismatch list is present and well formed;
+    * nothing outside the documented allowance was reported.
+
+    A ``false`` verdict with a missing, empty, malformed or unrecognized mismatch
+    list is an uninterpretable response, not a construction success: it fails
+    closed as ``UNRECOGNIZED_CONSTRUCTION_VERDICT`` with no reachability credit.
+    A ``true`` verdict that still lists mismatches is self-contradictory and
+    fails closed the same way.
     """
-    mismatches = tuple(str(item) for item in (arrival.get("mismatches") or ()))
+    construction_match = _strict_boolean(arrival.get("construction_match"))
+    mismatches = _strict_mismatch_list(arrival.get("mismatches"))
+    if construction_match is None or mismatches is None:
+        return RowVerdict(
+            fixture_id=fixture_id,
+            outcome="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            code="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            detail=(
+                "the engine's construction verdict is not interpretable: "
+                f"construction_match={arrival.get('construction_match')!r} "
+                f"mismatches={arrival.get('mismatches')!r}"
+            ),
+            construction_match=construction_match,
+            mismatches=mismatches or (),
+            requested_state_digest=arrival.get("requested_state_digest"),
+            constructed_state_digest=arrival.get("constructed_state_digest"),
+            lane=lane,
+            engine_commit=engine_commit,
+            engine_accepted_starting_state=False,
+        )
     allowance = tuple(
         mismatch
         for mismatch in mismatches
         if mismatch.startswith(DECLARATION_STEP_PRIORITY_ALLOWANCE)
     )
     unexpected = tuple(mismatch for mismatch in mismatches if mismatch not in allowance)
-    construction_match = bool(arrival.get("construction_match"))
-    outcome: Outcome = "CONSTRUCTION_MISMATCH" if unexpected else "ENGINE_NATIVE_REACHABLE"
+    outcome: Outcome
+    if unexpected:
+        outcome = "CONSTRUCTION_MISMATCH"
+    elif construction_match and mismatches:
+        # The engine said it matched and still listed mismatches: the response is
+        # internally contradictory, so it cannot earn reachability.
+        return RowVerdict(
+            fixture_id=fixture_id,
+            outcome="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            code="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            detail=(
+                "the engine reported construction_match true together with mismatches: "
+                + "; ".join(mismatches)
+            ),
+            construction_match=construction_match,
+            mismatches=mismatches,
+            requested_state_digest=arrival.get("requested_state_digest"),
+            constructed_state_digest=arrival.get("constructed_state_digest"),
+            lane=lane,
+            engine_commit=engine_commit,
+            engine_accepted_starting_state=False,
+        )
+    elif construction_match:
+        outcome = "ENGINE_NATIVE_REACHABLE"
+    elif mismatches and allowance:
+        # A negative raw bit survives only as the explicitly modeled
+        # declaration-step allowance, which the contract permits.
+        outcome = "ENGINE_NATIVE_REACHABLE"
+    else:
+        # construction_match is false and the mismatch list is empty: the engine
+        # said it does not match and gave no reason this consumer recognizes.
+        return RowVerdict(
+            fixture_id=fixture_id,
+            outcome="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            code="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            detail=(
+                "the engine reported construction_match false with no recognized mismatch "
+                "disposition, so the row cannot be credited"
+            ),
+            construction_match=construction_match,
+            mismatches=mismatches,
+            requested_state_digest=arrival.get("requested_state_digest"),
+            constructed_state_digest=arrival.get("constructed_state_digest"),
+            lane=lane,
+            engine_commit=engine_commit,
+            engine_accepted_starting_state=False,
+        )
     return RowVerdict(
         fixture_id=fixture_id,
         outcome=outcome,
@@ -429,8 +640,28 @@ def classification_from_causal_verdict(
     route the engine did not produce is ``CONSTRUCTION_MISMATCH``. The
     engine's own verdict and the terminal record travel verbatim in the row.
     """
-    mismatches = tuple(str(item) for item in (verdict.get("mismatches") or ()))
-    causal_match = bool(verdict.get("causal_match"))
+    causal_match = _strict_boolean(verdict.get("causal_match"))
+    mismatches = _strict_mismatch_list(verdict.get("mismatches"))
+    if causal_match is None or mismatches is None:
+        return RowVerdict(
+            fixture_id=fixture_id,
+            outcome="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            code="UNRECOGNIZED_CONSTRUCTION_VERDICT",
+            detail=(
+                "the engine's causal verdict is not interpretable: "
+                f"causal_match={verdict.get('causal_match')!r} "
+                f"mismatches={verdict.get('mismatches')!r}"
+            ),
+            construction_match=None,
+            mismatches=mismatches or (),
+            requested_state_digest=None,
+            constructed_state_digest=None,
+            lane=lane,
+            engine_commit=engine_commit,
+            engine_accepted_starting_state=False,
+            entry_mode=entry_mode,
+            causal_verdict=dict(verdict),
+        )
     outcome: Outcome
     detail: str | None
     if not causal_match or mismatches:
@@ -456,9 +687,47 @@ def classification_from_causal_verdict(
         constructed_state_digest=None,
         lane=lane,
         engine_commit=engine_commit,
-        engine_accepted_starting_state=True,
+        # Only a produced causal route proves the engine consumed the starting
+        # state through this entry mode. A route the engine did not produce
+        # earns no acceptance statement.
+        engine_accepted_starting_state=outcome
+        in ("CAUSAL_ROUTE_REACHABLE", "CAUSAL_ROUTE_MEASURED_BLOCKED"),
         entry_mode=entry_mode,
         causal_verdict=combined_verdict,
+    )
+
+
+def transport_failure_verdict(
+    fixture_id: str,
+    lane: str,
+    *,
+    code: str,
+    detail: str | None,
+    engine_commit: str | None,
+    entry_mode: str = "placement",
+) -> RowVerdict:
+    """Record a transport or protocol failure that produced no engine verdict.
+
+    This is deliberately separate from :func:`rejected_verdict`. A transport
+    failure says nothing about whether the engine can construct the row's
+    starting state, so the row carries ``TRANSPORT_FAILURE`` with
+    ``engine_accepted_starting_state`` false and zero reachability credit. The
+    diagnostic detail is preserved for the operator; it carries only transport
+    text, never engine state.
+    """
+    return RowVerdict(
+        fixture_id=fixture_id,
+        outcome="TRANSPORT_FAILURE",
+        code=code,
+        detail=detail,
+        construction_match=None,
+        mismatches=(),
+        requested_state_digest=None,
+        constructed_state_digest=None,
+        lane=lane,
+        engine_commit=engine_commit,
+        engine_accepted_starting_state=False,
+        entry_mode=entry_mode,
     )
 
 

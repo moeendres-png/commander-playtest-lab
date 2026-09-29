@@ -27,7 +27,7 @@ def _arrival(**overrides: Any) -> dict[str, Any]:
         "mismatches": [],
         "requested_state_digest": "a" * 64,
         "constructed_state_digest": "b" * 64,
-        "readback": {},
+        "observation": {},
     }
     arrival.update(overrides)
     return arrival
@@ -138,10 +138,10 @@ class TestRowClassification:
             _arrival(construction_match=False),
             engine_commit="abc",
         )
-        assert verdict.outcome == "ENGINE_NATIVE_REACHABLE"
-        # The engine said it does not match; the consumer must not hide that
-        # bit even when the mismatch list is empty. Both are reported.
-        assert verdict.construction_match is False
+        # A false verdict with an empty mismatch list is uninterpretable, not
+        # a construction success: it fails closed with no reachability credit.
+        assert verdict.outcome == "UNRECOGNIZED_CONSTRUCTION_VERDICT"
+        assert verdict.engine_accepted_starting_state is False
 
     def test_causal_verdict_requires_both_engine_match_and_terminal(self) -> None:
         stack_verdict = {"causal_match": True, "mismatches": []}

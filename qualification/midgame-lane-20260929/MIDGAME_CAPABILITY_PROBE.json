@@ -1,25 +1,68 @@
 {
   "causal_route_measured_blocked": [
     {
+      "detail": "normal rotation with no extra turn; sequence=['P1', 'P5', 'P4', 'P3', 'P2', 'P1', 'P5']. Reaching the obligated P3-then-P2 extra turns needs the placed graveyard spells cast from hand for real (a causal-cast entry the lane does not have).",
+      "fixture_id": "WS05-MP-TURN-5"
+    },
+    {
       "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
       "fixture_id": "WS05-CMD-ZONE-GY-YES"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES"
+    },
+    {
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO"
+    },
+    {
+      "detail": "the causal stack is produced and verified; the victim is still alive with the spell on the stack. Eliminating in the same game needs stack frames and elimination instruments placed together (a combined causal entry the lane does not have). stack_match=True",
+      "fixture_id": "WS05-MP-ELIM-STACK-3"
     }
   ],
   "causal_route_reachable": [
+    "WS05-MP-BLOCK-4",
     "WS05-MP-ELIM-PRIO-3",
+    "MICRO_REPLACEMENT",
     "WS05-MP-PRIO-3",
     "MICRO_ZONE_CHANGES",
-    "WS05-MP-PRIO-5"
+    "WS05-MP-PRIO-5",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-ELIM-5"
   ],
   "construction_mismatch": [],
   "counts": {
-    "causal_route_measured_blocked": 1,
-    "causal_route_reachable": 4,
+    "causal_route_measured_blocked": 10,
+    "causal_route_reachable": 9,
     "construction_mismatch": 0,
     "engine_native_reachable": 8,
-    "engine_rejected": 1,
-    "engine_state_accepted_obligation_not_executed": 3,
-    "probed": 17
+    "engine_rejected": 2,
+    "engine_state_accepted_obligation_not_executed": 0,
+    "probed": 29,
+    "transport_failure": 0,
+    "unrecognized_construction_verdict": 0
   },
   "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
   "engine_native_reachable": [
@@ -36,15 +79,15 @@
     {
       "code": "midgame_starting_state_rejected",
       "fixture_id": "WS05-CMD-DMG-CONTROL"
+    },
+    {
+      "code": "midgame_causal_preparation_rejected",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3"
     }
   ],
-  "engine_state_accepted_obligation_not_executed": [
-    "WS05-MP-BLOCK-4",
-    "WS05-MP-TURN-5",
-    "MICRO_REPLACEMENT"
-  ],
+  "engine_state_accepted_obligation_not_executed": [],
   "evidence_class": "FRESH_RUNTIME_PROTOCOL2_PROCESS",
-  "generated_at_utc": "2026-09-29T10:41:14Z",
+  "generated_at_utc": "2026-09-29T12:41:37Z",
   "lane": "xmage_midgame_native_starting_state",
   "materialization": {
     "path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
@@ -56,9 +99,11 @@
     "CAUSAL_ROUTE_REACHABLE requires the engine's own causal_match with no mismatches plus the row's terminal obligation observed. CAUSAL_ROUTE_MEASURED_BLOCKED means the causal route executed but the terminal obligation did not appear; nothing is promoted.",
     "ENGINE_STATE_ACCEPTED means the engine accepted the explicit starting state and this probe did not execute the row's own scripted obligation. It is not a row-level pass.",
     "Engine-rejected rows are reported with the engine's own code and stay fail closed.",
+    "UNRECOGNIZED_CONSTRUCTION_VERDICT means the engine's construction verdict could not be interpreted (a negative verdict with a missing, empty or unrecognized mismatch list, a self-contradictory positive verdict, or a non-boolean flag). It earns no reachability credit.",
+    "TRANSPORT_FAILURE means the lane's transport, child process or protocol failed, so no engine verdict exists at all. It is never reported as an accepted engine state. A stalled child is terminated and reaped and classified as a timeout here.",
     "This probe is technical capability evidence. It is not provider selection and does not establish Architecture Freeze."
   ],
-  "probe_run_id": "8a95c733-d758-4b65-b421-2fbccbb96ef2",
+  "probe_run_id": "e778bc18-6a96-43d3-b317-6db0f8df3bec",
   "protocol_version": "2.0.0",
   "rows": [
     {
@@ -69,7 +114,7 @@
         "priority_player: requested P1 observed P2"
       ],
       "detail": null,
-      "elapsed_s": 6.336,
+      "elapsed_s": 5.894,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": false,
@@ -90,7 +135,7 @@
         "priority_player: requested P1 observed P2"
       ],
       "detail": null,
-      "elapsed_s": 6.164,
+      "elapsed_s": 5.124,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": false,
@@ -104,12 +149,20 @@
       "requested_state_digest": "9d661d02f8d67d771ff6276fc21c4860af43e377a8cb7efc76f53a596efd81d9"
     },
     {
-      "causal_verdict": null,
-      "code": "OBLIGATION_NOT_EXECUTED",
+      "causal_verdict": {
+        "causal_match": true,
+        "mismatches": [],
+        "terminal_obligation": {
+          "detail": "P2 blocked exactly its obligated attacker; 1 non-defended attacker(s) correctly absent",
+          "kind": "blocker_partition",
+          "observed": true
+        }
+      },
+      "code": null,
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
-      "detail": "the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/DECLARE_BLOCKERS checkpoint",
-      "elapsed_s": 5.677,
+      "detail": null,
+      "elapsed_s": 5.359,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -117,7 +170,7 @@
       "fixture_id": "WS05-MP-BLOCK-4",
       "lane": "xmage_midgame_native_starting_state",
       "mismatches": [],
-      "outcome": "ENGINE_STATE_ACCEPTED",
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
       "requested_state_digest": null
     },
     {
@@ -142,7 +195,7 @@
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.669,
+      "elapsed_s": 6.889,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -154,12 +207,20 @@
       "requested_state_digest": null
     },
     {
-      "causal_verdict": null,
-      "code": "OBLIGATION_NOT_EXECUTED",
+      "causal_verdict": {
+        "causal_match": true,
+        "mismatches": [],
+        "terminal_obligation": {
+          "detail": "normal rotation with no extra turn; sequence=['P1', 'P5', 'P4', 'P3', 'P2', 'P1', 'P5']. Reaching the obligated P3-then-P2 extra turns needs the placed graveyard spells cast from hand for real (a causal-cast entry the lane does not have).",
+          "kind": "extra_turns_in_order",
+          "observed": false
+        }
+      },
+      "code": null,
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
-      "detail": "the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested POSTCOMBAT_MAIN/POSTCOMBAT_MAIN checkpoint",
-      "elapsed_s": 6.284,
+      "detail": "normal rotation with no extra turn; sequence=['P1', 'P5', 'P4', 'P3', 'P2', 'P1', 'P5']. Reaching the obligated P3-then-P2 extra turns needs the placed graveyard spells cast from hand for real (a causal-cast entry the lane does not have).",
+      "elapsed_s": 7.756,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -167,7 +228,7 @@
       "fixture_id": "WS05-MP-TURN-5",
       "lane": "xmage_midgame_native_starting_state",
       "mismatches": [],
-      "outcome": "ENGINE_STATE_ACCEPTED",
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
       "requested_state_digest": null
     },
     {
@@ -176,7 +237,7 @@
       "constructed_state_digest": "c1391a722ada93c67702a760c35edac9406a6aed16bddc778d1659dfc5136ada",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.9,
+      "elapsed_s": 6.118,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": true,
@@ -193,7 +254,7 @@
       "constructed_state_digest": "ad593bc313b5d762ef0963fcd0f2200ca396d374f4277945eb35b6b6bec84144",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.616,
+      "elapsed_s": 5.826,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": true,
@@ -210,7 +271,7 @@
       "constructed_state_digest": "ad593bc313b5d762ef0963fcd0f2200ca396d374f4277945eb35b6b6bec84144",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.919,
+      "elapsed_s": 5.484,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": true,
@@ -227,7 +288,7 @@
       "constructed_state_digest": "75b928113104fcd14b299749a4c5504bb3d035ee2b83ccf7ecf8ec39b4d1ed82",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.15,
+      "elapsed_s": 5.366,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": true,
@@ -239,12 +300,20 @@
       "requested_state_digest": "52db8efd56370c1afdb6c597216fc3b265eeaf67d4c8e42511d22d38fa8e5b8a"
     },
     {
-      "causal_verdict": null,
-      "code": "OBLIGATION_NOT_EXECUTED",
+      "causal_verdict": {
+        "causal_match": true,
+        "mismatches": [],
+        "terminal_obligation": {
+          "detail": "P2 life moved 40 -> 34 (doubled 3 to 6)",
+          "kind": "damage_doubled_to_six",
+          "observed": true
+        }
+      },
+      "code": null,
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
-      "detail": "the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
-      "elapsed_s": 6.737,
+      "detail": null,
+      "elapsed_s": 5.921,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -252,7 +321,7 @@
       "fixture_id": "MICRO_REPLACEMENT",
       "lane": "xmage_midgame_native_starting_state",
       "mismatches": [],
-      "outcome": "ENGINE_STATE_ACCEPTED",
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
       "requested_state_digest": null
     },
     {
@@ -261,7 +330,7 @@
       "constructed_state_digest": "42be28efe84e0b59c64d3500fc7acda8886ecd6344e74bbef06b2d7b75426138",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 7.293,
+      "elapsed_s": 5.713,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": true,
@@ -278,7 +347,7 @@
       "constructed_state_digest": "5005f32173dcc482d981b75644099cb166993d6fa2969e2e8b516d0a901649bc",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 7.543,
+      "elapsed_s": 5.634,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": true,
@@ -300,9 +369,9 @@
         ],
         "terminal_obligation": {
           "actors_sample": [
-            "a1900d0c-2d1b-48c1-beb0-d1ff362f834f",
-            "d5cd33e3-2cd8-4cfd-a4af-746702fc681d",
-            "daba0527-9522-4264-83d5-c9cbb1035337"
+            "199a60e6-8817-4382-a416-f8a583adbaf9",
+            "5940ed6d-bd1c-492c-843d-80ed5428fdd0",
+            "80f696a2-2840-4f8f-94a9-1fbcbe9cf4c1"
           ],
           "detail": "ring actors observed in order: 3 passes across 3 principals",
           "kind": "priority_ring_with_live_response",
@@ -313,7 +382,7 @@
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.933,
+      "elapsed_s": 5.66,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -330,7 +399,7 @@
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": "RestorationException: UNSUPPORTED_CONTROL_DIVERGENCE: obj:isamaru-controlled; control must equal ownership in v1 (engine layers re-derive control; divergence needs resolved control-change effects)",
-      "elapsed_s": 0.167,
+      "elapsed_s": 0.129,
       "engine_accepted_starting_state": false,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -360,7 +429,7 @@
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
-      "elapsed_s": 6.49,
+      "elapsed_s": 6.148,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -390,7 +459,7 @@
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.412,
+      "elapsed_s": 5.947,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -412,9 +481,9 @@
         ],
         "terminal_obligation": {
           "actors_sample": [
-            "0038e488-01bc-4a67-bcf3-fa6cf64ea998",
-            "473027df-9696-4e72-a43c-339042489521",
-            "de02b2b1-3be6-473d-9ffd-10a2962ff32e"
+            "01f0a5d8-66cd-4eee-b29f-6cf302e60936",
+            "79711fa9-9556-44bb-a7f1-361f2d4fa97e",
+            "daf7dc66-ce75-49e3-adc6-3f886c8b2cbf"
           ],
           "detail": "ring actors observed in order: 3 passes across 3 principals",
           "kind": "priority_ring_with_live_response",
@@ -425,7 +494,7 @@
       "constructed_state_digest": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.262,
+      "elapsed_s": 6.224,
       "engine_accepted_starting_state": true,
       "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
       "engine_construction_match": null,
@@ -434,6 +503,366 @@
       "lane": "xmage_midgame_native_starting_state",
       "mismatches": [],
       "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 6.298,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 6.26,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 6.142,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 6.016,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 5.89,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 6.062,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:cmd-zone-source"
+        ],
+        "terminal_obligation": {
+          "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+          "kind": "commander_zone_choice",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine resolved to cleanup with no zone-choice decision; trace=['priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'declare_attacker', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'priority', 'choose_object']",
+      "elapsed_s": 6.886,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "life_totals": {
+          "P1": 40,
+          "P2": -2,
+          "P3": 40
+        },
+        "mismatches": [],
+        "survivors": [
+          "P1",
+          "P3"
+        ],
+        "victim": "P2",
+        "victim_left": true,
+        "victim_life": -2,
+        "victim_lost": true
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 8.174,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_elimination",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": null,
+      "code": "midgame_causal_preparation_rejected",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "CausalException: CAUSAL_ELIMINATION_PREPARATION_REJECTED: UNSUPPORTED_CONTROL_DIVERGENCE: obj:p1-owned-controlled; control must equal ownership in v1 (engine layers re-derive control; divergence needs resolved control-change effects)",
+      "elapsed_s": 0.241,
+      "engine_accepted_starting_state": false,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "placement",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_REJECTED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "life_totals": {
+          "P1": 40,
+          "P2": -2,
+          "P3": 40
+        },
+        "mismatches": [],
+        "survivors": [
+          "P1",
+          "P3"
+        ],
+        "victim": "P2",
+        "victim_left": true,
+        "victim_life": -2,
+        "victim_lost": true
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 8.523,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_elimination",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "life_totals": {
+          "P1": 40,
+          "P2": 40,
+          "P3": -2,
+          "P4": 40,
+          "P5": 40
+        },
+        "mismatches": [],
+        "survivors": [
+          "P1",
+          "P2",
+          "P4",
+          "P5"
+        ],
+        "victim": "P3",
+        "victim_left": true,
+        "victim_life": -2,
+        "victim_lost": true
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 7.594,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_elimination",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:leave-bolt"
+        ],
+        "terminal_obligation": {
+          "detail": "the causal stack is produced and verified; the victim is still alive with the spell on the stack. Eliminating in the same game needs stack frames and elimination instruments placed together (a combined causal entry the lane does not have). stack_match=True",
+          "kind": "stack_with_elimination_pending",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the causal stack is produced and verified; the victim is still alive with the spell on the stack. Eliminating in the same game needs stack frames and elimination instruments placed together (a combined causal entry the lane does not have). stack_match=True",
+      "elapsed_s": 6.275,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
       "requested_state_digest": null
     }
   ],
@@ -470,5 +899,7 @@
       "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
       "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
     ]
-  }
+  },
+  "transport_failure": [],
+  "unrecognized_construction_verdict": []
 }

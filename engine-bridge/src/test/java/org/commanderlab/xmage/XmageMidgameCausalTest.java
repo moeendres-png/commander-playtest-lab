@@ -531,6 +531,809 @@ class XmageMidgameCausalTest {
     }
 
     // ------------------------------------------------------------------
+    // WS05-MP-BLOCK-4 — declaration execution through the placement lane.
+    //
+    // Four-player Commander. P1 attacks P2 with one 2/2 and P3 with another;
+    // P2 blocks the P2-attacked creature with its Runeclaw Bear. With the
+    // CR 802.4a lane fix, P2 is offered only attackers P2 defends against.
+    // The pilot records which native attacker went to which defender during
+    // declaration, then asserts the block partition from engine-offered
+    // options only. Every declaration below selects an engine-offered option.
+    // ------------------------------------------------------------------
+
+    @Test
+    void block4PartitionHoldsUnderThe8024aFix() {
+        Lane lane = newLane();
+        JsonObject request = new JsonObject();
+        request.addProperty("game_id", "causal-block4");
+        request.addProperty("plan_id", "causal-block4");
+        request.addProperty("seed", SEED);
+        request.add("requested_starting_state", frozenRecord("WS05-MP-BLOCK-4"));
+        JsonObject created = lane.ok("create_midgame_game", request);
+        assertEquals("placement", created.get("entry_mode").getAsString());
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+
+        // Declare exactly as the record requires: one attacker to P2, one to
+        // P3. Precombat priorities are passed to reach combat; then the pilot
+        // records native attacker -> defender label for the partition proof.
+        Map<String, String> defenderByAttacker = new java.util.LinkedHashMap<>();
+        java.util.Set<String> remainingDefenders =
+                new java.util.HashSet<>(List.of("Full Game Seat 2", "Full Game Seat 3"));
+        for (int step = 0; step < 60 && !remainingDefenders.isEmpty(); step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must park while declaring");
+            String pendingClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if (!"declare_attacker".equals(pendingClass)) {
+                break;
+            }
+            boolean answered = false;
+            for (JsonElement element : pending.getAsJsonArray("legal_options")) {
+                JsonObject option = element.getAsJsonObject();
+                if (!"declare_attacker".equals(option.get("option_type").getAsString())) {
+                    continue;
+                }
+                String label = option.get("label").getAsString();
+                for (String defender : new java.util.ArrayList<>(remainingDefenders)) {
+                    if (label.endsWith("attacks " + defender)) {
+                        JsonObject metadata = option.getAsJsonObject("metadata");
+                        String attackerId = metadata.has("object_id")
+                                && !metadata.get("object_id").isJsonNull()
+                                ? metadata.get("object_id").getAsString() : "";
+                        assertFalse(attackerId.isBlank(),
+                                "the engine must identify the declared attacker");
+                        defenderByAttacker.put(attackerId, defender);
+                        remainingDefenders.remove(defender);
+                        submitOption(lane, pending,
+                                option.get("option_id").getAsString());
+                        answered = true;
+                        break;
+                    }
+                }
+                if (answered) {
+                    break;
+                }
+            }
+            if (!answered) {
+                submitOption(lane, pending,
+                        optionWithType(pending, "hold_attacker"));
+            }
+        }
+        assertEquals(2, defenderByAttacker.size(),
+                "both obligated attacks must be declared; declared=" + defenderByAttacker);
+        // Hold every remaining attacker so the engine advances to blockers.
+        // P1 fields three bears; only the two obligated ones attack.
+        for (int step = 0; step < 20; step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must park while holding attackers");
+            String pendingClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if (!"declare_attacker".equals(pendingClass)) {
+                break;
+            }
+            submitOption(lane, pending, optionWithType(pending, "hold_attacker"));
+        }
+        String p2Attacker = null;
+        String p3Attacker = null;
+        for (Map.Entry<String, String> entry : defenderByAttacker.entrySet()) {
+            if ("Full Game Seat 2".equals(entry.getValue())) {
+                p2Attacker = entry.getKey();
+            } else {
+                p3Attacker = entry.getKey();
+            }
+        }
+        assertNotNull(p2Attacker, "one attacker must defend P2");
+        assertNotNull(p3Attacker, "one attacker must defend P3");
+
+        // P2's block decision arrives per blocker. The Runeclaw Bear's own
+        // frame is identified by the engine's prompt, and its offered
+        // attacker set must be exactly the P2-attacked creature: the
+        // P3-attacked one must be absent by CR 802.4a.
+        boolean blockExecuted = false;
+        for (int step = 0; step < 60; step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must park on declare_blocker");
+            String decisionClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(decisionClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if (!"declare_blocker".equals(decisionClass)) {
+                break;
+            }
+            int seat = pending.has("seat") && !pending.get("seat").isJsonNull()
+                    ? pending.get("seat").getAsInt() : -1;
+            String prompt = pending.has("prompt") && !pending.get("prompt").isJsonNull()
+                    ? pending.get("prompt").getAsString() : "";
+            if (seat != 1 || !prompt.contains("Runeclaw Bear")) {
+                submitProposal(lane, "causal-block4-noblock-" + step,
+                        emptyBlockProposal("causal-block4-noblock-" + step,
+                                legalActions(lane)));
+                continue;
+            }
+            JsonObject legal = legalActions(lane);
+            java.util.Set<String> offeredAttackers = new java.util.HashSet<>();
+            String runeclawOffer = null;
+            for (JsonElement element : legal.getAsJsonArray("actions")) {
+                JsonObject action = element.getAsJsonObject();
+                JsonObject metadata = action.getAsJsonObject("metadata");
+                if (!"declare_blocker".equals(metadata.get("option_type").getAsString())) {
+                    continue;
+                }
+                JsonObject nativeMetadata = metadata.has("xmage_option_metadata")
+                        && metadata.get("xmage_option_metadata").isJsonObject()
+                        ? metadata.getAsJsonObject("xmage_option_metadata")
+                        : new JsonObject();
+                if (nativeMetadata.has("attacker_id")
+                        && !nativeMetadata.get("attacker_id").isJsonNull()) {
+                    offeredAttackers.add(
+                            nativeMetadata.get("attacker_id").getAsString());
+                    runeclawOffer = action.get("action_id").getAsString();
+                }
+            }
+            assertTrue(offeredAttackers.contains(p2Attacker),
+                    "P2 must be offered the P2-attacked creature; offered=" + offeredAttackers);
+            assertFalse(offeredAttackers.contains(p3Attacker),
+                    "P2 must NOT be offered the P3-attacked creature (CR 802.4a); offered="
+                            + offeredAttackers);
+            assertNotNull(runeclawOffer, "P2 must be offered a block action");
+            submitActionById(lane, "causal-block4-block", legal, runeclawOffer);
+            blockExecuted = true;
+            break;
+        }
+        assertTrue(blockExecuted, "P2 must execute the obligated block");
+    }
+
+    /**
+     * Selects a discard from engine-offered options, preferring scaffolding
+     * filler (basic lands) so fixture content is never discarded. The choice
+     * is the pilot's, from the engine's set, and is recorded by the decision
+     * tape; it cannot satisfy or defeat any extra-turn obligation.
+     */
+    private static String discardFillerOption(JsonObject pending, String tag) {
+        JsonArray options = pending.getAsJsonArray("legal_options");
+        for (JsonElement element : options) {
+            JsonObject option = element.getAsJsonObject();
+            String label = option.has("label") && !option.get("label").isJsonNull()
+                    ? option.get("label").getAsString() : "";
+            if (label.contains("Mountain") || label.contains("Plains")
+                    || label.contains("Island") || label.contains("Swamp")
+                    || label.contains("Forest")) {
+                return option.get("option_id").getAsString();
+            }
+        }
+        assertFalse(options.isEmpty(), tag + ": the engine offered no discard option");
+        return options.get(0).getAsJsonObject().get("option_id").getAsString();
+    }
+
+    private static void submitActionById(
+            Lane lane, String proposalId, JsonObject legal, String actionId) {
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            if (actionId.equals(action.get("action_id").getAsString())) {
+                submitAction(lane, proposalId, action);
+                return;
+            }
+        }
+        fail("offer disappeared: " + actionId);
+    }
+
+    // ------------------------------------------------------------------
+    // MICRO_REPLACEMENT — doubling through the placement lane.
+    //
+    // Four-player Commander. P1 controls Gratuitous Violence (damage P1's
+    // sources deal is doubled) and an attacking 3-power Hill Giant unblocked
+    // against P2. The pilot declares the Giant at P2, walks to the
+    // combat-damage step, and reads P2's life from the engine's own readback:
+    // 40 -> 34 proves the replacement doubled 3 to 6. No stack, no modes, no
+    // fuel; the replacement is a static battlefield object the engine
+    // applies. Every declaration below selects an engine-offered option.
+    // ------------------------------------------------------------------
+
+    @Test
+    void microReplacementDoublesThreeDamageToSix() {
+        Lane lane = newLane();
+        JsonObject request = new JsonObject();
+        request.addProperty("game_id", "causal-microrepl");
+        request.addProperty("plan_id", "causal-microrepl");
+        request.addProperty("seed", SEED);
+        request.add("requested_starting_state", frozenRecord("MICRO_REPLACEMENT"));
+        JsonObject created = lane.ok("create_midgame_game", request);
+        assertEquals("placement", created.get("entry_mode").getAsString());
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+        int lifeBefore = readbackLife(lane, "P2");
+        assertEquals(40, lifeBefore);
+
+        // Declare the Giant at P2; hold everything else. The Giant is the
+        // only P1 creature that can attack (Violence is an enchantment).
+        boolean giantDeclared = false;
+        for (int step = 0; step < 60; step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must park while declaring");
+            String pendingClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if (!"declare_attacker".equals(pendingClass)) {
+                break;
+            }
+            boolean answered = false;
+            for (JsonElement element : pending.getAsJsonArray("legal_options")) {
+                JsonObject option = element.getAsJsonObject();
+                if (!"declare_attacker".equals(option.get("option_type").getAsString())) {
+                    continue;
+                }
+                String label = option.get("label").getAsString();
+                if (label.startsWith("Hill Giant")
+                        && label.endsWith("attacks Full Game Seat 2")) {
+                    submitOption(lane, pending,
+                            option.get("option_id").getAsString());
+                    giantDeclared = true;
+                    answered = true;
+                    break;
+                }
+            }
+            if (!answered) {
+                submitOption(lane, pending, optionWithType(pending, "hold_attacker"));
+            }
+            if (giantDeclared) {
+                break;
+            }
+        }
+        assertTrue(giantDeclared, "the Hill Giant must attack P2");
+        for (int step = 0; step < 20; step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must park while holding attackers");
+            String pendingClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if (!"declare_attacker".equals(pendingClass)) {
+                break;
+            }
+            submitOption(lane, pending, optionWithType(pending, "hold_attacker"));
+        }
+
+        // Walk to the combat-damage step, declining all blocks, then read P2.
+        int lifeAfter = -1;
+        for (int step = 0; step < 80; step++) {
+            JsonObject arrival = lane.ok("complete_midgame_arrival", new JsonObject());
+            JsonObject readback = arrival.getAsJsonObject("readback");
+            if ("COMBAT_DAMAGE".equals(readback.get("step").getAsString())) {
+                lifeAfter = readbackLife(lane, "P2");
+                break;
+            }
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must park while advancing to damage");
+            String pendingClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if ("declare_blocker".equals(pendingClass)) {
+                submitProposal(lane, "causal-repl-noblock-" + step,
+                        emptyBlockProposal("causal-repl-noblock-" + step,
+                                legalActions(lane)));
+                continue;
+            }
+            if ("declare_attacker".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "hold_attacker"));
+                continue;
+            }
+            break;
+        }
+        assertEquals(34, lifeAfter,
+                "Gratuitous Violence must double the Giant's 3 to 6: P2 40 -> 34");
+    }
+
+    /**
+     * Reads one principal's life from the engine's own arrival readback. The
+     * readback seats are keyed by principal id (P1..PN), which is the record's
+     * own addressing, not a native identity.
+     */
+    private static int readbackLife(Lane lane, String principalId) {
+        JsonObject readback = lane.ok("complete_midgame_arrival", new JsonObject())
+                .getAsJsonObject("readback");
+        for (JsonElement element : readback.getAsJsonArray("seats")) {
+            JsonObject seat = element.getAsJsonObject();
+            if (principalId.equals(seat.get("player_id").getAsString())) {
+                return seat.get("life").getAsInt();
+            }
+        }
+        fail("the engine readback names no seat " + principalId + ": " + readback);
+        return -1;
+    }
+
+    // ------------------------------------------------------------------
+    // WS05-MP-TURN-5 — extra-turn spells in graveyard carry no effect.
+    //
+    // Five-player Commander. The record places Time Warp and Nexus of Fate in
+    // graveyards and expects extra turns for P3 then P2. A placed resolved
+    // spell is a card, not an effect: the engine has no record of it ever
+    // resolving, so no extra turn can occur. This test materializes the
+    // record through placement, drives three full turns forward, records the
+    // active-player sequence from the engine's own readback, and asserts the
+    // rotation is normal with no extra turn anywhere. That is the measured
+    // blocker: reaching the obligation needs the spells cast from hand for
+    // real (as the native tier suite does by relocating them), which is a
+    // causal-cast entry the lane does not have. No turn number or active
+    // player is injected; the sequence is observed.
+    // ------------------------------------------------------------------
+
+    @Test
+    void turn5PlacedGraveyardSpellsGrantNoExtraTurn() {
+        Lane lane = newLane();
+        JsonObject request = new JsonObject();
+        request.addProperty("game_id", "causal-turn5");
+        request.addProperty("plan_id", "causal-turn5");
+        request.addProperty("seed", SEED);
+        request.add("requested_starting_state", frozenRecord("WS05-MP-TURN-5"));
+        JsonObject created = lane.ok("create_midgame_game", request);
+        assertEquals("placement", created.get("entry_mode").getAsString());
+        assertEquals(5, created.get("player_count").getAsInt());
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+
+        // Drive forward, recording each turn's active player from the
+        // engine's own readback. Holds and passes only; nothing is declared
+        // except to walk through combat.
+        List<String> activeSequence = new ArrayList<>();
+        String lastActive = "";
+        for (int step = 0; step < 400; step++) {
+            JsonObject readback = lane.ok("complete_midgame_arrival", new JsonObject())
+                    .getAsJsonObject("readback");
+            String active = readback.get("active_player").getAsString();
+            if (!active.equals(lastActive)) {
+                activeSequence.add(active);
+                lastActive = active;
+            }
+            if (activeSequence.size() >= 7) {
+                break;
+            }
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, "the engine must keep parking while turning");
+            String pendingClass = pending.get("decision_class").getAsString();
+            if ("priority".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            if ("declare_attacker".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "hold_attacker"));
+                continue;
+            }
+            if ("declare_blocker".equals(pendingClass)) {
+                submitProposal(lane, "causal-turn5-noblock-" + step,
+                        emptyBlockProposal("causal-turn5-noblock-" + step,
+                                legalActions(lane)));
+                continue;
+            }
+            if ("mulligan".equals(pendingClass)) {
+                submitOption(lane, pending, optionWithType(pending, "keep"));
+                continue;
+            }
+            if ("choose_object".equals(pendingClass)) {
+                // Cleanup discard (the starting player draws in multiplayer,
+                // so P1 holds eight at cleanup). The pilot discards
+                // scaffolding filler first — an external discretionary choice
+                // among engine-offered options, recorded, never a fallback.
+                // It cannot create an extra turn.
+                submitOption(lane, pending,
+                        discardFillerOption(pending, "causal-turn5-discard-" + step));
+                continue;
+            }
+            break;
+        }
+        assertTrue(activeSequence.size() >= 6,
+                "three full turns must be observed; sequence=" + activeSequence);
+        // Normal reverse-seat rotation with no extra turn anywhere: the
+        // engine turns P1 P5 P4 P3 P2 P1 P5. An extra turn would repeat a
+        // player consecutively or break the rotation order. The record
+        // obligates P3 then P2 immediately after P1; neither happens.
+        for (int index = 1; index < activeSequence.size(); index++) {
+            assertFalse(activeSequence.get(index).equals(activeSequence.get(index - 1)),
+                    "no active player may take two turns in a row without a causal "
+                            + "extra turn; sequence=" + activeSequence);
+        }
+        assertEquals(List.of("P1", "P5", "P4", "P3", "P2", "P1", "P5"),
+                activeSequence.subList(0, Math.min(7, activeSequence.size())),
+                "the rotation must be the engine's normal order with no extra turn inserted; "
+                        + "sequence=" + activeSequence);
+    }
+
+    // ------------------------------------------------------------------
+    // Remaining zone rows: GY-NO, EXILE-YES/NO, HAND-YES/NO share the GY-YES
+    // duality shape with different cause cards and fuel. LIB-YES/NO add a
+    // modal choice (Bant Charm) answered from the engine's own offered modes.
+    // Each proves the causal stack reachable and the choice absent.
+    // ------------------------------------------------------------------
+
+    private static void measureZoneDuality(
+            Lane lane, String tag, String fixtureId, String causeCard,
+            List<FuelSpec> fuelSpecs, List<String> fuelLabels) {
+        JsonArray fuel = new JsonArray();
+        List<String> fuelIds = new ArrayList<>();
+        for (FuelSpec spec : fuelSpecs) {
+            fuel.add(fuelCard(spec.semanticId(), spec.card(), spec.owner(), "battlefield"));
+            fuelIds.add(spec.semanticId());
+        }
+        JsonObject created = lane.ok("create_midgame_game",
+                causalStackCreate(tag, fixtureId, fuel));
+        JsonObject causalPlan = created.getAsJsonObject("causal_plan");
+        JsonObject frame = causalPlan.getAsJsonArray("frames_bottom_to_top")
+                .get(0).getAsJsonObject();
+        assertEquals(causeCard, frame.get("card_identity").getAsString());
+        JsonObject placed = causalPlan.getAsJsonObject("placed_objects");
+        String sourceId = frame.get("native_source_id").getAsString();
+        String targetId = placed.get("obj:cmd-zone-test").getAsString();
+        List<String> fuelNativeIds = new ArrayList<>();
+        for (String semantic : fuelIds) {
+            fuelNativeIds.add(placed.get(semantic).getAsString());
+        }
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+        castFrameSource(lane, tag + "-cast", sourceId);
+        // Engine casting order (CR 601.2): modes, then targets, then payment.
+        for (JsonElement modeElement : frame.getAsJsonArray("modes")) {
+            answerMode(lane, tag + "-mode", modeElement.getAsString());
+        }
+        answerTarget(lane, tag + "-target", targetId);
+        answerManaFromSet(lane, tag + "-mana", fuelNativeIds);
+
+        JsonObject verify = new JsonObject();
+        verify.addProperty("mode", "stack");
+        JsonObject arrival = lane.ok("complete_causal_reconstruction", verify);
+        assertEquals(true, arrival.getAsJsonObject("verdict")
+                .get("causal_match").getAsBoolean(),
+                fixtureId + " causal stack must verify: "
+                        + arrival.getAsJsonObject("verdict").getAsJsonArray("mismatches"));
+
+        List<String> trace = resolveAndRecordClasses(lane, tag);
+        assertTrue(trace.stream().noneMatch(c ->
+                        "choice".equals(c) || "choose_use".equals(c)
+                                || "replacement_effect".equals(c)),
+                fixtureId + ": no zone-choice decision may appear for the setup copy; trace="
+                        + trace);
+    }
+
+    private record FuelSpec(String semanticId, String card, String owner) {
+    }
+
+    /**
+     * Selects the engine-offered mode matching the frame's mode token. The
+     * token's words must appear in order in exactly one offered label; zero
+     * or multiple matches fail closed rather than guessing.
+     */
+    private static void answerMode(Lane lane, String tag, String modeToken) {
+        List<String> wanted = normalizeWords(modeToken.replace("_", " "));
+        for (int step = 0; step < 10; step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, tag + ": the engine must ask for the mode");
+            if (!"mode".equals(pending.get("decision_class").getAsString())) {
+                fail(tag + ": expected a mode decision, observed "
+                        + pending.get("decision_class").getAsString());
+            }
+            List<String> matches = new ArrayList<>();
+            for (JsonElement element : pending.getAsJsonArray("legal_options")) {
+                JsonObject option = element.getAsJsonObject();
+                if (isSubsequence(wanted,
+                        normalizeWords(option.get("label").getAsString()))) {
+                    matches.add(option.get("option_id").getAsString());
+                }
+            }
+            assertEquals(1, matches.size(),
+                    tag + ": expected exactly one mode matching " + modeToken
+                            + "; offered: " + pending.getAsJsonArray("legal_options"));
+            submitOption(lane, pending, matches.get(0));
+            return;
+        }
+    }
+
+    private static List<String> normalizeWords(String text) {
+        List<String> words = new ArrayList<>();
+        for (String word : text.toLowerCase().replaceAll("[^a-z ]", "").split(" ")) {
+            if (!word.isBlank()) {
+                words.add(word);
+            }
+        }
+        return words;
+    }
+
+    private static boolean isSubsequence(List<String> needles, List<String> haystack) {
+        int cursor = 0;
+        for (String needle : needles) {
+            while (cursor < haystack.size() && !haystack.get(cursor).equals(needle)) {
+                cursor++;
+            }
+            if (cursor >= haystack.size()) {
+                return false;
+            }
+            cursor++;
+        }
+        return true;
+    }
+
+    /**
+     * Resolves fully, recording every decision class. Returns the trace. The
+     * caller asserts what must or must not appear; resolving itself answers
+     * only priority passes, combat holds/empties and cleanup discards of
+     * scaffolding filler.
+     */
+    private static List<String> resolveAndRecordClasses(Lane lane, String tag) {
+        List<String> trace = new ArrayList<>();
+        boolean reachedCleanupDiscard = false;
+        for (int step = 0; step < 150; step++) {
+            JsonObject pending = pendingDecision(lane, 5);
+            if (pending == null) {
+                break;
+            }
+            String decisionClass = pending.get("decision_class").getAsString();
+            trace.add(decisionClass);
+            if ("choose_object".equals(decisionClass)) {
+                String prompt = pending.has("prompt") && !pending.get("prompt").isJsonNull()
+                        ? pending.get("prompt").getAsString() : "";
+                if (prompt.contains("discard")) {
+                    reachedCleanupDiscard = true;
+                    break;
+                }
+                fail(tag + ": unexpected non-discard choose_object: " + pending);
+            }
+            if ("declare_attacker".equals(decisionClass)) {
+                submitOption(lane, pending, optionWithType(pending, "hold_attacker"));
+                continue;
+            }
+            if ("declare_blocker".equals(decisionClass)) {
+                submitProposal(lane, tag + "-noblock-" + step,
+                        emptyBlockProposal(tag + "-noblock-" + step, legalActions(lane)));
+                continue;
+            }
+            if ("mulligan".equals(decisionClass)) {
+                submitOption(lane, pending, optionWithType(pending, "keep"));
+                continue;
+            }
+            if (!"priority".equals(decisionClass)) {
+                break;
+            }
+            submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+        }
+        assertTrue(reachedCleanupDiscard,
+                tag + ": the game must progress to cleanup; trace=" + trace);
+        return trace;
+    }
+
+    @Test
+    void cmdZoneGyNoMeasuresDuality() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-gy-no", "WS05-CMD-ZONE-GY-NO", "Doom Blade",
+                List.of(new FuelSpec("obj:fuel-swamp-a", "Swamp", "P2"),
+                        new FuelSpec("obj:fuel-swamp-b", "Swamp", "P2")),
+                List.of("Swamp"));
+    }
+
+    @Test
+    void cmdZoneExileYesMeasuresDuality() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-exile-yes", "WS05-CMD-ZONE-EXILE-YES",
+                "Swords to Plowshares",
+                List.of(new FuelSpec("obj:fuel-plains-a", "Plains", "P2")),
+                List.of("Plains"));
+    }
+
+    @Test
+    void cmdZoneExileNoMeasuresDuality() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-exile-no", "WS05-CMD-ZONE-EXILE-NO",
+                "Swords to Plowshares",
+                List.of(new FuelSpec("obj:fuel-plains-a", "Plains", "P2")),
+                List.of("Plains"));
+    }
+
+    @Test
+    void cmdZoneHandYesMeasuresDuality() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-hand-yes", "WS05-CMD-ZONE-HAND-YES", "Unsummon",
+                List.of(new FuelSpec("obj:fuel-island-a", "Island", "P2")),
+                List.of("Island"));
+    }
+
+    @Test
+    void cmdZoneHandNoMeasuresDuality() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-hand-no", "WS05-CMD-ZONE-HAND-NO", "Unsummon",
+                List.of(new FuelSpec("obj:fuel-island-a", "Island", "P2")),
+                List.of("Island"));
+    }
+
+    @Test
+    void cmdZoneLibYesMeasuresDualityWithMode() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-lib-yes", "WS05-CMD-ZONE-LIB-YES", "Bant Charm",
+                List.of(new FuelSpec("obj:fuel-forest-a", "Forest", "P2"),
+                        new FuelSpec("obj:fuel-plains-a", "Plains", "P2"),
+                        new FuelSpec("obj:fuel-island-a", "Island", "P2")),
+                List.of("Forest", "Plains", "Island"));
+    }
+
+    @Test
+    void cmdZoneLibNoMeasuresDualityWithMode() {
+        Lane lane = newLane();
+        measureZoneDuality(lane, "causal-lib-no", "WS05-CMD-ZONE-LIB-NO", "Bant Charm",
+                List.of(new FuelSpec("obj:fuel-forest-a", "Forest", "P2"),
+                        new FuelSpec("obj:fuel-plains-a", "Plains", "P2"),
+                        new FuelSpec("obj:fuel-island-a", "Island", "P2")),
+                List.of("Forest", "Plains", "Island"));
+    }
+
+    // ------------------------------------------------------------------
+    // Remaining elimination rows: OWNED-3, TURN-3 and ELIM-5 share the
+    // 14-bolt engine-SBA route; CONTROL-3 is honestly rejected for control
+    // divergence; ELIM-STACK-3 measures the stack with elimination pending.
+    // ------------------------------------------------------------------
+
+    private static void executeFourteenBoltElimination(
+            Lane lane, String tag, String fixtureId, String victimPid, int playerCount) {
+        executeFourteenBoltElimination(lane, tag, fixtureId, victimPid, playerCount, "P1");
+    }
+
+    private static void executeFourteenBoltElimination(
+            Lane lane, String tag, String fixtureId, String victimPid, int playerCount,
+            String startingPrincipal) {
+        JsonArray instruments = new JsonArray();
+        for (int index = 0; index < 14; index++) {
+            instruments.add(fuelCard("obj:elim-bolt-" + index, "Lightning Bolt", "P1", "hand"));
+            instruments.add(fuelCard("obj:elim-mountain-" + index, "Mountain", "P1",
+                    "battlefield"));
+        }
+        JsonObject request = new JsonObject();
+        request.addProperty("game_id", tag);
+        request.addProperty("plan_id", tag);
+        request.addProperty("seed", SEED);
+        request.addProperty("entry_mode", "causal_elimination");
+        request.add("requested_starting_state", frozenRecord(fixtureId));
+        JsonObject spec = new JsonObject();
+        spec.addProperty("actor", "P1");
+        spec.addProperty("victim", victimPid);
+        spec.add("instruments", instruments);
+        request.add("elimination", spec);
+        JsonObject created = lane.ok("create_midgame_game", request);
+        JsonObject plan = created.getAsJsonObject("elimination_plan");
+        JsonObject placed = plan.getAsJsonObject("placed_objects");
+        List<String> boltIds = new ArrayList<>();
+        List<String> mountainIds = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : placed.entrySet()) {
+            if (entry.getKey().contains("bolt")) {
+                boltIds.add(entry.getValue().getAsString());
+            } else if (entry.getKey().contains("mountain")) {
+                mountainIds.add(entry.getValue().getAsString());
+            }
+        }
+        assertEquals(14, boltIds.size());
+        assertEquals(14, mountainIds.size());
+        lane.ok("start_midgame_game", null);
+        driveArrival(lane, startingPrincipal);
+
+        String victimSeat = seatLabel(victimPid);
+        int expectedLife = 40;
+        for (int bolt = 0; bolt < 14; bolt++) {
+            castFrameSource(lane, tag + "-cast-" + bolt, boltIds.get(bolt));
+            answerPlayerTarget(lane, tag + "-target-" + bolt, victimSeat);
+            answerManaFromSet(lane, tag + "-mana-" + bolt, mountainIds);
+            expectedLife -= 3;
+            resolveUntilLifeReaches(lane, tag + "-resolve-" + bolt, victimPid, expectedLife);
+        }
+
+        JsonObject verify = new JsonObject();
+        verify.addProperty("mode", "elimination");
+        JsonObject verdict = lane.ok("complete_causal_reconstruction", verify)
+                .getAsJsonObject("verdict");
+        assertEquals(true, verdict.get("causal_match").getAsBoolean(),
+                fixtureId + ": the engine must have eliminated " + victimPid + ": "
+                        + verdict.getAsJsonArray("mismatches"));
+        assertEquals(playerCount - 1, verdict.getAsJsonArray("survivors").size());
+    }
+
+    @Test
+    void elimOwned3EliminatesThroughEngineSbas() {
+        Lane lane = newLane();
+        executeFourteenBoltElimination(
+                lane, "causal-elim-owned", "WS05-MP-ELIM-OWNED-3", "P2", 3);
+    }
+
+    @Test
+    void elimTurn3EliminatesThroughEngineSbas() {
+        Lane lane = newLane();
+        // The record names P2 active on turn 1, so P2 is the starting player
+        // here; the helper below still drives P1 as the bolt actor afterwards.
+        executeFourteenBoltElimination(
+                lane, "causal-elim-turn", "WS05-MP-ELIM-TURN-3", "P2", 3, "P2");
+    }
+
+    @Test
+    void elim5EliminatesThroughEngineSbasAtFivePlayers() {
+        Lane lane = newLane();
+        executeFourteenBoltElimination(
+                lane, "causal-elim-5", "WS05-MP-ELIM-5", "P3", 5);
+    }
+
+    @Test
+    void elimControl3RejectsControlDivergence() {
+        Lane lane = newLane();
+        JsonObject request = new JsonObject();
+        request.addProperty("game_id", "causal-elim-control");
+        request.addProperty("plan_id", "causal-elim-control");
+        request.addProperty("seed", SEED);
+        request.addProperty("entry_mode", "causal_elimination");
+        request.add("requested_starting_state", frozenRecord("WS05-MP-ELIM-CONTROL-3"));
+        JsonObject spec = new JsonObject();
+        spec.addProperty("actor", "P1");
+        spec.addProperty("victim", "P2");
+        spec.add("instruments", new JsonArray());
+        request.add("elimination", spec);
+        JsonObject response = lane.rejected("create_midgame_game", request);
+        assertEquals("midgame_causal_preparation_rejected",
+                response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString());
+        assertTrue(response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                .get("message").getAsString().contains("UNSUPPORTED_CONTROL_DIVERGENCE"));
+    }
+
+    @Test
+    void elimStack3MeasuresStackWithEliminationPending() {
+        Lane lane = newLane();
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:fuel-mountain-p2", "Mountain", "P2", "battlefield"));
+        JsonObject created = lane.ok("create_midgame_game",
+                causalStackCreate("causal-elim-stack", "WS05-MP-ELIM-STACK-3", fuel));
+        JsonObject causalPlan = created.getAsJsonObject("causal_plan");
+        JsonObject frame = causalPlan.getAsJsonArray("frames_bottom_to_top")
+                .get(0).getAsJsonObject();
+        assertEquals("obj:leave-bolt", frame.get("semantic_id").getAsString());
+        assertEquals("P2", frame.get("controller").getAsString());
+        JsonObject placed = causalPlan.getAsJsonObject("placed_objects");
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+        castFrameSource(lane, "causal-elim-stack-cast",
+                frame.get("native_source_id").getAsString());
+        answerPlayerTarget(lane, "causal-elim-stack-target", seatLabel("P1"));
+        answerManaFromSet(lane, "causal-elim-stack-mana",
+                List.of(placed.get("obj:fuel-mountain-p2").getAsString()));
+
+        JsonObject verify = new JsonObject();
+        verify.addProperty("mode", "stack");
+        JsonObject verdict = lane.ok("complete_causal_reconstruction", verify)
+                .getAsJsonObject("verdict");
+        assertEquals(true, verdict.get("causal_match").getAsBoolean(),
+                "P2's bolt must be genuinely on the stack targeting P1: "
+                        + verdict.getAsJsonArray("mismatches"));
+
+        // The victim is still alive with the spell on the stack. Eliminating
+        // in the same game needs stack frames and elimination instruments
+        // placed together — a combined causal entry the lane does not have.
+        // The lane correctly refuses to verify elimination on a stack-mode
+        // game; that refusal code is the composition-gap receipt.
+        JsonObject elimVerify = new JsonObject();
+        elimVerify.addProperty("mode", "elimination");
+        JsonObject elimResponse = lane.rejected("complete_causal_reconstruction", elimVerify);
+        assertEquals("no_causal_elimination_plan",
+                elimResponse.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString());
+    }
+
+    // ------------------------------------------------------------------
     // Lane drivers: every answer is an engine-offered option.
     // ------------------------------------------------------------------
 
@@ -824,7 +1627,7 @@ class XmageMidgameCausalTest {
     private static void answerManaFromSet(
             Lane lane, String tag, List<String> fuelNativeIds) {
         java.util.Set<String> fuelSet = new java.util.HashSet<>(fuelNativeIds);
-        for (int step = 0; step < 20; step++) {
+        for (int step = 0; step < 40; step++) {
             JsonObject pending = pendingDecision(lane);
             assertNotNull(pending, tag + ": the engine must ask for mana");
             if (!"mana_payment".equals(pending.get("decision_class").getAsString())) {
@@ -836,18 +1639,33 @@ class XmageMidgameCausalTest {
                 submitAction(lane, tag + "-tap", ability);
                 continue;
             }
-            List<JsonObject> pool = new ArrayList<>();
+            // Spend pool mana the engine marks as advancing the payment. The
+            // engine withdraws spent mana from later offers, so a repeated
+            // color across polls is fresh mana, not a repeat; the loop bound
+            // plus the decision closing on payment together prevent spinning.
+            JsonObject spend = null;
             for (JsonElement element : legal.getAsJsonArray("actions")) {
                 JsonObject action = element.getAsJsonObject();
-                if ("mana_pool".equals(action.getAsJsonObject("metadata")
-                        .get("option_type").getAsString())) {
-                    pool.add(action);
+                JsonObject metadata = action.getAsJsonObject("metadata");
+                if (!"mana_pool".equals(metadata.get("option_type").getAsString())) {
+                    continue;
+                }
+                JsonObject engine = metadata.has("xmage_option_metadata")
+                        && metadata.get("xmage_option_metadata").isJsonObject()
+                        ? metadata.getAsJsonObject("xmage_option_metadata")
+                        : new JsonObject();
+                boolean advances = !engine.has("advances_payment")
+                        || engine.get("advances_payment").isJsonNull()
+                        || engine.get("advances_payment").getAsBoolean();
+                if (advances) {
+                    spend = action;
+                    break;
                 }
             }
-            assertEquals(1, pool.size(),
-                    tag + ": expected exactly one engine-offered pool spend; offered: "
+            assertNotNull(spend,
+                    tag + ": the engine offered no advancing pool spend; offered: "
                             + legal.getAsJsonArray("actions"));
-            submitAction(lane, tag + "-spend", pool.get(0));
+            submitAction(lane, tag + "-spend", spend);
         }
     }
 
@@ -923,12 +1741,17 @@ class XmageMidgameCausalTest {
      */
     private static void resolveUntilLifeReaches(
             Lane lane, String tag, int expectedLife) {
+        resolveUntilLifeReaches(lane, tag, "P2", expectedLife);
+    }
+
+    private static void resolveUntilLifeReaches(
+            Lane lane, String tag, String victimPid, int expectedLife) {
         for (int step = 0; step < 30; step++) {
             JsonObject query = new JsonObject();
             query.addProperty("mode", "elimination");
             JsonObject verdict = lane.ok("complete_causal_reconstruction", query)
                     .getAsJsonObject("verdict");
-            int observed = verdict.getAsJsonObject("life_totals").get("P2").getAsInt();
+            int observed = verdict.getAsJsonObject("life_totals").get(victimPid).getAsInt();
             if (observed <= expectedLife) {
                 assertEquals(expectedLife, observed,
                         tag + ": each bolt deals exactly 3");
@@ -981,8 +1804,8 @@ class XmageMidgameCausalTest {
         JsonObject proposal = new JsonObject();
         proposal.addProperty("proposal_id", proposalId);
         proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
-        proposal.addProperty("legal_action_id", "empty-block");
-        proposal.addProperty("action_type", "declare_blockers");
+        proposal.add("legal_action_id", com.google.gson.JsonNull.INSTANCE);
+        proposal.addProperty("action_type", "structural_decision");
         proposal.add("target_ids", new JsonArray());
         proposal.add("selected_modes", new JsonArray());
         JsonObject choices = new JsonObject();

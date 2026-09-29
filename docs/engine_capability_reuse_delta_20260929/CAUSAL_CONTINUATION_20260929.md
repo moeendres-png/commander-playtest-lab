@@ -124,3 +124,46 @@ PB-09, PB-06, PB-08, CAP-08 RNG remediation, CAP-11 replay, Forge surfaces,
 provider selection, Architecture Freeze, merging #304. The current-boundary
 denominator still reads its own values; nothing was promoted and no runner was
 wired.
+
+## 6. Worktree-integrity incident (2026-09-29, during this session)
+
+During final pre-commit verification, three files showed uncommitted
+modifications authored by an unknown writer, present in this worktree but in no
+branch, no commit and no stash:
+
+- `engine-bridge/.../XmageNativeStateRestoration.java` (+19: `COLORLESS_BASIC_LAND
+  = "Wastes"` colorless-commander filler)
+- `engine-bridge/.../XmageMidgameJsonlBridge.java` (+135: principal-scoped
+  `observation` redaction replacing raw `readback` in `completeMidgameArrival`,
+  plus colorless-guard removal)
+- `engine-bridge/.../XmageMidgameLaneTest.java` (+4: `readback` → `observation`)
+
+Preserved as evidence (not committed) at `/tmp/opencode/foreign_changes/`
+(278 diff lines across three files). The content is coherent
+(colorless-commander support + hidden-info redaction in the arrival response)
+and matches no open-PR file set reviewed; authorship and intent are UNKNOWN.
+
+Disposition, per the ownership and provenance gates:
+
+1. All three files were reverted to HEAD (`1b772706`) before commit. In
+   particular `XmageNativeStateRestoration.java` is owned by other active
+   workstreams and could never have carried an unattributed change from this
+   session.
+2. This session's own new code had been written against the worktree's
+   `observation` shape (read during investigation after the foreign change
+   landed). It was ported back to HEAD's `readback` API — a key rename only,
+   no logic change — and re-verified to green (JUnit 35/35, probe partition
+   identical at 8/9/10/2/0).
+3. This session's consumption reads only turn/phase/step/active, seat ids and
+   life totals from the arrival response — never hand identities — so no
+   hidden-information handling in this workstream depends on the reverted
+   redaction.
+4. Observation for the lane owners: HEAD's `complete_midgame_arrival` returns
+   the raw engine readback including opponent hand identities. Whether that is
+   an accepted design or a leak awaiting the redaction above is not this
+   workstream's call; it is recorded here so the hidden-information owners
+   (#289, PB-06) can adjudicate with the foreign diff as input if its author
+   steps forward.
+
+No evidence was destroyed: the foreign diffs are preserved verbatim outside
+the repository, and nothing from them was copied, adapted or committed.
