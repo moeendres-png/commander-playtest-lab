@@ -1,81 +1,77 @@
 # Explicit execution profile and provider overrides
 
-The committed/default and preferred executor is `opencode-go/space-bunny-free` at native `max`.
+The committed/default and preferred executor is `opencode-go/deepseek-v4.1-flash` at native `max`.
+The explicitly selectable secondary executor is `opencode-go/space-bunny-free` at native `max`.
 
-## Space Bunny Max profile
+## DeepSeek Max profile
 
-Space Bunny MAX is selected by default. An explicit `--execution-profile space-bunny` is equivalent and may be used for clarity in
-Foundry `init` or `launch` invocation:
+DeepSeek MAX is the default. An explicit `--execution-profile deepseek` is equivalent and may be
+used for clarity in Foundry `init` or `launch` invocation:
 
 ```text
-python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort max --execution-profile space-bunny
+python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile deepseek
 ```
 
-The required policy selects `opencode-go/space-bunny-free` at native `max`.
-The command above specifies the intended contract, but is currently blocked by
-the launcher implementation gap described below. Do not substitute HIGH/XHIGH. The selected profile/model/native variant are
+The required policy selects `opencode-go/deepseek-v4.1-flash` at native `max`. The launcher pins
+that exact `--model` on the child argv, so the committed default cannot drift at run time. Do not
+substitute a different model or a lower native level. The selected profile/model/native variant are
 recorded in launch context/environment and existing model/provider telemetry.
 
-No automatic model fallback exists. Space Bunny failure, quota/auth failure, or child
-exit ends that run. A later Muse run may resume the same branch and explicit workstream
-state only after the first writer exits/releases the lock. Parallel Muse + Space Bunny
-writers are allowed only on independently owned worktrees/surfaces under the normal
+No automatic model fallback exists. A DeepSeek runtime, quota, auth or catalog failure is
+fail-closed and ends that run. Selecting another executor afterwards is an explicit task-rerouting
+decision, never a silent retry. A later Space Bunny run may resume the same branch and explicit
+workstream state only after the first writer exits and releases the lock. Parallel DeepSeek +
+Space Bunny writers are allowed only on independently owned worktrees/surfaces under the normal
 Foundry ownership gates.
 
-The committed config defaults to Space Bunny MAX. Each launch narrows the bundle
-to its explicitly selected executor; caller model/variant passthrough is refused.
+The committed config defaults to DeepSeek MAX. Each launch narrows the bundle to its explicitly
+selected executor; caller model/variant passthrough is refused.
 
 ### Qualified CLI compatibility
 
-The qualified Foundry CLI remains OpenCode `1.18.30`; this profile does not require
-a CLI repin merely because Space Bunny was added later. Direct source verification of
-OpenCode `v1.18.30` shows that its ModelsDev service fetches the live catalog from
-`https://models.opencode.ai/api.json` (with a five-minute cache) and that configured
-models merge against that catalog. The current authoritative models.dev entry
-`providers/opencode-go/models/space-bunny-free.toml` declares
-`low|medium|high|xhigh|max` effort levels, a 1,048,576-token context limit, tool use,
-and OpenAI-compatible reasoning. The pinned `v1.18.30` transform maps catalog-declared
-effort values for `@ai-sdk/openai-compatible` to `reasoningEffort`, so the injected
-`max` variant has a verified configuration path.
+The qualified Foundry CLI remains OpenCode `1.18.30`. Direct verification of the live `opencode-go`
+catalog on 2026-09-29 lists `deepseek-v4.1-flash` exactly, and an authenticated bounded smoke under
+the exact launcher-injected bundle resolved `providerID=opencode-go modelID=deepseek-v4.1-flash`
+with the `foundry-implementer` agent and exit 0.
 
-This is source-level compatibility evidence, not a claim that a particular local account
-is authenticated or that the limited-time preview remains available forever. If the
-catalog/model/auth path is unavailable, the selected Space Bunny run fails closed; it
-must never fall back silently to Muse. Requalification is required if the CLI pin,
-catalog contract, provider protocol, or Space Bunny reasoning contract changes.
+If the catalog/model/auth path is unavailable, the selected DeepSeek run fails closed; it must
+never fall back silently to Space Bunny. Requalification is required if the CLI pin, catalog
+contract, provider protocol, or DeepSeek reasoning contract changes.
 
-## Muse XHIGH profile
+## Space Bunny Max secondary profile
 
-Muse is an explicit alternate only:
+Space Bunny MAX is the explicit secondary executor:
 
 ```text
---execution-profile muse --effort xhigh
+--execution-profile space-bunny --effort high
 ```
 
-The authorized Muse identity is `opencode-go/muse-spark-1.3-contributor` with
-main model, small model and reachable agents at native `xhigh`. Muse HIGH is
-prohibited by policy; the launcher rejection still requires the deferred repair.
-There is no silent fallback from Space Bunny MAX to Muse XHIGH or vice versa.
+The authorized Space Bunny identity is `opencode-go/space-bunny-free` with main model, small model
+and reachable agents at native `max`. An authenticated bounded smoke under the exact
+launcher-injected secondary bundle resolved `providerID=opencode-go modelID=space-bunny-free` with
+exit 0 on 2026-09-29. Use it for bounded, mechanical, token-heavy, bulk and background work, or
+where a workstream contract explicitly selects it. There is no silent fallback between DeepSeek MAX
+and Space Bunny MAX in either direction.
 
+## Inactive executors
 
-## Historical Zen override
+Muse (`opencode-go/muse-spark-1.3-contributor`) and GLM (`opencode-go/glm-5.3`) are inactive. They
+are not reachable through the canonical launcher or `opencode.json`:
 
-The legacy `--execution-provider zen` flag still exists in the launcher. It does not
-provide verified native XHIGH and is not authorized as an active executor. Its
-implementation removal/refusal is deferred to the active launcher owner.
-No automatic model/provider fallback exists. Historical Zen records remain valid
-provenance of their own runs, not authority for new work.
+- `--execution-profile muse` and `--execution-profile glm` are rejected as unknown profiles;
+- the retired `--execution-provider zen` override (which resolved to
+  `opencode/muse-spark-1.3-contributor-free`) is always refused.
+
+Historical Muse and GLM records remain valid provenance of their own runs. They are not authority
+for new work and are not rewritten merely because they name a retired executor.
 
 ## Effort resolution
 
-`--execution-profile space-bunny --effort max` and
-`--execution-profile muse --effort xhigh` are the only active pairs. Omission
-selects Space Bunny MAX at the policy/config level. **Implementation gap:** the
-current launcher still requires a historical high/xhigh project-tier argument and
-rejects max. Do not treat these desired native-pair examples as currently working
-launcher commands or use HIGH as an authorized workaround. The active completion
-campaign owns the launcher repair; see `../project_integrity_20260928/OWNERSHIP_DEFERRALS.json`.
-Direct OpenCode root configuration already pins the native variants.
+`--execution-profile deepseek --effort high` and `--execution-profile space-bunny --effort high`
+are the active pairs; `--effort xhigh` is also accepted and describes task/authority routing only.
+Omission selects DeepSeek MAX. `--effort` must be `high` or `xhigh`; below-`high` values are
+rejected. The project effort field never lowers either executor's native `max` level and never
+opens a second native variant. Direct OpenCode root configuration already pins the native variants.
 Use explicit session IDs or a fresh TUI `/work`; blind continuation is refused.
 
 ## Interruption and evidence
@@ -90,9 +86,9 @@ even when telemetry fails. No process-killing mechanism is added.
 
 `launch-context.json` records the full `execution` identity. Both session metric
 records carry the selected model, `execution_provider`, `execution_override`,
-`execution_profile`, `native_variant` when one is directly pinned,
-`variant_resolution`, and requested project reasoning effort; the end record also
-carries interruption status. Muse's selected native XHIGH identity is recorded explicitly.
+`execution_profile`, `native_variant`, `variant_resolution`, and requested project
+reasoning effort; the end record also carries interruption status. The selected
+executor's actual native identity is recorded explicitly.
 
 Missing selected-executor availability/authentication fails without switching provider. Launcher/config tests do not prove authenticated connectivity.
 Do not inspect credential files. Only project-policy-covered technical data may

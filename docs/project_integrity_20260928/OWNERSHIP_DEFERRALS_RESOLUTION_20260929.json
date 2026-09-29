@@ -1,0 +1,18 @@
+{
+  "record_type": "OWNERSHIP_DEFERRAL_RESOLUTION",
+  "resolution_date": "2026-09-29",
+  "resolves": "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json",
+  "historical_record_preserved": true,
+  "superseded_disposition": "FOREIGN_ACTIVE_DO_NOT_EDIT",
+  "resolved_disposition": "RESOLVED_BY_NEWEST_USER_AUTHORITY",
+  "paths_released_for_edit": [
+    "tools/foundry/launcher.py",
+    "tests/foundry/test_launcher.py"
+  ],
+  "superseding_authority": "Newest direct user statement (2026-09-29), workstream FOUNDRY-DEEPSEEK-PRIMARY-MIGRATION-20260929, which permanently changed the preferred OpenCode execution policy to DeepSeek MAX primary and Space Bunny MAX secondary and directed the complete canonical-contract migration.",
+  "why_the_original_deferral_existed": "On 2026-09-28 the foreign branch sbmax/full-completion held tools/foundry/launcher.py and tests/foundry/test_launcher.py, so a second campaign could not co-edit them. That coordination constraint is real history and stays readable as provenance.",
+  "why_it_no_longer_blocks": "Source Truth ranks the newest direct user statement above repository coordination notes. The operator is the same authority that set the deferred foreign ownership, and has now directed that these exact surfaces be migrated. No competing implementation is integrated: the PR is additive migration of the canonical execution contract on a single owned branch.",
+  "prior_finding_retained": "The 2026-09-28 finding that the launcher accepted project effort high/xhigh, refused max, and still accepted a legacy Zen provider override is retained verbatim in the referenced historical file and is now remediated in source.",
+  "exact_next_action": "Merge the DeepSeek-primary migration PR only after every relevant required gate is PASS on the exact head. The historical OWNERSHIP_DEFERRALS.json is left byte-identical as provenance and is no longer treated as a live edit block.",
+  "evidence_classification": "DIRECTLY_VERIFIED"
+}

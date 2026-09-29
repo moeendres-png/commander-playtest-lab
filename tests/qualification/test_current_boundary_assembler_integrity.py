@@ -182,11 +182,17 @@ def test_no_credit_without_receipts_end_to_end(tmp_path: Path) -> None:
     assert rejected  # absent directory is itself a no-credit condition
     assert (
         R.positive_fixture_credit(
-            valid, candidate="xmage", expected_commit="a" * 40, denominator={"MICRO_STACK"}
+            valid,
+            candidate="xmage",
+            expected_commit="a" * 40,
+            denominator={"MICRO_STACK"},
+            expected_runner_digest="a" * 64,
         )
         == {}
     )
-    credit = R.native_suite_credit(valid, candidate="xmage", expected_commit="a" * 40)
+    credit = R.native_suite_credit(
+        valid, candidate="xmage", expected_commit="a" * 40, expected_runner_digest="a" * 64
+    )
     assert credit["groups_credited"] == []
     assert credit["tests"] == 0
     assert credit["passed"] == 0
@@ -204,3 +210,161 @@ def test_real_evidence_directory_has_no_receipts_yet() -> None:
         pytest.skip("no receipt directory yet; nothing can be credited, which is the point")
     valid, rejected = R.collect_receipts(directory)
     assert valid or rejected
+
+
+# --- AF11: measured technical facts, never an asserted verdict -------------- #
+
+
+def _assembler_module():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("salvage_assembler_under_test", ASSEMBLER)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _af11_identities(**overrides: object) -> dict:
+    base = {
+        "xmage": {
+            "results_runtime_identity": {
+                "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+                "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+            }
+        },
+        "forge": {
+            "results_runtime_identity": {
+                "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+                "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+            }
+        },
+    }
+    for candidate, identity in overrides.items():
+        base[candidate]["results_runtime_identity"] = identity
+    return base
+
+
+def test_af11_is_unknown_when_technical_facts_hold() -> None:
+    """Facts hold + policy unresolved must be UNKNOWN, never an asserted FAIL."""
+    asm = _assembler_module()
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "UNKNOWN"
+    assert measured["verdict"] != "PASS"
+    joined_evidence = " ".join(measured["evidence"])
+    assert "distinct external adapter" in joined_evidence
+    assert "no engine code is embedded" in joined_evidence
+    assert "no legal conclusion is drawn here" in joined_evidence
+    joined_limitations = " ".join(measured["limitations"])
+    assert "NOT MEASURED BY THE LAB" in joined_limitations
+
+
+def test_af11_fails_when_adapter_identity_is_missing() -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities(xmage={})
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "FAIL"
+    assert any("no adapter identity" in line for line in measured["limitations"])
+
+
+def test_af11_fails_when_adapters_are_not_distinct() -> None:
+    asm = _assembler_module()
+    shared = {
+        "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+        "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    }
+    per_candidate = _af11_identities(xmage=shared, forge=shared)
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "FAIL"
+
+
+def test_af11_fails_when_engine_code_is_embedded() -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities(
+        xmage={
+            "adapter": "commander_lab.engine.rules.bridge",
+            "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+        }
+    )
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "FAIL"
+    assert any("embedded" in line for line in measured["limitations"])
+
+
+def test_af11_unknown_still_blocks_freeze() -> None:
+    """UNKNOWN must remain a freeze-blocking verdict: this is not a weakening."""
+    from commander_lab.freeze_readiness import NON_PASS_VERDICTS
+
+    assert "UNKNOWN" in NON_PASS_VERDICTS
+    assert "PASS" not in NON_PASS_VERDICTS
+
+
+# --- AF09: seed acknowledgement, refusal and setup are never replay proof --- #
+
+
+def _refusal_document() -> dict:
+    return {
+        "semantic_replay": {"error": [{"code": "unsupported_message", "message": "nope"}]},
+        "rules_rng_binding": {
+            "classification": "UNCONTROLLED_ENGINE_RNG",
+            "requested_seed": 424242,
+            "acknowledged_seed": None,
+        },
+    }
+
+
+def test_af09_refusal_is_recorded_as_refusal() -> None:
+    """A refused export must never be worded as an executed one."""
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(_refusal_document(), "xmage")
+    joined = " ".join(described["evidence"])
+    assert "attempted in a live game and refused by the engine" in joined
+    assert "unsupported_message" in joined
+    assert "executed in a live game" not in joined
+
+
+def test_af09_seed_acknowledgement_is_not_a_tape() -> None:
+    doc = _refusal_document()
+    doc["rules_rng_binding"] = {
+        "classification": "ACKNOWLEDGED_ENGINE_SEED",
+        "requested_seed": 424242,
+        "acknowledged_seed": 424242,
+    }
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(doc, "forge")
+    joined = " ".join(described["evidence"])
+    assert "ACKNOWLEDGED_ENGINE_SEED" in joined
+    assert "not a demonstrated Rules RNG tape" in joined
+
+
+def test_af09_payload_presence_is_not_replay_proof() -> None:
+    doc = _refusal_document()
+    doc["semantic_replay"] = {"tape": ["event-1", "event-2"]}
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(doc, "xmage")
+    joined = " ".join(described["evidence"])
+    assert "recorded, not replay proof" in joined
+
+
+def test_af09_limitations_state_the_generic_distinctions() -> None:
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(_refusal_document(), "xmage")
+    joined = " ".join(described["limitations"])
+    assert "never a satisfied obligation and never a replay PASS" in joined
+    assert "is not semantic replay proof" in joined
+
+
+def test_af09_never_claims_an_executed_export() -> None:
+    """The over-claim the donor caught must not come back in any wording."""
+    assert "replay export executed in a live game" not in _source(ASSEMBLER)
+
+
+def test_af09_committed_artifacts_describe_refusals() -> None:
+    """DIRECTLY_VERIFIED against the committed RNG_REPLAY artifacts: both refused."""
+    asm = _assembler_module()
+    for candidate in ("xmage", "forge"):
+        document = asm._load_replay_document(candidate)
+        assert document is not None, f"missing committed RNG_REPLAY_{candidate.upper()}.json"
+        described = asm._describe_replay_evidence(document, candidate)
+        assert any("refused by the engine" in line for line in described["evidence"])

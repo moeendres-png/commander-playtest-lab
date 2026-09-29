@@ -2,6 +2,21 @@
 
 Local, reproducible decision system for Commander deck validation, Structural simulation, pilot/ensemble analysis, paired comparisons, ablation, holdout, sensitivity and constrained optimization.
 
+## Project authority — read these before anything else
+
+This README is an orientation summary, not authority. Where it disagrees with a
+governing document, the governing document wins.
+
+| Question | Authoritative source |
+|---|---|
+| Durable rules every session must follow | [`AGENTS.md`](AGENTS.md) — including the source-truth order, rules authority, evidence semantics, Git/worktree authority, and the fact that filenames containing `CURRENT`/`FINAL`/`LATEST` prove nothing |
+| Governing mission and gates | [`docs/PROJECT_MISSION.md`](docs/PROJECT_MISSION.md) — outranks any summary, including the one on this page |
+| Current engine pins | [`config/rules_engines.json`](config/rules_engines.json) — the sole machine-readable pin authority. Do not restate pins from prose |
+| Current execution authority (who runs what, at which effort) | [`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`](docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md) with `AGENTS.md` §6–§7 |
+| Foundry execution system | [`docs/foundry-execution/README.md`](docs/foundry-execution/README.md) — start a workstream with `.opencode/skills/workstream-bootstrap/SKILL.md` |
+| Documentation map | [`docs/README.md`](docs/README.md) |
+| Live PRs, issues and branches | [`docs/REPOSITORY_TRIAGE_INDEX.md`](docs/REPOSITORY_TRIAGE_INDEX.md) |
+
 ## Project identity, licensing, and third-party software
 
 Commander Playtest Lab / Commander Simulator Next is an independent, unofficial research and engineering project. It is not maintained by XMage or Forge and is not affiliated with or endorsed by Wizards of the Coast.
@@ -155,6 +170,25 @@ or:
 python -m pip install -e .
 pytest
 ```
+
+### Run the suite this way, or expect a red baseline
+
+Install the dev extra before running the suite. Two failure modes follow from skipping it,
+and both are environmental rather than product defects:
+
+- `tests/integration/test_phase5_server.py` and `tests/unit/test_phase5_openai_adapter.py`
+  fail to **collect** because `httpx2` and `pytest-asyncio` (declared dev dependencies,
+  `pyproject.toml`) are not installed. `test_phase10_acceptance.py` fails for the same root
+  cause: `src/commander_lab/acceptance/phase10.py` catches the resulting exception and
+  reports `failed` instead of `passed_with_limitations`.
+- Tests that spawn a child interpreter cannot import the project, because
+  `pythonpath = ["src"]` in `pyproject.toml` applies to the pytest process only and is not
+  inherited by children. The `subprocess_env` fixture in `tests/conftest.py` handles this for
+  the tests that need it, so these are covered either way — but a bare run is still the
+  supported way to work.
+
+CI runs the suite with the project installed (`pip install --no-deps -e .`). A local run that
+matches CI needs the same install.
 
 Useful project commands include:
 

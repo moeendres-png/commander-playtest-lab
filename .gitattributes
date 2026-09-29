@@ -18,9 +18,7 @@ data/collections/current/J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json -text
 data/collections/current/J_P5_POD_SCENARIOS_CURRENT.json -text
 data/evals/golden/J_P5_OPTIMIZER_CHALLENGE_SET_v1.json -text
 docs/J_P5_DEVELOPMENT_EVIDENCE.json -text
-scripts/run_j_p5_development.py -text
 scripts/run_j_p5_holdout_once.py -text
-scripts/run_phase7_validation.py -text
 src/commander_lab/decision_statistics.py -text
 src/commander_lab/models/optimization.py -text
 src/commander_lab/optimization/constraints.py -text
