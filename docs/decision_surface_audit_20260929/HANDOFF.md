@@ -86,7 +86,7 @@ Classification: `DIRECTLY_VERIFIED` for these four surfaces on XMage. Two protoc
 
 ## Impact adjudication owed by evidence owners
 
-Historical Forge evidence may have depended on an illegal block option, or on optional-cost, pay-to-prevent, shock-land, tap-cost, crew, ninjutsu, energy, reveal, exert, mill or emerge cards halting, or on an unless-cost "pay" choice that was silently not carried out or ending a game. Historical XMage evidence with a "block any number" creature on the battlefield could not include that creature's blocks. Neither was re-run here.
+Historical Forge evidence may have depended on an illegal block option, or on optional-cost, pay-to-prevent, shock-land, tap-cost, crew, ninjutsu, energy, reveal, exert, mill or emerge cards halting or ending a game, or on an unless-cost "pay" choice that was silently not carried out. Historical XMage evidence with a "block any number" creature on the battlefield could not include that creature's blocks. Neither was re-run here.
 
 ## Exact next action
 
