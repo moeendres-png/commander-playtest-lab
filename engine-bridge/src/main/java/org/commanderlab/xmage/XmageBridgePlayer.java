@@ -46,9 +46,10 @@ import java.util.UUID;
  * auto-passed, the init-phase starting-player selection honors the requested
  * seat by self-selecting, and every other discretionary Player callback fails
  * closed with UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning
- * a tactical default. ChooseMulligan (keep) and the GUI/out-of-scope
- * lifecycle methods remain bounded compatibility behavior on both paths; they
- * are not gameplay evidence.</p>
+ * a tactical default. ChooseMulligan is likewise unsupported on the
+ * externally controlled compatibility path and fails closed; the no-controller
+ * B3 path retains its bounded keep behavior and is not gameplay evidence.
+ * GUI/out-of-scope lifecycle methods remain bounded compatibility behavior.</p>
  *
  * <p>Library shuffling is never overridden: it is Rules randomness owned by
  * XMage ({@code PlayerImpl.shuffleLibrary}: SHUFFLE_LIBRARY replacement,
@@ -355,6 +356,7 @@ final class XmageBridgePlayer extends PlayerImpl {
     public boolean chooseMulligan(
             Game game
     ) {
+        failIfExternallyControlled("chooseMulligan");
         return false;
     }
 
