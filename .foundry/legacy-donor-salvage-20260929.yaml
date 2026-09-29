@@ -82,15 +82,16 @@ tests_run:
 - tests/unit/test_xmage_full_game.py + test_full_game_shutdown.py + contract/test_phase85_protocol.py: 23 passed
 - tests/unit/test_xmage_variable_player.py + test_ws224_name_canary.py + test_ws223_cardinality_regression.py + contract/test_phase1213_provider_surface.py: 92 passed
 - tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
-- tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed (7 new stale-identity tests)
-- tests/qualification/test_wsr22_current_boundary.py + test_wsr24_freeze_readiness.py + test_current_boundary_readiness_packet.py: 59 passed
-- full tests/qualification/: 410 passed, 5 skipped (pre-existing skips)
+- tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed, then 20+ after AF11 tests, then full tests/qualification/: 410 passed, 5 skipped (pre-existing skips)
+- tests/qualification/test_current_boundary_shortcut_campaign.py: 16 passed (fail-before ModuleNotFoundError proven)
 - live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
+- full repo suite (minus agent_evals/differential/fuzz/mutation + 2 uncollectable files): 2195 passed, 7 skipped, 6 failed — all 6 fail identically on pristine d40dda9f baseline worktree (missing httpx2/pytest_asyncio packages, bare-subprocess ModuleNotFoundError without installed distribution); classified PRE_EXISTING_ENVIRONMENT, not attributable
 - ruff check on all touched files: clean
 - ruff format --check on all touched files: clean
 evidence:
-- classification: DIRECTLY_VERIFIED for above runs on workstream head 21367e35-derived tree
+- classification: DIRECTLY_VERIFIED for above runs on workstream head a4a28464-derived tree
 - strict mypy unavailable in this environment (NO module named mypy); deferred to CI
+- 6 full-suite failures verified identical on pristine d40dda9f detached baseline at /tmp/opencode/salvage-baseline-check (read-only verification worktree; needs owner cleanup, removal is outside this worker authority)
 drift_checks:
 - time_utc: '2026-09-29T16:00:00Z'
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
