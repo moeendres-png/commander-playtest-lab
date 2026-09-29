@@ -237,6 +237,8 @@ class XmageFirstTurnDrawRuleTest {
             assertInstanceOf(CommanderFreeForAll.class, game);
         }
         manager.startGame(created.gameHandle());
+        XmageGenericExternalMulliganSupport.keepAllToPriority(
+                manager, created.gameHandle(), players);
         assertEquals(1, game.getState().getTurnNum());
         assertEquals(PhaseStep.UPKEEP, game.getTurnStepType(),
                 "observation point precedes the first draw step");
