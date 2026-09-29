@@ -6,24 +6,24 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Surface | Canonical path | Role |
 |---|---|---|
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
-| Machine config | `opencode.json` (root) | Space Bunny MAX default; explicit Muse XHIGH alternate; permissions; sharing off |
+| Machine config | `opencode.json` (root) | DeepSeek MAX default; explicit Space Bunny MAX secondary; permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
 | Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Unique verified reference snapshots + standalone current-workstream owned-write surfaces + Bubblewrap read-only-root boundary |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX default, Muse XHIGH alternate, retired Zen, no fallback |
-| Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / Space Bunny MAX / Muse / Astra authority model |
+| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | DeepSeek MAX default, Space Bunny MAX secondary, retired Zen, no fallback |
+| Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / DeepSeek MAX / Space Bunny MAX / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
-| Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | Post-PR172 merge procedure; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
-| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (Space Bunny MAX) |
-| Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (XHIGH) |
+| Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | PR #172 governance-line propagation; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
+| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (DeepSeek MAX primary executor) |
+| Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (native `max`) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
-| Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation |
+| Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation, component-change-review, rules-authority-escalation |
 | Workstream state | Explicit dedicated state path per workstream (`--state`, exposed as `FOUNDRY_STATE_PATH`) + `.foundry/WORKSTREAM_STATE.schema.json` | Resumable index + validator |
-| Deterministic tools | `tools/foundry/` | source_lock, worktree_inventory, cluster_failures, evidence, state, metrics |
+| Deterministic tools | `tools/foundry/` (20 modules) | `launcher.py`, `state.py`, `source_lock.py`, `writer_lock.py`, `workspace_access.py`, `evidence.py`, `metrics.py`, `context_capsule.py`, `safe_push.py`, `drift_check.py` |
 | Tool tests | `tests/foundry/test_foundry_tools.py` | Deterministic behavior gates |
 | Compaction record | `docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md` | `COMPACTION_HOOK = DEFERRED` + reason |
 | Metrics | `docs/foundry-execution/METRICS.md` + `tools/foundry/metrics.py` | JSONL session records |
-| Benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Replay schema, no claimed results |
+| Benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Historical harness design, superseded; no claimed results |
 | Current workstream | Explicit user assignment + dedicated state/contract | Historical handoffs never select the next task |
 
 Historical research, dated reports, and superseded proposals stay where they are and

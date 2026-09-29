@@ -1,9 +1,12 @@
-# Governance Propagation Contract — After PR #172 Merge
+# Governance Propagation Contract — PR #172 Execution-System Line
 
 This is the canonical procedure for carrying the PR #172 execution-system
-governance line into active branches. It applies only after PR #172 merges to
-`main`. Do not anticipate the merge: before merge, `main` does not carry the
-canonical execution system.
+governance line into active branches.
+
+PR #172 merged on 2026-09-10. This procedure therefore applies to any branch
+that has not yet absorbed the current `main` governance line. It no longer gates
+on a future merge; re-verify against current `AGENTS.md` before applying it,
+because later routing changes supersede parts of the PR #172 line.
 
 ## Required procedure (in order)
 
