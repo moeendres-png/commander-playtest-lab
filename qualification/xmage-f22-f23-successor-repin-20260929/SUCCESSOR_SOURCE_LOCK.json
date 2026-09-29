@@ -1,0 +1,63 @@
+{
+  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+  "workstream": "xmage-f22-f23-successor-repin-20260929",
+  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+  "not_a": [
+    "PRODUCTION_PROVIDER_SELECTION",
+    "ARCHITECTURE_FREEZE",
+    "DENOMINATOR_CHANGE"
+  ],
+  "lab_base": {
+    "main": "9e5788364dfc1d73af4912cc8a1e5e1b71b8353a",
+    "tree": "875f9810230b6cea4bf3e7341dd34aa3bef2eecf"
+  },
+  "prior_live_pin": {
+    "commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+    "role": "prior live XMage multiplayer candidate; its 2026-09-29 source lock and evidence remain historical and unchanged",
+    "source_lock": "qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
+  },
+  "new_live_pin": {
+    "repository": "https://github.com/moeendres-png/mage.git",
+    "branch": "sol/xmage-f22-f23-successor-20260929",
+    "pull_request": "moeendres-png/mage#25",
+    "parent_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+    "commit": "4277b90b4ee49acd945e82335a9a04c4536f5340",
+    "tree": "d23b2bfc14a25a2aec2dec7eadd3994913cb4e31",
+    "source_archive": "https://github.com/moeendres-png/mage/archive/4277b90b4ee49acd945e82335a9a04c4536f5340.tar.gz",
+    "semantic_fingerprint": "mage.game.Game#getOpponentsInGame(UUID)"
+  },
+  "findings": [
+    {
+      "id": "F-22",
+      "tracker": "commander-playtest-lab#334",
+      "scope": "battle protector leaves; state-based replacement"
+    },
+    {
+      "id": "F-23",
+      "tracker": "commander-playtest-lab#335",
+      "scope": "departed players excluded from ordinary opponent/vote/myriad membership"
+    }
+  ],
+  "candidate_verification": {
+    "code_head": "4277b90b4ee49acd945e82335a9a04c4536f5340",
+    "ci_branch": "ci/xmage-f22-f23-v2-20260929",
+    "ci_commit": "9284d6112fbdfc29d74a3787bf7c2b00dd408b65",
+    "workflow_only_delta": true,
+    "run_id": 36616702280,
+    "status": "PENDING",
+    "conclusion": null,
+    "runtime_evidence": "UNKNOWN_PENDING_CI"
+  },
+  "rules_authority": {
+    "source": "Wizards Comprehensive Rules, current official rules page",
+    "battle": [
+      "310.11",
+      "310.12a"
+    ],
+    "multiplayer": [
+      "800.4",
+      "801.2c"
+    ]
+  },
+  "evidence_policy": "No prior runtime PASS is transferred across the engine pin without impact adjudication. Exact successor runtime credit requires the recorded candidate verification and Lab repin qualification."
+}
