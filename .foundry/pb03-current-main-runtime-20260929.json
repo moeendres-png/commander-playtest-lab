@@ -1,0 +1,44 @@
+{
+  "schema_version": "commander-lab.workstream-state/1.0.0",
+  "workstream": "PB-03 current-main admission -> native runtime integration",
+  "source_lock": {
+    "base_branch": "main",
+    "base_commit": "128e91185b66df92e4bec726abb89c7c20fbbb11",
+    "base_tree": "aa0ccafd1105eb0c98bbdeb604328e1e0af25d97"
+  },
+  "branch": "sol/pb03-current-main-runtime-20260929",
+  "donor": {
+    "kind": "space-bunny local ZIP; not a merge source",
+    "zip_sha256": "de35f17a8054f641d39849eea88f74353702cec448ecd697fa9afc58d51a168c",
+    "reported_local_head": "ac2eb61fc804a6c877e58ff19b5104c344760bcb",
+    "reported_tree": "58d1353a9eccfeab61636e3db2c920bfbbe88734",
+    "remote_commit_resolvable": false
+  },
+  "ownership": {
+    "owns": [
+      "PB-03 dimension admission integration",
+      "PB-03 native-suite runtime binding",
+      "PB-03 impacted evidence"
+    ],
+    "read_only": [
+      "PR #284",
+      "PR #289",
+      "PB-05",
+      "PB-06",
+      "PB-07",
+      "PB-08",
+      "AF11"
+    ]
+  },
+  "classifications": {
+    "PB03_DIMENSION_ADMISSION": "UNDER_CURRENT_MAIN_ADJUDICATION",
+    "PB03_RUNTIME_EXECUTION": "NOT_CLAIMED",
+    "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT_SELECTED"
+  },
+  "new_findings": [
+    "Donor 14/16 projection misses current-main UNSUPPORTED_CONTROL_DIVERGENCE.",
+    "Donor 14/16 projection treats zero-life pre-start rows as constructible although current native full-game start re-derives starting life."
+  ],
+  "next_action": "Integrate fail-closed record-aware admission, bind it to existing native Maven/Surefire receipt path, and requalify only PB-03 impacted runtime evidence."
+}
