@@ -37,8 +37,16 @@ final class XmageGameManager {
             String engineGameId,
             int playerCount,
             int startingPlayerSeat,
-            boolean externalControl
+            boolean externalControl,
+            JsonObject rulesSeedBinding
     ) {
+
+        /** Engine-readback Rules seed, or null when the game is uncontrolled. */
+        Long rulesSeed() {
+            return rulesSeedBinding == null
+                    ? null
+                    : rulesSeedBinding.get("rules_seed").getAsLong();
+        }
     }
 
     record StartResult(
@@ -49,7 +57,8 @@ final class XmageGameManager {
             String startingPlayerId,
             int turnNumber,
             boolean paused,
-            boolean externalControl
+            boolean externalControl,
+            JsonObject rulesSeedBinding
     ) {
     }
 
@@ -130,6 +139,8 @@ final class XmageGameManager {
         private final boolean externalControl;
         private final ExternalDecisionController externalDecisionController;
         private final XmageAuditEventLog eventLog;
+        /* Explicit orchestration seed bound to the native Rules RNG, or null. */
+        private final Long explicitRulesSeed;
 
         private Lifecycle lifecycle = Lifecycle.CREATED;
         private long stateObservationOffset = 0L;
@@ -142,7 +153,8 @@ final class XmageGameManager {
                 int startingPlayerSeat,
                 int startingLife,
                 boolean externalControl,
-                ExternalDecisionController externalDecisionController
+                ExternalDecisionController externalDecisionController,
+                Long explicitRulesSeed
         ) {
             this.gameId = gameId;
             this.game = game;
@@ -152,6 +164,7 @@ final class XmageGameManager {
             this.startingLife = startingLife;
             this.externalControl = externalControl;
             this.externalDecisionController = externalDecisionController;
+            this.explicitRulesSeed = explicitRulesSeed;
             this.eventLog = new XmageAuditEventLog(gameId, game.getId().toString());
         }
     }
@@ -194,6 +207,30 @@ final class XmageGameManager {
             int startingPlayerSeat,
             int startingLife,
             boolean externalControl
+    ) {
+        return createCommanderGame(
+                gameId,
+                requestedDeckHandles,
+                startingPlayerSeat,
+                startingLife,
+                externalControl,
+                null
+        );
+    }
+
+    /**
+     * Creates a Commander game. When {@code rulesSeed} is non-null it is bound
+     * to the engine's authoritative per-game Rules RNG before start (see
+     * {@link XmageRulesSeedBinding}); otherwise the game runs on the engine's
+     * non-credited default seed and is reported as uncontrolled.
+     */
+    CreateResult createCommanderGame(
+            String gameId,
+            List<String> requestedDeckHandles,
+            int startingPlayerSeat,
+            int startingLife,
+            boolean externalControl,
+            Long rulesSeed
     ) {
         String validatedGameId = requireText(gameId, "game_id");
 
@@ -263,6 +300,13 @@ final class XmageGameManager {
                     MulliganType.GAME_DEFAULT.getMulligan(0),
                     startingLife
             );
+            if (rulesSeed != null) {
+                try {
+                    XmageRulesSeedBinding.bind(game, rulesSeed);
+                } catch (IllegalStateException exc) {
+                    throw new GameException(exc.getMessage(), exc);
+                }
+            }
 
             GameOptions options = new GameOptions();
             options.rollbackTurnsAllowed = false;
@@ -305,7 +349,8 @@ final class XmageGameManager {
                     startingPlayerSeat,
                     startingLife,
                     externalControl,
-                    decisionController
+                    decisionController,
+                    rulesSeed
             );
 
             String gameHandle;
@@ -317,6 +362,7 @@ final class XmageGameManager {
             createdPayload.addProperty("player_count", game.getPlayers().size());
             createdPayload.addProperty("starting_player_seat", startingPlayerSeat);
             createdPayload.addProperty("external_control", externalControl);
+            createdPayload.addProperty("seed_controlled", rulesSeed != null);
             managed.eventLog.record(
                     "game_created",
                     null,
@@ -335,7 +381,8 @@ final class XmageGameManager {
                     game.getId().toString(),
                     game.getPlayers().size(),
                     startingPlayerSeat,
-                    externalControl
+                    externalControl,
+                    rulesSeedBinding(managed)
             );
         } finally {
             if (!createdSuccessfully) {
@@ -490,6 +537,7 @@ final class XmageGameManager {
             );
             startedPayload.addProperty("turn_number", managed.game.getState().getTurnNum());
             startedPayload.addProperty("external_control", managed.externalControl);
+            startedPayload.addProperty("seed_controlled", managed.explicitRulesSeed != null);
             managed.eventLog.record(
                     "game_started",
                     managed.game.getStartingPlayerId().toString(),
@@ -508,9 +556,31 @@ final class XmageGameManager {
                     managed.game.getStartingPlayerId().toString(),
                     managed.game.getState().getTurnNum(),
                     managed.game.isPaused(),
-                    managed.externalControl
+                    managed.externalControl,
+                    rulesSeedBinding(managed)
             );
         }
+    }
+
+    /**
+     * Whether this game's Rules RNG is bound to an explicit orchestration seed
+     * and the engine readback still confirms it. Carries no seed value, so it
+     * is safe to report next to a principal-scoped observation.
+     */
+    boolean seedControlled(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            return managed.explicitRulesSeed != null
+                    && XmageRulesSeedBinding.holds(managed.game, managed.explicitRulesSeed);
+        }
+    }
+
+    /** Orchestration-scoped seed binding proof, or null for uncontrolled games. */
+    private static JsonObject rulesSeedBinding(ManagedGame managed) {
+        if (managed.explicitRulesSeed == null) {
+            return null;
+        }
+        return XmageRulesSeedBinding.payload(managed.game, managed.explicitRulesSeed);
     }
 
     LegalActionsSnapshot legalActions(String gameHandle) {

@@ -1,6 +1,7 @@
 package org.commanderlab.xmage;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -193,13 +194,11 @@ final class JsonlBridge {
                 );
             }
 
-            if (gameRequest.has("seed") && !gameRequest.get("seed").isJsonNull()) {
-                return error(
-                        requestId,
-                        "unsupported_game_option",
-                        "B4-D does not support seed",
-                        false
-                );
+            Long rulesSeed;
+            try {
+                rulesSeed = requestedRulesSeed(gameRequest);
+            } catch (IllegalArgumentException exc) {
+                return error(requestId, "invalid_seed", exc.getMessage(), false);
             }
             if (gameRequest.has("deterministic_starting_state")
                     && !gameRequest.get("deterministic_starting_state").isJsonNull()) {
@@ -234,7 +233,8 @@ final class JsonlBridge {
                     new ArrayList<>(deckHandles),
                     startingPlayerSeat,
                     startingLife,
-                    externalControl
+                    externalControl,
+                    rulesSeed
             );
             gameHandlesById.put(created.gameId(), created.gameHandle());
 
@@ -245,6 +245,7 @@ final class JsonlBridge {
             responsePayload.addProperty("player_count", created.playerCount());
             responsePayload.addProperty("starting_player_seat", created.startingPlayerSeat());
             responsePayload.addProperty("external_control", created.externalControl());
+            addSeedAcknowledgement(responsePayload, created.rulesSeedBinding());
             return success(
                     requestId,
                     responsePayload,
@@ -261,6 +262,82 @@ final class JsonlBridge {
                     false
             );
         }
+    }
+
+    /**
+     * The explicit Rules seed requested for a new game, or null when none is
+     * requested. The seed may be supplied as {@code seed}, {@code rules_seed},
+     * {@code options.seed} or {@code options.rules_seed}; every supplied value
+     * must be an integral JSON number in signed 64-bit range, and all supplied
+     * values must agree. Anything else fails closed: a malformed or ambiguous
+     * seed is never silently dropped and never coerced.
+     */
+    static Long requestedRulesSeed(JsonObject gameRequest) {
+        Long seed = null;
+        String firstKey = null;
+        JsonObject options = null;
+        if (gameRequest.has("options") && !gameRequest.get("options").isJsonNull()) {
+            if (!gameRequest.get("options").isJsonObject()) {
+                throw new IllegalArgumentException("options must be an object");
+            }
+            options = gameRequest.getAsJsonObject("options");
+        }
+        String[][] sources = {
+                {"seed", null},
+                {"rules_seed", null},
+                {"options.seed", "seed"},
+                {"options.rules_seed", "rules_seed"},
+        };
+        for (String[] source : sources) {
+            JsonObject container = source[1] == null ? gameRequest : options;
+            String key = source[1] == null ? source[0] : source[1];
+            if (container == null || !container.has(key) || container.get(key).isJsonNull()) {
+                continue;
+            }
+            long value = integralSeed(container.get(key), source[0]);
+            if (seed == null) {
+                seed = value;
+                firstKey = source[0];
+            } else if (seed != value) {
+                throw new IllegalArgumentException(
+                        "conflicting seeds: " + firstKey + "=" + seed
+                                + " but " + source[0] + "=" + value
+                );
+            }
+        }
+        return seed;
+    }
+
+    private static long integralSeed(JsonElement element, String name) {
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+            throw new IllegalArgumentException(name + " must be an integral JSON number");
+        }
+        String literal = element.getAsJsonPrimitive().getAsString();
+        if (!literal.matches("-?[0-9]+")) {
+            throw new IllegalArgumentException(
+                    name + " must be an integral JSON number without fraction or exponent"
+            );
+        }
+        try {
+            return Long.parseLong(literal);
+        } catch (NumberFormatException exc) {
+            throw new IllegalArgumentException(name + " must fit a signed 64-bit integer");
+        }
+    }
+
+    /**
+     * Orchestration-scoped seed acknowledgement. {@code rules_seed} is the
+     * engine readback, not the request echo; an uncontrolled game carries no
+     * seed field at all, so it can never be classified as controlled.
+     */
+    private static void addSeedAcknowledgement(JsonObject payload, JsonObject binding) {
+        if (binding == null) {
+            payload.addProperty("seed_controlled", false);
+            return;
+        }
+        payload.addProperty("seed_controlled", binding.get("seed_supported").getAsBoolean());
+        payload.addProperty("rules_seed", binding.get("rules_seed").getAsLong());
+        payload.add("rules_seed_binding", binding);
     }
 
     private Result startGame(String requestId, JsonObject request) {
@@ -300,6 +377,7 @@ final class JsonlBridge {
             responsePayload.addProperty("turn_number", started.turnNumber());
             responsePayload.addProperty("paused", started.paused());
             responsePayload.addProperty("external_control", started.externalControl());
+            addSeedAcknowledgement(responsePayload, started.rulesSeedBinding());
             return success(
                     requestId,
                     responsePayload,
@@ -345,7 +423,9 @@ final class JsonlBridge {
                     snapshot.observerEnginePlayerId()
             );
             responsePayload.addProperty("observer_seat", snapshot.observerSeat());
-            responsePayload.addProperty("seed_controlled", false);
+            // Principal-scoped observation: report only whether the Rules RNG is
+            // bound, never the seed value (seed + engine determines library order).
+            responsePayload.addProperty("seed_controlled", gameManager.seedControlled(gameHandle));
             responsePayload.addProperty("legal_actions_complete", false);
             responsePayload.addProperty("event_log_supported", true);
             responsePayload.addProperty("event_log_scope", "external_bridge_audit_boundaries");
