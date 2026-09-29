@@ -7,8 +7,8 @@ branch: "sbmax/final-pre-freeze-20260928"
 # than a rewrite: there is no pre-existing remote ref for this branch.
 audit_base_sha: "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd"
 audit_base_tree: "0d5b3f0d9020cc99131dd92a41a9615c61bbac8a"
-state_written_against_head: "b5ed6f27d1354e7c699bddb87d2353d360491132"
-validated_head: "b5ed6f27d1354e7c699bddb87d2353d360491132"
+state_written_against_head: "db59d84b680f4471f2528d9a83b9f760c64e7297"
+validated_head: "db59d84b680f4471f2528d9a83b9f760c64e7297"
 
 objective: >-
   Final pre-Freeze engineering campaign: drive Commander Simulator Next from the
@@ -31,10 +31,11 @@ out_of_scope:
 ownership: "final-completion-space-bunny-max"
 status: "ACTIVE"
 exact_next_action: >-
-  Push the AF11 + PB-06 per-obligation repairs and confirm exact-head CI on PR #289, then
-  continue on the unownable remainder: PB-07 actual-card corpus and PB-08 replay/RNG: the 58 remaining UNKNOWN rows, principally PB-06 per-scenario
-  hidden information, which the merged #283 remediation has made reachable. PB-03
-  transport stays out of scope as WAIT_FOR_OWNER while PR #284 is an active writer on
-  the overlapping bridge, receipt, launcher and engine-rules surfaces. AF11 is now a
-  computed verdict (UNKNOWN, not an invented PASS) pending Coordinator adjudication of
-  the WS-09/licence policy residual.
+  The unowned denominator is exhausted for this workstream: every remaining
+  UNKNOWN is attributed to a named missing channel or seam, and the 44 BLOCKED
+  rows plus the CARD execution dispatch are under PR #284's active writer lock
+  (WAIT_FOR_OWNER, not raced). Forge evidence is STALE for PR #6 and needs
+  requalification at the actually consumed head, which is not owned here. Next
+  actions are therefore ownership transfers or Coordinator decisions: AF11/WS-09
+  licence-policy adjudication, the PB-07 denominator-vs-corpus-artifact
+  evidence-policy question, and provider selection.
