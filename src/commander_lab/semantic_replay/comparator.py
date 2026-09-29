@@ -216,6 +216,20 @@ def compare_tapes(
     expected_provider = _provider_of(expected_lock)
     actual_provider = _provider_of(actual_lock)
 
+    semantic_seal_keys = ("canonicalization", "identity", "state_digest", "tape_schema")
+    expected_seal = {key: expected["seal"].get(key) for key in semantic_seal_keys}
+    actual_seal = {key: actual["seal"].get(key) for key in semantic_seal_keys}
+    if expected_seal != actual_seal:
+        return diverge(
+            DivergenceKind.INITIAL_STATE_MISMATCH,
+            -1,
+            None,
+            None,
+            {"semantic_seal": expected_seal},
+            {"semantic_seal": actual_seal},
+            [],
+        )
+
     expected_manifest = dict(expected["game_manifest"])
     actual_manifest = dict(actual["game_manifest"])
     if expected_manifest != actual_manifest:
