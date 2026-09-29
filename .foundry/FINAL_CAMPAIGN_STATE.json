@@ -348,10 +348,25 @@
     "handoff_point": "all work committed and pushed; no uncommitted changes; the tree is clean and the full suite is green, so a Space Bunny run resumes from Git plus this state file without replaying any conversation."
   },
   "validation_final": {
-    "qualification": "455 passed, 2 skipped",
-    "full_suite": "2272 passed, 5 skipped",
+    "qualification": "471 passed, 2 skipped",
+    "full_suite": "pending (last full run: 2272 passed, 5 skipped)",
     "bridge": "344 tests, 0 failures, 0 errors",
-    "mypy": "clean, 279 files",
+    "mypy": "clean, 280 files",
     "ruff": "clean (tree-wide)"
+  },
+  "forbidden_shortcut_campaign": {
+    "classification": "DIRECTLY_VERIFIED",
+    "seam": "commander_lab.engine.action_validation.validate_action_proposal (unowned; no engine run required)",
+    "result": "7 of 7 obligations fail closed, 0 shortcuts reachable",
+    "method": "behavioural, not keyword-based. A static scan cannot distinguish candidates[0] as a forbidden first-option pick from the same subscript reached only after an exact-uniqueness check; a keyword scan of the production tree yields 1069 hits for [0] and 212 for super(), essentially all legitimate. Each obligation is instead tested by feeding the validator a proposal that would succeed if that shortcut were reachable.",
+    "positive_control": "a proposal matching exactly one offered action is accepted and the returned value is the engine's own LegalAction, so the campaign does not pass by rejecting everything and the validator never substitutes an object of its own",
+    "boundaries_held": [
+      "one seam only: not an audit of every production-reachable surface",
+      "does not claim the seven obligations are globally discharged",
+      "says nothing about engine behaviour",
+      "promotes no FULL107 row: row outcomes belong to run_current_boundary_qualification.py under #284's active writer lock"
+    ],
+    "self_correction": "the first draft reported NEGATIVE_FIRST_OPTION as reachable; that was a defect in the adversarial input (the three actions differed in source_object_id, so the proposal legitimately disambiguated one), not in the validator. The case now offers actions identical in every field a proposal can name. Recorded in the packet rather than quietly corrected.",
+    "artifact": "qualification/final-current-boundary-20260927/FORBIDDEN_SHORTCUT_CAMPAIGN.json"
   }
 }
