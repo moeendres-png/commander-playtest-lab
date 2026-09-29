@@ -3,6 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonObject;
 import mage.constants.Zone;
 import mage.game.permanent.Permanent;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -128,5 +129,29 @@ class XmageMultiplayerVoteTest {
         assertEquals(true, onBattlefield(s, "Craw Wurm"), "2 votes: stays");
         assertEquals(true, onBattlefield(s, "Grizzly Bears"), "no votes: stays");
         assertEquals(true, onBattlefield(s, "Runeclaw Bear"), "no votes: stays");
+    }
+
+    /**
+     * P3 leaves the game before P1 casts Council's Judgment: only players in the game vote.
+     * F-23 (#335): at the pin the lane asks the departed P3 to vote.
+     */
+    @Disabled("F-23 (#335): at the pin a player who left the game this turn is asked to vote")
+    @Test
+    void aPlayerWhoLeftThisTurnDoesNotVote() {
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("mp-vote-left", 4, "P1",
+                board("P1", List.of("P2", "P3", "P4")));
+        // P2 Grizzly Bears, P3 Craw Wurm (leaves with P3), P4 Runeclaw Bear.
+        String p3 = s.seats.get("P3").getId().toString();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", "mp-vote-left-concede");
+        proposal.addProperty("actor_id", p3);
+        proposal.addProperty("player_id", p3);
+        s.session.submitConcede(proposal);
+        assertEquals(false, s.seats.get("P3").isInGame(), "P3 left the game");
+        List<String> voters = judge(s, "P1", Map.of(
+                "P1", "Grizzly Bears", "P4", "Grizzly Bears", "P2", "Runeclaw Bear"));
+        assertEquals(List.of("P1", "P4", "P2"), voters, "a player who left the game doesn't vote");
+        assertEquals(false, onBattlefield(s, "Grizzly Bears"), "2 votes: exiled");
+        assertEquals(true, onBattlefield(s, "Runeclaw Bear"), "1 vote: stays");
     }
 }
