@@ -38,6 +38,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     replay_obligations as replay_mod,
 )
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    shortcut_campaign as shortcut_mod,
+)
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
 FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
@@ -582,6 +585,14 @@ def assemble() -> None:
     # the generic lane, which is the lane the committed XMage column ran on. The
     # findings this workstream derived from that column are adjudicated against
     # the defect rather than silently carried forward or silently discarded.
+    # ---- forbidden-shortcut negative campaign -------------------------------
+    # Seven obligations ask whether a prohibited fallback can satisfy a decision.
+    # That is a property of the validation seam, so it is answered behaviourally
+    # here rather than by a keyword scan over the production tree. The campaign
+    # deliberately does not claim the obligations are globally discharged.
+    shortcut_campaign = shortcut_mod.run_negative_campaign()
+    write("FORBIDDEN_SHORTCUT_CAMPAIGN.json", shortcut_campaign)
+
     # ---- lane integrity: does the lane demonstrate a legal game start? ------
     # CR 103.3 requires a shuffle to start a game. A lane that demonstrates no
     # shuffling has not executed a legal game start, so order-knowledge
@@ -760,6 +771,11 @@ def assemble() -> None:
                     "XMage binds decisions by decision_id (sha256) and pass by action_id; "
                     "Forge binds by revision (long) and pass by actor_id; neither accepts the "
                     "other's shape",
+                    "forbidden-shortcut negative campaign at the production validation seam: "
+                    f"{shortcut_campaign['counts']['failed_closed']} of "
+                    f"{shortcut_campaign['counts']['obligations_tested']} fail closed, "
+                    f"{shortcut_campaign['counts']['shortcut_reachable']} reachable "
+                    "(FORBIDDEN_SHORTCUT_CAMPAIGN.json)",
                 ],
                 "blocking_rows": [],
                 "nonblocking_limitations": (

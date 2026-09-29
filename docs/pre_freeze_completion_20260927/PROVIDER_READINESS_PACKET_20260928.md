@@ -477,7 +477,52 @@ the run; the cause is for the owner of that lane. And it does not claim the
 repaired XMage lane now satisfies any of these — only a fresh run at the
 repaired revision can establish that.
 
-### 6.8 Both denominators are shaped by Lab work
+### 6.8 The seven forbidden shortcuts are unreachable at the validation seam
+
+`FORBIDDEN_SHORTCUT_CAMPAIGN.json` answers the seven `NEGATIVE_*` obligations
+behaviourally rather than by keyword search. A static scan cannot tell
+`candidates[0]` as a forbidden first-option pick from the same subscript reached
+only after an exact-uniqueness check, and it produces nothing at all for a
+forbidden behaviour that is simply absent. So each obligation is tested by
+feeding the production validator a proposal that **would** succeed if that
+shortcut were reachable, and recording that it fails closed instead.
+
+**Result: 7 of 7 fail closed, 0 reachable**, at
+`commander_lab.engine.action_validation.validate_action_proposal`.
+
+| Obligation | Adversarial input | Outcome |
+|---|---|---|
+| `NEGATIVE_FIRST_OPTION` | three offered actions identical except `action_id`, nothing in the proposal can single one out | fails closed: *"must identify exactly one engine-offered legal action"* |
+| `NEGATIVE_SILENT_SKIP` | a proposal naming no offered action | fails closed |
+| `NEGATIVE_DEFAULT_YES_NO` | a required choice omitted | fails closed: *"missing required choices"* |
+| `NEGATIVE_RANDOM_OPTION` | a choice outside the offered schema | fails closed |
+| `NEGATIVE_INTERNAL_AI` | an actor that does not hold priority | fails closed |
+| `NEGATIVE_GUI_DEFAULT` | a target the engine did not offer | fails closed |
+| `NEGATIVE_PARENT_CLASS_FALLBACK` | a mode the engine did not offer | fails closed |
+
+A positive control accompanies the campaign: a proposal matching exactly one
+offered action is **accepted**, and the returned value is the engine's own
+`LegalAction` object. The campaign therefore does not pass by rejecting
+everything — the seam still works, and the validator never substitutes an object
+of its own.
+
+**What this does not establish, stated plainly.** This is the behaviour of *one*
+seam: the validation a proposal must pass to reach the engine. It is not an audit
+of every production-reachable surface, and it does not claim the seven
+obligations are globally discharged. It says nothing about engine behaviour, and
+it does not promote any FULL107 row: row outcomes belong to
+`run_current_boundary_qualification.py` under PR #284's active writer lock. A
+global audit is a separate, larger exercise and is not claimed here.
+
+One correction worth recording: the campaign's first draft reported
+`NEGATIVE_FIRST_OPTION` as **reachable**. That was a defect in the adversarial
+input, not in the validator — the three offered actions differed in
+`source_object_id`, so the proposal legitimately disambiguated one of them. The
+case now offers actions identical in every field a proposal can name, which is
+the input a first-option shortcut would actually resolve. The campaign caught
+its own weak test, which is the behaviour it exists to produce.
+
+### 6.9 Both denominators are shaped by Lab work
 
 PB-03 showed the XMage column is shaped by a Lab harness shortcut; PB-09 shows the
 Forge column is shaped by Lab engine modification. Neither column is a clean

@@ -178,7 +178,8 @@
    "evidence": [
     "an external PRIORITY decision was reached and answered with an engine-offered option on the shared generic lane",
     "XMage requires external_control=true at create_commander_game or get_legal_actions fails closed (LEGAL_ACTIONS_UNAVAILABLE)",
-    "XMage binds decisions by decision_id (sha256) and pass by action_id; Forge binds by revision (long) and pass by actor_id; neither accepts the other's shape"
+    "XMage binds decisions by decision_id (sha256) and pass by action_id; Forge binds by revision (long) and pass by actor_id; neither accepts the other's shape",
+    "forbidden-shortcut negative campaign at the production validation seam: 7 of 7 fail closed, 0 reachable (FORBIDDEN_SHORTCUT_CAMPAIGN.json)"
    ],
    "gate": "AF04",
    "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",

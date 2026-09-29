@@ -1,0 +1,68 @@
+{
+ "counts": {
+  "failed_closed": 7,
+  "obligations_tested": 7,
+  "shortcut_reachable": 0
+ },
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "obligations": {
+  "NEGATIVE_DEFAULT_YES_NO": {
+   "adversarial_input": "a required choice omitted, which a default would silently supply",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "proposal is missing required choices: ['amount']"
+  },
+  "NEGATIVE_FIRST_OPTION": {
+   "adversarial_input": "three offered actions with no disambiguator, which a first-option pick would resolve",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "proposal must identify exactly one engine-offered legal action"
+  },
+  "NEGATIVE_GUI_DEFAULT": {
+   "adversarial_input": "a target the engine did not offer, which a default or UI-chosen target would introduce",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "proposal contains a target not allowed by the legal action"
+  },
+  "NEGATIVE_INTERNAL_AI": {
+   "adversarial_input": "an actor that does not hold priority, which substituting an engine-internal decision would bypass",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "actor p1 does not have priority; priority belongs to p2"
+  },
+  "NEGATIVE_PARENT_CLASS_FALLBACK": {
+   "adversarial_input": "a mode the engine did not offer, which an inherited or synthesised action would permit",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "proposal contains a mode not allowed by the legal action"
+  },
+  "NEGATIVE_RANDOM_OPTION": {
+   "adversarial_input": "a choice outside the offered schema, which an arbitrary pick would produce",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "proposal contains choices outside the legal schema"
+  },
+  "NEGATIVE_SILENT_SKIP": {
+   "adversarial_input": "a proposal naming no offered action, which a silent skip would absorb",
+   "outcome": "FAILS_CLOSED",
+   "rejected": true,
+   "validator_message": "proposal must identify exactly one engine-offered legal action"
+  }
+ },
+ "positive_control": {
+  "adversarial_input": "a proposal matching exactly one offered action",
+  "outcome": "ACCEPTED_AS_OFFERED",
+  "rejected": false,
+  "returned_action_id": "act-0",
+  "returned_is_engine_object": true
+ },
+ "schema_version": "commander-lab.forbidden-shortcut-campaign/1.0.0",
+ "scope": "behaviour of commander_lab.engine.action_validation.validate_action_proposal, the seam a proposal must pass to reach the engine. This is a behavioural negative campaign against one production seam, not an audit of every production-reachable surface, and it does not claim the seven obligations are globally discharged",
+ "seam_under_test": "commander_lab.engine.action_validation.validate_action_proposal",
+ "shortcuts_reachable": [],
+ "what_it_does_not_establish": [
+  "that no other production-reachable surface can satisfy a decision by a forbidden fallback; that requires a separate, broader audit",
+  "anything about engine behaviour, which is not involved",
+  "that the obligations may be promoted to PASS: promotion is a separate, evidence-bound step and the row outcomes belong to the current-boundary runner under an active owner"
+ ]
+}

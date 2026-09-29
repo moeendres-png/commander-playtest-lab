@@ -177,7 +177,8 @@
    "evidence": [
     "an external PRIORITY decision was reached and answered with an engine-offered option on the shared generic lane",
     "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions",
-    "XMage binds decisions by decision_id (sha256) and pass by action_id; Forge binds by revision (long) and pass by actor_id; neither accepts the other's shape"
+    "XMage binds decisions by decision_id (sha256) and pass by action_id; Forge binds by revision (long) and pass by actor_id; neither accepts the other's shape",
+    "forbidden-shortcut negative campaign at the production validation seam: 7 of 7 fail closed, 0 reachable (FORBIDDEN_SHORTCUT_CAMPAIGN.json)"
    ],
    "gate": "AF04",
    "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
