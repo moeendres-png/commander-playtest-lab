@@ -117,6 +117,7 @@ class XmageMultiplayerVoteTest {
                 "starting with the caster P3, then the engine's turn order");
         assertEquals(false, onBattlefield(s, "Raging Goblin"), "3 votes: exiled");
         assertEquals(true, onBattlefield(s, "Craw Wurm"), "2 votes: stays");
-        assertEquals(true, onBattlefield(s, "Grizzly Bears"));
+        assertEquals(true, onBattlefield(s, "Grizzly Bears"), "no votes: stays");
+        assertEquals(true, onBattlefield(s, "Runeclaw Bear"), "no votes: stays");
     }
 }
