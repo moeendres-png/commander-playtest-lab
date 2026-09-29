@@ -1620,6 +1620,7 @@ class XmageActualCardCorpusTest {
                 "Boseiju cast"));
         boolean[] searched = {false};
         boolean[] recursed = {false};
+        java.util.UUID[] recurredCard = {null};
         for (int step = 0; step < 600; step++) {
             if (onBattlefield(started, "P1", "Branch of Boseiju") == 1
                     && game.getStack().isEmpty() && "priority".equals(decisionClass(started))) {
@@ -1630,6 +1631,18 @@ class XmageActualCardCorpusTest {
             String text = prompt(started).toLowerCase();
             JsonObject pending = started.session().pendingDecisionPayload()
                     .getAsJsonObject("decision");
+            if (recurredCard[0] != null && !recursed[0] && "priority".equals(cls)
+                    && game.getStack().isEmpty()) {
+                // Chapter II resolved; P1 has not drawn again yet.
+                mage.cards.Card top = p1.getLibrary().getFromTop(game);
+                assertNotNull(top, "P1's library has a top card");
+                assertEquals(recurredCard[0], top.getId(),
+                        "chapter II put the chosen graveyard Mountain on top of the library");
+                assertTrue(p1.getGraveyard().getCards(game).stream()
+                                .noneMatch(card -> card.getId().equals(recurredCard[0])),
+                        "the recurred Mountain left the graveyard");
+                recursed[0] = true;
+            }
             switch (cls) {
                 case "priority" -> pass(started, "card29-pass-" + step);
                 case "mana_payment" -> payOneFromRestoredMana(started, "card29-pay-" + step,
@@ -1651,8 +1664,22 @@ class XmageActualCardCorpusTest {
                         searched[0] = true;
                     } else if ("P1".equals(actor) && text.contains("land card from your graveyard")) {
                         // Chapter II: a Mountain from P1's graveyard to the top.
-                        chooseByExactName(started, "card29-recur-" + step, "Mountain", 1);
-                        recursed[0] = true;
+                        // Remember its engine id so the zone move is verified.
+                        String chosen = null;
+                        for (JsonElement element : started.session().legalActionsPayload()
+                                .getAsJsonArray("actions")) {
+                            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata")
+                                    .getAsJsonObject("xmage_option_metadata");
+                            if (meta != null && meta.has("object_id") && meta.has("name")
+                                    && "Mountain".equals(meta.get("name").getAsString())
+                                    && (chosen == null
+                                            || meta.get("object_id").getAsString().compareTo(chosen) < 0)) {
+                                chosen = meta.get("object_id").getAsString();
+                            }
+                        }
+                        assertNotNull(chosen, "a graveyard Mountain must be offered");
+                        chooseByObjectIds(started, "card29-recur-" + step, List.of(chosen));
+                        recurredCard[0] = java.util.UUID.fromString(chosen);
                     } else if (text.contains("discard")) {
                         // Cleanup discard to seven: discard Mountains only.
                         chooseByExactName(started, "card29-discard-" + step, "Mountain",
@@ -1665,7 +1692,8 @@ class XmageActualCardCorpusTest {
             }
         }
         assertTrue(searched[0], "chapter I searched for basic Forests");
-        assertTrue(recursed[0], "chapter II returned a land card to the library top");
+        assertTrue(recursed[0],
+                "chapter II's zone move (graveyard to library top) was observed before the next draw");
         long lands = game.getBattlefield().getAllActivePermanents(p1.getId()).stream()
                 .filter(permanent -> permanent.isLand(game)).count();
         Permanent branch = permanent(started, "P1", "Branch of Boseiju");
