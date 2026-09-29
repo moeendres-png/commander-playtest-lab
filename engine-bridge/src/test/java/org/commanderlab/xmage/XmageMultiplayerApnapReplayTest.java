@@ -136,8 +136,10 @@ class XmageMultiplayerApnapReplayTest {
             labels.add(element.getAsJsonObject().getAsJsonObject("metadata").get("label").getAsString());
         }
         labels.sort(String::compareTo);
-        String kind = prompt.contains("sacrifice") ? "sacrifice" : cls;
-        transcript.add(actor + "|" + kind + "|" + labels);
+        // Keep the authoritative decision class; "sacrifice" is an additional semantic tag, so
+        // two runs that differ in decision class (e.g. choose_object vs target) never compare equal.
+        String kind = prompt.contains("sacrifice") ? "sacrifice" : "other";
+        transcript.add(actor + "|" + kind + "|" + cls + "|" + labels);
         if (!labels.stream().anyMatch(label -> label.startsWith(victim))) {
             fail("[" + tag + "] " + actor + " was not offered " + victim + ": " + labels);
         }
