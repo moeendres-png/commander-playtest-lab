@@ -375,6 +375,9 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             [e for e in players if isinstance(e, dict)],
             key=lambda e: int(e.get("seat", 0)),
         ):
+            private_visible = (
+                entry.get("is_actor") is True or entry.get("private_state_visible") is True
+            )
             row: dict[str, Any] = {
                 "exile_count": entry.get("exile_count"),
                 "graveyard_count": entry.get("graveyard_count"),
@@ -390,11 +393,14 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             }
             battlefield = entry.get("battlefield")
             if isinstance(battlefield, list):
-                perms = [
-                    _public_permanent_key(item, mapping)
-                    for item in battlefield
-                    if isinstance(item, dict)
-                ]
+                perms = []
+                for item in battlefield:
+                    if not isinstance(item, dict):
+                        continue
+                    permanent = _public_permanent_key(item, mapping)
+                    if private_visible and isinstance(item.get("private_identity"), str):
+                        permanent["private_identity"] = item.get("private_identity")
+                    perms.append(permanent)
                 perms.sort(
                     key=lambda p: (
                         str(p.get("name")),
@@ -416,7 +422,7 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
                 cmds = [{"name": item.get("name")} for item in command if isinstance(item, dict)]
                 cmds.sort(key=lambda c: str(c.get("name")))
                 row["command"] = cmds
-            if entry.get("is_actor") is True:
+            if private_visible:
                 hand = entry.get("hand")
                 if isinstance(hand, list):
                     names = sorted(
@@ -490,27 +496,32 @@ def public_state_digest(pilot_state: dict[str, Any]) -> str:
     view = canonical_actor_view(pilot_state)
     public_players: list[dict[str, Any]] = []
     for entry in view.get("players", []):
-        public_players.append(
-            {
-                k: entry.get(k)
-                for k in (
-                    "battlefield",
-                    "command",
-                    "exile_count",
-                    "graveyard",
-                    "graveyard_count",
-                    "hand_count",
-                    "has_lost",
-                    "has_won",
-                    "is_actor",
-                    "library_count",
-                    "life",
-                    "player",
-                    "poison_counters",
-                    "seat",
-                )
-            }
-        )
+        public_entry = {
+            k: entry.get(k)
+            for k in (
+                "command",
+                "exile_count",
+                "graveyard",
+                "graveyard_count",
+                "hand_count",
+                "has_lost",
+                "has_won",
+                "is_actor",
+                "library_count",
+                "life",
+                "player",
+                "poison_counters",
+                "seat",
+            )
+        }
+        battlefield = entry.get("battlefield")
+        if isinstance(battlefield, list):
+            public_entry["battlefield"] = [
+                {key: value for key, value in permanent.items() if key != "private_identity"}
+                for permanent in battlefield
+                if isinstance(permanent, dict)
+            ]
+        public_players.append(public_entry)
     return canonical_hash(
         {
             "active_player": view.get("active_player"),

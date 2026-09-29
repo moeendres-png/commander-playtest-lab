@@ -90,7 +90,9 @@ def test_authorization_is_explicit_and_spec_is_single_use(tmp_path: Path) -> Non
         authorize_official_run(ROOT, spec_path, authorized=True)
 
 
-def test_full_runner_requires_a_prepared_spec_before_execution(tmp_path: Path) -> None:
+def test_full_runner_requires_a_prepared_spec_before_execution(
+    tmp_path: Path, subprocess_env: dict[str, str]
+) -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -99,6 +101,7 @@ def test_full_runner_requires_a_prepared_spec_before_execution(tmp_path: Path) -
             str(tmp_path / "run"),
         ],
         cwd=ROOT,
+        env=subprocess_env,
         text=True,
         capture_output=True,
         check=False,

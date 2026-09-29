@@ -1,10 +1,26 @@
+> **SUPERSEDED — retained as historical provenance only.** The current
+> execution-authority document is `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`,
+> which explicitly supersedes this file for new work. Nothing below is current
+> execution policy.
+>
+> Known-stale statements retained verbatim below, not corrected in place, so the
+> historical record stays readable:
+> - `PENDING_PR172_MERGE` / "not canonical on `main` until PR #172 merges" — PR #172
+>   merged on 2026-09-10; this file has been on `main` ever since.
+> - "Muse HIGH … Default execution tier for bounded engineering work" — there is no
+>   active-work HIGH native lane (see `AGENTS.md` §7).
+> - "foundry-implementer — Muse HIGH" — the current agent topology and executor
+>   identities are defined by `AGENTS.md` §6 and §7 and by `opencode.json`.
+>
+> Do not use this file to select an executor, an effort, or an agent role.
+
 # Commander Simulator Next — OpenCode/Muse Technical Decision Authority
 
-POLICY = ACTIVE
-EXECUTION_SYSTEM_INTEGRATION = PENDING_PR172_MERGE
+POLICY = SUPERSEDED
+EXECUTION_SYSTEM_INTEGRATION = MERGED (PR #172)
 Date: 2026-09-10
 
-This document records the current Coordinator authority model for OpenCode Go + Muse Spark 1.3 Contributor. It is governance/coordination only. It does not claim Architecture Freeze or select a Production Provider.
+This document records the Coordinator authority model as it stood on 2026-09-10. It is governance/coordination only. It does not claim Architecture Freeze or select a Production Provider.
 
 ## Core model
 
@@ -115,6 +131,9 @@ The execution-system consolidation should provide three explicit roles where sup
 The adjudicator should be able to inspect repository state, Git history, logs, tests and artifacts, and to run non-destructive targeted validation. Mutation permissions should be narrower than the implementer unless a workstream explicitly authorizes remediation after adjudication.
 
 ## Current integration state
+
+> Superseded — see the banner at the top of this file. The state recorded below is
+> historical (2026-09-10) and is not the current integration state.
 
 POLICY = ACTIVE. EXECUTION_SYSTEM_INTEGRATION = PENDING_PR172_MERGE: the
 consolidation line below is not canonical on `main` until PR #172 merges.

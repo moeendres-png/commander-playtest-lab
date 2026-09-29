@@ -66,6 +66,7 @@ class XmageFullGameActionProjectionTest {
                 new Case("mana_payment", "mana_pool", "pay_cost", 1, 1, false),
                 new Case("mana_payment", "mana_ability", "pay_cost", 1, 1, false),
                 new Case("mana_payment", "cancel_mana_payment", "pay_cost", 1, 1, false),
+                new Case("mana_payment", "special_mana_action", "pay_cost", 1, 1, false),
                 new Case("replacement_effect", "replacement_effect", "structural_decision", 1, 1, false),
                 new Case("trigger_order", "triggered_ability", "structural_decision", 1, 1, false),
                 new Case("mode", "mode", "choose_mode", 1, 1, false),
