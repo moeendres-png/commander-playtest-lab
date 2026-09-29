@@ -1,6 +1,6 @@
 # F-22: a battle keeps a protector who left the game
 
-Status: OPEN. Tracker: #334. Found and proven by the multiplayer discovery lane (Claude Opus 5.5), 2026-09-29.
+Status: REMEDIATION_CANDIDATE — Mage PR #25 / Lab successor repin. Tracker: #334. Found and proven by the multiplayer discovery lane (Claude Opus 5.5), 2026-09-29.
 
 
 ## Classification
@@ -30,3 +30,9 @@ Status: OPEN. Tracker: #334. Found and proven by the multiplayer discovery lane 
 - The fix belongs in `GameImpl` state-based actions: test `isInGame()` instead of `getPlayer(...) == null`, then `chooseProtector` among in-game opponents.
 - `GameImpl` currently belongs to the XMage candidate-integration/repin lane, so this lane does **not** implement it. It is handed to that owner.
 - Once a fix is admitted, enable the disabled Lab test.
+
+
+## 2026-09-29 successor remediation
+- Candidate engine: `4277b90b4ee49acd945e82335a9a04c4536f5340` (Mage PR #25).
+- Commander Lab repin workstream: `xmage-f22-f23-successor-repin-20260929`.
+- Runtime status remains UNKNOWN until exact-candidate and Lab CI complete; this note does not itself close F-22.
