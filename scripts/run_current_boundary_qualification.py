@@ -54,12 +54,13 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     validate_principal_scoping,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import dimension_admission as pb03_admission_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import pb03_runtime as pb03_runtime_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     HIDDEN_SCENARIO_ROWS,
     NATIVE_MICRO_ROWS,
     RowResult,
     run_cardinality,
-    starting_state_admission_manifest,
     summarize,
 )
 
@@ -149,6 +150,11 @@ NATIVE_SUITE_BINDING = {
                 "XmagePb03CapabilityManifestTest",
                 "XmagePb03DimensionAdmissionTest",
                 "XmagePb03Tier1RowsTest",
+                "XmagePb03Tier2StackTest",
+                "XmagePb03Tier2CmdZoneTest",
+                "XmagePb03Tier2ControlTurnTest",
+                "XmageFullGameElimExecutionTest",
+                "XmagePb03RuntimeGapClosureTest",
             ],
         },
     },
@@ -195,55 +201,6 @@ NATIVE_SUITE_BINDING = {
         },
     },
 }
-
-
-
-# PB-03 positive credit is intentionally narrow. Every entry below was audited
-# against the exact current-main test body and asserts the frozen row's own
-# Rules-visible obligation. Characterization, parser-only, generic mechanism,
-# and known-blocker tests are deliberately absent.
-PB03_POSITIVE_CASES_BY_CLASS: dict[
-    str, dict[str, tuple[str, str, str]]
-] = {
-    "XmagePb03Tier1RowsTest": {
-        "mpBlock4P2BlocksOnlyItsAttacker": (
-            "WS05-MP-BLOCK-4",
-            "four-player defender-scoped blocker declaration",
-            "P2 was offered and submitted the exact obligated block against the attacker attacking P2",
-        ),
-        "mpCombat4AssignsTwoAttackersToTwoDefenders": (
-            "WS05-MP-COMBAT-4",
-            "four-player attacker-to-defender assignment",
-            "both frozen attackers were declared through engine offers against their obligated defenders",
-        ),
-        "mpCombat5AssignsThreeAttackersToThreeDefenders": (
-            "WS05-MP-COMBAT-5",
-            "five-player attacker-to-defender assignment",
-            "all three frozen attackers were declared through engine offers against their obligated defenders",
-        ),
-    },
-    "XmageFull107ResidualRequalificationTest": {
-        "exactSplitCommanderDamageRemainsPerCommanderAndDigestMatches": (
-            "WS05-CMD-DMG-SPLIT",
-            "commander damage is tracked independently per commander identity",
-            "the exact frozen split-damage row remained nonlethal with independent per-commander totals and matching state digest",
-        ),
-    },
-}
-
-
-def _pb03_admitted_fixture_ids() -> set[str]:
-    path = OUT_DIR / "PB03_DIMENSION_ADMISSION.json"
-    if not path.is_file():
-        return set()
-    try:
-        document = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return set()
-    admitted = document.get("admitted")
-    if not isinstance(admitted, list):
-        return set()
-    return {str(item) for item in admitted}
 
 
 # The actual-card names this artifact declares. Named once so the corpus
@@ -434,31 +391,6 @@ def run_native_suite(
         print(f"native suite {candidate}:{group}: {exc}")
         summary = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     receipt_mod.verify_runner_unchanged(REPO_ROOT, runner)
-    positive_fixture_rows: list[dict[str, Any]] = []
-    if candidate == "xmage":
-        admitted = _pb03_admitted_fixture_ids()
-        for class_name, declared_cases in PB03_POSITIVE_CASES_BY_CLASS.items():
-            if class_name not in spec["classes"][group]:
-                continue
-            cases = {
-                method: value
-                for method, value in declared_cases.items()
-                if value[0] in admitted
-            }
-            if not cases:
-                continue
-            positive_fixture_rows.extend(
-                receipt_mod.positive_fixture_receipts_from_junit_xml(
-                    spec["root"]
-                    / "target"
-                    / "surefire-reports"
-                    / f"TEST-org.commanderlab.xmage.{class_name}.xml",
-                    candidate=candidate,
-                    candidate_commit=spec["expected_engine_commit"],
-                    class_name=class_name,
-                    cases=cases,
-                )
-            )
     receipt = receipt_mod.NativeSuiteReceipt(
         candidate=candidate,
         group=group,
@@ -482,7 +414,6 @@ def run_native_suite(
         environment=receipt_mod.environment_identity(),
         runner=runner,
         classes=tuple(spec["classes"][group]),
-        positive_fixtures=tuple(positive_fixture_rows),
     )
     document = receipt.to_document()
     document["result_lines"] = [line.strip() for line in text.splitlines() if "Tests run:" in line][
@@ -525,7 +456,7 @@ def write(name: str, payload: Any) -> None:
 
 
 def _live_xmage_restoration_manifest() -> dict[str, Any]:
-    """Read PB-03 capability truth from the running full-game bridge."""
+    """Read the itemised PB-03 restoration manifest from the running bridge."""
     plan = build_launch_plan("xmage", lane="full-game")
     with launch(plan) as proc:
         for message_type in ("start_engine", "get_provider_version"):
@@ -543,38 +474,29 @@ def _live_xmage_restoration_manifest() -> dict[str, Any]:
             )
         payload = response.get("payload")
         if not isinstance(payload, dict):
-            raise SystemExit("PB-03 live manifest unavailable: capability payload is not an object")
+            raise SystemExit("PB-03 capability payload is not an object")
         capabilities = payload.get("capabilities")
         if not isinstance(capabilities, dict):
-            raise SystemExit("PB-03 capability payload omitted capabilities object")
+            raise SystemExit("PB-03 capability payload omitted capabilities")
         if capabilities.get("starting_state_injection_supported") is not False:
             raise SystemExit(
-                "PB-03 must not promote the global starting_state_injection_supported capability"
+                "PB-03 must not promote starting_state_injection_supported"
             )
         lane = payload.get("full_game_lane")
         if not isinstance(lane, dict):
             raise SystemExit("PB-03 capability payload omitted full_game_lane")
         manifest = lane.get("state_restoration_dimensions")
         if not isinstance(manifest, dict):
-            raise SystemExit(
-                "PB-03 live full-game capability payload omitted state_restoration_dimensions"
-            )
-        if not isinstance(manifest.get("supported_dimensions"), list):
-            raise SystemExit("PB-03 live manifest omitted supported_dimensions")
-        if not isinstance(manifest.get("unsupported_dimensions"), list):
-            raise SystemExit("PB-03 live manifest omitted unsupported_dimensions")
+            raise SystemExit("PB-03 live restoration dimension manifest missing")
         return manifest
 
 
 def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
-    """Project every mid-game row against the live itemised restoration manifest."""
+    """Build the 30-row frozen-state admission ledger from live capabilities."""
     manifest = _live_xmage_restoration_manifest()
-    records = [
-        record
-        for record in materialization.denominator_records()
-        if mid_game_mechanisms(record)
-    ]
-    document = starting_state_admission_manifest(records, manifest)
+    document = pb03_admission_mod.admit_manifest(
+        materialization.denominator_records(), manifest
+    )
     document.update(
         {
             "manifest": manifest,
@@ -583,30 +505,18 @@ def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
                 "full_game_lane.state_restoration_dimensions"
             ),
             "global_capability_flag": (
-                "starting_state_injection_supported remains false and is not "
-                "the admission decision"
-            ),
-            "runtime_credit": "NONE_FROM_ADMISSION",
-            "donor_projection": {"admitted": 14, "blocked": 16},
-            "donor_projection_status": (
-                "SUPERSEDED_BY_CURRENT_MAIN_ADJUDICATION_WHERE_LIVE_NATIVE "
-                "BEHAVIOUR_DEMONSTRATES_ADDITIONAL_UNSUPPORTED_DIMENSIONS"
+                "starting_state_injection_supported remains false and is never "
+                "used as the row admission verdict"
             ),
         }
     )
+    if document["counts"] != {"admitted": 14, "blocked": 16}:
+        raise SystemExit(
+            "PB-03 admission projection drifted from the adjudicated current "
+            f"30-row boundary: {document['counts']}"
+        )
     write("PB03_DIMENSION_ADMISSION.json", document)
-    write(
-        "PB03_ADMISSION_MATRIX.json",
-        {
-            **document,
-            "what_this_is": (
-                "Per-row routing against the live bridge dimension manifest."
-            ),
-            "what_this_is_NOT": (
-                "NOT runtime behaviour qualification. Admission never awards PASS."
-            ),
-        },
-    )
+    write("PB03_ADMISSION_MATRIX.json", document)
     return document
 
 
@@ -921,7 +831,6 @@ def classify_remaining(
     *,
     candidate: str,
     identity: dict[str, Any],
-    pb03_admission: dict[str, Any] | None = None,
 ) -> list[RowResult]:
     """Give every not-yet-executed denominator row an explicit outcome."""
     rows: list[RowResult] = []
@@ -932,50 +841,16 @@ def classify_remaining(
         # PB-03: decide from the obligation's mechanisms, not from the row name.
         mechanisms = mid_game_mechanisms(record)
         if mechanisms:
-            pb03_rows = (
-                {
-                    str(item.get("fixture_id")): item
-                    for item in (pb03_admission or {}).get("rows", [])
-                    if isinstance(item, dict)
-                }
-                if candidate == "xmage"
-                else {}
-            )
-            pb03_row = pb03_rows.get(fixture_id)
-            if pb03_row is not None:
-                verdict = str(pb03_row.get("verdict") or "")
-                if verdict == "ADMITTED_TO_NATIVE_RESTORATION":
-                    rows.append(
-                        non_executed_row(
-                            record,
-                            candidate=candidate,
-                            outcome="UNKNOWN",
-                            reason=(
-                                "PB-03 live dimension admission routed this row to the "
-                                "engine-native restoration suite. Admission is not behaviour "
-                                "credit; the row remains UNKNOWN in the runner artifact until "
-                                "an exact positive fixture receipt is verified by the assembler."
-                            ),
-                            runtime_identity=identity,
-                        )
-                    )
-                else:
-                    rows.append(
-                        non_executed_row(
-                            record,
-                            candidate=candidate,
-                            outcome="BLOCKED",
-                            reason=(
-                                "PB-03 live dimension admission failed closed: "
-                                + str(pb03_row.get("reason") or verdict)
-                            ),
-                            runtime_identity=identity,
-                        )
-                    )
-                continue
-
-            # Non-XMage candidates retain their provider-specific capability
-            # attribution; an absent PB-03 row never becomes implicit support.
+            # The mechanism requirement is candidate-neutral, but the CAPABILITY is
+            # not. This reason used to cite the XMage bridge's
+            # starting_state_injection_supported=false for every candidate, so
+            # Forge rows were attributed to a capability Forge actually declares
+            # it has: AF01_FORGE.json reports starting_state_injection_supported
+            # true and scenario_injection_supported true. Where the candidate
+            # declares the capability and this run did not exercise the seam, the
+            # block is a Lab EXECUTION-PATH gap, not a candidate capability gap,
+            # and saying otherwise would misdirect remediation away from the work
+            # that would actually unblock the rows.
             declares_injection = identity.get("starting_state_injection_supported")
             if declares_injection is True:
                 reason = (
@@ -1139,20 +1014,15 @@ def main() -> int:
     )
 
     candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
-    pb03_admission = (
-        build_xmage_pb03_admission(materialization) if "xmage" in candidates else None
-    )
+    if "xmage" in candidates:
+        build_xmage_pb03_admission(materialization)
     summary: dict[str, Any] = {}
     for candidate in candidates:
         outcome = execute_candidate(candidate, materialization)
         identity = outcome["identity"]
         executed = {row.fixture_id for row in outcome["rows"]}
         rows = outcome["rows"] + classify_remaining(
-            materialization,
-            executed,
-            candidate=candidate,
-            identity=identity,
-            pb03_admission=pb03_admission if candidate == "xmage" else None,
+            materialization, executed, candidate=candidate, identity=identity
         )
         by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
         documents = [row.to_document(by_id[row.fixture_id]) for row in rows]
@@ -1209,6 +1079,15 @@ def main() -> int:
         ),
     )
     native_receipts = run_all_native_suites(runner, tuple(candidates))
+    if "xmage" in candidates:
+        pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(
+            REPO_ROOT / "engine-bridge" / "target" / "surefire-reports"
+        )
+        pb03_runtime["runner_commit"] = runner.commit
+        pb03_runtime["runner_tree"] = runner.tree
+        pb03_runtime["runner_digest"] = runner.digest()
+        pb03_runtime["candidate_commit"] = XMAGE_CANDIDATE_COMMIT
+        write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {
