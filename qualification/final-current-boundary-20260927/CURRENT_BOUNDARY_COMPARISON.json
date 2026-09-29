@@ -1904,13 +1904,24 @@
    "forge": {
     "execution_mode": "PROTOCOL2_START2_V1_0_6",
     "exit_state": "PASS",
-    "reason": "CR 103.8a satisfied on the current boundary: the starting player's entire first-turn draw step was skipped, no draw-step checkpoint, draw event or in-step priority was ever exposed by the engine, and the first observable external checkpoint was the normal precombat decision handoff"
+    "reason": "CR 103.8a satisfied on the current boundary: engine-observed turn-1 upkeep and precombat-main principal views have identical hand/library counts, and no draw-step checkpoint, draw event or in-step priority was exposed between them"
    },
-   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
    "xmage": {
     "execution_mode": "PROTOCOL2_START2_V1_0_6",
-    "exit_state": "UNKNOWN",
-    "reason": "the engine reported no principal-scoped zone counts, so the hand/library postcondition of the skipped draw step could not be observed and the row is not credited"
+    "exit_state": "PASS",
+    "reason": "CR 103.8a satisfied on the current boundary: engine-observed turn-1 upkeep and precombat-main principal views have identical hand/library counts, and no draw-step checkpoint, draw event or in-step priority was exposed between them"
    }
   },
   {

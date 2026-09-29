@@ -62,8 +62,8 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `9edea29a` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 179 | 179 | Lab `9edea29a` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `b126249e` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 179 | 179 | Lab `b126249e` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is
@@ -100,7 +100,7 @@ reduction, no carry-forward across changed evidence semantics.
 
 | Candidate | PASS | FAIL | UNKNOWN | BLOCKED | CRASH | TIMEOUT | PROTOCOL_FAILURE | total |
 |---|---|---|---|---|---|---|---|---|
-| XMage | 4 | 0 | 59 | 44 | 0 | 0 | 0 | **107** |
+| XMage | 5 | 0 | 58 | 44 | 0 | 0 | 0 | **107** |
 | Forge | 5 | 0 | 58 | 44 | 0 | 0 | 0 | **107** |
 
 The historical figures were XMage `30 PASS` and Forge `79 PASS`. They were upper
@@ -128,7 +128,7 @@ artifact.
 | `SAME_SEMANTICS` | 0 |
 | `RULES_VISIBLE_DIVERGENCE` | 0 |
 
-Zero `SAME_SEMANTICS` is the correct outcome, not an omission. Only four rows
+Zero `SAME_SEMANTICS` is the correct outcome, not an omission. Only five rows
 `PASS` on each side and none carries comparable normalized Rules-visible
 semantics, so equality is claimed nowhere. `PASS/PASS` is never treated as
 semantic equality: rows are reduced to a normalized signature over the evidence
@@ -356,8 +356,8 @@ Legal actions, priority, mana and cost payment, targets/modes/choices, stack,
 triggers, replacement/prevention, continuous effects and layers, SBAs, zones,
 copy/control, combat, command zone, commander tax, commander damage, Partner and
 per-count multiplayer lifecycle are **not established for either candidate**: they
-sit inside the `UNKNOWN` and `BLOCKED` rows (XMage 59 UNKNOWN / 44 BLOCKED; Forge
-58 UNKNOWN / 44 BLOCKED).
+sit inside the `UNKNOWN` and `BLOCKED` rows (58 UNKNOWN / 44 BLOCKED on each
+side).
 
 ---
 

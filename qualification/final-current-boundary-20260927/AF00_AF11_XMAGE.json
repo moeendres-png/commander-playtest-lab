@@ -5,10 +5,10 @@
   "BLOCKED": 44,
   "CRASH": 0,
   "FAIL": 0,
-  "PASS": 4,
+  "PASS": 5,
   "PROTOCOL_FAILURE": 0,
   "TIMEOUT": 0,
-  "UNKNOWN": 59
+  "UNKNOWN": 58
  },
  "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
  "gates": [
@@ -270,7 +270,7 @@
     "WS05-MP-TURN-5"
    ],
    "evidence": [
-    "4 of 107 rows PASS under the effective v1.0.6 contract; 44 BLOCKED; 59 UNKNOWN"
+    "5 of 107 rows PASS under the effective v1.0.6 contract; 44 BLOCKED; 58 UNKNOWN"
    ],
    "gate": "AF06",
    "name": "GENERAL_RULES_CORRECTNESS",
@@ -391,11 +391,11 @@
    "candidate_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
+   "executed_commit": "b126249ec20675fde6fc20f49de2ae6f03ad5a06",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "31ffd4801254ead1762bb47838de54cc8937a7931657400a75c061d31db2e647",
+   "receipt_digest": "a2d4362f058769e7ea75ef74e425e613e8f56f623e72589b36fa405f9692bfb1",
    "returncode": 0,
    "tests": 34
   },
@@ -404,11 +404,11 @@
    "candidate_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
+   "executed_commit": "b126249ec20675fde6fc20f49de2ae6f03ad5a06",
    "failed": 0,
    "failures": 0,
    "passed": 179,
-   "receipt_digest": "a66524bdc3286cb22d36d731c3697edf63aa5a35c762fa9684486b97613911fe",
+   "receipt_digest": "f61a93eb40988e6eedc518815d4d84a3912346276608834d47abeafb22ff4f1f",
    "returncode": 0,
    "tests": 179
   }

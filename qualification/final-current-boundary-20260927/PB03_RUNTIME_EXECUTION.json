@@ -4,7 +4,7 @@
  "credit_boundary": "Runtime execution proves that the bound native harness ran. GENUINE_CAUSAL_DEVIATION and blocker-characterization rows do not become FULL107 PASS from this ledger.",
  "executed_pass": 30,
  "not_run_or_failed": 0,
- "receipt_digest": "123e4bdc7b6f4aa2643f6ff39bd963e23feb03d166d602d109573a645e05d9e2",
+ "receipt_digest": "13d66c5dcf828c9a79ba3d5994e98dd08763ad781c64fa2f8bf1e2eb465b4fd4",
  "rows": [
   {
    "fixture_id": "PILOT_DECLARE_ATTACKER",
@@ -338,8 +338,8 @@
   }
  ],
  "rows_total": 30,
- "runner_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
- "runner_digest": "5aa8a2930500a055d5b412be411359e60542419d9473692b7d7351544c539722",
- "runner_tree": "03d6061c0dfa1035b2acb4a00db9c8d8021d545f",
+ "runner_commit": "b126249ec20675fde6fc20f49de2ae6f03ad5a06",
+ "runner_digest": "1ab1c0dfb27393533c9d47d5b1e1e5868a3c6e53a6864d54bec6420e7122389c",
+ "runner_tree": "c73dd876d3bb38f6741880ac559d9bbb02fe15cc",
  "schema_version": "commander-lab.pb03-runtime-execution/2.0.0"
 }
