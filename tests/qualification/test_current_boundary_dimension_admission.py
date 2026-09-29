@@ -148,9 +148,7 @@ def test_missing_or_empty_manifest_fails_closed_without_global_flag_fallback(
     assert result["verdict"] == A.BLOCKED_MANIFEST_UNAVAILABLE
 
 
-def test_global_capability_flag_does_not_change_row_admission(
-    materialization, manifest
-) -> None:
+def test_global_capability_flag_does_not_change_row_admission(materialization, manifest) -> None:
     record = materialization.record("WS05-MP-COMBAT-4")
     false_flag = A.admit_record(record, manifest)
     true_manifest = dict(manifest)
