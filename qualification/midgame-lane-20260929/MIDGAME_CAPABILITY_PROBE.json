@@ -1,0 +1,351 @@
+{
+  "construction_mismatch": [
+    "WS05-MP-ELIM-PRIO-3"
+  ],
+  "counts": {
+    "construction_mismatch": 1,
+    "engine_native_reachable": 8,
+    "engine_rejected": 4,
+    "engine_state_accepted_obligation_not_executed": 3,
+    "probed": 16
+  },
+  "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "engine_native_reachable": [
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-PARTNER-ZONE",
+    "WS05-CMD-TAX-2",
+    "MICRO_COMBAT",
+    "CARD_02"
+  ],
+  "engine_rejected": [
+    {
+      "code": "midgame_starting_state_rejected",
+      "fixture_id": "WS05-MP-PRIO-3"
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "fixture_id": "WS05-CMD-DMG-CONTROL"
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES"
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "fixture_id": "MICRO_ZONE_CHANGES"
+    }
+  ],
+  "engine_state_accepted_obligation_not_executed": [
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-TURN-5",
+    "MICRO_REPLACEMENT"
+  ],
+  "evidence_class": "FRESH_RUNTIME_PROTOCOL2_PROCESS",
+  "generated_at_utc": "2026-09-29T03:20:33Z",
+  "lane": "xmage_midgame_native_starting_state",
+  "materialization": {
+    "path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
+    "version": "commander-lab.semantic-fixture-materialization/1.0.5"
+  },
+  "notes": [
+    "Every decision was submitted from the engine's own offered option set.",
+    "Reachability requires the engine's own field-level readback compare to report no mismatch outside the documented declaration-step priority allowance. The engine's own raw construction_match bit is reported alongside the classification.",
+    "ENGINE_STATE_ACCEPTED means the engine accepted the explicit starting state and this probe did not execute the row's own scripted obligation. It is not a row-level pass.",
+    "Engine-rejected rows are reported with the engine's own code and stay fail closed.",
+    "This probe is technical capability evidence. It is not provider selection and does not establish Architecture Freeze."
+  ],
+  "probe_run_id": "17ea8362-ee7a-409f-ae09-65669379d0ee",
+  "protocol_version": "2.0.0",
+  "rows": [
+    {
+      "code": null,
+      "constructed_state_digest": "5ac2c79938c8f02ac847e4d4a46d1861726fcc6c5c4593fef3caa86cdb65f789",
+      "declaration_step_priority_allowance_applied": [
+        "priority_player: requested P1 observed P2"
+      ],
+      "detail": null,
+      "elapsed_s": 6.662,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": false,
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [
+        "priority_player: requested P1 observed P2"
+      ],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "c245d47a8578aafc54deac5b738cce84ffc9c52e86d5366ab0e1bc691d9e1c11"
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "a3880b351b4451f81d3b2bbf69f50115c45554e16281bee579d0669dfeae2296",
+      "declaration_step_priority_allowance_applied": [
+        "priority_player: requested P1 observed P2"
+      ],
+      "detail": null,
+      "elapsed_s": 6.611,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": false,
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [
+        "priority_player: requested P1 observed P2"
+      ],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "9d661d02f8d67d771ff6276fc21c4860af43e377a8cb7efc76f53a596efd81d9"
+    },
+    {
+      "code": "OBLIGATION_NOT_EXECUTED",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/DECLARE_BLOCKERS checkpoint",
+      "elapsed_s": 6.099,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_STATE_ACCEPTED",
+      "requested_state_digest": null
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "4538c3de8c27b2aef2d7bb020e2d7013b3efe3566c25f3d178002ac2eae421c5",
+      "declaration_step_priority_allowance_applied": [
+        "priority_player: requested P2 observed P1"
+      ],
+      "detail": "life P2: requested 0 observed 40",
+      "elapsed_s": 6.829,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": false,
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [
+        "priority_player: requested P2 observed P1",
+        "life P2: requested 0 observed 40"
+      ],
+      "outcome": "CONSTRUCTION_MISMATCH",
+      "requested_state_digest": "2ddd2e8936ce98f39d27cfb535292f0b8745beca042924f3e0502cee112afe45"
+    },
+    {
+      "code": "OBLIGATION_NOT_EXECUTED",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested POSTCOMBAT_MAIN/POSTCOMBAT_MAIN checkpoint",
+      "elapsed_s": 6.248,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "WS05-MP-TURN-5",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_STATE_ACCEPTED",
+      "requested_state_digest": null
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "c1391a722ada93c67702a760c35edac9406a6aed16bddc778d1659dfc5136ada",
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.983,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": true,
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "91f2fd0e2fa056631f2151556ee01ce67ba0b114cb85feee1139d20c01ea393d"
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "ad593bc313b5d762ef0963fcd0f2200ca396d374f4277945eb35b6b6bec84144",
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.717,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": true,
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "2638243729a8c51ca03661de25b881e1580a7e8df5e5b97cd0f5a9b9f4af25ea"
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "ad593bc313b5d762ef0963fcd0f2200ca396d374f4277945eb35b6b6bec84144",
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.811,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": true,
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "07543d8bd24d710b248bc3928239900ac945d815c2f633b08244c0c79c25aa15"
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "75b928113104fcd14b299749a4c5504bb3d035ee2b83ccf7ecf8ec39b4d1ed82",
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.454,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": true,
+      "fixture_id": "WS05-CMD-TAX-2",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "52db8efd56370c1afdb6c597216fc3b265eeaf67d4c8e42511d22d38fa8e5b8a"
+    },
+    {
+      "code": "OBLIGATION_NOT_EXECUTED",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
+      "elapsed_s": 6.113,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "MICRO_REPLACEMENT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_STATE_ACCEPTED",
+      "requested_state_digest": null
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "42be28efe84e0b59c64d3500fc7acda8886ecd6344e74bbef06b2d7b75426138",
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 6.577,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": true,
+      "fixture_id": "MICRO_COMBAT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "d34c9ea61b9a9a459c4f2bef3c87cd52897362601d1a06c26012d34ae5f9b990"
+    },
+    {
+      "code": null,
+      "constructed_state_digest": "5005f32173dcc482d981b75644099cb166993d6fa2969e2e8b516d0a901649bc",
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 6.097,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": true,
+      "fixture_id": "CARD_02",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_NATIVE_REACHABLE",
+      "requested_state_digest": "0efcbd2ea08d94159324faec46940e72fb254a0b0493d81750ae3930fb08f01c"
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "RestorationException: UNSUPPORTED_ZONE: WS05-MP-PRIO-3 obj:mp-bolt requests stack",
+      "elapsed_s": 0.185,
+      "engine_accepted_starting_state": false,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "WS05-MP-PRIO-3",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_REJECTED",
+      "requested_state_digest": null
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "RestorationException: UNSUPPORTED_CONTROL_DIVERGENCE: obj:isamaru-controlled; control must equal ownership in v1 (engine layers re-derive control; divergence needs resolved control-change effects)",
+      "elapsed_s": 0.117,
+      "engine_accepted_starting_state": false,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_REJECTED",
+      "requested_state_digest": null
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "RestorationException: UNSUPPORTED_ZONE: WS05-CMD-ZONE-GY-YES obj:cmd-zone-source requests stack",
+      "elapsed_s": 0.12,
+      "engine_accepted_starting_state": false,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_REJECTED",
+      "requested_state_digest": null
+    },
+    {
+      "code": "midgame_starting_state_rejected",
+      "constructed_state_digest": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "RestorationException: UNSUPPORTED_ZONE: MICRO_ZONE_CHANGES obj:micro-bolt-stack requests stack",
+      "elapsed_s": 0.113,
+      "engine_accepted_starting_state": false,
+      "engine_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+      "engine_construction_match": null,
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "ENGINE_REJECTED",
+      "requested_state_digest": null
+    }
+  ],
+  "rules_core": "xmage",
+  "schema_version": "commander-lab.midgame-capability-probe/1.0.0",
+  "seed": 424242,
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals (pre-start assembly; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments and counters",
+      "tapped permanents (unqualified dimension)",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}
