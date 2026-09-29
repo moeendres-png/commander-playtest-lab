@@ -37,9 +37,7 @@ def test_runtime_ledger_contains_all_seven_former_gaps() -> None:
 
 
 def test_parser_only_temporal_test_is_never_runtime_credit() -> None:
-    identities = {
-        case["method_name"] for case in R.PB03_RUNTIME_CASES.values()
-    }
+    identities = {case["method_name"] for case in R.PB03_RUNTIME_CASES.values()}
     assert "parserAcceptsOnlyQualifiedFrozenTemporalTargets" not in identities
 
 
@@ -72,8 +70,7 @@ def test_pilot_fixture_ids_are_not_lost_by_ws05_only_matching() -> None:
 def test_exact_green_junit_case_counts_as_executed(tmp_path: Path) -> None:
     report = _report(
         tmp_path,
-        '<testcase classname="org.commanderlab.xmage.Example" '
-        'name="doesThing" time="0.01" />',
+        '<testcase classname="org.commanderlab.xmage.Example" name="doesThing" time="0.01" />',
     )
     assert R._case_passed(report, "Example", "doesThing") is True
 
@@ -99,8 +96,7 @@ def test_skipped_junit_case_does_not_count(tmp_path: Path) -> None:
 def test_wrong_method_or_class_does_not_count(tmp_path: Path) -> None:
     report = _report(
         tmp_path,
-        '<testcase classname="org.commanderlab.xmage.Other" '
-        'name="different" time="0.01" />',
+        '<testcase classname="org.commanderlab.xmage.Other" name="different" time="0.01" />',
     )
     assert R._case_passed(report, "Example", "doesThing") is False
 
