@@ -146,6 +146,7 @@ NATIVE_SUITE_BINDING = {
                 "XmageFullGameCombatDamageTest",
                 "XmageDecisionRejectionWs229Test",
                 "XmageFullGameRulesSeedBindingTest",
+                "XmagePb03CapabilityManifestTest",
                 "XmagePb03DimensionAdmissionTest",
                 "XmagePb03Tier1RowsTest",
             ],
