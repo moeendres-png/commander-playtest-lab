@@ -308,18 +308,6 @@ class XmageCausalStackReconstructionTest {
             XmageCausalStackReconstruction.Prepared prepared,
             Map<String, List<String>> semanticOrderByPid
     ) {
-        return manaProposal(
-                proposalId, pid, legal, prepared, semanticOrderByPid, Map.of());
-    }
-
-    static JsonObject manaProposal(
-            String proposalId,
-            String pid,
-            JsonObject legal,
-            XmageCausalStackReconstruction.Prepared prepared,
-            Map<String, List<String>> semanticOrderByPid,
-            Map<String, List<String>> poolManaOrderByPid
-    ) {
         List<String> order = semanticOrderByPid.getOrDefault(pid, List.of());
         for (String semantic : order) {
             UUID sourceId = prepared.restoration().injectedObjectId(semantic);
@@ -342,33 +330,6 @@ class XmageCausalStackReconstructionTest {
                 }
             }
         }
-        for (String manaType : poolManaOrderByPid.getOrDefault(pid, List.of())) {
-            List<JsonObject> matches = new ArrayList<>();
-            for (JsonElement element : legal.getAsJsonArray("actions")) {
-                JsonObject action = element.getAsJsonObject();
-                JsonObject metadata = action.getAsJsonObject("metadata");
-                if (!"mana_pool".equals(metadata.get("option_type").getAsString())
-                        || !metadata.has("xmage_option_metadata")) {
-                    continue;
-                }
-                JsonObject engine = metadata.getAsJsonObject("xmage_option_metadata");
-                if (engine.has("mana_type")
-                        && manaType.equalsIgnoreCase(engine.get("mana_type").getAsString())) {
-                    matches.add(action);
-                }
-            }
-            if (matches.size() > 1) {
-                throw new AssertionError(
-                        "ambiguous exact mana-pool type " + manaType + " for " + pid);
-            }
-            if (matches.size() == 1) {
-                return XmageCausalStackReconstruction.proposal(
-                        proposalId,
-                        legal.get("actor_id").getAsString(),
-                        matches.get(0));
-            }
-        }
-
         List<JsonObject> pool = new ArrayList<>();
         for (JsonElement element : legal.getAsJsonArray("actions")) {
             JsonObject action = element.getAsJsonObject();

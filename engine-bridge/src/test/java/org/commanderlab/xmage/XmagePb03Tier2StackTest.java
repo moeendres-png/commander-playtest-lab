@@ -114,7 +114,7 @@ class XmagePb03Tier2StackTest {
             String tag,
             List<FuelLand> fuel,
             Map<String, List<String>> manaOrderByPid,
-            Map<String, List<String>> poolManaOrderByPid) {
+            Map<String, List<String>> poolSpendOrderByPid) {
         JsonObject record = recordWithFuel(fixtureId, fuel);
         XmageCausalStackReconstruction.Prepared prepared =
                 XmageCausalStackReconstruction.prepare(record, tag, SEED);
@@ -125,6 +125,7 @@ class XmagePb03Tier2StackTest {
                 tag, handles, 0, 40, SEED, importer, prepared.restoration());
         session.start();
         Map<String, Player> seats = session.restorationSeats();
+        Map<String, Integer> poolSpendIndexByPid = new LinkedHashMap<>();
         XmageCausalStackReconstruction.DecisionSource stackSource =
                 (frame, pending, legal, index) -> {
                     String dc = pending.get("decision_class").getAsString();
@@ -136,18 +137,47 @@ class XmagePb03Tier2StackTest {
                         return null;
                     }
                     if ("mana_payment".equals(dc)) {
-                        // The canonical helper binds mana abilities to exact
-                        // semantic source ids and accepts pool spend only when
-                        // the engine offers exactly one option. Null therefore
-                        // means the scripted payment is unavailable/ambiguous
-                        // and reconstruction must fail closed.
-                        return XmageCausalStackReconstructionTest.manaProposal(
+                        String pid = frame.controller();
+                        JsonObject proposal = XmageCausalStackReconstructionTest.manaProposal(
                                 tag + "-mana-" + index,
-                                frame.controller(),
+                                pid,
                                 legal,
                                 prepared,
-                                manaOrderByPid,
-                                poolManaOrderByPid);
+                                manaOrderByPid);
+                        List<String> poolOrder =
+                                poolSpendOrderByPid.getOrDefault(pid, List.of());
+                        if (proposal != null) {
+                            if (!poolOrder.isEmpty()) {
+                                JsonObject selected =
+                                        exactLegalAction(
+                                                legal,
+                                                proposal.get("legal_action_id").getAsString());
+                                if ("mana_pool".equals(selected.getAsJsonObject("metadata")
+                                        .get("option_type").getAsString())) {
+                                    verifyAndAdvancePoolSpend(
+                                            tag,
+                                            pid,
+                                            selected,
+                                            poolOrder,
+                                            poolSpendIndexByPid);
+                                }
+                            }
+                            return proposal;
+                        }
+                        if (poolOrder.isEmpty()) {
+                            return null;
+                        }
+                        int poolIndex = poolSpendIndexByPid.getOrDefault(pid, 0);
+                        if (poolIndex >= poolOrder.size()) {
+                            return null;
+                        }
+                        JsonObject poolAction =
+                                exactPoolSpend(legal, poolOrder.get(poolIndex));
+                        poolSpendIndexByPid.put(pid, poolIndex + 1);
+                        return XmageCausalStackReconstruction.proposal(
+                                tag + "-pool-" + index,
+                                legal.get("actor_id").getAsString(),
+                                poolAction);
                     }
                     if ("choice".equals(dc)) {
                         return null;
@@ -158,7 +188,83 @@ class XmagePb03Tier2StackTest {
                 XmageCausalStackReconstruction.reconstruct(
                         session, seats, prepared, arrivalSource(tag), stackSource, 240);
         assertTrue(result.submittedDecisions() > 0, tag + ": reconstruction must submit");
+        for (Map.Entry<String, List<String>> entry : poolSpendOrderByPid.entrySet()) {
+            assertEquals(
+                    entry.getValue().size(),
+                    poolSpendIndexByPid.getOrDefault(entry.getKey(), 0),
+                    tag + ": scripted pool spend sequence was not fully consumed for "
+                            + entry.getKey());
+        }
         return new Reconstructed(session, seats, prepared, result);
+    }
+
+    private static JsonObject exactLegalAction(JsonObject legal, String actionId) {
+        List<JsonObject> matches = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            if (actionId.equals(action.get("action_id").getAsString())) {
+                matches.add(action);
+            }
+        }
+        assertEquals(1, matches.size(), "proposal must name exactly one current legal action");
+        return matches.get(0);
+    }
+
+    private static JsonObject exactPoolSpend(JsonObject legal, String manaType) {
+        List<JsonObject> matches = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = action.getAsJsonObject("metadata");
+            if (!"mana_pool".equals(metadata.get("option_type").getAsString())) {
+                continue;
+            }
+            JsonObject engine =
+                    metadata.has("xmage_option_metadata")
+                                    && metadata.get("xmage_option_metadata").isJsonObject()
+                            ? metadata.getAsJsonObject("xmage_option_metadata")
+                            : new JsonObject();
+            if (engine.has("mana_type")
+                    && !engine.get("mana_type").isJsonNull()
+                    && manaType.equalsIgnoreCase(engine.get("mana_type").getAsString())) {
+                matches.add(action);
+            }
+        }
+        assertEquals(
+                1,
+                matches.size(),
+                "expected exactly one engine-offered " + manaType + " pool spend");
+        return matches.get(0);
+    }
+
+    private static void verifyAndAdvancePoolSpend(
+            String tag,
+            String pid,
+            JsonObject selected,
+            List<String> poolOrder,
+            Map<String, Integer> poolSpendIndexByPid) {
+        int poolIndex = poolSpendIndexByPid.getOrDefault(pid, 0);
+        assertTrue(
+                poolIndex < poolOrder.size(),
+                tag + ": engine selected more pool spends than scripted for " + pid);
+        JsonObject metadata = selected.getAsJsonObject("metadata");
+        JsonObject engine =
+                metadata.has("xmage_option_metadata")
+                                && metadata.get("xmage_option_metadata").isJsonObject()
+                        ? metadata.getAsJsonObject("xmage_option_metadata")
+                        : new JsonObject();
+        String actual =
+                engine.has("mana_type") && !engine.get("mana_type").isJsonNull()
+                        ? engine.get("mana_type").getAsString()
+                        : "";
+        assertTrue(
+                poolOrder.get(poolIndex).equalsIgnoreCase(actual),
+                tag + ": expected "
+                        + poolOrder.get(poolIndex)
+                        + " pool spend for "
+                        + pid
+                        + " but engine action was "
+                        + actual);
+        poolSpendIndexByPid.put(pid, poolIndex + 1);
     }
 
     private static void passPriority(
@@ -465,7 +571,7 @@ class XmagePb03Tier2StackTest {
                         new FuelLand("obj:fuel-mountain-p1b", "Mountain", "P1")),
                 Map.of("P1", List.of("obj:fuel-island-p1", "obj:fuel-mountain-p1",
                         "obj:fuel-mountain-p1b")),
-                Map.of("P1", List.of("blue", "red", "red")));
+                Map.of("P1", List.of("BLUE", "RED", "RED")));
         XmageFullGameSession session = run.session();
         Map<String, Player> seats = run.seats();
         boolean callSeen = false;
