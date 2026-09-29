@@ -25,7 +25,18 @@ source_lock:
     bridge_source: 4753bb7c72ea60d653121e0bab989077b4009f9c
     counts: PASS_1_FAIL_4_UNKNOWN_102_BLOCKED_0
     identity_binding: operator_supplied_env_FORGE_ENGINE_SHA_PB05_OPEN
-phase_a_runtime_reachable: UNKNOWN
+phase_a_runtime_reachable: YES
+phase_a_evidence: docs/pb09_20260929/PB09_PHASE_A_EVIDENCE.md
+phase_a_transcript_sha256: 0a4cc5d1cce529eaf4b1c47466e315a4f9023fc1ac8d219c9af758b32dc13b7f
+harness_commit_head: d4359239e65d1f2455f2366fb86fe9dae3a4b4c2
+mine_limitations:
+- engine_build_dirty true until harness wiring is committed in a clean tree
+- engine seeded install has no upstream readback (explicit_seed false, rules_calls null)
+- divided allocation and external combat damage assignment fail closed upstream
+- bridge unit tests excluded on pristine harness (fork-only APIs)
+phase_b_not_run: FULL107 matrix for pristine
+execution_identity_note: operator-directed continuation profile deepseek-v4.1-flash
+  (session-reported model identity; not a claimed project-wide launcher activation)
 ownership:
   pb09_pristine: muse-xhigh-pb09-workstream
   forbidden_surfaces:
