@@ -8,10 +8,20 @@ objective: >-
   causally honest, WS17-sealed.
 
 identity:
+  status: STOPPED_FOR_OWNERSHIP_HANDOVER
+  stopped_at: 2026-09-29 (ownership transferred to a successor owner by coordinator instruction)
   worktree: /home/moeen/code/lab-pb03-remediation2-20260929
   branch: pb03/304-remediation-on-dafe2ac6
-  head: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
-  tree: f5dd631e9475a11518a3924c6fa54abbd8e22d36
+  head: 1b69c31f7958ec77df55ae72a9fb95fd19d424bc
+  tree: e5cc3e6a0ecf5df9b16869a60012a0395d842471
+  persisted_branch: donor/pb03-304-terminal-hardening-20260929
+  persisted_remote_head: 1b69c31f7958ec77df55ae72a9fb95fd19d424bc
+  persisted_local_equals_remote: true
+  earlier_pushed_commit_on_pr304: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+  pr304_remote_head: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+  pr304_modified_by_this_increment: false
+  main_untouched: true
+  main_at_stop: 92ac1cecd3a46628a77e9f58a4ddc46baffdf634
   first_parent_chain: ["1b772706 (merge of main 83a547f7)", "dafe2ac6 (PR #304 causal completion)", "08d23aa4 (this remediation)"]
   merge_base_vs_origin_main: 83a547f739cc1a7072798c55e10829032df8fe88
   relationship_to_pr304_head: "dafe2ac6 is an ancestor of HEAD: clean continuation, no history rewrite"
@@ -96,9 +106,46 @@ governance:
   merge_to_main: forbidden
   force_push: forbidden
 
+open_leak_vector_recorded:
+  item: pending_decision included unconditionally in the arrival response
+  code: XmageMidgameJsonlBridge.completeMidgameArrival -> response.add("pending_decision", requireSession().pendingDecisionPayload())
+  why_it_matters: >-
+    The decision frame is for whoever currently has priority. Its legal_options
+    labels can name that principal's hand cards ("cast_spell" labels carry the card
+    name), so a caller bound to a different principal can still learn the acting
+    principal's hand identity through this field. This is the same class as F1 and
+    it is NOT fixed.
+  suggested_repair: >-
+    Include pending_decision only when the requester resolves to the frame's acting
+    principal (compare the frame's decision.actor_id with the native principal id
+    at the requester's seat); otherwise omit it or return a neutral marker.
+
+validation_at_stop:
+  ran_and_green:
+    - "engine-bridge focused: XmageMidgameLaneTest 10/10, XmageMidgameCausalTest 25/25, XmageMidgameReviewRemediationTest 12/12 (47/47, BUILD SUCCESS)"
+    - "pytest tests/qualification/test_current_boundary_midgame_lane.py: 50 passed"
+    - "pytest tests/qualification/test_ws17_qualification.py: 12 passed"
+    - "ruff check . : All checks passed"
+    - "ruff format --check . : 1084 files already formatted"
+  not_ran_after_the_final_increment:
+    - "run_midgame_capability_probe.py (29-row partition re-derivation from runtime)"
+    - "full engine-bridge suite"
+    - "full repository pytest"
+    - "mypy strict"
+    - "exact-head GitHub workflows (no PR was opened for this increment)"
+  note: >-
+    The previously pushed commit 08d23aa4 had its own full validation and green
+    exact-head CI on PR #304 (12/12 checks) at the time it was pushed; that evidence
+    is about 08d23aa4, not about 1b69c31f.
+
+incomplete_work_for_successor:
+  - "F1 end-to-end honeycard control: needs a lane-supported frozen fixture that plants a sentinel identity in a non-requester hand (Lab qualification data -> authorization question)."
+  - "F1 pending_decision leak vector (see open_leak_vector_recorded)."
+  - "Re-derive the 29-row causal partition from runtime at the final head and re-seal both WS17 manifests if the receipt changes."
+  - "Run the remaining validation list above and open a PR if the successor wants remote CI evidence."
+  - "F5 concession is retained as schema alignment only; confirm the successor agrees with that adjudication."
+
 next_actions:
-  - "Add F1 honeycard adversarial test and a redaction-does-not-weaken-the-internal-verdict test."
-  - "Add F7 causal_credit_gate wrong-reason controls and placement-classifier controls."
-  - "Add F3 no-zombie assertion and a second generic colorless commander."
-  - "Re-run: focused Python, focused Java, the probe (re-derive the 29-row partition from runtime), qualification pytest, privacy tests, full engine-bridge, ruff, format, mypy, full pytest, WS17."
-  - "Push as a clearly named successor branch with its own PR; verify exact-head workflows."
+  - "Successor: fetch donor/pb03-304-terminal-hardening-20260929 (head 1b69c31f) and review the two commits above dafe2ac6."
+  - "Successor: close the two F1 items, then re-run the full validation list and seal WS17."
+  - "Successor: decide whether to continue PR #304 or open a successor PR; do not rewrite #304 history."
