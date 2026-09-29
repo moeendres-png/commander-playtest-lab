@@ -355,3 +355,23 @@ def test_real_xmage_same_seed_tape_pair(repo_root: Path):
     assert diverged.divergence.actor_principal == tape["steps"][target]["actor_principal"]
     assert diverged.divergence.expected_provider == "xmage"
     assert len(diverged.divergence.context_window) == 3
+
+
+def test_state_digest_version_mismatch_fails_closed_before_trace_comparison() -> None:
+    expected = _tape(
+        seal={
+            "canonicalization": "semantic-canonical-1.0.0",
+            "identity": "semantic-option-identity-1.0.0",
+            "state_digest": "semantic-state-digest-1.0.0",
+            "tape_schema": "semantic-replay-tape/1.0.0",
+        }
+    )
+    actual = copy.deepcopy(expected)
+    actual["seal"]["state_digest"] = "semantic-state-digest-1.1.0"
+
+    result = compare_tapes(expected, actual)
+
+    assert not result.match
+    assert result.divergence is not None
+    assert result.divergence.kind is DivergenceKind.INITIAL_STATE_MISMATCH
+    assert result.divergence.record_index == -1

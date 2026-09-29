@@ -7,12 +7,14 @@ import com.google.gson.JsonObject;
 import mage.MageItem;
 import mage.abilities.Ability;
 import mage.cards.Card;
+import mage.constants.AsThoughEffectType;
 import mage.constants.CommanderCardType;
 import mage.constants.ManaType;
 import mage.counters.Counter;
 import mage.counters.CounterType;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
+import mage.game.stack.Spell;
 import mage.game.stack.StackObject;
 import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,15 +92,22 @@ final class XmageFullGameStateRedactor {
 
     /** {@code title} is the engine's own window title for the look (CardUtil). */
     static void recordLookedAt(Game game, UUID viewerId, String title, Collection<Card> cards) {
-        record(game, false, viewerId, title, cards);
+        record(game, false, viewerId, title, cards, false);
     }
 
-    static void recordRevealed(Game game, UUID revealerId, String title, Collection<Card> cards) {
-        record(game, true, revealerId, title, cards);
+    /**
+     * {@code update} mirrors XMage's own split: a logged reveal is a new
+     * event (Revealed.add), an unlogged one refreshes a standing display
+     * such as a hand played revealed (Revealed.update) and so replaces the
+     * earlier entry of the same revealer and title instead of appending.
+     */
+    static void recordRevealed(Game game, UUID revealerId, String title, Collection<Card> cards,
+                               boolean update) {
+        record(game, true, revealerId, title, cards, update);
     }
 
     private static void record(Game game, boolean revealed, UUID principalId, String title,
-                               Collection<Card> cards) {
+                               Collection<Card> cards, boolean update) {
         if (game == null || principalId == null || cards == null || cards.isEmpty()) {
             return;
         }
@@ -107,17 +117,36 @@ final class XmageFullGameStateRedactor {
             names.add(card.getName());
             owners.add(card.getOwnerId());
         }
-        OBSERVED_CARDS
-                .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>())
-                .add(new ObservedCards(
-                        revealed,
-                        principalId,
-                        turnController(game, principalId),
-                        game.getState().getTurnNum(),
-                        title,
-                        names,
-                        owners
-                ));
+        List<ObservedCards> log = OBSERVED_CARDS
+                .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>());
+        ObservedCards entry = new ObservedCards(
+                revealed,
+                principalId,
+                turnController(game, principalId),
+                game.getState().getTurnNum(),
+                title,
+                names,
+                owners
+        );
+        if (update) {
+            log.removeIf(old -> old.revealed == revealed && old.principalId.equals(principalId)
+                    && Objects.equals(old.title, title));
+        } else if (!revealed) {
+            // A standing "look at the top card any time" repeats the same look
+            // every time effects apply; only a look that shows something new
+            // (a different card set from the same source) is recorded again.
+            for (int i = log.size() - 1; i >= 0; i--) {
+                ObservedCards old = log.get(i);
+                if (!old.revealed && old.principalId.equals(principalId)
+                        && Objects.equals(old.title, title)) {
+                    if (old.names.equals(names) && old.owners.equals(owners)) {
+                        return;
+                    }
+                    break;
+                }
+            }
+        }
+        log.add(entry);
     }
 
     /** Controller of this principal at this instant, excluding ordinary self-control. */
@@ -180,10 +209,23 @@ final class XmageFullGameStateRedactor {
         return result;
     }
 
-    static void beginZoneFullLook(Player viewer, Player owner, Game game) {
-        if (viewer == null || owner == null || game == null) {
+    /**
+     * F-31: the cards a look window shows. The engine hands every library-zone
+     * decision its own card set (a search: the searched library; Fact or
+     * Fiction or a top-N look: only those cards); a grant shows exactly that
+     * set, never the rest of the owner's library or its order. One decision
+     * window is open per game at a time, so keyed by game id and owner id.
+     */
+    private static final Map<String, Map<String, Set<UUID>>> ZONE_LOOK_CARDS =
+            new ConcurrentHashMap<>();
+
+    static void beginZoneFullLook(Player viewer, Player owner, Game game, Collection<UUID> cardIds) {
+        if (viewer == null || owner == null || game == null || cardIds == null) {
             return;
         }
+        ZONE_LOOK_CARDS
+                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .put(owner.getId().toString(), Set.copyOf(cardIds));
         ZONE_FULL_LOOK
                 .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
                 .computeIfAbsent(viewer.getId().toString(), ignored -> ConcurrentHashMap.newKeySet())
@@ -193,6 +235,9 @@ final class XmageFullGameStateRedactor {
     static void endZoneFullLook(Player viewer, Player owner) {
         if (viewer == null || owner == null) {
             return;
+        }
+        for (Map<String, Set<UUID>> byOwner : ZONE_LOOK_CARDS.values()) {
+            byOwner.remove(owner.getId().toString());
         }
         for (Map<String, Set<String>> byViewer : ZONE_FULL_LOOK.values()) {
             Set<String> owners = byViewer.get(viewer.getId().toString());
@@ -212,14 +257,25 @@ final class XmageFullGameStateRedactor {
     }
 
     private static String restoredFaceDownIdentity(Game game, Permanent permanent, Player viewer) {
-        if (game == null || permanent == null || viewer == null
-                || !permanent.isFaceDown(game)
-                || !canViewPrivateStateFor(game, viewer, permanent.getControllerId())) {
+        if (game == null || permanent == null || viewer == null || !permanent.isFaceDown(game)) {
+            return null;
+        }
+        // F-33: the controller may look at its face-down permanent (CR 708.5),
+        // as may its turn controller (CR 723.4) and anyone the engine grants
+        // LOOK_AT_FACE_DOWN. A face-down token has no hidden card.
+        Card card = game.getCard(permanent.getId());
+        boolean entitled = canViewPrivateStateFor(game, viewer, permanent.getControllerId())
+                || (card != null && mayLookAtFaceDown(game, viewer, card));
+        if (!entitled) {
             return null;
         }
         Map<UUID, String> byPermanent =
                 RESTORED_FACE_DOWN_IDENTITIES.get(game.getId().toString());
-        return byPermanent == null ? null : byPermanent.get(permanent.getId());
+        String restored = byPermanent == null ? null : byPermanent.get(permanent.getId());
+        if (restored != null) {
+            return restored;
+        }
+        return card == null || card.getName().isEmpty() ? null : card.getName();
     }
 
     private static boolean hasZoneFullLook(Game game, Player viewer, Player owner) {
@@ -317,9 +373,13 @@ final class XmageFullGameStateRedactor {
             }
             p.add("command", command);
 
-            // Exile may contain face-down private cards. Expose only the public count here;
-            // card identities are deliberately absent until XMage marks them publicly known.
+            // Exile may contain face-down private cards: the count is public, and
+            // identities follow the F-32 exile view below.
             p.addProperty("exile_count", game.getExile().getCardsOwned(game, player.getId()).size());
+            // F-32: face-up exiled cards are public; a face-down one is shown
+            // only to a principal the engine lets look at it (LOOK_AT_FACE_DOWN,
+            // e.g. Gonti, Hideaway, foretell). Others see only the count.
+            p.add("exile", exileView(game, actor, player));
 
             // CR 723.4: mark exactly the rows whose private in-game state this
             // principal may observe. Downstream replay canonicalization relies on
@@ -334,6 +394,11 @@ final class XmageFullGameStateRedactor {
             // empty otherwise, so no hidden identity crosses the boundary
             // outside the window. Read-only projection; no Rules semantics.
             p.add("granted_library", grantedLibraryView(game, actor, player));
+
+            // A player who plays with the top card of their library revealed
+            // (Courser of Kruphix, Future Sight) shows it to every principal.
+            Card revealedTop = player.isTopCardRevealed() ? player.getLibrary().getFromTop(game) : null;
+            p.add("library_top_revealed", revealedTop == null ? JsonNull.INSTANCE : publicCard(revealedTop));
 
             // CR 723.4: the controller of a player sees the private in-game
             // information that player can see while the control relationship exists.
@@ -366,7 +431,18 @@ final class XmageFullGameStateRedactor {
         for (StackObject stackObject : game.getStack()) {
             JsonObject item = new JsonObject();
             item.addProperty("object_id", stackObject.getId().toString());
-            item.addProperty("name", stackObject.getName());
+            // F-33: a face-down spell (morph, disguise, manifest) has no public
+            // characteristics (CR 708.4); only its controller may look at it
+            // (CR 708.5), extended to that player's turn controller (CR 723.4).
+            boolean faceDown = stackObject instanceof Spell && ((Spell) stackObject).isFaceDown(game);
+            if (faceDown) {
+                item.addProperty("face_down", true);
+                addString(item, "name",
+                        canViewPrivateStateFor(game, actor, stackObject.getControllerId())
+                                ? stackObject.getName() : null);
+            } else {
+                item.addProperty("name", stackObject.getName());
+            }
             stack.add(item);
         }
         view.add("stack", stack);
@@ -412,6 +488,15 @@ final class XmageFullGameStateRedactor {
             player.remove("mana_pool");
             player.remove("land_plays_remaining");
             player.remove("granted_library");
+            if (player.has("exile") && player.get("exile").isJsonArray()) {
+                JsonArray publicExile = new JsonArray();
+                for (JsonElement exiled : player.getAsJsonArray("exile")) {
+                    if (!exiled.getAsJsonObject().has("face_down")) {
+                        publicExile.add(exiled);
+                    }
+                }
+                player.add("exile", publicExile);
+            }
             if (player.has("battlefield") && player.get("battlefield").isJsonArray()) {
                 for (JsonElement permanentElement : player.getAsJsonArray("battlefield")) {
                     JsonObject permanent = permanentElement.getAsJsonObject();
@@ -423,6 +508,12 @@ final class XmageFullGameStateRedactor {
                     );
                     permanent.remove("private_identity");
                 }
+            }
+        }
+        for (JsonElement stackElement : view.getAsJsonArray("stack")) {
+            JsonObject stackItem = stackElement.getAsJsonObject();
+            if (stackItem.has("face_down")) {
+                stackItem.add("name", JsonNull.INSTANCE);
             }
         }
         if (view.has("commander_status") && view.get("commander_status").isJsonArray()) {
@@ -522,13 +613,49 @@ final class XmageFullGameStateRedactor {
         return item;
     }
 
+    private static JsonArray exileView(Game game, Player viewer, Player owner) {
+        JsonArray result = new JsonArray();
+        for (Card card : game.getExile().getCardsOwned(game, owner.getId())) {
+            if (!card.isFaceDown(game)) {
+                result.add(publicCard(card));
+            } else if (mayLookAtFaceDown(game, viewer, card)) {
+                JsonObject item = publicCard(card);
+                item.addProperty("face_down", true);
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    /** The engine lets the viewer, or a player whose turn it controls (CR 723.4), look at the card. */
+    private static boolean mayLookAtFaceDown(Game game, Player viewer, Card card) {
+        if (viewer == null) {
+            return false;
+        }
+        for (Player principal : game.getPlayers().values()) {
+            if (canViewPrivateStateFor(game, viewer, principal.getId())
+                    && !game.getContinuousEffects().asThough(card.getId(),
+                            AsThoughEffectType.LOOK_AT_FACE_DOWN, null, principal.getId(), game).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static JsonArray grantedLibraryView(Game game, Player viewer, Player owner) {
         JsonArray result = new JsonArray();
         if (!hasZoneFullLook(game, viewer, owner)) {
             return result;
         }
+        Map<String, Set<UUID>> byOwner = ZONE_LOOK_CARDS.get(game.getId().toString());
+        Set<UUID> shown = byOwner == null ? null : byOwner.get(owner.getId().toString());
+        if (shown == null) {
+            return result;
+        }
         for (Card card : owner.getLibrary().getCards(game)) {
-            result.add(publicCard(card));
+            if (shown.contains(card.getId())) {
+                result.add(publicCard(card));
+            }
         }
         return result;
     }
