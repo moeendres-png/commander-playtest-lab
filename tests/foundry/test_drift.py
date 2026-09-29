@@ -8,6 +8,7 @@ is not a fixture artifact.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -23,7 +24,20 @@ from foundry import drift_check as drift_mod  # noqa: E402
 
 MAGE_SLUG = "moeendres-png/mage"
 CPL_SLUG = "moeendres-png/commander-playtest-lab"
-LIVE_MAGE = Path("/home/moeen/code/mage-d3q6")
+
+# Live mage checkout used by the one read-only test below. That test is
+# machine-local by design: proving the stale-routing finding is not a fixture
+# artifact requires a real mage checkout. Resolved from MAGE_WORKTREE so any
+# machine -- or CI with a checkout provisioned -- can enable it. The historical
+# hardcoded path remains the fallback, so behaviour on the machine it was
+# written for is unchanged.
+#
+# Deliberately NOT ENGINE_SOURCE_PATH: that variable names the engine under test
+# (see src/commander_lab/engine/process_manager.py), and this repository carries
+# more than one candidate engine. Overloading it would let a Forge checkout
+# silently satisfy a mage assertion.
+DEFAULT_LIVE_MAGE = Path("/home/moeen/code/mage-d3q6")
+LIVE_MAGE = Path(os.environ.get("MAGE_WORKTREE") or DEFAULT_LIVE_MAGE)
 
 
 def _git(args: list[str], cwd: Path) -> None:
@@ -160,10 +174,35 @@ def test_bundle_hash_stable_and_content_sensitive(tmp_path: Path) -> None:
 
 
 def test_live_mage_worktree_drift_fails_read_only() -> None:
-    """Read-only proof against the real mage checkout (not a fixture)."""
+    """Read-only proof against the real mage checkout (not a fixture).
+
+    Two different absences mean two different things, and conflating them sends
+    the wrong signal:
+
+    * no checkout at all -> a property of this machine. Nothing changed and
+      there is nothing to re-adjudicate; the correct response is to point
+      MAGE_WORKTREE at a checkout, or to accept that the claim this test makes
+      is simply not established on this machine.
+    * a checkout that exists but has no AGENTS.md -> reality changed, and the
+      drift profile is now describing a state that no longer holds.
+
+    Only the second is a reason to re-adjudicate. The single skip message this
+    replaced said "reality changed" for both, so a fresh CI machine reported a
+    change in reality where none had occurred.
+    """
+    if not LIVE_MAGE.is_dir():
+        pytest.skip(
+            f"no mage checkout at {LIVE_MAGE}: this test is machine-local, so the "
+            "'not a fixture artifact' claim is not established here. Set MAGE_WORKTREE "
+            "to a mage checkout to enable it."
+        )
     agents = LIVE_MAGE / "AGENTS.md"
     if not agents.is_file():
-        pytest.skip("mage worktree AGENTS.md absent (reality changed; re-adjudicate)")
+        pytest.skip(
+            f"mage checkout at {LIVE_MAGE} exists but carries no AGENTS.md: THIS is the "
+            "'reality changed' condition. Re-adjudicate .foundry/repo-profiles/mage.json "
+            "before trusting its drift verdict."
+        )
     result = drift_mod.check(str(LIVE_MAGE), _profile("mage"), "")
     by_surface = {f["surface"]: f for f in result["findings"]}
     assert "AGENTS.md" in by_surface
