@@ -1,0 +1,184 @@
+{
+ "pristine_engine_sha": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+ "returncode": 0,
+ "stderr_tail": "Picked up JAVA_TOOL_OPTIONS: \n[bridge] starting forge-protocol2-bridge/2.0.14-ws-a1d-h4f protocol=2.0.0\n[bridge] assets dir: /home/moeen/code/csn-final-bakeoff/muse/forge-upstream-pristine/forge-gui/\nLanguage 'en-US' loaded successfully.\n(ThreadUtil first call): Running with priority 5\nRead cards: 33587 files in 0 ms (25 parts) using thread pool\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nThe card A-Alrund's Epiphany was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Baba Lysaga, Night Witch was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Divide by Zero was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Esika's Chariot was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Faceless Haven was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Fires of Invention was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Goldspan Dragon was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Hullbreaker Horror was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Kumano Faces Kakkazan was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Luminarch Aspirant was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Monster Manual was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Omnath, Locus of Creation was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-The Meathook Massacre was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card A-Unholy Heat was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card Blinding Radiance was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card Goblin Bruiser was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card Ogre Painbringer was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card Titanic Pelagosaur was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nThe card Treetop Recluse was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. \nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nRead cards: 836 files in 0 ms (8 parts) using thread pool\n[bridge] engine initialized in 6688 ms\n[bridge] engine_commit=a37a865a53280dd8ad6fad3384d69611e8c5a42f source=env:FORGE_ENGINE_SHA\n[bridge] exiting\n",
+ "transcript": [
+  {
+   "request": {
+    "message_type": "start_engine",
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "smoke-1"
+   },
+   "response": {
+    "engine_event_offset": 0,
+    "ok": true,
+    "payload": {
+     "already_started": false,
+     "engine": "forge",
+     "protocol_version": "2.0.0",
+     "status": "started"
+    },
+    "protocol_version": "2.0.0",
+    "request_id": "smoke-1",
+    "result": {
+     "already_started": false,
+     "engine": "forge",
+     "protocol_version": "2.0.0",
+     "status": "started"
+    },
+    "status": "ok",
+    "success": true,
+    "timestamp": "2026-09-29T00:45:52.036402887Z",
+    "warnings": []
+   }
+  },
+  {
+   "request": {
+    "message_type": "get_capabilities",
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "smoke-2"
+   },
+   "response": {
+    "engine_event_offset": 0,
+    "ok": true,
+    "payload": {
+     "capabilities": {
+      "action_submission_supported": false,
+      "commander_damage_visible": true,
+      "commander_supported": true,
+      "commander_tax_visible": true,
+      "concede_supported": true,
+      "deck_import_supported": true,
+      "engine_shutdown_supported": true,
+      "event_log_supported": false,
+      "game_shutdown_supported": true,
+      "headless_supported": true,
+      "healthcheck_supported": true,
+      "legal_actions_supported": false,
+      "max_players": 6,
+      "min_players": 2,
+      "mode_selection_supported": true,
+      "mulligan_supported": false,
+      "multiplayer_supported": true,
+      "notes": [
+       "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms and priority concession; multi-target/divided, combat, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+       "partner commanders import but pod-level partner lifecycle is not yet qualified",
+       "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+       "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+       "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+       "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+       "replay is not offered: deterministic replay is not claimed"
+      ],
+      "partner_supported": false,
+      "priority_visible": true,
+      "replay_supported": false,
+      "runtime_kind": "external_rules_engine",
+      "scenario_injection_supported": true,
+      "seed_supported": true,
+      "stack_visible": true,
+      "starting_state_injection_supported": true,
+      "target_selection_supported": true,
+      "trigger_order_supported": true
+     }
+    },
+    "protocol_version": "2.0.0",
+    "request_id": "smoke-2",
+    "result": {
+     "capabilities": {
+      "action_submission_supported": false,
+      "commander_damage_visible": true,
+      "commander_supported": true,
+      "commander_tax_visible": true,
+      "concede_supported": true,
+      "deck_import_supported": true,
+      "engine_shutdown_supported": true,
+      "event_log_supported": false,
+      "game_shutdown_supported": true,
+      "headless_supported": true,
+      "healthcheck_supported": true,
+      "legal_actions_supported": false,
+      "max_players": 6,
+      "min_players": 2,
+      "mode_selection_supported": true,
+      "mulligan_supported": false,
+      "multiplayer_supported": true,
+      "notes": [
+       "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms and priority concession; multi-target/divided, combat, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+       "partner commanders import but pod-level partner lifecycle is not yet qualified",
+       "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+       "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+       "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+       "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+       "replay is not offered: deterministic replay is not claimed"
+      ],
+      "partner_supported": false,
+      "priority_visible": true,
+      "replay_supported": false,
+      "runtime_kind": "external_rules_engine",
+      "scenario_injection_supported": true,
+      "seed_supported": true,
+      "stack_visible": true,
+      "starting_state_injection_supported": true,
+      "target_selection_supported": true,
+      "trigger_order_supported": true
+     }
+    },
+    "status": "ok",
+    "success": true,
+    "timestamp": "2026-09-29T00:45:52.041987095Z",
+    "warnings": []
+   }
+  },
+  {
+   "request": {
+    "message_type": "get_provider_version",
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "smoke-3"
+   },
+   "response": {
+    "engine_event_offset": 0,
+    "ok": true,
+    "payload": {
+     "bridge_name": "forge-protocol2-bridge",
+     "bridge_version": "2.0.14-ws-a1d-h4f",
+     "engine_build_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+     "engine_build_dirty": "true",
+     "engine_build_source": "build:bridge.properties:git",
+     "engine_build_tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+     "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+     "engine_commit_source": "env:FORGE_ENGINE_SHA",
+     "engine_commit_verified": false,
+     "java_version": "21.0.12.1",
+     "protocol_version": "2.0.0",
+     "provider": "forge",
+     "release": "2.0.14"
+    },
+    "protocol_version": "2.0.0",
+    "request_id": "smoke-3",
+    "result": {
+     "bridge_name": "forge-protocol2-bridge",
+     "bridge_version": "2.0.14-ws-a1d-h4f",
+     "engine_build_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+     "engine_build_dirty": "true",
+     "engine_build_source": "build:bridge.properties:git",
+     "engine_build_tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+     "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+     "engine_commit_source": "env:FORGE_ENGINE_SHA",
+     "engine_commit_verified": false,
+     "java_version": "21.0.12.1",
+     "protocol_version": "2.0.0",
+     "provider": "forge",
+     "release": "2.0.14"
+    },
+    "status": "ok",
+    "success": true,
+    "timestamp": "2026-09-29T00:45:52.044308874Z",
+    "warnings": []
+   }
+  }
+ ],
+ "workspace": "/home/moeen/code/csn-final-bakeoff/muse/forge-upstream-pristine"
+}
