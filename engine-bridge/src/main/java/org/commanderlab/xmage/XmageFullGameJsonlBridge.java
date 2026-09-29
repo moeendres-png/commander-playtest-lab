@@ -509,6 +509,8 @@ final class XmageFullGameJsonlBridge {
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("bit_exact_replay_validated", false);
+        lane.add("state_restoration_dimensions",
+                XmageNativeStateRestoration.dimensionsPayload());
 
         JsonObject result = new JsonObject();
         result.add("capabilities", capabilities);
