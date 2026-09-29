@@ -6,7 +6,6 @@ import mage.constants.PhaseStep;
 import mage.counters.CounterType;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -76,7 +75,6 @@ class XmageMultiplayerBattleTest {
         assertTrue(!f.battleOfferedTo.contains(protector), "the protector can't attack the battle");
     }
 
-    @Disabled("F-22: at the pin a battle keeps a protector who left the game and can't be attacked")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void aProtectorWhoLeavesIsReplacedAndTheBattleStaysAttackable(int playerCount) {
@@ -85,6 +83,7 @@ class XmageMultiplayerBattleTest {
         f.castSiegeChoosing(pn);
         f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.PRECOMBAT_MAIN
                 && f.game.getStack().isEmpty(), null);
+        f.protectorChoice = "P2";
         f.concede(pn);
         f.driveUntil(() -> f.game.getStack().isEmpty() && f.step() != PhaseStep.PRECOMBAT_MAIN
                 || !f.active(pn), null);
