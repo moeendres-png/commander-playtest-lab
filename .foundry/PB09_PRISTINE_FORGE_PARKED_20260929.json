@@ -1,0 +1,311 @@
+{
+  "schema_version": "pb09.park-checkpoint/1.0.0",
+  "checkpoint": "PB09_PRISTINE_FORGE_PARKED_20260929",
+  "recorded_utc": "2026-09-29T00:00:00Z",
+  "recorded_by_executor": "opencode-go/space-bunny-free (native max)",
+  "assignment": "PERSIST_AND_PARK_ONLY",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "branch": "glm-max/pb09-pristine-forge-20260929",
+  "head": "dfed3f437c2731f57e1b357b0b4ae8e2b32ab115",
+  "tree": "c94f696d1318c828f041fba139ed419244644bcb",
+  "worktree": "/home/moeen/code/glm-max-pb09-pristine-forge-20260929",
+  "working_tree_clean": true,
+  "remote_head": "dfed3f437c2731f57e1b357b0b4ae8e2b32ab115",
+  "remote_synced": true,
+  "base_main_head": "878125ab3c75ee2af2358dbaa8d11282617c050e",
+  "base_main_tree": "d987b2edaa9aaaa505781fc41667468b1c5114c6",
+  "base_main_merged_into_branch": true,
+  "pr": {
+    "number": 299,
+    "state": "OPEN",
+    "is_draft": true,
+    "mergeable": "MERGEABLE",
+    "head_ref_oid": "dfed3f437c2731f57e1b357b0b4ae8e2b32ab115",
+    "base_ref": "main",
+    "disposition": "DRAFT_DO_NOT_MERGE",
+    "merge_attempted": false,
+    "reason": "PB-09 is a Coordinator provider/architecture decision. This PR supplies technical evidence for that decision and must not be merged as if it decided anything."
+  },
+  "exact_head_ci": {
+    "decision-workflow-contract": "pass",
+    "infrastructure": "pass",
+    "mutation-detection": "pass",
+    "quality": "pass",
+    "security": "pass",
+    "windows-runtime": "pass",
+    "exact-main-admission": "skipping",
+    "unresolved_review_threads": 0
+  },
+  "candidate_identities": {
+    "upstream_attribution_control_baseline": {
+      "role": "UPSTREAM_FORGE_BASELINE",
+      "repository": "https://github.com/Card-Forge/forge.git",
+      "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+      "tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+      "release": "forge-2.0.14",
+      "source": "config/rules_engines.json secondary_engine.commit (the pin of record, NOT repinned by this workstream)"
+    },
+    "commander_lab_production_fork_candidate": {
+      "role": "COMMANDER_LAB_FORGE_FORK",
+      "rules_core_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+      "rules_core_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
+      "executed_by_this_workstream": false
+    },
+    "pinned_bridge_source": {
+      "role": "PINNED_BRIDGE_SOURCE",
+      "repository": "https://github.com/moeendres-png/forge.git",
+      "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+      "tree": "4cd539f1c56876590b8679dc1534d4632560c66d",
+      "proven": "all six Rules-Core modules byte-identical to UPSTREAM_FORGE_BASELINE"
+    },
+    "current_bridge_head_of_record": {
+      "role": "BRIDGE_EVIDENCE_HEAD",
+      "commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+      "pull_request": 5,
+      "is_draft": true,
+      "modified_by_this_workstream": false
+    },
+    "collapse_forbidden": "These are four distinct identities. Ancestry is not identity, a descendant is a different tree, and a bridge commit is not an engine commit. No result observed on one is evidence for another."
+  },
+  "pb09_status": {
+    "technical_qualification": "COMPLETE_TO_REACHABLE_BOUNDARY",
+    "evidence_gap_closed": "What does the actual pristine pin do at runtime? is now closed with source-locked, reproducible evidence.",
+    "coordinator_adjudication": "OPEN",
+    "coordinator_question": "Which Forge identity should be treated as the production candidate for the Architecture-Freeze comparison: the pinned pristine upstream a37a865a, or the Commander-Lab fork ef958ee9?",
+    "note": "PB-09 is not resolved by this workstream. It supplies evidence for a decision the Coordinator owns."
+  },
+  "full107_pristine_lane": {
+    "evidence_class": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+    "denominator": 107,
+    "denominator_decreased_to_bypass_blocker": false,
+    "PASS": 1,
+    "FAIL": 4,
+    "UNKNOWN": 58,
+    "BLOCKED": 44,
+    "CRASH": 0,
+    "TIMEOUT": 0,
+    "PROTOCOL_FAILURE": 0,
+    "TOTAL": 107,
+    "pass_rows": [
+      {
+        "fixture_id": "PLAYER_COUNT_4P",
+        "basis": "a real four-player Commander lifecycle completed under Protocol 2.0.0, reaching an external PRIORITY decision and binding engine-offered options"
+      }
+    ],
+    "fail_rows": [
+      {
+        "fixture_id": "PLAYER_COUNT_2P",
+        "basis": "provider refusal: player_count_unsupported, 'this bridge qualifies exactly four players; got 2'"
+      },
+      {
+        "fixture_id": "PLAYER_COUNT_3P",
+        "basis": "provider refusal: player_count_unsupported, got 3"
+      },
+      {
+        "fixture_id": "PLAYER_COUNT_5P",
+        "basis": "provider refusal: player_count_unsupported, got 5"
+      },
+      {
+        "fixture_id": "WS05-CMD-START-2",
+        "basis": "START-2 is a two-player obligation; the same provider player-count refusal blocked game creation, so the CR 103.8a draw-skip postcondition was never exercised. This is an unmeasured obligation, NOT a Rules finding about pristine Forge.",
+        "row_mapping_note": "6P is a bounded secondary count outside the required denominator and is recorded in PLAYER_CARDINALITY_PIN.json, not as a denominator row."
+      }
+    ],
+    "evidence_paths": [
+      "qualification/pb09-pristine-upstream-20260929/FULL107_PRISTINE_PIN_RESULTS.json",
+      "qualification/pb09-pristine-upstream-20260929/PLAYER_CARDINALITY_PIN.json"
+    ]
+  },
+  "runtime_observations": {
+    "runtime_reachable": "YES",
+    "multiplayer": "2P/3P/4P/5P/6P all ATTEMPTED. 4P executed a full lifecycle. 2P/3P/5P/6P refused by the pristine bridge surface (player_count_unsupported).",
+    "hidden_information": "Content is principal-separated and non-overlapping, and an unknown observer id reveals nothing, so the projection is genuinely driven by the requested principal. However there is NO is_actor marker and NO observer envelope, so the current standard's authoritative requester-binding attestation is absent. Qualification remains UNKNOWN, not PASS, and is not a demonstrated leak.",
+    "decision_execution": "Every externally bound decision names an option the provider had published in that same frame. No first-option, random, default or silent-skip selection occurred.",
+    "rules_rng": "UNCONTROLLED. The provider declares seed_supported=false, the harness sent no seed, the engine acknowledged none. rng_credit=false. No RNG credit is claimed.",
+    "replay": "export_replay refused (unknown_message) and export_event_log refused (event_log_unsupported). No clean-process twin was executed. Replay is unproven, not established.",
+    "actual_card": "0 behavioural executions. The 29-card corpus denominator is not covered. Import, parsing, construction and lookup are not behaviour evidence.",
+    "native_tests": "59 tests, 59 passed, 0 failures, 0 errors, 0 skipped, bound to the pristine pin with RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL."
+  },
+  "af_matrix_pristine_lane": {
+    "AF00_SOURCE_AND_BUILD_LOCK": "PASS",
+    "AF01_PROTOCOL_HANDSHAKE": "UNKNOWN",
+    "AF01_cause": "the single non-PASS invariant is rules_randomness_core_owned, because the provider truthfully reports seed_supported=false",
+    "AF02_PLAYER_CARDINALITY": "UNKNOWN",
+    "AF03_RULES_AUTHORITY": "FAIL",
+    "AF04_LEGAL_ACTION_AND_DECISION_BOUNDARY": "UNKNOWN",
+    "AF05_HIDDEN_INFORMATION": "UNKNOWN",
+    "AF06_GENERAL_RULES_CORRECTNESS": "UNKNOWN",
+    "AF07_ACTUAL_CARD_BEHAVIOR": "UNKNOWN",
+    "AF08_MULTIPLAYER_COMMANDER": "UNKNOWN",
+    "AF09_RNG_REPLAY": "UNKNOWN",
+    "AF10_RUNTIME_EVIDENCE_RELIABILITY": "PASS",
+    "AF11_INTEROP_LICENSE_TOPOLOGY": "FAIL"
+  },
+  "af03_pristine": {
+    "verdict": "FAIL",
+    "observed_fact": "The pristine candidate ACCEPTS an illegal Commander deck at import.",
+    "legal_control_import": "SUCCEEDED (an unmodified legal 100-card mono-white Commander deck imported first, so refusals are attributable to the engine's own legality and not to a broken import path)",
+    "accepted_illegal_cases": [
+      {
+        "probe": "commander_not_in_pool",
+        "mutation": "commander replaced with Hill Giant, a real card that is not a legal Commander"
+      },
+      {
+        "probe": "colour_identity_violation",
+        "mutation": "99x Shivan Reef under a mono-white commander, isolating colour identity (a non-basic, non-legendary card, so no copy-limit rule can explain the outcome)"
+      }
+    ],
+    "refused_illegal_cases": [
+      {"probe": "unknown_card_name", "mutation": "a mainboard entry naming a card the engine does not know"},
+      {"probe": "mainboard_short_of_one_hundred", "mutation": "a Commander mainboard of fewer than 100 cards"},
+      {"probe": "empty_mainboard", "mutation": "a Commander deck with an empty mainboard"}
+    ],
+    "measured_statement": "Deck-size and card-name validity are enforced at this import boundary; Commander format legality is not. This is recorded as observed candidate behaviour, not as a Rules ruling.",
+    "generalisation_forbidden": "Do not extend this finding beyond the probed import boundary. It is not a claim about how the pristine engine behaves in a played game.",
+    "differential": "The Commander-Lab fork lane reaches PASS on the corresponding legality gate because later Lab-fork work (Forge PR #5) ADDED the repair by delegating to the Rules Core's own deck conformance check. That capability is Lab-authored, not upstream Forge."
+  },
+  "bridge_compile_boundary": {
+    "question": "can the current Lab provider architecture be built on the pristine upstream Rules Core?",
+    "answer": "NO",
+    "command": "mvn -o -pl forge-protocol2-bridge -Dcheckstyle.skip=true -DskipTests test-compile",
+    "result": "BUILD FAILURE (COMPILATION ERROR), rc=1",
+    "missing_rules_core_apis": [
+      {"symbol": "forge.game.player.PlayerController#assignCombatDamage(Card, CardCollectionView, CardCollectionView, int, GameEntity, boolean)", "origin": "WS40 combat-damage legality migrated into the Rules Core"},
+      {"symbol": "forge.game.combat.CombatDamageSelection", "origin": "WS40"},
+      {"symbol": "forge.game.combat.CombatDamageDecisionView", "origin": "WS40"},
+      {"symbol": "forge.game.player.AmountDistributionDecisionView", "origin": "WS40"},
+      {"symbol": "forge.game.player.AmountDistributionSelection", "origin": "WS40"},
+      {"symbol": "forge.game.player.DividedAllocationDecision", "origin": "WS217 CR 601.2d chooser-divided allocation seam"},
+      {"symbol": "forge.game.player.DividedAllocationSelection", "origin": "WS217"},
+      {"symbol": "forge.game.player.DividedAllocationDecisionView", "origin": "WS217"},
+      {"symbol": "MyRandom#bindSeed(long) / getRootSeed() / isExplicitSeed() / clearBinding() / getCallCount()", "origin": "Lab-fork Rules-RNG seed surface"}
+    ],
+    "evidence_class": "DIRECTLY_VERIFIED compile diagnostics, not chronology",
+    "forbidden_repairs_not_applied": [
+      "the missing APIs were NOT ported into the pristine candidate",
+      "no Lab Rules semantic patch was copied into forge-game",
+      "no stub or shim was introduced to make the missing APIs resolve",
+      "the bridge parent coordinate was pinned to the literal 2.0.14 (build configuration only) so the build could reach the compiler and report the real boundary"
+    ]
+  },
+  "differential_classification": {
+    "engine_rules_core_differences": [
+      "The current Lab bridge cannot compile on the pristine Rules Core; the WS40, WS217 and MyRandom surfaces it requires exist only in the fork.",
+      "The fork lane's Commander deck-legality enforcement was added by Lab work (PR #5) and has no pristine-upstream equivalent."
+    ],
+    "bridge_provider_surface_differences": {
+      "classification": "BRIDGE_DIFFERENCE",
+      "rule": "These are provider/bridge-surface differences observed between the pinned bridge source and the fork-lane provider surface. They must NOT automatically be read as pristine Rules-Core incapabilities, because the pristine Rules Core was never exercised through a surface that exposes them.",
+      "items": [
+        "seed_supported",
+        "target_selection_supported",
+        "mode_selection_supported",
+        "trigger_order_supported",
+        "starting_state_injection_supported",
+        "scenario_injection_supported",
+        "min_players",
+        "concede_supported"
+      ],
+      "counts_by_classification": {
+        "BRIDGE_DIFFERENCE": 8,
+        "LAB_FORK_REGRESSION_OR_REPAIR_ABSENT_ON_PRISTINE": 1,
+        "PRISTINE_SURFACE_REJECTS_WHAT_FORK_LANE_EXECUTED": 4,
+        "SAME_ON_BOTH_SURFACES": 18,
+        "SAME_VERDICT": 9,
+        "DIFFERENT_VALUES": 2,
+        "EVIDENCE_PRESENCE_DIFFERENCE": 2
+      }
+    },
+    "comparison_method": "Per-dimension comparison of observed state, classified by owner. Aggregate PASS counts were deliberately not compared, because the two columns executed different engines and a count difference would measure the difference between the artifacts rather than the capability of either."
+  },
+  "wrong_reason_falsification": {
+    "surviving_positive_claims": [
+      "4P pass rests on a completed lifecycle with bound engine-offered decisions",
+      "deck refusals follow a successful legal control import",
+      "START-2 rests on observed state and is recorded as unmeasured where the provider refused",
+      "every bound choice was engine-offered",
+      "no RNG credit without an engine acknowledgement",
+      "hidden-information content is per-principal, non-overlapping and observer-driven"
+    ],
+    "established_candidate_properties": [
+      "Commander deck legality is not enforced at import on the pristine lane",
+      "the pinned provider surface exposes only a four-player game",
+      "START-2 is unmeasured because the provider refuses a two-player game"
+    ],
+    "not_yet_falsified": "requester-binding attestation is absent, so hidden information stays UNKNOWN rather than PASS"
+  },
+  "glm_experiment_status": {
+    "is_experiment_not_routing_decision": true,
+    "routing_policy_changed": false,
+    "glm_registered_as_foundry_executor": false,
+    "GLM_DIRECT_EXECUTION": "YES",
+    "GLM_FOUNDRY_RUNTIME_ACTIVE": "NO",
+    "glm": {
+      "executor_identity": "opencode-go/glm-5.3",
+      "effort": "max",
+      "direct_manual_session": true,
+      "foundry_launcher_context_present": false,
+      "phases_performed": [
+        "source-truth reconciliation",
+        "ownership gate",
+        "pristine candidate materialization and identity proof",
+        "pristine upstream build",
+        "pinned bridge materialization and build",
+        "runtime reachability probe (live 4P lifecycle)"
+      ],
+      "handoff_point": "after the runtime-reachability receipt; the GLM model contingent was exhausted before the qualification runner was authored"
+    },
+    "space_bunny": {
+      "executor_identity": "opencode-go/space-bunny-free",
+      "effort": "max",
+      "phases_completed": [
+        "PB-09 qualification runner",
+        "FULL107 pristine-lane execution (107 rows)",
+        "native suite execution and receipt",
+        "wrong-reason falsification campaign",
+        "AF00-AF11 assembly and fork differential",
+        "lane-B compile probe and receipt",
+        "lane tests, lint, manifest reseal, main merge, PR #299"
+      ]
+    },
+    "observed_strengths": [
+      "GLM MAX performed the identity, provenance and build-verification phases correctly, including dual-remote commit verification and byte-identity proof of the six Rules-Core modules",
+      "the continuation resumed exactly from committed state with no re-derivation of validated work"
+    ],
+    "observed_limitations": [
+      "the GLM model contingent was exhausted mid-workstream, which is a cost/availability constraint rather than a capability finding",
+      "one consequence was that the qualification runner and the lane-B compile probe were authored and executed by the successor executor"
+    ]
+  },
+  "divergent_parallel_workstream": {
+    "recorded_not_resolved": true,
+    "observation": "A second, independent PB-09 workstream exists on branch muse-xhigh/pb09-pristine-forge-20260929 (PR #297, Draft, head 95f29200906). It is a divergent history that does NOT contain this branch's head, and it modifies the same shared src/commander_lab/qualification/current_boundary files (bridge_launcher.py, game_driver.py, receipts.py).",
+    "reported_by_that_workstream": "PASS 5/107 on the pristine lane, with a build-derived identity claim",
+    "difference_from_this_workstream": "This workstream measured PASS 1/107 with 4 FAIL rows. The two runs used different harnesses and different bridge surfaces.",
+    "action_taken": "None. This workstream did not merge, overwrite, rebase against, or supersede that branch, and did not modify its PR. The divergence is recorded for Coordinator adjudication.",
+    "why_it_matters": "Two PB-09 evidence sets now exist for the same pinned candidate. They must be reconciled before either is treated as THE pristine baseline, because they disagree on the FULL107 count."
+  },
+  "not_claimed": [
+    "no provider is selected",
+    "PRODUCTION_PROVIDER = NOT SELECTED",
+    "ARCHITECTURE_FREEZE = NOT CLAIMED",
+    "no claim that pristine upstream Forge is a better or worse Rules engine; the measurement is of the provider surface available",
+    "no claim that any missing upstream API is unnecessary",
+    "PB-09 remains OPEN"
+  ],
+  "remaining_authority_gate": "Coordinator chooses the Forge candidate identity for the final provider comparison.",
+  "exact_next_action": "Coordinator adjudicates the Forge candidate identity (pinned upstream a37a865a vs Commander-Lab fork ef958ee9) using the pristine runtime packet in qualification/pb09-pristine-upstream-20260929/ together with the already-qualified fork evidence, reconciles the parallel PR #297 evidence, and continues the remaining provider-comparison and pre-Freeze campaign.",
+  "do_not_do": [
+    "merge PR #299",
+    "repin config/rules_engines.json",
+    "change AF11",
+    "implement missing upstream APIs",
+    "port fork APIs to the pristine candidate",
+    "repair pristine Commander legality",
+    "start a new FULL107 campaign",
+    "select Forge vs XMage",
+    "select upstream Forge vs the Lab fork",
+    "claim Architecture Freeze",
+    "activate GLM in Foundry routing"
+  ]
+}
