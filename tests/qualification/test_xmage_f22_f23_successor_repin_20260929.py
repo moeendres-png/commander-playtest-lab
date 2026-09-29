@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CURRENT = "4277b90b4ee49acd945e82335a9a04c4536f5340"
-CURRENT_TREE = "d23b2bfc14a25a2aec2dec7eadd3994913cb4e31"
+CURRENT = "9cb5fb9e9558f980da81c85ca3fdc595161c8d34"
+CURRENT_TREE = "54aabe958a1d748c8fb509d66ee25b0900bc8e90"
 PRIOR = "f79e4168902e65063034b21be6f4585397fd43b3"
 LOCK = ROOT / "qualification/xmage-f22-f23-successor-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
 
@@ -16,7 +16,7 @@ def test_successor_source_lock_binds_exact_mage_candidate() -> None:
     assert data["new_live_pin"]["commit"] == CURRENT
     assert data["new_live_pin"]["tree"] == CURRENT_TREE
     assert data["new_live_pin"]["parent_commit"] == PRIOR
-    assert data["new_live_pin"]["pull_request"] == "moeendres-png/mage#25"
+    assert data["new_live_pin"]["pull_request"] == "moeendres-png/mage#26"
     assert data["new_live_pin"]["semantic_fingerprint"] == "mage.game.Game#getOpponentsInGame(UUID)"
 
 
