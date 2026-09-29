@@ -1310,21 +1310,36 @@ def test_main_small_and_default_model_configuration_is_internally_consistent():
     assert set(launcher_mod.PROFILE_MODELS) == set(launcher_mod.EXECUTION_PROFILES)
 
 
-def test_nested_muse_launch_clears_ambient_native_variant(target, canon, monkeypatch):
-    monkeypatch.setenv("FOUNDRY_NATIVE_VARIANT", "max")
-    plan = _plan(target, canon, execution_profile="muse", effort="xhigh")
-    assert plan["verdict"] == "LAUNCH_READY", plan
-    assert plan["execution"]["native_variant"] is None
-    assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
+def test_nested_launch_overwrites_ambient_native_variant(target, canon, monkeypatch):
+    """A nested launch must never inherit an outer session's native variant.
+
+    Migrated from the pre-migration Muse form of this test. Every reachable
+    profile now pins native `max`, so the enforceable property is that the
+    selected profile's OWN value overwrites any ambient identity rather than an
+    unauthorized or retired level leaking through from an outer session.
+    """
+    monkeypatch.setenv("FOUNDRY_NATIVE_VARIANT", "xhigh")
+    for profile in launcher_mod.EXECUTION_PROFILES:
+        plan = _plan(target, canon, execution_profile=profile)
+        assert plan["verdict"] == "LAUNCH_READY", plan
+        assert plan["execution"]["native_variant"] == "max", profile
+        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max", profile
 
 
-def test_unsuppressed_nested_launch_clears_ambient_routing_suppression(target, canon, monkeypatch):
+def test_nested_launch_clears_ambient_routing_suppression(target, canon, monkeypatch):
+    """Inherited routing suppression must not silently carry into a fresh launch."""
     monkeypatch.setenv("OPENCODE_DISABLE_PROJECT_CONFIG", "1")
     monkeypatch.setenv("FOUNDRY_ROUTING_SUPPRESSED", "1")
-    plan = _plan(target, canon, execution_profile="space-bunny")
-    assert plan["verdict"] == "LAUNCH_READY", plan
-    assert "OPENCODE_DISABLE_PROJECT_CONFIG" not in plan["_env"]
-    assert "FOUNDRY_ROUTING_SUPPRESSED" not in plan["_env"]
+    for profile in launcher_mod.EXECUTION_PROFILES:
+        plan = _plan(
+            target,
+            canon,
+            execution_profile=profile,
+            run_dir=str(target["wt"].parent / f"rundir-supp-{profile}"),
+        )
+        assert plan["verdict"] == "LAUNCH_READY", plan
+        assert "OPENCODE_DISABLE_PROJECT_CONFIG" not in plan["_env"], profile
+        assert "FOUNDRY_ROUTING_SUPPRESSED" not in plan["_env"], profile
 
 
 def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
