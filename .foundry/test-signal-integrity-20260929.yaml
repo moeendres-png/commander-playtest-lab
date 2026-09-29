@@ -38,10 +38,10 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 239772531b5b44a0d490e10aec537a14904dabb3
-# Newest commit whose tests/evidence were actually validated. Filled in by the
-# checkpoint commit that follows validation, per the documented 2.0 flow.
-validated_head: null
+state_written_against_head: a3ffa44affa4567136d1e5c583c0a1e8f1a47cbb
+# Newest commit whose tests/evidence were actually validated. The checkpoint commit
+# below carries only this state change, so the validated content is a3ffa44a.
+validated_head: a3ffa44affa4567136d1e5c583c0a1e8f1a47cbb
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -234,6 +234,16 @@ validation:
     ruff_check: clean
     ruff_format: 1096 files formatted
     regression_guard_proof: fails on pre-fix index, passes on fixed index
+  on_a3ffa44a_state_conformance:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2349 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
+    state_py_validate: STATE_OK (schema=2.0 status=COMPLETE)
+    ruff_check: clean
+    ruff_format: 1125 files formatted
+    fail_before_proof: >-
+      the new guard was placed in the working tree before the state fix and failed with
+      "missing required field: schema_version" naming this workstream's own file; it passes
+      after the fix. The guard therefore detects the defect it was written for.
   on_canonical_main_12d3e1ac_after_merge:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2251 passed, 7 skipped
     tests_foundry: 632 passed, 0 skipped
