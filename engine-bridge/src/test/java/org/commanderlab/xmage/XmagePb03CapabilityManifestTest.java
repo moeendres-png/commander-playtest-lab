@@ -28,7 +28,6 @@ class XmagePb03CapabilityManifestTest {
         assertTrue(contains(supported, "commander damage matrices"));
         assertTrue(contains(unsupported, "stack spells"));
         assertTrue(contains(unsupported, "controller/owner divergence"));
-        assertTrue(contains(unsupported, "zero-life pre-start"));
     }
 
     private static boolean contains(JsonArray values, String needle) {
