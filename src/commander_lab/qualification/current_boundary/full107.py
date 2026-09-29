@@ -342,6 +342,10 @@ def start2_row(
     # guard inputs are not in the artifact cannot be audited, and the document
     # schema persists terminal_facts, not the row-local evidence dict.
     zone_counts = game.terminal_facts.get("observed_actor_zone_counts")
+    baseline_counts = game.terminal_facts.get("start2_baseline_zone_counts")
+    post_counts = game.terminal_facts.get("start2_post_zone_counts")
+    baseline_checkpoint = game.terminal_facts.get("start2_baseline_checkpoint")
+    post_checkpoint = game.terminal_facts.get("start2_post_checkpoint")
     observed_draw_events = [event for event in game.semantic_events if "draw" in str(event).lower()]
     observed_starting_actor = next(
         (
@@ -416,6 +420,90 @@ def start2_row(
             f"entirely: {observed_draw_events}",
             evidence,
         )
+    if not baseline_counts:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "no principal-scoped post-mulligan/upkeep baseline was observed before "
+            "the first-turn draw step, so unchanged hand/library state is unproven",
+            evidence,
+        )
+    if not post_counts:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "no principal-scoped precombat-main checkpoint was observed after the "
+            "first-turn draw step boundary, so the START-2 postcondition is unproven",
+            evidence,
+        )
+    if not isinstance(baseline_checkpoint, dict) or (
+        baseline_checkpoint.get("turn_number"),
+        baseline_checkpoint.get("phase"),
+        baseline_checkpoint.get("step"),
+    ) != (1, "beginning", "upkeep"):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            f"the baseline checkpoint is not turn-1 upkeep: {baseline_checkpoint!r}",
+            evidence,
+        )
+    if not isinstance(post_checkpoint, dict) or (
+        post_checkpoint.get("turn_number") != 1
+        or post_checkpoint.get("phase") != "precombat_main"
+    ):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            f"the postcondition checkpoint is not turn-1 precombat main: {post_checkpoint!r}",
+            evidence,
+        )
+
+    baseline = baseline_counts[0] if isinstance(baseline_counts, list) and baseline_counts else None
+    post = post_counts[0] if isinstance(post_counts, list) and post_counts else None
+    if not isinstance(baseline, dict) or not isinstance(post, dict):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "START-2 zone-count records are malformed, so no state-transition credit is possible",
+            evidence,
+        )
+    compared_fields = ("hand_count", "library_count")
+    if any(
+        isinstance(baseline.get(field), bool)
+        or not isinstance(baseline.get(field), int)
+        or isinstance(post.get(field), bool)
+        or not isinstance(post.get(field), int)
+        for field in compared_fields
+    ):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "START-2 hand/library counts are incomplete or non-integer",
+            evidence,
+        )
+    if any(baseline[field] != post[field] for field in compared_fields):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_START2_V1_0_6",
+            "the starting principal's hand/library counts changed between turn-1 "
+            f"upkeep and precombat main: baseline={baseline!r}, post={post!r}",
+            evidence,
+        )
+
     if not zone_counts:
         return RowResult(
             fixture_id,
@@ -452,10 +540,10 @@ def start2_row(
         candidate,
         "PASS",
         "PROTOCOL2_START2_V1_0_6",
-        "CR 103.8a satisfied on the current boundary: the starting player's entire "
-        "first-turn draw step was skipped, no draw-step checkpoint, draw event or "
-        "in-step priority was ever exposed by the engine, and the first observable "
-        "external checkpoint was the normal precombat decision handoff",
+        "CR 103.8a satisfied on the current boundary: engine-observed turn-1 "
+        "upkeep and precombat-main principal views have identical hand/library "
+        "counts, and no draw-step checkpoint, draw event or in-step priority was "
+        "exposed between them",
         evidence,
     )
 
