@@ -373,7 +373,7 @@ class XmageCausalStackReconstructionTest {
                 matches.get(0));
     }
 
-    private static JsonObject exactActionType(JsonObject legal, String type) {
+    static JsonObject exactActionType(JsonObject legal, String type) {
         List<JsonObject> matches = new ArrayList<>();
         for (JsonElement element : legal.getAsJsonArray("actions")) {
             JsonObject action = element.getAsJsonObject();
@@ -387,7 +387,7 @@ class XmageCausalStackReconstructionTest {
         return matches.get(0);
     }
 
-    private static JsonObject exactOptionType(
+    static JsonObject exactOptionType(
             JsonObject legal,
             String actionType,
             String optionType
