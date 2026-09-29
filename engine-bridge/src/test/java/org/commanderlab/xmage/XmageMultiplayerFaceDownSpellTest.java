@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * F-33: a face-down spell on the stack keeps its identity from every
- * principal but its controller, with actual cards at 4P and 5P.
+ * principal but its controller, with actual cards at 2P through 5P.
  *
  * <p>P1 casts Exalted Angel face down using morph. While it is on the stack
  * (CR 708.4: a face-down spell has no characteristics an opponent may see;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class XmageMultiplayerFaceDownSpellTest {
 
     @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {4, 5})
+    @ValueSource(ints = {2, 3, 4, 5})
     void aFaceDownSpellIsNamedOnlyToItsController(int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Exalted Angel", 0, Zone.HAND));
@@ -103,7 +103,7 @@ class XmageMultiplayerFaceDownSpellTest {
      * is; no other principal and not the public view.
      */
     @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {4, 5})
+    @ValueSource(ints = {2, 3, 4, 5})
     void aFaceDownPermanentIsIdentifiedOnlyToItsController(int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Exalted Angel", 0, Zone.HAND));
