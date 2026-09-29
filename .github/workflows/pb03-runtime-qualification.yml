@@ -1,0 +1,144 @@
+name: PB-03 Current Boundary Runtime Qualification
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/pb03-runtime-qualification.yml"
+      - "engine-bridge/**"
+      - "scripts/run_current_boundary_qualification.py"
+      - "scripts/assemble_current_boundary_evidence.py"
+      - "src/commander_lab/qualification/current_boundary/**"
+      - "tests/qualification/test_current_boundary_dimension_admission.py"
+      - "tests/qualification/test_current_boundary_receipts.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pb03-runtime-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+env:
+  XMAGE_COMMIT: b19596980f2734496ea1896504253e1bdd2756dd
+  PYTHONHASHSEED: "0"
+
+jobs:
+  pb03-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+
+      - name: Build pinned XMage
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          if test -x ./mvnw; then
+            ./mvnw -B -ntp -DskipTests install
+          else
+            mvn -B -ntp -DskipTests install
+          fi
+
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Build current XMage bridge and exact classpath
+        working-directory: engine-bridge
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -DskipTests -Dcheckstyle.skip=true test-compile
+          mvn -B -ntp -DskipTests -Dcheckstyle.skip=true dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
+          test -s target/cp-wsr22.txt
+
+      - name: Validate PB-03 Python contracts
+        run: |
+          pytest -q tests/qualification/test_current_boundary_dimension_admission.py tests/qualification/test_current_boundary_receipts.py
+
+      - name: Execute authoritative XMage current-boundary runner
+        run: python scripts/run_current_boundary_qualification.py --candidate xmage
+
+      - name: Assemble source-bound current-boundary evidence
+        run: python scripts/assemble_current_boundary_evidence.py
+
+      - name: Assert PB-03 evidence boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("qualification/final-current-boundary-20260927")
+          admission = json.loads((root / "PB03_DIMENSION_ADMISSION.json").read_text())
+          runtime = json.loads((root / "PB03_RUNTIME_EXECUTION_MATRIX.json").read_text())
+          assert admission["counts"]["admitted"] + admission["counts"]["blocked"] == admission["rows_total"]
+          assert admission["classification"] == "TECHNICALLY_CONFORMANT"
+          assert runtime["blocked_rows_not_fail_closed"] == []
+          assert runtime["PB03_DIMENSION_ADMISSION"] == "TECHNICALLY_CONFORMANT"
+          assert runtime["architecture_freeze"] == "NOT_CLAIMED"
+          assert runtime["production_provider"] == "NOT_SELECTED"
+          admitted = {row["fixture_id"] for row in runtime["rows"] if row["admission_verdict"] == "ADMITTED_TO_NATIVE_RESTORATION"}
+          for row in runtime["rows"]:
+              if row["runtime_exit_state"] == "PASS":
+                  assert row["fixture_id"] in admitted
+                  assert row["native_harness_classes"], row["fixture_id"]
+          print(json.dumps({
+              "admission_counts": admission["counts"],
+              "runtime_classification": runtime["PB03_RUNTIME_EXECUTION"],
+              "runtime_counts": runtime["admitted_runtime_counts"],
+          }, sort_keys=True))
+          PY
+
+      - name: Hash PB-03 runtime evidence
+        run: |
+          set -euo pipefail
+          root=qualification/final-current-boundary-20260927
+          sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
+
+      - name: Upload PB-03 runtime evidence
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: pb03-runtime-${{ github.sha }}
+          path: |
+            qualification/final-current-boundary-20260927/PB03_ADMISSION_MATRIX.json
+            qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json
+            qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json
+            qualification/final-current-boundary-20260927/PB03_RUNTIME_SHA256SUMS
+            qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json
+            qualification/final-current-boundary-20260927/NATIVE_SUITE_RECEIPTS.json
+            qualification/final-current-boundary-20260927/receipts/native-xmage-*.json
+          if-no-files-found: warn
+          retention-days: 90
