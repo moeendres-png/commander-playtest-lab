@@ -593,6 +593,15 @@ def run_native_suite(
     argv = [
         "mvn",
         "-o",
+        # Scope to the bridge module. The candidate's full reactor includes
+        # forge-gui-mobile, whose libGDX dependencies were never fetched into this
+        # environment, so an unscoped `mvn test` fails on a missing third-party
+        # artifact before any provider test can run. That is an environment
+        # defect in the test invocation, not a candidate or suite failure, and
+        # scoping the invocation is the smallest repair that leaves the engine
+        # and the assertions untouched.
+        "-pl",
+        "forge-protocol2-bridge",
         "-Dcheckstyle.skip=true",
         "-DfailIfNoTests=false",
         "-Dsurefire.failIfNoSpecifiedTests=false",
