@@ -11,7 +11,7 @@ Real Commander decks win or lose through combat, and many staples use optional c
 - **Missing options:** a legal decision is never offered.
 - **Blocked play:** a legal decision halts or ends the game.
 
-Every **Forge** defect below was demonstrated with actual cards: the test fails on the previous head and passes after the fix. The **XMage** defect is evidenced differently (see its section): `CODE_DERIVED` from the pinned engine source plus a unit test of the extracted helper, with no actual-card runtime test yet.
+Every defect below was demonstrated with actual cards: the test fails on the previous code and passes after the fix. For XMage, that actual-card runtime test (`XmagePalaceGuardBlockTest`) was added after review of this handoff; the initial fix was backed only by engine source and a helper unit test.
 
 ## Forge — moeendres-png/forge#7 (stacked on #5, **not merged by design**)
 
@@ -41,7 +41,13 @@ Evidence:
 
 ## XMage — PR #298 (merged as `2e28866f`)
 
-XMage encodes "can block any number of creatures" as `maxBlocks == 0`; the pinned engine says so in `CanBlockAdditionalCreatureEffect`. The evidence is `CODE_DERIVED` from that source plus `XmageBlockCapacityTest`, a unit test of the extracted `blockCapacity()` helper. **No actual-card runtime test** (Palace Guard in a live full-game combat) exists yet; it is owed before this counts as card-behaviour evidence. `XmageFullGamePlayer.selectBlockers` computed `min(maxBlocks, offered) = 0` and skipped the blocker, so those creatures could never block and the decision was silently dropped. `blockCapacity()` now maps 0 to every offered attacker.
+XMage encodes "can block any number of creatures" as `maxBlocks == 0`; the pinned engine says so in `CanBlockAdditionalCreatureEffect`. Evidence:
+
+- `XmagePalaceGuardBlockTest` runs a live 2P full-game combat with actual cards: two Raging Goblins attack into Palace Guard.
+  - With `blockCapacity()`, P2 gets one block decision with `maximum_selections == 2` and blocks both attackers; the engine's own `Combat` records the Guard blocking both.
+  - With the previous `min(maxBlocks, offered)` restored, P2 is never asked and takes 2 damage.
+- `XmageBlockCapacityTest` (unit) covers the capacity rule itself.
+- Classification: `DIRECTLY_VERIFIED`. `XmageFullGamePlayer.selectBlockers` computed `min(maxBlocks, offered) = 0` and skipped the blocker, so those creatures could never block and the decision was silently dropped. `blockCapacity()` now maps 0 to every offered attacker.
 
 The rest of XMage's combat surface is already sound:
 
