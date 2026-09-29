@@ -318,7 +318,7 @@ class XmageActualCardCorpusTest {
                             fail("[" + tag + "] mana payment needs a handler");
                         }
                     } else {
-                        payFromRestoredMana(
+                        payOneFromRestoredMana(
                                 started,
                                 tag + "-pay-" + step,
                                 List.of(manaSourceName(manaLabel)),
@@ -457,7 +457,7 @@ class XmageActualCardCorpusTest {
      * callbacks and must return to resolveAll rather than being swallowed by a
      * payment helper.
      */
-    private static boolean payFromRestoredMana(
+    private static boolean payOneFromRestoredMana(
             Started started,
             String tag,
             List<String> sourcePreference,
@@ -564,8 +564,31 @@ class XmageActualCardCorpusTest {
         return false;
     }
 
+    private static boolean payAllFromRestoredMana(
+            Started started,
+            String tag,
+            List<String> sourcePreference,
+            java.util.Set<String> allowedLabels) {
+        for (int step = 0; step < 30; step++) {
+            JsonObject pending =
+                    started.session().pendingDecisionPayload().getAsJsonObject("decision");
+            if (pending.isJsonNull()
+                    || !"mana_payment".equals(
+                            pending.get("decision_class").getAsString())) {
+                return true;
+            }
+            payOneFromRestoredMana(
+                    started,
+                    tag + "-" + step,
+                    sourcePreference,
+                    allowedLabels);
+        }
+        fail("[" + tag + "] mana-payment bound breached");
+        return false;
+    }
+
     private static boolean payGolgari(Started started, String tag) {
-        return payFromRestoredMana(
+        return payOneFromRestoredMana(
                 started,
                 tag,
                 List.of("Forest", "Swamp"),
@@ -780,7 +803,7 @@ class XmageActualCardCorpusTest {
                 started.session(), "card10", started.seats(), "P2");
         cast(started, "card10-bolt", "Lightning Bolt");
         submit(started, "card10-bolt-target", playerTarget(started, "P1"));
-        payFromRestoredMana(
+        payAllFromRestoredMana(
                 started,
                 "card10-bolt-pay",
                 List.of("Mountain"),
@@ -817,7 +840,7 @@ class XmageActualCardCorpusTest {
 
         cast(started, "card13-bolt", "Lightning Bolt");
         submit(started, "card13-bolt-target", playerTarget(started, "P2"));
-        payFromRestoredMana(
+        payAllFromRestoredMana(
                 started,
                 "card13-bolt-pay",
                 List.of("Mountain"),
@@ -888,7 +911,7 @@ class XmageActualCardCorpusTest {
                 started.session(), "card22", started.seats(), "P2");
         cast(started, "card22-bolt", "Lightning Bolt");
         submit(started, "card22-bolt-target", playerTarget(started, "P1"));
-        payFromRestoredMana(
+        payAllFromRestoredMana(
                 started,
                 "card22-bolt-pay",
                 List.of("Mountain"),
@@ -1048,7 +1071,7 @@ class XmageActualCardCorpusTest {
                 return true;
             }
             if ("mana_payment".equals(cls)) {
-                return payFromRestoredMana(
+                return payOneFromRestoredMana(
                         started,
                         "card11-pay-" + step,
                         List.of("Plains", "Mountain"),
