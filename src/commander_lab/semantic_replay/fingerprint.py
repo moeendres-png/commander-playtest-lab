@@ -376,8 +376,7 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             key=lambda e: int(e.get("seat", 0)),
         ):
             private_visible = (
-                entry.get("is_actor") is True
-                or entry.get("private_state_visible") is True
+                entry.get("is_actor") is True or entry.get("private_state_visible") is True
             )
             row: dict[str, Any] = {
                 "exile_count": entry.get("exile_count"),
