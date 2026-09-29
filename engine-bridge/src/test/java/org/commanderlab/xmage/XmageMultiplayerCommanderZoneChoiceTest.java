@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * choices arrive in seat order, and each player's commanders are moved
  * before the next player chooses. Every owner is still asked exactly once and
  * every choice is honoured; only the order diverges from 101.4. The CR order
- * is pinned by the disabled test below until the Rules Core is corrected.</p>
+ * was pinned by a disabled test; fixed in the XMage multiplayer candidate f79e4168 (moeendres-png/mage#24) and enabled by the 2026-09-29 successor repin.</p>
  */
 class XmageMultiplayerCommanderZoneChoiceTest {
 
@@ -54,11 +54,12 @@ class XmageMultiplayerCommanderZoneChoiceTest {
         for (int seat = 1; seat <= playerCount; seat++) {
             seatOrder.add("P" + seat);
         }
-        assertEquals(seatOrder, choosers,
-                "every owner is asked exactly once (engine order: seat order, see F-18)");
+        List<String> sorted = new ArrayList<>(choosers);
+        java.util.Collections.sort(sorted);
+        assertEquals(seatOrder, sorted,
+                "every owner is asked exactly once (order: commanderZoneChoicesFollowApnapOrder)");
     }
 
-    @org.junit.jupiter.api.Disabled("F-18: engine asks in seat order, not APNAP (CR 101.4)")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void commanderZoneChoicesFollowApnapOrder(int playerCount) {
