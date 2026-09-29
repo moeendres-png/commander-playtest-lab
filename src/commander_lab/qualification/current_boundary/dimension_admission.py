@@ -166,9 +166,7 @@ def required_tokens(required_events: list[str], zones: list[str]) -> list[str]:
     return sorted(set(tokens))
 
 
-def admit_record(
-    record: dict[str, Any], manifest: dict[str, Any] | None
-) -> dict[str, Any]:
+def admit_record(record: dict[str, Any], manifest: dict[str, Any] | None) -> dict[str, Any]:
     tokens = required_tokens(_required_events(record), _zones(record))
     if not tokens:
         return {
