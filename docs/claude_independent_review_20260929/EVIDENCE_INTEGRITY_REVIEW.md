@@ -189,6 +189,16 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Kird Ape (Ape) was paid entirely with Path mana under Rograkh (Ape Ninja). No scry decision followed, although Oracle and the 2020-11-10 ruling require scry 1.
   - Candidates: the engine's delayed `MANA_PAID` trigger, an artefact of the restored board, or a bridge gap. Not attributed. Disabled test `pathOfAncestryScriesForACreatureSharingACommanderType`.
 - **F-14 — RESOLVED, test-harness shape, not a defect: Magma Opus divided damage.** The lane expects the target and its share in one `target_amount` response (selected option plus `numeric_choice`). With that, Magma Opus passes: 4 damage to P2, two permanents tapped, a 4/4 Elemental, two cards drawn. Original note: Answering the `target_amount` decision ("Select targets (selected 0 of 4) (damage)") with a single-target selection ended the game. The accepted response shape is not established. Disabled test `magmaOpusDividesFourTapsTwoMakesAFourFourAndDrawsTwo`. This is not a Rules claim.
+- **F-15, P2: restoration arrival runs beginning-phase triggers of restored permanents (XMage native state restoration).**
+  - `applyPreStart` puts requested permanents onto the battlefield before the game starts.
+  - Arrival then plays the restored turn through untap, upkeep and draw to the requested main phase, so those permanents' triggers fire and resolve.
+  - Example: with one Sulfuric Vortex per seat, the restored active player arrives at 40 − 2N life, although the plan requests 40.
+  - `compare()` detects this (life mismatch), but `XmageNativeStateRestorationTest.completeArrival`, which most runtime tests use, never runs `compare()`, so the drift is silent.
+  - An experiment enforcing `compare()` in that helper across the bridge suite found no existing test affected by *trigger* drift. Its other mismatches are intentional: requested life 0 settled by state-based actions, and later combat steps driven after arrival.
+  - Impact: any restored plan containing permanents with untap/upkeep/draw triggers (for example Phyrexian Arena, Howling Mine, Sulfuric Vortex) starts from a state other than the requested one.
+  - Owner decision (restoration lane / #304): fail closed on such plans, restore after arrival, or compare after arrival. This review does not change the shared helper, because the fix changes restoration semantics.
+  - Also observed: the engine seats counterclockwise (turns, priority and APNAP pass P1 → PN → … → P2). This is consistent and already documented in `XmagePb03Tier2StackTest`. Consumers must take turn order from the engine, not assume ascending seat numbers.
+  - `XmageMultiplayerApnapTriggerTest` measures against the post-arrival baseline and pins the drift.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
