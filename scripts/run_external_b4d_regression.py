@@ -53,6 +53,58 @@ def _timeout_from_environment(name: str, default: float) -> float:
     return value
 
 
+
+def _keep_all_mulligans(client, game_id: str, player_count: int, label: str) -> dict:
+    """Choose the semantic keep option from each live engine-authored mulligan frame."""
+    latest: dict = {}
+    for seat in range(player_count):
+        decision = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
+        if decision.get("decision_kind") != "mulligan":
+            raise SystemExit(
+                f"{label} expected mulligan decision {seat + 1}/{player_count}, "
+                f"observed {decision.get('decision_kind')!r}"
+            )
+        actions = [dict(action) for action in decision.get("actions", ())]
+        keeps = [
+            action
+            for action in actions
+            if action.get("action_type") == "mulligan"
+            and action.get("metadata", {}).get("option_type") == "keep"
+        ]
+        mulligans = [
+            action
+            for action in actions
+            if action.get("action_type") == "mulligan"
+            and action.get("metadata", {}).get("option_type") == "mulligan"
+        ]
+        if len(keeps) != 1 or len(mulligans) != 1:
+            raise SystemExit(
+                f"{label} engine-authored mulligan domain is not exactly keep+mulligan"
+            )
+        actor = decision.get("actor_id")
+        if not isinstance(actor, str) or not actor:
+            raise SystemExit(f"{label} mulligan frame has no live actor")
+        latest = client.request(
+            EngineMessageType.RESOLVE_MULLIGAN,
+            {
+                "decision_id": str(decision["decision_id"]),
+                "player_id": actor,
+                "actor_id": actor,
+                "keep": True,
+                "bottom_card_ids": [],
+            },
+            game_id=game_id,
+        )
+        if latest.get("mulligan_choice_external") is not True:
+            raise SystemExit(f"{label} mulligan resolution was not marked external")
+    priority = client.request(EngineMessageType.GET_LEGAL_ACTIONS, {}, game_id=game_id)
+    if priority.get("decision_kind") != "priority":
+        raise SystemExit(
+            f"{label} expected priority after explicit keeps, "
+            f"observed {priority.get('decision_kind')!r}"
+        )
+    return priority
+
 def _unique_pass(decision: dict[str, Any]) -> dict[str, Any]:
     matches = [
         dict(action)
@@ -151,8 +203,9 @@ def main() -> None:
         if created != game_id:
             raise SystemExit("B4-D first game identity mismatch")
         started = adapter.start_game(game_id)
-        if started.get("paused") is not True:
-            raise SystemExit("B4-D first game did not pause under external control")
+        if started.get("external_control") is not True:
+            raise SystemExit("B4-D first game did not enter external-control mode")
+        _keep_all_mulligans(client, game_id, 4, "B4-D")
 
         initial_log = client.request(
             EngineMessageType.EXPORT_EVENT_LOG,
