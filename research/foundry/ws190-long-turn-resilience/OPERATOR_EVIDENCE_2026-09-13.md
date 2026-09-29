@@ -1,3 +1,6 @@
+> **HISTORICAL / NON-AUTHORITATIVE EVIDENCE — 2026-09-13.**  
+> This file records an operator observation at the date in its title. Statements below using words such as “current” describe that historical snapshot only. For current Foundry/provider/routing authority use canonical main, current AGENTS/configuration, and fresh source locks. This file must not be used as present-tense execution authority.
+
 # WS190 Operator Evidence — 2026-09-13
 
 ## Direct runtime findings
