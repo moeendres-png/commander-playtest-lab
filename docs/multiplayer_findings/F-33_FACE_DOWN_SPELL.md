@@ -1,4 +1,4 @@
-# F-30: a face-down spell on the stack is named only to its controller
+# F-33: a face-down spell on the stack is named only to its controller
 
 - **Issue:** #369
 - **Surface:** XMage full-game lane observation and option labels (`XmageFullGameStateRedactor` stack view, `XmageFullGamePlayer.objectLabel`).

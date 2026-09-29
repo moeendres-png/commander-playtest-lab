@@ -1,4 +1,4 @@
-# F-28: a library-zone choice shows only the cards the engine put in front of the chooser
+# F-31: a library-zone choice shows only the cards the engine put in front of the chooser
 
 - **Issue:** #364
 - **Surface:** XMage full-game lane observation. The grant is opened in `XmageFullGamePlayer.chooseTargetInternal` and projected by `XmageFullGameStateRedactor.grantedLibraryView`.

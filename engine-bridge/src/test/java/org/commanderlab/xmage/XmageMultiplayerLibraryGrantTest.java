@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-28: a library-zone choice shows the chooser exactly the cards the engine
+ * F-31: a library-zone choice shows the chooser exactly the cards the engine
  * put in front of it, with actual cards at 4P and 5P on the full-game lane.
  *
  * <p>Fact or Fiction: "Reveal the top five cards of your library. An opponent

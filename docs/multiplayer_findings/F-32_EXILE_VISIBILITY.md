@@ -1,4 +1,4 @@
-# F-29: exiled cards are shown to exactly the principals entitled to them
+# F-32: exiled cards are shown to exactly the principals entitled to them
 
 - **Issue:** #366
 - **Surface:** XMage full-game lane observation (`XmageFullGameStateRedactor.actorView` / `publicView`).

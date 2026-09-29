@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-29: exiled cards are shown to exactly the principals entitled to them,
+ * F-32: exiled cards are shown to exactly the principals entitled to them,
  * with actual cards at 4P and 5P on the full-game lane.
  *
  * <p>Swords to Plowshares exiles P3's Grizzly Bears face up: a face-up exiled

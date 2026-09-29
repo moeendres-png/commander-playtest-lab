@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-30: a face-down spell on the stack keeps its identity from every
+ * F-33: a face-down spell on the stack keeps its identity from every
  * principal but its controller, with actual cards at 4P and 5P.
  *
  * <p>P1 casts Exalted Angel face down using morph. While it is on the stack

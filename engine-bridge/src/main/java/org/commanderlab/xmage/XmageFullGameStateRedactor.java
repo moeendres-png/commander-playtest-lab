@@ -210,7 +210,7 @@ final class XmageFullGameStateRedactor {
     }
 
     /**
-     * F-28: the cards a look window shows. The engine hands every library-zone
+     * F-31: the cards a look window shows. The engine hands every library-zone
      * decision its own card set (a search: the searched library; Fact or
      * Fiction or a top-N look: only those cards); a grant shows exactly that
      * set, never the rest of the owner's library or its order. One decision
@@ -260,7 +260,7 @@ final class XmageFullGameStateRedactor {
         if (game == null || permanent == null || viewer == null || !permanent.isFaceDown(game)) {
             return null;
         }
-        // F-30: the controller may look at its face-down permanent (CR 708.5),
+        // F-33: the controller may look at its face-down permanent (CR 708.5),
         // as may its turn controller (CR 723.4) and anyone the engine grants
         // LOOK_AT_FACE_DOWN. A face-down token has no hidden card.
         Card card = game.getCard(permanent.getId());
@@ -374,9 +374,9 @@ final class XmageFullGameStateRedactor {
             p.add("command", command);
 
             // Exile may contain face-down private cards: the count is public, and
-            // identities follow the F-29 exile view below.
+            // identities follow the F-32 exile view below.
             p.addProperty("exile_count", game.getExile().getCardsOwned(game, player.getId()).size());
-            // F-29: face-up exiled cards are public; a face-down one is shown
+            // F-32: face-up exiled cards are public; a face-down one is shown
             // only to a principal the engine lets look at it (LOOK_AT_FACE_DOWN,
             // e.g. Gonti, Hideaway, foretell). Others see only the count.
             p.add("exile", exileView(game, actor, player));
@@ -431,7 +431,7 @@ final class XmageFullGameStateRedactor {
         for (StackObject stackObject : game.getStack()) {
             JsonObject item = new JsonObject();
             item.addProperty("object_id", stackObject.getId().toString());
-            // F-30: a face-down spell (morph, disguise, manifest) has no public
+            // F-33: a face-down spell (morph, disguise, manifest) has no public
             // characteristics (CR 708.4); only its controller may look at it
             // (CR 708.5), extended to that player's turn controller (CR 723.4).
             boolean faceDown = stackObject instanceof Spell && ((Spell) stackObject).isFaceDown(game);

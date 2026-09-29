@@ -1774,7 +1774,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (player != null) {
             return player.getName();
         }
-        // F-30: a face-down spell's identity is its controller's alone (CR 708.4-5).
+        // F-33: a face-down spell's identity is its controller's alone (CR 708.4-5).
         Spell spell = game.getStack().getSpell(id);
         if (spell != null && spell.isFaceDown(game) && !getId().equals(spell.getControllerId())) {
             return "Face-down spell";
