@@ -1,0 +1,113 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-mp-candidate-repin-20260929",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "tree": "04c00f25bb456227b3c6d2996357b6d6d794a956",
+  "role": "prior live XMage pin; remains the identity of the frozen WSR22 current-boundary evidence",
+  "wsr22_source_lock": "src/commander_lab/qualification/current_boundary/source_lock.py#XMAGE_CANDIDATE_COMMIT (NOT repinned)"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "pull_request": "moeendres-png/mage#24 (base sol/rg06-hidden-state-restore-20260924 = prior pin)",
+  "commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+  "tree": "18c3e8e7588627b22accc08a644729399d702ee3",
+  "tested_code_commit": "5a827488239d08ce3741532fbd26432c17d480c5",
+  "tested_code_tree": "c19777af1659381600350af4353089d3c4f059a6",
+  "head_delta_vs_tested": "research/xmage-mp-candidate-20260929/HANDOFF.md only (NO_REQUALIFICATION_REQUIRED)",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/f79e4168902e65063034b21be6f4585397fd43b3.tar.gz"
+ },
+ "donors": [
+  {
+   "finding": "F-18",
+   "tracker": "commander-playtest-lab#317",
+   "pr": "moeendres-png/mage#19",
+   "head": "6044132ecde384997d23121a8622ed308f68ae5d",
+   "integration": "merged unchanged"
+  },
+  {
+   "finding": "F-19",
+   "tracker": "commander-playtest-lab#323",
+   "pr": "moeendres-png/mage#20",
+   "head": "0962f0b5d5147f606b517501b384a225af9f646a",
+   "integration": "merged unchanged"
+  },
+  {
+   "finding": "F-20",
+   "tracker": "commander-playtest-lab#327",
+   "pr": "moeendres-png/mage#21",
+   "head": "9ec76cc6a9833d739fa83675b3b38e780f72dd7c",
+   "integration": "merged unchanged"
+  },
+  {
+   "finding": "F-21",
+   "tracker": "commander-playtest-lab#328",
+   "pr": "moeendres-png/mage#22",
+   "head": "0082ad2983fc6d1b26f1d217e749cfc3a58d6c0b",
+   "integration": "NOT merged; bounded port (global Game.getOpponents change rejected)"
+  }
+ ],
+ "bounded_f21_commits": [
+  {
+   "commit": "e5729e7da708d9b059e48b5efc21aa88677357b9",
+   "content": "APNAP primitive + six tempting-offer consumers + primitive/contract tests"
+  },
+  {
+   "commit": "5a827488239d08ce3741532fbd26432c17d480c5",
+   "content": "SacrificeAllEffect / Grave Pact port onto the primitive + donor #22 tests"
+  }
+ ],
+ "native_qualification": {
+  "targeted": {
+   "command": "mvn -o -pl Mage,Mage.Sets,Mage.Tests test -Dtest=CommanderZoneApnap*Test,UnlessThatPlayerPaysOrderTest,InitiativeLeavesGame*Test,SimultaneousSacrificeApnap*Test,EachOpponentApnap*Test,ApnapOrder*Test",
+   "result": "72/72 PASS"
+  },
+  "full_mage_tests": {
+   "command": "mvn -o -pl Mage,Mage.Sets,Mage.Tests test",
+   "run": 7001,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "baseline_at_prior_pin": "6929 run / 125 skipped"
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "scratchpad m2-xmage-candidate-f79e4168 (all groups symlinked to ~/.m2 except a real copy of org/mage; candidate Mage + Mage.Sets installed there; shared ~/.m2 untouched)",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 e544eb1690a326577c2c76f705cde11342706c0a43993202078e76711bb19ea4",
+   "org.mage:mage-sets:1.4.61": "sha256 4c851528f3afb04eff33a4de4365ba49d90f356b1cd24bba8c7b127d79ba7f01"
+  },
+  "shared_cache_prior_pin_mage_jar_sha256_prefix": "bccb4031a586feb3",
+  "bridge_suite": {
+   "command": "cd engine-bridge && mvn -o -Dmaven.repo.local=<isolated> -Dcheckstyle.skip=true test",
+   "run": 538,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test"
+  },
+  "enabled_regressions_red_on_prior_engine": "XmageCandidateEngineFingerprintTest 1 error; CommanderZoneChoice 4, UnlessCost 4, Initiative 8, EachOpponentChoice 4, TemptingOffer 4 failures (prior pin artifacts)",
+  "enabled_regressions_green_on_candidate": "46/46 (after correcting two companion tests that encoded pre-fix order)",
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; runtime fingerprint: loaded mage.game.Game declares getPlayerIdsInApnapOrder/getOpponentsInApnapOrder",
+  "python_suite": {
+   "repin_branch": "2187 passed, 8 skipped, 0 failed",
+   "main_b31f144b": "2190 passed, 5 skipped",
+   "delta": "3 superseded current-pin checks of test_residual_xmage_repin_20260925.py skip"
+  }
+ },
+ "lab_base": {
+  "main": "b31f144b5e1ae2d5e3203a2f1cc87797806cb736",
+  "tree": "a26e0c5c0c6fb5347838756da7d63fafce8eb851"
+ }
+}

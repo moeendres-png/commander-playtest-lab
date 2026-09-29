@@ -194,11 +194,12 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Arrival then plays the restored turn through untap, upkeep and draw to the requested main phase, so those permanents' triggers fire and resolve.
   - Example: with one Sulfuric Vortex per seat, the restored active player arrives at 40 − 2N life, although the plan requests 40.
   - `compare()` detects this (life mismatch), but `XmageNativeStateRestorationTest.completeArrival`, which most runtime tests use, never runs `compare()`, so the drift is silent.
-  - An experiment enforcing `compare()` in that helper across the bridge suite found no existing test affected by *trigger* drift. Its other mismatches are intentional: requested life 0 settled by state-based actions, and later combat steps driven after arrival.
+  - An experiment enforcing `compare()` in that helper across the bridge suite found no existing test affected by *trigger* drift. Its other mismatches are known and expected by their tests: later combat steps driven after arrival, and requested life not restored. *Correction:* the life mismatches are not state-based-action settlement. The engine re-derives starting life at game start, so a requested life other than the table's starting life never arrives. This is already documented by `XmageFullGameElimExecutionTest`. Under the F-15 policy (post-arrival compare, mismatch = no credit), restored life is not an exact-restoration dimension today. Fixtures needing low life use the engine's starting-life setting plus real damage (see `XmageMultiplayerSimultaneousLossTest`).
   - Impact: any restored plan containing permanents with untap/upkeep/draw triggers (for example Phyrexian Arena, Howling Mine, Sulfuric Vortex) starts from a state other than the requested one.
   - Owner decision (restoration lane / #304): fail closed on such plans, restore after arrival, or compare after arrival. This review does not change the shared helper, because the fix changes restoration semantics.
   - Also observed: the engine seats counterclockwise (turns, priority and APNAP pass P1 → PN → … → P2). This is consistent and already documented in `XmagePb03Tier2StackTest`. Consumers must take turn order from the engine, not assume ascending seat numbers.
   - `XmageMultiplayerApnapTriggerTest` measures against the post-arrival baseline and pins the drift.
+  - **Addendum (opening hands).** Pre-start placement happens before the opening hands are drawn, so a restored permanent can even trigger on the opening-hand draws. Observed with Smothering Tithe ("whenever an opponent draws a card"): arrival stopped on an unexpected `trigger_order` decision. In a real game no such permanent can exist at that point. `XmageMultiplayerOpponentTriggerTest` therefore casts the Tithe during P1's main phase instead of restoring it. Routed to the restoration owner under the Coordinator's F-15 policy (post-arrival compare, mismatch = no credit).
 - **F-16, P1: FIXED. The full-game lane offered blocks against creatures attacking other players (CR 802.4a).**
   - `XmageFullGamePlayer.selectBlockers` built block options from `Permanent.canBlock`, which checks only that the attacker's controller is an opponent.
   - In any game with attacks at two or more players, each defending player's creature was offered every attacker.
@@ -221,6 +222,22 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Every owner is still asked exactly once through the external surface, and every choice is honoured. In the probed case outcomes are unaffected, because each choice concerns only the chooser's own commander.
   - Pinned by `XmageMultiplayerCommanderZoneChoiceTest` (Pyroclasm kills every Rograkh; 3–6P). The CR order is a `@Disabled` test naming F-18.
   - The fix is an engine-fork change (iterate `state.getPlayerList(activePlayerId)` and move after all choices). That needs Sol's Rules Core / pin authority and is not done here.
+- **F-19, P2: engine card implementations (pinned and upstream): "you may draw a card unless that player pays {N}" asks the controller before the payer.** Tracker #323.
+  - `RhysticStudyDrawEffect` and Mystic Remora's effect ask the controller "Draw a card?" first, and only then ask the opponent "Pay {N}?", even when the opponent cannot pay.
+  - The official rulings say the payer decides first and the controller decides afterwards. The pinned order leaks the controller's intent and skips the payment decision whenever the controller declines.
+  - Lab evidence: `XmageMultiplayerUnlessCostTest` (4P/5P). Both principals are asked and outcomes are honoured; the payer-first test is `@Disabled` and names F-19.
+  - Engine fix: Mage branch `claude/f19-unless-pays-order-20260929` from the exact pin, with native `UnlessThatPlayerPaysOrderTest`. Lab repin is a separate workstream.
+- **Each-opponent APNAP order: see F-21 (#328, engine fix moeendres-png/mage#22), found and fixed by the parallel XMage multiplayer lane.**
+  - This review found the same defect independently via a tempting offer: Tempt with Discovery cast by active P4 at 4P asks P1, P3, P2 instead of P3, P2, P1.
+  - Its duplicate tracker (#330) and engine PR (mage#23) are closed. Its native tempting-offer tests are offered on mage#22.
+  - Lab evidence: `XmageMultiplayerTemptingOfferTest` (3–6P). Every opponent is asked once and every search is honoured; the APNAP expectation is `@Disabled` and names F-21.
+  - F-numbers from here on: this review's F-18/F-19 and the parallel lane's F-20 (initiative, #327) / F-21 (#328) are distinct findings.
+- **F-24, P1: FIXED. The full-game lane made attack taxes unpayable (#338).**
+  - `XmageFullGamePlayer.playMana` listed mana abilities via `getPlayable`. XMage returns nothing there while declare attackers is in its pre-step part (`SILENT_PHASES_STEPS`, a UI shortcut), and that is when attack costs are paid (CR 508.1h/i).
+  - Ghostly Prison's "Pay {2} to attack?" therefore offered only "Cancel mana payment".
+  - Fix: union with the engine's own `getUseableManaAbilities` for the player's permanents, the API XMage's human player uses while paying.
+  - Pinned by `XmageMultiplayerAttackTaxTest` (3–6P, split and double attacks; red 6/6 → green 6/6).
+  - Impact: any full-game-lane evidence involving attack taxes was unreachable before and is new capability now. Mana-payment option frames outside that window are unchanged (full bridge suite green).
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.

@@ -18,6 +18,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
+from commander_lab.engine.rules.base import resolve_engine_working_directory
+
 from .source_lock import (
     CURRENT_TRANSPORT_PROTOCOL,
     FORGE_CANDIDATE_COMMIT,
@@ -28,6 +30,21 @@ from .source_lock import (
 CandidateId = Literal["xmage", "forge"]
 
 DEFAULT_TIMEOUT_S = 180.0
+
+
+def _candidate_runtime_cwd(candidate: CandidateId) -> Path:
+    """Return a dedicated mutable runtime directory outside candidate worktrees."""
+    resolved = resolve_engine_working_directory(None)
+    if resolved is None:
+        raise BridgeLaunchError("engine runtime directory resolution returned no path")
+    target = Path(resolved) / "current-boundary" / candidate
+    try:
+        target.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise BridgeLaunchError(
+            f"unable to create current-boundary runtime directory {target}: {exc}"
+        ) from exc
+    return target
 
 
 class BridgeLaunchError(RuntimeError):
@@ -254,7 +271,7 @@ def build_launch_plan(
             candidate=candidate,
             lane=resolved_lane,
             argv=argv,
-            cwd=workspace,
+            cwd=_candidate_runtime_cwd("xmage"),
             env_overrides={},
             expected_engine_commit=XMAGE_CANDIDATE_COMMIT,
             build_identity={
@@ -284,7 +301,7 @@ def build_launch_plan(
             candidate=candidate,
             lane="protocol2-jsonl",
             argv=argv,
-            cwd=forge_workspace,
+            cwd=_candidate_runtime_cwd("forge"),
             env_overrides={
                 "FORGE_ENGINE_SHA": FORGE_CANDIDATE_COMMIT,
                 "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),

@@ -1,0 +1,159 @@
+objective: LAB-LEGACY-DONOR-SALVAGE-20260929 bounded salvage of residual donor value from PR #284 and PR #289 onto fresh main successor
+source_lock:
+  observed_main_at_prompt: ba629cedc186ffbfac0cacee5cc959c7f6a5c07c
+  observed_main_tree_at_prompt: 82fe756934ca7f6bcb2cd0015c54d9abcad64d1d
+  fresh_main_at_worktree_creation: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  fresh_main_tree: 1a3c400aee3a29e6e661f5f6dedc509dd1749f73
+  lock_time_utc: '2026-09-29T16:00:00Z'
+  engine_pins:
+    primary_xmage_commit: f79e4168902e65063034b21be6f4585397fd43b3
+    authority_file: config/rules_engines.json
+observed_main_history:
+- sha: ba629cedc186ffbfac0cacee5cc959c7f6a5c07c
+  note: prompt-time context, superseded before first edit
+- sha: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  note: worktree base; delta ba629ce..d40dda9f is XMage multiplayer lane only, no overlap with salvage surfaces
+- sha: 3d15bbe80849f84814a35d0d397955fa4eac28b4
+  note: origin/main at push time; delta is 5 Java XMage-MP test files, NO_RELEVANT_OVERLAP; branch NOT rebased
+- sha: f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1
+  note: current origin/main; delta is 1 Java XMage-MP overload test, NO_RELEVANT_OVERLAP; PR344 CLEAN/MERGEABLE
+branch: integration/legacy-donor-salvage-20260929
+worktree: /home/moeen/code/lab-legacy-donor-salvage-20260929
+owned_files:
+- src/commander_lab/engine/rules/base.py
+- src/commander_lab/engine/rules/bridge.py
+- src/commander_lab/engine/rules/full_game.py
+- src/commander_lab/qualification/current_boundary/bridge_launcher.py
+- tools/foundry/launcher.py
+- tests/architecture/test_engine_runtime_state_isolation.py
+- tests/foundry/test_launcher.py
+- scripts/run_external_b3_regression.py
+- scripts/run_external_b4a_regression.py
+- scripts/run_external_b4b_regression.py
+- scripts/run_external_b4c_regression.py
+- scripts/run_external_b4d_regression.py
+- scripts/run_external_b4f_capability_closeout.py
+- scripts/run_external_b4f_illegal_action_regression.py
+- scripts/run_external_b4f_provider_pin_validation.py
+- scripts/run_external_full_game_conformance.py
+- scripts/run_real_4p_full_game_smoke.py
+- scripts/run_real_deck_gate.py
+- src/commander_lab/qualification/current_boundary/receipts.py
+- scripts/assemble_current_boundary_evidence.py
+- tests/qualification/test_current_boundary_receipts.py
+- tests/qualification/test_current_boundary_assembler_integrity.py
+- src/commander_lab/qualification/current_boundary/shortcut_campaign.py
+- tests/qualification/test_current_boundary_shortcut_campaign.py
+forbidden_files:
+- midgame PB-03 implementation / dimension admission / PB-03 receipt binding / runner assembler semantics
+- Mulligan / START-2 donor fc801c97118c6eed86f72105f5a4900a1094d0bb
+- PB-09 pristine-Forge baseline adjudication
+- moeendres-png/forge
+- moeendres-png/mage
+donor_heads:
+  pr284: 56a6629b415d9782be9b81a69834236a928228b5
+  pr289: 16e0ef194b7d200da7eb5e4208d606a44a4011b3
+  merge_base_284: ca9356e3da662ce9e246e7f896f1a99772d59065
+  merge_base_289: adee8b16a5c3f3807304c6718b83e11f86ab4c1c
+implemented_units:
+- id: 284-A
+  disposition: IMPLEMENTED
+  note: isolated candidate runtime CWD via resolve_engine_working_directory in base.py, wired into JsonLineBridgeClient and _RawFullGameClient, per-candidate current-boundary runtime dirs in bridge_launcher, explicit cwd=ROOT/root removed from all 11 engine-lane scripts; donor mulligan decision_id change and full_game_batch infrastructure classification explicitly NOT ported
+- id: 284-B
+  disposition: IMPLEMENTED
+  note: child-launch env clearing of FOUNDRY_NATIVE_VARIANT, OPENCODE_DISABLE_PROJECT_CONFIG, FOUNDRY_ROUTING_SUPPRESSED before plan application in tools/foundry/launcher.py
+rejected_units:
+- id: 284-mulligan-decision-id
+  reason: out of scope, Mulligan/START-2 reserved
+- id: 284-full-game-batch-infra-classification
+  reason: not in authorized salvage list, no current-main gap proven
+- id: 289-A
+  disposition: IMPLEMENTED
+  note: native_suite_credit and positive_fixture_credit now require expected_runner_digest in addition to engine candidate commit; mismatch/missing/empty fails closed with zero credit and auditable stale_runner_excluded; assembler binds live_runner_digest and records it in provenance; demonstrated on 4 committed receipts (all stale-excluded, zero credited)
+- id: 289-B
+  disposition: IMPLEMENTED
+  note: hard-coded AF11 FAIL replaced with _af11_measure (distinct external adapters, no embedded engine, recorded boundary, licence metadata as fact; FAIL only on violated technical fact, else UNKNOWN with Coordinator-owned policy residual); 5 new behavioral tests including freeze-still-blocked guard; committed AF00_AF11 JSONs left untouched as historical executed-run records
+- id: 289-C
+  disposition: IMPLEMENTED
+  note: seam-specific negative campaign ported against production validate_action_proposal (7 obligations, positive control, stated narrow scope NO_FORBIDDEN_SHORTCUT_OBSERVED_ON_THIS_EXERCISED_SEAM); assembler wiring deliberately not added (no new evidence packet surface without a qualification run); 16 tests green with distinct per-case rejection reasons
+- id: 289-D
+  disposition: IMPLEMENTED
+  note: generic replay/RNG distinction ported as _describe_replay_evidence (refusal recorded as refusal with codes, seed ack stated as precondition not tape, setup not proof); AF09 over-claim removed; 6 new tests including DIRECTLY_VERIFIED check against both committed RNG_REPLAY artifacts; no engine changes, no replay workstream collision
+tests_run:
+- tests/architecture/test_engine_runtime_state_isolation.py: 7 passed (fail-before ImportError proven)
+- tests/foundry/test_launcher.py: 99 passed (2 new fail-before failures proven, then green)
+- tests/architecture/: 8 passed
+- tests/unit/test_xmage_full_game.py + test_full_game_shutdown.py + contract/test_phase85_protocol.py: 23 passed
+- tests/unit/test_xmage_variable_player.py + test_ws224_name_canary.py + test_ws223_cardinality_regression.py + contract/test_phase1213_provider_surface.py: 92 passed
+- tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
+- "tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed, then 20+ after AF11 tests, then full tests/qualification/: 410 passed, 5 skipped (pre-existing skips)"
+- tests/qualification/test_current_boundary_shortcut_campaign.py: 16 passed (fail-before ModuleNotFoundError proven)
+- live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
+- full repo suite (minus agent_evals/differential/fuzz/mutation + 2 uncollectable files): 2195 passed, 7 skipped, 6 failed — all 6 fail identically on pristine d40dda9f baseline worktree (missing httpx2/pytest_asyncio packages, bare-subprocess ModuleNotFoundError without installed distribution); classified PRE_EXISTING_ENVIRONMENT, not attributable
+- ruff check on all touched files: clean
+- ruff format --check on all touched files: clean
+evidence:
+- classification: DIRECTLY_VERIFIED for above runs on workstream head a4a28464-derived tree
+- strict mypy unavailable in this environment (NO module named mypy); deferred to CI
+- 6 full-suite failures verified identical on pristine d40dda9f detached baseline at /tmp/opencode/salvage-baseline-check (read-only verification worktree; needs owner cleanup, removal is outside this worker authority)
+drift_checks:
+- time_utc: '2026-09-29T16:00:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_prompt: XMage MP lane only, NO_RELEVANT_OVERLAP
+  open_prs_noted:
+  - 333
+  - 316
+  - 309
+  - 304
+  - 302
+  - 301
+  - 300
+  - 299
+  - 297
+  - 290
+  - 289
+  - 288
+  - 287
+  - 285
+  - 284
+- time_utc: '2026-09-29T16:30:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit milestone
+- time_utc: '2026-09-29T17:00:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-A milestone
+- time_utc: '2026-09-29T17:30:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-B milestone
+- time_utc: '2026-09-29T18:00:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-C milestone
+- time_utc: '2026-09-29T18:30:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-D milestone
+- time_utc: '2026-09-29T19:00:00Z'
+  observed_main: 3d15bbe80849f84814a35d0d397955fa4eac28b4
+  delta_since_branch_base: 5 Java XMage-MP test files only, NO_RELEVANT_OVERLAP
+  open_pr_union_checked: PR333 paths disjoint from owned files
+  verdict: NO_RELEVANT_OVERLAP, no rebase, proceed to push + PR against current main
+- time_utc: '2026-09-29T20:00:00Z'
+  observed_main: f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1
+  delta_since_last: 1 Java XMage-MP overload test file, NO_RELEVANT_OVERLAP
+  pr_state: PR344 MERGEABLE/CLEAN at head 661d3743
+  verdict: NO_RELEVANT_OVERLAP, no merge per contract
+unknowns: []
+blockers: []
+outputs:
+- branch: integration/legacy-donor-salvage-20260929
+  head: 661d3743cd8edbd65cda24f8df2c93c95323b158
+  tree: a0f9e2d934c48dbd5864ce4bd0aed6660da26d43
+  pr: 344
+  ci_exact_head_661d3743: 11 pass + 1 skipping (build-and-integrate, conformance, quality incl. mypy, security, windows-runtime, decision-workflow-contract, infrastructure, preflight, real-4p-smoke, h4-forge, h4-xmage pass; exact-main-admission skipping by design)
+next_action: terminal handoff LEGACY_DONOR_SALVAGE_HANDOFF_20260929; no merge without coordinator review
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED

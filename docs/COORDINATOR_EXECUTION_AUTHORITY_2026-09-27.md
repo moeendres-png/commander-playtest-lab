@@ -46,17 +46,17 @@ Sol High owns:
 
 Sol is not the routine coding/debugging micro-manager.
 
-### Space Bunny Free MAX — preferred new-work OpenCode executor
+### DeepSeek MAX — preferred new-work OpenCode executor
 
-Exact model: `opencode-go/space-bunny-free`
+Exact model: `opencode-go/deepseek-v4.1-flash`
 Native variant: `max`
 
 For new substantial OpenCode engineering work, this is the preferred execution profile.
 The Foundry launcher must pin the main model, small model and reachable injected project
-agents to Space Bunny with native MAX. The effort field records the selected native level, not a
-high/xhigh workstream classification and does not reduce Bunny's native MAX compute.
+agents to DeepSeek with native MAX. The effort field records task/authority routing, not a
+high/xhigh workstream classification, and does not reduce DeepSeek's native MAX compute.
 
-Within an authorized workstream Space Bunny is expected to:
+Within an authorized workstream DeepSeek is expected to:
 - understand the objective, contract, current source state and relevant project context;
 - use available tools proactively rather than merely propose commands;
 - inspect source, history, tests, logs and artifacts;
@@ -72,18 +72,26 @@ Token cost is not an optimization objective. Spend reasoning/context when it imp
 correctness or evidence quality. Do not bulk-read irrelevant history or rerun valid
 evidence merely because tokens are available.
 
-### Muse Spark 1.3 Contributor — supported alternate / continuation executor
+### Space Bunny Free MAX — explicit secondary OpenCode executor
 
-Exact model: `opencode-go/muse-spark-1.3-contributor`
+Exact model: `opencode-go/space-bunny-free`
+Native variant: `max`
 
-Muse remains fully supported:
-- native XHIGH only for all active engineering and technical adjudication;
-- no active Muse HIGH lane;
-- continuation of existing Muse-owned workstreams;
-- deliberate alternate implementation/review/challenge.
+Space Bunny remains fully supported as the explicit secondary:
+- native `max` only, never below;
+- bounded, mechanical, token-heavy, bulk and background work;
+- continuation of existing Space-Bunny-owned workstreams;
+- deliberately authorized cross-model implementation/review/challenge.
 
-Muse has the same autonomous technical authority inside a workstream contract as Space
-Bunny. Model choice does not change Rules/Evidence/Privacy semantics.
+Space Bunny has the same autonomous technical authority inside a workstream contract as
+DeepSeek. Model choice does not change Rules/Evidence/Privacy semantics.
+
+### Inactive executors
+
+Muse Spark 1.3 Contributor (`opencode-go/muse-spark-1.3-contributor`) and GLM
+(`opencode-go/glm-5.3`) are inactive. They are not reachable through the canonical
+launcher or `opencode.json`, and selecting them is refused. Historical Muse and GLM
+records remain valid provenance of their own runs, not authority for new work.
 
 ### ChatGPT Work / Astra — exceptional capability lane
 
@@ -140,7 +148,7 @@ subject to the repository permission/approval gates.
 
 Project-wide understanding must not be confused with project-wide write authority.
 
-Both Space Bunny MAX and Muse may consume explicitly verified project references across
+Both DeepSeek MAX and Space Bunny MAX may consume explicitly verified project references across
 /home/moeen/code. Read-only references are materialized as disposable detached runtime
 snapshots so builds/searches do not operate on the authoritative source checkout. A
 cross-workstream task may also receive multiple explicit owned-write mutation surfaces.
@@ -163,14 +171,14 @@ metadata or shell/interpreter bypasses widening mutation authority.
 
 Exactly one active writer owns each branch/worktree/mutation surface. A single explicitly contracted cross-WS workstream may own multiple surfaces, but no surface may have two writers.
 
-Space Bunny and Muse may work sequentially on one workstream only after a persisted
+DeepSeek and Space Bunny may work sequentially on one workstream only after a persisted
 checkpoint records branch, HEAD/tree, state, validation and exact next action, and the
 first writer releases ownership. The second executor verifies those facts before editing.
 
 Parallel execution is allowed only on independent branches/worktrees/non-overlapping
 mutation surfaces or bounded read-only review.
 
-No automatic fallback exists between Space Bunny and Muse. Auth, quota, catalog, tool or
+No automatic fallback exists between DeepSeek and Space Bunny. Auth, quota, catalog, tool or
 child failure ends the selected run unless a later explicit operator action starts another
 profile.
 

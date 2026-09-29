@@ -36,5 +36,21 @@ artifacts/engine_setup/logs/.*.process-state.json.*
 engine-bridge/db/
 engine-bridge/target/cp-wsr22.txt
 
+# Generic Maven/Java build output at any level.
+# `engine-bridge/target/` is additionally covered by engine-bridge/.gitignore; this rule
+# covers stray top-level `target/` trees produced by an ad-hoc `mvn` invocation.
+target/
+
+# XMage/Forge H2 card databases produced by test runs (H2 .mv.db, up to ~300 MB each).
+# `engine-bridge/db/` above is the narrower, pre-existing instance of this same concern.
+# No tracked path lives under any `db/` directory.
+db/
+
+# Engine source and binaries materialised by CI `actions/checkout` steps with a `path:`
+# argument. `vendor/README.md` is tracked and stays tracked; only the fetched trees are
+# generated. See .github/workflows/*-materialization and the integration workflows.
+vendor/engine-source/
+vendor/engine-binaries/
+
 # WSR22 successor: test-local bridge stub processes (generated, not source)
 tests/qualification/_bridge_stubs/

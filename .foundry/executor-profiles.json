@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
-  "status": "PREPARED_NOT_RUNTIME_ACTIVE",
-  "authority_date": "2026-09-28",
+  "schema_version": "1.1",
+  "status": "ACTIVE",
+  "authority_date": "2026-09-29",
   "provider": "opencode-go",
   "policy": {
     "highest_supported_effort_only": true,
@@ -12,28 +12,39 @@
     "repository_prescribes_task_routing": false,
     "live_catalog_reverification_required_at_activation": true
   },
-  "current_runtime_default": "space-bunny",
+  "current_runtime_default": "deepseek",
   "profiles": {
     "deepseek": {
       "model": "opencode-go/deepseek-v4.1-flash",
       "native_variant": "max",
-      "runtime_status": "BLOCKED_ON_LAUNCHER_INTEGRATION"
-    },
-    "muse": {
-      "model": "opencode-go/muse-spark-1.3-contributor",
-      "native_variant": "xhigh",
       "runtime_status": "ACTIVE"
-    },
-    "glm": {
-      "model": "opencode-go/glm-5.3",
-      "native_variant": "max",
-      "runtime_status": "BLOCKED_ON_LAUNCHER_INTEGRATION"
     },
     "space-bunny": {
       "model": "opencode-go/space-bunny-free",
       "native_variant": "max",
       "runtime_status": "ACTIVE"
+    },
+    "muse": {
+      "model": "opencode-go/muse-spark-1.3-contributor",
+      "native_variant": "xhigh",
+      "runtime_status": "INACTIVE_NOT_ROUTED"
+    },
+    "glm": {
+      "model": "opencode-go/glm-5.3",
+      "native_variant": "max",
+      "runtime_status": "INACTIVE_NOT_ROUTED"
     }
+  },
+  "routing_policy": {
+    "note": "Stable executor policy only. No volatile price, quota, or availability figures.",
+    "primary": "deepseek",
+    "secondary": "space-bunny",
+    "inactive": [
+      "muse",
+      "glm"
+    ],
+    "automatic_fallback": false,
+    "selection_authority": "Coordinator or workstream contract selects the secondary explicitly; otherwise the primary is the default. The repository does not classify tasks automatically."
   },
   "activation_gate": {
     "required_surfaces": [
@@ -45,14 +56,21 @@
       "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
       "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md"
     ],
-    "blocker": "Active ownership overlaps launcher/governance surfaces on 2026-09-28; do not co-edit.",
+    "blocker": "RESOLVED 2026-09-29: the 2026-09-28 foreign-ownership deferral on tools/foundry/launcher.py and tests/foundry/test_launcher.py was superseded by direct newest-user authority for this migration; see docs/project_integrity_20260928/OWNERSHIP_DEFERRALS_RESOLUTION_20260929.json.",
     "required_validation": [
-      "exact four-profile allowlist and one highest native variant per model",
+      "exact two-profile routing allowlist (primary then secondary) and one highest native variant per model",
       "explicit profile selection and child --model pin",
       "no automatic fallback on quota/auth/catalog/tool/child failure",
       "telemetry/context/state provenance for selected profile/model/native variant",
       "CPL/Forge/Mage injected-policy smoke",
       "authenticated bounded smoke for each newly activated profile before marking runtime ACTIVE"
-    ]
+    ],
+    "activation_evidence_2026_09_29": {
+      "live_catalog_identity": "opencode-go/deepseek-v4.1-flash and opencode-go/space-bunny-free are both present in the live opencode-go catalog; no model identity was substituted.",
+      "deepseek_authenticated_smoke": "RUNTIME_VERIFIED: bounded `opencode run --model opencode-go/deepseek-v4.1-flash` under the exact launcher-injected bundle resolved providerID=opencode-go modelID=deepseek-v4.1-flash agent=foundry-implementer, exit 0.",
+      "space_bunny_authenticated_smoke": "RUNTIME_VERIFIED: bounded `opencode run --model opencode-go/space-bunny-free` under the exact launcher-injected secondary bundle resolved providerID=opencode-go modelID=space-bunny-free agent=foundry-implementer, exit 0.",
+      "native_variant_pin": "CODE_DERIVED + RUNTIME_VERIFIED: the injected bundle enables only the `max` variant with reasoningEffort=max for both profiles, and the launcher refuses any caller --variant/--model child flag, so no other native level is selectable.",
+      "no_fallback": "DIRECTLY_VERIFIED: the launcher pins exactly one child --model per run and performs no retry, provider switch, or profile change on quota, auth, catalog, tool, or child failure."
+    }
   }
 }

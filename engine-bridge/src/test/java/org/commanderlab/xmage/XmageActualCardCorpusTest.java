@@ -103,11 +103,32 @@ class XmageActualCardCorpusTest {
             String tag, int playerCount,
             List<XmageNativeStateRestoration.RequestedObject> objects,
             Map<String, String> extraCommanders, int forests) {
+        return start(tag, playerCount, objects, extraCommanders, forests, SEED);
+    }
+
+    /** As above, with an explicit Rules seed (for Rules-RNG reproducibility probes). */
+    static Started start(
+            String tag, int playerCount,
+            List<XmageNativeStateRestoration.RequestedObject> objects,
+            Map<String, String> extraCommanders, int forests, long seed) {
+        return start(tag, playerCount, objects, extraCommanders, forests, seed, 40);
+    }
+
+    /**
+     * As above, with the game's starting life (the engine's own table setting,
+     * applied by the engine at game start; restoration does not set life).
+     */
+    static Started start(
+            String tag, int playerCount,
+            List<XmageNativeStateRestoration.RequestedObject> objects,
+            Map<String, String> extraCommanders, int forests, long seed,
+            int startingLife) {
         List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
         List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
         for (int seat = 1; seat <= playerCount; seat++) {
             String pid = "P" + seat;
-            players.add(new XmageNativeStateRestoration.RequestedPlayer(pid, seat, 40));
+            players.add(new XmageNativeStateRestoration.RequestedPlayer(
+                    pid, seat, startingLife));
             commanders.add(new XmageNativeStateRestoration.RequestedCommander(
                     "cmd:" + pid + "-A", ROGRAKH, pid, 0));
             if (extraCommanders.containsKey(pid)) {
@@ -116,7 +137,7 @@ class XmageActualCardCorpusTest {
             }
         }
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
-                tag, playerCount, SEED, List.copyOf(players), List.copyOf(commanders),
+                tag, playerCount, seed, List.copyOf(players), List.copyOf(commanders),
                 List.copyOf(objects),
                 1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
                 mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
@@ -136,7 +157,7 @@ class XmageActualCardCorpusTest {
                     mainboard, deckCommanders).deckHandle());
         }
         XmageFullGameSession session = new XmageFullGameSession(
-                tag, handles, 0, 40, plan.seed(), importer, restoration);
+                tag, handles, 0, startingLife, plan.seed(), importer, restoration);
         session.start();
         Map<String, Player> seats = session.restorationSeats();
         XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
@@ -205,7 +226,7 @@ class XmageActualCardCorpusTest {
 
     // ---------------------------------------------------------------- actions
 
-    private static void submit(Started started, String tag, JsonObject action) {
+    static void submit(Started started, String tag, JsonObject action) {
         XmageFullGameTaxExecutionTest.submit(started.session(), tag, action);
     }
 
@@ -220,7 +241,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** The target option naming exactly this player, by engine identity. */
-    private static JsonObject playerTarget(Started started, String pid) {
+    static JsonObject playerTarget(Started started, String pid) {
         String wanted = started.seats().get(pid).getId().toString();
         JsonObject match = null;
         for (JsonElement element : started.session().legalActionsPayload()
@@ -430,7 +451,7 @@ class XmageActualCardCorpusTest {
      * generic and {B}, the Forest pays only a lone remaining {G}. The pool
      * only ever holds the mana just produced, so pool choices are equivalent.
      */
-    private static String manaSourceName(String label) {
+    static String manaSourceName(String label) {
         int separator = label.indexOf(" — ");
         assertTrue(separator > 0, "mana label must expose a semantic source name: " + label);
         return label.substring(0, separator);
@@ -486,7 +507,7 @@ class XmageActualCardCorpusTest {
      * callbacks and must return to resolveAll rather than being swallowed by a
      * payment helper.
      */
-    private static boolean payOneFromRestoredMana(
+    static boolean payOneFromRestoredMana(
             Started started,
             String tag,
             List<String> sourcePreference,
@@ -1987,7 +2008,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** Answers a numeric decision (e.g. announce X) with an in-range value. */
-    private static void submitNumeric(Started started, String tag, int value) {
+    static void submitNumeric(Started started, String tag, int value) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
@@ -2019,7 +2040,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** The single option whose label contains {@code fragment}; dumps options otherwise. */
-    private static JsonObject labelled(Started started, String fragment) {
+    static JsonObject labelled(Started started, String fragment) {
         JsonObject match = null;
         JsonArray actions = started.session().legalActionsPayload().getAsJsonArray("actions");
         for (JsonElement element : actions) {

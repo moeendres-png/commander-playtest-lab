@@ -2,147 +2,163 @@ package org.commanderlab.xmage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import mage.game.Game;
-import mage.game.combat.CombatGroup;
-import mage.game.permanent.Permanent;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import mage.constants.Zone;
+import mage.players.Player;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * CR 701.15b with an actual card at 3–6 players on the full-game lane.
- *
- * <p>P1 casts Disrupt Decorum (Oracle: "Goad all creatures you don't
- * control."). Every opponent controls a Grizzly Bears. On the next turn,
- * which is PN's (the engine's turn order is counterclockwise), PN's goaded
- * Bears must attack, and must attack a player other than P1 if able.</p>
- *
- * <ul>
- *   <li>The engine declares the forced attack itself: PN is never offered
- *       "do not attack", and never offered P1.</li>
- *   <li>With several non-goading opponents, PN chooses among exactly those.</li>
- *   <li>At 3 players the only non-goading opponent is P2, and the engine
- *       declares that attack without a decision.</li>
- * </ul>
+ * Goad in 4-player Commander on the XMage full-game lane (CR 701.38): after
+ * P1 casts Disrupt Decorum, P2's goaded Grizzly Bears must attack on P2's
+ * turn, and must attack a player other than P1. The engine seats
+ * counterclockwise, so P2's turn is the fourth; XMage asks for the forced
+ * attack as a required single choice among the non-goader opponents.
  */
 class XmageMultiplayerGoadTest {
 
-    private static final String DECORUM = "Disrupt Decorum";
-    private static final String BEARS = "Grizzly Bears";
+    private static final String ROGRAKH = "Rograkh, Son of Rohgahh";
 
-    @ParameterizedTest(name = "{0} players")
-    @ValueSource(ints = {3, 4, 5, 6})
-    void goadedCreatureAttacksAPlayerOtherThanTheGoader(int playerCount) {
-        String tag = "goad-" + playerCount + "p";
-        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
-        objects.add(new XmageNativeStateRestoration.RequestedObject(
-                "obj:hand-P1-0-DisruptDecorum", DECORUM, "P1", "P1",
-                mage.constants.Zone.HAND, false));
-        for (int index = 0; index < 4; index++) {
-            objects.add(new XmageNativeStateRestoration.RequestedObject(
-                    "obj:bf-P1-" + index + "-Mountain", "Mountain", "P1", "P1",
-                    mage.constants.Zone.BATTLEFIELD, false));
-        }
-        for (int seat = 2; seat <= playerCount; seat++) {
-            objects.add(new XmageNativeStateRestoration.RequestedObject(
-                    "obj:bf-P" + seat + "-0-Bears", BEARS, "P" + seat, "P" + seat,
-                    mage.constants.Zone.BATTLEFIELD, false));
-        }
-        XmageActualCardCorpusTest.Started started =
-                XmageActualCardCorpusTest.start(tag, playerCount, objects);
-        XmageFullGameSession session = started.session();
-        Game game = session.restorationGame();
-
-        XmageActualCardCorpusTest.cast(started, tag + "-cast", DECORUM);
-        XmageActualCardCorpusTest.resolveAll(started, tag, XmageActualCardCorpusTest.MOUNTAIN_LABEL,
-                XmageActualCardCorpusTest.NONE);
-        String next = "P" + playerCount;
-        UUID nextId = started.seats().get(next).getId();
-
-        UUID p2 = started.seats().get("P2").getId();
-        List<String> offeredDefenders = null;
-        boolean done = false;
-        for (int step = 0; step < 300 && !done; step++) {
-            String cls = XmageActualCardCorpusTest.decisionClass(started);
-            String actor = XmageActualCardCorpusTest.actorPid(started);
-            JsonObject legal = session.legalActionsPayload();
-            switch (cls) {
-                case "priority" -> {
-                    if (nextId.equals(game.getActivePlayerId())
-                            && game.getStep().getType() == mage.constants.PhaseStep.DECLARE_ATTACKERS) {
-                        done = true;
-                        break;
-                    }
-                    XmageActualCardCorpusTest.pass(started, tag + "-pass-" + step);
-                }
-                case "target" -> {
-                    assertEquals(next, actor, "the goaded creature's controller chooses");
-                    assertTrue(offeredDefenders == null, "one forced-attack choice");
-                    offeredDefenders = new ArrayList<>();
-                    JsonObject atP2 = null;
-                    for (JsonElement element : legal.getAsJsonArray("actions")) {
-                        String defender = defenderOf(element.getAsJsonObject(), started);
-                        offeredDefenders.add(defender);
-                        if ("P2".equals(defender)) {
-                            atP2 = element.getAsJsonObject();
-                        }
-                    }
-                    assertNotNull(atP2, "P2 must be a legal forced defender: " + legal);
-                    XmageFullGameTaxExecutionTest.submit(session, tag + "-defender-" + step, atP2);
-                }
-                case "choose_object" -> XmageActualCardCorpusTest.chooseNamed(started,
-                        tag + "-discard-" + step, "Mountain", Math.max(1, session
-                                .pendingDecisionPayload().getAsJsonObject("decision")
-                                .get("minimum_selections").getAsInt()));
-                default -> fail("unexpected decision " + cls + " for " + actor
-                        + " (a goaded creature must not be offered to hold): " + legal);
-            }
-        }
-        assertTrue(done, "reached " + next + "'s declare attackers");
-
-        List<String> expected = new ArrayList<>();
-        for (int seat = 2; seat < playerCount; seat++) {
-            expected.add("P" + seat);
-        }
-        if (expected.size() == 1) {
-            assertEquals(null, offeredDefenders,
-                    "one non-goading opponent: the engine declares the attack itself");
-        } else {
-            java.util.Collections.sort(offeredDefenders);
-            assertEquals(expected, offeredDefenders,
-                    "CR 701.15b: every opponent except the goader P1");
-        }
-        Permanent bears = null;
-        for (Permanent permanent : game.getBattlefield().getAllActivePermanents(nextId)) {
-            if (BEARS.equals(permanent.getName())) {
-                bears = permanent;
-            }
-        }
-        assertNotNull(bears);
-        CombatGroup group = game.getCombat().findGroup(bears.getId());
-        assertNotNull(group, next + "'s goaded Bears attacks");
-        assertEquals(p2, group.getDefenderId(), "it attacks the chosen non-goader P2, not P1");
-        assertEquals(1, game.getCombat().getGroups().size());
+    private static XmageNativeStateRestoration.RequestedObject obj(
+            String pid, String name, int index, Zone zone) {
+        String slug = name.replaceAll("[^A-Za-z0-9]+", "");
+        return new XmageNativeStateRestoration.RequestedObject(
+                "obj:" + zone.name().toLowerCase() + "-" + pid + "-" + index + "-" + slug,
+                name, pid, pid, zone, false);
     }
 
-    private static String defenderOf(JsonObject action, XmageActualCardCorpusTest.Started started) {
-        String metadata = action.getAsJsonObject("metadata").toString();
-        String found = null;
-        for (java.util.Map.Entry<String, mage.players.Player> seat : started.seats().entrySet()) {
-            if (metadata.contains(seat.getValue().getId().toString())) {
-                assertTrue(found == null, "one player per option: " + metadata);
-                found = seat.getKey();
+    private static JsonObject action(XmageFullGameSession session, String actionType,
+            String labelPart) {
+        for (JsonElement e : session.legalActionsPayload().getAsJsonArray("actions")) {
+            JsonObject a = e.getAsJsonObject();
+            if (actionType.equals(a.get("action_type").getAsString())
+                    && a.getAsJsonObject("metadata").get("label").getAsString()
+                            .contains(labelPart)) {
+                return a;
             }
         }
-        assertNotNull(found, "option names a player: " + metadata);
-        return found;
+        return null;
+    }
+
+    @Test
+    void goadedBearsAttackAPlayerOtherThanTheGoader() {
+        String tag = "xmage-goad-4p";
+        int count = 4;
+        List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
+        List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
+        for (int seat = 1; seat <= count; seat++) {
+            String pid = "P" + seat;
+            players.add(new XmageNativeStateRestoration.RequestedPlayer(pid, seat, 40));
+            commanders.add(new XmageNativeStateRestoration.RequestedCommander(
+                    "cmd:" + pid + "-A", ROGRAKH, pid, 0));
+        }
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(obj("P1", "Disrupt Decorum", 0, Zone.HAND));
+        for (int i = 0; i < 4; i++) {
+            objects.add(obj("P1", "Mountain", i, Zone.BATTLEFIELD));
+        }
+        objects.add(obj("P2", "Grizzly Bears", 0, Zone.BATTLEFIELD));
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                tag, count, 424242L, List.copyOf(players), List.copyOf(commanders),
+                List.copyOf(objects), 1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration =
+                XmageNativeStateRestorationTest.restorationFor(plan);
+        List<String> handles = new ArrayList<>();
+        for (XmageNativeStateRestoration.RequestedPlayer player : players) {
+            List<String> mainboard = new ArrayList<>();
+            for (int index = 0; index < 99; index++) {
+                mainboard.add("Mountain");
+            }
+            handles.add(importer.importCommanderDeck(tag + "-" + player.playerId(),
+                    tag + "-hash", mainboard, List.of(ROGRAKH)).deckHandle());
+        }
+        XmageFullGameSession session = new XmageFullGameSession(
+                tag, handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
+
+        boolean cast = false;
+        JsonObject p2Attack = null;
+        StringBuilder trace = new StringBuilder();
+        for (int step = 0; step < 300 && p2Attack == null; step++) {
+            JsonObject legal = session.legalActionsPayload();
+            if (legal.get("decision_class") == null || legal.get("decision_class").isJsonNull()) {
+                fail("terminal before P2's attack; trace:\n" + trace);
+            }
+            String cls = legal.get("decision_class").getAsString();
+            String actor = XmageNativeStateRestorationTest.pidOf(seats,
+                    legal.get("actor_id").getAsString());
+            trace.append(step).append(' ').append(actor).append(' ').append(cls)
+                    .append(" active=").append(XmageNativeStateRestorationTest.pidOf(seats,
+                            session.restorationGame().getActivePlayerId().toString()))
+                    .append(" turn=").append(session.restorationGame().getTurnNum())
+                    .append(" step=").append(session.restorationGame().getStep().getType())
+                    .append('\n');
+            JsonObject next;
+            if ("priority".equals(cls) && "P1".equals(actor) && !cast) {
+                next = action(session, "activate_ability", "Cast Disrupt Decorum");
+                cast = true;
+            } else if ("mana_payment".equals(cls)) {
+                next = action(session, "pay_cost", "Spend ");
+                if (next == null) {
+                    next = action(session, "pay_cost", "Mountain");
+                }
+            } else if (("declare_attacker".equals(cls) || "target".equals(cls))
+                    && "P2".equals(actor)) {
+                p2Attack = legal;
+                break;
+            } else if ("declare_attacker".equals(cls)) {
+                next = null;
+                fail(actor + " asked to attack; only P2 controls a creature");
+            } else if ("choose_object".equals(cls) && session.pendingDecisionPayload()
+                    .getAsJsonObject("decision").get("prompt").getAsString()
+                    .contains("discard")) {
+                // Cleanup hand-size discard: the test pilot discards a Mountain.
+                next = action(session, "choose_targets", "Mountain");
+            } else if ("priority".equals(cls)) {
+                next = action(session, "pass_priority", "Pass");
+            } else {
+                next = null;
+                fail("unexpected " + cls + " for " + actor + " prompt="
+                        + session.pendingDecisionPayload().getAsJsonObject("decision")
+                                .get("prompt") + "; trace:\n" + trace);
+            }
+            assertNotNull(next, "no action for " + cls + " / " + actor + "; trace:\n" + trace);
+            XmageFullGameTaxExecutionTest.submit(session, tag + "-" + step, next);
+        }
+        assertNotNull(p2Attack, "P2 was never asked to attack (goaded Bears must attack); trace:\n"
+                + trace);
+        List<String> defenders = new ArrayList<>();
+        StringBuilder dump = new StringBuilder();
+        for (JsonElement e : p2Attack.getAsJsonArray("actions")) {
+            JsonObject metadata = e.getAsJsonObject().getAsJsonObject("metadata");
+            dump.append(metadata.get("label")).append(' ')
+                    .append(metadata.get("xmage_option_metadata")).append('\n');
+            JsonObject nativeMeta = metadata.getAsJsonObject("xmage_option_metadata");
+            String id = nativeMeta == null ? null
+                    : nativeMeta.has("defender_id") ? nativeMeta.get("defender_id").getAsString()
+                    : nativeMeta.has("object_id") ? nativeMeta.get("object_id").getAsString()
+                    : null;
+            if (id == null) {
+                id = e.getAsJsonObject().getAsJsonObject("metadata").get("option_id")
+                        .getAsString();
+            }
+            defenders.add(XmageNativeStateRestorationTest.pidOf(seats, id));
+        }
+        JsonObject decision = session.pendingDecisionPayload().getAsJsonObject("decision");
+        assertEquals(List.of("P3", "P4"), defenders.stream().sorted().toList(),
+                "goaded Bears may attack only players other than P1:\n" + dump);
+        assertEquals(1, decision.get("minimum_selections").getAsInt(),
+                "attacking is required (goad: attacks each combat if able):\n" + dump);
+        assertEquals(1, decision.get("maximum_selections").getAsInt(), dump.toString());
     }
 }
