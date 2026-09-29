@@ -422,9 +422,7 @@ def _observe_principal_checkpoint(
     or a single in-state actor marker. It persists no live engine identifier.
     """
     if principal not in _SEATS[:player_count]:
-        raise GameDriveError(
-            f"principal {principal!r} is not one of {_SEATS[:player_count]}"
-        )
+        raise GameDriveError(f"principal {principal!r} is not one of {_SEATS[:player_count]}")
     seat_index = _SEATS.index(principal)
     observed = proc.request(
         "get_game_state",
@@ -439,9 +437,7 @@ def _observe_principal_checkpoint(
     rows = state_view.get("players")
     rows = rows if isinstance(rows, list) else []
     if seat_index >= len(rows) or not isinstance(rows[seat_index], dict):
-        raise GameDriveError(
-            "the principal-scoped response carries no row for the requested seat"
-        )
+        raise GameDriveError("the principal-scoped response carries no row for the requested seat")
     actor_row = rows[seat_index]
     if actor_row.get("seat") != seat_index:
         raise GameDriveError("the requested seat row does not report the requested seat")
@@ -476,9 +472,7 @@ def _observe_principal_checkpoint(
             )
 
     if not (envelope_bound or marker_bound):
-        raise GameDriveError(
-            "the response establishes no authoritative requested principal"
-        )
+        raise GameDriveError("the response establishes no authoritative requested principal")
 
     raw_zones = actor_row.get("zones")
     zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else {}
@@ -776,9 +770,9 @@ def drive_commander_game(
                             # passing priority after the observation.
                             break
                     except Exception as exc:
-                        result.terminal_facts.setdefault(
-                            "start2_checkpoint_errors", []
-                        ).append(str(exc))
+                        result.terminal_facts.setdefault("start2_checkpoint_errors", []).append(
+                            str(exc)
+                        )
 
                 pass_actions = [a for a in actions if a.get("action_type") == "pass_priority"]
                 if not pass_actions:
@@ -862,9 +856,7 @@ def drive_commander_game(
                 [start2_post_counts] if start2_post_counts is not None else None
             )
             result.terminal_facts["observed_zone_count_source"] = (
-                "ENGINE_REPORTED_PRINCIPAL_SCOPED"
-                if start2_post_counts is not None
-                else None
+                "ENGINE_REPORTED_PRINCIPAL_SCOPED" if start2_post_counts is not None else None
             )
 
         result.terminal_facts["decision_identity_shape"] = DECISION_IDENTITY_SHAPES[candidate]
