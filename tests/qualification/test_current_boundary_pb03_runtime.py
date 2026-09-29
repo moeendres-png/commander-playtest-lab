@@ -12,9 +12,7 @@ def _report(tmp_path: Path, body: str) -> Path:
     path = tmp_path / "TEST-org.commanderlab.xmage.Example.xml"
     path.write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<testsuite tests="1" failures="0" errors="0" skipped="0">\n'
-        + body
-        + "\n</testsuite>\n",
+        '<testsuite tests="1" failures="0" errors="0" skipped="0">\n' + body + "\n</testsuite>\n",
         encoding="utf-8",
     )
     return path
