@@ -276,6 +276,41 @@ class XmageGenericExternalMulliganTest {
         releaseBottomDecision(manager, created.gameHandle(), bottom);
     }
 
+    @Test
+    void duplicateSelectedIdentitiesAreRejected() {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageGameManager manager = new XmageGameManager(importer);
+        List<String> handles = mountainDecks(importer, "generic-bottom-duplicate", 2);
+
+        XmageGameManager.CreateResult created = manager.createCommanderGame(
+                "generic-bottom-duplicate", handles, 0, 40, true);
+        manager.startGame(created.gameHandle());
+
+        reachBottomDecision(manager, created.gameHandle());
+        XmageGameManager.LegalActionsSnapshot bottom = manager.legalActions(created.gameHandle());
+        String card = bottom.actions().stream()
+                .filter(action -> "mulligan_bottom".equals(action.get("action_type").getAsString()))
+                .map(action -> action.getAsJsonObject("metadata").get("card_id").getAsString())
+                .findFirst()
+                .orElseThrow();
+
+        XmageGameManager.GameException failure = null;
+        try {
+            manager.resolveMulliganBottom(
+                    created.gameHandle(), bottom.decisionId(), bottom.actorId(),
+                    List.of(card, card));
+        } catch (XmageGameManager.GameException exc) {
+            failure = exc;
+        }
+        assertTrue(failure != null, "the same identity selected twice must be rejected");
+        assertTrue(failure.getMessage().contains("MULLIGAN_BOTTOM_SELECTION_INVALID"),
+                "the refusal must name the selection defect: " + failure.getMessage());
+
+        // The engine was left unresolved and no partial selection was applied:
+        // a valid selection still completes the decision.
+        releaseBottomDecision(manager, created.gameHandle(), bottom);
+    }
+
     private static void reachBottomDecision(XmageGameManager manager, String gameHandle) {
         XmageGameManager.LegalActionsSnapshot first = manager.legalActions(gameHandle);
         assertEquals("mulligan", first.decisionKind());

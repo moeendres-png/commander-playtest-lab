@@ -526,6 +526,11 @@ final class ExternalDecisionController {
                 );
             }
         }
+        if (new java.util.HashSet<>(selectedCardIds).size() != selectedCardIds.size()) {
+            throw new IllegalStateException(
+                    "MULLIGAN_BOTTOM_SELECTION_INVALID: the same card may not be selected twice"
+            );
+        }
         JsonObject domain = decision.context();
         int minSelection = domain.has("min_selection") ? domain.get("min_selection").getAsInt() : 0;
         int maxSelection = domain.has("max_selection") ? domain.get("max_selection").getAsInt() : 0;
@@ -534,11 +539,6 @@ final class ExternalDecisionController {
                     "MULLIGAN_BOTTOM_SELECTION_INVALID: the engine requires "
                             + minSelection + ".." + maxSelection
                             + " card(s) from the offered domain, got " + selectedCardIds.size()
-            );
-        }
-        if (new java.util.HashSet<>(selectedCardIds).size() != selectedCardIds.size()) {
-            throw new IllegalStateException(
-                    "MULLIGAN_BOTTOM_SELECTION_INVALID: the same card may not be selected twice"
             );
         }
 
