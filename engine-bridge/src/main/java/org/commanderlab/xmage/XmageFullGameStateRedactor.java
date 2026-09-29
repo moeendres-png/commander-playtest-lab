@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Actor-scoped XMage state projection. Raw engine objects never leave the JVM. */
 final class XmageFullGameStateRedactor {
@@ -53,6 +54,91 @@ final class XmageFullGameStateRedactor {
      */
     private static final Map<String, Map<UUID, String>> RESTORED_FACE_DOWN_IDENTITIES =
             new ConcurrentHashMap<>();
+
+    /**
+     * F-26 principal-scoped observation log. XMage keeps looked-at and
+     * revealed cards only until the next client update, so the player hooks
+     * record the engine's own look/reveal calls here. A look is visible only
+     * to the looking principal; a reveal is public to every principal. Card
+     * names only (no object ids), in engine call order. Keyed by game id.
+     */
+    private static final Map<String, List<ObservedCards>> OBSERVED_CARDS =
+            new ConcurrentHashMap<>();
+
+    private static final class ObservedCards {
+        private final boolean revealed;
+        private final UUID principalId;
+        private final int turn;
+        private final String title;
+        private final List<String> names;
+        private final List<UUID> owners;
+
+        private ObservedCards(boolean revealed, UUID principalId, int turn, String title,
+                              List<String> names, List<UUID> owners) {
+            this.revealed = revealed;
+            this.principalId = principalId;
+            this.turn = turn;
+            this.title = title;
+            this.names = names;
+            this.owners = owners;
+        }
+    }
+
+    /** {@code title} is the engine's own window title for the look (CardUtil). */
+    static void recordLookedAt(Game game, UUID viewerId, String title, Collection<Card> cards) {
+        record(game, false, viewerId, title, cards);
+    }
+
+    static void recordRevealed(Game game, UUID revealerId, String title, Collection<Card> cards) {
+        record(game, true, revealerId, title, cards);
+    }
+
+    private static void record(Game game, boolean revealed, UUID principalId, String title,
+                               Collection<Card> cards) {
+        if (game == null || principalId == null || cards == null || cards.isEmpty()) {
+            return;
+        }
+        List<String> names = new ArrayList<>();
+        List<UUID> owners = new ArrayList<>();
+        for (Card card : cards) {
+            names.add(card.getName());
+            owners.add(card.getOwnerId());
+        }
+        OBSERVED_CARDS
+                .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>())
+                .add(new ObservedCards(revealed, principalId, game.getState().getTurnNum(),
+                        title, names, owners));
+    }
+
+    private static JsonArray observedView(Game game, Player viewer, boolean revealed) {
+        JsonArray result = new JsonArray();
+        List<ObservedCards> log = OBSERVED_CARDS.get(game.getId().toString());
+        if (log == null) {
+            return result;
+        }
+        for (ObservedCards entry : log) {
+            if (entry.revealed != revealed
+                    || (!revealed && !entry.principalId.equals(viewer.getId()))) {
+                continue;
+            }
+            JsonObject item = new JsonObject();
+            item.addProperty("turn", entry.turn);
+            addString(item, "title", entry.title);
+            if (revealed) {
+                item.addProperty("revealed_by_seat", seat(game, entry.principalId));
+            }
+            JsonArray cards = new JsonArray();
+            for (int i = 0; i < entry.names.size(); i++) {
+                JsonObject card = new JsonObject();
+                card.addProperty("name", entry.names.get(i));
+                card.addProperty("owner_seat", seat(game, entry.owners.get(i)));
+                cards.add(card);
+            }
+            item.add("cards", cards);
+            result.add(item);
+        }
+        return result;
+    }
 
     static void beginZoneFullLook(Player viewer, Player owner, Game game) {
         if (viewer == null || owner == null || game == null) {
@@ -232,6 +318,9 @@ final class XmageFullGameStateRedactor {
         // the Rules Core; command-zone cast counts determine the observable
         // commander tax. Read-only adapter projection; no Rules semantics.
         view.add("commander_status", commanderStatusView(game, actor));
+        // F-26: what the engine showed this principal (looks) and everyone (reveals).
+        view.add("looked_at", observedView(game, actor, false));
+        view.add("revealed", observedView(game, actor, true));
         return view;
     }
 
@@ -256,6 +345,7 @@ final class XmageFullGameStateRedactor {
 
         view.remove("actor_id");
         view.remove("seat");
+        view.remove("looked_at");
         for (JsonElement element : view.getAsJsonArray("players")) {
             JsonObject player = element.getAsJsonObject();
             replacePrincipalId(player, "player_id", rawAnchorId, publicAnchorId);

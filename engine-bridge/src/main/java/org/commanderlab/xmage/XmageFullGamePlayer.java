@@ -40,6 +40,7 @@ import mage.target.Target;
 import mage.target.TargetAmount;
 import mage.target.TargetCard;
 import mage.target.Targets;
+import mage.util.CardUtil;
 import mage.util.MultiAmountMessage;
 
 import java.io.Serializable;
@@ -127,6 +128,39 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public XmageFullGamePlayer copy() {
         return new XmageFullGamePlayer(this);
+    }
+
+    /*
+     * F-26: XMage records looked-at and revealed cards only until the next
+     * client update (GameState.clearLookedAt/clearRevealed), so the external
+     * pilot would never learn what a look or reveal showed. Capture the
+     * engine's own call here, after the engine has done its part, and hand
+     * it to the redactor's principal-scoped observation log.
+     */
+    @Override
+    public void lookAtCards(String titleSuffix, Card card, Game game) {
+        super.lookAtCards(titleSuffix, card, game);
+        if (card != null && game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordLookedAt(game, getId(), titleSuffix, List.of(card));
+        }
+    }
+
+    @Override
+    public void lookAtCards(Ability source, String titleSuffix, Cards cards, Game game) {
+        super.lookAtCards(source, titleSuffix, cards, game);
+        if (cards != null && game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordLookedAt(game, getId(),
+                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game));
+        }
+    }
+
+    @Override
+    public void revealCards(Ability source, String titleSuffix, Cards cards, Game game, boolean postToLog) {
+        super.revealCards(source, titleSuffix, cards, game, postToLog);
+        if (cards != null && !cards.isEmpty() && game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordRevealed(game, getId(),
+                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game));
+        }
     }
 
     @Override
