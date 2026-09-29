@@ -95,8 +95,9 @@ class XmageActualCardCorpusTest {
     /**
      * As {@link #start(String, int, List)}, but P-ids in {@code extraCommanders}
      * get a partner commander next to Rograkh (both have partner), and
-     * {@code forests} Mountains of every mainboard are replaced by Forests
-     * (colourless identity, legal under a red commander).
+     * {@code forests} Mountains are replaced by Forests in the decks of those
+     * players only (a basic Forest has green colour identity, so it needs a
+     * green partner commander).
      */
     private static Started start(
             String tag, int playerCount,
@@ -128,7 +129,7 @@ class XmageActualCardCorpusTest {
             List<String> deckCommanders = extra == null ? List.of(ROGRAKH) : List.of(ROGRAKH, extra);
             List<String> mainboard = new ArrayList<>();
             for (int index = 0; index < 100 - deckCommanders.size(); index++) {
-                mainboard.add(index < forests ? "Forest" : "Mountain");
+                mainboard.add(extra != null && index < forests ? "Forest" : "Mountain");
             }
             handles.add(importer.importCommanderDeck(
                     tag + "-" + player.playerId(), tag + "-hash",
@@ -1479,6 +1480,203 @@ class XmageActualCardCorpusTest {
         proposal.add("choices", choices);
         JsonObject after = session.submitAction(proposal);
         assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+    }
+
+    /**
+     * CARD_04 Kediss, Emberclaw Familiar: "Whenever a commander you control
+     * deals combat damage to an opponent, it deals that much damage to each
+     * other opponent." Ruling 2020-11-10: the extra damage is not combat
+     * damage. Three players; Kediss (1/1, P1's partner commander) is cast on
+     * turn 1 and attacks P2 on P1's next turn (turn 4).
+     */
+    @Test
+    void kedissMirrorsCommanderCombatDamageToEachOtherOpponent() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Mountain", 2));
+        Started started = start("card04-kediss", 3, objects,
+                Map.of("P1", "Kediss, Emberclaw Familiar"), 0);
+        submit(started, "card04-cast", XmageFullGameTaxExecutionTest.castOffer(
+                started.session().legalActionsPayload(), "Kediss, Emberclaw Familiar"));
+        resolveAll(started, "card04-cast", MOUNTAIN_LABEL, NONE);
+        assertEquals(1, onBattlefield(started, "P1", "Kediss, Emberclaw Familiar"));
+
+        mage.game.Game game = started.session().restorationGame();
+        java.util.UUID p2 = started.seats().get("P2").getId();
+        boolean attacked = false;
+        for (int step = 0; step < 400; step++) {
+            if (attacked && life(started, "P2") < 40 && game.getStack().isEmpty()
+                    && "priority".equals(decisionClass(started))) {
+                break;
+            }
+            String cls = decisionClass(started);
+            String actor = actorPid(started);
+            JsonObject legal = started.session().legalActionsPayload();
+            switch (cls) {
+                case "priority" -> pass(started, "card04-pass-" + step);
+                case "declare_attacker" -> {
+                    boolean kedissTurn = "P1".equals(actor)
+                            && game.getState().getTurnNum() >= 4;
+                    JsonObject action = null;
+                    for (JsonElement element : legal.getAsJsonArray("actions")) {
+                        JsonObject candidate = element.getAsJsonObject();
+                        JsonObject meta = candidate.getAsJsonObject("metadata")
+                                .getAsJsonObject("xmage_option_metadata");
+                        if (kedissTurn && meta != null && meta.has("defender_id")
+                                && p2.toString().equals(meta.get("defender_id").getAsString())) {
+                            assertTrue(action == null, "unique attack at P2 expected");
+                            action = candidate;
+                        }
+                    }
+                    if (kedissTurn) {
+                        assertNotNull(action, "Kediss must be able to attack P2: " + legal);
+                        attacked = true;
+                    } else {
+                        action = XmageFullGameTaxExecutionTest.singleActionOfType(
+                                legal, "declare_attackers", "hold_attacker");
+                    }
+                    submit(started, "card04-attack-" + step, action);
+                }
+                case "declare_blocker" -> chooseNone(started, "card04-noblock-" + step);
+                case "choose_object" -> {
+                    // Cleanup discard to seven: hands hold only Mountains.
+                    JsonObject pending = started.session().pendingDecisionPayload()
+                            .getAsJsonObject("decision");
+                    chooseNamed(started, "card04-discard-" + step, "Mountain",
+                            Math.max(1, pending.get("minimum_selections").getAsInt()));
+                }
+                default -> fail("unexpected decision " + cls + " for " + actor);
+            }
+        }
+        assertTrue(attacked, "Kediss attacked on P1's next turn");
+        assertEquals(39, life(started, "P2"), "1 combat damage from the commander");
+        assertEquals(39, life(started, "P3"), "Kediss mirrors it to each other opponent");
+        assertEquals(40, life(started, "P1"), "the controller is not an opponent");
+    }
+
+    /**
+     * Selects {@code count} options named exactly {@code name} from a choice
+     * that may also offer other cards. Same-named cards are rules-identical
+     * here, so which copy is taken does not matter.
+     */
+    private static void chooseByExactName(Started started, String tag, String name, int count) {
+        XmageFullGameSession session = started.session();
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        JsonObject legal = session.legalActionsPayload();
+        List<String> matching = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+            JsonObject engine = meta.getAsJsonObject("xmage_option_metadata");
+            String optionName = engine != null && engine.has("name")
+                    ? engine.get("name").getAsString() : meta.get("label").getAsString();
+            if (name.equals(optionName)) {
+                matching.add(meta.get("option_id").getAsString());
+            }
+        }
+        assertTrue(matching.size() >= count, "need " + count + " x " + name + ": " + legal);
+        matching.sort(String::compareTo);
+        List<String> selected = matching.subList(0, count);
+        String decisionId = pending.get("decision_id").getAsString();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", decisionId + ":" + selected.get(0));
+        proposal.addProperty("action_type", "choose_targets");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", decisionId);
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        JsonArray selectedJson = new JsonArray();
+        selected.forEach(selectedJson::add);
+        choices.add("selected_option_ids", selectedJson);
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        JsonObject after = session.submitAction(proposal);
+        assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+    }
+
+    /**
+     * CARD_29 Boseiju Reaches Skyward // Branch of Boseiju (saga). I: search
+     * for up to two basic Forest cards, reveal them, put them into your hand.
+     * II: put up to one target land card from your graveyard on top of your
+     * library. III: exile this Saga, then return it transformed. Branch of
+     * Boseiju: reach, +1/+1 for each land you control (0/0 base).
+     */
+    @Test
+    void boseijuSagaSearchesRecursesAndTransforms() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(battlefield("P1", "Forest", 0));
+        objects.addAll(lands("P1", "Mountain", 3));
+        objects.add(hand("P1", "Boseiju Reaches Skyward", 0));
+        objects.add(object("gy", mage.constants.Zone.GRAVEYARD, "P1", "Mountain", 9));
+        // Tana, the Bloodsower (R/G, Partner) makes Forests legal for P1.
+        Started started = start("card29-boseiju", 2, objects,
+                Map.of("P1", "Tana, the Bloodsower"), 2);
+        mage.game.Game game = started.session().restorationGame();
+        Player p1 = started.seats().get("P1");
+
+        submit(started, "card29-cast", singleOffer(
+                offers(started, "Boseiju Reaches Skyward", "", true),
+                "Boseiju cast"));
+        boolean[] searched = {false};
+        boolean[] recursed = {false};
+        for (int step = 0; step < 600; step++) {
+            if (onBattlefield(started, "P1", "Branch of Boseiju") == 1
+                    && game.getStack().isEmpty() && "priority".equals(decisionClass(started))) {
+                break;
+            }
+            String cls = decisionClass(started);
+            String actor = actorPid(started);
+            String text = prompt(started).toLowerCase();
+            JsonObject pending = started.session().pendingDecisionPayload()
+                    .getAsJsonObject("decision");
+            switch (cls) {
+                case "priority" -> pass(started, "card29-pass-" + step);
+                case "mana_payment" -> payOneFromRestoredMana(started, "card29-pay-" + step,
+                        List.of("Forest", "Mountain"),
+                        java.util.Set.of("Forest — {T}: Add {G}.", MOUNTAIN_LABEL));
+                case "declare_attacker" -> submit(started, "card29-hold-" + step,
+                        XmageFullGameTaxExecutionTest.singleActionOfType(
+                                started.session().legalActionsPayload(),
+                                "declare_attackers", "hold_attacker"));
+                case "declare_blocker" -> chooseNone(started, "card29-noblock-" + step);
+                case "choose_object", "target" -> {
+                    if ("P1".equals(actor) && text.contains("basic forest")) {
+                        // Chapter I: every Forest the library still holds
+                        // (one may already be in the opening hand).
+                        int offeredForests = started.session().legalActionsPayload()
+                                .getAsJsonArray("actions").size();
+                        chooseByExactName(started, "card29-search-" + step, "Forest",
+                                Math.min(offeredForests, pending.get("maximum_selections").getAsInt()));
+                        searched[0] = true;
+                    } else if ("P1".equals(actor) && text.contains("land card from your graveyard")) {
+                        // Chapter II: a Mountain from P1's graveyard to the top.
+                        chooseByExactName(started, "card29-recur-" + step, "Mountain", 1);
+                        recursed[0] = true;
+                    } else if (text.contains("discard")) {
+                        // Cleanup discard to seven: discard Mountains only.
+                        chooseByExactName(started, "card29-discard-" + step, "Mountain",
+                                Math.max(1, pending.get("minimum_selections").getAsInt()));
+                    } else {
+                        fail("unexpected object choice for " + actor + ": " + text);
+                    }
+                }
+                default -> fail("unexpected decision " + cls + " for " + actor + ": " + text);
+            }
+        }
+        assertTrue(searched[0], "chapter I searched for basic Forests");
+        assertTrue(recursed[0], "chapter II returned a land card to the library top");
+        long lands = game.getBattlefield().getAllActivePermanents(p1.getId()).stream()
+                .filter(permanent -> permanent.isLand(game)).count();
+        Permanent branch = permanent(started, "P1", "Branch of Boseiju");
+        assertEquals(lands, branch.getPower().getValue(), "+1/+1 for each land (0/0 base)");
+        assertEquals(lands, branch.getToughness().getValue());
+        assertTrue(branch.hasAbility(mage.abilities.keyword.ReachAbility.getInstance(), game),
+                "Branch of Boseiju has reach");
+        long forestsInHand = p1.getHand().getCards(game).stream()
+                .filter(card -> "Forest".equals(card.getName())).count();
+        assertEquals(2, forestsInHand,
+                "the deck's two Forests end in hand (chapter I; only Mountains are discarded)");
     }
 
     /** Submits an empty selection for an optional (minimum 0) target/object choice. */
