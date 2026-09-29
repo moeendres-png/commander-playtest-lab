@@ -670,7 +670,7 @@ final class XmageMidgameJsonlBridge {
                     "constructed_state_digest_scope", "principal_scoped_observation");
             JsonArray mismatches = new JsonArray();
             for (String mismatch : verdict.mismatches()) {
-                mismatches.add(redactMismatch(mismatch, requesterPrincipal));
+                mismatches.add(redactNativeIds(redactMismatch(mismatch, requesterPrincipal)));
             }
             response.add("mismatches", mismatches);
             response.add("observation", observation);
@@ -679,7 +679,11 @@ final class XmageMidgameJsonlBridge {
                     requesterPrincipal == null
                             ? "principal_neutral_opponent_hands_counts_only"
                             : "principal_scoped");
-            response.add("pending_decision", requireSession().pendingDecisionPayload());
+            // Deliberately no embedded decision frame. This payload is an
+            // observation; a pending decision belongs to an acting principal
+            // whose legal-option labels can name that principal's own hand, so
+            // it must not ride inside another principal's response. The only
+            // decision channel remains get_midgame_decision.
             return success(requestId, response, false);
         } catch (Exception exc) {
             return error(requestId, "midgame_arrival_failed", exceptionMessage(exc), false);
@@ -752,6 +756,29 @@ final class XmageMidgameJsonlBridge {
             identityEnd = mismatch.length();
         }
         return mismatch.substring(0, marker) + REDACTED_HAND_IDENTITY + mismatch.substring(identityEnd);
+    }
+
+    /**
+     * Removes the opaque native id the engine attaches to a hidden hand card.
+     *
+     * <p>When a restored hand card has left its owner's hand before arrival the
+     * compare reports {@code hand injected object missing: <owner> native_id=<uuid>}.
+     * The owner is public and the fact is diagnosable without the id, and the
+     * uuid is a stable per-game handle to a hidden card, so the id is replaced
+     * for every requester including the owner. No card name is involved.</p>
+     */
+    static String redactNativeIds(String mismatch) {
+        int index = mismatch.indexOf("native_id=");
+        if (index < 0) {
+            return mismatch;
+        }
+        int end = index + "native_id=".length();
+        while (end < mismatch.length() && !Character.isWhitespace(mismatch.charAt(end))) {
+            end++;
+        }
+        return mismatch.substring(0, index)
+                + "native_id=" + REDACTED_HAND_IDENTITY
+                + mismatch.substring(end);
     }
 
     /**
@@ -859,7 +886,9 @@ final class XmageMidgameJsonlBridge {
             response.addProperty("plan_id", planId);
             response.addProperty("entry_mode", entryMode);
             response.add("verdict", verdict);
-            response.add("pending_decision", requireSession().pendingDecisionPayload());
+            // Deliberately no embedded decision frame (see
+            // completeMidgameArrival): observations only, decisions only via
+            // get_midgame_decision.
             return success(requestId, response, false);
         } catch (Exception exc) {
             return error(

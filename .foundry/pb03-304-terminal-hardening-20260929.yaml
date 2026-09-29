@@ -149,3 +149,26 @@ next_actions:
   - "Successor: fetch donor/pb03-304-terminal-hardening-20260929 (head 1b69c31f) and review the two commits above dafe2ac6."
   - "Successor: close the two F1 items, then re-run the full validation list and seal WS17."
   - "Successor: decide whether to continue PR #304 or open a successor PR; do not rewrite #304 history."
+
+successor:
+  status: ACTIVE_TERMINAL_VALIDATION
+  owner: single writer for the #304 terminal-hardening surface (coordinator ownership update)
+  base: e31f4936c91abb0d37ea67f71d975304ffd37dfc (== origin/donor/pb03-304-terminal-hardening-20260929)
+  base_was_remotely_preserved: true
+  branch: research/csn-pb03-terminal-hardening-successor-20260929
+  three_way_adjudication:
+    merge_base: dafe2ac6d903ed55c774841fbfa25cb7584f52d6
+    remote_only_delta: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+    parallel_session_delta: [1b69c31f7958ec77df55ae72a9fb95fd19d424bc, 1098f365485cea949e456f04bec81216b84aaa73, e31f4936c91abb0d37ea67f71d975304ffd37dfc]
+    superseded_local_delta: f1613146cfa1af9004036bd48e2c518d3194a56b (redactor-based observation, probe/Python changes, blanket mismatch withhold) -> not re-created
+    unique_and_required:
+      - decision frames removed from complete_midgame_arrival and complete_causal_reconstruction (closes the open vector recorded by 1098f365)
+      - redactNativeIds removes the opaque native_id from hidden-hand diagnostics
+      - adversarial honeycard privacy test (falsifies the increment-2 "not provable" conclusion)
+    rejected: []
+  falsified_prior_claim: >-
+    Increment 2 recorded an end-to-end honeycard control as unprovable without
+    further fixture authorization. It is provable: the lane accepts a
+    caller-supplied requested starting state and zone=hand is a supported
+    placement dimension, so hidden hand objects can be added to a
+    placement-supported record without modifying the frozen corpus.

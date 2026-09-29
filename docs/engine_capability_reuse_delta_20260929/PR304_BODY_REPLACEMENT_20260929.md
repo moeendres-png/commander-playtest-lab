@@ -109,3 +109,32 @@ changed. PB-09/PB-06/PB-08, CAP-08, CAP-11, Forge untouched.
 Full account: `docs/engine_capability_reuse_delta_20260929/CAUSAL_CONTINUATION_20260929.md`.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`
+
+---
+
+## Terminal hardening successor (branch `research/csn-pb03-terminal-hardening-successor-20260929`)
+
+Based on the parallel session's hardening increment 2 (`1b69c31f` / `e31f4936`)
+after a three-way adjudication. It adds only what increment 2 still left open:
+
+1. **Decision frames removed from verification payloads.** Increment 2 recorded
+   `pending_decision` in the arrival and causal responses as an open leak
+   vector (a pending decision's option labels can name the acting principal's
+   own hand). Both embeds are gone; `get_midgame_decision` remains the only
+   decision channel.
+2. **Opaque native ids removed from hidden-hand diagnostics.**
+   `redactNativeIds` replaces the per-game card handle in
+   `hand injected object missing: … native_id=<uuid>` with the same
+   identity-free placeholder, for every requester.
+3. **Adversarial honeycard control proven.** Increment 2 judged an end-to-end
+   honeycard control unprovable without new fixture authorization; that is
+   falsified. `XmageMidgamePrivacyTest` plants distinct honeycards in P2/P3/P4
+   hands on a placement-supported record and proves P1 cannot recover them from
+   any observation, verification or error payload.
+
+Increment 2's causal credit gate, arrival rejection, timeout/reap, transport
+classification, concession protocol control and two-colorless regression are
+carried unchanged; the full validation increment 2 left outstanding (29-row
+probe re-derivation, complete Java and qualification suites) is completed here.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`

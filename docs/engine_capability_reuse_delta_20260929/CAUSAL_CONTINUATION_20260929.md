@@ -167,3 +167,61 @@ Disposition, per the ownership and provenance gates:
 
 No evidence was destroyed: the foreign diffs are preserved verbatim outside
 the repository, and nothing from them was copied, adapted or committed.
+
+## 7. Terminal hardening successor (single-writer campaign, 2026-09-29)
+
+Three-way adjudication of the terminal-hardening lineage, then a successor
+branch based on the parallel session's increment 2.
+
+- merge-base: `dafe2ac6` (causal completion).
+- remote-only delta: `08d23aa4` (reviewed six-finding remediation + WS17 seal).
+- parallel-session delta: `1b69c31f` (hardening increment 2: mismatch
+  redaction, causal credit gate, arrival rejection, two-colorless regression)
+  plus handover docs `1098f365`, `e31f4936`. This is the successor base.
+- superseded local delta (`f1613146`): its redactor-based observation design,
+  probe/Python changes and blanket-withhold mismatch sanitizer were
+  **SUPERSEDED** by the reviewed remediation and increment 2 and were not
+  re-created. Two hunks were **UNIQUE_AND_REQUIRED** and are carried here.
+
+### 7.1 Decision frames removed from verification payloads (recorded vector closed)
+
+Increment 2 recorded an open leak vector: `complete_midgame_arrival` and
+`complete_causal_reconstruction` embedded `pending_decision` unconditionally,
+and a pending decision's `legal_options` labels can name the acting
+principal's own hand cards. Both embeds are removed. These payloads are now
+pure observations; the only decision channel is `get_midgame_decision`,
+addressed to the acting principal. `XmageMidgamePrivacyTest` proves the
+absence and that the decision channel still serves decisions.
+
+### 7.2 Opaque native ids removed from hidden-hand diagnostics
+
+Increment 2's `redactMismatch` removes the card identity from
+`hand subset <owner>|HAND|<card>…` for every principal except the owner, but
+left `hand injected object missing: <owner> native_id=<uuid>` untouched.
+`redactNativeIds` replaces that per-game card handle with the same
+`<hand-identity-redacted>` placeholder for every requester; the owner seat and
+the diagnostic fact survive. Direct controls live in `XmageMidgamePrivacyTest`.
+
+### 7.3 Adversarial honeycard control is provable, and proven
+
+Increment 2 recorded that an end-to-end honeycard control "is not provable
+with the current frozen corpus" and treated it as an authorization question.
+That conclusion is **falsified**. The lane accepts a caller-supplied requested
+starting state and `zone: hand` is a supported placement dimension, so a test
+can add hidden hand objects to any placement-supported record without
+modifying the frozen corpus. `XmageMidgamePrivacyTest` plants Runeclaw Bear,
+Serra Angel and Sol Ring in P2/P3/P4 hands on the `WS05-CMD-DMG-SPLIT` record
+and scans whole response lines across unbound arrival, principal-scoped
+arrival (native-id and requested-state-label bindings), `get_midgame_state`,
+causal verification and error payloads, and the pending P1 decision. No
+honeycard name appears, and only the requesting principal's seat carries a
+hand array. No fixture authorization is required because the corpus is not
+touched.
+
+### 7.4 Validation completed by the successor
+
+Increment 2 explicitly left the full 29-row probe re-derivation and the
+complete engine-bridge and repository suites outstanding. The successor
+re-derived the partition at successor content with the causal credit gate and
+arrival-rejection classification active; results are in
+`HANDOFF_PB03_304_TERMINAL_HARDENING_20260929.md` and the final handoff.
