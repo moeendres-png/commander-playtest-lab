@@ -12,11 +12,12 @@ context-size metrics, never token claims.
 1. Launch the validated Foundry session for the prepared workstream
    (contract + state already authored by the Coordinator).
 2. Type `/work` in the TUI.
-3. Muse derives a compact execution capsule from `FOUNDRY_STATE_PATH` plus
-   live Git facts via `tools/foundry/context_capsule.py` and executes/resumes
-   the bounded workstream through Semantic Completion.
-4. Muse reads the full state, contract, and evidence only when the capsule is
-   insufficient for the next action.
+3. The selected executor derives a compact execution capsule from
+   `FOUNDRY_STATE_PATH` plus live Git facts via
+   `tools/foundry/context_capsule.py` and executes/resumes the bounded
+   workstream through Semantic Completion.
+4. The selected executor reads the full state, contract, and evidence only
+   when the capsule is insufficient for the next action.
 5. After an interrupted TUI session, relaunch and type `/work` again.
 
 ## What consumes cached vs dynamic context (conceptual)
@@ -65,12 +66,15 @@ session metrics prove a cache hit for a real session. Never claim hits.
   scope outside this workstream, neither set nor overridden here (the launcher
   bundle carries no `compaction` key). No `reserved` / `tail_turns` /
   `preserve_recent_tokens` tuning in project config.
-- Instruction layers kept as-is (`AGENTS.md`, `instructions` entry for
-  `ROUTING_AND_EFFORT.md`, `foundry-implementer.md`): no always-on prose was
-  provably redundant while keeping its invariant machine-enforced elsewhere,
-  and stable policy is cheap when cached. One additive line only: the agent
-  now prefers reading a saved full-output file (offset/limit, search) over
-  rerunning an expensive command after a truncation preview.
+- Instruction layers kept as-is (`AGENTS.md`, `foundry-implementer.md`): no
+  always-on prose was provably redundant while keeping its invariant
+  machine-enforced elsewhere, and stable policy is cheap when cached. One
+  additive line only: the agent now prefers reading a saved full-output file
+  (offset/limit, search) over rerunning an expensive command after a truncation
+  preview. There is no `instructions` array in `opencode.json`; the pinned CLI
+  accepts that key in its schema but does not resolve those files into model
+  instructions, so routing policy is not injected that way. See
+  `ROUTING_AND_EFFORT.md` for why.
 - Session resume is explicit only: `opencode run --session <OpenCode session
   ID>` (verified on the pinned 1.18.30 binary) for headless reruns;
   `opencode session list` / `export [sessionID]` discover IDs. Never blind
