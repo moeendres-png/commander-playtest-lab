@@ -63,8 +63,8 @@ creates a second legality model. A missing engine controller fails closed.
 
 ## Tests
 
-- `XmageMultiplayerTurnControlTest`: actual Mindslaver + Lightning Bolt at 4P
-  and 5P; controlled player is never addressed during the controlled turn,
+- `XmageMultiplayerTurnControlTest`: actual Mindslaver + Lightning Bolt at 2P
+  through 5P; controlled player is never addressed during the controlled turn,
   `acting_for_seat` is explicit, and normal routing resumes next turn.
 - `XmageMultiplayerTurnControlPrivacyTest`: actual Mindslaver at 2P through 5P plus
   actual Grizzly Bears identities restored face down. It proves:
@@ -91,6 +91,7 @@ Three independent P1 findings were addressed before merge:
   from the redactor. Replay canonicalization includes private fields only for
   the actor or a row carrying that authorization, preserving the downstream
   smuggled-opponent-field defense while binding controlled-player hand, mana,
-  land-play state, granted-library data, and face-down private identity;
+  land-play state, granted-library data, and face-down private identity. The
+  public-state digest explicitly strips that private identity again;
 - actual-card Mindslaver routing and privacy qualification now executes at every
   mandatory player count, 2P/3P/4P/5P.
