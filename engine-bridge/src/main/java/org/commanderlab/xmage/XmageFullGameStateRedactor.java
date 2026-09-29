@@ -119,6 +119,20 @@ final class XmageFullGameStateRedactor {
         if (update) {
             log.removeIf(old -> old.revealed == revealed && old.principalId.equals(principalId)
                     && Objects.equals(old.title, title));
+        } else if (!revealed) {
+            // A standing "look at the top card any time" repeats the same look
+            // every time effects apply; only a look that shows something new
+            // (a different card set from the same source) is recorded again.
+            for (int i = log.size() - 1; i >= 0; i--) {
+                ObservedCards old = log.get(i);
+                if (!old.revealed && old.principalId.equals(principalId)
+                        && Objects.equals(old.title, title)) {
+                    if (old.names.equals(names) && old.owners.equals(owners)) {
+                        return;
+                    }
+                    break;
+                }
+            }
         }
         log.add(entry);
     }
@@ -308,6 +322,11 @@ final class XmageFullGameStateRedactor {
             // empty otherwise, so no hidden identity crosses the boundary
             // outside the window. Read-only projection; no Rules semantics.
             p.add("granted_library", grantedLibraryView(game, actor, player));
+
+            // A player who plays with the top card of their library revealed
+            // (Courser of Kruphix, Future Sight) shows it to every principal.
+            Card revealedTop = player.isTopCardRevealed() ? player.getLibrary().getFromTop(game) : null;
+            p.add("library_top_revealed", revealedTop == null ? JsonNull.INSTANCE : publicCard(revealedTop));
 
             if (player.getId().equals(actor.getId())) {
                 JsonArray hand = new JsonArray();

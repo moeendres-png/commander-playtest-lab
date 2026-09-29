@@ -116,6 +116,98 @@ class XmageMultiplayerLookAndRevealTest {
         assertTrue(p3Shown, "P3's current hand is shown: " + revealed);
     }
 
+    /**
+     * Vizier of the Menagerie ("You may look at the top card of your library
+     * any time.") repeats the same look every time effects apply. P1 is shown
+     * its current top card as one entry; no other principal is shown it.
+     */
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {4, 5})
+    void aStandingLookStaysOneEntryWhileTheCardIsUnchanged(int playerCount) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Vizier of the Menagerie", 0, Zone.HAND));
+        for (int f = 1; f <= 4; f++) {
+            objects.add(XmageMultiplayerScenario.obj("P1", "Forest", f, Zone.BATTLEFIELD));
+        }
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("vizier-" + playerCount + "p",
+                playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
+        s.submit(s.action("activate_ability", "Cast Vizier of the Menagerie"));
+        while ("mana_payment".equals(s.decisionClass())) {
+            s.payWith("Forest");
+        }
+        for (int pass = 0; pass < 3 * playerCount; pass++) {
+            assertEquals("priority", s.decisionClass());
+            s.submit(s.action("pass_priority", "Pass"));
+        }
+        assertEquals("P1", s.actor());
+        JsonArray looked = pilotState(s).getAsJsonArray("looked_at");
+        assertEquals(1, looked.size(), "one entry for the unchanged top card: " + looked);
+        String top = s.seats.get("P1").getLibrary().getFromTop(game).getName();
+        assertTrue(hasCard(looked.get(0).getAsJsonObject(), top,
+                        XmageFullGameStateRedactor.seat(game, s.seats.get("P1").getId())),
+                "P1 is shown its current top card " + top + ": " + looked);
+        for (String pid : s.seats.keySet()) {
+            if (!"P1".equals(pid)) {
+                assertEquals(0, XmageFullGameStateRedactor.actorView(game, s.seats.get(pid))
+                        .getAsJsonArray("looked_at").size(), pid + " is not shown P1's top card");
+            }
+        }
+    }
+
+    /**
+     * Courser of Kruphix ("Play with the top card of your library revealed.")
+     * shows P1's current top card to every principal and to the public view;
+     * no other player's top card is shown.
+     */
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {4, 5})
+    void aRevealedTopCardIsPublic(int playerCount) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Courser of Kruphix", 0, Zone.HAND));
+        for (int f = 1; f <= 3; f++) {
+            objects.add(XmageMultiplayerScenario.obj("P1", "Forest", f, Zone.BATTLEFIELD));
+        }
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("courser-" + playerCount + "p",
+                playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
+        int p1Seat = XmageFullGameStateRedactor.seat(game, s.seats.get("P1").getId());
+        for (String pid : s.seats.keySet()) {
+            assertTrue(topRevealed(XmageFullGameStateRedactor.actorView(game, s.seats.get(pid)), p1Seat) == null,
+                    "control: nothing is revealed before Courser");
+        }
+        s.submit(s.action("activate_ability", "Cast Courser of Kruphix"));
+        while ("mana_payment".equals(s.decisionClass())) {
+            s.payWith("Forest");
+        }
+        for (int pass = 0; pass < playerCount; pass++) {
+            s.submit(s.action("pass_priority", "Pass"));
+        }
+        String top = s.seats.get("P1").getLibrary().getFromTop(game).getName();
+        for (String pid : s.seats.keySet()) {
+            JsonObject view = XmageFullGameStateRedactor.actorView(game, s.seats.get(pid));
+            assertEquals(top, topRevealed(view, p1Seat), pid + " is shown P1's revealed top card");
+            for (JsonElement e : view.getAsJsonArray("players")) {
+                JsonObject p = e.getAsJsonObject();
+                if (p.get("seat").getAsInt() != p1Seat) {
+                    assertTrue(p.get("library_top_revealed").isJsonNull(), "only P1's top card is revealed");
+                }
+            }
+        }
+        assertEquals(top, topRevealed(XmageFullGameStateRedactor.publicView(game), p1Seat));
+    }
+
+    private static String topRevealed(JsonObject view, int seat) {
+        for (JsonElement e : view.getAsJsonArray("players")) {
+            JsonObject p = e.getAsJsonObject();
+            if (p.get("seat").getAsInt() == seat) {
+                JsonElement top = p.get("library_top_revealed");
+                return top == null || top.isJsonNull() ? null : top.getAsJsonObject().get("name").getAsString();
+            }
+        }
+        return null;
+    }
+
     /** P1 casts the spell at P3, who holds only Craw Wurm; returns at P1's next empty-stack priority. */
     private static XmageMultiplayerScenario castAtP3(String spell, String land, String tag, int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
