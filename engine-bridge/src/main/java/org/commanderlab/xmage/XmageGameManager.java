@@ -487,13 +487,20 @@ final class XmageGameManager {
                 startedPayload.addProperty("external_control", true);
                 startedPayload.addProperty("seed_controlled", managed.explicitRulesSeed != null);
                 startedPayload.addProperty("initial_decision_kind", decision.decisionKind());
+                /*
+                 * At the first mulligan callback XMage has chosen the starting
+                 * player but has not yet established a turn phase/step. A
+                 * full semantic state hash is therefore not defined yet.
+                 * Recording null here is honest; the first post-mulligan
+                 * action event carries the first complete state hash.
+                 */
                 managed.eventLog.record(
                         "game_started",
                         managed.game.getStartingPlayerId().toString(),
                         decision.decisionId(),
                         null,
                         null,
-                        stateHash(managed),
+                        null,
                         startedPayload
                 );
 
