@@ -201,6 +201,8 @@ class XmageMultiplayerTurnControlPrivacyTest {
                 }
                 case "mana_payment" -> s.payWith(pn.equals(active) ? "Mountain" : "Island");
                 case "target" -> s.submit(s.action("choose_targets", "Seat " + playerCount));
+                case "declare_attacker" -> s.submit(
+                        s.action("declare_attackers", "Do not attack with"));
                 case "choose_object" -> XmageActualCardCorpusTest.chooseNamed(
                         new XmageActualCardCorpusTest.Started(s.session, s.seats, null),
                         "privacy-d" + i,
