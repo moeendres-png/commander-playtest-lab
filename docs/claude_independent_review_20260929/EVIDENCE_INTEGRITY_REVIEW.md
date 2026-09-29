@@ -215,6 +215,12 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Pinned by `XmageMultiplayerMenaceTest` (Broadside Bombardiers; 3–6P; P2 with one or two Bears). Other players' creatures are never offered the menace attacker (802.4b, via F-16).
   - Consequence for decision analytics: the pilot's recorded choice can differ from the executed declaration. Evidence consumers must read blocks from engine combat state, not from pilot selections.
   - A declaration-level blocker surface would remove this. That is a protocol change, left to the decision-surface owner.
+- **F-18, P3: engine (pinned `b19596980f27` and upstream master): simultaneous command-zone choices are not asked in APNAP order.**
+  - `GameImpl.checkStateBasedActions` handles CR 903.9a / 704.6d by looping over `state.getPlayers().values()`. That is seat insertion order (P1, P2, …, PN), whereas the engine's turn order is counterclockwise (P1, PN, …, P2), so the choices should run in that APNAP order (101.4).
+  - Each player's commanders are also moved before the next player chooses, where the state-based action should apply to all players simultaneously.
+  - Every owner is still asked exactly once through the external surface, and every choice is honoured. In the probed case outcomes are unaffected, because each choice concerns only the chooser's own commander.
+  - Pinned by `XmageMultiplayerCommanderZoneChoiceTest` (Pyroclasm kills every Rograkh; 3–6P). The CR order is a `@Disabled` test naming F-18.
+  - The fix is an engine-fork change (iterate `state.getPlayerList(activePlayerId)` and move after all choices). That needs Sol's Rules Core / pin authority and is not done here.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
