@@ -41,12 +41,15 @@
   "candidate_verification": {
     "code_head": "4277b90b4ee49acd945e82335a9a04c4536f5340",
     "ci_branch": "ci/xmage-f22-f23-v2-20260929",
-    "ci_commit": "9284d6112fbdfc29d74a3787bf7c2b00dd408b65",
+    "workflow_commit": "97868dcfa029dbd38dde2954dbb3076906ee39a0",
     "workflow_only_delta": true,
-    "run_id": 36616702280,
-    "status": "PENDING",
-    "conclusion": null,
-    "runtime_evidence": "UNKNOWN_PENDING_CI"
+    "run_id": 36617667892,
+    "required_jobs": [
+      "targeted",
+      "full-mage-tests"
+    ],
+    "evidence_record": "docs/workstream_xmage_f22_f23_successor_repin_20260929/CANDIDATE_RUNTIME_EVIDENCE.json",
+    "credit_rule": "No runtime credit unless the recorded run completes successfully on both required jobs."
   },
   "rules_authority": {
     "source": "Wizards Comprehensive Rules, current official rules page",
