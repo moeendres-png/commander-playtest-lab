@@ -1,27 +1,34 @@
 {
   "schema_version": "commander-lab.workstream-state/1.0.0",
-  "workstream": "PB-03 current-main admission -> native runtime integration",
+  "workstream": "PB-03 current-main dimension admission and native runtime execution closure",
   "source_lock": {
     "base_branch": "main",
-    "base_commit": "2229380bde5809c69cc7169692cfb9b1453eb17a",
-    "base_tree": "178a03e9bb3f1a9432f808d45aa4921dba37cc4b",
-    "prior_base": "128e91185b66df92e4bec726abb89c7c20fbbb11",
-    "drift_adjudication": "14 commits; only XmagePb03Tier1RowsTest overlapped thematically and was not overwritten"
+    "integration_base_commit": "2229380bde5809c69cc7169692cfb9b1453eb17a",
+    "latest_adjudicated_main_commit": "83a547f739cc1a7072798c55e10829032df8fe88",
+    "latest_adjudicated_main_tree": "5b099a89799cfdd65d84204f7ef3c961dda1e57f",
+    "drift_from_integration_base": {
+      "commits": 10,
+      "disposition": "NON_OVERLAPPING",
+      "note": "drift changes only Claude multiplayer campaign tests/review docs/foundry state; no PB-03 owned file overlaps"
+    }
   },
   "branch": "sol/pb03-current-main-runtime-v2-20260929",
+  "pr": 316,
   "supersedes_branch": "sol/pb03-current-main-runtime-20260929",
   "donor": {
-    "kind": "space-bunny local ZIP; not a merge source",
-    "zip_sha256": "de35f17a8054f641d39849eea88f74353702cec448ecd697fa9afc58d51a168c",
-    "reported_local_head": "ac2eb61fc804a6c877e58ff19b5104c344760bcb",
-    "reported_tree": "58d1353a9eccfeab61636e3db2c920bfbbe88734",
+    "kind": "Space Bunny local ZIP and handoff; evidence source, not merge source",
+    "original_zip_sha256": "de35f17a8054f641d39849eea88f74353702cec448ecd697fa9afc58d51a168c",
+    "original_reported_local_head": "ac2eb61fc804a6c877e58ff19b5104c344760bcb",
+    "latest_user_reported_closeout_zip_sha256": "2e0c263bc4a493e07a31401d29e4ed9cba85862696a6a0a7f3b8264452e91168",
+    "latest_user_reported_runtime_baseline": "23/30",
     "remote_commit_resolvable": false
   },
   "ownership": {
     "owns": [
-      "PB-03 dimension admission integration",
-      "PB-03 native-suite runtime binding",
-      "PB-03 impacted evidence"
+      "PB-03 30-row dimension admission",
+      "PB-03 exact native runtime execution ledger",
+      "PB-03 seven-gap runtime closure",
+      "PB-03 source-bound runtime workflow and impacted evidence"
     ],
     "read_only": [
       "PR #284",
@@ -33,16 +40,44 @@
       "AF11"
     ]
   },
+  "semantic_model": {
+    "admission": "frozen-state restorability only",
+    "runtime_execution": "exact source-bound native JUnit execution only",
+    "relationship": "ORTHOGONAL",
+    "full107_promotion_from_pb03": false,
+    "expected_admission_counts": {
+      "admitted": 14,
+      "blocked": 16
+    },
+    "target_runtime_counts": {
+      "executed_pass": 30,
+      "not_run_or_failed": 0
+    }
+  },
+  "work_completed": [
+    "Ported record-derived admission using required_events plus semantic_objects.zone only; fixture names do not decide verdicts.",
+    "Published live itemised restoration dimensions on the full-game capability payload while retaining starting_state_injection_supported=false.",
+    "Added independent exact JUnit 30-row runtime ledger with no FULL107 promotion.",
+    "Bound four elimination gaps to existing genuine causal engine tests.",
+    "Added exact frozen-record runtime coverage for PILOT_DECLARE_ATTACKER, PILOT_DECLARE_BLOCKER, and WS05-MP-TURN-3.",
+    "Added PB-03 runtime CI lane that builds pinned XMage, runs current-boundary xmage runner and assembler, and asserts 14/16 admission plus 30/30 runtime.",
+    "Corrected AF10 native-suite summary source without changing native_runs mapping shape."
+  ],
+  "new_findings": [
+    "PB-03 dimension admission and runtime execution are orthogonal: blocked frozen-state admission does not prohibit genuine causal reconstruction, and admitted state does not prove execution.",
+    "The Space Bunny 23/30 baseline leaves exactly seven runtime gaps; four already had matching current-main causal tests and three required exact frozen-record coverage.",
+    "Runtime execution PASS is not semantic FULL107 PASS. Blocker-characterization and genuine-causal-deviation tests remain explicitly labelled and grant no row promotion.",
+    "The prior zero-life/control-divergence admission interpretation was rejected: those are runtime/construction behavior concerns, not row admission dimensions under the adjudicated 14/16 model."
+  ],
   "classifications": {
-    "PB03_DIMENSION_ADMISSION": "UNDER_CURRENT_MAIN_VALIDATION",
-    "PB03_RUNTIME_EXECUTION": "NOT_CLAIMED",
+    "PB03_DIMENSION_ADMISSION": "UNDER_EXACT_HEAD_VALIDATION",
+    "PB03_RUNTIME_EXECUTION": "UNDER_EXACT_HEAD_VALIDATION",
     "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
     "PRODUCTION_PROVIDER": "NOT_SELECTED"
   },
-  "new_findings": [
-    "Donor 14/16 projection misses current-main UNSUPPORTED_CONTROL_DIVERGENCE.",
-    "Donor 14/16 projection treats zero-life pre-start rows as constructible although current native full-game start re-derives starting life.",
-    "Native positive credit now requires exact JUnit testcase receipts inside a digest-valid all-green parent suite."
+  "remaining_blockers": [
+    "Exact PR-head CI/native runtime qualification must complete green before PB03_RUNTIME_EXECUTION can be PASS."
   ],
-  "next_action": "Open draft PR, run exact-head CI/native qualification, diagnose failures, regenerate PB03 admission/runtime matrices, and stop before PB-07."
+  "dependencies_unblocked": [],
+  "exact_next_action": "Run exact-head CI, qualification, Maven/XMage conformance, and PB-03 runtime workflow; repair any source-bound failure. On 14/16 admission and 30/30 runtime, persist final PASS handoff and mark PB-07 unblocked by PB-03 without executing PB-07."
 }
