@@ -535,13 +535,24 @@ class SeedBinding:
 
 
 def classify_seed_binding(
-    *, requested_seed: int | None, acknowledged_seed: Any, source: str
+    *,
+    requested_seed: int | None,
+    acknowledged_seed: Any,
+    source: str,
+    engine_verified: bool = True,
 ) -> SeedBinding:
     """Derive seed control from an observed acknowledgement, never from intent.
 
     A provider that echoes nothing, echoes a different value, or returns a
     non-numeric value is uncontrolled. Recording explicit seed ownership on the
     strength of the caller having passed a number is the defect this replaces.
+
+    ``engine_verified`` carries the provider's own statement that the engine
+    accepted and exposes the seed (PB-09: pristine upstream Forge installs a seed
+    through its public deterministic-simulation setter but exposes no accessor,
+    so it reports ``explicit_seed=false``). Without that statement, an echoed
+    value that merely equals the request is a request echo, not an engine
+    acknowledgement, and it earns no RNG credit.
     """
     acknowledged: int | None
     if isinstance(acknowledged_seed, bool):
@@ -553,7 +564,10 @@ def classify_seed_binding(
     else:
         acknowledged = None
     controlled = (
-        acknowledged is not None and requested_seed is not None and acknowledged == requested_seed
+        engine_verified
+        and acknowledged is not None
+        and requested_seed is not None
+        and acknowledged == requested_seed
     )
     return SeedBinding(
         requested_seed=requested_seed,

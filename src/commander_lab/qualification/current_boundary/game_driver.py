@@ -106,6 +106,26 @@ def _create_request(
     return {"request": request}
 
 
+def _engine_confirmed_seed(response: Any) -> bool:
+    """Whether the provider states the ENGINE accepted and exposes the seed.
+
+    PB-09: a provider can install a seed through an upstream deterministic hook
+    and still expose no engine-side accessor, in which case it must not be able
+    to sell the echoed value as an engine acknowledgement. Providers that make no
+    statement at all are treated as unverified, so only an explicit engine-side
+    confirmation earns RNG credit.
+    """
+    if not isinstance(response, dict):
+        return False
+    for container in (response, response.get("rng"), response.get("rules")):
+        if not isinstance(container, dict):
+            continue
+        for key in ("engine_seed_verified", "explicit_seed", "seed_supported", "seed_accepted"):
+            if key in container:
+                return container[key] is True
+    return False
+
+
 def _acknowledged_seed(response: Any) -> Any:
     """Extract whatever seed the provider actually acknowledged, if anything.
 
@@ -482,6 +502,7 @@ def drive_commander_game(
             requested_seed=seed,
             acknowledged_seed=_acknowledged_seed(created),
             source="create_commander_game_response",
+            engine_verified=_engine_confirmed_seed(created),
         )
         result.terminal_facts["rules_rng_binding"] = binding.to_document()
         result.seed_binding = binding
