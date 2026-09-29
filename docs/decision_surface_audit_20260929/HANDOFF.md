@@ -15,7 +15,7 @@ Every defect below was demonstrated with actual cards: the test fails on the pre
 
 ## Forge — moeendres-png/forge#7 (stacked on #5, **not merged by design**)
 
-Head `f695dc1`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as an exact head. Only `forge-protocol2-bridge` changes.
+Head `b9562a2`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as an exact head. Only `forge-protocol2-bridge` changes.
 
 | Defect | Rule | Before | After |
 |---|---|---|---|
@@ -28,11 +28,13 @@ Head `f695dc1`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as a
 | Non-mana "unless" cost (shock lands such as Watery Grave: pay 2 life or enter tapped) | CR 614.12 / 118.12 | `session_failed` on playing the land | pay or decline framed; life paid through the native cost path |
 | "Tap an untapped creature you control" costs (Springleaf Drum, convoke-like tap costs) | CR 118.3 / 602.2b | whole priority frame `UNSUPPORTED` | one option per legal permanent, plus decline |
 | Crew N (Smuggler's Copter and every vehicle) | CR 702.122a | whole priority frame `UNSUPPORTED` whenever a vehicle and a creature were out | one option per creature set reaching power N, plus decline |
+| Return-to-hand (ninjutsu), pay-energy, reveal, exert and mill costs (~300 cards plus every ninjutsu card) | CR 118 / 702.49 | whole priority frame `UNSUPPORTED` whenever such an ability was in reach | framed `COST_SELECTION` mirroring `HumanCostDecision`; `SameColor` reveals stay fail-closed |
+| Emerge / offering (Elder Deep-Fiend, Distended Mindbender, …) | CR 702.119 / 702.48 | could never be cast that way (payment refused) | caster chooses the sacrifice, cost reduced, sacrifice only after payment; failed payment sacrifices nothing |
 
 Evidence:
 
-- `CombatBlockLegalityTest` 5/5, `OptionalCostChoiceTest` 2/2, `PayToPreventChoiceTest` 2/2, `ShockLandChoiceTest` 2/2, `TapTypeCostTest` 1/1, `CrewCostTest` 1/1.
-- Full `forge.bridge.**` suite 314/314 (301 on `e15f37d6`); project checkstyle green.
+- `CombatBlockLegalityTest` 5/5, `OptionalCostChoiceTest` 2/2, `PayToPreventChoiceTest` 2/2, `ShockLandChoiceTest` 2/2, `TapTypeCostTest` 1/1, `CrewCostTest` 1/1, `NonManaCostPartsTest` 7/7 (Longtusk Cub, Induce Despair, Fervent Paincaster, Ninja of the Deep Hours, Wretched Gryff).
+- Full `forge.bridge.**` suite 321/321 (301 on `e15f37d6`); project checkstyle green.
 - Classification: `DIRECTLY_VERIFIED` (bridge runtime tests).
 
 **To consume it in the Lab**, moving `FORGE_WORKSPACE` is not enough. `src/commander_lab/qualification/current_boundary/source_lock.py` binds the Forge bridge evidence identity to #5 (`FORGE_BRIDGE_EVIDENCE_COMMIT` / `_TREE` / `_PR`). Receipts produced from #7 while that lock still names #5 would be internally inconsistent. The current-boundary owner must:
@@ -79,11 +81,11 @@ Classification: `DIRECTLY_VERIFIED` for these four surfaces on XMage. Two protoc
 ## Also found (Forge, not changed here)
 
 - `ScenarioBootstrap` (starting-state injection) exists, and Forge declares `starting_state_injection_supported=true`. The Lab's current-boundary driver never sends a `scenario.neutral_initial_state`, which is why Forge's 44 `BLOCKED` FULL107 rows are a Lab execution-path gap (`PROVIDER_READINESS_PACKET_20260928.md` §9).
-- Remaining fail-closed Forge surfaces seen during the audit: `AnnounceType` spells (6 cards), splice (30), offering/emerge (21), `sharesCreatureTypeWith` tap costs (1), and cost parts outside the framed set.
+- Remaining fail-closed Forge surfaces seen during the audit: `AnnounceType` spells (6 cards), splice (30), `sharesCreatureTypeWith` tap costs (1), `SameColor` reveals, and cost parts outside the framed set (draw, damage, gain life, collect evidence, blight, …).
 
 ## Impact adjudication owed by evidence owners
 
-Historical Forge evidence may have depended on an illegal block option, or on optional-cost, pay-to-prevent, shock-land, tap-cost or crew cards halting or ending a game. Historical XMage evidence with a "block any number" creature on the battlefield could not include that creature's blocks. Neither was re-run here.
+Historical Forge evidence may have depended on an illegal block option, or on optional-cost, pay-to-prevent, shock-land, tap-cost, crew, ninjutsu, energy, reveal, exert, mill or emerge cards halting or ending a game. Historical XMage evidence with a "block any number" creature on the battlefield could not include that creature's blocks. Neither was re-run here.
 
 ## Exact next action
 
