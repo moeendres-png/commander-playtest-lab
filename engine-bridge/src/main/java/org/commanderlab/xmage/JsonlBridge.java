@@ -73,6 +73,7 @@ final class JsonlBridge {
             case "start_game" -> startGame(requestId, request);
             case "get_game_state" -> getGameState(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId, request);
+            case "resolve_mulligan" -> resolveMulligan(requestId, request);
             case "pass_priority" -> passPriority(requestId, request);
             case "submit_action" -> submitAction(requestId, request);
             case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
@@ -469,6 +470,83 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_legal_actions_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    private Result resolveMulligan(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_mulligan_payload",
+                    "RESOLVE_MULLIGAN requires an object payload"
+            );
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            String decisionId = stringValue(payload, "decision_id").trim();
+            String actorId = stringValue(payload, "player_id").trim();
+            if (actorId.isBlank()) {
+                actorId = stringValue(payload, "actor_id").trim();
+            }
+            if (decisionId.isBlank() || actorId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_mulligan_payload",
+                        "RESOLVE_MULLIGAN requires decision_id and player_id/actor_id",
+                        false
+                );
+            }
+            if (!payload.has("keep")
+                    || !payload.get("keep").isJsonPrimitive()
+                    || !payload.get("keep").getAsJsonPrimitive().isBoolean()) {
+                return error(
+                        requestId,
+                        "invalid_mulligan_payload",
+                        "RESOLVE_MULLIGAN requires boolean keep",
+                        false
+                );
+            }
+            boolean keep = payload.get("keep").getAsBoolean();
+            List<String> bottomCardIds = optionalStringArray(payload, "bottom_card_ids");
+
+            String preStateHash = gameManager.stateHash(gameHandle);
+            XmageActionExecutor.ExecutionResult executed = gameManager.resolveMulligan(
+                    gameHandle,
+                    decisionId,
+                    actorId,
+                    keep,
+                    bottomCardIds
+            );
+            String postStateHash = gameManager.stateHash(gameHandle);
+            gameManager.recordExternalAction(
+                    gameHandle,
+                    executed,
+                    preStateHash,
+                    postStateHash
+            );
+
+            XmageGameManager.StateSnapshot state =
+                    gameManager.snapshotState(gameHandle, executed.actorId());
+            XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
+            JsonObject responsePayload = actionExecutionPayload(executed, state, after);
+            responsePayload.addProperty("keep", keep);
+            responsePayload.addProperty("mulligan_choice_external", true);
+            responsePayload.addProperty("bottom_selection_injected", false);
+            responsePayload.addProperty("global_capability_promoted", false);
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
+            );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "resolve_mulligan_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_mulligan_payload",
                     exceptionMessage(exc),
                     false
             );
