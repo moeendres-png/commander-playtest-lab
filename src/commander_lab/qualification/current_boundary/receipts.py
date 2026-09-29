@@ -174,7 +174,20 @@ class RunnerIdentity:
         }
 
     def digest(self) -> str:
-        return _digest(self.to_document())
+        """Content identity of the executing code, independent of capture time.
+
+        ``built_utc`` remains in :meth:`to_document` as provenance, but is
+        deliberately excluded from the digest: it is set at capture time, so
+        including it would make two captures of the same clean tree disagree.
+        The freshness gate compares this digest across the *runner* and
+        *assembler* processes, and a receipt produced by one process could then
+        never be credited by the other. Content drift (commit, tree, dirty
+        state, any executed-input digest) still changes the digest, which is the
+        property the gate exists for.
+        """
+        document = self.to_document()
+        document.pop("built_utc", None)
+        return _digest(document)
 
 
 # Paths this qualification run writes as its own output. They are produced BY the

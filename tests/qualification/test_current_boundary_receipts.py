@@ -491,6 +491,33 @@ def test_clean_runner_is_accepted() -> None:
     R.require_clean_runner(_identity(Path("."), dirty=False))
 
 
+def test_runner_digest_binds_content_not_capture_time() -> None:
+    """Two captures of the same clean tree must produce the same digest.
+
+    The freshness gate compares the runner digest recorded in a receipt against
+    the digest of the code executing the *assembler*, which is a different
+    process. The capture timestamp (``built_utc``) is provenance metadata; if it
+    entered the digest, no receipt produced by one process could ever be
+    credited by the other and the gate would reject every real receipt as stale.
+    Content drift must still change the digest.
+    """
+    import dataclasses
+
+    base = _identity(Path("."), dirty=False)
+    later = dataclasses.replace(base, built_utc="2099-01-01T00:00:00+00:00")
+    assert base.digest() == later.digest()
+    # The timestamp is still recorded for audit, it just does not define identity.
+    assert base.to_document()["built_utc"] != later.to_document()["built_utc"]
+    # The property the gate exists for is unchanged: a different content state
+    # must not compare equal.
+    drifted = dataclasses.replace(
+        base, input_digests={"scripts/run_current_boundary_qualification.py": "f" * 64}
+    )
+    assert drifted.digest() != base.digest()
+    moved = dataclasses.replace(base, commit="9" * 40)
+    assert moved.digest() != base.digest()
+
+
 def test_capture_binds_real_git_and_file_state(tmp_path: Path) -> None:
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
     subprocess.run(["git", "config", "user.email", "t@t"], cwd=tmp_path, check=True)
