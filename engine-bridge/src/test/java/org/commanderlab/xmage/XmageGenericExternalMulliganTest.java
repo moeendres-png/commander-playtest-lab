@@ -119,9 +119,17 @@ class XmageGenericExternalMulliganTest {
                     "selected 2P London mulligan reached no explicit bottom-card fail-closed boundary"
             );
         }
+        String message = failure.getMessage();
         assertTrue(
-                failure.getMessage().contains("London bottom-card selection"),
-                failure.getMessage()
+                message.contains("MULLIGAN_RESOLUTION_FAILED"),
+                "failure must be attributed to the explicit mulligan resolution: " + message
+        );
+        assertTrue(
+                message.contains("London bottom-card selection")
+                        || (message.contains("UNSUPPORTED_COMPATIBILITY_DECISION")
+                        && message.contains("chooseTarget(Target)")),
+                "selected London mulligan must fail closed at the first unprojected "
+                        + "bottoming/choice boundary, never continue via a default: " + message
         );
     }
 
