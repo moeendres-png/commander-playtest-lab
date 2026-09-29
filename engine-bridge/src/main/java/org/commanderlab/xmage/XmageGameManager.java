@@ -8,12 +8,11 @@ import mage.MageItem;
 import mage.cards.decks.Deck;
 import mage.constants.CommanderCardType;
 import mage.constants.ManaType;
-import mage.constants.MultiplayerAttackOption;
 import mage.constants.PhaseStep;
 import mage.constants.RangeOfInfluence;
 import mage.constants.TurnPhase;
 import mage.counters.CounterType;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.Game;
 import mage.game.GameOptions;
 import mage.game.mulligan.MulliganType;
@@ -123,7 +122,7 @@ final class XmageGameManager {
     private static final class ManagedGame {
 
         private final String gameId;
-        private final CommanderFreeForAll game;
+        private final GameCommanderImpl game;
         private final List<Player> players;
         private final List<String> deckHandles;
         private final int startingPlayerSeat;
@@ -137,7 +136,7 @@ final class XmageGameManager {
 
         private ManagedGame(
                 String gameId,
-                CommanderFreeForAll game,
+                GameCommanderImpl game,
                 List<Player> players,
                 List<String> deckHandles,
                 int startingPlayerSeat,
@@ -257,14 +256,13 @@ final class XmageGameManager {
         boolean createdSuccessfully = false;
 
         try {
-            CommanderFreeForAll game = new CommanderFreeForAll(
-                    MultiplayerAttackOption.MULTIPLE,
-                    RangeOfInfluence.ALL,
+            // Two-player tables use the engine's own two-player Commander type
+            // so the engine applies CR 103.8a (see XmageCommanderGames).
+            GameCommanderImpl game = XmageCommanderGames.create(
+                    deckHandles.size(),
                     MulliganType.GAME_DEFAULT.getMulligan(0),
-                    startingLife,
-                    7
+                    startingLife
             );
-            game.setNumPlayers(deckHandles.size());
 
             GameOptions options = new GameOptions();
             options.rollbackTurnsAllowed = false;

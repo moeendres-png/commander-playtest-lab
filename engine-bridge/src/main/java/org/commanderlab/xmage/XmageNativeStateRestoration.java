@@ -13,7 +13,7 @@ import mage.constants.CommanderCardType;
 import mage.constants.PhaseStep;
 import mage.constants.TurnPhase;
 import mage.constants.Zone;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.Game;
 import mage.game.PutToBattlefieldInfo;
 import mage.game.permanent.Permanent;
@@ -600,7 +600,7 @@ final class XmageNativeStateRestoration {
      * zone.
      */
     synchronized void applyPreStart(
-            CommanderFreeForAll game, Map<String, Player> playersByPid) {
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
         if (preStartApplied) {
             throw new RestorationException(
                     "ALREADY_APPLIED", "pre-start restoration runs exactly once");
@@ -658,7 +658,7 @@ final class XmageNativeStateRestoration {
      * engine thread is parked on an external decision.
      */
     synchronized void restoreCommanderCasts(
-            CommanderFreeForAll game, Map<String, Player> playersByPid) {
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
         requireApplied();
 
         // Resolve every semantic Commander to one genuine native Commander id
@@ -731,7 +731,7 @@ final class XmageNativeStateRestoration {
      * deliberately excluded. Owner + exact card identity must bind 1:1.
      */
     private Map<String, UUID> bindLiveCommanderIds(
-            CommanderFreeForAll game, Map<String, Player> playersByPid) {
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
         Map<String, UUID> resolved = new HashMap<>();
         Set<UUID> used = new HashSet<>();
         for (RequestedCommander requested : plan.commanders()) {
@@ -774,7 +774,7 @@ final class XmageNativeStateRestoration {
      * principal-scoped through the redactor); libraries contribute counts
      * only (unspecified by construction and excluded from comparison).
      */
-    static JsonObject readback(CommanderFreeForAll game, Map<String, Player> playersByPid) {
+    static JsonObject readback(GameCommanderImpl game, Map<String, Player> playersByPid) {
         JsonObject root = new JsonObject();
         root.addProperty("turn_number", game.getState().getTurnNum());
         root.addProperty("phase", game.getTurnPhaseType() == null
