@@ -51,12 +51,32 @@
     "workflow_commit": "646a8ab4d85e0c90fa2869d100d8200d9c778fb8",
     "workflow_only_delta": true,
     "run_id": 36622158243,
-    "required_jobs": [
-      "targeted",
-      "full-mage-tests"
-    ],
+    "targeted": {
+      "job_id": 109589982079,
+      "conclusion": "success",
+      "tests_run": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "full_reactor": {
+      "job_id": 109589982568,
+      "conclusion": "failure",
+      "mage_tests": "PASS_7015_0_FAILURES_0_ERRORS_125_SKIPPED",
+      "mage_verify": "FAIL_2_TESTS_NONATTRIBUTABLE_BASELINE"
+    },
+    "parent_baseline": {
+      "source_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+      "workflow_commit": "aba9343d1d5c99a04c7223e3fb085343100f24ed",
+      "run_id": 36626307792,
+      "job_id": 109604066587,
+      "conclusion": "failure",
+      "reproduced_same_hard_errors": true,
+      "classification": "RUNTIME_VERIFIED_BASELINE_REPRODUCTION"
+    },
     "evidence_record": "docs/workstream_xmage_f22_f23_successor_repin_20260929/CANDIDATE_RUNTIME_EVIDENCE.json",
-    "credit_rule": "Runtime credit requires both jobs to pass on the exact frozen final candidate."
+    "adjudication": "F22_F23_RUNTIME_PASS_FULL_REACTOR_FAIL_NONATTRIBUTABLE_BASELINE",
+    "credit_rule": "F-22/F-23 runtime credit requires targeted PASS and no attributable full-reactor regression. The exact parent runtime-reproduced the candidate's only full-reactor failures in Mage.Verify, so those failures remain explicit baseline FAIL and do not invalidate F-22/F-23 runtime PASS."
   },
   "rules_authority": {
     "source": "Wizards Comprehensive Rules, current official rules page",
@@ -69,5 +89,11 @@
       "801.2c"
     ]
   },
-  "evidence_policy": "No prior runtime PASS is transferred across the engine pin without impact adjudication. Exact successor runtime credit requires the recorded candidate verification and Lab repin qualification."
+  "evidence_policy": "No prior runtime PASS is transferred across the engine pin without impact adjudication. Exact successor runtime credit requires the recorded candidate verification and Lab repin qualification.",
+  "merge_receipt": {
+    "mage_pull_request": "moeendres-png/mage#26",
+    "merged": true,
+    "source_head": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
+    "merge_commit": "23b996a5048bf7b8e7e4a422f2f8ea4c4ba90f65"
+  }
 }
