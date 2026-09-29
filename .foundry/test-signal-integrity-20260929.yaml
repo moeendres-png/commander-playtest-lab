@@ -38,11 +38,16 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: d171bcaa6803a613d5b25a8a7eee88af61e344fc
-# Newest commit whose tests/evidence were actually validated. Re-pointed from a3ffa44a to the
-# merge commit after main drifted to 57b233fb, and again to d171bcaa; each time because the
-# earlier value no longer described the content under test.
-validated_head: d171bcaa6803a613d5b25a8a7eee88af61e344fc
+state_written_against_head: bc08bc79109063c51f77f45ee28521988994e474
+# Newest commit whose tests/evidence were actually validated. Re-pointed three times as main
+# drifted (57b233fb, 73399357), each time because the earlier value no longer described the
+# content under test.
+#
+# Drift policy, recorded so this does not churn: main drifts roughly every merge. validated_head
+# names the newest content validated LOCALLY. Drift arriving after this commit is covered by
+# exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
+# this field.
+validated_head: bc08bc79109063c51f77f45ee28521988994e474
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -235,6 +240,16 @@ validation:
     ruff_check: clean
     ruff_format: 1096 files formatted
     regression_guard_proof: fails on pre-fix index, passes on fixed index
+  on_bc08bc79_after_second_drift_merge:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1126 files formatted
+    drift_note: >-
+      main moved to 73399357 (#378: multiplayer findings, engine-bridge); it touched no .foundry
+      or tests/foundry path and merged without conflict. Re-validated rather than reusing the
+      earlier numbers.
   on_d171bcaa_drift_portability:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
     tests_foundry: 643 passed, 0 skipped
