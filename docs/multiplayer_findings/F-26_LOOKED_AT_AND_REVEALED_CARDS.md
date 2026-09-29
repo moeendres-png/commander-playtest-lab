@@ -85,3 +85,16 @@ A continuous "play with hands revealed" effect refreshes its reveal every time e
   - `aStandingLookStaysOneEntryWhileTheCardIsUnchanged` (4P/5P)
   - `aRevealedTopCardIsPublic` (4P/5P, with a control that nothing is revealed before Courser)
   - Both fail before the fix (4 failures in all) and pass after.
+
+
+## Semantic replay binding
+
+The observation fields above are now part of state-digest semantics
+(`semantic-state-digest-1.1.0`).
+
+- `looked_at` is principal-scoped and preserves event/card order in the
+  principal observation digest. It is deliberately absent from the public digest.
+- `revealed` is public and is bound into both principal and public digests.
+- `library_top_revealed` is public and is bound per player row into both digests.
+- Replay comparison fails closed when tapes use different state-digest semantic
+  versions.
