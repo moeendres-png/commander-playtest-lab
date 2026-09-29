@@ -27,6 +27,7 @@ import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.combat.CombatGroup;
 import mage.game.stack.StackObject;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
@@ -1062,7 +1063,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
             JsonArray options = new JsonArray();
             Map<String, UUID> attackerByOption = new LinkedHashMap<>();
             for (UUID attackerId : attackers) {
-                if (!blocker.canBlock(attackerId, game)) {
+                // The engine's own acceptance test in declareBlocker: the
+                // blocker's controller must be the group's defending player
+                // (CR 802.4a) and the blocker must be able to block every
+                // attacker of the group. Permanent.canBlock alone checks
+                // only "attacker is an opponent's", so it over-offers in
+                // multiplayer, and the engine then silently drops the block.
+                CombatGroup group = game.getCombat().findGroup(attackerId);
+                if (group == null || !group.canBlock(blocker, game)) {
                     continue;
                 }
                 String optionId = attackerId.toString();
