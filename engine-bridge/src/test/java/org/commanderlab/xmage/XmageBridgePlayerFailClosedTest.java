@@ -119,6 +119,7 @@ class XmageBridgePlayerFailClosedTest {
                 (Game) null));
         assertUnsupported(() -> player.chooseTargetAmount(
                 Outcome.Neutral, (TargetAmount) null, (Ability) null, (Game) null));
+        assertUnsupported(() -> player.chooseMulligan((Game) null));
         assertUnsupported(() -> player.chooseUse(
                 Outcome.Neutral, "use?", (Ability) null, (Game) null));
         assertUnsupported(() -> player.chooseUse(
@@ -171,6 +172,12 @@ class XmageBridgePlayerFailClosedTest {
                 () -> externallyControlled.chooseReplacementEffect(null, null, null)
         );
         assertTrue(replacement.getMessage().contains("UNSUPPORTED_COMPATIBILITY_DECISION"));
+
+        XmageGameManager.GameException mulligan = assertThrows(
+                XmageGameManager.GameException.class,
+                () -> externallyControlled.chooseMulligan(null)
+        );
+        assertTrue(mulligan.getMessage().contains("chooseMulligan"));
 
         assertThrows(
                 XmageGameManager.GameException.class,
