@@ -1,0 +1,63 @@
+name: Pinned XMage engine (cached by commit)
+description: >
+  Makes the Maven artifacts (org.mage:*) of the pinned XMage commit available in
+  ~/.m2. The cache key is the full commit of the checked-out source (verified
+  against the requested pin), so a hit can only restore artifacts that were built
+  from exactly that source; on a miss the source is built, installed and cached.
+  The H4 materialization workflow deliberately does not use this action: it
+  proves the direct-source build on every run.
+inputs:
+  commit:
+    description: Requested XMage pin (full commit, or an unambiguous prefix of it).
+    required: true
+  source-path:
+    description: Checkout of the pinned XMage source.
+    required: false
+    default: vendor/engine-source/xmage
+outputs:
+  cache-hit:
+    description: "'true' when the artifacts were restored instead of built."
+    value: ${{ steps.restore.outputs.cache-hit }}
+  commit:
+    description: Full commit of the source the artifacts belong to.
+    value: ${{ steps.resolve.outputs.commit }}
+runs:
+  using: composite
+  steps:
+    - name: Resolve and verify the checked-out XMage commit
+      id: resolve
+      shell: bash
+      working-directory: ${{ inputs.source-path }}
+      env:
+        REQUESTED: ${{ inputs.commit }}
+      run: |
+        set -euo pipefail
+        full="$(git rev-parse HEAD)"
+        [[ "$REQUESTED" =~ ^[0-9a-f]{7,40}$ ]] || { echo "not a commit id: $REQUESTED" >&2; exit 1; }
+        [[ "$full" == "$REQUESTED"* ]] || { echo "checkout $full is not the requested pin $REQUESTED" >&2; exit 1; }
+        echo "commit=$full" >> "$GITHUB_OUTPUT"
+    - name: Restore pinned XMage artifacts
+      id: restore
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.m2/repository/org/mage
+        key: xmage-engine-${{ steps.resolve.outputs.commit }}-temurin17-v1
+    - name: Build pinned XMage (cache miss)
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: ${{ inputs.source-path }}
+      run: |
+        set -euo pipefail
+        if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
+    - name: Save pinned XMage artifacts
+      if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.m2/repository/org/mage
+        key: xmage-engine-${{ steps.resolve.outputs.commit }}-temurin17-v1
+    - name: Record engine artifact identity
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "pinned XMage ${{ steps.resolve.outputs.commit }} cache-hit=${{ steps.restore.outputs.cache-hit == 'true' }}"
+        sha256sum ~/.m2/repository/org/mage/mage/*/mage-*.jar ~/.m2/repository/org/mage/mage-sets/*/mage-sets-*.jar
