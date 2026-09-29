@@ -511,7 +511,7 @@ final class JsonlBridge {
             boolean keep = payload.get("keep").getAsBoolean();
             List<String> bottomCardIds = optionalStringArray(payload, "bottom_card_ids");
 
-            String preStateHash = gameManager.stateHash(gameHandle);
+            String preStateHash = gameManager.stateHashIfAvailable(gameHandle);
             XmageActionExecutor.ExecutionResult executed = gameManager.resolveMulligan(
                     gameHandle,
                     decisionId,
@@ -519,7 +519,7 @@ final class JsonlBridge {
                     keep,
                     bottomCardIds
             );
-            String postStateHash = gameManager.stateHash(gameHandle);
+            String postStateHash = gameManager.stateHashIfAvailable(gameHandle);
             gameManager.recordExternalAction(
                     gameHandle,
                     executed,
@@ -527,10 +527,32 @@ final class JsonlBridge {
                     postStateHash
             );
 
-            XmageGameManager.StateSnapshot state =
-                    gameManager.snapshotState(gameHandle, executed.actorId());
             XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
-            JsonObject responsePayload = actionExecutionPayload(executed, state, after);
+            JsonObject responsePayload;
+            if (postStateHash == null) {
+                responsePayload = new JsonObject();
+                responsePayload.addProperty("game_id", gameId);
+                responsePayload.addProperty("executed_decision_id", executed.decisionId());
+                responsePayload.addProperty("executed_action_id", executed.actionId());
+                responsePayload.addProperty("executed_action_type", executed.actionType());
+                responsePayload.addProperty("executed_actor_id", executed.actorId());
+                responsePayload.add("state_observation_offset", JsonNull.INSTANCE);
+                responsePayload.add("observer_player_id", JsonNull.INSTANCE);
+                responsePayload.add("observer_engine_player_id", JsonNull.INSTANCE);
+                responsePayload.add("observer_seat", JsonNull.INSTANCE);
+                responsePayload.add("state", JsonNull.INSTANCE);
+                responsePayload.add("next_decision", legalActionsPayload(after));
+                responsePayload.addProperty("state_available", false);
+                responsePayload.addProperty(
+                        "state_unavailable_reason",
+                        "XMage has not established turn phase/step during mulligan"
+                );
+            } else {
+                XmageGameManager.StateSnapshot state =
+                        gameManager.snapshotState(gameHandle, executed.actorId());
+                responsePayload = actionExecutionPayload(executed, state, after);
+                responsePayload.addProperty("state_available", true);
+            }
             responsePayload.addProperty("keep", keep);
             responsePayload.addProperty("mulligan_choice_external", true);
             responsePayload.addProperty("bottom_selection_injected", false);
