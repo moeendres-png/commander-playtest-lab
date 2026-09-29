@@ -158,11 +158,11 @@ def required_tokens(required_events: list[str], zones: list[str]) -> list[str]:
             tokens.append(_UNMAPPED)
 
     for zone in zones:
-        declared = _ZONE_TOKENS.get(zone)
-        if declared is None:
+        zone_tokens = _ZONE_TOKENS.get(zone)
+        if zone_tokens is None:
             tokens.append(_UNMAPPED)
         else:
-            tokens.extend(declared)
+            tokens.extend(zone_tokens)
     return sorted(set(tokens))
 
 
@@ -269,8 +269,8 @@ def admit_manifest(
         "rows": sorted(rows, key=lambda row: row["fixture_id"]),
         "counts": {"admitted": len(admitted), "blocked": len(blocked)},
         "runtime_relation": (
-            "ORTHOGONAL: blocked admission does not prohibit genuine causal runtime execution; "
-            "admitted admission does not prove runtime execution"
+            "ORTHOGONAL: blocked admission does not prohibit genuine causal runtime "
+            "execution; admitted admission does not prove runtime execution"
         ),
         "full107_credit": "NONE_FROM_ADMISSION",
     }
