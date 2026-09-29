@@ -67,6 +67,13 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
         c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
         for c in ("xmage", "forge")
     }
+    pb03_path = OUT / "PB03_DIMENSION_ADMISSION.json"
+    pb03 = load(pb03_path) if pb03_path.is_file() else {}
+    pb03_admitted = {str(item) for item in pb03.get("admitted", [])}
+    pb03_blocked = {
+        str(item) for item in (pb03.get("blocked", {}) or {}).keys()
+    }
+    pb03_managed = pb03_admitted | pb03_blocked
     out: dict[str, dict[str, list[str]]] = {}
     for candidate in ("xmage", "forge"):
         commit = identity[candidate].get("engine_candidate_commit", "")
@@ -74,6 +81,19 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
             receipts, candidate=candidate, expected_commit=commit, denominator=denominator
         )
         for fixture, tests in credited.items():
+            # Defense in depth: a positive native testcase cannot override
+            # PB-03's live capability admission. Admission itself grants no
+            # credit, but blocked admission is a hard routing prohibition.
+            if (
+                candidate == "xmage"
+                and fixture in pb03_managed
+                and fixture not in pb03_admitted
+            ):
+                print(
+                    "PB-03 blocked admission cannot be overridden by positive receipt: "
+                    + fixture
+                )
+                continue
             out.setdefault(fixture, {})[candidate] = tests
     return out
 
@@ -248,6 +268,83 @@ def assemble() -> None:
             "results_runtime_identity": results["runtime_identity"],
         }
 
+    # ---- PB-03 runtime execution matrix -----------------------------------
+    pb03_path = OUT / "PB03_DIMENSION_ADMISSION.json"
+    if pb03_path.is_file() and "xmage" in per_candidate:
+        pb03 = load(pb03_path)
+        final_rows = per_candidate["xmage"]["rows"]
+        runtime_rows: list[dict[str, Any]] = []
+        for admission_row in pb03.get("rows", []):
+            if not isinstance(admission_row, dict):
+                continue
+            fixture_id = str(admission_row.get("fixture_id") or "")
+            final = final_rows.get(fixture_id, {})
+            runtime_rows.append(
+                {
+                    "fixture_id": fixture_id,
+                    "admission_verdict": admission_row.get("verdict"),
+                    "required_tokens": admission_row.get("required_tokens", []),
+                    "missing_tokens": admission_row.get("missing_tokens", []),
+                    "admission_reason": admission_row.get("reason"),
+                    "runtime_exit_state": final.get("exit_state", "UNKNOWN"),
+                    "execution_mode": final.get("execution_mode"),
+                    "runtime_reason": final.get("reason"),
+                    "native_harness_classes": final.get("native_harness_classes", []),
+                    "evidence_class": final.get("evidence_class"),
+                }
+            )
+
+        admitted_rows = [
+            row
+            for row in runtime_rows
+            if row["admission_verdict"] == "ADMITTED_TO_NATIVE_RESTORATION"
+        ]
+        blocked_rows = [
+            row
+            for row in runtime_rows
+            if row["admission_verdict"] != "ADMITTED_TO_NATIVE_RESTORATION"
+        ]
+        admitted_counts: dict[str, int] = {}
+        for row in admitted_rows:
+            state = str(row["runtime_exit_state"])
+            admitted_counts[state] = admitted_counts.get(state, 0) + 1
+        blocked_not_blocked = [
+            row["fixture_id"]
+            for row in blocked_rows
+            if row["runtime_exit_state"] != "BLOCKED"
+        ]
+        if blocked_not_blocked:
+            classification = "FAIL"
+        elif admitted_rows and all(
+            row["runtime_exit_state"] == "PASS" for row in admitted_rows
+        ) and not blocked_rows:
+            classification = "PASS"
+        elif any(row["runtime_exit_state"] == "PASS" for row in admitted_rows):
+            classification = "PARTIAL"
+        else:
+            classification = "BLOCKED"
+
+        write(
+            "PB03_RUNTIME_EXECUTION_MATRIX.json",
+            {
+                "schema_version": "commander-lab.pb03-runtime-execution/1.0.0",
+                "PB03_DIMENSION_ADMISSION": pb03.get("classification", "UNKNOWN"),
+                "PB03_RUNTIME_EXECUTION": classification,
+                "admitted_count": len(admitted_rows),
+                "blocked_count": len(blocked_rows),
+                "admitted_runtime_counts": dict(sorted(admitted_counts.items())),
+                "blocked_rows_not_fail_closed": blocked_not_blocked,
+                "rows": sorted(runtime_rows, key=lambda row: row["fixture_id"]),
+                "credit_boundary": (
+                    "Admission grants no PASS. PASS requires an exact positive "
+                    "fixture receipt inside a digest-valid all-green native-suite "
+                    "receipt at the expected candidate head."
+                ),
+                "architecture_freeze": "NOT_CLAIMED",
+                "production_provider": "NOT_SELECTED",
+            },
+        )
+
     # ---- AF00-AF11 matrix ------------------------------------------------
     for candidate, data in per_candidate.items():
         counts = data["counts"]
@@ -257,18 +354,8 @@ def assemble() -> None:
         # counts only what a verified receipt observed, and it is empty when no
         # receipt exists, so the gate cannot inherit a historical count.
         native = data["native_runs"]
-        native_summary = native.get("summary", {})
-        native_groups = [
-            k
-            for k in native
-            if k
-            not in {
-                "source",
-                "summary",
-                "absent_receipts_yield_no_credit",
-                "expected_engine_commit",
-            }
-        ]
+        native_summary = data["native_runs_provenance"].get("summary", {})
+        native_groups = list(native)
         native_tests = int(native_summary.get("tests", 0))
         native_green = (
             bool(native_groups)
