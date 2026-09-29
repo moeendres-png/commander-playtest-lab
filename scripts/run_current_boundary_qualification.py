@@ -53,9 +53,13 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     start2_row,
     validate_principal_scoping,
 )
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    dimension_admission as pb03_admission_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    pb03_runtime as pb03_runtime_mod,
+)
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
-from commander_lab.qualification.current_boundary import dimension_admission as pb03_admission_mod  # noqa: E402
-from commander_lab.qualification.current_boundary import pb03_runtime as pb03_runtime_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     HIDDEN_SCENARIO_ROWS,
     NATIVE_MICRO_ROWS,
@@ -274,9 +278,11 @@ def git(*args: str, cwd: Path | None = None) -> str:
 
 for _candidate in NATIVE_SUITE_BINDING:
     NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
+    _suite_root = Path(NATIVE_SUITE_BINDING[_candidate]["root"])
     NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
-        git("rev-parse", "HEAD^{tree}", cwd=NATIVE_SUITE_BINDING[_candidate]["root"])
-        or "UNCONFIGURED"
+        git("rev-parse", "HEAD^{tree}", cwd=_suite_root)
+        if _suite_root.exists()
+        else "UNCONFIGURED"
     )
 
 
