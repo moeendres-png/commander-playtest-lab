@@ -37,7 +37,7 @@ REACHABLE_CONFIG_FILES = ("opencode.json", "opencode.jsonc")
 REACHABLE_DIRS = (".opencode", ".claude")
 HISTORICAL_NESTS = ("research", "handoffs", "docs", "artifacts", "qualification")
 
-CANONICAL_MODEL = "opencode-go/space-bunny-free"
+CANONICAL_MODEL = "opencode-go/deepseek-v4.1-flash"
 
 
 def _run(args: list[str], cwd: str) -> str:

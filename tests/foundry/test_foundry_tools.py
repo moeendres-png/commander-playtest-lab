@@ -266,21 +266,21 @@ def test_repo_root_state_absent_schema_kept() -> None:
 def test_opencode_config_schema_conformance() -> None:
     """Exactly two authorized executors, each pinned to one native variant.
 
-    Operator authority (2026-09-27): only Space Bunny MAX and Muse XHIGH are
+    Operator authority (2026-09-29): only DeepSeek MAX and Space Bunny MAX are
     reachable. This pins the shape and the pinning, not just the presence of a
     model field, so a retired effort level cannot quietly reopen.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/space-bunny-free"
-    assert config["small_model"] == "opencode-go/space-bunny-free"
+    assert config["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert config["small_model"] == "opencode-go/deepseek-v4.1-flash"
     assert config["share"] == "disabled"
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
-    # No silent fallback: canonical first, documented alternate still selectable.
-    assert provider["whitelist"] == ["space-bunny-free", "muse-spark-1.3-contributor"]
+    # No silent fallback: primary first, documented secondary still selectable.
+    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny-free"]
     authorized = {
+        "deepseek-v4.1-flash": ("max", {"reasoningEffort": "max"}),
         "space-bunny-free": ("max", {"reasoningEffort": "max"}),
-        "muse-spark-1.3-contributor": ("xhigh", {"reasoningEffort": "xhigh"}),
     }
     assert set(provider["models"]) == set(authorized)
     for short, (variant, options) in authorized.items():
@@ -288,12 +288,19 @@ def test_opencode_config_schema_conformance() -> None:
         assert entry["options"] == options, short
         enabled = sorted(n for n, s in entry["variants"].items() if s != {"disabled": True})
         assert enabled == [variant], f"{short}: {enabled}"
-        for retired in ("none", "off", "minimal", "low", "medium"):
+        for retired in ("none", "off", "minimal", "low", "medium", "high", "xhigh"):
             assert entry["variants"][retired] == {"disabled": True}, f"{short}:{retired}"
-    # Space Bunny is the primary executor, so the build agent defaults to its level.
+    # DeepSeek is the primary executor, so the build agent defaults to its level.
     assert config["agent"]["build"] == {"variant": "max"}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
+
+
+def test_inactive_executors_absent_from_canonical_config() -> None:
+    """Muse and GLM must not be whitelisted or configured anywhere in opencode.json."""
+    raw = (REPO_ROOT / "opencode.json").read_text(encoding="utf-8")
+    for retired in ("muse-spark", "muse-free-zen", "glm-5"):
+        assert retired not in raw, retired
 
 
 def _agent_frontmatter(name: str) -> dict:
@@ -304,22 +311,20 @@ def _agent_frontmatter(name: str) -> dict:
 def test_high_default_retained() -> None:
     """The default agent surface runs at an authorized native level only.
 
-    Retained intent, renamed subject: with only Space Bunny MAX and Muse XHIGH
-    permitted, `high` is a retired level and must not appear on any reachable
-    agent definition. The on-disk agent snapshot is the Muse profile; the
-    launcher pins Space Bunny inline for space-bunny runs.
+    Retained intent, renamed subject: with only DeepSeek MAX and Space Bunny MAX
+    permitted, every other level is retired and must not appear on any reachable
+    agent definition. No agent may sit on a retired level.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     models = config["provider"]["opencode-go"]["models"]
+    assert models["deepseek-v4.1-flash"]["options"] == {"reasoningEffort": "max"}
     assert models["space-bunny-free"]["options"] == {"reasoningEffort": "max"}
-    assert models["muse-spark-1.3-contributor"]["options"] == {"reasoningEffort": "xhigh"}
-    # The primary implementer is Space Bunny MAX. The read-only reviewer and the
-    # adjudicator are the Muse XHIGH cross-model alternate. No agent may sit on a
-    # retired level.
+    # The on-disk agent snapshot is the DeepSeek primary; the launcher pins the
+    # explicitly selected profile inline for every run.
     expected = {
-        "foundry-implementer.md": ("opencode-go/space-bunny-free", "max"),
-        "foundry-adjudicator.md": ("opencode-go/muse-spark-1.3-contributor", "xhigh"),
-        "foundry-reviewer.md": ("opencode-go/muse-spark-1.3-contributor", "xhigh"),
+        "foundry-implementer.md": ("opencode-go/deepseek-v4.1-flash", "max"),
+        "foundry-adjudicator.md": ("opencode-go/deepseek-v4.1-flash", "max"),
+        "foundry-reviewer.md": ("opencode-go/deepseek-v4.1-flash", "max"),
     }
     for name, (model, variant) in expected.items():
         front = _agent_frontmatter(name)
@@ -330,8 +335,8 @@ def test_high_default_retained() -> None:
 def test_adjudicator_exists_and_configured() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["mode"] == "subagent"
-    assert adjudicator["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert adjudicator["variant"] == "xhigh"
+    assert adjudicator["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert adjudicator["variant"] == "max"
     assert adjudicator["permission"]["edit"] == "deny"
     bash = adjudicator["permission"]["bash"]
     assert bash["*"] == "ask"
@@ -384,8 +389,9 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     flat = " ".join(text.lower().split())
     assert "technical_decision_authority = autonomous_within_contract" in flat
     assert "do not stop or ask the coordinator for routine technical decisions" in flat
+    assert "deepseek max" in flat
     assert "space bunny max" in flat
-    assert "muse xhigh" in flat
+    assert "muse and glm are inactive" in flat
     assert "autonomous tool use" in flat
     assert "authority_gate" in flat
 
@@ -394,8 +400,8 @@ def test_reviewer_remains_high_and_read_only() -> None:
     """Reviewer runs at an authorized level and stays structurally read-only."""
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "subagent"
-    assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert reviewer["variant"] == "xhigh"
+    assert reviewer["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert reviewer["variant"] == "max"
     assert reviewer["permission"]["edit"] == "deny"
 
 

@@ -322,13 +322,13 @@ def test_safety_permissions_intact(repo_root: Path):
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    # Space Bunny MAX is primary; Muse XHIGH stays selectable as the documented
-    # cross-model alternate, and no other model is whitelisted.
-    assert config["model"] == "opencode-go/space-bunny-free"
+    # DeepSeek MAX is primary; Space Bunny MAX stays selectable as the documented
+    # secondary, and no other model is whitelisted.
+    assert config["model"] == "opencode-go/deepseek-v4.1-flash"
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["space-bunny-free", "muse-spark-1.3-contributor"]
-    assert set(provider["models"]) == {"space-bunny-free", "muse-spark-1.3-contributor"}
+    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny-free"]
+    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny-free"}
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
         "OpenCode V2 accepts config.instructions but does not resolve its entries; "
@@ -348,7 +348,8 @@ def test_policy_layers_kept(repo_root: Path):
     routing = (repo_root / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text(
         encoding="utf-8"
     )
-    assert "muse-spark-1.3-contributor" in routing
+    assert "opencode-go/deepseek-v4.1-flash" in routing
+    assert "Muse and GLM are inactive" in routing
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
@@ -384,7 +385,7 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
         sys.path.remove(str(repo_root / "tools" / "foundry"))
     bundle = launcher_mod.build_content_bundle(str(repo_root), [])
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode-go/space-bunny-free"
+    assert bundle["model"] == "opencode-go/deepseek-v4.1-flash"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):
@@ -393,25 +394,25 @@ def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path
         import launcher as launcher_mod
     finally:
         sys.path.remove(str(repo_root / "tools" / "foundry"))
+    # Synthetic fixture only: a deliberately malformed tool_output block. The model
+    # identity here is irrelevant to the assertion; the bundle must fail closed.
     config = {
-        "model": "opencode-go/muse-spark-1.3-contributor",
+        "model": "opencode-go/deepseek-v4.1-flash",
         "share": "disabled",
         "enabled_providers": ["opencode-go"],
         "provider": {
             "opencode-go": {
+                "whitelist": ["deepseek-v4.1-flash", "space-bunny-free"],
                 "models": {
-                    "muse-spark-1.3-contributor": {
-                        "variants": {
-                            "none": {"disabled": True},
-                            "off": {"disabled": True},
-                            "minimal": {"disabled": True},
-                            "low": {"disabled": True},
-                            "medium": {"disabled": True},
-                            "high": {},
-                            "xhigh": {},
-                        }
-                    }
-                }
+                    "deepseek-v4.1-flash": {
+                        "options": {"reasoningEffort": "max"},
+                        "variants": {"max": {}},
+                    },
+                    "space-bunny-free": {
+                        "options": {"reasoningEffort": "max"},
+                        "variants": {"max": {}},
+                    },
+                },
             }
         },
         "permission": {},
