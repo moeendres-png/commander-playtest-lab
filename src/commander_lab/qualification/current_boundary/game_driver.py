@@ -657,13 +657,17 @@ def drive_commander_game(
                 # Scenario intent: a named seat takes exactly one mulligan. The
                 # engine decides what that costs; the driver only states the
                 # choice, and every later round keeps.
+                # The frame carries the seat label the driver asked with while the
+                # request must name the engine actor, so scenario intent is matched
+                # against the seat label and the engine identity is used verbatim.
+                seat_label = frame.get("seat")
                 take_mulligan = bool(
                     scripted_mulligans
-                    and actor in scripted_mulligans
-                    and actor not in mulligan_taken
+                    and seat_label in scripted_mulligans
+                    and seat_label not in mulligan_taken
                 )
                 if take_mulligan:
-                    mulligan_taken.add(actor)
+                    mulligan_taken.add(seat_label)
                 keep = _require_ok(
                     proc.request(
                         "resolve_mulligan",
