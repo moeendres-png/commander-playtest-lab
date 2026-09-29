@@ -804,6 +804,28 @@ final class XmageGameManager {
         }
     }
 
+    /**
+     * Transitional audit hash for engine callbacks that legally occur before
+     * XMage has established a turn phase (notably London mulligan).
+     *
+     * <p>Null means "no complete semantic state exists yet", not "hashing
+     * failed". Any other state-hash failure remains fatal. Normal priority and
+     * action submission continue to use {@link #stateHash(String)} and therefore
+     * require a complete Rules state.</p>
+     */
+    String stateHashIfAvailable(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException("GAME_STATE_UNAVAILABLE: game must be started");
+            }
+            if (managed.game.getTurnPhaseType() == null) {
+                return null;
+            }
+            return stateHash(managed);
+        }
+    }
+
     void recordExternalAction(
             String gameHandle,
             XmageActionExecutor.ExecutionResult executed,
