@@ -30,7 +30,19 @@ Each player entry carries an `exile` array alongside the existing `exile_count`:
 
 ## Tests
 
-`XmageMultiplayerExileVisibilityTest` runs at 4P and 5P:
+`XmageMultiplayerExileVisibilityTest` runs at 2P through 5P:
 
 - **Swords to Plowshares on P3's Grizzly Bears:** every principal and the public view are shown the Bears in P3's exile. A control checks that nothing is shown before the spell.
 - **Gonti, Lord of Luxury targeting P3:** only P1 is shown the face-down card. P3 (its owner), the other players and the public view see only the count, which is 1.
+
+
+## Replay and conformance completion
+
+The `exile` projection is bound into `semantic-state-digest-1.1.0`.
+Face-up exile identities affect both principal and public digests. Face-down
+identities visible through an engine entitlement affect only the principal
+digest and are filtered from the public digest. Exile objects are also indexed
+for semantic option identity without raw ids.
+
+The Swords to Plowshares and Gonti regressions now run at **2P, 3P, 4P and
+5P**, dynamically selecting an existing opponent.
