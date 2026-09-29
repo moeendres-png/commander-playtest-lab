@@ -7,10 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CURRENT = "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c"
 CURRENT_TREE = "ba0d02bdf5e9d62361d68dbdfb7e729d46ce9aed"
 PRIOR = "f79e4168902e65063034b21be6f4585397fd43b3"
-LOCK = (
-    ROOT
-    / "qualification/xmage-f22-f23-successor-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
-)
+LOCK = ROOT / "qualification/xmage-f22-f23-successor-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
 
 
 def test_successor_source_lock_binds_exact_mage_candidate() -> None:
@@ -75,8 +72,7 @@ def test_f22_f23_bridge_regressions_are_enabled() -> None:
 def test_prior_epoch_lock_remains_historical() -> None:
     prior_lock = json.loads(
         (
-            ROOT
-            / "qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
+            ROOT / "qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
         ).read_text(encoding="utf-8")
     )
     assert prior_lock["new_live_pin"]["commit"] == PRIOR
