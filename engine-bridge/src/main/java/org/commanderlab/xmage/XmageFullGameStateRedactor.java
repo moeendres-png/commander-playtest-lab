@@ -14,6 +14,7 @@ import mage.counters.Counter;
 import mage.counters.CounterType;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
+import mage.game.stack.Spell;
 import mage.game.stack.StackObject;
 import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
@@ -419,7 +420,18 @@ final class XmageFullGameStateRedactor {
         for (StackObject stackObject : game.getStack()) {
             JsonObject item = new JsonObject();
             item.addProperty("object_id", stackObject.getId().toString());
-            item.addProperty("name", stackObject.getName());
+            // F-30: a face-down spell (morph, disguise, manifest) has no public
+            // characteristics (CR 708.4); only its controller may look at it
+            // (CR 708.5), extended to that player's turn controller (CR 723.4).
+            boolean faceDown = stackObject instanceof Spell && ((Spell) stackObject).isFaceDown(game);
+            if (faceDown) {
+                item.addProperty("face_down", true);
+                addString(item, "name",
+                        canViewPrivateStateFor(game, actor, stackObject.getControllerId())
+                                ? stackObject.getName() : null);
+            } else {
+                item.addProperty("name", stackObject.getName());
+            }
             stack.add(item);
         }
         view.add("stack", stack);
@@ -485,6 +497,12 @@ final class XmageFullGameStateRedactor {
                     );
                     permanent.remove("private_identity");
                 }
+            }
+        }
+        for (JsonElement stackElement : view.getAsJsonArray("stack")) {
+            JsonObject stackItem = stackElement.getAsJsonObject();
+            if (stackItem.has("face_down")) {
+                stackItem.add("name", JsonNull.INSTANCE);
             }
         }
         if (view.has("commander_status") && view.get("commander_status").isJsonArray()) {

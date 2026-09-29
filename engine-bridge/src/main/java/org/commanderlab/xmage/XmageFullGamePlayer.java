@@ -28,6 +28,7 @@ import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.combat.CombatGroup;
+import mage.game.stack.Spell;
 import mage.game.stack.StackObject;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
@@ -1772,6 +1773,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
         Player player = game.getPlayer(id);
         if (player != null) {
             return player.getName();
+        }
+        // F-30: a face-down spell's identity is its controller's alone (CR 708.4-5).
+        Spell spell = game.getStack().getSpell(id);
+        if (spell != null && spell.isFaceDown(game) && !getId().equals(spell.getControllerId())) {
+            return "Face-down spell";
         }
         Permanent permanent = game.getPermanent(id);
         if (permanent != null) {
