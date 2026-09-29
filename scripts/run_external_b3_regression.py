@@ -124,8 +124,11 @@ def main() -> None:
         # orthogonal capabilities (for example B4-D event logging) without making
         # this historical B3 regression stale. Production-wide unsupported claims
         # remain guarded by the current provider-truth tests and config.
+        # seed_supported is such an orthogonal promotion (explicit create-game
+        # seed bound to the native Rules RNG, XmageGenericLaneRulesSeedTest).
+        # B3 never sends a seed, so each run below must remain uncontrolled and
+        # B3 evidence still makes no RNG or replay claim.
         forbidden_claims = {
-            "seed_supported": capabilities.seed_supported,
             "legal_actions_supported": capabilities.legal_actions_supported,
             "action_submission_supported": capabilities.action_submission_supported,
             "replay_supported": capabilities.replay_supported,
@@ -161,6 +164,8 @@ def main() -> None:
                 raise SystemExit(f"B3 start did not reach turn 1 for {player_count}P")
             if started.get("paused") is not True:
                 raise SystemExit(f"B3 start did not reach the bounded pause for {player_count}P")
+            if started.get("seed_controlled") is True or "rules_seed" in started:
+                raise SystemExit(f"B3 unseeded run reported seed control for {player_count}P")
             runs.append(
                 {
                     "player_count": player_count,
@@ -168,6 +173,7 @@ def main() -> None:
                     "deck_handles": len(handles),
                     "turn_number": int(started["turn_number"]),
                     "paused": True,
+                    "seed_controlled": False,
                 }
             )
 
@@ -182,7 +188,7 @@ def main() -> None:
                     "real_game_start",
                     "bounded_pause_lifecycle",
                 ],
-                "not_claimed": sorted(forbidden_claims),
+                "not_claimed": sorted([*forbidden_claims, "seed_controlled_run"]),
                 "runs": runs,
                 "status": "passed",
             }
