@@ -282,7 +282,7 @@ class XmageActualCardCorpusTest {
      * offered option must carry {@code requiredName}, so the selected set is
      * semantically identical to any other selection of the same size.
      */
-    private static void chooseNamed(Started started, String tag, String requiredName, int count) {
+    static void chooseNamed(Started started, String tag, String requiredName, int count) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
