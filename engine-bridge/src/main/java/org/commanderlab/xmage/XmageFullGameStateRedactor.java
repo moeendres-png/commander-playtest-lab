@@ -140,10 +140,23 @@ final class XmageFullGameStateRedactor {
         return result;
     }
 
-    static void beginZoneFullLook(Player viewer, Player owner, Game game) {
-        if (viewer == null || owner == null || game == null) {
+    /**
+     * F-28: the cards a look window shows. The engine hands every library-zone
+     * decision its own card set (a search: the searched library; Fact or
+     * Fiction or a top-N look: only those cards); a grant shows exactly that
+     * set, never the rest of the owner's library or its order. One decision
+     * window is open per game at a time, so keyed by game id and owner id.
+     */
+    private static final Map<String, Map<String, Set<UUID>>> ZONE_LOOK_CARDS =
+            new ConcurrentHashMap<>();
+
+    static void beginZoneFullLook(Player viewer, Player owner, Game game, Collection<UUID> cardIds) {
+        if (viewer == null || owner == null || game == null || cardIds == null) {
             return;
         }
+        ZONE_LOOK_CARDS
+                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .put(owner.getId().toString(), Set.copyOf(cardIds));
         ZONE_FULL_LOOK
                 .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
                 .computeIfAbsent(viewer.getId().toString(), ignored -> ConcurrentHashMap.newKeySet())
@@ -153,6 +166,9 @@ final class XmageFullGameStateRedactor {
     static void endZoneFullLook(Player viewer, Player owner) {
         if (viewer == null || owner == null) {
             return;
+        }
+        for (Map<String, Set<UUID>> byOwner : ZONE_LOOK_CARDS.values()) {
+            byOwner.remove(owner.getId().toString());
         }
         for (Map<String, Set<String>> byViewer : ZONE_FULL_LOOK.values()) {
             Set<String> owners = byViewer.get(viewer.getId().toString());
@@ -469,8 +485,15 @@ final class XmageFullGameStateRedactor {
         if (!hasZoneFullLook(game, viewer, owner)) {
             return result;
         }
+        Map<String, Set<UUID>> byOwner = ZONE_LOOK_CARDS.get(game.getId().toString());
+        Set<UUID> shown = byOwner == null ? null : byOwner.get(owner.getId().toString());
+        if (shown == null) {
+            return result;
+        }
         for (Card card : owner.getLibrary().getCards(game)) {
-            result.add(publicCard(card));
+            if (shown.contains(card.getId())) {
+                result.add(publicCard(card));
+            }
         }
         return result;
     }

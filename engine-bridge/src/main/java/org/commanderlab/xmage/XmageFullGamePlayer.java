@@ -1448,7 +1448,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         Player lookOwner = lookOwnerFor(restrictedCards, game);
         boolean lookGranted = false;
         if (lookOwner != null) {
-            XmageFullGameStateRedactor.beginZoneFullLook(this, lookOwner, game);
+            XmageFullGameStateRedactor.beginZoneFullLook(this, lookOwner, game, restrictedCards);
             lookGranted = true;
         }
         try {
