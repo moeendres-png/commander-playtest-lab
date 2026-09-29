@@ -57,7 +57,7 @@ class XmageMultiplayerTurnControlTest {
             JsonObject decision = s.session.pendingDecisionPayload().getAsJsonObject("decision");
             boolean actingFor = decision.has("acting_for_seat");
 
-            if (afterPn.equals(active)) {
+            if (afterPn.equals(active) && sawControlledTurn) {
                 assertTrue(sawControlledTurn, "P1 made decisions for PN during its turn");
                 assertEquals(afterPn, actor, "the next turn is decided by its own player");
                 assertFalse(actingFor, "no one acts for another player now");

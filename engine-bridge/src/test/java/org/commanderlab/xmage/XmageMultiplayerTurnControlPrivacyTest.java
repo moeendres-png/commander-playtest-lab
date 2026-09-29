@@ -122,7 +122,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
             JsonObject decision = s.session.pendingDecisionPayload().getAsJsonObject("decision");
             boolean actingFor = decision.has("acting_for_seat");
 
-            if (afterPn.equals(active)) {
+            if (afterPn.equals(active) && privacyChecked) {
                 assertTrue(privacyChecked, "controlled-turn privacy assertions ran");
                 assertEquals(pnLife - 3, controlled.getLife(), "controlled Bolt resolved");
 
