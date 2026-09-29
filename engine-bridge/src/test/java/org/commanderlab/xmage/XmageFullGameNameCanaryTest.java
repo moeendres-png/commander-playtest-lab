@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mage.cards.Card;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
 import mage.players.Player;
@@ -313,7 +313,7 @@ class XmageFullGameNameCanaryTest {
 
     private static String otherPlayerId(XmageFullGameSession session, String actorId)
             throws Exception {
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         for (Player player : game.getPlayers().values()) {
             if (!player.getId().toString().equals(actorId)) {
                 return player.getId().toString();
@@ -324,7 +324,7 @@ class XmageFullGameNameCanaryTest {
 
     private static Set<String> hiddenCardIds(XmageFullGameSession session, String actorId)
             throws Exception {
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         Set<String> hidden = new HashSet<>();
         for (Player player : game.getPlayers().values()) {
             if (player.getId().toString().equals(actorId)) {
@@ -342,7 +342,7 @@ class XmageFullGameNameCanaryTest {
 
     private static Map<String, Set<String>> hiddenCardNamesByOwner(
             XmageFullGameSession session, String actorId) throws Exception {
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         Map<String, Set<String>> byOwner = new HashMap<>();
         for (Player player : game.getPlayers().values()) {
             if (player.getId().toString().equals(actorId)) {
@@ -362,7 +362,7 @@ class XmageFullGameNameCanaryTest {
 
     private static Set<String> publicNames(
             XmageFullGameSession session, String actorId, JsonObject pilotState) throws Exception {
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         Set<String> names = new HashSet<>();
         for (Player player : game.getPlayers().values()) {
             for (Card card : player.getGraveyard().getCards(game)) {

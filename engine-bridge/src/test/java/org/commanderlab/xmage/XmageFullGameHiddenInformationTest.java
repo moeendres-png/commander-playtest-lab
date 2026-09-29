@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mage.cards.Card;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.players.Player;
 import org.junit.jupiter.api.Test;
 
@@ -146,7 +146,7 @@ class XmageFullGameHiddenInformationTest {
 
     private static Set<String> hiddenCardIds(XmageFullGameSession session, String actorId)
             throws Exception {
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         Set<String> hidden = new HashSet<>();
         for (Player player : game.getPlayers().values()) {
             if (player.getId().toString().equals(actorId)) {
