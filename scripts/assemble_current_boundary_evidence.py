@@ -352,6 +352,64 @@ def _af11_measure(
     return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
 
 
+def _describe_replay_evidence(document: dict[str, Any], candidate: str) -> dict[str, Any]:
+    """Derive the AF09 replay/RNG evidence lines from the recorded artifact.
+
+    Generic semantic distinctions, stated once and enforced here rather than
+    inferred per run:
+
+    * a seed acknowledgement is a precondition for RNG control, never a
+      demonstrated Rules RNG tape;
+    * a fail-closed export refusal is an absent capability, never a satisfied
+      obligation and never a replay PASS;
+    * deterministic setup alone (deck import, game creation, seed echo) is not
+      semantic replay proof.
+    """
+    evidence: list[str] = []
+    replay = document.get("semantic_replay") or {}
+    errors = replay.get("error") or []
+    if errors:
+        codes = sorted(
+            {str(item.get("code", "unknown")) for item in errors if isinstance(item, dict)}
+        )
+        evidence.append(
+            "replay export attempted in a live game and refused by the engine "
+            f"(RNG_REPLAY_{candidate.upper()}.json; refusal codes: {', '.join(codes)})"
+        )
+    elif replay:
+        evidence.append(
+            "replay export returned a payload in a live game "
+            f"(RNG_REPLAY_{candidate.upper()}.json); payload presence is recorded, "
+            "not replay proof"
+        )
+    else:
+        evidence.append(f"no replay export outcome recorded (RNG_REPLAY_{candidate.upper()}.json)")
+    binding = document.get("rules_rng_binding") or {}
+    evidence.append(
+        "seed binding: "
+        f"{binding.get('classification', 'UNKNOWN')} "
+        f"(requested={binding.get('requested_seed')}, "
+        f"acknowledged={binding.get('acknowledged_seed')}); "
+        "acknowledgement is a precondition for RNG control, not a demonstrated "
+        "Rules RNG tape"
+    )
+    limitations = [
+        "a fail-closed export refusal is an absent capability, never a satisfied "
+        "obligation and never a replay PASS",
+        "deterministic setup alone (deck import, game creation, seed acknowledgement) "
+        "is not semantic replay proof",
+        "the clean-process twin half of each replay obligation is not proven per fixture",
+    ]
+    return {"evidence": evidence, "limitations": limitations}
+
+
+def _load_replay_document(candidate: str) -> dict[str, Any] | None:
+    path = OUT / f"RNG_REPLAY_{candidate.upper()}.json"
+    if not path.is_file():
+        return None
+    return load(path)
+
+
 def assemble() -> None:
     bindings = native_bindings()
     # The Lab-side identity every native credit in this assembly is bound to.
@@ -425,6 +483,23 @@ def assemble() -> None:
     # FAIL (a fact is violated) and UNKNOWN (facts hold, policy unresolved).
     af11_by_candidate = {
         cand: _af11_measure(per_candidate, cand, cdata) for cand, cdata in per_candidate.items()
+    }
+    # AF09 is derived from the recorded RNG/replay artifact, never asserted:
+    # a refusal is recorded as a refusal, and seed acknowledgement is never
+    # presented as a Rules RNG tape.
+    replay_by_candidate = {
+        cand: (
+            _describe_replay_evidence(document, cand)
+            if (document := _load_replay_document(cand)) is not None
+            else {
+                "evidence": [f"no RNG_REPLAY artifact exists for {cand}"],
+                "limitations": [
+                    "without a recorded export attempt and seed binding, no replay "
+                    "or RNG claim can be evaluated"
+                ],
+            }
+        )
+        for cand in per_candidate
     }
 
     for candidate, data in per_candidate.items():
@@ -636,7 +711,10 @@ def assemble() -> None:
                 "name": "RNG_REPLAY",
                 "verdict": "UNKNOWN",
                 "evidence": [
-                    f"replay export executed in a live game (RNG_REPLAY_{candidate.upper()}.json)",
+                    # Wording matters here: the live attempt REFUSED the export, so
+                    # claiming it "executed" would assert a capability the run
+                    # itself contradicts.
+                    *replay_by_candidate[candidate]["evidence"],
                     "native replay/semantic suites green",
                 ],
                 "blocking_rows": sorted(
@@ -645,10 +723,7 @@ def assemble() -> None:
                     if v["exit_state"] in ("UNKNOWN", "BLOCKED")
                     and (r.startswith("REPLAY_") or r.startswith("RNG_"))
                 ),
-                "nonblocking_limitations": [
-                    "the clean-process twin half of each replay "
-                    "obligation is not proven per fixture"
-                ],
+                "nonblocking_limitations": replay_by_candidate[candidate]["limitations"],
             },
             {
                 "gate": "AF10",

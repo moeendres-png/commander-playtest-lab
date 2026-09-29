@@ -72,6 +72,9 @@ rejected_units:
 - id: 289-C
   disposition: IMPLEMENTED
   note: seam-specific negative campaign ported against production validate_action_proposal (7 obligations, positive control, stated narrow scope NO_FORBIDDEN_SHORTCUT_OBSERVED_ON_THIS_EXERCISED_SEAM); assembler wiring deliberately not added (no new evidence packet surface without a qualification run); 16 tests green with distinct per-case rejection reasons
+- id: 289-D
+  disposition: IMPLEMENTED
+  note: generic replay/RNG distinction ported as _describe_replay_evidence (refusal recorded as refusal with codes, seed ack stated as precondition not tape, setup not proof); AF09 over-claim removed; 6 new tests including DIRECTLY_VERIFIED check against both committed RNG_REPLAY artifacts; no engine changes, no replay workstream collision
 tests_run:
 - tests/architecture/test_engine_runtime_state_isolation.py: 7 passed (fail-before ImportError proven)
 - tests/foundry/test_launcher.py: 99 passed (2 new fail-before failures proven, then green)
@@ -81,8 +84,7 @@ tests_run:
 - tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
 - tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed (7 new stale-identity tests)
 - tests/qualification/test_wsr22_current_boundary.py + test_wsr24_freeze_readiness.py + test_current_boundary_readiness_packet.py: 59 passed
-- full tests/qualification/: 388 passed, 5 skipped (pre-existing skips)
-- shortcut campaign: 16 passed (fail-before ModuleNotFoundError proven; per-case rejection reasons distinct)
+- full tests/qualification/: 410 passed, 5 skipped (pre-existing skips)
 - live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
 - ruff check on all touched files: clean
 - ruff format --check on all touched files: clean
@@ -125,8 +127,12 @@ drift_checks:
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
   delta_since_last: none
   verdict: NO_DRIFT safe to commit 289-C milestone
+- time_utc: '2026-09-29T18:30:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-D milestone
 unknowns: []
 blockers: []
-next_action: adjudicate 289-D (replay/RNG classification) — check current AF09/RNG_REPLAY semantics for the generic distinction
+next_action: final validation (complete qualification suite already green; run full repo Python suite + integrity/hash tests if justified), then push branch, create PR, monitor workflows, terminal handoff
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED

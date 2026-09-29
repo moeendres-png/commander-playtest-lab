@@ -298,3 +298,73 @@ def test_af11_unknown_still_blocks_freeze() -> None:
 
     assert "UNKNOWN" in NON_PASS_VERDICTS
     assert "PASS" not in NON_PASS_VERDICTS
+
+
+# --- AF09: seed acknowledgement, refusal and setup are never replay proof --- #
+
+
+def _refusal_document() -> dict:
+    return {
+        "semantic_replay": {"error": [{"code": "unsupported_message", "message": "nope"}]},
+        "rules_rng_binding": {
+            "classification": "UNCONTROLLED_ENGINE_RNG",
+            "requested_seed": 424242,
+            "acknowledged_seed": None,
+        },
+    }
+
+
+def test_af09_refusal_is_recorded_as_refusal() -> None:
+    """A refused export must never be worded as an executed one."""
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(_refusal_document(), "xmage")
+    joined = " ".join(described["evidence"])
+    assert "attempted in a live game and refused by the engine" in joined
+    assert "unsupported_message" in joined
+    assert "executed in a live game" not in joined
+
+
+def test_af09_seed_acknowledgement_is_not_a_tape() -> None:
+    doc = _refusal_document()
+    doc["rules_rng_binding"] = {
+        "classification": "ACKNOWLEDGED_ENGINE_SEED",
+        "requested_seed": 424242,
+        "acknowledged_seed": 424242,
+    }
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(doc, "forge")
+    joined = " ".join(described["evidence"])
+    assert "ACKNOWLEDGED_ENGINE_SEED" in joined
+    assert "not a demonstrated Rules RNG tape" in joined
+
+
+def test_af09_payload_presence_is_not_replay_proof() -> None:
+    doc = _refusal_document()
+    doc["semantic_replay"] = {"tape": ["event-1", "event-2"]}
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(doc, "xmage")
+    joined = " ".join(described["evidence"])
+    assert "recorded, not replay proof" in joined
+
+
+def test_af09_limitations_state_the_generic_distinctions() -> None:
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(_refusal_document(), "xmage")
+    joined = " ".join(described["limitations"])
+    assert "never a satisfied obligation and never a replay PASS" in joined
+    assert "is not semantic replay proof" in joined
+
+
+def test_af09_never_claims_an_executed_export() -> None:
+    """The over-claim the donor caught must not come back in any wording."""
+    assert "replay export executed in a live game" not in _source(ASSEMBLER)
+
+
+def test_af09_committed_artifacts_describe_refusals() -> None:
+    """DIRECTLY_VERIFIED against the committed RNG_REPLAY artifacts: both refused."""
+    asm = _assembler_module()
+    for candidate in ("xmage", "forge"):
+        document = asm._load_replay_document(candidate)
+        assert document is not None, f"missing committed RNG_REPLAY_{candidate.upper()}.json"
+        described = asm._describe_replay_evidence(document, candidate)
+        assert any("refused by the engine" in line for line in described["evidence"])
