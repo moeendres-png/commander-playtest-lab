@@ -53,7 +53,12 @@
     "Lab successor repin #337 MERGED (ba629ced): live pin f79e4168; WSR22 source_lock kept historical; successor lock qualification/xmage-mp-candidate-repin-20260929; bridge 538/0/1 via isolated Maven; h4-xmage PASS",
     "F-24 (#338) attack-tax payments: fixed in #339 MERGED; XmageMultiplayerAttackTaxTest 6/6 (red 6/6 before)",
     "Probes MERGED: #341 player protection (Teferi's Protection), #342 join forces (Minds Aglow), #343 overload (Cyclonic Rift); in CI: #352 APNAP replay 4P/5P, #353 extort",
-    "Forge unified successor moeendres-png/forge#11 (draft, not for master): #6 + #7 + #9 Finality correction; bridge 347/0, gui-desktop 458/0/6, checkstyle pass, exact-head CI all PASS"
+    "Forge unified successor moeendres-png/forge#11 (draft, not for master): #6 + #7 + #9 Finality correction; bridge 347/0, gui-desktop 458/0/6, checkstyle pass, exact-head CI all PASS",
+    "Probes MERGED #361 (assist, encore, dethrone/melee, undaunted, friend-or-foe 28/28), #362 (seat direction 16/16), #363 (third-party combat 4/4); #367 in CI (enter-attacking 4/4, ninjutsu 4/4, F-28 repro disabled)",
+    "F-28 RULES_CORE_DEFECT forced-block livelock (802.4a): fork fix moeendres-png/mage#27 268e3d0f; native red (1260 CPU-s spin) / green 2/2; Lab red 4/4 (hang) on f79e4168",
+    "F-29 RULES_CORE_DEFECT block declaration order not APNAP / not replay-stable (802.4): fork fix moeendres-png/mage#28 3c0fe388; native red 2/3 / green 3/3; Lab red 4/4 on f79e4168; Lab PR #368",
+    "Combined candidate head 3c0fe388: full Mage.Tests 7006/0/0/125 (baseline 7001/125)",
+    "Lure in split attack (Prized Unicorn) 4/4"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -98,7 +103,9 @@
   "remaining_scope": [
     "F-15 restoration (restoration lane #304/#333)",
     "~70 card-local each-player sacrifice loops starting at the controller (candidate for a later engine candidate)",
-    "further multiplayer actual-card probes"
+    "further multiplayer actual-card probes",
+    "Successor repin v2 to 3c0fe388 after the integration decision; enable F-28/F-29 Lab regressions",
+    "CombatGroup.checkBlockRestrictions possibleBlockers also ignores 802.4a (low impact: only decides whether a discarded illegal block was avoidable)"
   ],
   "status": "ACTIVE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
@@ -112,12 +119,13 @@
   ],
   "authority_gates": [
     "Forge #11: Coordinator to accept #9 (Find // Finality Oracle correction) inclusion or require pure #6+#7",
-    "Successor current-boundary (FULL107) run on the new XMage pin before any current-boundary credit"
+    "Successor current-boundary (FULL107) run on the new XMage pin before any current-boundary credit",
+    "USER: integrate mage#27/#28 into the candidate branch (auto-mode classifier refused the fast-forward as merge-without-review); the Lab successor repin v2 depends on it"
   ],
   "first_failing_boundary": "XmageFullGamePlayer.selectBlockers option construction (Permanent.canBlock)",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Coordinator: authorize the repin workstream.",
-  "exact_next_action": "Continue multiplayer probes; Coordinator decisions on Forge #11 and successor current-boundary run.",
+  "exact_next_action": "User decision on mage#27/#28 integration; then repin v2 (see MULTIPLAYER_HANDOFF phase 4). Meanwhile continue probes on f79e4168.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,

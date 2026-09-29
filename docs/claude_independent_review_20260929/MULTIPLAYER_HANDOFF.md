@@ -126,3 +126,54 @@ The Coordinator authorises the repin workstream. A fresh session then:
   - F-15 restoration (evidence posted on #304 and #333);
   - F-22, F-23, F-25 to F-27 belong to the parallel lane;
   - #333's `WS17_SHA256SUMS` conflict: guidance posted, left for its owner.
+
+---
+
+## Addendum: phase 4 (discovery campaign, continued), 2026-09-29
+
+### New probes (3–6P, all green, no defect)
+
+| PR | Probes |
+|---|---|
+| #361 | Assist (Gang Up), encore (Impulsive Pilferer), dethrone + melee (Marchesa's Emissary / Grenzo's Cutthroat / Wings of the Guard), undaunted (Sublime Exhalation), friend-or-foe (Pir's Whim) |
+| #362 | Seat direction: Mystic Barrier and Order of Succession, left/right against CR 103.1 |
+| #363 | Third-party combat triggers: Karazikar and Edric |
+| #367 | Enter-attacking: Hero of Bladehold plus Ghostly Prison, CR 508.4 / 508.4c |
+| #367 | Ninjutsu in a split attack: Ninja of the Deep Hours |
+| this PR | Lure in a split attack: Prized Unicorn |
+
+### New engine findings (RULES_CORE_DEFECT, fixed in the fork at the pin)
+
+**F-28**, `docs/multiplayer_findings/F-28_*`:
+- A "blocks if able" requirement demanded a block of a creature attacking another player (CR 802.4a).
+- XMage's block declaration then looped forever on the engine thread, and the game hung.
+- Fix: moeendres-png/mage#27.
+- Evidence: native red is a 1260 CPU-s spin; green 2/2. Lab `XmageMultiplayerForcedBlockTest` hangs 4/4 on the pin.
+
+**F-29**, `docs/multiplayer_findings/F-29_*`:
+- With several defending players, blockers were declared in hash-set order, not APNAP (CR 802.4).
+- The order also differed between identical games, which is a semantic-replay defect.
+- Fix: moeendres-png/mage#28, stacked on #27.
+- Evidence: native red 2/3, green 3/3. Lab `XmageMultiplayerBlockOrderTest` red 4/4 on the pin.
+
+**Combined head `3c0fe388`** (F-28 + F-29 on top of `f79e4168`):
+- Full `Mage.Tests`: 7006 run, 0 failures, 0 errors, 125 skipped. The baseline at the pin was 7001 / 125.
+
+### Authority gate (user)
+
+Integrating mage#27/#28 into the candidate branch (a fast-forward to `3c0fe388`) was **refused by the session's auto-mode classifier as a merge without review**. That integration, and the Lab successor repin v2 that depends on it, wait for a user or reviewer decision.
+
+Until then:
+- the Lab regressions for F-28 and F-29 stay `@Disabled`;
+- the live pin stays `f79e4168`.
+
+### Exact next action (after approval)
+
+1. Merge mage#27, then mage#28, into `claude/xmage-mp-candidate-20260929`. This is a fast-forward to `3c0fe388`.
+2. Build the isolated Maven repo `m2-xmage-candidate-3c0fe388`. Use the same recipe as for `f79e4168`: a real `org/mage` directory with the candidate `mage` / `mage-sets` installed, and everything else symlinked to `~/.m2`.
+3. Repin the Lab through successor lock v2 (`qualification/xmage-mp-candidate-repin-v2-20260929/`), following #337:
+   - consumers, workflows, scripts, unit pin tests;
+   - a v2 guard test, with the v1 guard's current-pin checks marked superseded;
+   - SHA256 manifests;
+   - a fingerprint extension: `Combat` declares `canBlockInThisCombat` and `getPlayerDefendersInApnapOrder`.
+4. Enable `XmageMultiplayerForcedBlockTest` and `XmageMultiplayerBlockOrderTest`. Run the bridge suite and impact-adjudicate, adding multi-defender combat evidence to the F-16 scope.
