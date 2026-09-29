@@ -1564,11 +1564,29 @@ class XmagePb03Tier1RowsTest {
             String tag,
             List<String> semanticSourceOrder,
             java.util.Set<String> allowedLabels) {
+        payFromSemanticSources(
+                session,
+                restoration,
+                tag,
+                semanticSourceOrder,
+                allowedLabels,
+                List.of());
+    }
+
+    static void payFromSemanticSources(
+            XmageFullGameSession session,
+            XmageNativeStateRestoration restoration,
+            String tag,
+            List<String> semanticSourceOrder,
+            java.util.Set<String> allowedLabels,
+            List<String> poolSpendOrder) {
         assertTrue(!semanticSourceOrder.isEmpty(), tag + ": explicit mana source script required");
         assertEquals(
                 semanticSourceOrder.size(),
                 new java.util.LinkedHashSet<>(semanticSourceOrder).size(),
                 tag + ": semantic mana source script must not contain duplicates");
+
+        int poolSpendIndex = 0;
 
         // This is an explicit test decision script, not an ordering heuristic:
         // each mana ability must match the next available frozen semantic
@@ -1580,6 +1598,10 @@ class XmagePb03Tier1RowsTest {
                 fail(tag + ": engine terminal during payment");
             }
             if ("priority".equals(pending)) {
+                assertEquals(
+                        poolSpendOrder.size(),
+                        poolSpendIndex,
+                        tag + ": payment completed before scripted pool sequence was exhausted");
                 return;
             }
             assertEquals(
@@ -1651,11 +1673,44 @@ class XmagePb03Tier1RowsTest {
             }
 
             if (!pool.isEmpty()) {
-                assertEquals(
-                        1,
-                        pool.size(),
-                        tag + ": mana-pool spend is discretionary unless exactly one option exists");
-                submit(session, tag + "-spend-" + round, pool.get(0));
+                JsonObject selectedPool;
+                if (poolSpendOrder.isEmpty()) {
+                    assertEquals(
+                            1,
+                            pool.size(),
+                            tag + ": mana-pool spend is discretionary unless exactly one option exists");
+                    selectedPool = pool.get(0);
+                } else {
+                    assertTrue(
+                            poolSpendIndex < poolSpendOrder.size(),
+                            tag + ": engine requests more pool spends than the explicit script");
+                    String expectedManaType = poolSpendOrder.get(poolSpendIndex);
+                    List<JsonObject> matches = new ArrayList<>();
+                    for (JsonObject action : pool) {
+                        JsonObject metadata = action.getAsJsonObject("metadata");
+                        JsonObject engine =
+                                metadata.has("xmage_option_metadata")
+                                                && metadata.get("xmage_option_metadata")
+                                                        .isJsonObject()
+                                        ? metadata.getAsJsonObject("xmage_option_metadata")
+                                        : new JsonObject();
+                        if (engine.has("mana_type")
+                                && !engine.get("mana_type").isJsonNull()
+                                && expectedManaType.equalsIgnoreCase(
+                                        engine.get("mana_type").getAsString())) {
+                            matches.add(action);
+                        }
+                    }
+                    assertEquals(
+                            1,
+                            matches.size(),
+                            tag + ": expected exactly one engine-offered "
+                                    + expectedManaType
+                                    + " pool spend");
+                    selectedPool = matches.get(0);
+                    poolSpendIndex++;
+                }
+                submit(session, tag + "-spend-" + round, selectedPool);
                 continue;
             }
 
