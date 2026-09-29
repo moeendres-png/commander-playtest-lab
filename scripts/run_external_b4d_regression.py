@@ -218,14 +218,22 @@ def main() -> None:
             raise SystemExit("B4-D event-log source is not the real XMage bridge")
         initial_events = [dict(item) for item in initial_log["log"]["events"]]
         _validate_events(initial_events)
-        if [event["event_type"] for event in initial_events] != [
-            "game_created",
-            "game_started",
-        ]:
+        initial_types = [event["event_type"] for event in initial_events]
+        if initial_types[:2] != ["game_created", "game_started"]:
             raise SystemExit("B4-D initial lifecycle events are incomplete or reordered")
+        mulligan_events = initial_events[2:]
+        if len(mulligan_events) != 4 or any(
+            event.get("event_type") != "action_submitted"
+            or event.get("payload", {}).get("action_type") != "mulligan"
+            or event.get("payload", {}).get("source_name") != "keep"
+            for event in mulligan_events
+        ):
+            raise SystemExit(
+                "B4-D explicit external keep decisions are missing from the audit stream"
+            )
         initial_offset = int(initial_log["latest_event_offset"])
-        if initial_offset != 2:
-            raise SystemExit(f"B4-D expected initial event offset 2, got {initial_offset}")
+        if initial_offset != 6:
+            raise SystemExit(f"B4-D expected initial event offset 6, got {initial_offset}")
         if len(str(initial_log["log"]["log_sha256"])) != 64:
             raise SystemExit("B4-D initial log hash is invalid")
 
@@ -301,7 +309,7 @@ def main() -> None:
         )
         full_events = [dict(item) for item in full_before_shutdown["log"]["events"]]
         _validate_events(full_events)
-        expected_before_shutdown = 2 + passes + 1
+        expected_before_shutdown = initial_offset + passes + 1
         if len(full_events) != expected_before_shutdown:
             raise SystemExit(
                 f"B4-D event count mismatch: expected {expected_before_shutdown}, got {len(full_events)}"
