@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "f79e4168902e65063034b21be6f4585397fd43b3";
+    static final String CANDIDATE = "4277b90b4ee49acd945e82335a9a04c4536f5340";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -33,9 +34,12 @@ class XmageCandidateEngineFingerprintTest {
     void loadedEngineCarriesTheCandidatesApnapPrimitives() throws Exception {
         Method players = Game.class.getMethod("getPlayerIdsInApnapOrder");
         Method opponents = Game.class.getMethod("getOpponentsInApnapOrder", UUID.class);
+        Method inGameOpponents = Game.class.getMethod("getOpponentsInGame", UUID.class);
         assertEquals(List.class, players.getReturnType(),
                 "loaded engine is not the candidate: " + Game.class.getProtectionDomain()
                         .getCodeSource().getLocation());
         assertEquals(List.class, opponents.getReturnType());
+        assertEquals(Set.class, inGameOpponents.getReturnType(),
+                "loaded engine predates the F-22/F-23 successor");
     }
 }
