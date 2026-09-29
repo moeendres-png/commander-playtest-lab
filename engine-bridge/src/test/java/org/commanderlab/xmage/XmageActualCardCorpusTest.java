@@ -84,6 +84,19 @@ class XmageActualCardCorpusTest {
     private static Started start(
             String tag, int playerCount,
             List<XmageNativeStateRestoration.RequestedObject> objects) {
+        return start(tag, playerCount, objects, Map.of(), 0);
+    }
+
+    /**
+     * As {@link #start(String, int, List)}, but P-ids in {@code extraCommanders}
+     * get a partner commander next to Rograkh (both have partner), and
+     * {@code forests} Mountains of every mainboard are replaced by Forests
+     * (colourless identity, legal under a red commander).
+     */
+    private static Started start(
+            String tag, int playerCount,
+            List<XmageNativeStateRestoration.RequestedObject> objects,
+            Map<String, String> extraCommanders, int forests) {
         List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
         List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
         for (int seat = 1; seat <= playerCount; seat++) {
@@ -91,6 +104,10 @@ class XmageActualCardCorpusTest {
             players.add(new XmageNativeStateRestoration.RequestedPlayer(pid, seat, 40));
             commanders.add(new XmageNativeStateRestoration.RequestedCommander(
                     "cmd:" + pid + "-A", ROGRAKH, pid, 0));
+            if (extraCommanders.containsKey(pid)) {
+                commanders.add(new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:" + pid + "-B", extraCommanders.get(pid), pid, 0));
+            }
         }
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
                 tag, playerCount, SEED, List.copyOf(players), List.copyOf(commanders),
@@ -102,13 +119,15 @@ class XmageActualCardCorpusTest {
                 XmageNativeStateRestorationTest.restorationFor(plan);
         List<String> handles = new ArrayList<>();
         for (XmageNativeStateRestoration.RequestedPlayer player : players) {
+            String extra = extraCommanders.get(player.playerId());
+            List<String> deckCommanders = extra == null ? List.of(ROGRAKH) : List.of(ROGRAKH, extra);
             List<String> mainboard = new ArrayList<>();
-            for (int index = 0; index < 99; index++) {
-                mainboard.add("Mountain");
+            for (int index = 0; index < 100 - deckCommanders.size(); index++) {
+                mainboard.add(index < forests ? "Forest" : "Mountain");
             }
             handles.add(importer.importCommanderDeck(
                     tag + "-" + player.playerId(), tag + "-hash",
-                    mainboard, List.of(ROGRAKH)).deckHandle());
+                    mainboard, deckCommanders).deckHandle());
         }
         XmageFullGameSession session = new XmageFullGameSession(
                 tag, handles, 0, 40, plan.seed(), importer, restoration);
@@ -1255,6 +1274,360 @@ class XmageActualCardCorpusTest {
                         "Devils gain haste until end of turn");
             }
         }
+    }
+
+    // ---------------------------------------------------------- batch 4 cards
+
+    private static int tappedCount(Started started, String pid, String name) {
+        int count = 0;
+        for (Permanent permanent : started.session().restorationGame()
+                .getBattlefield().getAllPermanents()) {
+            if (name.equals(permanent.getName()) && permanent.isTapped()
+                    && started.seats().get(pid).getId().equals(permanent.getControllerId())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static String prompt(Started started) {
+        JsonObject pending = started.session().pendingDecisionPayload().getAsJsonObject("decision");
+        return pending.has("prompt") && !pending.get("prompt").isJsonNull()
+                ? pending.get("prompt").getAsString() : "";
+    }
+
+    /** Answers the owner's commander-zone replacement choice explicitly by label. */
+    private static boolean moveToCommandZone(Started started, String cls, int step, String tag) {
+        if ("choose_use".equals(cls) && prompt(started).toLowerCase().contains("command")) {
+            submit(started, tag + "-cmdzone-" + step, labelled(started, "command"));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * CARD_03 Esior, Wardwing Familiar: "Spells your opponents cast that
+     * target one or more commanders you control cost {3} more to cast." The
+     * same Lightning Bolt costs P2 one Mountain at P1 and four at Esior.
+     */
+    @Test
+    void esiorTaxesOpponentSpellsTargetingItsControllersCommander() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Island", 2));
+        objects.addAll(lands("P2", "Mountain", 5));
+        objects.add(hand("P2", "Shock", 0));
+        objects.add(hand("P2", "Lightning Bolt", 0));
+        Started started = start("card03-esior", 2, objects,
+                Map.of("P1", "Esior, Wardwing Familiar"), 0);
+
+        submit(started, "card03-cast-esior", XmageFullGameTaxExecutionTest.castOffer(
+                started.session().legalActionsPayload(), "Esior, Wardwing Familiar"));
+        resolveAll(started, "card03-esior", ISLAND_LABEL, NONE);
+        Permanent esior = permanent(started, "P1", "Esior, Wardwing Familiar");
+
+        XmageExternalRiskSignalTest.passToActor(started.session(), "card03-a", started.seats(), "P2");
+        cast(started, "card03-shock-p1", "Shock");
+        submit(started, "card03-shock-p1-target", playerTarget(started, "P1"));
+        resolveAll(started, "card03-p1", MOUNTAIN_LABEL, NONE);
+        assertEquals(1, tappedCount(started, "P2", "Mountain"), "untaxed Shock costs {R}");
+        assertEquals(38, life(started, "P1"));
+
+        XmageExternalRiskSignalTest.passToActor(started.session(), "card03-b", started.seats(), "P2");
+        cast(started, "card03-bolt-esior", "Lightning Bolt");
+        submit(started, "card03-bolt-esior-target", permanentTarget(started, esior));
+        resolveAll(started, "card03-esior-kill", MOUNTAIN_LABEL,
+                (cls, step) -> moveToCommandZone(started, cls, step, "card03"));
+        assertEquals(5, tappedCount(started, "P2", "Mountain"),
+                "targeting P1's commander costs {3} more: four more Mountains");
+        assertEquals(0, onBattlefield(started, "P1", "Esior, Wardwing Familiar"),
+                "3 damage to a 1/3 is lethal");
+    }
+
+    /**
+     * CARD_08 Jeska, Thrice Reborn: "enters with a loyalty counter on her for
+     * each time you've cast a commander from the command zone this game."
+     * Ruling 2020-11-10: casting Jeska as your commander counts. First cast
+     * from the command zone: one loyalty. "-X: Jeska deals X damage to each
+     * of up to three targets." X = 1 at P2.
+     */
+    @Test
+    void jeskaEntersWithLoyaltyPerCommanderCastAndMinusXBurns() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Mountain", 3));
+        Started started = start("card08-jeska", 2, objects,
+                Map.of("P1", "Jeska, Thrice Reborn"), 0);
+
+        submit(started, "card08-cast", XmageFullGameTaxExecutionTest.castOffer(
+                started.session().legalActionsPayload(), "Jeska, Thrice Reborn"));
+        resolveAll(started, "card08", MOUNTAIN_LABEL, NONE);
+        Permanent jeska = permanent(started, "P1", "Jeska, Thrice Reborn");
+        assertEquals(1, jeska.getCounters(started.session().restorationGame())
+                .getCount(mage.counters.CounterType.LOYALTY),
+                "one commander cast from the command zone (Jeska herself)");
+
+        JsonObject minusX = null;
+        for (JsonElement element : started.session().legalActionsPayload()
+                .getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            String label = action.getAsJsonObject("metadata").get("label").getAsString();
+            if (label.startsWith("Jeska") && (label.contains("-X") || label.contains("−X"))) {
+                assertTrue(minusX == null, "unique -X offer");
+                minusX = action;
+            }
+        }
+        assertNotNull(minusX, "the -X loyalty ability must be offered: "
+                + started.session().legalActionsPayload().getAsJsonArray("actions"));
+        submit(started, "card08-minus-x", minusX);
+        boolean[] targeted = {false};
+        resolveAll(started, "card08-x", MOUNTAIN_LABEL, (cls, step) -> {
+            if ("announce_x".equals(cls)) {
+                submitNumeric(started, "card08-x-" + step, 1);
+                return true;
+            }
+            if ("target".equals(cls) && !targeted[0]) {
+                submit(started, "card08-target-" + step, playerTarget(started, "P2"));
+                targeted[0] = true;
+                return true;
+            }
+            if ("target".equals(cls)) {
+                // "up to three targets": stop after P2.
+                chooseNone(started, "card08-stop-" + step);
+                return true;
+            }
+            return moveToCommandZone(started, cls, step, "card08");
+        });
+        assertTrue(targeted[0], "Jeska's -X must ask for targets");
+        assertEquals(39, life(started, "P2"), "X = 1 deals 1");
+    }
+
+    /** Selects exactly these engine object ids from a multi-select target decision. */
+    private static void chooseByObjectIds(Started started, String tag, List<String> objectIds) {
+        XmageFullGameSession session = started.session();
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        JsonObject legal = session.legalActionsPayload();
+        List<String> selected = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+            JsonObject engine = meta.getAsJsonObject("xmage_option_metadata");
+            if (engine != null && engine.has("object_id")
+                    && objectIds.contains(engine.get("object_id").getAsString())) {
+                selected.add(meta.get("option_id").getAsString());
+            }
+        }
+        assertEquals(objectIds.size(), selected.size(), "every requested target must be offered");
+        String decisionId = pending.get("decision_id").getAsString();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", decisionId + ":" + selected.get(0));
+        proposal.addProperty("action_type", "choose_targets");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", decisionId);
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        JsonArray selectedJson = new JsonArray();
+        selected.forEach(selectedJson::add);
+        choices.add("selected_option_ids", selectedJson);
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        JsonObject after = session.submitAction(proposal);
+        assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+    }
+
+    /** Submits an empty selection for an optional (minimum 0) target/object choice. */
+    private static void chooseNone(Started started, String tag) {
+        XmageFullGameSession session = started.session();
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        assertEquals(0, pending.get("minimum_selections").getAsInt(),
+                "only an optional choice may be left empty: " + pending);
+        JsonObject legal = session.legalActionsPayload();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", "");
+        proposal.addProperty("action_type", "structural_decision");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", pending.get("decision_id").getAsString());
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        choices.add("selected_option_ids", new JsonArray());
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        JsonObject after = session.submitAction(proposal);
+        assertEquals(pending.get("decision_id").getAsString(),
+                after.get("executed_decision_id").getAsString());
+    }
+
+    /**
+     * CARD_27 Path of Ancestry: "{T}: Add one mana of any color in your
+     * commander's color identity. When that mana is spent to cast a creature
+     * spell that shares a creature type with your commander, scry 1." Rograkh
+     * is an Ape Ninja: Kird Ape (Ape) scries, Gray Ogre (Ogre) does not.
+     */
+    @Test
+    @org.junit.jupiter.api.Disabled("UNKNOWN (possible engine or lane gap): paying Kird Ape (Ape) "
+            + "entirely with Path of Ancestry mana under Rograkh (Ape Ninja) produced no scry "
+            + "decision on the full-game lane, although Oracle and the 2020-11-10 ruling require "
+            + "scry 1. Not yet attributed: engine delayed trigger vs restored board vs bridge.")
+    void pathOfAncestryScriesForACreatureSharingACommanderType() {
+        pathOfAncestryProbe("Kird Ape");
+    }
+
+    /**
+     * CARD_27 Path of Ancestry: "{T}: Add one mana of any color in your
+     * commander's color identity. When that mana is spent to cast a creature
+     * spell that shares a creature type with your commander, scry 1." Rograkh
+     * is an Ape Ninja: Kird Ape (Ape) scries, Gray Ogre (Ogre) does not.
+     */
+    private static void pathOfAncestryProbe(String creature) {
+        {
+            boolean shares = "Kird Ape".equals(creature);
+            List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+            objects.add(battlefield("P1", "Path of Ancestry", 0));
+            if (!shares) {
+                objects.addAll(lands("P1", "Mountain", 2));
+            }
+            objects.add(hand("P1", creature, 0));
+            String tag = "card27-" + (shares ? "ape" : "ogre");
+            Started started = start(tag, 2, objects);
+            cast(started, tag + "-cast", creature);
+            boolean[] scried = {false};
+            resolveAll(started, tag, null, (cls, step) -> {
+                if ("mana_payment".equals(cls)) {
+                    return payOneFromRestoredMana(started, tag + "-pay-" + step,
+                            List.of("Path of Ancestry", "Mountain"),
+                            java.util.Set.of("Path of Ancestry — {T}: Add one mana of any color in your commander's color identity.",
+                                    MOUNTAIN_LABEL));
+                }
+                if ("choice".equals(cls) && prompt(started).toLowerCase().contains("color")) {
+                    submit(started, tag + "-red-" + step, labelled(started, "Red"));
+                    return true;
+                }
+                String text = prompt(started).toLowerCase();
+                if (text.contains("scry") || text.contains("bottom")) {
+                    scried[0] = true;
+                    if ("choose_use".equals(cls)) {
+                        submit(started, tag + "-scry-" + step, booleanOption(started, false));
+                    } else {
+                        chooseNone(started, tag + "-scry-" + step);
+                    }
+                    return true;
+                }
+                return false;
+            });
+            assertEquals(1, onBattlefield(started, "P1", creature));
+            assertEquals(shares, scried[0], shares
+                    ? "Path mana on a creature sharing Rograkh's Ape type must scry 1"
+                    : "a creature sharing no type with the commander must not scry");
+        }
+    }
+
+    /**
+     * CARD_12 Dig Through Time: "Delve. Look at the top seven cards of your
+     * library. Put two of them into your hand and the rest on the bottom of
+     * your library in any order." Six graveyard cards pay the {6}; two
+     * Islands pay {U}{U}.
+     */
+    @Test
+    @org.junit.jupiter.api.Disabled("FINDING F-12: the full-game lane's mana_payment decision "
+            + "offers only mana abilities and 'Cancel mana payment' (pay_cost); delve is not "
+            + "projected, so an external pilot cannot pay Dig Through Time's {6} by exiling "
+            + "graveyard cards. Observed 2026-09-29 on pin b1959698. Enable once delve is exposed.")
+    void digThroughTimeDelvesSixAndKeepsTwoOfSeven() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Island", 2));
+        for (int index = 0; index < 6; index++) {
+            objects.add(object("gy", mage.constants.Zone.GRAVEYARD, "P1", "Memnite", index));
+        }
+        objects.add(hand("P1", "Dig Through Time", 0));
+        Started started = start("card12-dig", 2, objects);
+        int handBefore = handSize(started, "P1");
+        int libraryBefore = started.seats().get("P1").getLibrary().size();
+
+        cast(started, "card12-cast", "Dig Through Time");
+        resolveAll(started, "card12", ISLAND_LABEL, (cls, step) -> {
+            String text = prompt(started);
+            if (("choose_object".equals(cls) || "target".equals(cls)) && text.contains("xile")) {
+                chooseNamed(started, "card12-delve-" + step, "Memnite", 6);
+                return true;
+            }
+            if ("choose_object".equals(cls) || "target".equals(cls)) {
+                // The top seven are all Mountains: every pick is equivalent.
+                chooseNamed(started, "card12-pick-" + step, "Mountain", 2);
+                return true;
+            }
+            if ("choose_use".equals(cls) && text.toLowerCase().contains("delve")) {
+                submit(started, "card12-use-delve-" + step, booleanOption(started, true));
+                return true;
+            }
+            return false;
+        });
+
+        long exiledMemnites = started.session().restorationGame().getExile()
+                .getAllCards(started.session().restorationGame()).stream()
+                .filter(card -> "Memnite".equals(card.getName())).count();
+        assertEquals(6, exiledMemnites, "delve exiled six cards for the {6}");
+        assertEquals(2, tappedCount(started, "P1", "Island"), "{U}{U} came from the two Islands");
+        assertEquals(handBefore - 1 + 2, handSize(started, "P1"), "two of seven to hand");
+        assertEquals(libraryBefore - 2, started.seats().get("P1").getLibrary().size(),
+                "five return to the library bottom");
+        assertEquals(1, inGraveyard(started, "P1", "Dig Through Time"));
+    }
+
+    /**
+     * CARD_09 Magma Opus: "deals 4 damage divided as you choose among any
+     * number of targets. Tap two target permanents. Create a 4/4 blue and red
+     * Elemental creature token. Draw two cards." All 4 at P2; tap P2's two
+     * Bears.
+     */
+    @Test
+    @org.junit.jupiter.api.Disabled("UNKNOWN: the divided-damage target_amount decision "
+            + "(\"Select targets (selected 0 of 4) (damage)\") ended the game when answered with "
+            + "a single-target selection; the lane's accepted response shape for divided damage "
+            + "is not yet established. Not a Rules claim either way.")
+    void magmaOpusDividesFourTapsTwoMakesAFourFourAndDrawsTwo() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(battlefield("P1", "Island", 0));
+        objects.addAll(lands("P1", "Mountain", 7));
+        objects.add(hand("P1", "Magma Opus", 0));
+        objects.add(battlefield("P2", "Grizzly Bears", 0));
+        objects.add(battlefield("P2", "Grizzly Bears", 1));
+        Started started = start("card09-opus", 2, objects);
+        int handBefore = handSize(started, "P1");
+
+        submit(started, "card09-cast",
+                singleOffer(offers(started, "Magma Opus", "Cast Magma Opus", true), "Magma Opus cast"));
+        int[] targetRounds = {0};
+        resolveAll(started, "card09", null, (cls, step) -> {
+            if ("mana_payment".equals(cls)) {
+                return payOneFromRestoredMana(started, "card09-pay-" + step,
+                        List.of("Island", "Mountain"),
+                        java.util.Set.of(ISLAND_LABEL, MOUNTAIN_LABEL));
+            }
+            String text = prompt(started).toLowerCase();
+            if ("target".equals(cls) && text.contains("tap")) {
+                chooseNamed(started, "card09-tap-" + step, "Grizzly Bears", 2);
+                return true;
+            }
+            if ("target_amount".equals(cls) && targetRounds[0] == 0) {
+                // Divided damage: all 4 at P2 (one target receives all).
+                chooseByObjectIds(started, "card09-dmg-" + step,
+                        List.of(started.seats().get("P2").getId().toString()));
+                targetRounds[0]++;
+                return true;
+            }
+            return false;
+        });
+
+        assertEquals(36, life(started, "P2"), "all 4 damage at P2");
+        assertEquals(2, tappedCount(started, "P2", "Grizzly Bears"), "two target permanents tapped");
+        assertEquals(1, onBattlefield(started, "P1", "Elemental Token"));
+        Permanent token = permanent(started, "P1", "Elemental Token");
+        assertEquals(4, token.getPower().getValue());
+        assertEquals(4, token.getToughness().getValue());
+        assertEquals(handBefore - 1 + 2, handSize(started, "P1"), "draw two");
     }
 
     /** The source name of the spell or ability asking for the current target. */
