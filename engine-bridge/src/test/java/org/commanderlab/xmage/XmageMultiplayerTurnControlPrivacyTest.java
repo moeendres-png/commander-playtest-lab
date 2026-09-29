@@ -167,7 +167,8 @@ class XmageMultiplayerTurnControlPrivacyTest {
                     );
                 }
 
-                XmageFullGameStateRedactor.beginZoneFullLook(controlled, controlled, game);
+                XmageFullGameStateRedactor.beginZoneFullLook(controlled, controlled, game,
+                        controlled.getLibrary().getCardList());
                 try {
                     JsonObject inheritedLook =
                             XmageFullGameStateRedactor.actorView(game, controller);

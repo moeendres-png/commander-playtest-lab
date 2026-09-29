@@ -135,7 +135,7 @@ class Ws92D1D2D3ProjectionTest {
         var actor = fixture.players().get(0);
         var opponent = fixture.players().get(1);
 
-        XmageFullGameStateRedactor.beginZoneFullLook(actor, actor, game);
+        XmageFullGameStateRedactor.beginZoneFullLook(actor, actor, game, actor.getLibrary().getCardList());
         try {
             JsonObject view = XmageFullGameStateRedactor.actorView(game, actor);
             JsonArray players = view.getAsJsonArray("players");
