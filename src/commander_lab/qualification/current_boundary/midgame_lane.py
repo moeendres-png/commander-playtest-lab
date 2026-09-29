@@ -1019,6 +1019,7 @@ def rejected_verdict(
     detail: str | None,
     engine_commit: str | None,
     state_accepted: bool = False,
+    entry_mode: str = "placement",
 ) -> RowVerdict:
     """Record a row the lane did not reach a verdict on, with the engine's own code.
 
@@ -1027,6 +1028,10 @@ def rejected_verdict(
     materializable. When it is true the engine accepted the state and the lane
     simply did not execute the row's scripted obligation, which is recorded as
     ``ENGINE_STATE_ACCEPTED`` by the caller. Neither is a pass.
+
+    ``entry_mode`` records the route the row actually requested. A causal row
+    rejected before arrival must not be labelled as a placement row: the
+    persisted evidence would then claim a route the probe never attempted.
     """
     return RowVerdict(
         fixture_id=fixture_id,
@@ -1040,6 +1045,7 @@ def rejected_verdict(
         lane=lane,
         engine_commit=engine_commit,
         engine_accepted_starting_state=state_accepted,
+        entry_mode=entry_mode,
     )
 
 

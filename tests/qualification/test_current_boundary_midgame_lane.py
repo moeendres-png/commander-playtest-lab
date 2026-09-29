@@ -203,6 +203,25 @@ class TestRowClassification:
         assert verdict.outcome == "ENGINE_REJECTED"
         assert verdict.engine_accepted_starting_state is False
         assert verdict.construction_match is None
+
+    def test_a_rejected_causal_row_keeps_its_requested_entry_mode(self) -> None:
+        """A causal row rejected before arrival must not be labelled placement.
+
+        The persisted evidence would otherwise claim the probe attempted a route
+        it never requested, and the admission/runtime matrix would describe the
+        wrong route for that record.
+        """
+        verdict = ml.rejected_verdict(
+            "WS05-MP-ELIM-CONTROL-3",
+            ml.MIDGAME_LANE,
+            code="midgame_causal_preparation_rejected",
+            detail="CAUSAL_ELIMINATION_PREPARATION_REJECTED",
+            engine_commit="abc",
+            entry_mode="causal_elimination",
+        )
+        assert verdict.outcome == "ENGINE_REJECTED"
+        assert verdict.entry_mode == "causal_elimination"
+        assert verdict.as_dict()["entry_mode"] == "causal_elimination"
         assert verdict.requested_state_digest is None
 
 
