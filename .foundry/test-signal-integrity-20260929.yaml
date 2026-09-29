@@ -24,11 +24,28 @@ merge_receipt:
   canonical_main_tree_after: d56840f30ac15b5c5e1bb7c3561c4a348b3531a0
   branch_head_merged: 21ec51a1fec16656bfc466a7ceb279ef14ce039f
   path: normal GitHub PR merge; no force, no admin bypass, no history rewrite
-  branch_retained: true
-  branch_retained_reason: >-
-    AGENTS.md section 10 lists destructive branch/worktree deletion as a hard boundary. The
-    content is provably integrated, so retention costs nothing and removing it would need
-    explicit authority.
+  remote_branch_retained: false
+  remote_branch_correction: >-
+    CORRECTED. An earlier revision of this receipt claimed branch_retained: true. That claim was
+    written from the intent not to pass --delete-branch, and it was never verified against the
+    remote. It is false. The repository has delete_branch_on_merge enabled, so GitHub removed
+    BOTH branches on merge: maintenance/test-signal-integrity-20260929 and
+    maintenance/test-signal-integrity-state-receipt. Verified by ls-remote returning no matching
+    refs and by `gh api repos/.../commander-playtest-lab --jq .delete_branch_on_merge` returning
+    true. Not passing the flag is not sufficient to retain a branch.
+  local_branches_retained:
+    - maintenance/test-signal-integrity-20260929 at 21ec51a1
+    - maintenance/test-signal-integrity-state-receipt at 641213f9
+  nothing_lost: >-
+    Both branch heads are reachable from canonical main through merge commits 12d3e1ac and
+    f64798d0 respectively, verified with git merge-base --is-ancestor. No unique unintegrated
+    work existed, so the remote deletion destroyed nothing. It is recorded because a future
+    session looking for the remote branch would otherwise not find it and could not tell whether
+    that was expected.
+  policy_note: >-
+    AGENTS.md section 10 lists destructive branch/worktree deletion as a hard boundary. No
+    executor action deleted these branches, and no force, rewrite, or authority was involved.
+    The deletion came from repository configuration and is outside workstream control.
 
 active_foreign_surfaces:
   - owner: sol/xmage-f22-f23-repin-20260929
