@@ -667,8 +667,20 @@ final class XmageFullGamePlayer extends PlayerImpl {
             String promptText,
             Game game
     ) {
-        List<ActivatedAbility> manaAbilities = getPlayable(game, false).stream()
+        // getPlayable is a UI "playable" list and returns nothing while declare attackers
+        // is in its pre-step part (PlayerImpl.SILENT_PHASES_STEPS) - exactly when attack
+        // costs such as Ghostly Prison's are paid (CR 508.1h/i). Add the engine's own
+        // per-object usable mana abilities of the player's permanents, as XMage's human
+        // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
+        Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
+        getPlayable(game, false).stream()
                 .filter(Ability::isManaAbility)
+                .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
+        for (Permanent permanent : game.getBattlefield().getAllActivePermanents(getId())) {
+            getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values()
+                    .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
+        }
+        List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
 

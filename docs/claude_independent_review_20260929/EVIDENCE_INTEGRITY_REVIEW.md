@@ -232,6 +232,12 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Its duplicate tracker (#330) and engine PR (mage#23) are closed. Its native tempting-offer tests are offered on mage#22.
   - Lab evidence: `XmageMultiplayerTemptingOfferTest` (3–6P). Every opponent is asked once and every search is honoured; the APNAP expectation is `@Disabled` and names F-21.
   - F-numbers from here on: this review's F-18/F-19 and the parallel lane's F-20 (initiative, #327) / F-21 (#328) are distinct findings.
+- **F-24, P1: FIXED. The full-game lane made attack taxes unpayable (#338).**
+  - `XmageFullGamePlayer.playMana` listed mana abilities via `getPlayable`. XMage returns nothing there while declare attackers is in its pre-step part (`SILENT_PHASES_STEPS`, a UI shortcut), and that is when attack costs are paid (CR 508.1h/i).
+  - Ghostly Prison's "Pay {2} to attack?" therefore offered only "Cancel mana payment".
+  - Fix: union with the engine's own `getUseableManaAbilities` for the player's permanents, the API XMage's human player uses while paying.
+  - Pinned by `XmageMultiplayerAttackTaxTest` (3–6P, split and double attacks; red 6/6 → green 6/6).
+  - Impact: any full-game-lane evidence involving attack taxes was unreachable before and is new capability now. Mana-payment option frames outside that window are unchanged (full bridge suite green).
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
