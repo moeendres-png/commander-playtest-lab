@@ -111,11 +111,24 @@ class XmageActualCardCorpusTest {
             String tag, int playerCount,
             List<XmageNativeStateRestoration.RequestedObject> objects,
             Map<String, String> extraCommanders, int forests, long seed) {
+        return start(tag, playerCount, objects, extraCommanders, forests, seed, 40);
+    }
+
+    /**
+     * As above, with the game's starting life (the engine's own table setting,
+     * applied by the engine at game start; restoration does not set life).
+     */
+    static Started start(
+            String tag, int playerCount,
+            List<XmageNativeStateRestoration.RequestedObject> objects,
+            Map<String, String> extraCommanders, int forests, long seed,
+            int startingLife) {
         List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
         List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
         for (int seat = 1; seat <= playerCount; seat++) {
             String pid = "P" + seat;
-            players.add(new XmageNativeStateRestoration.RequestedPlayer(pid, seat, 40));
+            players.add(new XmageNativeStateRestoration.RequestedPlayer(
+                    pid, seat, startingLife));
             commanders.add(new XmageNativeStateRestoration.RequestedCommander(
                     "cmd:" + pid + "-A", ROGRAKH, pid, 0));
             if (extraCommanders.containsKey(pid)) {
@@ -144,7 +157,7 @@ class XmageActualCardCorpusTest {
                     mainboard, deckCommanders).deckHandle());
         }
         XmageFullGameSession session = new XmageFullGameSession(
-                tag, handles, 0, 40, plan.seed(), importer, restoration);
+                tag, handles, 0, startingLife, plan.seed(), importer, restoration);
         session.start();
         Map<String, Player> seats = session.restorationSeats();
         XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
@@ -438,7 +451,7 @@ class XmageActualCardCorpusTest {
      * generic and {B}, the Forest pays only a lone remaining {G}. The pool
      * only ever holds the mana just produced, so pool choices are equivalent.
      */
-    private static String manaSourceName(String label) {
+    static String manaSourceName(String label) {
         int separator = label.indexOf(" — ");
         assertTrue(separator > 0, "mana label must expose a semantic source name: " + label);
         return label.substring(0, separator);
@@ -494,7 +507,7 @@ class XmageActualCardCorpusTest {
      * callbacks and must return to resolveAll rather than being swallowed by a
      * payment helper.
      */
-    private static boolean payOneFromRestoredMana(
+    static boolean payOneFromRestoredMana(
             Started started,
             String tag,
             List<String> sourcePreference,
