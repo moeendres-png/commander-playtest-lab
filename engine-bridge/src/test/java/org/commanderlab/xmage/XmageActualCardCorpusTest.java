@@ -205,7 +205,7 @@ class XmageActualCardCorpusTest {
 
     // ---------------------------------------------------------------- actions
 
-    private static void submit(Started started, String tag, JsonObject action) {
+    static void submit(Started started, String tag, JsonObject action) {
         XmageFullGameTaxExecutionTest.submit(started.session(), tag, action);
     }
 
@@ -220,7 +220,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** The target option naming exactly this player, by engine identity. */
-    private static JsonObject playerTarget(Started started, String pid) {
+    static JsonObject playerTarget(Started started, String pid) {
         String wanted = started.seats().get(pid).getId().toString();
         JsonObject match = null;
         for (JsonElement element : started.session().legalActionsPayload()
@@ -2019,7 +2019,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** The single option whose label contains {@code fragment}; dumps options otherwise. */
-    private static JsonObject labelled(Started started, String fragment) {
+    static JsonObject labelled(Started started, String fragment) {
         JsonObject match = null;
         JsonArray actions = started.session().legalActionsPayload().getAsJsonArray("actions");
         for (JsonElement element : actions) {
