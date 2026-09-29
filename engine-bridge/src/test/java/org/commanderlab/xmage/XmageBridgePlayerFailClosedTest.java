@@ -209,7 +209,8 @@ class XmageBridgePlayerFailClosedTest {
         // No-op lifecycle methods remain no-ops on the bounded path.
         bounded.selectAttackers(null, null);
         bounded.selectBlockers(null, null, null);
-        bounded.shuffleLibrary(null, null);
+        // shuffleLibrary is deliberately absent: shuffling is XMage-owned Rules
+        // randomness, never a bridge no-op (XmageGenericLaneRulesSeedTest).
         bounded.abort();
         bounded.skip();
     }

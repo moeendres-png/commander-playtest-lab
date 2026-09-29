@@ -20,16 +20,17 @@ import static org.junit.jupiter.api.Assertions.fail;
  * FULL107 Phase C execution: WS05-CMD-START-2 fixture run (execution
  * evidence only; no mapping promotion in this workstream).
  *
- * <p><b>BLOCKED — disabled by design.</b> The pinned engine's
- * CommanderFreeForAll hardcodes {@code startingPlayerSkipsDraw = false},
- * so P1 draws on turn 1 (hand 8 at the draw step) against the frozen
- * {@code first_turn_draw:false} requirement. Enabling the skip via the
- * engine TurnMod path removes the draw-step priority entirely, leaving
- * the requested temporal point (turn 1, beginning/draw, priority P1)
- * unobservable — so the fixture is unsatisfiable as specified on this
- * engine either way. See BLOCKER record in the workstream docs. Enable
- * this test only after engine draw-skip semantics plus fixture temporal
- * expectations are adjudicated and implemented.</p>
+ * <p><b>Disabled: the frozen v1.0.5 temporal point is unreachable under
+ * CR 103.8a.</b> This test binds the v1.0.5 START-2 record, whose requested
+ * state parks P1's priority inside the turn-1 draw step. The bridge
+ * previously built 2P tables as CommanderFreeForAll, which hard-codes
+ * {@code startingPlayerSkipsDraw = false}, so P1 drew on turn 1 (hand 8).
+ * Two-player tables now use the engine's own CommanderDuel type
+ * (XmageCommanderGames), so the whole draw step is skipped and no turn-1
+ * draw-step priority exists to observe. That is what CR 103.8a requires and
+ * what the v1.0.6 successor record (AUTHORITY_CORRECTED_SUCCESSOR) states.
+ * The current-rule behaviour is covered by XmageFirstTurnDrawRuleTest;
+ * this frozen-digest test stays as provenance of the v1.0.5 record.</p>
  */
 class XmageFullGameStart2ExecutionTest {
 
@@ -50,11 +51,9 @@ class XmageFullGameStart2ExecutionTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("BLOCKED: pinned engine draws on turn 1 "
-            + "(CommanderFreeForAll hardcodes startingPlayerSkipsDraw=false); "
-            + "enabling the TurnMod skip removes the draw-step priority, "
-            + "leaving the requested temporal unobservable. See workstream "
-            + "BLOCKER record for the S1/S2 analysis and authority questions.")
+    @org.junit.jupiter.api.Disabled("SUPERSEDED: the frozen v1.0.5 START-2 record "
+            + "requests turn-1 draw-step priority, which CR 103.8a removes; the "
+            + "v1.0.6 successor semantics are covered by XmageFirstTurnDrawRuleTest")
     void start2DrawStepObservedWithNoDraw() {
         events.clear();
         JsonObject requested = XmageDigestCreditTest.frozenRecord("WS05-CMD-START-2");

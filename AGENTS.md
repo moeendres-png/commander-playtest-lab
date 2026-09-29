@@ -113,11 +113,12 @@ requalification.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
   and long autonomous workstreams. The committed/default and preferred executor is
-  `space-bunny`: `opencode-go/space-bunny-free` at native `max` for the main model,
-  small model, primary implementer, and reachable project agents. Muse is an explicit
-  alternate only: `opencode-go/muse-spark-1.3-contributor` at `xhigh`; Muse HIGH is
-  not an active project lane. Executor selection is explicit per run, recorded, never
-  inferred from quota or failure, and never falls back silently.
+  `deepseek`: `opencode-go/deepseek-v4.1-flash` at native `max` for the main model,
+  small model, primary implementer, and reachable project agents. Space Bunny is an
+  explicit secondary only: `opencode-go/space-bunny-free` at native `max`, for bounded,
+  mechanical, token-heavy, bulk and background work. Muse and GLM are inactive: they are
+  not reachable through the canonical launcher or config. Executor selection is explicit
+  per run, recorded, never inferred from quota or failure, and never falls back silently.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
   capability identified; Sol High insufficient; OpenCode Foundry insufficient; genuinely
   required; smallest necessary scope). Never the normal engineering path.
@@ -128,14 +129,18 @@ Technical autonomy within those tiers is defined in §8.
 
 Active project execution has exactly two allowed identities:
 
-- Space Bunny: native `max` only. This is the default and preferred execution path for
+- DeepSeek: native `max` only. This is the default and preferred execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence and
   long-running campaigns.
-- Muse Spark 1.3 Contributor: native `xhigh` only. Use Muse deliberately for alternate
-  execution, continuation where specifically required, or cross-model challenge/review.
+- Space Bunny: native `max` only. An explicit secondary for bounded, mechanical,
+  token-heavy, bulk and background work, and for deliberately authorized cross-model
+  checks.
 
-There is no active-work `high`, `medium`, `low`, `minimal`, `none`, or `off` lane.
-Do not relabel Space Bunny MAX as XHIGH; record the actual native identity.
+Muse and GLM are inactive and are not selectable executors. There is no active-work
+`high`, `medium`, `low`, `minimal`, `none`, or `off` native lane. The project-level
+`--effort` field describes task and authority routing only and never lowers either
+executor below its native level. Do not relabel DeepSeek MAX or Space Bunny MAX as
+XHIGH; record the actual native identity.
 
 ## 8. Technical decision authority
 
@@ -149,10 +154,11 @@ can resolve it.
 
 Routing distinction:
 
-- Space Bunny MAX: committed/default and preferred execution profile for active engineering.
+- DeepSeek MAX: committed/default and preferred execution profile for active engineering.
   It is autonomous within the workstream contract and always runs at native `max`.
-- Muse XHIGH: explicit alternate/cross-model execution and technical adjudication lane.
-  Muse never runs at HIGH for active project work.
+- Space Bunny MAX: explicit secondary execution profile for bounded, mechanical,
+  token-heavy, bulk and background work, and for deliberately authorized cross-model
+  checks. It never runs below native `max`.
 - Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
   cross-workstream authority, Provider Selection, Architecture Freeze.
 
@@ -306,7 +312,7 @@ Cross-workstream child execution uses Bubblewrap with the host filesystem mounte
 read-only and only the explicitly writable standalone surfaces, unique runtime directory,
 and narrow tool caches rebound read-write. Missing/unusable Bubblewrap is a launch refusal,
 never a silent downgrade. Agents must not use sudo or bypass the sandbox to install it.
-Space Bunny MAX and Muse use the same access contract.
+DeepSeek MAX and Space Bunny MAX use the same access contract.
 
 ## 12. Privacy
 

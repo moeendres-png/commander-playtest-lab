@@ -5,9 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.cards.decks.Deck;
-import mage.constants.MultiplayerAttackOption;
 import mage.constants.RangeOfInfluence;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.GameOptions;
 import mage.game.events.TableEvent;
 import mage.game.mulligan.MulliganType;
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class XmageFullGameSession {
 
-    /** WS215 variable-player contract, R19 widened: Commander Free-for-All for 2..6 principals. */
+    /** WS215 variable-player contract, R19 widened: Commander tables for 2..6 principals. */
     static final int MIN_PLAYERS = 2;
     static final int MAX_PLAYERS = 6;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
@@ -47,7 +46,7 @@ final class XmageFullGameSession {
     private final String protocolGameId;
     private final long seed;
     private final int playerCount;
-    private final CommanderFreeForAll game;
+    private final GameCommanderImpl game;
     private final List<XmageFullGamePlayer> players;
     private final XmageFullGameDecisionController controller;
     private final int startingPlayerSeat;
@@ -128,12 +127,12 @@ final class XmageFullGameSession {
         // card while 3..6P keep the free first mulligan. A blanket grant
         // would silently zero the 2P bottom count the fixtures require.
         int freeMulligans = sessionsPlayers > 2 ? 1 : 0;
-        this.game = new CommanderFreeForAll(
-                MultiplayerAttackOption.MULTIPLE,
-                RangeOfInfluence.ALL,
+        // Two-player tables use the engine's own two-player Commander type so
+        // the engine applies CR 103.8a (see XmageCommanderGames).
+        this.game = XmageCommanderGames.create(
+                playerCount,
                 MulliganType.LONDON.getMulligan(freeMulligans),
-                startingLife,
-                7
+                startingLife
         );
         // WS213 authoritative Rules-RNG binding (WS212 engine contract): the
         // explicit orchestration seed replaces the per-game Rules stream and
@@ -143,9 +142,7 @@ final class XmageFullGameSession {
         // pinned engine, while game.start/init performs the initial shuffle,
         // choosing-player pick and opening hands. The legacy process-global
         // seed call is retired here: it never was Rules-RNG authority.
-        game.setRulesSeed(seed);
-        game.setRequireExplicitSeed(true);
-        game.setNumPlayers(playerCount);
+        XmageRulesSeedBinding.bind(game, seed);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         game.setGameOptions(options);
@@ -196,7 +193,7 @@ final class XmageFullGameSession {
      * be parked on an external decision (or not yet started) when the caller
      * touches game state.
      */
-    CommanderFreeForAll restorationGame() {
+    GameCommanderImpl restorationGame() {
         return game;
     }
 
@@ -455,25 +452,7 @@ final class XmageFullGameSession {
      * seed_supported} is true only when this proof holds for the run.
      */
     synchronized JsonObject rulesSeedBindingPayload() {
-        JsonObject binding = new JsonObject();
-        binding.addProperty("explicit_seed", seed);
-        binding.addProperty("rules_seed", game.getRulesSeed());
-        binding.addProperty("rules_seed_matches", game.getRulesSeed() == seed);
-        binding.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
-        binding.addProperty("require_explicit_seed", true);
-        binding.addProperty("rules_random_calls", game.getRulesRandomCalls());
-        binding.addProperty("seed_scope", "authoritative_per_game_rules_rng");
-        binding.addProperty(
-                "binding_model",
-                "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + "
-                        + "game.setRequireExplicitSeed(true) after construction, "
-                        + "before game.start/init"
-        );
-        binding.addProperty(
-                "seed_supported",
-                game.getRulesSeed() == seed && game.isRulesSeedExplicit()
-        );
-        return binding;
+        return XmageRulesSeedBinding.payload(game, seed);
     }
 
     /**

@@ -27,6 +27,7 @@ import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.combat.CombatGroup;
 import mage.game.stack.StackObject;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
@@ -39,6 +40,7 @@ import mage.target.Target;
 import mage.target.TargetAmount;
 import mage.target.TargetCard;
 import mage.target.Targets;
+import mage.util.CardUtil;
 import mage.util.MultiAmountMessage;
 
 import java.io.Serializable;
@@ -126,6 +128,39 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public XmageFullGamePlayer copy() {
         return new XmageFullGamePlayer(this);
+    }
+
+    /*
+     * F-26: XMage records looked-at and revealed cards only until the next
+     * client update (GameState.clearLookedAt/clearRevealed), so the external
+     * pilot would never learn what a look or reveal showed. Capture the
+     * engine's own call here, after the engine has done its part, and hand
+     * it to the redactor's principal-scoped observation log.
+     */
+    @Override
+    public void lookAtCards(String titleSuffix, Card card, Game game) {
+        super.lookAtCards(titleSuffix, card, game);
+        if (card != null && game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordLookedAt(game, getId(), titleSuffix, List.of(card));
+        }
+    }
+
+    @Override
+    public void lookAtCards(Ability source, String titleSuffix, Cards cards, Game game) {
+        super.lookAtCards(source, titleSuffix, cards, game);
+        if (cards != null && game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordLookedAt(game, getId(),
+                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game));
+        }
+    }
+
+    @Override
+    public void revealCards(Ability source, String titleSuffix, Cards cards, Game game, boolean postToLog) {
+        super.revealCards(source, titleSuffix, cards, game, postToLog);
+        if (cards != null && !cards.isEmpty() && game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordRevealed(game, getId(),
+                    CardUtil.createObjectRelatedWindowTitle(source, game, titleSuffix), cards.getCards(game));
+        }
     }
 
     @Override
@@ -666,8 +701,20 @@ final class XmageFullGamePlayer extends PlayerImpl {
             String promptText,
             Game game
     ) {
-        List<ActivatedAbility> manaAbilities = getPlayable(game, false).stream()
+        // getPlayable is a UI "playable" list and returns nothing while declare attackers
+        // is in its pre-step part (PlayerImpl.SILENT_PHASES_STEPS) - exactly when attack
+        // costs such as Ghostly Prison's are paid (CR 508.1h/i). Add the engine's own
+        // per-object usable mana abilities of the player's permanents, as XMage's human
+        // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
+        Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
+        getPlayable(game, false).stream()
                 .filter(Ability::isManaAbility)
+                .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
+        for (Permanent permanent : game.getBattlefield().getAllActivePermanents(getId())) {
+            getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values()
+                    .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
+        }
+        List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
 
@@ -708,6 +755,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
             ));
             byId.put(optionId, manaAbility);
         }
+        // Engine-authored special mana actions for this payment (delve,
+        // convoke, improvise, ...): the same set XMage's own human player
+        // offers during payment (HumanPlayer.playManaHandling ->
+        // activateSpecialAction(game, unpaid)). Omitting them made those
+        // payments unreachable for an external pilot.
+        Map<UUID, mage.abilities.SpecialAction> specialManaActions =
+                game.getState().getSpecialActions().getControlledBy(getId(), true);
+        specialManaActions.values().stream()
+                .sorted(Comparator.comparing(this::abilitySortKey))
+                .forEach(specialAction -> {
+                    String optionId = abilityOptionId("mana-special", specialAction);
+                    options.add(XmageFullGameDecisionController.option(
+                            optionId,
+                            abilityLabel(specialAction, game),
+                            "special_mana_action",
+                            abilityMetadata(specialAction, game)
+                    ));
+                    byId.put(optionId, specialAction);
+                });
         JsonObject context = new JsonObject();
         context.addProperty("unpaid_mana", unpaid == null ? "" : unpaid.getText());
         String selected = requireSingle(request(
@@ -964,6 +1030,31 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return true;
     }
 
+    /**
+     * Engine-authoritative per-defender attack limit: a defending player can be
+     * attacked by at most {@code Player.getMaxAttackedBy()} creatures each
+     * combat (e.g. Crawlspace). Counts the creatures already declared as
+     * attacking that player in the engine's combat state. Planeswalkers and
+     * battles carry no such limit.
+     */
+    private static boolean attackLimitReached(UUID defenderId, Game game) {
+        Player defendingPlayer = game.getPlayer(defenderId);
+        if (defendingPlayer == null) {
+            return false;
+        }
+        int max = defendingPlayer.getMaxAttackedBy();
+        if (max == Integer.MAX_VALUE) {
+            return false;
+        }
+        int attacking = 0;
+        for (CombatGroup group : game.getCombat().getGroups()) {
+            if (defenderId.equals(group.getDefenderId())) {
+                attacking += group.getAttackers().size();
+            }
+        }
+        return attacking >= max;
+    }
+
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
@@ -987,6 +1078,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Map<String, UUID> defenderByOption = new LinkedHashMap<>();
             for (UUID defenderId : defenders) {
                 if (!attacker.canAttack(defenderId, game)) {
+                    continue;
+                }
+                if (attackLimitReached(defenderId, game)) {
+                    // F-25: the attacks already declared this combat reach the
+                    // defending player's engine limit (e.g. Crawlspace, 508.1c);
+                    // offering it would be silently refused by the engine.
                     continue;
                 }
                 String optionId = optionId(
@@ -1043,7 +1140,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
             JsonArray options = new JsonArray();
             Map<String, UUID> attackerByOption = new LinkedHashMap<>();
             for (UUID attackerId : attackers) {
-                if (!blocker.canBlock(attackerId, game)) {
+                // The engine's own acceptance test in declareBlocker: the
+                // blocker's controller must be the group's defending player
+                // (CR 802.4a) and the blocker must be able to block every
+                // attacker of the group. Permanent.canBlock alone checks
+                // only "attacker is an opponent's", so it over-offers in
+                // multiplayer, and the engine then silently drops the block.
+                CombatGroup group = game.getCombat().findGroup(attackerId);
+                if (group == null || !group.canBlock(blocker, game)) {
                     continue;
                 }
                 String optionId = attackerId.toString();
@@ -1058,8 +1162,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ));
                 attackerByOption.put(optionId, attackerId);
             }
-            int maxBlocks = Math.min(blocker.getMaxBlocks(), options.size());
-            if (maxBlocks <= 0 || options.isEmpty()) {
+            int maxBlocks = blockCapacity(blocker.getMaxBlocks(), options.size());
+            if (maxBlocks <= 0) {
                 continue;
             }
             XmageFullGameDecisionController.DecisionResponse response = request(
@@ -1080,6 +1184,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 declareBlocker(defendingPlayerId, blocker.getId(), attackerId, game, false);
             }
         }
+    }
+
+    /**
+     * How many of the offered attackers one blocker may block (CR 509.1a).
+     * XMage encodes "can block any number of creatures" as maxBlocks == 0
+     * (CanBlockAdditionalCreatureEffect), so zero means every offered
+     * attacker, never "cannot block". A positive value caps the selection.
+     */
+    static int blockCapacity(int engineMaxBlocks, int offeredAttackers) {
+        if (offeredAttackers <= 0) {
+            return 0;
+        }
+        if (engineMaxBlocks == 0) {
+            return offeredAttackers;
+        }
+        return Math.min(engineMaxBlocks, offeredAttackers);
     }
 
     /**

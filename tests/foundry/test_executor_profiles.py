@@ -1,4 +1,4 @@
-"""Hermetic guards for prepared four-model OpenCode Go Foundry execution."""
+"""Hermetic guards for the two-model routed OpenCode Go Foundry execution."""
 
 from __future__ import annotations
 
@@ -53,12 +53,55 @@ def test_registry_does_not_prescribe_task_routing_or_model_preference() -> None:
 
 def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
     doc = _registry()
-    assert doc["status"] == "PREPARED_NOT_RUNTIME_ACTIVE"
-    assert doc["current_runtime_default"] == "space-bunny"
-    assert doc["profiles"]["deepseek"]["runtime_status"] == "BLOCKED_ON_LAUNCHER_INTEGRATION"
-    assert doc["profiles"]["glm"]["runtime_status"] == "BLOCKED_ON_LAUNCHER_INTEGRATION"
-    assert doc["profiles"]["muse"]["runtime_status"] == "ACTIVE"
+    assert doc["status"] == "ACTIVE"
+    assert doc["current_runtime_default"] == "deepseek"
+    assert doc["profiles"]["deepseek"]["runtime_status"] == "ACTIVE"
     assert doc["profiles"]["space-bunny"]["runtime_status"] == "ACTIVE"
+    # Muse and GLM keep their historical model identity but are not routed.
+    assert doc["profiles"]["muse"]["runtime_status"] == "INACTIVE_NOT_ROUTED"
+    assert doc["profiles"]["glm"]["runtime_status"] == "INACTIVE_NOT_ROUTED"
+
+
+def test_routing_policy_is_stable_and_fallback_free() -> None:
+    doc = _registry()
+    routing = doc["routing_policy"]
+    assert routing["primary"] == "deepseek"
+    assert routing["secondary"] == "space-bunny"
+    assert set(routing["inactive"]) == {"muse", "glm"}
+    assert routing["automatic_fallback"] is False
+    assert doc["policy"]["automatic_fallback"] is False
+    # Durable policy only: no volatile price/quota/availability *data* anywhere in
+    # the registry. Key names and prose disclaiming them are allowed.
+    blob = json.dumps(doc).lower()
+    for forbidden in (
+        "price_per_million",
+        "usd_per",
+        "cost_per",
+        "quota_remaining",
+        "tokens_per_",
+        "rate_limit",
+        "context_limit",
+        "1m_tokens",
+    ):
+        assert forbidden not in blob, forbidden
+    for profile in doc["profiles"].values():
+        assert set(profile) == {"model", "native_variant", "runtime_status"}, profile
+
+
+def test_activation_evidence_records_authenticated_runtime_verification() -> None:
+    """runtime_status=ACTIVE must be backed by real runtime evidence, not config parsing."""
+    evidence = _registry()["activation_gate"]["activation_evidence_2026_09_29"]
+    for key in (
+        "live_catalog_identity",
+        "deepseek_authenticated_smoke",
+        "space_bunny_authenticated_smoke",
+        "native_variant_pin",
+        "no_fallback",
+    ):
+        assert key in evidence, key
+    assert "deepseek-v4.1-flash" in evidence["live_catalog_identity"]
+    assert "RUNTIME_VERIFIED" in evidence["deepseek_authenticated_smoke"]
+    assert "RUNTIME_VERIFIED" in evidence["space_bunny_authenticated_smoke"]
 
 
 def test_activation_gate_requires_atomic_launcher_and_config_change() -> None:

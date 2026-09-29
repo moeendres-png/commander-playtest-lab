@@ -9,7 +9,7 @@ final class XmageProvider {
     static final String ENGINE = "xmage";
     static final String ENGINE_VERSION = "1.4.61";
     static final String ENGINE_COMMIT =
-            "b19596980f2734496ea1896504253e1bdd2756dd";
+            "f79e4168902e65063034b21be6f4585397fd43b3";
     static final String PROTOCOL_VERSION = "2.0.0";
 
     private XmageProvider() {
@@ -61,7 +61,14 @@ final class XmageProvider {
         capabilities.addProperty("multiplayer_supported", true);
         capabilities.addProperty("max_players", 5);
         capabilities.addProperty("headless_supported", true);
-        capabilities.addProperty("seed_supported", false);
+        /*
+         * seed_supported: an explicit create-game seed is bound to XMage's
+         * authoritative per-game Rules RNG before start (XmageRulesSeedBinding)
+         * and acknowledged from engine readback. A game created without a seed
+         * runs on the engine's non-credited default and reports
+         * seed_controlled=false; it is never described as controlled.
+         */
+        capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
         capabilities.addProperty("legal_actions_supported", false);
         capabilities.addProperty("action_submission_supported", false);
@@ -94,7 +101,7 @@ final class XmageProvider {
                 "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable"
         );
         notes.add(
-                "Seed remains unknown/uncontrolled; no numeric sentinel is synthesized"
+                "An explicit create-game seed is bound to the native per-game Rules RNG (setRulesSeed + requireExplicitSeed before start) and acknowledged from engine readback; unseeded games report seed_controlled=false and the seed value never appears in principal-scoped state"
         );
         notes.add("NO_PROVIDER_READY remains in force");
         capabilities.add("notes", notes);
