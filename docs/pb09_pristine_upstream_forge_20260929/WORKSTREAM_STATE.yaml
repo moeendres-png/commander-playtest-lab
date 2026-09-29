@@ -70,13 +70,39 @@ forbidden:
   - no weakening of any test/detector to preserve a PASS figure
   - no mutation of foreign worktrees or Forge PR #5/#6 branches
 
-current_phase: PRISTINE_CANDIDATE_MATERIALIZATION
+current_phase: PB09_RUNNER_AUTHORING
 completed_phases:
   - SOURCE_TRUTH_RECONCILIATION (origin/main afe09c61 read; open PRs inspected;
     PB-09 unclaimed verified; pin manifest + PB09 identity doc read)
   - OWNERSHIP_GATE (claimed isolated branch/worktree)
+  - PHASE-1 pristine-candidate-materialization (PRISTINE_CANDIDATE_RECEIPT.json;
+    PRISTINE_SOURCE_IDENTITY=DIRECTLY_VERIFIED; upstream tag deref, dual-remote
+    cross-check, clean detached checkout, no bridge module)
+  - PHASE-2 pristine-upstream-build (BUILD_RECEIPT.json; BUILD SUCCESS)
+  - PHASE-3 pinned-bridge-materialization-and-build (4753bb7c Rules-Core
+    byte-identical to a37a865a in all six modules; bridge built; cp-wsr22.txt
+    resolves 2.0.14 only; BUILD SUCCESS)
+  - PHASE-4a runtime-reachability probe (RUNTIME_REACHABILITY.json; 4P lifecycle
+    observed live; PRISTINE_FORGE_RUNTIME_REACHABLE=YES for the pin lane)
+  - PHASE-6-partial hidden-info live observation (p1/p2 hand redaction observed;
+    no requester binding at the pin)
+  - Lane-B materialization (pristine + e15f37d6 bridge + 1 pom line; NOT built)
 
-active_blockers: []
+active_blockers:
+  - EXECUTOR_CONTINGENT: the GLM 5.3 session's model contingent was exhausted
+    before the PB-09 qualification runner was authored and the Lane-B compile
+    probe was run. This is an executor change directed by the user, not a
+    technical blocker and not an authority gate; the workstream resumes under
+    opencode-go/space-bunny-free at native max. Recorded, not hidden.
+
+executor_handoff:
+  from: opencode-go/glm-5.3 (max, direct manual session, FOUNDRY_RUNTIME_ACTIVE=NO)
+  to: opencode-go/space-bunny-free (native max)
+  reason: user-directed; GLM contingent exhausted
+  state_consumed_by_successor: docs/pb09_pristine_upstream_forge_20260929/WORKSTREAM_STATE.yaml
+  rule: executor is recorded explicitly, never inferred from quota in-artifact;
+    the successor must not claim the GLM session's observations were its own
+    (all three receipts name the recording executor).
 
 phases:
   - id: PHASE-1
@@ -107,8 +133,22 @@ phases:
     name: evidence-publication-and-handoff
 
 exact_next_action: >-
-  Materialize /home/moeen/code/pb09-forge-upstream-pristine-20260929 from
-  Card-Forge/forge at exact commit a37a865a53280dd8ad6fad3384d69611e8c5a42f
-  (fetch from upstream remote; cross-verify the commit object and tree against
-  the moeendres-png/forge remotes; detached clean checkout; write the
-  PRISTINE_CANDIDATE_RECEIPT).
+  (Space Bunny MAX) PHASE-4b: author scripts/run_pb09_pristine_qualification.py,
+  a PB-09-owned adaptation of scripts/run_current_boundary_qualification.py that
+  reuses the current_boundary package (drive_commander_game, run_af01, run_af03,
+  run_cardinality, cardinality_row, start2_row, observe_principal_state,
+  validate_principal_scoping, export_replay, load_effective_materialization) and
+  the fork script's classify_remaining/ACTUAL_CARD_NAMES/card_fixture_identities/
+  frozen_actual_card_corpus via importlib, with PB-09 bindings: expected engine
+  commit read from config/rules_engines.json secondary_engine.commit
+  (a37a865a), FORGE_WORKSPACE=/home/moeen/code/pb09-forge-bridge-pin-20260929,
+  OUT_DIR=qualification/pb09-pristine-upstream-20260929, AF01 live game at 4P
+  (the pin bridge refuses non-4P), PB-09-specific runner identity covering the
+  PB-09 scripts, and a PB-09 native-suite binding using the pin bridge's four
+  TestNG classes (ProtocolTest, BridgeEngineTest, BridgeProtocolProcessTest,
+  HeadlessGuiFailClosedTest). Extend build_launch_plan with an optional
+  forge_expected_commit parameter (default unchanged). Then run it, write
+  FULL107 rows for the pristine lane, then the PB-09 assembler for AF00-AF11,
+  then Lane B compile probe and differential analysis. Do not touch
+  src/commander_lab/qualification/current_boundary identity constants or
+  config/rules_engines.json; PB-09 stays OPEN for the Coordinator.

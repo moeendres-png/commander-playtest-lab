@@ -1,0 +1,72 @@
+{
+ "schema_version": "pb09.runtime-reachability/1.0.0",
+ "workstream": "PB09-PRISTINE-UPSTREAM-FORGE-RUNTIME-BASELINE-20260929",
+ "PRISTINE_FORGE_RUNTIME_REACHABLE": "YES",
+ "scope_of_claim": "the pristine upstream Forge Rules Core at a37a865a is reachable at runtime through the current Lab Protocol-2 provider architecture when paired with the pinned Lab bridge source 4753bb7c, which carries that Rules Core byte-identically. This is a 4P-capable runtime path. It is NOT a claim that every capability is present, and it is NOT a claim about the fork or about PR #5/#6.",
+ "lane_a_pin": {
+  "rules_core": "a37a865a53280dd8ad6fad3384d69611e8c5a42f (pristine upstream, byte-identical to the pin's base)",
+  "bridge": "4753bb7c72ea60d653121e0bab989077b4009f9c (forge-protocol2-bridge 2.0.14-ws-a1d-h4f)",
+  "launch": "java -Djava.awt.headless=true -cp <pin>/forge-protocol2-bridge/target/classes:<cp-wsr22.txt> forge.bridge.BridgeMain",
+  "cwd": "/home/moeen/code/pb09-forge-bridge-pin-20260929",
+  "env": {"FORGE_ENGINE_SHA": "a37a865a53280dd8ad6fad3384d69611e8c5a42f", "FORGE_ASSETS_DIR": "/home/moeen/code/pb09-forge-bridge-pin-20260929/forge-gui"},
+  "handshake_observed": {
+   "start_engine": {"success": true, "engine": "forge", "protocol_version": "2.0.0"},
+   "get_provider_version": {"success": true, "provider": "forge", "release": "2.0.14", "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f", "engine_commit_source": "env:FORGE_ENGINE_SHA", "bridge_name": "forge-protocol2-bridge", "bridge_version": "2.0.14-ws-a1d-h4f", "java_version": "21.0.12.1"},
+   "get_capabilities": {"success": true, "capabilities_observed": {"commander_supported": true, "partner_supported": false, "multiplayer_supported": true, "max_players": 4, "headless_supported": true, "seed_supported": false, "deck_import_supported": true, "legal_actions_supported": false, "action_submission_supported": false, "event_log_supported": false, "replay_supported": false, "stack_visible": true, "priority_visible": true, "commander_damage_visible": true, "commander_tax_visible": true, "starting_state_injection_supported": false, "scenario_injection_supported": false, "healthcheck_supported": true, "target_selection_supported": false, "mode_selection_supported": false}}
+  },
+  "four_player_lifecycle_observed": {
+   "import_deck_x4": "success for a real 100-card mono-white Commander deck (Isamaru, Hound of Konda + 99)",
+   "create_commander_game_4P": {"success": true, "seats": 4, "player_count": 4},
+   "start_game": "success",
+   "decisions_observed_in_order": [
+    {"kind": "STARTING_PLAYER", "actor": "p1", "revision": 1, "actions": ["structural_decision x4"], "externally_bound": "submit_action with a fixture-scripted seat (p1) chosen from the engine-offered options"},
+    {"kind": "MULLIGAN", "actor": "p1", "revision": 2, "actions": ["mulligan", "mulligan"], "externally_bound": "resolve_mulligan keep=true"},
+    {"kind": "MULLIGAN", "actor": "p2", "revision": 3, "externally_bound": "resolve_mulligan keep=true"},
+    {"kind": "MULLIGAN", "actor": "p3", "revision": 4, "externally_bound": "resolve_mulligan keep=true"},
+    {"kind": "MULLIGAN", "actor": "p4", "revision": 5, "externally_bound": "resolve_mulligan keep=true"},
+    {"kind": "PRIORITY", "actor": "p1", "revision": 6, "actions": ["pass_priority"], "externally_bound": "pass_priority with revision + actor_id"}
+   ],
+   "decision_identity_shape": "Forge-native: revision (monotonic long) + actor_id; pass_priority bound to the engine-offered option"
+  },
+  "player_count_refusal_observed": {
+   "create_commander_game_2P": {"success": false, "code": "player_count_unsupported", "message": "this bridge qualifies exactly four players; got 2"},
+   "meaning": "the pinned bridge is a four-player-only surface; this is a BRIDGE_DIFFERENCE, not a Rules-Core limitation of pristine Forge, which supports variable player counts natively. The capability report exposes max_players=4 but no minimum, so the exact-four gate is under-reported in capabilities.",
+   "classification": "BRIDGE_DIFFERENCE (bridge surface), NOT a pristine-engine Rules gap"
+  },
+  "state_observation_observed": {
+   "request": "get_game_state with observer_player_id",
+   "response_shape": "payload {bridge, state{players[]}}",
+   "own_hand": "requesting seat sees its own 7 card names (e.g. p1: Savannah Lions, Plains, Eager Cadet, 4x Plains)",
+   "opponent_hands": "seven '<hidden>' placeholders per opponent",
+   "library": "exposed as [] with library_size absent (not a leak; the pin-era projection does not expose library size)",
+   "requester_binding": "NONE observed: no is_actor marker, no observer_player_id/observer_engine_player_id/observer_seat envelope, player_id equals the raw seat label. Under the current-boundary validator this is SCOPING_NOT_ESTABLISHED_ACTOR_MARKING_ABSENT, not a demonstrated leak and not credited as principal-scoped evidence.",
+   "distinct_views": "p1 and p3 observations differ by whose own hand is revealed, so the projection content is principal-dependent; only the requester binding is missing."
+  },
+  "unsupported_observed": {
+   "export_replay": {"success": false, "status": "unsupported", "code": "unknown_message"},
+   "export_event_log": {"success": false, "status": "unsupported", "code": "event_log_unsupported"},
+   "seed": "create_commander_game declares seed_supported=false; the driver sends no seed and the run is UNCONTROLLED_ENGINE_RNG (no RNG credit)"
+  },
+  "incompatibility_classification": [
+   {"incompatibility": "exactly-four-player gate", "class": "BRIDGE_DIFFERENCE", "repaired": false, "reason": "repairing it would change the pinned bridge's Rules-facing behaviour; recorded as a capability of the pin"},
+   {"incompatibility": "no requester binding in state projection", "class": "ADAPTER_DEFECT_IN_PINNED_BRIDGE_SURFACE", "repaired": false, "reason": "requester binding is a bridge-side surface (added on later fork-era bridge heads); it is absent on the pin"},
+   {"incompatibility": "export_replay / export_event_log unsupported", "class": "MISSING_ENGINE_CAPABILITY (bridge surface at the pin)", "repaired": false, "reason": "not present in the pinned bridge; fails closed"},
+   {"incompatibility": "seed_supported=false", "class": "MISSING_ENGINE_CAPABILITY (bridge surface at the pin)", "repaired": false, "reason": "not present in the pinned bridge; fails closed, no RNG credit"},
+   {"incompatibility": "no Lab engine modification required to run", "class": "NONE", "repaired": false, "reason": "the pristine Rules Core ran unmodified"}
+  ]
+ },
+ "lane_b_current_bridge_on_pristine": {
+  "status": "MATERIALIZED_NOT_BUILT",
+  "rules_core": "a37a865a53280dd8ad6fad3384d69611e8c5a42f (pristine)",
+  "bridge_source": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5 (Forge PR #5 head; Lab main's bridge/evidence head of record; Rules-Core-identical to the fork head)",
+  "materialization": "pristine a37a865a tree + forge-protocol2-bridge from e15f37d6 + one additive <module> line in root pom; version alignment via -Drevision=2.0.14 so the bridge's ${revision} parent and ${project.version} forge deps resolve to the pristine 2.0.14 artifacts",
+  "purpose": "the largest lawful current boundary: current provider capabilities on a pristine Rules Core; expected outcome is a compile-time enumeration of which current bridge capabilities depend on Lab-added Rules-Core APIs (differential evidence)",
+  "not_claimed": "no result is claimed for this lane; it is not built"
+ },
+ "what_this_does_not_claim": [
+  "no FULL107 row results are claimed yet; the qualification runner is not written for the pristine lane",
+  "no provider comparison, ranking, or selection",
+  "PRODUCTION_PROVIDER = NOT SELECTED; ARCHITECTURE_FREEZE = NOT CLAIMED; PB-09 remains OPEN (Coordinator)"
+ ],
+ "classification": "DIRECTLY_VERIFIED (all observations above are live protocol traffic against the pristine Rules Core)"
+}

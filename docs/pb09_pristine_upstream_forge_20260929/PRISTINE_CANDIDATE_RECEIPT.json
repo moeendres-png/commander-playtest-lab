@@ -1,0 +1,92 @@
+{
+ "schema_version": "pb09.pristine-candidate-receipt/1.0.0",
+ "workstream": "PB09-PRISTINE-UPSTREAM-FORGE-RUNTIME-BASELINE-20260929",
+ "recorded_by": {
+  "executor_model": "opencode-go/glm-5.3",
+  "variant": "max",
+  "direct_manual_execution": true,
+  "foundry_runtime_active": false,
+  "continuation_executor": "opencode-go/space-bunny-free at native max (user-directed handoff after the GLM contingent was exhausted; this receipt was written by the GLM session and is consumed unchanged by the Space Bunny session)"
+ },
+ "PRISTINE_SOURCE_IDENTITY": "DIRECTLY_VERIFIED",
+ "candidate": {
+  "role": "PINNED CANDIDATE OF RECORD (config/rules_engines.json secondary_engine.commit)",
+  "repository": "https://github.com/Card-Forge/forge.git",
+  "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+  "commit_subject": "[maven-release-plugin] prepare release forge-2.0.14",
+  "release": "forge-2.0.14"
+ },
+ "remote_identity_proof": {
+  "upstream_ls_remote_tag": {
+   "refs/tags/forge-2.0.14": "266c96e466895136feb56e26681753f572b6053c",
+   "refs/tags/forge-2.0.14^{}": "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+  },
+  "upstream_fetch_command": "git fetch --depth=1 upstream refs/tags/forge-2.0.14:refs/tags/forge-2.0.14",
+  "upstream_fetch_dereferenced_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "cross_remote_check": {
+   "second_remote": "https://github.com/moeendres-png/forge.git",
+   "command": "git fetch --depth=1 labfork a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+   "tree_from_second_remote": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+   "tree_identical_across_remotes": true,
+   "meaning": "the commit object is the same object on the upstream remote and on the Lab fork remote; the pin is not a Lab-private commit"
+  },
+  "classification": "DIRECTLY_VERIFIED"
+ },
+ "workspace": {
+  "path": "/home/moeen/code/pb09-forge-upstream-pristine-20260929",
+  "state": "detached HEAD at a37a865a, tracked tree clean (git status --porcelain = 0 lines)",
+  "contains_forge_protocol2_bridge": false,
+  "no_lab_contamination": "the upstream tree contains no forge-protocol2-bridge module and no Lab Rules-Core patch; the bridge exists only in the Lab fork lineage",
+  "modules_at_candidate": [
+   "forge-core", "forge-game", "forge-ai", "forge-gui", "forge-gui-mobile",
+   "forge-gui-mobile-dev", "forge-gui-desktop", "forge-lda", "adventure-editor",
+   "forge-gui-android", "forge-gui-ios", "forge-installer"
+  ]
+ },
+ "pinned_bridge_source_identity": {
+  "role": "SECONDARY_ENGINE.BRIDGE_SOURCE (config/rules_engines.json). The pin's stated materialization source: the Rules Core plus additive bridge surfaces.",
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "tree": "4cd539f1c56876590b8679dc1534d4632560c66d",
+  "branch": "candidate/forge-2.0.14-h4f-integration-20260912",
+  "verified_ls_remote_head": "4753bb7c72ea60d653121e0bab989077b4009f9c refs/heads/candidate/forge-2.0.14-h4f-integration-20260912",
+  "workspace": "/home/moeen/code/pb09-forge-bridge-pin-20260929",
+  "state": "detached HEAD at 4753bb7c, tracked tree clean"
+ },
+ "rules_core_byte_identity": {
+  "claim": "the pinned bridge source carries ALL SIX Rules-Core modules byte-identical to pristine upstream a37a865a, so building and running 4753bb7c executes the PRISTINE upstream Rules Core",
+  "method": "git rev-parse <commit>:<module> and <commit>:<module>/src/main/java in one repository holding both commits",
+  "modules": {
+   "forge-game": {"tree_a37a865a": "65d240db59d82d363dbae3a044e2ebf70e9aa934", "tree_4753bb7c": "65d240db59d82d363dbae3a044e2ebf70e9aa934", "identical": true},
+   "forge-core": {"tree_a37a865a": "369df3f17adc05e347f2573f340d2cb1a5999c34", "tree_4753bb7c": "369df3f17adc05e347f2573f340d2cb1a5999c34", "identical": true},
+   "forge-ai": {"tree_a37a865a": "a8cf1c095dbfbb5b6fbba51fc1d1d7076caa9b7c", "tree_4753bb7c": "a8cf1c095dbfbb5b6fbba51fc1d1d7076caa9b7c", "identical": true},
+   "forge-gui": {"tree_a37a865a": "0e2d3f1fb316aa3563f15281cb2258345874918c", "tree_4753bb7c": "0e2d3f1fb316aa3563f15281cb2258345874918c", "identical": true},
+   "forge-gui-desktop": {"tree_a37a865a": "95e5e89bbed6903209555bf3f6ea6ec8555120e4", "tree_4753bb7c": "95e5e89bbed6903209555bf3f6ea6ec8555120e4", "identical": true},
+   "adventure-editor": {"tree_a37a865a": "e5febac6197cbdb1bc18cec023ec742e27a305e6", "tree_4753bb7c": "e5febac6197cbdb1bc18cec023ec742e27a305e6", "identical": true}
+  },
+  "classification": "DIRECTLY_VERIFIED"
+ },
+ "diff_a37a865a_to_4753bb7c": {
+  "files_changed": 35,
+  "insertions": 8429,
+  "deletions": 0,
+  "paths_outside_bridge_module": {"pom.xml": "one added line registering <module>forge-protocol2-bridge</module>"},
+  "bridge_module_new_files": 34,
+  "interpretation": "the pin is purely additive: pristine upstream plus the WS-A1D-H4F Protocol-2 bridge module. No Rules-Core file differs.",
+  "classification": "DIRECTLY_VERIFIED"
+ },
+ "toolchain": {
+  "java": "openjdk 21.0.12.1 (Linux-native, /usr/lib/jvm/java-21-openjdk-amd64)",
+  "maven": "Apache Maven 3.9.12",
+  "candidate_compiler_release": 17,
+  "m2_repository": "/home/moeen/.m2/repository",
+  "note": "the fork's 2.0.15-SNAPSHOT artifacts and the pristine 2.0.14 artifacts coexist by version; the pristine classpath manifest resolves only 2.0.14 jars"
+ },
+ "environment_defects": [],
+ "not_claimed": [
+  "this receipt does not claim PB-09 is resolved; PB-09 remains a Coordinator provider/architecture decision",
+  "PRODUCTION_PROVIDER = NOT SELECTED",
+  "ARCHITECTURE_FREEZE = NOT CLAIMED"
+ ]
+}

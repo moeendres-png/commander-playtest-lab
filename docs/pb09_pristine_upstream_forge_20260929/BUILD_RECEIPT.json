@@ -1,0 +1,96 @@
+{
+ "schema_version": "pb09.build-receipt/1.0.0",
+ "workstream": "PB09-PRISTINE-UPSTREAM-FORGE-RUNTIME-BASELINE-20260929",
+ "BUILD_RESULT": "SUCCESS",
+ "environment": {
+  "java": "openjdk 21.0.12.1",
+  "maven": "Apache Maven 3.9.12",
+  "os": "Linux (WSL), 16 cores, 15 GB RAM",
+  "maven_local_repository": "/home/moeen/.m2/repository"
+ },
+ "builds": [
+  {
+   "id": "pristine_upstream_engine",
+   "workspace": "/home/moeen/code/pb09-forge-upstream-pristine-20260929",
+   "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+   "command": "mvn -pl forge-core,forge-game,forge-ai,forge-gui -am -DskipTests -Dcheckstyle.skip=true package",
+   "reactor": ["Forge Parent", "Forge Core", "Forge Game", "Forge AI", "Forge Gui"],
+   "result": "BUILD SUCCESS",
+   "wall_clock_s": 12.815,
+   "started_utc": "2026-09-29T00:33:45Z",
+   "ended_utc": "2026-09-29T00:34:00Z",
+   "compile_evidence": {
+    "forge_game_java_sources": 803,
+    "forge_game_compiled_classes": 891,
+    "jars": {
+     "forge-core-2.0.14.jar": 527723,
+     "forge-game-2.0.14.jar": 2518963,
+     "forge-ai-2.0.14.jar": 1047560,
+     "forge-gui-2.0.14.jar": 1726486
+    }
+   },
+   "tracked_tree_after": "clean (target/ is upstream-ignored)",
+   "classification": "DIRECTLY_VERIFIED"
+  },
+  {
+   "id": "pinned_bridge_materialization",
+   "workspace": "/home/moeen/code/pb09-forge-bridge-pin-20260929",
+   "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+   "rules_core_in_workspace": "byte-identical to a37a865a in all six Rules-Core modules",
+   "command": "mvn -pl forge-protocol2-bridge -am -DskipTests -Dcheckstyle.skip=true install",
+   "reactor": ["Forge Parent", "Forge Core", "Forge Game", "Forge AI", "Forge Gui", "Forge Protocol-2 Bridge"],
+   "result": "BUILD SUCCESS",
+   "wall_clock_s": 11.280,
+   "started_utc": "2026-09-29T00:34:29Z",
+   "ended_utc": "2026-09-29T00:34:42Z",
+   "bridge_compiled_classes": 33,
+   "bridge_jar": "forge-protocol2-bridge-2.0.14.jar (89058 bytes)",
+   "installed_artifacts": [
+    "/home/moeen/.m2/repository/forge/forge-core/2.0.14/forge-core-2.0.14.jar",
+    "/home/moeen/.m2/repository/forge/forge-game/2.0.14/forge-game-2.0.14.jar",
+    "/home/moeen/.m2/repository/forge/forge-ai/2.0.14/forge-ai-2.0.14.jar",
+    "/home/moeen/.m2/repository/forge/forge-gui/2.0.14/forge-gui-2.0.14.jar",
+    "/home/moeen/.m2/repository/forge/forge-protocol2-bridge/2.0.14/forge-protocol2-bridge-2.0.14.jar"
+   ],
+   "classpath_manifest": {
+    "command": "mvn -o -pl forge-protocol2-bridge -Dcheckstyle.skip=true dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt",
+    "result": "BUILD SUCCESS",
+    "bytes": 7682,
+    "verified_resolves": "forge-core-2.0.14.jar first; the fork's 2.0.15-SNAPSHOT artifacts are NOT on this classpath"
+   },
+   "tracked_tree_after": "clean",
+   "classification": "DIRECTLY_VERIFIED"
+  }
+ ],
+ "environment_repairs_applied": [
+  {
+   "item": "JDK/Maven toolchain",
+   "repair": "none required; host OpenJDK 21 compiles the candidate's maven.compiler.release=17 target and runs the bridge",
+   "classification": "NO_DEFECT"
+  },
+  {
+   "item": "offline dependency resolution",
+   "repair": "first builds resolved from the pre-populated local Maven repository; the pristine 2.0.14 artifacts were installed by this workstream and are version-separated from the fork's 2.0.15-SNAPSHOT artifacts",
+   "classification": "ENVIRONMENT_CONFIGURATION_ONLY"
+  }
+ ],
+ "forbidden_repairs_not_applied": [
+  "no upstream MTG Rules semantics were changed",
+  "no Commander-Lab Rules patches were copied into the pristine candidate",
+  "no card-name hacks, no expected-result edits, no engine-decision bypass, no manual outcome injection"
+ ],
+ "still_to_build": {
+  "lane_b_current_bridge_on_pristine": {
+   "workspace": "/home/moeen/code/pb09-forge-bridge-current-20260929",
+   "materialization_state": "pristine a37a865a tree + forge-protocol2-bridge directory checked out from e15f37d6b2b5c0ad682948f86f037e07b6aaded5 (Forge PR #5 head, bridge/evidence head of record on Lab main) + one additive <module> line in the root pom",
+   "uncommitted_delta": "pom.xml (+1 line) and the added forge-protocol2-bridge/ directory (untracked in that workspace by construction; it is a materialization, not a commit)",
+   "build_command": "mvn -o -pl forge-protocol2-bridge -Drevision=2.0.14 -DskipTests -Dcheckstyle.skip=true test-compile",
+   "result": "NOT_RUN",
+   "why_not_run": "the GLM 5.3 session's contingent was exhausted before the Lane-B compile probe; see WORKSTREAM_STATE.yaml exact_next_action"
+  }
+ },
+ "not_claimed": [
+  "PRODUCTION_PROVIDER = NOT SELECTED",
+  "ARCHITECTURE_FREEZE = NOT CLAIMED"
+ ]
+}
