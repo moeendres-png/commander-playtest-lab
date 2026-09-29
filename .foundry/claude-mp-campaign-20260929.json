@@ -2,11 +2,11 @@
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
   "worktree": "/home/moeen/code/claude-mp-apnap-20260929",
-  "branch": "claude/xmage-mp-voting-20260929",
-  "audit_base_sha": "128e91185b66df92e4bec726abb89c7c20fbbb11",
-  "audit_base_tree": "aa0ccafd1105eb0c98bbdeb604328e1e0af25d97",
-  "state_written_against_head": "30ae6e6b28bf675ddb7b1aa6b3234e563e7de838",
-  "validated_head": "30ae6e6b28bf675ddb7b1aa6b3234e563e7de838",
+  "branch": "claude/xmage-mp-replacement-order-20260929",
+  "audit_base_sha": "234318cf83b29420a20d2e9878aa86b7110af55e",
+  "audit_base_tree": "1919526adb5acce8f3c335bf2ebf7e2c6a65fe11",
+  "state_written_against_head": "234318cf83b29420a20d2e9878aa86b7110af55e",
+  "validated_head": "234318cf83b29420a20d2e9878aa86b7110af55e",
   "objective": "Autonomous multiplayer simulator advancement: actual-card 3-6P rules probes on the XMage full-game lane (APNAP triggers, each-player choices, split-attack block legality); fix defects at the correct layer.",
   "in_scope": [
     "engine-bridge full-game lane multiplayer decision surfaces (XmageFullGamePlayer)",
@@ -39,7 +39,11 @@
     "PR #312 MERGED, head abdf64b7: XmageMultiplayerEachPlayerChoiceTest 4/4 (3-6P); bridge suite 429/0/1",
     "PR #313 MERGED (55724ea7), head e545afe6: XmageMultiplayerSplitCombatTest 4/4 (3-6P), red before fix; bridge suite 433/0/1",
     "PR #314 MERGED (2229380b): branch on main 55724ea7: Devils 4/4, Menace 6/6, Goad 4/4 (3-6P); bridge suite 447/0/1",
-    "branch claude/xmage-mp-voting-20260929 on main 2229380b: Voting 4/4, Monarch 8/8, LeaveDuringCombat 4/4, CommanderZoneChoice 4/4 + 1 disabled (F-18); bridge suite 468/0/2"
+    "branch claude/xmage-mp-voting-20260929 on main 2229380b: Voting 4/4, Monarch 8/8, LeaveDuringCombat 4/4, CommanderZoneChoice 4/4 + 1 disabled (F-18); bridge suite 468/0/2",
+    "PR #315 MERGED (234318cf)",
+    "PR #318 (hidden-info discard + seeded random discard): 6/6; bridge suite 474/0/2",
+    "F-18 engine fix moeendres-png/mage#19 (draft) head 6044132e on pin b19596980f27: native CommanderZoneApnap 3-6P 12/12 (red 8/8 on pin; sequential-move mutation killed); full Mage.Tests 6941 run / 0 failures / 125 skipped / 255 env NoClassDefFoundError CustomTestCard (identical on pin)",
+    "branch claude/xmage-mp-replacement-order-20260929: ReplacementOrder 8/8 (3-6P x both orders); bridge suite 476/0/2"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -63,7 +67,10 @@
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerVotingTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerMonarchTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerLeaveDuringCombatTest.java",
-    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerCommanderZoneChoiceTest.java"
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerCommanderZoneChoiceTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerHiddenDiscardTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerReplacementOrderTest.java",
+    "moeendres-png/mage: Mage/src/main/java/mage/game/GameImpl.java + Mage.Tests commander/multiplayer/* + research/f18-commander-zone-apnap/HANDOFF.md"
   ],
   "tests_run": [
     "mvn -o -Dcheckstyle.skip=true test (engine-bridge)"
@@ -73,9 +80,10 @@
   ],
   "artifacts": [],
   "remaining_scope": [
-    "Forge multiplayer probes (Forge lane ownership: PB-09 #297/#299, Forge #6/#7)",
-    "F-15 restoration arrival semantics (restoration owner)",
-    "F-18 engine fix (Sol)"
+    "Lab repin onto mage#19 then enable XmageMultiplayerCommanderZoneChoiceTest APNAP test (separate workstream)",
+    "F-15 restoration compare (owned by #304/#316 lane)",
+    "Forge multiplayer ports (Forge lanes active)",
+    "F-17 declaration-level blocker surface (P3)"
   ],
   "status": "ACTIVE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
@@ -88,12 +96,12 @@
     "ENGINE_NATIVE_REUSE: block offers use CombatGroup.canBlock, the engine's own declareBlocker acceptance test"
   ],
   "authority_gates": [
-    "F-18 engine fix (commander-zone SBA choices in seat order, not APNAP) requires Rules Core / pin change: Sol"
+    "F-18 Lab repin / impact adjudication (separate workstream; Coordinator)"
   ],
   "first_failing_boundary": "XmageFullGamePlayer.selectBlockers option construction (Permanent.canBlock)",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Land #311 -> #312 -> #313; continue multiplayer probes.",
-  "exact_next_action": "Land the voting/monarch/leave/commander-zone PR; write the AUTONOMOUS MULTIPLAYER ADVANCEMENT HANDOFF.",
+  "exact_next_action": "Land replacement-order PR; pick next unowned multiplayer task.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,
