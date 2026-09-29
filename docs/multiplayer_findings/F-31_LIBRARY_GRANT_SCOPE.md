@@ -37,7 +37,7 @@ The card set is stored per game and per owner. It is independent of *who* holds 
 
 ## Tests
 
-`XmageMultiplayerLibraryGrantTest` runs at 4P and 5P and checks:
+`XmageMultiplayerLibraryGrantTest` runs at 2P through 5P and checks:
 
 - **Fact or Fiction:** only P3 is granted, exactly the five revealed cards.
 - **Impulse:** only P1 is granted, at most the top four.
@@ -48,3 +48,12 @@ Results:
 - Before the fix: 4/4 red.
 - After the fix: 4/4 green.
 - `Ws92D1D2D3ProjectionTest` now passes the looked-at set explicitly and stays green.
+
+
+## Conformance completion
+
+The actual-card Fact or Fiction and Impulse regressions now run at every
+mandatory player count: **2P, 3P, 4P and 5P**. Fact or Fiction dynamically
+selects an existing opponent at low cardinalities; no nonexistent Seat 3 is
+assumed. The existing `granted_library` field remains principal-scoped and is
+already bound by semantic replay.
