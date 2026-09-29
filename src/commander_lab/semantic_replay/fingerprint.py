@@ -594,7 +594,9 @@ def public_state_digest(pilot_state: dict[str, Any]) -> str:
         if not isinstance(item, dict):
             continue
         face_down = item.get("face_down") is True
-        public_stack.append({"name": None if face_down else item.get("name"), "face_down": face_down})
+        public_stack.append(
+            {"name": None if face_down else item.get("name"), "face_down": face_down}
+        )
     return canonical_hash(
         {
             "active_player": view.get("active_player"),
