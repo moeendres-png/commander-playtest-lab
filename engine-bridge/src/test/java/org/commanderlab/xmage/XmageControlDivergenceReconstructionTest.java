@@ -161,6 +161,136 @@ class XmageControlDivergenceReconstructionTest {
     }
 
     @Test
+    void stolenCommanderCombatDamageUsesOwnerIdentityAfterControlChange() {
+        List<XmageNativeStateRestoration.RequestedPlayer> players = List.of(
+                new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40),
+                new XmageNativeStateRestoration.RequestedPlayer("P3", 3, 40),
+                new XmageNativeStateRestoration.RequestedPlayer("P4", 4, 40));
+        List<XmageNativeStateRestoration.RequestedCommander> commanders = List.of(
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P1-A", "Isamaru, Hound of Konda", "P1", 0),
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0),
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P3-A", "Rograkh, Son of Rohgahh", "P3", 0),
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P4-A", "Rograkh, Son of Rohgahh", "P4", 0));
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "rg04-controlled-commander-damage",
+                4,
+                SEED,
+                players,
+                commanders,
+                List.of(new XmageNativeStateRestoration.RequestedCommanderDamage(
+                        "cmd:P1-A", "P2", 19)),
+                List.of(
+                        object("white", "Plains", "P1", Zone.BATTLEFIELD),
+                        object("act", "Act of Treason", "P3", Zone.HAND),
+                        mountain("r1", "P3"),
+                        mountain("r2", "P3"),
+                        mountain("r3", "P3")),
+                1,
+                TurnPhase.PRECOMBAT_MAIN,
+                PhaseStep.PRECOMBAT_MAIN,
+                "P1",
+                "P1");
+        Arrived arrived = arrive(plan);
+
+        UUID commander = arrived.session().restorationGame()
+                .getCommandersIds(
+                        arrived.seats().get("P1"), CommanderCardType.ANY, false)
+                .stream()
+                .filter(id -> {
+                    var card = arrived.session().restorationGame().getCard(id);
+                    return card != null
+                            && "Isamaru, Hound of Konda".equals(card.getName());
+                })
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("native Isamaru Commander id missing"));
+
+        XmageControlDivergenceReconstruction.castAndResolve(
+                arrived.session(),
+                arrived.seats(),
+                "P1",
+                commander,
+                new Script(
+                        List.of(),
+                        List.of(arrived.restoration().injectedObjectId("white")),
+                        "white"),
+                120);
+        assertNotNull(
+                arrived.session().restorationGame().getPermanent(commander),
+                "genuine P1 Commander must resolve before the control change");
+
+        cast(
+                arrived,
+                "P3",
+                "act",
+                List.of(commander),
+                List.of("r1", "r2", "r3"),
+                "red");
+        Permanent stolen = arrived.session().restorationGame().getPermanent(commander);
+        assertNotNull(stolen);
+        assertEquals(arrived.seats().get("P1").getId(), stolen.getOwnerId());
+        assertEquals(arrived.seats().get("P3").getId(), stolen.getControllerId());
+
+        boolean[] declared = {false};
+        XmageTemporalProgressionDriver.driveUntil(
+                arrived.session(),
+                arrived.seats(),
+                (session, seats, observed) ->
+                        seats.get("P2").hasLost() || seats.get("P2").hasLeft(),
+                (pending, legal, index) -> {
+                    String dc = pending.get("decision_class").getAsString();
+                    if ("priority".equals(dc)) {
+                        return proposal(
+                                "rg04-cmd-pass-" + index,
+                                legal,
+                                XmageFullGameTaxExecutionTest.singleActionOfType(
+                                        legal, "pass_priority", null));
+                    }
+                    if ("declare_attacker".equals(dc)) {
+                        if (!declared[0]) {
+                            declared[0] = true;
+                            return proposal(
+                                    "rg04-cmd-attack-" + index,
+                                    legal,
+                                    exactAttack(
+                                            legal,
+                                            commander,
+                                            arrived.seats().get("P2").getId()));
+                        }
+                        return proposal(
+                                "rg04-cmd-hold-" + index,
+                                legal,
+                                XmageFullGameTaxExecutionTest.singleActionOfType(
+                                        legal, "declare_attackers", "hold_attacker"));
+                    }
+                    if ("declare_blocker".equals(dc)) {
+                        JsonObject noBlock = XmageFullGameTaxExecutionTest.genericProposal(
+                                "rg04-cmd-no-block-" + index,
+                                legal.get("actor_id").getAsString(),
+                                "",
+                                "structural_decision");
+                        noBlock.add("legal_action_id", com.google.gson.JsonNull.INSTANCE);
+                        noBlock.getAsJsonObject("choices")
+                                .add(
+                                        "selected_option_ids",
+                                        new com.google.gson.JsonArray());
+                        return noBlock;
+                    }
+                    return null;
+                },
+                260);
+
+        assertTrue(
+                arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft(),
+                "19 prior damage plus 2 combat damage by the stolen genuine Commander "
+                        + "must eliminate P2 under the owner's commander identity");
+    }
+
+    @Test
     void zoneChangeClearsControlEffectUsingNormalObjectSemantics() {
         Arrived arrived = arrive(plan(
                 "rg04-zone", 3,
@@ -406,6 +536,23 @@ class XmageControlDivergenceReconstructionTest {
         }
         proposal.getAsJsonObject("choices").add("selected_option_ids", optionIds);
         return proposal;
+    }
+
+    private static JsonObject exactAttack(
+            JsonObject legal, UUID attacker, UUID defender) {
+        List<JsonObject> matches = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = action.getAsJsonObject("metadata");
+            JsonObject nativeMetadata = nativeMeta(action);
+            if ("declare_attacker".equals(text(metadata, "option_type"))
+                    && attacker.toString().equals(text(nativeMetadata, "object_id"))
+                    && defender.toString().equals(text(nativeMetadata, "defender_id"))) {
+                matches.add(action);
+            }
+        }
+        assertEquals(1, matches.size(), "exact controlled-Commander attack option");
+        return matches.get(0);
     }
 
     private static JsonObject exactNativeObject(JsonObject legal, UUID wanted) {

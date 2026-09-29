@@ -32,6 +32,7 @@ from .bridge_launcher import (
     BridgeProcess,
     CandidateId,
     build_launch_plan,
+    canonical_xmage_engine_pin,
     launch,
 )
 from .full107 import (
@@ -98,6 +99,7 @@ __all__ = [
     "boundary_receipt",
     "build_deck",
     "build_launch_plan",
+    "canonical_xmage_engine_pin",
     "cardinality_row",
     "drive_commander_game",
     "export_replay",

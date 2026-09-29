@@ -35,11 +35,11 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     NEGATIVE_ROWS,
     PILOT_ROWS,
     REPLAY_ROWS,
-    XMAGE_CANDIDATE_COMMIT,
     XMAGE_LAB_RUNTIME_AUTHORITY,
     boundary_receipt,
     build_deck,
     build_launch_plan,
+    canonical_xmage_engine_pin,
     cardinality_row,
     drive_commander_game,
     export_replay,
@@ -52,6 +52,12 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     run_af03,
     start2_row,
     validate_principal_scoping,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    dimension_admission as pb03_admission_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    pb03_runtime as pb03_runtime_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
@@ -88,9 +94,13 @@ def _native_identity(candidate: str) -> dict[str, str]:
     and tree are read from the suite's own root rather than asserted.
     """
     if candidate == "xmage":
+        # The live canonical pin (config/rules_engines.json), not the frozen
+        # WSR22 source_lock identity: a receipt must name the engine candidate
+        # the canonical boundary currently pins, and the frozen WSR22 constant
+        # remains the historical epoch of the sealed prior evidence only.
         return {
             "repository": "https://github.com/moeendres-png/mage",
-            "expected_engine_commit": XMAGE_CANDIDATE_COMMIT,
+            "expected_engine_commit": canonical_xmage_engine_pin(),
             "build_identity": json.dumps(
                 {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}
             ),
@@ -145,6 +155,14 @@ NATIVE_SUITE_BINDING = {
                 "XmageFullGameCombatDamageTest",
                 "XmageDecisionRejectionWs229Test",
                 "XmageFullGameRulesSeedBindingTest",
+                "XmagePb03CapabilityManifestTest",
+                "XmagePb03DimensionAdmissionTest",
+                "XmagePb03Tier1RowsTest",
+                "XmagePb03Tier2StackTest",
+                "XmagePb03Tier2CmdZoneTest",
+                "XmagePb03Tier2ControlTurnTest",
+                "XmageFullGameElimExecutionTest",
+                "XmagePb03RuntimeGapClosureTest",
             ],
         },
     },
@@ -264,9 +282,9 @@ def git(*args: str, cwd: Path | None = None) -> str:
 
 for _candidate in NATIVE_SUITE_BINDING:
     NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
+    _suite_root = Path(NATIVE_SUITE_BINDING[_candidate]["root"])
     NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
-        git("rev-parse", "HEAD^{tree}", cwd=NATIVE_SUITE_BINDING[_candidate]["root"])
-        or "UNCONFIGURED"
+        git("rev-parse", "HEAD^{tree}", cwd=_suite_root) if _suite_root.exists() else "UNCONFIGURED"
     )
 
 
@@ -280,7 +298,7 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
     if candidate == "xmage":
         base.update(
             {
-                "engine_candidate_commit": XMAGE_CANDIDATE_COMMIT,
+                "engine_candidate_commit": canonical_xmage_engine_pin(),
                 "lab_runtime_authority": XMAGE_LAB_RUNTIME_AUTHORITY,
                 "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
                 "adapter_commit": git("rev-parse", "HEAD", cwd=REPO_ROOT),
@@ -442,6 +460,66 @@ def write(name: str, payload: Any) -> None:
         json.dumps(payload, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
     )
     print(f"wrote {name}")
+
+
+def _live_xmage_restoration_manifest() -> dict[str, Any]:
+    """Read the itemised PB-03 restoration manifest from the running bridge."""
+    plan = build_launch_plan("xmage", lane="full-game")
+    with launch(plan) as proc:
+        for message_type in ("start_engine", "get_provider_version"):
+            response = proc.request(message_type, {})
+            if response.get("success") is not True:
+                raise SystemExit(
+                    f"PB-03 live manifest handshake failed at {message_type}: "
+                    f"{response.get('errors')!r}"
+                )
+        response = proc.request("get_capabilities", {})
+        if response.get("success") is not True:
+            raise SystemExit(
+                "PB-03 live manifest unavailable: get_capabilities failed "
+                f"{response.get('errors')!r}"
+            )
+        payload = response.get("payload")
+        if not isinstance(payload, dict):
+            raise SystemExit("PB-03 capability payload is not an object")
+        capabilities = payload.get("capabilities")
+        if not isinstance(capabilities, dict):
+            raise SystemExit("PB-03 capability payload omitted capabilities")
+        if capabilities.get("starting_state_injection_supported") is not False:
+            raise SystemExit("PB-03 must not promote starting_state_injection_supported")
+        lane = payload.get("full_game_lane")
+        if not isinstance(lane, dict):
+            raise SystemExit("PB-03 capability payload omitted full_game_lane")
+        manifest = lane.get("state_restoration_dimensions")
+        if not isinstance(manifest, dict):
+            raise SystemExit("PB-03 live restoration dimension manifest missing")
+        return manifest
+
+
+def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
+    """Build the 30-row frozen-state admission ledger from live capabilities."""
+    manifest = _live_xmage_restoration_manifest()
+    document = pb03_admission_mod.admit_manifest(materialization.denominator_records(), manifest)
+    document.update(
+        {
+            "manifest": manifest,
+            "manifest_source": (
+                "live full-game get_capabilities -> full_game_lane.state_restoration_dimensions"
+            ),
+            "global_capability_flag": (
+                "starting_state_injection_supported remains false and is never "
+                "used as the row admission verdict"
+            ),
+        }
+    )
+    if document["counts"] != {"admitted": 14, "blocked": 16}:
+        raise SystemExit(
+            "PB-03 admission projection drifted from the adjudicated current "
+            f"30-row boundary: {document['counts']}"
+        )
+    write("PB03_DIMENSION_ADMISSION.json", document)
+    write("PB03_ADMISSION_MATRIX.json", document)
+    return document
 
 
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
@@ -938,6 +1016,8 @@ def main() -> int:
     )
 
     candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
+    if "xmage" in candidates:
+        build_xmage_pb03_admission(materialization)
     summary: dict[str, Any] = {}
     for candidate in candidates:
         outcome = execute_candidate(candidate, materialization)
@@ -1001,6 +1081,19 @@ def main() -> int:
         ),
     )
     native_receipts = run_all_native_suites(runner, tuple(candidates))
+    if "xmage" in candidates:
+        pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(
+            REPO_ROOT / "engine-bridge" / "target" / "surefire-reports"
+        )
+        pb03_runtime["runner_commit"] = runner.commit
+        pb03_runtime["runner_tree"] = runner.tree
+        pb03_runtime["runner_digest"] = runner.digest()
+        pb03_runtime["candidate_commit"] = canonical_xmage_engine_pin()
+        # Seal the identity block: the assembler rejects any ledger whose content
+        # digest, runner digest or candidate commit does not match the assembling
+        # head, so a stale ledger can never be credited.
+        pb03_runtime["receipt_digest"] = receipt_mod.document_digest(pb03_runtime)
+        write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {

@@ -73,6 +73,16 @@ def _digest(payload: Any) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
+def document_digest(document: dict[str, Any]) -> str:
+    """Canonical content digest for an evidence document.
+
+    Any pipeline that persists a receipt-like document computes its self-digest
+    with this one function, so a document's integrity binding cannot drift
+    between producers.
+    """
+    return _digest(dict(document))
+
+
 def _git(root: Path, args: list[str]) -> str:
     proc = subprocess.run(
         ["git", *args], cwd=str(root), capture_output=True, text=True, check=False
@@ -653,6 +663,7 @@ __all__ = [
     "capture_runner_identity",
     "classify_seed_binding",
     "collect_receipts",
+    "document_digest",
     "engine_tree_equivalence",
     "environment_identity",
     "load_native_receipt",
