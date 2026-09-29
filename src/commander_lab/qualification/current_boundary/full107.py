@@ -27,7 +27,6 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import dimension_admission
 from . import lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
@@ -526,36 +525,6 @@ def wait_for_frame(
         return poll_decision(proc, game_id, seat_count=seat_count, candidate=candidate)
     except Exception:
         return None
-
-
-
-def starting_state_admission(
-    record: dict[str, Any], manifest: dict[str, Any] | None
-) -> dict[str, Any]:
-    """PB-03 routing decision for one frozen row.
-
-    Admission does not mutate the row result and cannot confer runtime credit.
-    """
-    admission = dimension_admission.admit_record(record, manifest)
-    return {
-        "fixture_id": str(record.get("fixture_id") or ""),
-        "mid_game_mechanisms": lifecycle_safe_mid_game_mechanisms(record),
-        "admission": admission,
-    }
-
-
-def starting_state_admission_manifest(
-    records: list[dict[str, Any]], manifest: dict[str, Any] | None
-) -> dict[str, Any]:
-    """PB-03 projection for a set of frozen rows, with no outcome promotion."""
-    return dimension_admission.admit_manifest(records, manifest)
-
-
-def lifecycle_safe_mid_game_mechanisms(record: dict[str, Any]) -> list[str]:
-    """Import materialization lazily to keep full107's module dependencies acyclic."""
-    from .materialization import mid_game_mechanisms
-
-    return mid_game_mechanisms(record)
 
 
 def summarize(rows: list[RowResult]) -> dict[str, int]:
