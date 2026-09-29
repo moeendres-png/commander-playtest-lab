@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'src/commander_lab/storage/**'
-      - 'tests/unit/test_run_manifest_integrity.py'
+      - 'tests/unit/test_run_*.py'
       - 'tests/unit/test_phase86_atomic_and_integrity.py'
       - '.github/workflows/run-manifest-integrity.yml'
       - 'pyproject.toml'
@@ -35,4 +35,8 @@ jobs:
           python -m pip install --no-deps --require-hashes -r requirements/lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
       - name: Exercise real Windows junction and manifest contracts
-        run: python -m pytest -q tests/unit/test_run_manifest_integrity.py tests/unit/test_phase86_atomic_and_integrity.py
+        shell: pwsh
+        run: |
+          $runTests = @(Get-ChildItem -Path tests/unit/test_run_*.py -File -ErrorAction Stop | ForEach-Object { $_.FullName })
+          if ($runTests.Count -eq 0) { throw "No run integrity tests discovered" }
+          python -m pytest -q @runTests tests/unit/test_phase86_atomic_and_integrity.py

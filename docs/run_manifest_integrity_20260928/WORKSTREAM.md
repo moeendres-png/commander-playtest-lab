@@ -70,3 +70,14 @@ Exact next action for normal Sol: inspect the published follow-up head and targe
 all CI including windows-manifest-integrity, and current review findings; repair
 only attributable failures, then normal merge with --match-head-commit and no
 admin bypass. Persist resulting main HEAD/TREE. Do not merge PR #282 again.
+
+## 2026-09-29 regression-discovery follow-up
+
+PR #288 previously had passing exact-head checks. New follow-up extends its
+Windows workflow trigger and test selection to `tests/unit/test_run_*.py`, so
+independently integrated #290 quarantine and #302 path-resolution tests execute
+on Windows as well. PowerShell discovery is explicit and fails if empty; no
+foreign workflow was modified. Executed the exact discovery command locally:
+51 passed, 5 platform skips on this branch; workflow contracts: 14 passed.
+The new commit invalidates the earlier exact-head CI receipt until new CI passes.
+No claim that absent/not-yet-integrated suites already ran in this branch.
