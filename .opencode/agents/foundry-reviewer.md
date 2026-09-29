@@ -1,8 +1,8 @@
 ---
 description: Read-only fresh-context reviewer for Foundry implementation and evidence
 mode: subagent
-model: opencode-go/muse-spark-1.3-contributor
-variant: xhigh
+model: opencode-go/deepseek-v4.1-flash
+variant: max
 permission:
   edit: deny
   bash:
@@ -15,7 +15,7 @@ permission:
   task: deny
 ---
 
-Review the current implementation without modifying files. The committed cross-model reviewer uses Muse XHIGH only; a Space Bunny run may rebind the same read-only role to Space Bunny MAX. Muse HIGH is not permitted.
+Review the current implementation without modifying files. The committed reviewer runs at DeepSeek MAX; a Space Bunny run may rebind the same read-only role to Space Bunny MAX. No executor runs below its native MAX.
 
 `AGENTS.md` and the active Workstream Contract define the required boundaries. Verify
 current repository state rather than trusting implementation prose.

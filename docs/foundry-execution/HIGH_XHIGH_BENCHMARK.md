@@ -5,6 +5,12 @@ controlled comparison can be run later without disrupting active qualification w
 
 ## Policy under test
 
+> **Superseded — this harness prescribes no current policy.** The policy recorded
+> below (HIGH default, XHIGH evidence-based escalation) was the position on
+> 2026-09-10 and is retained as historical provenance. There is no active-work
+> `high` native lane today; see `AGENTS.md` §7 for the current execution-effort
+> identities and `EXECUTION_PROVIDER_OVERRIDE.md` for the launcher mapping.
+
 Initial policy stands: HIGH default, XHIGH evidence-based escalation. The harness
 exists to confirm or revise that policy, not to presuppose an outcome.
 

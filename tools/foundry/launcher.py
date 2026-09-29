@@ -22,10 +22,11 @@ Injection (all officially supported, verified Checkpoint A):
   CWD is CPL. For engine CWDs the launcher FAILS CLOSED on reachable stale
   routing unless suppression is explicit.
 
-Effort: --effort must be high|xhigh (below-HIGH rejected). TUI sessions run
-the HIGH implementer by config default; xhigh work routes to the
-foundry-adjudicator subagent (variant xhigh). The launcher records effort in
-telemetry and lock metadata; it invents no OpenCode flags.
+Effort: --effort must be high|xhigh (below-HIGH rejected) and describes task and
+authority routing only; it never lowers a selected executor's native level. Both
+reachable executors run at native ``max`` regardless of the requested project
+effort. The launcher records effort in telemetry and lock metadata; it invents no
+OpenCode flags.
 
 WS75 hardening:
 
@@ -74,21 +75,34 @@ import reference_roots as reference_mod
 import workspace_access as workspace_access_mod
 import writer_lock as writer_lock_mod
 
-CANONICAL_MODEL = "opencode-go/space-bunny-free"
 CANONICAL_PROVIDER = "opencode-go"
-ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
-SPACE_BUNNY_MODEL = "opencode-go/space-bunny-free"
-ALTERNATE_MODEL = "opencode-go/muse-spark-1.3-contributor"
-EXECUTION_PROFILES = ("muse", "space-bunny")
-DEFAULT_EXECUTION_PROFILE = "space-bunny"
-# Operator authority (2026-09-27): exactly two executors are reachable, each
-# pinned to one native reasoning level. Space Bunny runs at native `max`; Muse
-# runs at `xhigh`. The project-level --effort field still describes task and
-# authority routing and never lowers either native level. No other variant of
-# either model is selectable, and there is no silent fallback between them.
+# Operator authority (2026-09-29): exactly two executors are reachable, each
+# pinned to one native reasoning level. DeepSeek MAX is the primary autonomous
+# engineering executor; Space Bunny MAX is the explicitly selected secondary
+# bounded/mechanical/token-heavy executor. Muse and GLM are inactive: they are
+# not reachable through this launcher. The project-level --effort field still
+# describes task and authority routing and never lowers either native level. No
+# other variant of either model is selectable, and there is no automatic
+# fallback between them: a runtime/quota/auth/catalog failure is fail-closed
+# and switching executor requires an explicit task rerouting.
+PRIMARY_EXECUTION_PROFILE = "deepseek"
+SECONDARY_EXECUTION_PROFILE = "space-bunny"
+EXECUTION_PROFILES = (PRIMARY_EXECUTION_PROFILE, SECONDARY_EXECUTION_PROFILE)
+DEFAULT_EXECUTION_PROFILE = PRIMARY_EXECUTION_PROFILE
+# Single generic profile->model table. Both reachable executors live on the
+# canonical provider at native `max`, so adding a future profile is one row
+# here plus one whitelist row in opencode.json.
+PROFILE_MODELS = {
+    "deepseek": "opencode-go/deepseek-v4.1-flash",
+    "space-bunny": "opencode-go/space-bunny-free",
+}
+DEEPSEEK_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
+SPACE_BUNNY_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
+CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
+ALTERNATE_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
 AUTHORIZED_NATIVE_VARIANT = {
+    "deepseek-v4.1-flash": "max",
     "space-bunny-free": "max",
-    "muse-spark-1.3-contributor": "xhigh",
 }
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
@@ -100,49 +114,28 @@ def execution_identity(
     override: str | None, effort: str, execution_profile: str | None = None
 ) -> dict:
     """Resolve one explicit executor; never infer/fallback from quota or failures."""
-    if override not in (None, "zen"):
-        raise ValueError(f"unknown execution provider override {override!r}")
+    if override is not None:
+        # The legacy `zen` override resolved to opencode/muse-spark-1.3-contributor-free.
+        # Muse is inactive, so every provider override now fails closed rather than
+        # silently exposing a retired executor.
+        raise ValueError(
+            f"execution provider override {override!r} is retired; the Zen Muse provider "
+            "is not an authorized executor (operator authority 2026-09-29)"
+        )
     if execution_profile not in (None, *EXECUTION_PROFILES):
         raise ValueError(f"unknown execution profile {execution_profile!r}")
     if effort not in ALLOWED_EFFORTS:
         raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
-    # Zen is a legacy provider override that names its own executor, so it may only
-    # be combined with the Muse profile or with no profile at all. Naming any other
-    # profile would ask for two different executors at once.
-    if override and execution_profile not in (None, "muse"):
-        raise ValueError(
-            "execution profile and provider override cannot select different executors"
-        )
 
     profile = execution_profile or DEFAULT_EXECUTION_PROFILE
-    if override == "zen":
-        return {
-            "profile": "muse-free-zen",
-            "override": "zen",
-            "provider": "opencode",
-            "model": ZEN_MODEL,
-            "requested_effort": effort,
-            "variant_resolution": "provider_default_unverified",
-            "native_variant": None,
-        }
-    if profile == "space-bunny":
-        return {
-            "profile": "space-bunny",
-            "override": "space-bunny",
-            "provider": CANONICAL_PROVIDER,
-            "model": SPACE_BUNNY_MODEL,
-            "requested_effort": effort,
-            "variant_resolution": "native_max",
-            "native_variant": "max",
-        }
     return {
-        "profile": "muse",
-        "override": "muse",
+        "profile": profile,
+        "override": profile,
         "provider": CANONICAL_PROVIDER,
-        "model": ALTERNATE_MODEL,
+        "model": PROFILE_MODELS[profile],
         "requested_effort": effort,
-        "variant_resolution": "canonical_agent_variant",
-        "native_variant": None,
+        "variant_resolution": "native_max",
+        "native_variant": "max",
     }
 
 
@@ -569,8 +562,9 @@ def build_content_bundle(
     except KeyError as exc:
         raise ValueError(f"canonical model entry missing: {exc}") from exc
     # No silent fallback: the canonical executor must be first, and the documented
-    # alternate must stay selectable in the same session. A whitelist that drops
-    # the alternate would make a Muse resume impossible without an edit.
+    # secondary must stay selectable in the same session. A whitelist that drops
+    # the secondary would make an explicit Space Bunny reroute impossible without
+    # an edit.
     whitelist = config["provider"][CANONICAL_PROVIDER].get("whitelist", [])
     if whitelist != [canonical_short, alternate_short]:
         raise ValueError(
@@ -624,87 +618,33 @@ def build_content_bundle(
     bundle["experimental"] = experimental
     if "default_agent" in config:
         bundle["default_agent"] = config["default_agent"]
-    # Branch on the RESOLVED profile, never the raw flag. An omitted flag now
-    # resolves to the space-bunny default, so branching on the flag would let a
+    # Narrow the bundle to the RESOLVED profile, never the raw flag. An omitted
+    # flag resolves to the DeepSeek default, so branching on the flag would let a
     # default launch fall through to the wrong executor block.
     resolved_profile = execution["profile"]
-    if resolved_profile == "space-bunny":
-        bundle["model"] = SPACE_BUNNY_MODEL
-        bundle["small_model"] = SPACE_BUNNY_MODEL
-        bundle["enabled_providers"] = [CANONICAL_PROVIDER]
-        short = SPACE_BUNNY_MODEL.split("/", 1)[1]
-        bundle["provider"] = {
-            CANONICAL_PROVIDER: {
-                "whitelist": [short],
-                "models": {
-                    short: {
-                        "options": {"reasoningEffort": "max"},
-                        "variants": {"max": {}},
-                    }
-                },
-            }
+    selected_model = PROFILE_MODELS[resolved_profile]
+    short = selected_model.split("/", 1)[1]
+    bundle["model"] = selected_model
+    bundle["small_model"] = selected_model
+    bundle["enabled_providers"] = [CANONICAL_PROVIDER]
+    bundle["provider"] = {
+        CANONICAL_PROVIDER: {
+            "whitelist": [short],
+            "models": {
+                short: {
+                    "options": {"reasoningEffort": "max"},
+                    "variants": {"max": {}},
+                }
+            },
         }
-        # The canonical Markdown agent definitions stay Muse-specific on disk.
-        # Inline run config wins and pins every reachable agent to Space Bunny Max.
-        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
-        names.update(config.get("agent", {}))
-        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
-        bundle["agent"] = {
-            name: {"model": SPACE_BUNNY_MODEL, "variant": "max"} for name in sorted(names)
-        }
-    elif execution_provider == "zen":
-        bundle["model"] = ZEN_MODEL
-        bundle["small_model"] = ZEN_MODEL
-        bundle["enabled_providers"] = ["opencode"]
-        bundle["disabled_providers"] = [CANONICAL_PROVIDER]
-        short = ZEN_MODEL.split("/", 1)[1]
-        bundle["provider"] = {
-            "opencode": {
-                "whitelist": [short],
-                "models": {
-                    short: {
-                        "variants": {
-                            name: {"disabled": True} for name in (*BELOW_HIGH, *ALLOWED_EFFORTS)
-                        }
-                    }
-                },
-            }
-        }
-        # Inline agent values override the unchanged canonical Markdown snapshot.
-        # Empty variant clears Go's inherited value (pinned agent.ts uses ??),
-        # without inventing a supported Zen HIGH/XHIGH variant or reasoning option.
-        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
-        names.update(config.get("agent", {}))
-        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
-        bundle["agent"] = {name: {"model": ZEN_MODEL, "variant": ""} for name in sorted(names)}
-    else:
-        # Explicit Muse profile. The committed default is now Space Bunny, so a
-        # Muse run must pin the alternate executor itself. Inheriting the
-        # committed model here would let telemetry and lock metadata claim "muse"
-        # while Space Bunny actually ran, which is a silent fallback.
-        bundle["model"] = ALTERNATE_MODEL
-        bundle["small_model"] = ALTERNATE_MODEL
-        bundle["enabled_providers"] = [CANONICAL_PROVIDER]
-        short = ALTERNATE_MODEL.split("/", 1)[1]
-        bundle["provider"] = {
-            CANONICAL_PROVIDER: {
-                "whitelist": [short],
-                "models": {
-                    short: {
-                        "options": {"reasoningEffort": "xhigh"},
-                        "variants": {"xhigh": {}},
-                    }
-                },
-            }
-        }
-        # Inline run config wins over the unchanged canonical Markdown snapshot,
-        # pinning every reachable agent to Muse XHIGH.
-        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
-        names.update(config.get("agent", {}))
-        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
-        bundle["agent"] = {
-            name: {"model": ALTERNATE_MODEL, "variant": "xhigh"} for name in sorted(names)
-        }
+    }
+    # Inline run config wins over the canonical Markdown snapshot and pins every
+    # reachable agent to the selected executor at exactly its authorized native
+    # level, so no agent can silently run at another level or executor.
+    names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
+    names.update(config.get("agent", {}))
+    names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
+    bundle["agent"] = {name: {"model": selected_model, "variant": "max"} for name in sorted(names)}
     return bundle
 
 
@@ -827,6 +767,16 @@ def resolve_environment(
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
     env.pop("OPENCODE_PERMISSION", None)
+    # Conditional execution-identity keys must be cleared before this launch
+    # plan is applied. Otherwise a nested Foundry invocation can inherit an
+    # outer session's native variant or routing-suppression state even when
+    # the child plan does not authorize it.
+    for inherited_identity_key in (
+        "FOUNDRY_NATIVE_VARIANT",
+        "OPENCODE_DISABLE_PROJECT_CONFIG",
+        "FOUNDRY_ROUTING_SUPPRESSED",
+    ):
+        env.pop(inherited_identity_key, None)
     config_dir = str(Path(run_dir) / "config-dir")
     manifest = build_config_dir(canonical_root, config_dir)
     policy_hash = drift_mod.canonical_bundle_hash(
@@ -876,7 +826,7 @@ def _metrics_path(run_dir: str) -> str:
 
 
 def write_launch_context(run_dir: str, context: dict) -> str:
-    """Persist non-secret launch context for Muse/audit. Returns path."""
+    """Persist non-secret launch context for audit. Returns path."""
     path = Path(run_dir) / "launch-context.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(context, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -1424,15 +1374,19 @@ def main(argv: list[str] | None = None) -> int:
         choices=EXECUTION_PROFILES,
         default=None,
         help=(
-            "Explicit OpenCode Go executor profile. Omitted or 'muse' keeps Muse; "
-            "'space-bunny' pins Space Bunny Free at native max reasoning."
+            "Explicit OpenCode Go executor profile. Omitted selects the DeepSeek MAX "
+            "primary; 'space-bunny' explicitly selects the Space Bunny Free MAX "
+            "secondary. Muse and GLM are inactive and are rejected."
         ),
     )
     parser.add_argument(
         "--execution-provider",
         choices=("zen",),
         default=None,
-        help="Legacy explicit Zen Muse override; cannot be combined with space-bunny.",
+        help=(
+            "Retired legacy Zen Muse provider override; always refused. Kept as an "
+            "explicit refusal so it cannot be silently forwarded to the child argv."
+        ),
     )
     parser.add_argument("--mode", default="writer", choices=("writer", "reader"))
     parser.add_argument("--session", default="")
