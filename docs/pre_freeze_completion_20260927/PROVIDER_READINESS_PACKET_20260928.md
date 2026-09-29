@@ -62,8 +62,8 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `777dd489` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 177 | 177 | Lab `777dd489` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `9edea29a` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 179 | 179 | Lab `9edea29a` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is
@@ -75,7 +75,7 @@ while this workstream was in flight — which is the behaviour it is for. The va
 moves whenever the pipeline is re-run, because each run records the commit it
 executed from.
 
-Each receipt binds the executing runner commit and tree, `dirty: false`, 32
+Each receipt binds the executing runner commit and tree, `dirty: false`, 61
 per-input sha256 digests, a runner digest, the exact command, build identity,
 wall-clock window, return code, counts and environment. A receipt that cannot be
 re-derived, or that reports a failure, a non-zero exit or a digest mismatch, earns

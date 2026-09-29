@@ -2,8 +2,8 @@
  "PB03_DIMENSION_ADMISSION": "TECHNICALLY_CONFORMANT",
  "PB03_RUNTIME_EXECUTION": "PASS",
  "admission_counts": {
-  "admitted": 14,
-  "blocked": 16
+  "admitted": 12,
+  "blocked": 18
  },
  "architecture_freeze": "NOT_CLAIMED",
  "native_receipt": "FRESH_EXACT",
@@ -66,16 +66,19 @@
    "semantic_relation": "EXACT_OBLIGATION"
   },
   {
-   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
    "fixture_id": "WS05-CMD-DMG-CONTROL",
    "full107_credit": "NONE_FROM_PB03_MATRIX",
    "harness_class": "XmageControlDivergenceReconstructionTest",
    "harness_method": "stolenCommanderCombatDamageUsesOwnerIdentityAfterControlChange",
-   "missing_tokens": [],
+   "missing_tokens": [
+    "controller/owner divergence"
+   ],
    "native_receipt": "FRESH_EXACT",
    "required_tokens": [
     "battlefield/graveyard/exile placement",
     "commander damage matrices",
+    "controller/owner divergence",
     "life totals"
    ],
    "route": "GENUINE_CAUSAL_DEVIATION",
@@ -363,15 +366,20 @@
    "semantic_relation": "BLOCKER_CHARACTERIZATION"
   },
   {
-   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
    "fixture_id": "WS05-MP-ELIM-CONTROL-3",
    "full107_credit": "NONE_FROM_PB03_MATRIX",
    "harness_class": "XmageCausalEliminationReconstructionTest",
    "harness_method": "eliminatedOwnersPermanentLeavesEvenWhileControlledByOpponent",
-   "missing_tokens": [],
+   "missing_tokens": [
+    "attachments and counters",
+    "controller/owner divergence"
+   ],
    "native_receipt": "FRESH_EXACT",
    "required_tokens": [
+    "attachments and counters",
     "battlefield/graveyard/exile placement",
+    "controller/owner divergence",
     "life totals"
    ],
    "route": "GENUINE_CAUSAL_DEVIATION",

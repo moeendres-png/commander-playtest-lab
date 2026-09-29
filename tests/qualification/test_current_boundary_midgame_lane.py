@@ -304,6 +304,43 @@ class TestProbeReceipt:
         body = {key: value for key, value in receipt.items() if key != "receipt_digest"}
         assert receipt_mod.document_digest(body) == receipt["receipt_digest"]
 
+    def test_probe_and_runtime_ledger_share_the_exact_run_identity(self) -> None:
+        """The two PB-03 runtime artifacts must come from the same run.
+
+        They are produced back-to-back on one clean head, so their recorded
+        runner digests and engine candidate must agree. Regenerating one without
+        the other leaves evidence from two epochs joined as if one, which this
+        guard refuses.
+        """
+        receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        ledger = json.loads(
+            (
+                REPO_ROOT
+                / "qualification"
+                / "final-current-boundary-20260927"
+                / "PB03_RUNTIME_EXECUTION.json"
+            ).read_text(encoding="utf-8")
+        )
+        assert receipt["runner_digest"] == ledger["runner_digest"]
+        assert receipt["runner_commit"] == ledger["runner_commit"]
+        assert receipt["runner_tree"] == ledger["runner_tree"]
+        assert receipt["engine_commit"] == ledger["candidate_commit"]
+        assert receipt["engine_commit"] == bridge_launcher.canonical_xmage_engine_pin()
+
+    def test_every_row_states_its_construction_verdict_explicitly(self) -> None:
+        receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        allowed = {"EXACT", "ALLOWED_VARIANCE", "MISMATCH", "UNRECOGNIZED", None}
+        for row in receipt["rows"]:
+            assert row.get("construction_verdict") in allowed, row["fixture_id"]
+            if row["outcome"] == "ENGINE_NATIVE_REACHABLE":
+                if row["engine_construction_match"] is True:
+                    assert row["construction_verdict"] == "EXACT", row["fixture_id"]
+                else:
+                    # The raw engine bit said "no match"; the row survives only
+                    # as the documented allowance, and that must be visible.
+                    assert row["construction_verdict"] == "ALLOWED_VARIANCE", row["fixture_id"]
+                    assert row["declaration_step_priority_allowance_applied"], row["fixture_id"]
+
     def test_receipt_publishes_the_per_dimension_manifest(self) -> None:
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
         manifest = receipt["starting_state_dimensions_manifest"]

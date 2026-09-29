@@ -2,22 +2,22 @@
  "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
  "candidate": "xmage",
  "event_log": {
-  "engine_game_id": "4205a7a3-4370-4aab-9b0c-141b3a0bde6b",
+  "engine_game_id": "dc546cd1-4eff-4d8c-af74-96e34705f0f6",
   "event_log_source": "xmage_bridge_external_control",
-  "game_id": "wsr22-xmage-4p-70f1f0dc",
+  "game_id": "wsr22-xmage-4p-bcb2e220",
   "latest_event_offset": 3,
   "log": {
    "backend": "xmage",
    "events": [
     {
      "actor_id": null,
-     "event_id": "a2b920b56dd3fdb7515393c812b195f47e901d56b3f7615e3d34f0da2da72628",
+     "event_id": "142e8a6af8f16a3353bd7bb30c7738133c2dc3dfeedc410ccb20da3958c46105",
      "event_type": "game_created",
-     "game_id": "wsr22-xmage-4p-70f1f0dc",
+     "game_id": "wsr22-xmage-4p-bcb2e220",
      "payload": {
       "action_id": null,
       "decision_id": null,
-      "engine_game_id": "4205a7a3-4370-4aab-9b0c-141b3a0bde6b",
+      "engine_game_id": "dc546cd1-4eff-4d8c-af74-96e34705f0f6",
       "external_control": true,
       "player_count": 4,
       "seed_controlled": true,
@@ -28,45 +28,45 @@
      "sequence": 1
     },
     {
-     "actor_id": "1f82ecf8-3397-4562-95ce-ae6b812f62eb",
-     "event_id": "e0d60caa8c2f4c3942efaaa34bff6552641203b517df09eeefdd7992248fe157",
+     "actor_id": "e2385c7a-d68b-4b9a-981d-af9477419556",
+     "event_id": "c652da6b57bfba149bcc0fb92162caebd1716c4bf22ecf3858e07d33bb588c29",
      "event_type": "game_started",
-     "game_id": "wsr22-xmage-4p-70f1f0dc",
+     "game_id": "wsr22-xmage-4p-bcb2e220",
      "payload": {
       "action_id": null,
       "decision_id": null,
-      "engine_game_id": "4205a7a3-4370-4aab-9b0c-141b3a0bde6b",
+      "engine_game_id": "dc546cd1-4eff-4d8c-af74-96e34705f0f6",
       "external_control": true,
       "seed_controlled": true,
-      "starting_player_id": "1f82ecf8-3397-4562-95ce-ae6b812f62eb",
+      "starting_player_id": "e2385c7a-d68b-4b9a-981d-af9477419556",
       "turn_number": 1
      },
-     "post_state_hash": "989d095ec3499c34b796e87e554d230f592e04652a37d4114ea577bf545fa85f",
+     "post_state_hash": "6c05770fbc1bfb27531292930c1c3f06e6df5391657d5de24e0b06657bda6a4d",
      "pre_state_hash": null,
      "sequence": 2
     },
     {
-     "actor_id": "1f82ecf8-3397-4562-95ce-ae6b812f62eb",
-     "event_id": "accfbe59f7dfe414f6159eafa6957a47eed46593bfd4ea3b059400daf36b8565",
+     "actor_id": "e2385c7a-d68b-4b9a-981d-af9477419556",
+     "event_id": "6b2d8d40c0916f5fa268e3e535ad8439333d55d207ab45accf4d79dffc5e7187",
      "event_type": "priority_passed",
-     "game_id": "wsr22-xmage-4p-70f1f0dc",
+     "game_id": "wsr22-xmage-4p-bcb2e220",
      "payload": {
-      "action_id": "7feb327d0696b0a385f049af6d69fe314d986c531903288cf9a7d5d6a805c75e",
+      "action_id": "8f9128712848b2d085bee6fb9bcbc9acdca556eca0e8b25a5a532a6c96cf3876",
       "action_type": "pass_priority",
       "bounded_submission": true,
-      "decision_id": "d05f07fc610a1ab80e20c2ccbe6eeb5da1dbfadc035b26ba5f303609aaac9ed6",
-      "engine_game_id": "4205a7a3-4370-4aab-9b0c-141b3a0bde6b",
+      "decision_id": "09b55bca3f1922bcef98bb11421653af338f6b68e13e13f780e53d12e44d11a5",
+      "engine_game_id": "dc546cd1-4eff-4d8c-af74-96e34705f0f6",
       "source_name": null,
       "source_object_id": null
      },
-     "post_state_hash": "032c01266c161a539b45382a23d878d3dab7baeedbf841bfe2bc881c1a627a22",
-     "pre_state_hash": "989d095ec3499c34b796e87e554d230f592e04652a37d4114ea577bf545fa85f",
+     "post_state_hash": "6741b6859979d23571e8f3ac7af9c4651e232eb4531f2a1a9fd996ef52bb8e1d",
+     "pre_state_hash": "6c05770fbc1bfb27531292930c1c3f06e6df5391657d5de24e0b06657bda6a4d",
      "sequence": 3
     }
    ],
-   "log_sha256": "941df70aed384a9b76ed88b5accebc450b57afeeb9acb737f76f4963584979cf",
+   "log_sha256": "3f173b7894e00821ae6b6ab2eaf4f8363e545d74210a1227ee858b9885838f31",
    "raw_lines": [],
-   "session_id": "wsr22-xmage-4p-70f1f0dc"
+   "session_id": "wsr22-xmage-4p-bcb2e220"
   },
   "raw_internal_xmage_gameevent_exhaustive": false,
   "returned_event_count": 3
@@ -83,7 +83,7 @@
  },
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "777dd48901b47a2fc2ada467991ef7d569185f59",
+  "adapter_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": false,
@@ -123,8 +123,8 @@
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "777dd48901b47a2fc2ada467991ef7d569185f59",
-  "runner_tree": "11ea1e22ef71a47f0e40149551057735610ceb40",
+  "runner_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
+  "runner_tree": "03d6061c0dfa1035b2acb4a00db9c8d8021d545f",
   "scenario_injection_supported": false,
   "seed_supported": true,
   "starting_state_injection_supported": false

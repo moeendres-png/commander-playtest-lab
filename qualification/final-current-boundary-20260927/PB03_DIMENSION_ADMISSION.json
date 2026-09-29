@@ -2,7 +2,6 @@
  "admitted": [
   "PILOT_DECLARE_ATTACKER",
   "PILOT_DECLARE_BLOCKER",
-  "WS05-CMD-DMG-CONTROL",
   "WS05-CMD-DMG-SAME-21",
   "WS05-CMD-DMG-SPLIT",
   "WS05-CMD-ELIM-4",
@@ -10,7 +9,6 @@
   "WS05-MP-COMBAT-4",
   "WS05-MP-COMBAT-5",
   "WS05-MP-ELIM-5",
-  "WS05-MP-ELIM-CONTROL-3",
   "WS05-MP-ELIM-OWNED-3",
   "WS05-MP-ELIM-PRIO-3",
   "WS05-MP-ELIM-TURN-3"
@@ -32,6 +30,21 @@
     "<unmapped-required-event>"
    ],
    "verdict": "BLOCKED_UNKNOWN_DIMENSION"
+  },
+  "WS05-CMD-DMG-CONTROL": {
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "missing_tokens": [
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['controller/owner divergence']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
   },
   "WS05-CMD-ZONE-EXILE-NO": {
    "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
@@ -143,6 +156,22 @@
    "unknown_tokens": [],
    "verdict": "BLOCKED_MISSING_DIMENSION"
   },
+  "WS05-MP-ELIM-CONTROL-3": {
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "missing_tokens": [
+    "attachments and counters",
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['attachments and counters', 'controller/owner divergence']",
+   "required_tokens": [
+    "attachments and counters",
+    "battlefield/graveyard/exile placement",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
   "WS05-MP-ELIM-STACK-3": {
    "fixture_id": "WS05-MP-ELIM-STACK-3",
    "missing_tokens": [
@@ -244,10 +273,10 @@
  },
  "classification": "TECHNICALLY_CONFORMANT",
  "counts": {
-  "admitted": 14,
-  "blocked": 16
+  "admitted": 12,
+  "blocked": 18
  },
- "derivation": "required_events + semantic_objects[].zone only",
+ "derivation": "required_events + semantic_objects[].zone + semantic_objects[].owner/controller declared attributes only",
  "full107_credit": "NONE_FROM_ADMISSION",
  "global_capability_flag": "starting_state_injection_supported remains false and is never used as the row admission verdict",
  "manifest": {
@@ -323,15 +352,18 @@
   },
   {
    "fixture_id": "WS05-CMD-DMG-CONTROL",
-   "missing_tokens": [],
-   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "missing_tokens": [
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['controller/owner divergence']",
    "required_tokens": [
     "battlefield/graveyard/exile placement",
     "commander damage matrices",
+    "controller/owner divergence",
     "life totals"
    ],
    "unknown_tokens": [],
-   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+   "verdict": "BLOCKED_MISSING_DIMENSION"
   },
   {
    "fixture_id": "WS05-CMD-DMG-SAME-21",
@@ -524,14 +556,19 @@
   },
   {
    "fixture_id": "WS05-MP-ELIM-CONTROL-3",
-   "missing_tokens": [],
-   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "missing_tokens": [
+    "attachments and counters",
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['attachments and counters', 'controller/owner divergence']",
    "required_tokens": [
+    "attachments and counters",
     "battlefield/graveyard/exile placement",
+    "controller/owner divergence",
     "life totals"
    ],
    "unknown_tokens": [],
-   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+   "verdict": "BLOCKED_MISSING_DIMENSION"
   },
   {
    "fixture_id": "WS05-MP-ELIM-OWNED-3",

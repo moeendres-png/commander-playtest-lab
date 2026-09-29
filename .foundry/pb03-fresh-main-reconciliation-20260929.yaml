@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "integration/pb03-fresh-main-reconciliation-20260929"
 audit_base_sha: "72665dcea00d3c74b3272586a9b2794bb86fd93c"
 audit_base_tree: "bc16a510b2ff120298035af61372354b9dac422a"
-state_written_against_head: "0d93f5dc7ed6058b5966d01a440adc2b6cc88f46"
-validated_head: null
+state_written_against_head: "9edea29aaf5fd29a1eda104c2fdf454495b72946"
+validated_head: "9edea29aaf5fd29a1eda104c2fdf454495b72946"
 
 objective: "Reconcile PR #333 production-reachable PB-03 midgame transport with PR #316 dimension admission/native receipt semantics on fresh current main, preserving post-#344 evidence freshness and fail-closed boundaries."
 
@@ -31,8 +31,8 @@ out_of_scope:
 ownership: "PB03-FRESH-MAIN-RECONCILIATION-20260929"
 
 dependencies:
-  - "PR #333 donor head 20b52958b43a3b373cdcb5e9e19bf706bcd2feeb"
-  - "PR #316 donor head 662db683bd43bab106d61c2b5af9fab6406fdcb0"
+  - "PR #333 donor head 20b52958b43a3b373cdcb5e9e19bf706bcd2feeb (now merged to main as 10a43d2c, content byte-identical)"
+  - "PR #316 donor head 662db683bd43bab106d61c2b5af9fab6406fdcb0 (not merged; ported here)"
   - "PR #344 merged evidence-hardening semantics"
   - "Current main engine pins"
 
@@ -56,43 +56,51 @@ forbidden_shortcuts:
   - "fabricated legal actions"
   - "manual outcome injection"
 
-validated_gates: []
+validated_gates:
+  - "Qualification pytest suite 497 passed / 5 documented skips at 9edea29a"
+  - "Focused native suite 104 tests green on the merged tree (PB-03 + midgame + F-27 privacy + fingerprint)"
+  - "Current-boundary XMage + Forge runner and assembler re-executed at 9edea29a: PB-03 admission TECHNICALLY_CONFORMANT 12/18, runtime PASS 30/30, native receipt FRESH_EXACT, runtime credit EXECUTED_PASS"
+  - "Midgame probe resealed at 9edea29a with the same runner digest as the PB-03 runtime ledger (8/9/9/1/2 partition)"
 failed_gates: []
-invalidated_gates: []
-do_not_rerun: []
+invalidated_gates:
+  - "All pre-merge current-boundary receipts and PB-03 documents (superseded by the 9edea29a run; the earlier 82419e83/777dd489 runs are historical)"
+do_not_rerun:
+  - "Donor #333/#316 receipts as credit (requalified here)"
 
 current_failure: "NONE"
 failure_class: "NONE"
 root_cause_class: "NONE"
-current_hypothesis: "Both donor lines are portable onto current main as semantic transplants; the current-boundary runner must bind the canonical live engine pin (f79e4168) rather than the frozen WSR22 source_lock identity (b1959698), because the bridge reports the live pin and a run bound to the frozen pin would produce internally contradictory evidence."
+current_hypothesis: "NONE"
 
 status: "ACTIVE"
 technical_decision_authority: "AUTONOMOUS_WITHIN_CONTRACT"
-current_reasoning_tier: "xhigh"
+current_reasoning_tier: "max"
 authority_gates: []
 
 technical_decisions:
-  - "SOURCE LOCK (fresh): origin/main 72665dcea00d3c74b3272586a9b2794bb86fd93c tree bc16a510b2ff120298035af61372354b9dac422a; local branch integration/pb03-fresh-main-reconciliation-20260929 at 0d93f5dc (state file only). PR #333 head 20b52958 OPEN/DIRTY, 80 behind/11 ahead, merge-base 83a547f7, 26 files. PR #316 head 662db683 OPEN/CLEAN, 90 behind/41 ahead, merge-base 2229380b, 13 files. PR #304 head 08d23aa OPEN/DIRTY. All prompt facts reverified exactly."
-  - "Donor dispositions (#333): Main.java/XmageNativeStateRestoration Wastes hunks PORT_REQUIRED; XmageMidgameJsonlBridge/XmageMidgameCausalBridge PORT_WITH_ADAPTATION; 4 Java tests PORT_REQUIRED/PORT_WITH_ADAPTATION; midgame_lane.py/probe/Python test PORT_WITH_ADAPTATION; docs PROVENANCE_ONLY; donor MIDGAME_CAPABILITY_PROBE.json REQUALIFY_BEFORE_USE; WS17_SHA256SUMS and qualification/SHA256SUMS hunks REJECT (regenerate)."
-  - "Donor dispositions (#316): XmageFullGameJsonlBridge 2 hunks PORT_REQUIRED; dimension_admission.py PORT_REQUIRED (verified 14/16 on current materialization); pb03_runtime.py PORT_REQUIRED + runner-identity freshness adaptation; XmagePb03CapabilityManifestTest/XmagePb03RuntimeGapClosureTest PORT_REQUIRED; XmageControlDivergenceReconstructionTest + XmagePb03Tier2ControlTurnTest PORT_REQUIRED; runner 6 hunks PORT_REQUIRED (live-pin adaptation); assembler PB-03 matrix + native-summary fix PORT_WITH_ADAPTATION (whole-file replacement REJECT); workflow PORT_WITH_ADAPTATION; .foundry donor JSON PROVENANCE_ONLY."
-  - "Engine pin decision: config/rules_engines.json primary_engine.commit = f79e4168902e65063034b21be6f4585397fd43b3 is the canonical live pin. The frozen WSR22 source_lock.XMAGE_CANDIDATE_COMMIT = b1959698 is historical and NOT repinned (test_xmage_mp_candidate_repin_20260929). Added bridge_launcher.canonical_xmage_engine_pin() as the single live-pin reader; the current-boundary runner now binds xmage receipts and runtime identity to it so a run can never be attributed to an engine epoch that did not execute."
-  - "ENGINE ENVIRONMENT REPAIR: local ~/.m2 held the PRIOR pin (b1959698) - XmageCandidateEngineFingerprintTest failed with NoSuchMethodError for Game.getPlayerIdsInApnapOrder. Built and installed the canonical candidate f79e4168 from a clean clone (/home/moeen/code/.pb03-engine-build-f79e4168, HEAD verified) with mvn -o -DskipTests install; fingerprint now passes. All fresh PB-03 evidence runs against the candidate."
-  - "Midgame transport reuses the canonical launch contract: bridge_launcher.build_launch_plan(lane='midgame') supplies classpath manifest, isolated runtime cwd outside candidate worktrees, and identity; MidgameLaneClient clears JAVA_TOOL_OPTIONS on spawn. Its read-deadline helper remains a documented mirror of BridgeProcess because that helper is a private method of a shared-canonical class; classification vocabulary is identical and transport != semantics."
-  - "Probe receipt now carries runner_commit/runner_tree/runner_digest/runner.to_document(), candidate_commit and a canonical content receipt_digest; a provider-reported engine_commit that differs from the canonical pin aborts the seal (exit 3). midgame_lane.receipt_freshness classifies FRESH_EXACT/STALE/MISSING/INVALID and never grandfathers."
-  - "PB-03 runtime ledger now carries receipt_digest + runner identity; pb03_runtime.runtime_execution_freshness binds runner digest + candidate commit + all-green ledger; the assembler reports native_receipt classification and zeroes runtime_credit when not FRESH_EXACT."
-  - "Probe raw-UUID fix: priority-ring evidence now persists principals_observed/passes_observed counts only; raw engine principal ids never enter a persisted artifact. Probe entry_mode bug fixed (causal create/start rejections recorded with their requested entry_mode)."
-  - "No second systems created: same Protocol-2 controller/session, same canonical launcher, same receipts/digest helpers, same materialization/admission axes. The restoration-readback projection (redactMismatch/redactNativeIds/principalScopedObservation) is specific to the NativeStateRestoration readback document; no existing canonical helper covers that document."
+  - "MAIN ADVANCE 2026-09-29: origin/main moved 72665dce -> 7cb9e56a -> 12d3e1ac -> 23977253. Drift was merged normally (no rebase) at 9edea29a. PR #333 was merged to main as 10a43d2c with content byte-identical to the donor head; main's Java PB-03 files equal ours, while our Python consumer/probe/tests keep the successor adaptations. Conflicts (5) resolved in favour of the reconciled superset; manifests regenerated."
+  - "ENGINE PIN: canonical live pin f79e4168 (config/rules_engines.json) is bound end-to-end via bridge_launcher.canonical_xmage_engine_pin(); frozen WSR22 source_lock b1959698 stays historical and is not repinned. Local ~/.m2 held the prior pin; the canonical candidate was built from a verified clean clone and the runtime fingerprint now proves it."
+  - "RUNNER DIGEST DEFECT REPAIRED: RunnerIdentity.digest() included built_utc, so runner and assembler could never agree and every real post-#344 receipt was stale. built_utc remains recorded; the digest is now content-bound (commit/tree/dirty/executed inputs) and regression-locked."
+  - "RUNNER DIGEST COVERAGE: added scripts/run_midgame_capability_probe.py, engine-bridge/pom.xml and engine-bridge main Java sources (61 executed inputs) so adapter/probe drift invalidates receipts even when the engine commit is unchanged."
+  - "ADMISSION: declared object attributes now govern admission from the live manifest. WS05-MP-ELIM-CONTROL-3 and WS05-CMD-DMG-CONTROL declare owner != controller, the manifest marks controller/owner divergence unsupported, and the seam rejects both, so admission is 12 admitted / 18 blocked (was 14/16). Attribute tokens: controller/owner divergence, tapped permanents, attachments and counters."
+  - "CONSTRUCTION HONESTY: classification_from_arrival now states construction_verdict explicitly (EXACT / ALLOWED_VARIANCE / MISMATCH / UNRECOGNIZED); two combat rows survive only as ALLOWED_VARIANCE with the raw engine bit and the exact priority allowance visible. No negative verdict is silently promoted."
+  - "CAUSAL HONESTY: an unrecorded terminal obligation is CAUSAL_ROUTE_MEASURED_BLOCKED, not reachability credit; elimination rows record the engine's own victim_lost/victim_left terminal."
+  - "PROBE: canonical launch plan (bridge_launcher lane=midgame, isolated runtime cwd, cleared JAVA_TOOL_OPTIONS), runner identity + content digest sealed, raw principal UUIDs removed (counts only), causal rejection entry_mode fixed, first-option discard fallback removed, and the receipt must name the canonical engine pin."
+  - "PB-03 RUNTIME LEDGER: exact class+method binding, all-green requirement, content receipt digest, runner digest + candidate commit freshness; the assembler reports native_receipt classification and zeroes runtime credit unless FRESH_EXACT. The runner clears surefire reports first so a stale report cannot be credited, and the runtime engine fingerprint test is bound in the mechanism suite."
+  - "ASSEMBLER: refuses to cite a stale auxiliary full-game-lane AF01 artifact (different engine epoch) and derives the AF01 seed limitation text from the artifact instead of hard-coding a stale claim."
+  - "CURRENT-BOUNDARY REQUALIFICATION: XMage fresh on the live pin (native 213 tests, AF11 FAIL->UNKNOWN, hidden information now PRINCIPAL_SCOPED with 4 distinct views, seed acknowledged at the creation transaction); Forge re-executed in the documented bridge/evidence checkout e15f37d6 (Rules Core trees proven identical to ef958ee9; native 217 tests) after the default workspace was found on a divergent WSR20 branch whose bridge lacks the Commander-legality repair. Historical WSR22 positions retained as history in the readiness packet."
+  - "PR #285 (recovery point 4a56d179) READ-ONLY AUDIT: NO_UNIQUE_PB03_SEMANTIC_VALUE. Every PB-03-semantic unit is already canonical, superseded by #333/#316/#344, or stale. The single donor-unique unit relevant to the PB-03 launch path is non-semantic build plumbing (maven-dependency-plugin writes target/cp-wsr22.txt at package); it was integrated into engine-bridge/pom.xml. PR285_CURRENT_HEAD = REJECT_NEVER_MERGE; branch kept as provenance; no separate PR."
+  - "EVIDENCE VOCABULARY (Coordinator decision consumed): canonical classes unchanged; RUNTIME_VERIFIED is legacy compatibility metadata, not an eighth class. No historical evidence was rewritten. COMPATIBILITY DEBT RECORDED: existing machine-readable contracts that still use RUNTIME_VERIFIED need a future bounded schema-normalization workstream."
+  - "ADVERSARIAL REVIEW (fresh context) findings repaired: construction-verdict explicitness, admission attribute derivation, stale auxiliary artifact citation, probe/bridge digest coverage, unrecorded terminal, first-option fallback, surefire reset, AF01 exact-pin guard, derived seed limitation. Findings on the hardcoded engine constant are mitigated by the bound runtime fingerprint; loaded-jar cryptographic identity remains a documented limitation."
 
 hypotheses_rejected:
-  - "Wholesale donor merge/rebase: rejected; current main drift includes post-#344 assembler freshness and 90/80-commit divergence."
-  - "Porting the donor midgame receipt as credit evidence: rejected (bound to stale pin b1959698, no runner identity, persisted raw principal UUIDs)."
-  - "Running the current-boundary pipeline against the frozen b1959698 identity: rejected as internally contradictory after the repin (bridge reports f79e4168), and the repin adjudication explicitly reserved a successor run for new-pin credit."
-  - "Accepting the local m2 engine as the candidate: rejected by runtime fingerprint; repaired by rebuilding the canonical candidate."
+  - "Wholesale donor merge/rebase: rejected; resolved by semantic transplant and a normal merge of main's #333 line."
+  - "Accepting the sealed donor receipt or donor counts as current: rejected; all rows rederived at 9edea29a."
+  - "Keeping admission at 14/16 after the manifest declares controller/owner divergence unsupported: rejected as an overstatement; now 12/18."
+  - "Treating the #333 declaration-step allowance as exact construction: rejected; it is now explicit ALLOWED_VARIANCE with the raw bit visible."
+  - "Forge requalification against the divergent WSR20 workspace: rejected as a wrong-bridge artifact (spurious AF03 FAIL); re-run in the documented e15f37d6 checkout."
 
 files_modified:
-  - "engine-bridge/src/main/java/org/commanderlab/xmage/Main.java"
-  - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java"
-  - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java"
   - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java"
   - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameCausalBridge.java"
   - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameLaneTest.java"
@@ -101,8 +109,7 @@ files_modified:
   - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameReviewRemediationTest.java"
   - "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03CapabilityManifestTest.java"
   - "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03RuntimeGapClosureTest.java"
-  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageControlDivergenceReconstructionTest.java"
-  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2ControlTurnTest.java"
+  - "engine-bridge/pom.xml"
   - "src/commander_lab/qualification/current_boundary/midgame_lane.py"
   - "src/commander_lab/qualification/current_boundary/dimension_admission.py"
   - "src/commander_lab/qualification/current_boundary/pb03_runtime.py"
@@ -115,35 +122,38 @@ files_modified:
   - "tests/qualification/test_current_boundary_midgame_lane.py"
   - "tests/qualification/test_current_boundary_dimension_admission.py"
   - "tests/qualification/test_current_boundary_pb03_runtime.py"
+  - "tests/qualification/test_current_boundary_receipts.py"
+  - "tests/qualification/test_wsr22_current_boundary.py"
+  - "tests/qualification/test_current_boundary_readiness_packet.py"
+  - "tests/qualification/test_current_boundary_redaction_placeholders.py"
+  - ".github/workflows/pb03-runtime-qualification.yml"
+  - "docs/pre_freeze_completion_20260927/PROVIDER_READINESS_PACKET_20260928.md"
+  - "qualification/final-current-boundary-20260927/**"
+  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "mvn -o test -Dtest='XmagePb03*,XmageMidgame*,XmageControlDivergenceReconstructionTest' -> 98 passed / 0 failed (engine candidate f79e4168 installed)"
-  - "mvn -o test -Dtest=XmageCandidateEngineFingerprintTest -> 2 passed (runtime carries candidate APNAP primitives)"
-  - "pytest tests/qualification -> 481 passed, 5 skipped, 9 failed (all 9 are receipt-dependent tests awaiting the fresh probe receipt)"
-  - "pytest tests/qualification/test_current_boundary_dimension_admission.py + test_current_boundary_pb03_runtime.py -> 24 passed"
-  - "ruff check . -> All checks passed"
-  - "ruff format --check . -> all formatted"
+  - "pytest tests/qualification -> 497 passed, 5 skipped (9edea29a)"
+  - "mvn focused -> 104 passed (PB-03, midgame, control divergence, F-27 privacy, fingerprint)"
+  - "runner xmage + forge + assembler at 9edea29a -> PB-03 FRESH_EXACT / EXECUTED_PASS; XMage 213 native tests, Forge 217"
+  - "midgame probe at 9edea29a -> 29 rows, 8/9/9/1/2, zero transport failures, runner digest equals the runtime ledger's"
 
 evidence:
-  - "Fresh source lock and donor facts reverified from Git (origin/main, donor heads, merge-bases, divergence counts, PR states)."
-  - "98/98 focused native tests green on the transplanted midgame lane + PB-03 classes."
-  - "Runtime fingerprint proves loaded engine is candidate f79e4168 (prior m2 state detected and repaired)."
+  - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json (12/18)"
+  - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json (30/30 PASS)"
+  - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json (FRESH_EXACT / EXECUTED_PASS)"
+  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 artifacts:
-  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json (pending fresh run)"
+  - "docs/pre_freeze_completion_20260927/PROVIDER_READINESS_PACKET_20260928.md (successor-run facts)"
 
 remaining_scope:
-  - "Run fresh midgame capability probe on candidate f79e4168 and seal runner-bound receipt"
-  - "Run authoritative current-boundary runner --candidate xmage and assembler on the exact head"
-  - "Reconcile regenerated current-boundary artifacts with frozen-boundary guards and readiness packet"
-  - "Full validation (pytest, ruff, mypy, mvn bridge suite)"
-  - "Workflow adaptation (live pin + missing path + probe step)"
-  - "Independent fresh-context adversarial review"
-  - "Push, Draft PR, CI, merge-gate evaluation"
+  - "Commit the requalified evidence + manifests + state, then full pytest on a clean tree"
+  - "Full engine-bridge mvn verify on the merged tree"
+  - "Push owned branch; open Draft PR; run exact-head CI; evaluate merge gate"
   - "Donor retirement classification (#304/#333/#316)"
   - "Terminal handoff + current-main PB-03 record"
 
-exact_next_action: "Commit the implementation transplant, then run python3 scripts/run_midgame_capability_probe.py --out qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json and verify every row + receipt freshness."
+exact_next_action: "Commit the 9edea29a requalification artifacts, run the full pytest suite and full engine-bridge mvn verify on the clean tree, then push and open the Draft PR."
 
 execution_profile: "deepseek"
 executor_model: "opencode-go/deepseek-v4.1-flash"

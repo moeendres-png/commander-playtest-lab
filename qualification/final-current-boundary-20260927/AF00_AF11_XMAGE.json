@@ -34,8 +34,8 @@
    "gate": "AF01",
    "name": "PROTOCOL_HANDSHAKE",
    "nonblocking_limitations": [
-    "the generic compatibility lane reports seed_supported=false, so the Rules-RNG invariant is UNKNOWN on that lane; the full-game lane reports seed_supported=true and AF01 PASS",
-    "full-game lane AF01 verdict: PASS"
+    "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact",
+    "the auxiliary full-game-lane AF01 artifact is bound to a different engine epoch (b19596980f27) than this assembly; its verdict is not cited as current evidence"
    ],
    "verdict": "FAIL"
   },
@@ -213,7 +213,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_XMAGE.json",
-    "native hidden/replay suites green: 211 tests"
+    "native hidden/replay suites green: 213 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -360,7 +360,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 211 tests, all green"
+    "native suites: 213 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -391,11 +391,11 @@
    "candidate_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "777dd48901b47a2fc2ada467991ef7d569185f59",
+   "executed_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "350d1af7af3999578d1aaf402cb23f3dd8f21b0f38d56bbc88d99619575363e6",
+   "receipt_digest": "31ffd4801254ead1762bb47838de54cc8937a7931657400a75c061d31db2e647",
    "returncode": 0,
    "tests": 34
   },
@@ -404,13 +404,13 @@
    "candidate_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "777dd48901b47a2fc2ada467991ef7d569185f59",
+   "executed_commit": "9edea29aaf5fd29a1eda104c2fdf454495b72946",
    "failed": 0,
    "failures": 0,
-   "passed": 177,
-   "receipt_digest": "0cdc48267cc4ac1724aeff7d09fb5d6d32fed929f736778caa9f6ebb855026b5",
+   "passed": 179,
+   "receipt_digest": "a66524bdc3286cb22d36d731c3697edf63aa5a35c762fa9684486b97613911fe",
    "returncode": 0,
-   "tests": 177
+   "tests": 179
   }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
