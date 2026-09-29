@@ -219,9 +219,7 @@ def _case_passed(report: Path, class_name: str, method_name: str) -> bool:
     for testcase in root.iter("testcase"):
         observed_class = str(testcase.attrib.get("classname") or "")
         observed_method = str(testcase.attrib.get("name") or "")
-        if not (
-            observed_class == class_name or observed_class.endswith("." + class_name)
-        ):
+        if not (observed_class == class_name or observed_class.endswith("." + class_name)):
             continue
         if observed_method != method_name:
             continue
