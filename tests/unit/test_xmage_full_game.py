@@ -26,7 +26,7 @@ from commander_lab.engine.rules.full_game_batch import (
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-XMAGE_COMMIT = "4277b90b4ee49acd945e82335a9a04c4536f5340"
+XMAGE_COMMIT = "9cb5fb9e9558f980da81c85ca3fdc595161c8d34"
 
 
 def _binding(seat: int, deck_id: str) -> FullGamePilotBinding:
