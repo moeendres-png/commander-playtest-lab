@@ -227,6 +227,11 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - The official rulings say the payer decides first and the controller decides afterwards. The pinned order leaks the controller's intent and skips the payment decision whenever the controller declines.
   - Lab evidence: `XmageMultiplayerUnlessCostTest` (4P/5P). Both principals are asked and outcomes are honoured; the payer-first test is `@Disabled` and names F-19.
   - Engine fix: Mage branch `claude/f19-unless-pays-order-20260929` from the exact pin, with native `UnlessThatPlayerPaysOrderTest`. Lab repin is a separate workstream.
+- **Each-opponent APNAP order: see F-21 (#328, engine fix moeendres-png/mage#22), found and fixed by the parallel XMage multiplayer lane.**
+  - This review found the same defect independently via a tempting offer: Tempt with Discovery cast by active P4 at 4P asks P1, P3, P2 instead of P3, P2, P1.
+  - Its duplicate tracker (#330) and engine PR (mage#23) are closed. Its native tempting-offer tests are offered on mage#22.
+  - Lab evidence: `XmageMultiplayerTemptingOfferTest` (3–6P). Every opponent is asked once and every search is honoured; the APNAP expectation is `@Disabled` and names F-21.
+  - F-numbers from here on: this review's F-18/F-19 and the parallel lane's F-20 (initiative, #327) / F-21 (#328) are distinct findings.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
