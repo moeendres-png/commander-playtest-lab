@@ -21,9 +21,7 @@ def test_successor_source_lock_binds_exact_mage_candidate() -> None:
 
 
 def test_live_pin_surfaces_bind_successor_not_prior() -> None:
-    manifest = json.loads(
-        (ROOT / "config/rules_engines.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
     assert manifest["primary_engine"]["commit"] == CURRENT
 
     current_surfaces = [
@@ -56,12 +54,10 @@ def test_runtime_fingerprint_is_successor_specific() -> None:
 
 def test_f22_f23_bridge_regressions_are_enabled() -> None:
     battle = (
-        ROOT
-        / "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerBattleTest.java"
+        ROOT / "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerBattleTest.java"
     ).read_text(encoding="utf-8")
     vote = (
-        ROOT
-        / "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerVoteTest.java"
+        ROOT / "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerVoteTest.java"
     ).read_text(encoding="utf-8")
     assert "@Disabled" not in battle
     assert "@Disabled" not in vote
