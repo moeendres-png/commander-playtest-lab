@@ -53,7 +53,11 @@ dedicated adversarial falsification pass then tried to **disprove** each as a de
 candidate, searching for dynamic imports, string references, workflow/test/config consumers,
 package re-exports, coverage gates, and git-history intent.
 
-**11 of 12 were refuted and retained.** Representative killers:
+**None were deleted.** Of the 12: **6 were refuted with a specific killer** (retained as
+retention-bound provenance) and **6 could not be proven dead** (retained under
+`UNKNOWN` is never deleted). A further 3 unreferenced files under `requirements/` were
+retained the same way, giving 15 classified candidates in total — see `CLEANUP_LEDGER.json`
+(`D1`–`D6` proven, `U1`–`U9` uncertain). Representative killers:
 
 - `src/commander_lab/semantic_replay/consumer.py` — its SHA-256 is bound in
   `qualification/ws232-retention-nscoped-requalification/RETENTION_PREDICATES.json`, which
@@ -254,10 +258,11 @@ per-PR evidence in `GITHUB_RETIREMENT_LEDGER.md`.
 ## 9. What future engineers no longer need to rediscover
 
 1. **`CLAUDE.md` does not exist here** and never has.
-2. **Unreferenced ≠ dead.** 11 of 12 "dead" candidates were deliberate retention; the two
-   `semantic_replay` modules are SHA-bound in qualification manifests.
-3. **A dirty tracked worktree makes the suite fail closed**, with a ~49-failure cascade that
-   looks like a regression and is not. Commit, then test.
+2. **Unreferenced ≠ dead.** All 15 "dead" candidates were retained: 6 refuted with a specific
+   killer, 9 unprovable. The two `semantic_replay` modules are SHA-bound in qualification
+   manifests.
+3. **A dirty tracked worktree makes the suite fail closed**, with a 55-failure cascade against
+   a 6-failure baseline. It looks like a regression and is not. Commit, then test.
 4. **Two collection errors are environmental** (`httpx2`, `pytest-asyncio` missing), not
    repository defects in this environment.
 5. **The 6 baseline test failures** are pre-existing on `origin/main` and unrelated to any

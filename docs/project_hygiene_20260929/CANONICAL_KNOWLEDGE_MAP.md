@@ -13,7 +13,7 @@ the governing document wins (`AGENTS.md` §3).
 | **Durable rules for every session** | `AGENTS.md` | The root policy. §3 source truth, §2 rules authority, §4 evidence semantics, §6–§7 execution routing, §10–§11 Git and worktree authority |
 | **What the project is building** | `docs/PROJECT_MISSION.md` | Explicitly outranks any summary elsewhere, including the root `README.md` |
 | **Current engine pins** | `config/rules_engines.json` | The *sole* machine-readable pin authority. Its own `documentation_rule` forbids restating pins in prose, and that rule is currently honored — verified zero 40-hex SHAs in `integrations/*/README.md` and `docs/engine_setup.md` |
-| **ARCHITECTURE_FREEZE / PRODUCTION_PROVIDER status** | `config/rules_engines.json` → `selection_truth` | Repeated in 62 tracked files, all consistently `NOT CLAIMED` / `NOT SELECTED`. No file falsely claims otherwise. The repetition is noise but not a correctness risk |
+| **ARCHITECTURE_FREEZE / PRODUCTION_PROVIDER status** | `config/rules_engines.json` → `selection_truth` | Repeated in 62 tracked files at `origin/main` (counted as files containing the literal string), all consistently `NOT CLAIMED` / `NOT SELECTED`. No file falsely claims otherwise. The repetition is noise but not a correctness risk |
 | **Who may execute what, at which effort** | `AGENTS.md` §6–§7, then `docs/foundry-execution/ROUTING_AND_EFFORT.md` and `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Current: DeepSeek MAX default/preferred, Space Bunny MAX explicit secondary, Muse and GLM inactive, no automatic fallback |
 | **What counts as PASS** | `AGENTS.md` §4 | `UNKNOWN != PASS`, `PARTIAL != FULL`, `NOT_RUN != PASS`, `CODE_DERIVED != RUNTIME_VERIFIED`. **Caveat below** |
 | **Evidence schema for indexed evidence** | `docs/EVIDENCE_INDEX_REQUIREMENTS.md` | Companion to `docs/RETENTION_AND_LIFECYCLE_POLICY.md` |
@@ -26,7 +26,7 @@ the governing document wins (`AGENTS.md` §3).
 | **All documentation** | `docs/README.md` | New in this campaign. 294 flat markdown files previously had no index |
 | **Live PRs, issues, branches** | `docs/REPOSITORY_TRIAGE_INDEX.md` | Self-scoped: "a navigation aid, not as authority". Timestamped snapshot |
 | **Qualification evidence** | `qualification/` | See the gap below |
-| **Repository/branch/PR integrity records** | `docs/project_integrity_20260929/`→ see `docs/project_integrity_20260928/` | Ownership deferrals, legacy donor adjudication, port receipts |
+| **Repository/branch/PR integrity records** | `docs/project_integrity_20260928/` | Ownership deferrals and their resolution, legacy donor adjudication, port receipts, PR/branch retention ledger |
 | **This audit** | `docs/project_hygiene_20260929/` | |
 
 ## Where a subject is *partly* answered — the honest gaps
@@ -38,14 +38,28 @@ These are real navigation gaps, recorded rather than hidden.
 `AGENTS.md` §4 defines **7** classes: `DIRECTLY_VERIFIED`, `CODE_DERIVED`,
 `TECHNICALLY_CONFORMANT`, `EXTERNALLY_RULE_VALIDATED`, `MODELED`, `SYNTHETIC`, `UNKNOWN`.
 
-But repo-wide usage also includes **`RUNTIME_VERIFIED`** (19 markdown files) and
-**`QUALIFIED`** (12 markdown files) as *positive* classifications, and neither is defined as a
-class. `AGENTS.md` uses
-`RUNTIME_VERIFIED` only on the right-hand side of a negation (`CODE_DERIVED !=
-RUNTIME_VERIFIED`), so a machine reading the 7-token list will reject a legitimately
-classified entry. Three agent/skill files additionally use three different verdict
-vocabularies (`evidence-seal`: `PASS/FAIL/UNKNOWN/NOT_RUN`; `foundry-reviewer` and
-`foundry-adjudicator`: `PASS/FAIL/PARTIAL/UNKNOWN`).
+**`RUNTIME_VERIFIED` is not among them, yet it is used machine-readably as a required evidence
+class.** Measured at `origin/main`:
+
+- 175 bare occurrences across 30 files (14 of them markdown).
+- Critically, `qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json` uses
+  `"expected_evidence_class": "RUNTIME_VERIFIED"` as a machine-readable required value.
+- 23 further occurrences are the compound `IMPLEMENTED_AND_RUNTIME_VERIFIED`, and 1 is
+  `CODE_DERIVED_NE_RUNTIME_VERIFIED` (a non-standard encoding of the `AGENTS.md` negation).
+
+So a machine that validates against the documented 7-class list will reject a manifest the
+project itself ships. `AGENTS.md` uses `RUNTIME_VERIFIED` only on the right-hand side of a
+negation (`CODE_DERIVED != RUNTIME_VERIFIED`), never as a defined class.
+
+**Correction to an earlier draft of this audit:** an intermediate version of this document also
+claimed that `QUALIFIED` is an undefined class in use. **That claim was false.** It came from a
+substring count: the only bare `QUALIFIED` matches in `origin/main` are the phrase "NOT QUALIFIED"
+inside quoted PR titles and one commit subject reading "5 QUALIFIED, 8 UNKNOWN". There is no
+positive `QUALIFIED` classification in use. The finding is `RUNTIME_VERIFIED` only.
+
+Three agent/skill files additionally use three different verdict vocabularies
+(`evidence-seal`: `PASS/FAIL/UNKNOWN/NOT_RUN`; `foundry-reviewer` and `foundry-adjudicator`:
+`PASS/FAIL/PARTIAL/UNKNOWN`).
 
 **Why this was not fixed here:** evidence classification is an evidence-policy decision
 reserved to the Coordinator tier. Changing it from a hygiene campaign would be inventing

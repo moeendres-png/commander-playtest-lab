@@ -8,6 +8,9 @@ Dated model-precision and simulation-fidelity closeouts, retained for provenance
 it is not a meaningful one — treat the two as one topic split across two folders, not as
 a canonical and a non-canonical side.
 
+Throughout this file, `AGENTS.md` means the repository-root `AGENTS.md`
+(`../../AGENTS.md` from here). There is no `AGENTS.md` inside this directory.
+
 Contents:
 
 - `MODEL_PRECISION_POLICY_CURRENT.md` — "frozen for next fresh RogShai optimization

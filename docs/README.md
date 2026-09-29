@@ -3,6 +3,10 @@
 Maintained as a navigation aid, **not as authority**. Where this index and a governing
 document disagree, the governing document wins (see `AGENTS.md` §3 Source Truth).
 
+Throughout this file, `AGENTS.md` means the single **repository-root** `AGENTS.md` — `../AGENTS.md`
+from here. There is no `AGENTS.md` inside `docs/`. This matches the convention in
+`foundry-execution/README.md`.
+
 ## Before anything else
 
 | Question | Go to |

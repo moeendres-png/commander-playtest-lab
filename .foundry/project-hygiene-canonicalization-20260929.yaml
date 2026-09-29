@@ -127,11 +127,17 @@ duplicate_docs:
     canonical: AGENTS.md section 4
     duplicate_of: 4 files
     repeats: [AGENTS.md, docs/EVIDENCE_INDEX_REQUIREMENTS.md, docs/workstream_successor_integration_20260919/VALIDATION.md, docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md, docs/foundry-execution/CAPSULE_ERROR_PRIVACY.md]
-    defect: 7-token list omits RUNTIME_VERIFIED (33 files) and QUALIFIED (16 files)
+    defect: >-
+      The 7-token list omits RUNTIME_VERIFIED, which is used machine-readably as
+      "expected_evidence_class": "RUNTIME_VERIFIED" in qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json
+      and 175 times across 30 files. An earlier draft of this audit also claimed QUALIFIED was an
+      undefined class in use; that claim was FALSE and came from a substring count. The only bare
+      QUALIFIED matches in origin/main are the phrase "NOT QUALIFIED" inside quoted PR titles and
+      one commit subject. There is no positive QUALIFIED classification in use.
     state: EVIDENCE_POLICY_GATE — classification is an evidence-policy decision, not a hygiene decision
   - topic: architecture freeze / provider status
     canonical: config/rules_engines.json
-    duplicate_of: 57 files
+    duplicate_of: 62 files (files containing the literal string at origin/main)
     state: CONSISTENT — 100% agree, no file falsely claims CLAIMED or SELECTED. No action.
   - topic: rules authority
     canonical: AGENTS.md section 2
@@ -294,8 +300,9 @@ safe_remediations_completed:
 deferred_remediations:
   - id: D1
     finding: >-
-      AGENTS.md section 4 defines 7 evidence classes but RUNTIME_VERIFIED (33 files) and
-      QUALIFIED (16 files) are used as positive classifications. Three agent/skill files also
+      AGENTS.md section 4 defines 7 evidence classes but RUNTIME_VERIFIED is used as a
+      machine-readable expected_evidence_class in qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json
+      and 175 times across 30 files, without being defined. Three agent/skill files also
       use three different verdict vocabularies.
     classification: EVIDENCE_POLICY_GATE
     reason: evidence classification is a Coordinator-tier decision, not a hygiene decision

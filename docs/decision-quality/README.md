@@ -7,6 +7,9 @@ Dated decision-quality workstream documents, retained for provenance.
 `docs/foundry-execution/README.md`. A filename containing `CURRENT` here confers no
 authority (`AGENTS.md` §3).
 
+Throughout this file, `AGENTS.md` means the repository-root `AGENTS.md`
+(`../../AGENTS.md` from here). There is no `AGENTS.md` inside this directory.
+
 Contents:
 
 - `DECISION_QUALITY_1.22.0.md` — epistemic integration layer on top of Optimizer-v2,
