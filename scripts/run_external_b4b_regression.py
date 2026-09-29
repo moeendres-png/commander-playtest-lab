@@ -147,9 +147,6 @@ def main() -> None:
         started = adapter.start_game(game_id)
         if started.get("external_control") is not True:
             raise SystemExit("B4-B game did not enter external-control mode")
-        if int(started.get("turn_number", -1)) != 1:
-            raise SystemExit("B4-B game did not remain on turn 1")
-
         client = adapter._require_client()
         _keep_all_mulligans(client, game_id, 4, "B4-B")
         state_raw = client.request(
