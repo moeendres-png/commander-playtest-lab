@@ -897,7 +897,8 @@ final class XmageGameManager {
 
         synchronized (managed) {
             String preStateHash = null;
-            if (managed.lifecycle == Lifecycle.STARTED) {
+            if (managed.lifecycle == Lifecycle.STARTED
+                    && managed.game.getTurnPhaseType() != null) {
                 preStateHash = stateHash(managed);
             }
 
