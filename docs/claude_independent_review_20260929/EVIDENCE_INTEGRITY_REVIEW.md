@@ -221,6 +221,11 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Every owner is still asked exactly once through the external surface, and every choice is honoured. In the probed case outcomes are unaffected, because each choice concerns only the chooser's own commander.
   - Pinned by `XmageMultiplayerCommanderZoneChoiceTest` (Pyroclasm kills every Rograkh; 3–6P). The CR order is a `@Disabled` test naming F-18.
   - The fix is an engine-fork change (iterate `state.getPlayerList(activePlayerId)` and move after all choices). That needs Sol's Rules Core / pin authority and is not done here.
+- **F-19, P2: engine card implementations (pinned and upstream): "you may draw a card unless that player pays {N}" asks the controller before the payer.** Tracker #323.
+  - `RhysticStudyDrawEffect` and Mystic Remora's effect ask the controller "Draw a card?" first, and only then ask the opponent "Pay {N}?", even when the opponent cannot pay.
+  - The official rulings say the payer decides first and the controller decides afterwards. The pinned order leaks the controller's intent and skips the payment decision whenever the controller declines.
+  - Lab evidence: `XmageMultiplayerUnlessCostTest` (4P/5P). Both principals are asked and outcomes are honoured; the payer-first test is `@Disabled` and names F-19.
+  - Engine fix: Mage branch `claude/f19-unless-pays-order-20260929` from the exact pin, with native `UnlessThatPlayerPaysOrderTest`. Lab repin is a separate workstream.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.

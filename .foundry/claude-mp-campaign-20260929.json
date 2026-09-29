@@ -2,11 +2,11 @@
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
   "worktree": "/home/moeen/code/claude-mp-apnap-20260929",
-  "branch": "claude/xmage-mp-replacement-order-20260929",
-  "audit_base_sha": "234318cf83b29420a20d2e9878aa86b7110af55e",
-  "audit_base_tree": "1919526adb5acce8f3c335bf2ebf7e2c6a65fe11",
-  "state_written_against_head": "234318cf83b29420a20d2e9878aa86b7110af55e",
-  "validated_head": "234318cf83b29420a20d2e9878aa86b7110af55e",
+  "branch": "claude/xmage-mp-unless-cost-20260929",
+  "audit_base_sha": "128e91185b66df92e4bec726abb89c7c20fbbb11",
+  "audit_base_tree": "aa0ccafd1105eb0c98bbdeb604328e1e0af25d97",
+  "state_written_against_head": "d244a3ac965d4d5f81913420c9f4c352705a799d",
+  "validated_head": "d244a3ac965d4d5f81913420c9f4c352705a799d",
   "objective": "Autonomous multiplayer simulator advancement: actual-card 3-6P rules probes on the XMage full-game lane (APNAP triggers, each-player choices, split-attack block legality); fix defects at the correct layer.",
   "in_scope": [
     "engine-bridge full-game lane multiplayer decision surfaces (XmageFullGamePlayer)",
@@ -40,10 +40,12 @@
     "PR #313 MERGED (55724ea7), head e545afe6: XmageMultiplayerSplitCombatTest 4/4 (3-6P), red before fix; bridge suite 433/0/1",
     "PR #314 MERGED (2229380b): branch on main 55724ea7: Devils 4/4, Menace 6/6, Goad 4/4 (3-6P); bridge suite 447/0/1",
     "branch claude/xmage-mp-voting-20260929 on main 2229380b: Voting 4/4, Monarch 8/8, LeaveDuringCombat 4/4, CommanderZoneChoice 4/4 + 1 disabled (F-18); bridge suite 468/0/2",
-    "PR #315 MERGED (234318cf)",
-    "PR #318 (hidden-info discard + seeded random discard): 6/6; bridge suite 474/0/2",
-    "F-18 engine fix moeendres-png/mage#19 (draft) head 6044132e on pin b19596980f27: native CommanderZoneApnap 3-6P 12/12 (red 8/8 on pin; sequential-move mutation killed); full Mage.Tests 6941 run / 0 failures / 125 skipped / 255 env NoClassDefFoundError CustomTestCard (identical on pin)",
-    "branch claude/xmage-mp-replacement-order-20260929: ReplacementOrder 8/8 (3-6P x both orders); bridge suite 476/0/2"
+    "PR #318 MERGED; PR #319 MERGED",
+    "PR #320 random-opponent RNG 4P/5P (8 seeds, twin runs); bridge suite 476/0/2",
+    "PR #322 simultaneous losses 4-6P + all-lose draw 3-5P; bridge suite 482/0/2",
+    "F-19 engine fix moeendres-png/mage#20 (draft) head 0962f0b5 on pin: native UnlessThatPlayerPaysOrderTest 6/6 (red 6/6 on pin); org.mage.test.multiplayer 75/75",
+    "branch claude/xmage-mp-unless-cost-20260929: XmageMultiplayerUnlessCostTest 4 pass + 1 disabled (F-19)",
+    "PR #319 MERGED: ReplacementOrder 8/8 (3-6P x both orders)"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -68,20 +70,23 @@
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerMonarchTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerLeaveDuringCombatTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerCommanderZoneChoiceTest.java",
-    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerHiddenDiscardTest.java",
-    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerReplacementOrderTest.java",
-    "moeendres-png/mage: Mage/src/main/java/mage/game/GameImpl.java + Mage.Tests commander/multiplayer/* + research/f18-commander-zone-apnap/HANDOFF.md"
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerRandomOpponentTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerSimultaneousLossTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerUnlessCostTest.java",
+    "moeendres-png/mage#20: RhysticStudy.java, MysticRemora.java, UnlessThatPlayerPaysOrderTest, research/f19-unless-pays-order/HANDOFF.md",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerReplacementOrderTest.java"
   ],
   "tests_run": [
     "mvn -o -Dcheckstyle.skip=true test (engine-bridge)"
   ],
   "evidence": [
-    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md F-15..F-18"
+    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md F-15..F-19",
+    "issues #317 (F-18), #323 (F-19)"
   ],
   "artifacts": [],
   "remaining_scope": [
-    "Lab repin onto mage#19 then enable XmageMultiplayerCommanderZoneChoiceTest APNAP test (separate workstream)",
-    "F-15 restoration compare (owned by #304/#316 lane)",
+    "Lab repin + enable disabled F-18/F-19 Lab tests (separate workstream)",
+    "F-15 restoration compare (restoration lane)",
     "Forge multiplayer ports (Forge lanes active)",
     "F-17 declaration-level blocker surface (P3)"
   ],
@@ -96,12 +101,12 @@
     "ENGINE_NATIVE_REUSE: block offers use CombatGroup.canBlock, the engine's own declareBlocker acceptance test"
   ],
   "authority_gates": [
-    "F-18 Lab repin / impact adjudication (separate workstream; Coordinator)"
+    "Lab repin onto an engine containing mage#19 (F-18) and mage#20 (F-19): separate repin/impact-adjudication workstream"
   ],
   "first_failing_boundary": "XmageFullGamePlayer.selectBlockers option construction (Permanent.canBlock)",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Land #311 -> #312 -> #313; continue multiplayer probes.",
-  "exact_next_action": "Land replacement-order PR; pick next unowned multiplayer task.",
+  "exact_next_action": "Land #320/#322/unless-cost PR; continue multiplayer probes or hand off.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,
