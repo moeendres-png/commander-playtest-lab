@@ -454,8 +454,7 @@ def start2_row(
             evidence,
         )
     if not isinstance(post_checkpoint, dict) or (
-        post_checkpoint.get("turn_number") != 1
-        or post_checkpoint.get("phase") != "precombat_main"
+        post_checkpoint.get("turn_number") != 1 or post_checkpoint.get("phase") != "precombat_main"
     ):
         return RowResult(
             fixture_id,
