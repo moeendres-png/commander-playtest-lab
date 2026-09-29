@@ -213,6 +213,7 @@
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_FORGE.json",
     "native hidden/replay suites green: 0 tests",
+    "lane integrity: LANE_SHUFFLE_NOT_DEMONSTRATED; order-knowledge obligations blocked: HIDDEN_02, HIDDEN_09, HIDDEN_10, HIDDEN_11",
     "per-obligation PB-06 disposition: {'SATISFIED_BY_GENERIC_SCOPING': 1, 'NOT_OBSERVABLE_ON_GENERIC_SURFACE': 19, 'total': 20} in PB06_HIDDEN_OBLIGATIONS_FORGE.json; satisfied: HIDDEN_01"
    ],
    "gate": "AF05",
@@ -220,6 +221,7 @@
    "nonblocking_limitations": [
     "per-scenario hidden channels (face-down exile, look, controlled-player, shuffle invalidation) are not reachable on the generic surface",
     "19 of 20 catalogued hidden obligations remain unestablished, each attributed to its own missing channel rather than to the family",
+    "lane integrity blocks order-knowledge credit on this lane: the run records order-knowledge obligations as unreachable for shuffling: HIDDEN_11 (CR 103.3 requires a shuffle to start a game, so a lane that demonstrates none has not executed a legal game start, whatever else it observed)",
     "AF05 stays UNKNOWN: a SATISFIED per-obligation disposition records that the observations support that obligation, but it is not a row promotion, and the family is not complete"
    ],
    "verdict": "UNKNOWN"

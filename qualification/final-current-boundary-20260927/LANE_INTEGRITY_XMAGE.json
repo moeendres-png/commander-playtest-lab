@@ -1,0 +1,26 @@
+{
+ "blocked_obligations": [
+  "HIDDEN_02",
+  "HIDDEN_09",
+  "HIDDEN_10",
+  "HIDDEN_11"
+ ],
+ "blocking_reasons": [
+  "the run records order-knowledge obligations as unreachable for shuffling: HIDDEN_11",
+  "the lane reports neither an acknowledged Rules seed nor any Rules randomness activity"
+ ],
+ "candidate": "xmage",
+ "consequence": "obligations about order knowledge cannot be credited on this lane and stay UNKNOWN; the missing shuffle is recorded as an inconsistency with a legal game start rather than as an ordinary coverage gap",
+ "disposition": "LANE_SHUFFLE_NOT_DEMONSTRATED",
+ "does_not_claim": "that the engine is defective, or that a repaired lane satisfies any obligation: a fresh run at the repaired revision is what establishes that",
+ "evidence": [],
+ "rule_basis": "CR 103.3 requires each player to shuffle their library when starting a game",
+ "signals": {
+  "rng_counter": null,
+  "seed_controlled": false,
+  "seed_value_present": false,
+  "unreached_shuffle_obligations": [
+   "HIDDEN_11"
+  ]
+ }
+}

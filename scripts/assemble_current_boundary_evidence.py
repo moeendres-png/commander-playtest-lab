@@ -26,6 +26,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     impact_adjudication as impact_mod,
 )
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    lane_integrity as lane_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     provider_binding as binding_mod,
@@ -398,6 +401,28 @@ def _af11_measure(
     return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
 
 
+def _lane_limitation(lane_integrity: dict[str, Any], candidate: str) -> list[str]:
+    """The AF05 limitation line for a lane that demonstrated no shuffling."""
+    entry = lane_integrity.get(candidate) or {}
+    if entry.get("disposition") != lane_mod.LANE_INTEGRITY_UNPROVEN:
+        return []
+    return [
+        "lane integrity blocks order-knowledge credit on this lane: "
+        + "; ".join(entry.get("blocking_reasons") or [])
+        + " (CR 103.3 requires a shuffle to start a game, so a lane that demonstrates none has "
+        "not executed a legal game start, whatever else it observed)"
+    ]
+
+
+def _lane_summary(lane_integrity: dict[str, Any], candidate: str) -> str:
+    entry = lane_integrity.get(candidate) or {}
+    if not entry:
+        return "no lane-integrity assessment was available for this candidate"
+    return f"{entry['disposition']}; order-knowledge obligations blocked: " + (
+        ", ".join(entry.get("blocked_obligations") or []) or "none"
+    )
+
+
 def _replay_summary(replay_dispositions: dict[str, Any], candidate: str) -> str:
     entry = replay_dispositions.get(candidate) or {}
     counts = entry.get("counts") or {}
@@ -557,6 +582,30 @@ def assemble() -> None:
     # the generic lane, which is the lane the committed XMage column ran on. The
     # findings this workstream derived from that column are adjudicated against
     # the defect rather than silently carried forward or silently discarded.
+    # ---- lane integrity: does the lane demonstrate a legal game start? ------
+    # CR 103.3 requires a shuffle to start a game. A lane that demonstrates no
+    # shuffling has not executed a legal game start, so order-knowledge
+    # obligations cannot be credited on it. This is recorded for BOTH candidates:
+    # a defect being published for one candidate is not a reason to exempt the
+    # other, and neither committed lane demonstrated a shuffle.
+    lane_integrity: dict[str, Any] = {}
+    for cand in per_candidate:
+        hidden_path = OUT / f"HIDDEN_INFO_{cand.upper()}.json"
+        rng_path = OUT / f"RNG_REPLAY_{cand.upper()}.json"
+        if not hidden_path.exists():
+            continue
+        assessment = lane_mod.assess_lane_integrity(
+            binding_mod.load_json(hidden_path),
+            seed_binding=(
+                binding_mod.load_json(rng_path).get("rules_rng_binding")
+                if rng_path.exists()
+                else None
+            ),
+        )
+        assessment["blocked_obligations"] = lane_mod.blocking_obligations(assessment)
+        lane_integrity[cand] = assessment
+        write(f"LANE_INTEGRITY_{cand.upper()}.json", {"candidate": cand, **assessment})
+
     write(
         "XMAGE_SHUFFLE_IMPACT_ADJUDICATION.json",
         impact_mod.adjudicate_xmage_shuffle_impact(
@@ -733,6 +782,7 @@ def assemble() -> None:
                     "principal-scoped state read for four seats in a live 4P game",
                     f"HIDDEN_INFO_{candidate.upper()}.json",
                     f"native hidden/replay suites green: {native_tests} tests",
+                    "lane integrity: " + _lane_summary(lane_integrity, candidate),
                     "per-obligation PB-06 disposition: "
                     f"{hidden_dispositions[candidate]['counts']} in "
                     f"PB06_HIDDEN_OBLIGATIONS_{candidate.upper()}.json; satisfied: "
@@ -757,6 +807,7 @@ def assemble() -> None:
                     f"{hidden_dispositions[candidate]['counts'][hidden_mod.NOT_OBSERVABLE]} "
                     "of 20 catalogued hidden obligations remain unestablished, each attributed "
                     "to its own missing channel rather than to the family",
+                    *_lane_limitation(lane_integrity, candidate),
                     "AF05 stays UNKNOWN: a SATISFIED per-obligation disposition records that "
                     "the observations support that obligation, but it is not a row promotion, "
                     "and the family is not complete",

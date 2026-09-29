@@ -443,7 +443,41 @@ One false claim was removed while doing this: AF09 previously read "replay
 export **executed** in a live game" when the artifact records that the engine
 **refused** it. The line now states the attempt was refused.
 
-### 6.7 Both denominators are shaped by Lab work
+### 6.7 Neither committed lane demonstrates the shuffle a legal game start requires
+
+`LANE_INTEGRITY_<CAND>.json` applies the check that the XMage defect exposed as
+missing. CR 103.3 requires each player to shuffle their library to start a game,
+so a lane that demonstrates no shuffling has not executed a legal game start.
+This is a statement about the game, not about harness coverage, and the two must
+not be conflated — which is exactly how the defect survived: the evidence
+faithfully recorded `HIDDEN_11 = "no shuffle/order-knowledge invalidation
+scenario reachable"` and that line was read as an ordinary coverage gap.
+
+**Both committed lanes fail this check, which is the point of recording it for both:**
+
+| Lane | Seed control | Shuffle-invalidation scenario | Disposition |
+|---|---|---|---|
+| XMage | none (`seed_supported: false`, no seed) | `HIDDEN_11` unreachable | `LANE_SHUFFLE_NOT_DEMONSTRATED` |
+| Forge | acknowledged seed `424242` | `HIDDEN_11` unreachable | `LANE_SHUFFLE_NOT_DEMONSTRATED` |
+
+Forge was **not** exempt from this scrutiny just because its defect was not
+published. It has an acknowledged Rules seed and still no reachable
+shuffle-invalidation scenario, so its order-knowledge obligations are blocked on
+the same basis. A defect being public for one candidate is not a reason to
+assume the other is clean.
+
+On both lanes this blocks `HIDDEN_02`, `HIDDEN_09`, `HIDDEN_10` and `HIDDEN_11`
+from being credited. The obligations are blocked by their own nature — they are
+about order knowledge that shuffling is what invalidates — not by whether a
+harness happened to mention them. Note that this is an **independent** line of
+reasoning from the impact adjudication above, and the two converge.
+
+It does not diagnose either engine. "No shuffle was observed" is a fact about
+the run; the cause is for the owner of that lane. And it does not claim the
+repaired XMage lane now satisfies any of these — only a fresh run at the
+repaired revision can establish that.
+
+### 6.8 Both denominators are shaped by Lab work
 
 PB-03 showed the XMage column is shaped by a Lab harness shortcut; PB-09 shows the
 Forge column is shaped by Lab engine modification. Neither column is a clean
