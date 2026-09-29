@@ -6,7 +6,7 @@ model: opencode-go/space-bunny-free
 variant: max
 branch: muse-xhigh/pb09-pristine-forge-20260929
 worktree: /home/moeen/code/csn-final-bakeoff/muse/pb09-lab
-source_lock_sha: 105f6d27d4856868e19497424d59d959ed2d2014
+source_lock_sha: 795a46099db08402c25eabc1c598f6cd44ad4245
 last_refreshed_main_sha: ca9356e3da662ce9e246e7f896f1a99772d59065
 last_refreshed_main_tree: 0d5b3f0d9020cc99131dd92a41a9615c61bbac8a
 engine_candidate: pristine-upstream Forge
@@ -41,6 +41,8 @@ last_validated_commands:
 - pytest tests/qualification (381 passed, 2 skipped)
 - ruff check on all touched files (clean)
 open_defects: []
+publication: PR #297 (Draft) head 795a4609, body edit blocked by GitHub projects-classic GraphQL deprecation; content recorded in a PR comment
+next_task_selected: pending fresh global blocker/ownership assessment
 exact_next_action: >-
   Select the highest-value unowned simulator-completion task after a fresh
   global blocker/ownership assessment. Candidate lanes not owned by #284/#289:
