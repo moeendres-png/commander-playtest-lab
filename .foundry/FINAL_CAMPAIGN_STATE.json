@@ -190,5 +190,64 @@
     "full_suite": "2228 passed, 5 skipped",
     "mypy": "clean, 276 files",
     "ruff": "clean (tree-wide)"
+  },
+  "pb08_per_obligation": {
+    "classification": "DIRECTLY_VERIFIED",
+    "defect": "the 5 REPLAY_*/RNG_* obligations were one undifferentiated UNKNOWN family",
+    "repair": "src/commander_lab/qualification/current_boundary/replay_obligations.py classifies each obligation; persisted as PB08_REPLAY_OBLIGATIONS_<CAND>.json and surfaced in AF09",
+    "xmage": {
+      "preconditions_observed": 0,
+      "unestablished": 5,
+      "total": 5,
+      "reason": "seed never acknowledged (UNCONTROLLED_ENGINE_RNG)"
+    },
+    "forge": {
+      "preconditions_observed": 1,
+      "unestablished": 4,
+      "total": 5,
+      "reason": "seed 424242 acknowledged; the semantic replay export is still refused"
+    },
+    "both_candidates_refuse_export_replay": {
+      "xmage": "unsupported_message",
+      "forge": "unknown_message"
+    },
+    "boundaries_held": [
+      "a fail-closed refusal is an absent capability, never a satisfied obligation",
+      "an acknowledged seed is a PRECONDITION for RNG control, not a demonstrated RulesRngTape",
+      "a returned replay payload is not credited here: seam availability is not tape correctness",
+      "no disposition flips a FULL107 row (runner is under #284's active writer lock)"
+    ],
+    "false_claim_removed": "AF09 previously read 'replay export executed in a live game' while the artifact records that the engine REFUSED it. Corrected to state the attempt was refused."
+  },
+  "provider_readiness_packet_consolidated": {
+    "added": [
+      "section 1b: published candidate heads newer than the consumed evidence, with Forge PR #6 consequences",
+      "section 6.5: 28 of 29 mandatory CARD_nn fixtures are not rows in the 107 denominator",
+      "section 6.6: per-obligation PB-06 and PB-08 dispositions and the boundaries they do not cross",
+      "blocker register: Forge PR #6 staleness and PB-03 Tier-1/Tier-2 WAIT_FOR_OWNER"
+    ],
+    "stale_test_fixed": "test_current_boundary_readiness_packet still pinned PB-09 as 'OPEN - RESERVED' after it was resolved as an identity split; it now pins the resolution and fails if the packet drifts back to reading as open."
+  },
+  "final_state": {
+    "head": "b5ed6f27d1354e7c699bddb87d2353d360491132",
+    "remote": "in sync (local == origin/sbmax/final-pre-freeze-20260928)",
+    "ci_exact_head": "ALL GREEN: decision-workflow-contract, infrastructure, mutation-detection, quality, security, windows-runtime all pass; exact-main-admission skipping",
+    "main": "afe09c61 (unchanged since the merge; no new drift)",
+    "full107": "XMage 5 PASS / 0 FAIL / 58 UNKNOWN / 44 BLOCKED / 107; Forge identical",
+    "validation": {
+      "qualification": "427 passed, 2 skipped",
+      "full_suite": "2244 passed, 5 skipped",
+      "mypy": "clean, 277 files",
+      "ruff": "clean (tree-wide check, matching CI)"
+    },
+    "not_claimed": [
+      "PRODUCTION_PROVIDER",
+      "ARCHITECTURE_FREEZE"
+    ],
+    "what_remains_blocked_and_why": {
+      "44_BLOCKED": "PB-03 starting-state rows; execution dispatch and native CARD harnesses are under #284's active writer lock (WAIT_FOR_OWNER, not raced)",
+      "58_UNKNOWN": "each now attributed to a named missing channel/seam rather than a family: 18/19 PB-06 per-scenario hidden channels, 4/5 PB-08 replay seam, PB-07 corpus partly a denominator question, decision-family and no-execution-path rows",
+      "forge_evidence": "STALE for PR #6; requalification at the actually consumed head is required and is not owned here"
+    }
   }
 }
