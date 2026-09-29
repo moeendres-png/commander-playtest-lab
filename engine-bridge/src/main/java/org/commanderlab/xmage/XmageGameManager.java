@@ -752,6 +752,7 @@ final class XmageGameManager {
                         exc
                 );
             }
+            awaitPriorityPause(managed, Duration.ofSeconds(20));
 
             if (managed.engineFailure != null) {
                 throw new GameException(
@@ -771,6 +772,44 @@ final class XmageGameManager {
                     null,
                     keep ? "keep" : "mulligan"
             );
+        }
+    }
+
+    /**
+     * The last mulligan keep resumes XMage on the engine thread, and
+     * XmageBridgePlayer.priority() publishes the priority decision before it
+     * pauses the game. Return only once that handoff is complete, so the
+     * caller never observes a published priority decision on a running game.
+     * A handoff that does not complete fails closed.
+     */
+    private static void awaitPriorityPause(ManagedGame managed, Duration timeout) {
+        long deadline = System.nanoTime() + timeout.toNanos();
+        while (true) {
+            if (managed.engineFailure != null || managed.game.isPaused()) {
+                return;
+            }
+            ExternalDecisionController.Decision current;
+            try {
+                current = managed.externalDecisionController.requireCurrentDecision(
+                        managed.game.getId().toString()
+                );
+            } catch (RuntimeException exc) {
+                return;
+            }
+            if (!"priority".equals(current.decisionKind())) {
+                return;
+            }
+            if (System.nanoTime() > deadline) {
+                throw new GameException(
+                        "MULLIGAN_RESOLUTION_FAILED: priority decision published but the game did not pause"
+                );
+            }
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                throw new GameException("MULLIGAN_RESOLUTION_FAILED: interrupted awaiting priority pause", exc);
+            }
         }
     }
 
