@@ -13,7 +13,8 @@
     "type widening CommanderFreeForAll -> GameCommanderImpl in restoration helpers and tests",
     "RG-08 Dredge test arithmetic that encoded the illegal turn-1 draw",
     "new XmageFirstTurnDrawRuleTest",
-    "independent evidence-integrity review record"
+    "independent evidence-integrity review record",
+    "XmageActualCardCorpusTest: Oracle-derived native actual-card probes for the 29-card corpus (21 covered)"
   ],
   "out_of_scope": [
     "current-boundary runner/classifier (full107.start2_row, game_driver) - owned by PR #289",
@@ -44,7 +45,10 @@
     "XmageFirstTurnDrawRuleTest 9/9; XmageFullGameReplacementTest 8/8",
     "mutation (2P forced back to CommanderFreeForAll): 4 Dredge + 2 new 2P cases fail",
     "Protocol-2 JSONL A/B with PR #289 driver: main 2P -> turn1 DRAW step, P1 8/91; fix 2P -> turn1 precombat main, P1 7/92; 3P both -> still upkeep",
-    "Python suite: failure set on branch is a strict subset of pristine-main snapshot failures (environmental, Python 3.14 local)"
+    "Python suite: failure set on branch is a strict subset of pristine-main snapshot failures (environmental, Python 3.14 local)",
+    "merge of origin/main adee8b16 (PR #293 generic-lane seed): bridge suite 345/0/1",
+    "XmageActualCardCorpusTest 24/24 covering CARD_01,05,06,07,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,28",
+    "bridge suite with corpus probes: 369 run, 0 failures, 1 skipped"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -65,7 +69,8 @@
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameReplacementTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameStart2ExecutionTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/* (8 files: session-game type widened to GameCommanderImpl)",
-    "docs/claude_independent_review_20260929/*"
+    "docs/claude_independent_review_20260929/*",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageActualCardCorpusTest.java"
   ],
   "tests_run": [
     "mvn -o -Dcheckstyle.skip=true test (engine-bridge)",
@@ -74,10 +79,13 @@
   ],
   "evidence": [
     "docs/claude_independent_review_20260929/HANDOFF.md",
-    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md"
+    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md",
+    "review F-11: Lab Forge commit bc347e62 added K:Aftermath to Find // Finality (Oracle: plain split card); comment posted on moeendres-png/forge#6"
   ],
   "artifacts": [],
-  "remaining_scope": [],
+  "remaining_scope": [
+    "corpus cards not yet probed on XMage: CARD_03 Esior, 04 Kediss, 08 Jeska, 09 Magma Opus, 12 Dig Through Time, 27 Path of Ancestry, 29 Boseiju Reaches Skyward (commander-state or multi-turn/choice-heavy)"
+  ],
   "status": "COMPLETE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "hypotheses_rejected": [
@@ -91,7 +99,7 @@
   "first_failing_boundary": "engine-bridge game construction selects CommanderFreeForAll for 2 players",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Open draft PR; owners of #289 fix START-2 classifier; requalify XMage 2P rows on a bridge containing this change.",
-  "exact_next_action": "PR #289 owner: make full107.start2_row compare P1 hand/library to the post-mulligan baseline and require an observation at/after turn-1 PRECOMBAT_MAIN (persist step/phase); then regenerate the XMage current-boundary column on a Lab head containing this branch.",
+  "exact_next_action": "Add XMage probes for the 7 remaining corpus cards (Esior/Kediss/Jeska/Path need commander restoration; Boseiju needs lore progression across turns); Forge lane/Coordinator adjudicate F-11 (revert WS234 find_finality.txt hunk) before crediting Forge #6; #289 owner fixes START-2 classifier.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,
