@@ -300,5 +300,58 @@
     "bridge": "344 tests, 0 failures",
     "mypy": "clean, 278 files",
     "ruff": "clean (tree-wide)"
+  },
+  "lane_integrity": {
+    "classification": "DIRECTLY_VERIFIED",
+    "rule_basis": "CR 103.3 requires each player to shuffle their library to start a game",
+    "premise": "the XMage defect's footprint was already in the committed evidence as 'HIDDEN_11 = no shuffle/order-knowledge invalidation scenario reachable' and was read as ordinary coverage coverage gap; nothing connected it to the rule that makes a missing shuffle impossible in a legal game",
+    "result": {
+      "xmage": {
+        "disposition": "LANE_SHUFFLE_NOT_DEMONSTRATED",
+        "seed_controlled": false,
+        "blocked": [
+          "HIDDEN_02",
+          "HIDDEN_09",
+          "HIDDEN_10",
+          "HIDDEN_11"
+        ]
+      },
+      "forge": {
+        "disposition": "LANE_SHUFFLE_NOT_DEMONSTRATED",
+        "seed_controlled": true,
+        "blocked": [
+          "HIDDEN_02",
+          "HIDDEN_09",
+          "HIDDEN_10",
+          "HIDDEN_11"
+        ],
+        "note": "Forge has an acknowledged Rules seed and still no reachable shuffle-invalidation scenario; it is scrutinised identically because a defect published for XMage is not a reason to exempt Forge"
+      }
+    },
+    "boundaries_held": [
+      "blocked set derived from the obligations' own nature, not from what a run mentioned",
+      "only POSITIVE signals count as evidence a lane shuffled; the absence of a complaint never counts (a real inversion bug in the first draft, caught by its own test)",
+      "does not diagnose either engine",
+      "does not claim the repaired XMage lane satisfies anything"
+    ],
+    "artifacts": [
+      "qualification/final-current-boundary-20260927/LANE_INTEGRITY_XMAGE.json",
+      "qualification/final-current-boundary-20260927/LANE_INTEGRITY_FORGE.json"
+    ],
+    "independent_of": "the impact adjudication; the two lines of reasoning converge on HIDDEN_02"
+  },
+  "executor_transition_required": {
+    "why": "the Coordinator directed a switch to Space Bunny because the DeepSeek v4.1 Flash contingent is exhausted. This session executed as opencode-go/deepseek-v4.1-flash.",
+    "cannot_be_done_from_inside_the_session": "executor identity is selected per run by the launcher. A worker cannot retarget its own model, and AGENTS.md section 7 forbids a silent fallback: the change must be explicit and recorded, which means a NEW run started as Space Bunny MAX.",
+    "state_is_resumable": true,
+    "workstream": "PR #289 sbmax/final-pre-freeze-20260928",
+    "handoff_point": "all work committed and pushed; no uncommitted changes; the tree is clean and the full suite is green, so a Space Bunny run resumes from Git plus this state file without replaying any conversation."
+  },
+  "validation_final": {
+    "qualification": "455 passed, 2 skipped",
+    "full_suite": "2272 passed, 5 skipped",
+    "bridge": "344 tests, 0 failures, 0 errors",
+    "mypy": "clean, 279 files",
+    "ruff": "clean (tree-wide)"
   }
 }
