@@ -1,0 +1,114 @@
+# PB-09 workstream state — pristine-upstream Forge runtime baseline
+
+WORKSTREAM: PB09-PRISTINE-UPSTREAM-FORGE-RUNTIME-BASELINE-20260929
+schema: pb09-workstream-state/1.0.0
+state_path: docs/pb09_pristine_upstream_forge_20260929/WORKSTREAM_STATE.yaml
+executor_identity:
+  model: opencode-go/glm-5.3
+  variant: max
+  direct_manual_execution: true
+  foundry_runtime_active: false
+  note: no FOUNDRY_* environment present; this is a directly-launched authorized
+    GLM 5.3 MAX OpenCode session. GLM Foundry-launcher integration status
+    (BLOCKED_ON_LAUNCHER_INTEGRATION where recorded) is about the launcher, not
+    this session; it is not repaired here.
+
+objective: >-
+  Establish a real, source-locked, reproducible runtime baseline for the
+  PRISTINE upstream Forge candidate (Card-Forge/forge@forge-2.0.14 =
+  a37a865a53280dd8ad6fad3384d69611e8c5a42f) and qualify it through the largest
+  lawful current Commander Simulator Next qualification boundary
+  (FULL107 + AF00-AF11 + multiplayer + hidden information + decision execution
+  + RNG + replay + actual-card behavior + wrong-reason falsification), and
+  reconcile the candidate-identity split (pristine upstream vs Lab fork vs
+  bridge vs successor) for later Coordinator adjudication. No provider winner,
+  no PRODUCTION_PROVIDER selection, no ARCHITECTURE_FREEZE claim.
+
+ownership:
+  branch: glm-max/pb09-pristine-forge-20260929
+  worktree: /home/moeen/code/glm-max-pb09-pristine-forge-20260929
+  cut_from: origin/main afe09c61d4ad90f89c28ff75ac7439a20b89cfdd
+  pb09_ownership_conflict: false
+  evidence: no pb09/pristine branch exists locally or on any remote
+    (git ls-remote checked 2026-09-29); prior workstream states
+    (pre_freeze_completion_20260927) list PB-09 Forge candidate identity work
+    as out of scope of their branches ("a separate battlefield with its own
+    branch").
+  isolated_engine_workspaces:
+    pristine_upstream: /home/moeen/code/pb09-forge-upstream-pristine-20260929
+    bridge_pin: /home/moeen/code/pb09-forge-bridge-pin-20260929
+  foreign_non_writable:
+    - /home/moeen/code/forge (Lab fork master checkout; another surface)
+    - /home/moeen/code/ws-forge-full107-cdq-20260926 (WSR20 evidence checkout)
+    - /home/moeen/code/deepseek-forge-finality-20260928 (foreign active PR #287)
+
+source_lock:
+  lab_main_at_start: afe09c61d4ad90f89c28ff75ac7439a20b89cfdd
+  lab_main_tree_at_start: 0d5b3f0d9020cc99131dd92a41a9615c61bbac8a
+  pinned_candidate_of_record:
+    repository: https://github.com/Card-Forge/forge.git
+    commit: a37a865a53280dd8ad6fad3384d69611e8c5a42f
+    release: forge-2.0.14
+    source: config/rules_engines.json secondary_engine.commit
+  pinned_bridge_source_of_record:
+    repository: https://github.com/moeendres-png/forge.git
+    commit: 4753bb7c72ea60d653121e0bab989077b4009f9c
+    branch: candidate/forge-2.0.14-h4f-integration-20260912
+    rules_core_base_commit: a37a865a53280dd8ad6fad3384d69611e8c5a42f
+  historical_executing_fork_identity:
+    commit: ef958ee91ac6c9ce0152189f2654bf6e05abf273
+    tree: fc3387bf37aab19d780b2939a235309ed32b0492
+    bridge_evidence_head: e15f37d6b2b5c0ad682948f86f037e07b6aaded5 (Forge PR #5, Draft)
+    forge_pr6_successor_head: 6f70e32e81025fd8a6eaf08d475f8282b7f03dc9 (read-only for PB-09)
+
+forbidden:
+  - no PRODUCTION_PROVIDER selection
+  - no ARCHITECTURE_FREEZE claim
+  - no repin of config/rules_engines.json to ef958ee9
+  - no Lab Rules semantic patches ported into the pristine candidate
+  - no denominator reduction below 107 rows
+  - no weakening of any test/detector to preserve a PASS figure
+  - no mutation of foreign worktrees or Forge PR #5/#6 branches
+
+current_phase: PRISTINE_CANDIDATE_MATERIALIZATION
+completed_phases:
+  - SOURCE_TRUTH_RECONCILIATION (origin/main afe09c61 read; open PRs inspected;
+    PB-09 unclaimed verified; pin manifest + PB09 identity doc read)
+  - OWNERSHIP_GATE (claimed isolated branch/worktree)
+
+active_blockers: []
+
+phases:
+  - id: PHASE-1
+    name: pristine-candidate-materialization
+    deliverable: PRISTINE_CANDIDATE_RECEIPT with DIRECTLY_VERIFIED source identity
+  - id: PHASE-2
+    name: pristine-upstream-build
+    deliverable: BUILD_RECEIPT for upstream a37a865a engine modules
+  - id: PHASE-3
+    name: pinned-bridge-materialization-and-build
+    deliverable: bridge-pin workspace at 4753bb7c with Rules-Core byte-identity
+      proof vs a37a865a + bridge build receipt
+  - id: PHASE-4
+    name: pb09-qualification-runner
+    deliverable: PB-09 runner (current-boundary harness reused, pristine expected
+      identity, PB-09 evidence dir) without weakening existing tests
+  - id: PHASE-5
+    name: full107-execution
+    deliverable: FULL107 107-row results for the pristine candidate
+  - id: PHASE-6
+    name: multiplayer-hidden-decision-rng-replay-actualcard
+    deliverable: category evidence artifacts
+  - id: PHASE-7
+    name: wrong-reason-falsification-and-negative-controls
+  - id: PHASE-8
+    name: differential-analysis-vs-lab-fork
+  - id: PHASE-9
+    name: evidence-publication-and-handoff
+
+exact_next_action: >-
+  Materialize /home/moeen/code/pb09-forge-upstream-pristine-20260929 from
+  Card-Forge/forge at exact commit a37a865a53280dd8ad6fad3384d69611e8c5a42f
+  (fetch from upstream remote; cross-verify the commit object and tree against
+  the moeendres-png/forge remotes; detached clean checkout; write the
+  PRISTINE_CANDIDATE_RECEIPT).
