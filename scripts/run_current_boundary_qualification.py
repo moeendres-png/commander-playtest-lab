@@ -292,9 +292,14 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
             }
         )
     else:
+        # PB-09: label the engine identity that was actually BOUND for this run
+        # (the explicit override when present, else the fork pin), not a fixed
+        # constant. The bridge hands back its own build-derived source commit
+        # too, so the evidence separates engine identity from harness identity.
+        bound = os.environ.get("FORGE_EXPECTED_ENGINE_COMMIT") or FORGE_CANDIDATE_COMMIT
         base.update(
             {
-                "engine_candidate_commit": FORGE_CANDIDATE_COMMIT,
+                "engine_candidate_commit": bound,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
                 "adapter": "forge-protocol2-bridge (read-only reference checkout)",
                 "adapter_commit": git("rev-parse", "HEAD", cwd=FORGE_WORKSPACE),
