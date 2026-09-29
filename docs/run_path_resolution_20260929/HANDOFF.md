@@ -39,3 +39,20 @@ is translated only around Path.resolve, not around unrelated verification code.
 Focused new tests: 4 passed. Storage regression before adding the unrelated-error
 control: 53 passed, 5 platform skips. Affected Ruff/format/strict mypy pass.
 Clean-commit integration validation follows this checkpoint.
+
+## Validated completion
+
+Initial clean-commit regression: 59 passed, 5 platform skips (26.25s), including
+Phase10 acceptance. Main subsequently advanced to
+`2e28866f2bab2981f0b8da2d9a7a493cd3f424cf`, tree
+`0c7b0603cdc0f0958add7e9bf9f23c0f023ec1ff`. Its published changes do not touch
+the owned paths. Normal merge (no history rewrite) incorporated this base in
+`a40a9e4fc200577796d950d58bb225a84188fc6e`; clean regression was repeated.
+Affected lint, format, strict mypy and compileall passed. Raw temporary path
+identities are absent from structured errors; unrelated RuntimeError still escapes.
+
+Next action: publish exact head; normal Sol checks exact-head CI, current review
+threads and target drift, then merges only with --match-head-commit and persists
+main HEAD/TREE. No admin bypass or branch deletion. No provider or Rules changes.
+The original source lock remains reproduction provenance; it is not current main.
+`a40a9e4f` regression outcome: **59 passed, 5 skipped** in 34.00s. Remaining gate: remote exact-head CI/review.
