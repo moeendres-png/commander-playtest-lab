@@ -54,6 +54,7 @@ final class XmageFullGameDecisionController {
     private final long timeoutMillis;
     private long decisionOffset;
     private JsonObject pendingRequest;
+    private UUID pendingPlayerId;
     private DecisionResponse response;
     private DecisionException terminalFailure;
     private boolean terminal;
@@ -106,42 +107,17 @@ final class XmageFullGameDecisionController {
         Player controlled = actor;
         actor = decidingPlayer(game, actor);
 
-        decisionOffset++;
-        String actorId = actor.getId().toString();
-        String gameId = game.getId().toString();
-        String decisionId = stableId(
-                gameId,
-                Long.toString(decisionOffset),
-                actorId,
-                decisionClass
-        );
-
-        JsonObject actorView = XmageFullGameStateRedactor.actorView(game, actor);
-        JsonObject publicView = XmageFullGameStateRedactor.publicView(game);
-        String actorViewHash = XmageAuditEventLog.stateHash(actorView);
-        String publicViewHash = XmageAuditEventLog.stateHash(publicView);
-
         JsonObject request = new JsonObject();
         request.addProperty("protocol_version", PROTOCOL_VERSION);
-        request.addProperty("game_id", gameId);
-        request.addProperty("decision_id", decisionId);
-        request.addProperty("decision_offset", decisionOffset);
-        request.addProperty("actor_id", actorId);
-        request.addProperty("seat", XmageFullGameStateRedactor.seat(game, actor.getId()));
-        if (!controlled.getId().equals(actor.getId())) {
-            request.addProperty(
-                    "acting_for_seat",
-                    XmageFullGameStateRedactor.seat(game, controlled.getId())
-            );
-        }
+        address(request, game, controlled, actor, decisionClass);
+        String decisionId = request.get("decision_id").getAsString();
         request.addProperty("decision_class", decisionClass);
         request.addProperty("prompt", prompt == null ? "" : prompt);
         request.add("context", context == null ? new JsonObject() : context.deepCopy());
         request.addProperty("minimum_selections", minimumSelections);
         request.addProperty("maximum_selections", maximumSelections);
         request.add("legal_options", legalOptions == null ? new JsonArray() : legalOptions.deepCopy());
-        request.addProperty("public_state_reference", "public-view:" + publicViewHash);
-        request.addProperty("private_actor_state_reference", "actor-view:" + actorViewHash);
+        JsonObject actorView = bindViews(request, game, actor);
         request.addProperty("timeout_millis", timeoutMillis);
         request.add("source_object", sourceObject == null ? JsonNull.INSTANCE : sourceObject.deepCopy());
         request.addProperty("xmage_identity", game.getClass().getName());
@@ -149,6 +125,7 @@ final class XmageFullGameDecisionController {
         request.add("pilot_state", actorView);
 
         pendingRequest = request;
+        pendingPlayerId = controlled.getId();
         response = null;
         recordDecisionRequested(request);
         notifyAll();
@@ -194,6 +171,90 @@ final class XmageFullGameDecisionController {
         pendingRequest = null;
         notifyAll();
         return result;
+    }
+
+    /**
+     * Binds a decision frame to the principal that makes it: a fresh
+     * decision offset and id, the deciding seat, and the controlled seat
+     * when they differ (CR 723).
+     */
+    private void address(JsonObject request, Game game, Player controlled, Player decider, String decisionClass) {
+        decisionOffset++;
+        String actorId = decider.getId().toString();
+        request.addProperty("game_id", game.getId().toString());
+        request.addProperty("decision_id", stableId(
+                game.getId().toString(),
+                Long.toString(decisionOffset),
+                actorId,
+                decisionClass
+        ));
+        request.addProperty("decision_offset", decisionOffset);
+        request.addProperty("actor_id", actorId);
+        request.addProperty("seat", XmageFullGameStateRedactor.seat(game, decider.getId()));
+        request.remove("acting_for_seat");
+        if (!controlled.getId().equals(decider.getId())) {
+            request.addProperty(
+                    "acting_for_seat",
+                    XmageFullGameStateRedactor.seat(game, controlled.getId())
+            );
+        }
+    }
+
+    /** Binds the deciding principal's own views; returns its pilot state. */
+    private static JsonObject bindViews(JsonObject request, Game game, Player decider) {
+        JsonObject actorView = XmageFullGameStateRedactor.actorView(game, decider);
+        JsonObject publicView = XmageFullGameStateRedactor.publicView(game);
+        request.addProperty(
+                "public_state_reference",
+                "public-view:" + XmageAuditEventLog.stateHash(publicView)
+        );
+        request.addProperty(
+                "private_actor_state_reference",
+                "actor-view:" + XmageAuditEventLog.stateHash(actorView)
+        );
+        return actorView;
+    }
+
+    /**
+     * F-34: the unanswered decision follows the engine's current turn-control
+     * relationship. When a player leaves (CR 800.4a) while its pending frame
+     * is one it makes for a player whose turn it controls, the engine's
+     * control state decides who now makes that same engine-generated
+     * decision; the options, bounds and prompt are unchanged, only the
+     * addressee and its views are re-bound under a new decision id. A
+     * departed controller that the engine still names fails closed.
+     *
+     * @return whether the pending frame was re-addressed
+     */
+    synchronized boolean followTurnControl(Game game) {
+        if (pendingRequest == null || response != null || terminalFailure != null || terminal
+                || game == null || pendingPlayerId == null) {
+            return false;
+        }
+        Player controlled = game.getPlayer(pendingPlayerId);
+        if (controlled == null) {
+            return false;
+        }
+        Player decider;
+        try {
+            decider = decidingPlayer(game, controlled);
+        } catch (DecisionException failure) {
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            pendingRequest = null;
+            notifyAll();
+            return false;
+        }
+        if (decider.getId().toString().equals(pendingRequest.get("actor_id").getAsString())) {
+            return false;
+        }
+        JsonObject request = pendingRequest.deepCopy();
+        address(request, game, controlled, decider, request.get("decision_class").getAsString());
+        request.add("pilot_state", bindViews(request, game, decider));
+        pendingRequest = request;
+        recordDecisionRequested(request);
+        notifyAll();
+        return true;
     }
 
     synchronized JsonObject pendingDecision() {
@@ -523,6 +584,13 @@ final class XmageFullGameDecisionController {
         Player controller = game.getPlayer(controllerId);
         if (controller == null) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: turn controller unavailable");
+        }
+        if (!controller.isInGame()) {
+            // CR 800.4a ends a departed player's control of other players;
+            // the bridge never makes that call itself.
+            throw new DecisionException(
+                    "TURN_CONTROLLER_LEFT: the engine still names a player who left the game as turn controller"
+            );
         }
         return controller;
     }

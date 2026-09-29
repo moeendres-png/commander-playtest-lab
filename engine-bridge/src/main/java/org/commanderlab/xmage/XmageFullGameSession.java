@@ -535,6 +535,9 @@ final class XmageFullGameSession {
         } finally {
             player.disarmConcession(principal);
         }
+        // F-34: a frame the conceder was making for a player whose turn it
+        // controlled follows the engine's control state after the leave.
+        controller.followTurnControl(game);
         JsonObject result = pendingDecisionPayload();
         result.addProperty("conceded_actor_id", principal.toString());
         result.addProperty("concede_available_before", true);
