@@ -1,5 +1,21 @@
 # Muse unique value — final integration assessment
 
+## Terminal integration update — 2026-09-29
+
+The audit-time integration dependency described later in this document is now resolved.
+
+- PR #291 merged the PB-03 dimension-admission discriminator and terminal Muse inventory.
+- PR #292 merged the remaining Tier-1/Tier-2 Muse runtime-test assets after replacing donor-era sorted-first mana choices with explicit semantic-source and engine `mana_type` scripts.
+- #292 exact head passed Production Qualification, CI, External XMage Integration, Full Game Conformance, Real 4P Technical Smoke and H4 Docker Materialization.
+- No historical Muse PASS count was transferred.
+- PR #284 remains active for broader non-Muse/current-boundary work, but its overlapping Muse test variants are superseded by current main.
+
+Therefore there is no remaining Muse-specific integration dependency.
+
+`MUSE_CODE_SALVAGE = COMPLETE`
+
+`MUSE_REMAINING_INTEGRATION_READY = NO`
+
 ## Executive result
 
 The Muse history contains real unique engineering value, but most of it is either already canonical or tied to older qualification/provider architectures.
@@ -50,43 +66,24 @@ It:
 
 It is ported onto `sol/muse-final-salvage-20260929`.
 
-## 3. Unique Muse code already integration-ready on PR #284
+## 3. Unique Muse code integrated after audit
 
-### Tier-1 actual behavior
+The PB-03 Tier-1/Tier-2 runtime suites were independently ported from the Muse donor onto a clean current-main branch and merged through PR #292.
 
-`XmagePb03Tier1RowsTest.java`
+The donor-era evidence-integrity defects are resolved in the canonical version:
+- no sorted-first or action-id-based mana selection;
+- mana abilities bind explicit semantic test source ids to native engine `source_object_id`;
+- multi-option mana-pool decisions require explicit engine-authored `mana_type` scripts;
+- ambiguous or absent matches fail closed;
+- the Rules-RNG characterization still observes but does not answer the unscripted Heads/Tails call.
 
-Contains genuine engine runtime coverage for combat, continuous effects, modes, prevention, replacement, costs, SBAs, triggers and multiplayer combat/blocking.
+Integrated assets:
+- `XmagePb03Tier1RowsTest.java`
+- `XmagePb03Tier2CmdZoneTest.java`
+- `XmagePb03Tier2ControlTurnTest.java`
+- `XmagePb03Tier2StackTest.java`
 
-This is valuable.
-
-Its current positive-credit path is not merge-admissible until the shared mana helper stops selecting an arbitrary sorted first source/pool offer.
-
-### Tier-2 command-zone
-
-`XmagePb03Tier2CmdZoneTest.java`
-
-Contains genuine command-zone replacement characterization across graveyard/exile/hand/library yes/no paths.
-
-Current #284 correctly does not auto-promote it to FULL107 PASS.
-
-### Tier-2 control / turn
-
-`XmagePb03Tier2ControlTurnTest.java`
-
-Contains high-value genuine Control Magic owner/controller divergence and actual Time Warp/Nexus extra-turn ordering.
-
-Its current credit depends on the shared mana helper and therefore remains gated.
-
-### Tier-2 stack
-
-`XmagePb03Tier2StackTest.java`
-
-Contains high-value stack/priority/mana/copy/zone-change/multiplayer-priority tests.
-
-Its `firstPoolSpend()` helper currently chooses sorted element zero and must be hardened before affected positive credit.
-
-The Rules-RNG test is correctly fail-closed: it observes the real Heads/Tails choice and does not choose without a script.
+These are current runtime regression assets. They do not by themselves bypass the normal receipt/impact-adjudication requirements for qualification PASS.
 
 ## 4. Muse ideas independently solved better
 
@@ -160,30 +157,23 @@ The intended replay capability has later canonical replacements.
 
 ## 8. Remaining integration dependency
 
-There is no unidentified Muse asset left.
+None that is Muse-specific.
 
-The only remaining useful code is known and already located:
-the PB-03 Tier-1/Tier-2 test family on PR #284.
-
-Before its behavior PASS credit is accepted:
-1. remove/semantically justify arbitrary first mana-source/pool selection;
-2. run exact current-head Maven tests;
-3. derive fixture credit only from exact passing Surefire testcase receipts;
-4. re-adjudicate against whatever PB-03/current-boundary implementation wins the active Space Bunny integration.
-
-That is an engineering gate, not an inventory unknown.
+The previously identified PB-03 mana-choice P1 was repaired and the hardened test family was merged through PR #292 with all exact-head gates green. PR #284 continues independently for broader project work; its Muse test overlap must preserve current-main semantics.
 
 ## Final answer to “did we forget good Muse work?”
 
 No.
 
-Every discovered Muse branch and the 12-commit current donor have a terminal disposition.
-
-The remaining high-value Muse PB-03 tests are explicitly preserved and integration-ready; they are not being discarded. Their behavior credit is intentionally blocked until the identified discretion issue is removed.
+Every discovered Muse branch and the 12-commit current donor has a terminal disposition. The high-value PB-03 test assets are now hardened and merged on current main through PRs #291 and #292. No remaining Muse-specific code is waiting for integration, and no historical generated PASS count was promoted.
 
 `MUSE_INVENTORY_COMPLETE = YES`
 
 `MUSE_UNIQUE_CODE_ADJUDICATED = YES`
+
+`MUSE_CODE_SALVAGE = COMPLETE`
+
+`MUSE_REMAINING_INTEGRATION_READY = NO`
 
 `MUSE_UNRESOLVED_UNKNOWN = NO`
 
