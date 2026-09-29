@@ -1,0 +1,71 @@
+WORKSTREAM: PR #300 mulligan bottoming projection / Commander free-mulligan qualification
+EXECUTOR_MODEL: opencode-go/deepseek-v4.1-flash
+BRANCH: deepseek/pr300-mulligan-bottoming-20260929
+WORKTREE: /home/moeen/code/csn-final-bakeoff/muse/pb03-wave2
+BASE: PR #300 head 71ebc911c04a62c44e28d1644d4f0e4c0bae15ab (branching, not merging)
+SOURCE_LOCK_SHA: 45d3326099d2400c031c720f8426b81b38dc791b
+LAST_REFRESHED_MAIN_SHA: 2229380bde5809c69cc7169692cfb9b1453eb17a
+ENGINE_CANDIDATE: XMage
+ENGINE_SHA: b19596980f2734496ea1896504253e1bdd2756dd
+
+OWNERSHIP_ENTRY_DETERMINATION:
+  verdict: former writer quiescent on this surface; operator assigned the workstream; no write to the foreign branch
+  evidence:
+    - PR 300 OPEN, head 71ebc911 unchanged across two checks
+    - PR 300 last commit "test: accept native fail-closed London bottoming boundary" declares the remaining gap out of its own scope
+    - PR 315 and PR 316 took other surfaces (multiplayer, PB-03 dimension admission); neither touches game_driver.py, XmageGameManager, JsonlBridge, ExternalDecisionController or the mulligan tests
+    - author active elsewhere, so the branch was left untouched
+  method: own branch rooted at 71ebc911, no push, no merge, no rebase
+
+PHASE: pr300-mulligan-gap-specified
+COMPLETED_PHASES:
+  - ownership-verified
+  - panache-source-refresh-and-cell-verification
+  - pr300-baseline-reproduced-at-runtime
+  - projection-gap-located-in-code
+
+W1_GAP_SPEC:
+  callback: engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java line 380
+            putCardsOnBottomOfLibrary - currently throws UNSUPPORTED_COMPATIBILITY_DECISION (line 244)
+            or delegates to super. (lines 387, 391), which is an engine-internal default selection
+  seam_rejection: ExternalDecisionController.java line 378 rejects non-empty bottomCardIds by design
+  required_projection:
+    - new decision kind mulligan_bottom, separate from mulligan
+    - actor-scoped offered identities from the engine's cards argument
+    - engine-declared cardinality = cards.size(); never computed in the Lab
+    - accept exactly that many IDs, all members of the offered set; wrong cardinality or foreign identity fails closed
+    - resolve through the engine's own move; remove the super. delegation on the external path
+  artifact: docs/pb03_wave2_20260929/PR300_MULLIGAN_BOTTOMING_GAP.md
+
+W1_BASELINE_RUNTIME:
+  command: mvn -o -B -ntp -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest='XmageGenericExternalMulliganTest'
+  workdir: engine-bridge
+  result: Tests run 4, Failures 0, Errors 0, Skipped 0, BUILD SUCCESS
+  includes: selectedMulliganFailsClosedAtUnprojectedLondonBottoming
+
+CELLS_VERIFIED_BOTH_COLUMNS:
+  - PILOT_MULLIGAN: XMage UNKNOWN, Forge UNKNOWN
+  - WS05-CMD-MULL-2: XMage UNKNOWN, Forge UNKNOWN
+  - WS05-CMD-MULL-4: XMage UNKNOWN, Forge UNKNOWN
+  note: PR 300 surface is XMage, so it unblocks the XMage column; Forge needs the equivalent capability in the Forge bridge
+
+NOT_PERFORMED:
+  - projection implementation (would have left an unvalidated change to a green surface within the remaining budget)
+  - driver/Lab adoption
+  - boundary-test update
+  - cell qualification
+
+NO_TOUCH:
+  - XmageNativeStateRestoration.java (D-2, owned by sol/pb03-current-main-runtime)
+  - provider comparison / AF artifacts
+
+EVIDENCE_CLASSIFICATION:
+  - ownership and cell status: DIRECTLY_VERIFIED from Git objects and PR file lists
+  - baseline: DIRECTLY_VERIFIED runtime
+  - gap spec: CODE_DERIVED from the named lines
+
+EXACT_NEXT_ACTION: implement the documented mulligan_bottom projection on this branch, update PR 300's accepted-boundary test to assert genuine completion, then qualify the three XMage cells against the engine-declared bottom count (2P bottoms 1, 4P first mulligan bottoms 0), with negative coverage for wrong cardinality and non-offered identity.
+
+PROVIDER_SELECTION_READY: NO
+PRODUCTION_PROVIDER: NOT SELECTED
+ARCHITECTURE_FREEZE: NOT CLAIMED
