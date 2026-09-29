@@ -38,10 +38,13 @@ class XmageExternalDecisionTest {
 
         XmageGameManager.StartResult started = manager.startGame(created.gameHandle());
         assertTrue(started.externalControl());
-        assertTrue(started.paused());
-        assertEquals(1, started.turnNumber());
+
+        XmageGenericExternalMulliganSupport.keepAllToPriority(
+                manager, created.gameHandle(), 4);
 
         Game game = manager.requireGame(created.gameHandle());
+        assertTrue(game.isPaused());
+        assertEquals(1, game.getState().getTurnNum());
         assertEquals("UPKEEP", game.getTurnStepType().name());
         assertNotNull(game.getPriorityPlayerId());
 
