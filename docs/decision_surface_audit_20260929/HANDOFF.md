@@ -1,4 +1,4 @@
-# Decision-surface audit — combat, optional costs, pay-to-prevent
+# Decision-surface audit — combat, optional costs, pay-to-prevent, tap costs
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`. `PRODUCTION_PROVIDER = NOT SELECTED`.
 This audit applied the same checks to both candidates and ranks neither.
@@ -15,7 +15,7 @@ Every defect below was demonstrated with actual cards: the test fails on the pre
 
 ## Forge — moeendres-png/forge#7 (stacked on #5, **not merged by design**)
 
-Head `23a2fccaae1`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as an exact head. Only `forge-protocol2-bridge` changes.
+Head `f695dc1`. Base is #5's branch at `e15f37d6`, which Lab evidence cites as an exact head. Only `forge-protocol2-bridge` changes.
 
 | Defect | Rule | Before | After |
 |---|---|---|---|
@@ -24,12 +24,15 @@ Head `23a2fccaae1`. Base is #5's branch at `e15f37d6`, which Lab evidence cites 
 | No multi-block options (e.g. Palace Guard) | CR 509.1a | missing | every attacker set allowed by `canBlockMoreCreatures` |
 | More than 4 candidate attackers or blockers | — | fail-closed (combat impossible on wide boards) | incremental per-creature declaration, then native whole-declaration validation |
 | Kicker, buyback, entwine or other optional cost in hand | CR 601.2b/f | whole priority frame `UNSUPPORTED` (player halted) | `COST_SELECTION` over every subset of the engine-supplied optional costs |
-| "... unless that player pays {X}" (Rhystic Study, Smothering Tithe, Mana Leak) | — | `session_failed` when the effect resolved | payer chooses pay or do not pay; native payment path. Non-mana prevention costs stay fail-closed. |
+| "... unless that player pays {X}" (Rhystic Study, Smothering Tithe, Mana Leak) | — | `session_failed` when the effect resolved | payer chooses pay or do not pay; native payment path |
+| Non-mana "unless" cost (shock lands such as Watery Grave: pay 2 life or enter tapped) | CR 614.12 / 118.12 | `session_failed` on playing the land | pay or decline framed; life paid through the native cost path |
+| "Tap an untapped creature you control" costs (Springleaf Drum, convoke-like tap costs) | CR 118.3 / 602.2b | whole priority frame `UNSUPPORTED` | one option per legal permanent, plus decline |
+| Crew N (Smuggler's Copter and every vehicle) | CR 702.122a | whole priority frame `UNSUPPORTED` whenever a vehicle and a creature were out | one option per creature set reaching power N, plus decline |
 
 Evidence:
 
-- `CombatBlockLegalityTest` 5/5, `OptionalCostChoiceTest` 2/2, `PayToPreventChoiceTest` 2/2.
-- Full `forge.bridge.**` suite 310/310 (301 on `e15f37d6`); project checkstyle green.
+- `CombatBlockLegalityTest` 5/5, `OptionalCostChoiceTest` 2/2, `PayToPreventChoiceTest` 2/2, `ShockLandChoiceTest` 2/2, `TapTypeCostTest` 1/1, `CrewCostTest` 1/1.
+- Full `forge.bridge.**` suite 314/314 (301 on `e15f37d6`); project checkstyle green.
 - Classification: `DIRECTLY_VERIFIED` (bridge runtime tests).
 
 **To consume it in the Lab**, moving `FORGE_WORKSPACE` is not enough. `src/commander_lab/qualification/current_boundary/source_lock.py` binds the Forge bridge evidence identity to #5 (`FORGE_BRIDGE_EVIDENCE_COMMIT` / `_TREE` / `_PR`). Receipts produced from #7 while that lock still names #5 would be internally inconsistent. The current-boundary owner must:
@@ -55,14 +58,32 @@ The rest of XMage's combat surface is already sound:
 - attack requirements are applied natively before the pilot is asked (`checkAttackRequirements`);
 - block restrictions and requirements are re-validated in the engine's own loop.
 
+### Same staples on XMage (no change needed)
+
+`XmageStapleDecisionTest` (8 tests, actual cards, full-game lane) runs the cards fixed on Forge above:
+
+- **Watery Grave:** P1 gets `choose_use` Yes/No. Paying leaves the land untapped at 38 life; declining leaves it tapped at 40.
+- **Rhystic Study:**
+  - P2 decides whether to draw.
+  - Only if P2 chooses to draw is P1 asked whether to pay {1}.
+  - Paying taps a third Forest and P2 does not draw; declining lets P2 draw.
+  - Grizzly Bears resolves in every branch.
+- **Burst Lightning:** kicking is P1's choice. Kicked, it taps 5 Mountains and deals 4; unkicked, it taps 1 and deals 2.
+- **Smuggler's Copter:** every untapped creature is offered. After Raging Goblin reaches Crew 1, the follow-up choice has `minimum_selections == 0`, so the pilot stops without tapping Grizzly Bears.
+
+Classification: `DIRECTLY_VERIFIED` for these four surfaces on XMage. Two protocol notes for pilots:
+
+- In a `mana_payment` decision, the land options use action type `pay_cost`, not `activate_ability`. The first option is "Cancel mana payment".
+- An empty selection at `minimum_selections == 0` is submitted as `structural_decision` with an empty `selected_option_ids`. It does not appear as a listed action.
+
 ## Also found (Forge, not changed here)
 
 - `ScenarioBootstrap` (starting-state injection) exists, and Forge declares `starting_state_injection_supported=true`. The Lab's current-boundary driver never sends a `scenario.neutral_initial_state`, which is why Forge's 44 `BLOCKED` FULL107 rows are a Lab execution-path gap (`PROVIDER_READINESS_PACKET_20260928.md` §9).
-- Remaining fail-closed Forge surfaces seen during the audit: `AnnounceType` spells, splice, non-mana pay-to-prevent costs, and cost parts outside the framed set.
+- Remaining fail-closed Forge surfaces seen during the audit: `AnnounceType` spells (6 cards), splice (30), offering/emerge (21), `sharesCreatureTypeWith` tap costs (1), and cost parts outside the framed set.
 
 ## Impact adjudication owed by evidence owners
 
-Historical Forge evidence may have depended on an illegal block option, or on optional-cost or pay-to-prevent cards halting or ending a game. Historical XMage evidence with a "block any number" creature on the battlefield could not include that creature's blocks. Neither was re-run here.
+Historical Forge evidence may have depended on an illegal block option, or on optional-cost, pay-to-prevent, shock-land, tap-cost or crew cards halting or ending a game. Historical XMage evidence with a "block any number" creature on the battlefield could not include that creature's blocks. Neither was re-run here.
 
 ## Exact next action
 
