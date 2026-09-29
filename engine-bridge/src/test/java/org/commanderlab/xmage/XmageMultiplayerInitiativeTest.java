@@ -74,6 +74,8 @@ class XmageMultiplayerInitiativeTest {
         assertEquals(SECRET_ENTRANCE, f.room(pn), pn + " ventured when it took the initiative");
         assertEquals(mountainsBefore + 1, f.mountainsInHand(pn),
                 "Secret Entrance put a basic land from " + pn + "'s library into its hand");
+        assertEquals(SECRET_ENTRANCE, f.room("P1"),
+                "the former holder P1 did not venture when it lost the initiative");
     }
 
     /** PN takes the initiative, then concedes on its own turn: P(N−1) is next in turn order. */
