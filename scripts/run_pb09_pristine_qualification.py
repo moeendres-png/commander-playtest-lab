@@ -51,7 +51,6 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     FORGE_CANDIDATE_COMMIT,
-    boundary_receipt,
     build_deck,
     build_launch_plan,
     drive_commander_game,
@@ -123,10 +122,7 @@ def pin_native_classes(workspace: Path) -> list[str]:
     test_root = workspace / "forge-protocol2-bridge" / "src" / "test" / "java"
     if not test_root.is_dir():
         return []
-    return sorted(
-        path.stem
-        for path in test_root.rglob("*Test.java")
-    )
+    return sorted(path.stem for path in test_root.rglob("*Test.java"))
 
 
 # --------------------------------------------------------------------------- #
@@ -170,7 +166,9 @@ def capture_pb09_runner_identity(root: Path) -> receipt_mod.RunnerIdentity:
             f"git status --porcelain failed: {status.stderr.strip()[:200]}"
         )
     dirty_paths = tuple(
-        line[3:] for line in status.stdout.splitlines() if line.strip() and not _pb09_is_run_output(line[3:])
+        line[3:]
+        for line in status.stdout.splitlines()
+        if line.strip() and not _pb09_is_run_output(line[3:])
     )
     import hashlib
 
@@ -409,7 +407,9 @@ def execute_lane(
             fixture = f"PLAYER_COUNT_{count}P"
             if fixture in by_id:
                 rows.append(
-                    cardinality_row(by_id[fixture], result, candidate="forge", runtime_identity=identity)
+                    cardinality_row(
+                        by_id[fixture], result, candidate="forge", runtime_identity=identity
+                    )
                 )
         probes["cardinality"] = cardinality
         write(
@@ -430,7 +430,9 @@ def execute_lane(
 
         # ---- START-2 under the v1.0.6 successor --------------------------
         rows.append(
-            start2_row(by_id["WS05-CMD-START-2"], proc, candidate="forge", runtime_identity=identity)
+            start2_row(
+                by_id["WS05-CMD-START-2"], proc, candidate="forge", runtime_identity=identity
+            )
         )
 
         # ---- hidden-information principal probe ---------------------------
@@ -465,9 +467,7 @@ def execute_lane(
                 "game": hidden_game.to_document(),
                 "principal_observations": observations,
                 "principal_scoping": scoping,
-                "principal_observations_credible": scoping[
-                    "credible_as_principal_scoped_evidence"
-                ],
+                "principal_observations_credible": scoping["credible_as_principal_scoped_evidence"],
                 "hidden_scenario_rows_note": (
                     "the per-scenario hidden rows (face-down exile, look, controlled-player, "
                     "shuffle invalidation) need per-scenario channel instrumentation that this "
@@ -648,9 +648,9 @@ def run_native_suite(
         classes=tuple(classes),
     )
     document = receipt.to_document()
-    document["result_lines"] = [
-        line.strip() for line in text.splitlines() if "Tests run:" in line
-    ][-12:]
+    document["result_lines"] = [line.strip() for line in text.splitlines() if "Tests run:" in line][
+        -12:
+    ]
     document.pop("receipt_digest", None)
     document["receipt_digest"] = receipt_mod._digest(document)
     path = RECEIPT_DIR / f"native-pristine-{lane}.json"
@@ -669,9 +669,7 @@ LANES: dict[str, dict[str, Any]] = {
     # upstream Rules Core plus the pinned bridge source.
     "pin": {
         "workspace": Path(
-            os.environ.get(
-                "PB09_PIN_WORKSPACE", "/home/moeen/code/pb09-forge-bridge-pin-20260929"
-            )
+            os.environ.get("PB09_PIN_WORKSPACE", "/home/moeen/code/pb09-forge-bridge-pin-20260929")
         ),
         "af01_player_count": 4,
         "hidden_player_count": 4,
@@ -702,9 +700,7 @@ LANES: dict[str, dict[str, Any]] = {
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--lane", default="pin", choices=sorted(LANES))
-    parser.add_argument(
-        "--phase", default="all", choices=["execute", "native", "all"]
-    )
+    parser.add_argument("--phase", default="all", choices=["execute", "native", "all"])
     args = parser.parse_args()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -717,7 +713,11 @@ def main() -> int:
     print(
         "pinned pristine candidate:",
         json.dumps(
-            {"commit": pinned["commit"], "release": pinned["release"], "bridge": pinned["bridge_commit"]},
+            {
+                "commit": pinned["commit"],
+                "release": pinned["release"],
+                "bridge": pinned["bridge_commit"],
+            },
             indent=1,
         ),
     )
@@ -803,9 +803,7 @@ def main() -> int:
         rows = outcome["rows"] + base.classify_remaining(
             materialization, executed, candidate="forge", identity=identity
         )
-        by_id = {
-            record["fixture_id"]: record for record in materialization.denominator_records()
-        }
+        by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
         documents = [row.to_document(by_id[row.fixture_id]) for row in rows]
         counts = summarize(rows)
         assert len(documents) == 107, f"PB-09 {args.lane}: {len(documents)} rows"

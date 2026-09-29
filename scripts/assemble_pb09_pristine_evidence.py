@@ -86,9 +86,7 @@ def af03_gate() -> dict[str, Any]:
         "gate": "AF03",
         "name": "RULES_AUTHORITY",
         "verdict": document.get("verdict", "UNKNOWN"),
-        "evidence": [
-            f"{p['invariant']}: {p['verdict']} ({p['detail']})" for p in probes
-        ],
+        "evidence": [f"{p['invariant']}: {p['verdict']} ({p['detail']})" for p in probes],
         "observed_probe_count": len(probes),
         "accepted_illegal_decks": [p["probe"] for p in probes if p.get("verdict") == "FAIL"],
         "authority": document.get("authority"),
@@ -374,7 +372,7 @@ def assemble(lane: str) -> None:
             "evidence": [
                 "the pristine candidate runs as a genuine separate external process over "
                 "stdin/stdout JSONL; no engine code is embedded in the Lab",
-                f"upstream Forge licence: GPL-3.0 (recorded in the pin manifest)",
+                "upstream Forge licence: GPL-3.0 (recorded in the pin manifest)",
                 "this lane executes the pristine upstream candidate, so the licence posture is "
                 "the upstream one and is NOT the posture of a GPL-3.0 derivative fork",
             ],
@@ -400,9 +398,7 @@ def assemble(lane: str) -> None:
             "native_runs": native,
             "full107_counts": counts,
             "gates": matrix,
-            "gate_verdict_summary": {
-                gate["gate"]: gate["verdict"] for gate in matrix
-            },
+            "gate_verdict_summary": {gate["gate"]: gate["verdict"] for gate in matrix},
             "nonclaims": [
                 "this matrix describes the pinned pristine candidate on the pinned bridge surface",
                 "no gate here is a comparison against the Commander-Lab fork and no gate "
@@ -528,9 +524,7 @@ def assemble(lane: str) -> None:
             ),
             "dimensions": delta,
             "counts_by_classification": {
-                classification: sum(
-                    1 for item in delta if item["classification"] == classification
-                )
+                classification: sum(1 for item in delta if item["classification"] == classification)
                 for classification in sorted({item["classification"] for item in delta})
             },
             "no_ranking": "this packet contains no score, no ranking and no preferred provider",

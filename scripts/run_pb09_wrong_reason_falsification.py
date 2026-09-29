@@ -53,7 +53,6 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     build_launch_plan,
     launch,
 )
-from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 
 OUT = REPO_ROOT / "qualification" / "pb09-pristine-upstream-20260929"
 PIN_MANIFEST = REPO_ROOT / "config" / "rules_engines.json"
@@ -111,20 +110,37 @@ def attack_hidden_information(workspace: Path, pinned_commit: str) -> dict[str, 
             "name": "PB09 falsification deck",
             "commander_names": ["Isamaru, Hound of Konda"],
             "mainboard": [
-                "Silvercoat Lion", "Serra Angel", "Savannah Lions", "Knight of Dawn",
-                "Elite Vanguard", "Eager Cadet", "Suntail Hawk", "Valiant Guard",
-                "Serra Ascendant", "Aerial Assault", *["Plains"] * 89,
+                "Silvercoat Lion",
+                "Serra Angel",
+                "Savannah Lions",
+                "Knight of Dawn",
+                "Elite Vanguard",
+                "Eager Cadet",
+                "Suntail Hawk",
+                "Valiant Guard",
+                "Serra Ascendant",
+                "Aerial Assault",
+                *["Plains"] * 89,
             ],
         }
         handles = []
         for index in range(1, 5):
-            response = proc.request("import_deck", {"deck": {**deck, "deck_id": f"pb09-falsify-deck-{index}"}})
+            response = proc.request(
+                "import_deck", {"deck": {**deck, "deck_id": f"pb09-falsify-deck-{index}"}}
+            )
             handle = _payload(response).get("deck_handle") or {}
             handles.append(handle.get("handle_id"))
         game_id = f"pb09-falsify-{uuid.uuid4().hex[:8]}"
         proc.request(
             "create_commander_game",
-            {"request": {"game_id": game_id, "deck_handles": handles, "format": "commander", "external_control": True}},
+            {
+                "request": {
+                    "game_id": game_id,
+                    "deck_handles": handles,
+                    "format": "commander",
+                    "external_control": True,
+                }
+            },
             game_id=game_id,
         )
         proc.request("start_game", {}, game_id=game_id)
@@ -163,8 +179,13 @@ def attack_hidden_information(workspace: Path, pinned_commit: str) -> dict[str, 
             elif kind in ("MULLIGAN", "KEEP_OR_MULLIGAN"):
                 proc.request(
                     "resolve_mulligan",
-                    {"player_id": decision.get("actor"), "revision": decision.get("revision"),
-                     "actor_id": decision.get("actor"), "keep": True, "bottom_card_ids": []},
+                    {
+                        "player_id": decision.get("actor"),
+                        "revision": decision.get("revision"),
+                        "actor_id": decision.get("actor"),
+                        "keep": True,
+                        "bottom_card_ids": [],
+                    },
                     game_id=game_id,
                 )
             elif kind == "PRIORITY":
@@ -217,8 +238,12 @@ def attack_hidden_information(workspace: Path, pinned_commit: str) -> dict[str, 
                     shared = set(cards) & set(other_rows.get(index, []))
                     if shared:
                         overlaps.append(
-                            {"observer": observer, "seat": index, "compared_with": other,
-                             "shared_real_cards": sorted(shared)}
+                            {
+                                "observer": observer,
+                                "seat": index,
+                                "compared_with": other,
+                                "shared_real_cards": sorted(shared),
+                            }
                         )
         findings.append(
             {
@@ -252,7 +277,9 @@ def attack_hidden_information(workspace: Path, pinned_commit: str) -> dict[str, 
                     "does the provider actually scope by observer_player_id, or does it project "
                     "a fixed view regardless of who asks?"
                 ),
-                "result": "PROVIDER_SCOPES_BY_OBSERVER" if garbage_revealed == 0 else "PROVIDER_MAY_IGNORE_OBSERVER",
+                "result": "PROVIDER_SCOPES_BY_OBSERVER"
+                if garbage_revealed == 0
+                else "PROVIDER_MAY_IGNORE_OBSERVER",
                 "survives": garbage_revealed == 0,
                 "garbage_observer_accepted": garbage_success,
                 "garbage_observer_revealed_rows": garbage_revealed,
@@ -276,10 +303,12 @@ def attack_hidden_information(workspace: Path, pinned_commit: str) -> dict[str, 
         # Distinct content plus observer-driven scoping is strong, but the current
         # standard asks for an authoritative binding. The pin provides none, so
         # this is recorded as an explicit limitation rather than as a pass.
-        markings = sum(
-            1 for row in _players(_payload(known)) if row.get("is_actor") is True
-        )
-        envelope = [k for k in ("observer_player_id", "observer_seat", "observer_engine_player_id") if k in _payload(known)]
+        markings = sum(1 for row in _players(_payload(known)) if row.get("is_actor") is True)
+        envelope = [
+            k
+            for k in ("observer_player_id", "observer_seat", "observer_engine_player_id")
+            if k in _payload(known)
+        ]
         findings.append(
             {
                 "attack": "REQUESTER_BINDING_ATTESTED",
@@ -365,7 +394,9 @@ def attack_evidence_artifacts() -> dict[str, Any]:
             "attack": "CARDINALITY_4P_PASS_IS_EARNED",
             "fixture_id": "PLAYER_COUNT_4P",
             "exit_state": four.get("exit_state"),
-            "result": "EARNED" if four.get("exit_state") == "PASS" and lifecycle_ok else "NOT_EARNED",
+            "result": "EARNED"
+            if four.get("exit_state") == "PASS" and lifecycle_ok
+            else "NOT_EARNED",
             "survives": four.get("exit_state") == "PASS" and lifecycle_ok,
             "priority_reached": four.get("terminal_facts", {}).get("priority_reached"),
             "bound_decisions": len(four.get("externally_supplied_decision_tape") or []),
@@ -490,7 +521,9 @@ def attack_evidence_artifacts() -> dict[str, Any]:
             "attack": "START2_VERDICT_REST_ON_OBSERVED_STATE",
             "fixture_id": "WS05-CMD-START-2",
             "exit_state": start2.get("exit_state"),
-            "result": "OBSERVED" if has_observation else ("UNMEASURED_PROVIDER_REFUSED" if never_ran else "NOT_OBSERVED"),
+            "result": "OBSERVED"
+            if has_observation
+            else ("UNMEASURED_PROVIDER_REFUSED" if never_ran else "NOT_OBSERVED"),
             "survives": start2.get("exit_state") == "PASS" and has_observation,
             "zone_counts": zone_counts,
             "fixture_expectations_used_as_evidence": bool(
@@ -526,7 +559,9 @@ def attack_evidence_artifacts() -> dict[str, Any]:
                 continue
             offered = entry.get("offered_option_ids") or []
             if offered and chosen not in offered:
-                unbacked.append({"fixture_id": fixture, "step": entry.get("step"), "chosen": chosen})
+                unbacked.append(
+                    {"fixture_id": fixture, "step": entry.get("step"), "chosen": chosen}
+                )
     findings.append(
         {
             "attack": "EVERY_CHOSEN_OPTION_WAS_OFFERED",
@@ -646,7 +681,9 @@ def main() -> int:
     }
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / "WRONG_REASON_FALSIFICATION.json"
-    path.write_text(json.dumps(results, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(results, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
+    )
     print(f"wrote {path.name}")
     for group in results["groups"]:
         print(group["attack_group"], "survived:", group["pristine_runtime_survived"])
