@@ -1,8 +1,7 @@
-# F-23 (provisional number): players who left the game this turn still count as opponents
+# F-23: players who left the game this turn still count as opponents
 
-**Status: OPEN.** Found by the multiplayer discovery lane (Claude Opus 5.5) on 2026-09-29.
+**Status: OPEN. Tracker: #335.** Found by the multiplayer discovery lane (Claude Opus 5.5) on 2026-09-29.
 
-The number is provisional because the issue tracker was unreachable from this session. Confirm it when the tracker issue is created.
 
 ## Classification
 - `RULES_CORE_DEFECT` in the XMage engine: generic opponent queries.

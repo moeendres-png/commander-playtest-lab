@@ -1,8 +1,7 @@
-# F-22 (provisional number): a battle keeps a protector who left the game
+# F-22: a battle keeps a protector who left the game
 
-Status: OPEN. Found and proven by the multiplayer discovery lane (Claude Opus 5.5), 2026-09-29.
+Status: OPEN. Tracker: #334. Found and proven by the multiplayer discovery lane (Claude Opus 5.5), 2026-09-29.
 
-**Provisional number.** The GitHub issue tracker was unreachable from this session, so F-22 was chosen from the Lab docs (the highest used there is F-21). It needs confirming against the issue list when a tracker is created.
 
 ## Classification
 `RULES_CORE_DEFECT`, XMage engine, state-based actions. **Multiplayer only:** in 2P, the protector leaving ends the game.
