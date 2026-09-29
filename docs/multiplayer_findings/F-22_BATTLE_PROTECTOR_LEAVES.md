@@ -1,6 +1,6 @@
 # F-22: a battle keeps a protector who left the game
 
-Status: REMEDIATION_CANDIDATE — Mage PR #25 / Lab successor repin. Tracker: #334. Found and proven by the multiplayer discovery lane (Claude Opus 5.5), 2026-09-29.
+Status: REMEDIATION_CANDIDATE — Mage PR #26 / Lab successor repin. Tracker: #334. Found and proven by the multiplayer discovery lane (Claude Opus 5.5), 2026-09-29.
 
 
 ## Classification
@@ -33,6 +33,6 @@ Status: REMEDIATION_CANDIDATE — Mage PR #25 / Lab successor repin. Tracker: #3
 
 
 ## 2026-09-29 successor remediation
-- Candidate engine: `4277b90b4ee49acd945e82335a9a04c4536f5340` (Mage PR #25).
+- Candidate engine: `9cb5fb9e9558f980da81c85ca3fdc595161c8d34` (Mage PR #26).
 - Commander Lab repin workstream: `xmage-f22-f23-successor-repin-20260929`.
 - Runtime status remains UNKNOWN until exact-candidate and Lab CI complete; this note does not itself close F-22.
