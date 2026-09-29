@@ -517,11 +517,7 @@ def public_state_digest(pilot_state: dict[str, Any]) -> str:
         battlefield = entry.get("battlefield")
         if isinstance(battlefield, list):
             public_entry["battlefield"] = [
-                {
-                    key: value
-                    for key, value in permanent.items()
-                    if key != "private_identity"
-                }
+                {key: value for key, value in permanent.items() if key != "private_identity"}
                 for permanent in battlefield
                 if isinstance(permanent, dict)
             ]
