@@ -1,0 +1,90 @@
+{
+ "boundary": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+ "candidate": "forge",
+ "candidate_identity": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+ "event_log": {},
+ "harness_injected_outcomes": false,
+ "lane": "pin",
+ "replay_twin": "no clean-process twin is executed by this runner; the twin half of the replay obligation is therefore unproven here and earns no credit",
+ "rules_rng_binding": {
+  "acknowledged_seed": null,
+  "acknowledgement_source": "create_commander_game_response",
+  "classification": "UNCONTROLLED_ENGINE_RNG",
+  "controlled": false,
+  "requested_seed": 424242,
+  "rng_credit": false,
+  "schema_version": "commander-lab.seed-binding/1.0.0"
+ },
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge @ /home/moeen/code/pb09-forge-bridge-pin-20260929",
+  "adapter_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "adapter_manifest_pin": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "adapter_repository": "https://github.com/moeendres-png/forge.git",
+  "boundary": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+  "bridge_note": "the manifest's own bridge_source pin (secondary_engine.bridge_source.commit), whose six Rules-Core modules are byte-identical to the pristine candidate",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": false,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 4,
+   "mode_selection_supported": false,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are rejected: engine RNG is global and same-seed determinism is not claimed",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": false,
+   "seed_supported": false,
+   "stack_visible": true,
+   "starting_state_injection_supported": false,
+   "target_selection_supported": false,
+   "trigger_order_supported": false
+  },
+  "engine_candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "engine_candidate_release": "forge-2.0.14",
+  "engine_candidate_repository": "https://github.com/Card-Forge/forge.git",
+  "engine_identity_class": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+  "lab_fork_reference_not_executed": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "pin",
+  "nonclaims": [
+   "this run is about the pinned pristine candidate, not the Commander-Lab fork",
+   "no result here is evidence for the fork column, and no fork result transfers here",
+   "PB-09 itself remains OPEN and is a Coordinator decision"
+  ],
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "74f26b8f6dd2ad796f4ac6518a451a1589f8699d",
+  "runner_tree": "414393c24f0f9201c69540ddcf15bf3eae9bfd4e",
+  "scenario_injection_supported": false,
+  "seed_supported": false,
+  "starting_state_injection_supported": false
+ },
+ "schema_version": "pb09.rng-replay/1.0.0",
+ "semantic_replay": {
+  "error": [
+   {
+    "code": "unknown_message",
+    "details": {},
+    "message": "export_replay is not supported: deterministic replay is not claimed",
+    "retryable": false
+   }
+  ]
+ }
+}

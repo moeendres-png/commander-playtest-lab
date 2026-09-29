@@ -226,12 +226,21 @@ def build_launch_plan(
     lane: str | None = None,
     xmage_workspace: Path | None = None,
     forge_workspace: Path | None = None,
+    forge_expected_commit: str | None = None,
 ) -> LaunchPlan:
     """Build the exact launch recipe for a candidate.
 
     ``xmage_workspace`` is the Lab ``engine-bridge`` module (Lab-owned build
     output). ``forge_workspace`` is a read-only reference Forge checkout that
     is *built and executed* but never edited.
+
+    ``forge_expected_commit`` overrides only which engine commit this launch is
+    about. It exists so a *different* Forge candidate can be launched and checked
+    against its own recorded identity without repinning the module-level constant
+    that the current-boundary evidence is bound to: PB-09 launches the pristine
+    upstream candidate (the pin of record) instead of the Lab fork that the
+    current-boundary column executed. Omitting it preserves the existing
+    behaviour exactly, so no current-boundary artifact, receipt or test changes.
     """
     if candidate == "xmage":
         workspace = xmage_workspace or (repo_root() / "engine-bridge")
@@ -271,6 +280,9 @@ def build_launch_plan(
             raise BridgeLaunchError(
                 "a read-only Forge reference workspace is required to launch the Forge candidate"
             )
+        # The engine commit this launch is about. PB-09 passes the pristine
+        # upstream pin; every other caller gets the module constant unchanged.
+        expected_commit = forge_expected_commit or FORGE_CANDIDATE_COMMIT
         module = forge_workspace / "forge-protocol2-bridge"
         classpath = _read_classpath(module, "target/cp-wsr22.txt")
         argv = (
@@ -286,10 +298,10 @@ def build_launch_plan(
             argv=argv,
             cwd=forge_workspace,
             env_overrides={
-                "FORGE_ENGINE_SHA": FORGE_CANDIDATE_COMMIT,
+                "FORGE_ENGINE_SHA": expected_commit,
                 "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),
             },
-            expected_engine_commit=FORGE_CANDIDATE_COMMIT,
+            expected_engine_commit=expected_commit,
             build_identity={
                 "module": "forge-protocol2-bridge",
                 "classes": str(module / "target" / "classes"),

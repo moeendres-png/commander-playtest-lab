@@ -1,0 +1,250 @@
+{
+ "candidate_identity": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+ "classification": {
+  "candidate_defects_established_by_this_campaign": [
+   {
+    "basis": "DIRECTLY_VERIFIED runtime probe against the pristine upstream candidate",
+    "defect": "Commander deck legality is not enforced at import on the pristine lane",
+    "engine_behaviour": "the engine accepted a real non-Commander as commander and a colour-identity violation under a legal control deck",
+    "probes": [
+     "commander_not_in_pool",
+     "colour_identity_violation"
+    ],
+    "rules_basis": "CR 2.3 and the Commander deck construction requirement; this is recorded as an observed candidate behaviour, not as a Rules ruling"
+   }
+  ],
+  "does_not_survive": [
+   {
+    "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+    "finding": "ENGINE_ACCEPTED_ILLEGAL_DECK",
+    "target": "commander_not_in_pool"
+   },
+   {
+    "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+    "finding": "ENGINE_ACCEPTED_ILLEGAL_DECK",
+    "target": "colour_identity_violation"
+   },
+   {
+    "attack": "AF03_COMMANDER_PROBE_IS_NOT_A_NAME_LOOKUP",
+    "finding": "ENGINE_ACCEPTED_NON_COMMANDER",
+    "target": "commander_not_in_pool"
+   },
+   {
+    "attack": "AF03_COLOUR_IDENTITY_IS_ISOLATED",
+    "finding": "ENGINE_ACCEPTED_COLOUR_VIOLATION",
+    "target": "colour_identity_violation"
+   },
+   {
+    "attack": "START2_VERDICT_REST_ON_OBSERVED_STATE",
+    "finding": "UNMEASURED_PROVIDER_REFUSED",
+    "target": "WS05-CMD-START-2"
+   },
+   {
+    "attack": "REQUESTER_BINDING_ATTESTED",
+    "finding": "NOT_ATTESTED",
+    "target": null
+   }
+  ],
+  "net": "the positive claims in this lane survive: the 4P result is a completed lifecycle, the deck refusals follow a successful control import, every bound choice was engine-offered, no RNG credit is claimed without acknowledgement, and the hidden-information projection is per-principal, non-overlapping and driven by the requested observer. Two genuine candidate properties were established rather than survived: this provider surface accepts an illegal Commander deck, and it does not expose any player count other than four, which leaves the two-player START-2 obligation unmeasured.",
+  "not_yet_falsified": [
+   "requester binding on the pristine provider surface: content scoping survives every attack, but the authoritative binding attestation the current standard requires is absent, so the gate stays UNKNOWN rather than PASS"
+  ],
+  "survives_adversarial_falsification": [
+   "CARDINALITY_FAILURE_IS_ENGINE_REFUSAL",
+   "CARDINALITY_FAILURE_IS_ENGINE_REFUSAL",
+   "CARDINALITY_FAILURE_IS_ENGINE_REFUSAL",
+   "CARDINALITY_4P_PASS_IS_EARNED",
+   "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+   "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+   "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+   "AF03_CONTROL_DECK_IMPORTED",
+   "EVERY_CHOSEN_OPTION_WAS_OFFERED",
+   "RNG_CREDIT_NOT_CLAIMED_WITHOUT_ACKNOWLEDGEMENT",
+   "HIDDEN_REPEAT_READ_STABILITY",
+   "HIDDEN_CROSS_SEAT_OVERLAP",
+   "BINDING_IGNORED_GARBAGE_OBSERVER"
+  ]
+ },
+ "engine_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+ "groups": [
+  {
+   "attack_group": "EVIDENCE_ARTIFACT_ATTACKS",
+   "findings": [
+    {
+     "attack": "CARDINALITY_FAILURE_IS_ENGINE_REFUSAL",
+     "detail": "the row failed because the provider itself refused the count with player_count_unsupported, which is an observed provider behaviour rather than a harness defect",
+     "engine_response": "lifecycle runtime failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 2",
+     "exit_state": "FAIL",
+     "fixture_id": "PLAYER_COUNT_2P",
+     "result": "ENGINE_REFUSAL",
+     "survives": true
+    },
+    {
+     "attack": "CARDINALITY_FAILURE_IS_ENGINE_REFUSAL",
+     "detail": "the row failed because the provider itself refused the count with player_count_unsupported, which is an observed provider behaviour rather than a harness defect",
+     "engine_response": "lifecycle runtime failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 3",
+     "exit_state": "FAIL",
+     "fixture_id": "PLAYER_COUNT_3P",
+     "result": "ENGINE_REFUSAL",
+     "survives": true
+    },
+    {
+     "attack": "CARDINALITY_FAILURE_IS_ENGINE_REFUSAL",
+     "detail": "the row failed because the provider itself refused the count with player_count_unsupported, which is an observed provider behaviour rather than a harness defect",
+     "engine_response": "lifecycle runtime failure: GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 5",
+     "exit_state": "FAIL",
+     "fixture_id": "PLAYER_COUNT_5P",
+     "result": "ENGINE_REFUSAL",
+     "survives": true
+    },
+    {
+     "attack": "CARDINALITY_4P_PASS_IS_EARNED",
+     "bound_decisions": 6,
+     "detail": "the 4P row passed on a completed lifecycle that reached an external PRIORITY decision and bound at least one engine-offered option, so it is a real multiplayer result and not a construction claim",
+     "exit_state": "PASS",
+     "fixture_id": "PLAYER_COUNT_4P",
+     "priority_reached": true,
+     "result": "EARNED",
+     "survives": true
+    },
+    {
+     "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+     "detail": "the control legal deck imported first, so this refusal is attributable to the engine's own legality on this mutation (unknown_card_name)",
+     "probe": "unknown_card_name",
+     "result": "ENGINE_LEGALITY_REFUSAL",
+     "survives": true,
+     "verdict": "PASS"
+    },
+    {
+     "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+     "detail": "the engine accepted a deck made illegal by commander_not_in_pool after the legal control imported, so this lane does not establish Commander deck legality at import: the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules",
+     "probe": "commander_not_in_pool",
+     "result": "ENGINE_ACCEPTED_ILLEGAL_DECK",
+     "survives": false,
+     "verdict": "FAIL"
+    },
+    {
+     "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+     "detail": "the engine accepted a deck made illegal by colour_identity_violation after the legal control imported, so this lane does not establish Commander deck legality at import: the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules",
+     "probe": "colour_identity_violation",
+     "result": "ENGINE_ACCEPTED_ILLEGAL_DECK",
+     "survives": false,
+     "verdict": "FAIL"
+    },
+    {
+     "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+     "detail": "the control legal deck imported first, so this refusal is attributable to the engine's own legality on this mutation (mainboard_short_of_one_hundred)",
+     "probe": "mainboard_short_of_one_hundred",
+     "result": "ENGINE_LEGALITY_REFUSAL",
+     "survives": true,
+     "verdict": "PASS"
+    },
+    {
+     "attack": "AF03_REFUSAL_IS_ENGINE_LEGALITY",
+     "detail": "the control legal deck imported first, so this refusal is attributable to the engine's own legality on this mutation (empty_mainboard)",
+     "probe": "empty_mainboard",
+     "result": "ENGINE_LEGALITY_REFUSAL",
+     "survives": true,
+     "verdict": "PASS"
+    },
+    {
+     "attack": "AF03_CONTROL_DECK_IMPORTED",
+     "detail": "an unmodified legal 100-card Commander deck imported, so a refusal is evidence about the mutation and not about the deck format",
+     "result": "IMPORTED",
+     "survives": true
+    },
+    {
+     "attack": "AF03_COMMANDER_PROBE_IS_NOT_A_NAME_LOOKUP",
+     "detail": "Hill Giant is a real card the engine parses successfully (the unknown-card probe was refused while this one was accepted), so the acceptance is a Commander-eligibility decision and not a failed name lookup: the pristine candidate does not enforce Commander legality at import",
+     "probe": "commander_not_in_pool",
+     "result": "ENGINE_ACCEPTED_NON_COMMANDER",
+     "survives": false,
+     "verdict": "FAIL"
+    },
+    {
+     "attack": "AF03_COLOUR_IDENTITY_IS_ISOLATED",
+     "detail": "Shivan Reef x99 under a mono-white commander isolates colour identity (a non-basic, non-legendary card, so no copy-limit rule can explain the outcome); the pristine candidate accepted it, so Commander colour identity is unenforced at import on this surface",
+     "probe": "colour_identity_violation",
+     "result": "ENGINE_ACCEPTED_COLOUR_VIOLATION",
+     "survives": false,
+     "verdict": "FAIL"
+    },
+    {
+     "attack": "START2_VERDICT_REST_ON_OBSERVED_STATE",
+     "detail": "START-2 is a two-player obligation and this provider surface refuses every count except four, so the draw-skip postcondition was never exercised. The row is an honest FAIL of an unmeasured obligation, not evidence that CR 103.8a is satisfied or violated by the pristine engine.",
+     "exit_state": "FAIL",
+     "fixture_expectations_used_as_evidence": false,
+     "fixture_id": "WS05-CMD-START-2",
+     "result": "UNMEASURED_PROVIDER_REFUSED",
+     "survives": false,
+     "zone_counts": null
+    },
+    {
+     "attack": "EVERY_CHOSEN_OPTION_WAS_OFFERED",
+     "detail": "every externally bound decision in this lane names an option id the provider had published in that same frame, so no first-option, random or default selection is involved",
+     "question": "was any bound choice absent from the engine's own option list?",
+     "result": "ALL_OFFERED",
+     "survives": true,
+     "violations": []
+    },
+    {
+     "attack": "RNG_CREDIT_NOT_CLAIMED_WITHOUT_ACKNOWLEDGEMENT",
+     "control": null,
+     "detail": "the pristine provider declared seed_supported=false, the harness sent no seed, the engine acknowledged none, and the run is recorded UNCONTROLLED with no RNG credit; the replay and event-log exports were refused by the provider and are recorded as refusals rather than as replay capability",
+     "result": "UNCONTROLLED_AND_UNCREDITED",
+     "rng_credit": false,
+     "survives": true
+    }
+   ],
+   "pristine_runtime_survived": false,
+   "reading": "every positive claim in this lane was re-derived from the artifacts with an explicit attempt to break it. The FAIL rows are provider refusals, the 4P pass is a completed lifecycle, the deck refusals follow a successful control import, the START-2 row rests on observed zone counts, every bound choice was engine-offered, and no RNG credit exists without acknowledgement.",
+   "schema_version": "pb09.wrong-reason-falsification/1.0.0"
+  },
+  {
+   "attack_group": "HIDDEN_INFORMATION_AND_BINDING",
+   "findings": [
+    {
+     "attack": "HIDDEN_REPEAT_READ_STABILITY",
+     "detail": "two consecutive reads by the same seat returned byte-identical state views, so the four distinct views are a property of WHO asked, not of timing",
+     "question": "is one seat's view stable across reads, or is it drifting?",
+     "result": "STABLE",
+     "survives": true
+    },
+    {
+     "attack": "HIDDEN_CROSS_SEAT_OVERLAP",
+     "detail": "no seat's real hand cards appear in any other seat's view; every non-owning row is a redaction placeholder in every view",
+     "overlaps": [],
+     "question": "does any seat see another seat's real cards?",
+     "result": "NO_OVERLAP",
+     "survives": true
+    },
+    {
+     "attack": "BINDING_IGNORED_GARBAGE_OBSERVER",
+     "detail": "an observer id that names no seat produced a view with no revealed hand at all, while a real seat id produced exactly one revealed row: the projection is driven by the requested principal, not by a fixed payload",
+     "garbage_observer_accepted": false,
+     "garbage_observer_revealed_rows": 0,
+     "known_observer_revealed_rows": 0,
+     "question": "does the provider actually scope by observer_player_id, or does it project a fixed view regardless of who asks?",
+     "result": "PROVIDER_SCOPES_BY_OBSERVER",
+     "status": "OBSERVATION",
+     "survives": true
+    },
+    {
+     "attack": "REQUESTER_BINDING_ATTESTED",
+     "detail": "the response carries no is_actor marker and no observer envelope, so the standard's requester-binding requirement is NOT met even though the content is correctly scoped; this stays UNKNOWN, not PASS",
+     "envelope_fields_present": [],
+     "is_actor_rows": 0,
+     "question": "does the response authoritatively attest which principal it is scoped to?",
+     "result": "NOT_ATTESTED",
+     "survives": false
+    }
+   ],
+   "pristine_runtime_survived": false,
+   "reading": "the pristine candidate's hidden-information behaviour survives the falsification campaign on CONTENT (per-principal, non-overlapping, observer-driven) and fails the falsification on ATTESTATION (no authoritative requester binding). The honest verdict is correct redaction with unproven binding, which is UNKNOWN under the current standard, not a leak and not a pass.",
+   "schema_version": "pb09.wrong-reason-falsification/1.0.0"
+  }
+ ],
+ "runner_commit": "74f26b8f6dd2ad796f4ac6518a451a1589f8699d",
+ "runner_tree": "414393c24f0f9201c69540ddcf15bf3eae9bfd4e",
+ "schema_version": "pb09.wrong-reason-campaign/1.0.0"
+}

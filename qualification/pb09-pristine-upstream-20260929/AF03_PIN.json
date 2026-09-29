@@ -1,0 +1,234 @@
+{
+ "authority": "ENGINE_ONLY",
+ "candidate": "forge",
+ "gate": "AF03",
+ "harness_role": "constructs deliberately illegal decks and requires refusal",
+ "legal_control": {
+  "purpose": "an unmodified legal deck must import, so a refusal is evidence about the mutation and not about the deck format",
+  "response": {
+   "engine_event_offset": 0,
+   "ok": true,
+   "payload": {
+    "deck_handle": {
+     "accepted_cards": 100,
+     "backend": "forge",
+     "commander_names": [
+      "Isamaru, Hound of Konda"
+     ],
+     "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
+     "deck_id": "af03-control",
+     "handle_id": "deck-99eecc96-4628-40ee-b48b-348b5e8ca615",
+     "rejected_cards": [],
+     "warnings": []
+    }
+   },
+   "protocol_version": "2.0.0",
+   "request_id": "43480fa6-a90d-43b6-9a8f-8706f2829c87",
+   "result": {
+    "deck_handle": {
+     "accepted_cards": 100,
+     "backend": "forge",
+     "commander_names": [
+      "Isamaru, Hound of Konda"
+     ],
+     "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
+     "deck_id": "af03-control",
+     "handle_id": "deck-99eecc96-4628-40ee-b48b-348b5e8ca615",
+     "rejected_cards": [],
+     "warnings": []
+    }
+   },
+   "status": "ok",
+   "success": true,
+   "timestamp": "2026-09-29T01:14:45.645500784Z",
+   "warnings": []
+  }
+ },
+ "name": "RULES_AUTHORITY",
+ "nonblocking_limitations": [
+  "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+ ],
+ "probes": [
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "error": {
+     "code": "deck_import_failed",
+     "message": "unresolvable card names: Definitely Not A Real Card Name"
+    },
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "details": {},
+      "message": "unresolvable card names: Definitely Not A Real Card Name",
+      "retryable": false
+     }
+    ],
+    "ok": false,
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "a20b281c-15e7-49d7-b76c-066f17092b0b",
+    "status": "error",
+    "success": false,
+    "timestamp": "2026-09-29T01:14:45.654807951Z",
+    "warnings": []
+   },
+   "invariant": "deck_import_rejects_unknown_card",
+   "obligation": "a mainboard entry naming a card neither candidate knows",
+   "probe": "unknown_card_name",
+   "verdict": "PASS"
+  },
+  {
+   "detail": "the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "ok": true,
+    "payload": {
+     "deck_handle": {
+      "accepted_cards": 100,
+      "backend": "forge",
+      "commander_names": [
+       "Hill Giant"
+      ],
+      "deck_hash": "32ce1b73c51a521f789c6be0e4294b887970c49637b8154c89e113b11a9cc84e",
+      "deck_id": "af03-probe-commander_not_in_pool",
+      "handle_id": "deck-b6850eb9-6c52-47f4-9217-ba18e0241e38",
+      "rejected_cards": [],
+      "warnings": []
+     }
+    },
+    "protocol_version": "2.0.0",
+    "request_id": "e34b384b-0a25-4cfa-9d2b-885db6b132c8",
+    "result": {
+     "deck_handle": {
+      "accepted_cards": 100,
+      "backend": "forge",
+      "commander_names": [
+       "Hill Giant"
+      ],
+      "deck_hash": "32ce1b73c51a521f789c6be0e4294b887970c49637b8154c89e113b11a9cc84e",
+      "deck_id": "af03-probe-commander_not_in_pool",
+      "handle_id": "deck-b6850eb9-6c52-47f4-9217-ba18e0241e38",
+      "rejected_cards": [],
+      "warnings": []
+     }
+    },
+    "status": "ok",
+    "success": true,
+    "timestamp": "2026-09-29T01:14:45.661534459Z",
+    "warnings": []
+   },
+   "invariant": "deck_import_rejects_non_commander",
+   "obligation": "the commander is a real card but is not a legal Commander",
+   "probe": "commander_not_in_pool",
+   "verdict": "FAIL"
+  },
+  {
+   "detail": "the engine ACCEPTED a deck made illegal by this mutation, so the boundary did not enforce the Rules",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "ok": true,
+    "payload": {
+     "deck_handle": {
+      "accepted_cards": 100,
+      "backend": "forge",
+      "commander_names": [
+       "Isamaru, Hound of Konda"
+      ],
+      "deck_hash": "2a25d6c1582c955a5048c09b6dff44d7680a099515b6ddf222020992d0e591dc",
+      "deck_id": "af03-probe-colour_identity_violation",
+      "handle_id": "deck-cf5bd287-598b-44ab-af08-fdcc95ba8997",
+      "rejected_cards": [],
+      "warnings": []
+     }
+    },
+    "protocol_version": "2.0.0",
+    "request_id": "1f9a03c4-a394-41bd-b262-c44e36965421",
+    "result": {
+     "deck_handle": {
+      "accepted_cards": 100,
+      "backend": "forge",
+      "commander_names": [
+       "Isamaru, Hound of Konda"
+      ],
+      "deck_hash": "2a25d6c1582c955a5048c09b6dff44d7680a099515b6ddf222020992d0e591dc",
+      "deck_id": "af03-probe-colour_identity_violation",
+      "handle_id": "deck-cf5bd287-598b-44ab-af08-fdcc95ba8997",
+      "rejected_cards": [],
+      "warnings": []
+     }
+    },
+    "status": "ok",
+    "success": true,
+    "timestamp": "2026-09-29T01:14:45.663231107Z",
+    "warnings": []
+   },
+   "invariant": "deck_import_rejects_colour_identity_violation",
+   "obligation": "the deck's colour identity does not match the commander's, which CR 2.3 and the Commander format require",
+   "probe": "colour_identity_violation",
+   "verdict": "FAIL"
+  },
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "error": {
+     "code": "deck_import_failed",
+     "message": "Commander deck must contain exactly 100 cards; observed 51"
+    },
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "details": {},
+      "message": "Commander deck must contain exactly 100 cards; observed 51",
+      "retryable": false
+     }
+    ],
+    "ok": false,
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "fa5eb2d8-7011-4633-8019-9ac593bcabba",
+    "status": "error",
+    "success": false,
+    "timestamp": "2026-09-29T01:14:45.663904099Z",
+    "warnings": []
+   },
+   "invariant": "deck_import_rejects_wrong_deck_size",
+   "obligation": "a Commander deck with fewer than 100 cards in the mainboard",
+   "probe": "mainboard_short_of_one_hundred",
+   "verdict": "PASS"
+  },
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "error": {
+     "code": "deck_import_failed",
+     "message": "Commander deck must contain exactly 100 cards; observed 1"
+    },
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "details": {},
+      "message": "Commander deck must contain exactly 100 cards; observed 1",
+      "retryable": false
+     }
+    ],
+    "ok": false,
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "1cecc4f2-ca9b-4592-8250-62337593364b",
+    "status": "error",
+    "success": false,
+    "timestamp": "2026-09-29T01:14:45.664417860Z",
+    "warnings": []
+   },
+   "invariant": "deck_import_rejects_empty_mainboard",
+   "obligation": "a Commander deck with an empty mainboard",
+   "probe": "empty_mainboard",
+   "verdict": "PASS"
+  }
+ ],
+ "verdict": "FAIL"
+}

@@ -1,0 +1,1502 @@
+{
+ "all_counts_attempted": true,
+ "boundary": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+ "bounded_secondary_counts": [
+  6
+ ],
+ "candidate": "forge",
+ "candidate_identity": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+ "lane": "pin",
+ "required_counts": [
+  2,
+  3,
+  4,
+  5
+ ],
+ "results": {
+  "2P": {
+   "candidate": "forge",
+   "decision_tape": [],
+   "deck_identity": [
+    "forge-wsr22-deck-1",
+    "forge-wsr22-deck-2"
+   ],
+   "failure": "GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 2",
+   "failure_kind": "ENGINE_RUNTIME_ERROR",
+   "game_id": "wsr22-forge-2p-76328aed",
+   "observations": [],
+   "player_count": 2,
+   "rules_rng_binding": null,
+   "semantic_events": [],
+   "steps_completed": [
+    "handshake",
+    "import_deck"
+   ],
+   "terminal_facts": {
+    "provider_seed_supported": false,
+    "seed_sent_to_provider": false
+   }
+  },
+  "3P": {
+   "candidate": "forge",
+   "decision_tape": [],
+   "deck_identity": [
+    "forge-wsr22-deck-1",
+    "forge-wsr22-deck-2",
+    "forge-wsr22-deck-3"
+   ],
+   "failure": "GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 3",
+   "failure_kind": "ENGINE_RUNTIME_ERROR",
+   "game_id": "wsr22-forge-3p-0297886b",
+   "observations": [],
+   "player_count": 3,
+   "rules_rng_binding": null,
+   "semantic_events": [],
+   "steps_completed": [
+    "handshake",
+    "import_deck"
+   ],
+   "terminal_facts": {
+    "provider_seed_supported": false,
+    "seed_sent_to_provider": false
+   }
+  },
+  "4P": {
+   "candidate": "forge",
+   "decision_tape": [
+    {
+     "actor": "p3",
+     "chosen_option_id": "opt-69cd2044-7f24-4ec0-a400-0a8d26dfaf6c",
+     "kind": "STARTING_PLAYER",
+     "note": "fixture-scripted seat p1",
+     "offered_option_ids": [
+      "opt-69cd2044-7f24-4ec0-a400-0a8d26dfaf6c",
+      "opt-4c57fbfb-5c82-4e85-ad2a-771c77bf3d2e",
+      "opt-a0f65a73-6283-498f-b598-0fea6a8d9bd7",
+      "opt-0a645fa4-fcec-454b-a7cb-2a2c6790b1eb"
+     ],
+     "policy": "fixture_scripted_seat",
+     "revision": 1,
+     "step": "starting_player"
+    },
+    {
+     "actor": "p1",
+     "chosen_option_id": null,
+     "kind": "MULLIGAN",
+     "note": "external keep decision; no bottoming",
+     "offered_option_ids": [
+      "opt-0acc19fc-4e7a-4eac-b8bf-71a94f09651e",
+      "opt-08f19a8f-3f28-44bc-bb74-643049c637f0"
+     ],
+     "policy": "keep_all",
+     "revision": 2,
+     "step": "mulligan"
+    },
+    {
+     "actor": "p2",
+     "chosen_option_id": null,
+     "kind": "MULLIGAN",
+     "note": "external keep decision; no bottoming",
+     "offered_option_ids": [
+      "opt-1f7f094c-9182-465a-94a9-b74bd5093a2e",
+      "opt-813f2a85-b19e-4b37-ba7f-2e2c8e63dbb7"
+     ],
+     "policy": "keep_all",
+     "revision": 3,
+     "step": "mulligan"
+    },
+    {
+     "actor": "p3",
+     "chosen_option_id": null,
+     "kind": "MULLIGAN",
+     "note": "external keep decision; no bottoming",
+     "offered_option_ids": [
+      "opt-0b703bfd-34df-4037-9ca5-34b5aed74c19",
+      "opt-11b1f5a6-ca04-4c8b-9181-2129c5c1b719"
+     ],
+     "policy": "keep_all",
+     "revision": 4,
+     "step": "mulligan"
+    },
+    {
+     "actor": "p4",
+     "chosen_option_id": null,
+     "kind": "MULLIGAN",
+     "note": "external keep decision; no bottoming",
+     "offered_option_ids": [
+      "opt-912a7e66-6b9e-46d9-9b88-14eb3f489f9d",
+      "opt-c6b99eb4-d064-4d4d-af61-718b951b2398"
+     ],
+     "policy": "keep_all",
+     "revision": 5,
+     "step": "mulligan"
+    },
+    {
+     "actor": "p1",
+     "chosen_option_id": "opt-a9b1045f-3dcb-4178-a53e-6cb292be3815",
+     "kind": "PRIORITY",
+     "note": "external priority pass",
+     "offered_option_ids": [
+      "opt-a9b1045f-3dcb-4178-a53e-6cb292be3815"
+     ],
+     "policy": "pass_when_offered",
+     "revision": 6,
+     "step": "priority"
+    }
+   ],
+   "deck_identity": [
+    "forge-wsr22-deck-1",
+    "forge-wsr22-deck-2",
+    "forge-wsr22-deck-3",
+    "forge-wsr22-deck-4"
+   ],
+   "failure": null,
+   "failure_kind": null,
+   "game_id": "wsr22-forge-4p-e89a4dc1",
+   "observations": [
+    {
+     "payload": {
+      "bridge": {
+       "pending_decision": null,
+       "revision": -1,
+       "session_status": "RUNNING",
+       "state_hash": null
+      },
+      "decision": {
+       "executed": true,
+       "post_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e",
+       "pre_state_hash": "9c9706eb1180ebaa62f6e929234389de17d3b16856bb770e34bdb5e9293bcafa"
+      },
+      "game_over": false,
+      "next_decision": {
+       "status": "withheld"
+      },
+      "state": {
+       "active_player_id": null,
+       "event_sequence": 7,
+       "game_id": "wsr22-forge-4p-e89a4dc1",
+       "legal_actions": [],
+       "phase": "beginning",
+       "players": [
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p1",
+         "poison_counters": 0,
+         "seat": 0,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p2",
+         "poison_counters": 0,
+         "seat": 1,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p3",
+         "poison_counters": 0,
+         "seat": 2,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p4",
+         "poison_counters": 0,
+         "seat": 3,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        }
+       ],
+       "priority_player_id": null,
+       "rng_counter": null,
+       "seed": null,
+       "stack": [],
+       "status": "in_progress",
+       "step": null,
+       "turn_number": 0,
+       "winner_ids": []
+      }
+     },
+     "step": "starting_player"
+    },
+    {
+     "payload": {
+      "bridge": {
+       "pending_decision": null,
+       "revision": -1,
+       "session_status": "RUNNING",
+       "state_hash": null
+      },
+      "decision": {
+       "executed": true,
+       "post_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e",
+       "pre_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e"
+      },
+      "game_over": false,
+      "next_decision": {
+       "status": "withheld"
+      },
+      "state": {
+       "active_player_id": null,
+       "event_sequence": 10,
+       "game_id": "wsr22-forge-4p-e89a4dc1",
+       "legal_actions": [],
+       "phase": "beginning",
+       "players": [
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p1",
+         "poison_counters": 0,
+         "seat": 0,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p2",
+         "poison_counters": 0,
+         "seat": 1,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p3",
+         "poison_counters": 0,
+         "seat": 2,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p4",
+         "poison_counters": 0,
+         "seat": 3,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        }
+       ],
+       "priority_player_id": null,
+       "rng_counter": null,
+       "seed": null,
+       "stack": [],
+       "status": "in_progress",
+       "step": null,
+       "turn_number": 0,
+       "winner_ids": []
+      }
+     },
+     "step": "mulligan_keep"
+    },
+    {
+     "payload": {
+      "bridge": {
+       "pending_decision": null,
+       "revision": -1,
+       "session_status": "RUNNING",
+       "state_hash": null
+      },
+      "decision": {
+       "executed": true,
+       "post_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e",
+       "pre_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e"
+      },
+      "game_over": false,
+      "next_decision": {
+       "status": "withheld"
+      },
+      "state": {
+       "active_player_id": null,
+       "event_sequence": 13,
+       "game_id": "wsr22-forge-4p-e89a4dc1",
+       "legal_actions": [],
+       "phase": "beginning",
+       "players": [
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p1",
+         "poison_counters": 0,
+         "seat": 0,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p2",
+         "poison_counters": 0,
+         "seat": 1,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p3",
+         "poison_counters": 0,
+         "seat": 2,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p4",
+         "poison_counters": 0,
+         "seat": 3,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        }
+       ],
+       "priority_player_id": null,
+       "rng_counter": null,
+       "seed": null,
+       "stack": [],
+       "status": "in_progress",
+       "step": null,
+       "turn_number": 0,
+       "winner_ids": []
+      }
+     },
+     "step": "mulligan_keep"
+    },
+    {
+     "payload": {
+      "bridge": {
+       "pending_decision": null,
+       "revision": -1,
+       "session_status": "RUNNING",
+       "state_hash": null
+      },
+      "decision": {
+       "executed": true,
+       "post_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e",
+       "pre_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e"
+      },
+      "game_over": false,
+      "next_decision": {
+       "status": "withheld"
+      },
+      "state": {
+       "active_player_id": null,
+       "event_sequence": 16,
+       "game_id": "wsr22-forge-4p-e89a4dc1",
+       "legal_actions": [],
+       "phase": "beginning",
+       "players": [
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p1",
+         "poison_counters": 0,
+         "seat": 0,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p2",
+         "poison_counters": 0,
+         "seat": 1,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p3",
+         "poison_counters": 0,
+         "seat": 2,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p4",
+         "poison_counters": 0,
+         "seat": 3,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        }
+       ],
+       "priority_player_id": null,
+       "rng_counter": null,
+       "seed": null,
+       "stack": [],
+       "status": "in_progress",
+       "step": null,
+       "turn_number": 0,
+       "winner_ids": []
+      }
+     },
+     "step": "mulligan_keep"
+    },
+    {
+     "payload": {
+      "bridge": {
+       "pending_decision": null,
+       "revision": -1,
+       "session_status": "RUNNING",
+       "state_hash": null
+      },
+      "decision": {
+       "executed": true,
+       "post_state_hash": "9d90e5995bd30c1deb9917fa0c3a2b3c7deac43655ffe8c3eb1ed2386419feec",
+       "pre_state_hash": "1712c5243560e0703f10a05140c2fd9ef5f8796ee8b72f494e036feb6214fe6e"
+      },
+      "game_over": false,
+      "next_decision": {
+       "status": "withheld"
+      },
+      "state": {
+       "active_player_id": "p1",
+       "event_sequence": 19,
+       "game_id": "wsr22-forge-4p-e89a4dc1",
+       "legal_actions": [],
+       "phase": "beginning",
+       "players": [
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p1",
+         "poison_counters": 0,
+         "seat": 0,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p2",
+         "poison_counters": 0,
+         "seat": 1,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p3",
+         "poison_counters": 0,
+         "seat": 2,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p4",
+         "poison_counters": 0,
+         "seat": 3,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        }
+       ],
+       "priority_player_id": "p1",
+       "rng_counter": null,
+       "seed": null,
+       "stack": [],
+       "status": "in_progress",
+       "step": "UPKEEP",
+       "turn_number": 1,
+       "winner_ids": []
+      }
+     },
+     "step": "mulligan_keep"
+    },
+    {
+     "payload": {
+      "bridge": {
+       "pending_decision": null,
+       "revision": -1,
+       "session_status": "RUNNING",
+       "state_hash": null
+      },
+      "decision": {
+       "executed": true,
+       "post_state_hash": "d98011d4dcc0dff3ac51a7846648fcc779fa7ee1f50a40ba71f27298fc75c269",
+       "pre_state_hash": "9d90e5995bd30c1deb9917fa0c3a2b3c7deac43655ffe8c3eb1ed2386419feec"
+      },
+      "game_over": false,
+      "next_decision": {
+       "status": "withheld"
+      },
+      "state": {
+       "active_player_id": "p1",
+       "event_sequence": 22,
+       "game_id": "wsr22-forge-4p-e89a4dc1",
+       "legal_actions": [],
+       "phase": "beginning",
+       "players": [
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p1",
+         "poison_counters": 0,
+         "seat": 0,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p2",
+         "poison_counters": 0,
+         "seat": 1,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p3",
+         "poison_counters": 0,
+         "seat": 2,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        },
+        {
+         "commander_cast_count": {
+          "Isamaru, Hound of Konda": 0
+         },
+         "commander_damage_received": {},
+         "has_lost": false,
+         "land_plays_remaining": 1,
+         "life": 40,
+         "loss_reason": null,
+         "mana_pool": {
+          "B": 0,
+          "C": 0,
+          "G": 0,
+          "R": 0,
+          "U": 0,
+          "W": 0
+         },
+         "player_id": "p4",
+         "poison_counters": 0,
+         "seat": 3,
+         "zones": {
+          "battlefield": [],
+          "command": [
+           "Isamaru, Hound of Konda",
+           "Commander Effect"
+          ],
+          "exile": [],
+          "graveyard": [],
+          "hand": [
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>",
+           "<hidden>"
+          ],
+          "library": []
+         }
+        }
+       ],
+       "priority_player_id": "p2",
+       "rng_counter": null,
+       "seed": null,
+       "stack": [],
+       "status": "in_progress",
+       "step": "UPKEEP",
+       "turn_number": 1,
+       "winner_ids": []
+      }
+     },
+     "step": "priority_pass"
+    }
+   ],
+   "player_count": 4,
+   "rules_rng_binding": {
+    "acknowledged_seed": null,
+    "acknowledgement_source": "create_commander_game_response",
+    "classification": "UNCONTROLLED_ENGINE_RNG",
+    "controlled": false,
+    "requested_seed": 424242,
+    "rng_credit": false,
+    "schema_version": "commander-lab.seed-binding/1.0.0"
+   },
+   "semantic_events": [],
+   "steps_completed": [
+    "handshake",
+    "import_deck",
+    "create_commander_game",
+    "start_game",
+    "decision_drive"
+   ],
+   "terminal_facts": {
+    "created_player_count": 4,
+    "decision_identity_shape": {
+     "field": "revision",
+     "pass_extra": [
+      "actor_id"
+     ],
+     "requires_external_control": false,
+     "type": "monotonic_long"
+    },
+    "draw_step_decision_exposed": false,
+    "draw_step_decision_frames": [],
+    "priority_pass_state_changed": null,
+    "priority_reached": true,
+    "provider_seed_supported": false,
+    "rules_rng_binding": {
+     "acknowledged_seed": null,
+     "acknowledgement_source": "create_commander_game_response",
+     "classification": "UNCONTROLLED_ENGINE_RNG",
+     "controlled": false,
+     "requested_seed": 424242,
+     "rng_credit": false,
+     "schema_version": "commander-lab.seed-binding/1.0.0"
+    },
+    "seed_sent_to_provider": false,
+    "start_status": "started"
+   }
+  },
+  "5P": {
+   "candidate": "forge",
+   "decision_tape": [],
+   "deck_identity": [
+    "forge-wsr22-deck-1",
+    "forge-wsr22-deck-2",
+    "forge-wsr22-deck-3",
+    "forge-wsr22-deck-4",
+    "forge-wsr22-deck-5"
+   ],
+   "failure": "GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 5",
+   "failure_kind": "ENGINE_RUNTIME_ERROR",
+   "game_id": "wsr22-forge-5p-e3e8159a",
+   "observations": [],
+   "player_count": 5,
+   "rules_rng_binding": null,
+   "semantic_events": [],
+   "steps_completed": [
+    "handshake",
+    "import_deck"
+   ],
+   "terminal_facts": {
+    "provider_seed_supported": false,
+    "seed_sent_to_provider": false
+   }
+  },
+  "6P": {
+   "candidate": "forge",
+   "decision_tape": [],
+   "deck_identity": [
+    "forge-wsr22-deck-1",
+    "forge-wsr22-deck-2",
+    "forge-wsr22-deck-3",
+    "forge-wsr22-deck-4",
+    "forge-wsr22-deck-5",
+    "forge-wsr22-deck-6"
+   ],
+   "failure": "GameDriveError: create_commander_game failed: player_count_unsupported: this bridge qualifies exactly four players; got 6",
+   "failure_kind": "ENGINE_RUNTIME_ERROR",
+   "game_id": "wsr22-forge-6p-2ca8736e",
+   "observations": [],
+   "player_count": 6,
+   "rules_rng_binding": null,
+   "semantic_events": [],
+   "steps_completed": [
+    "handshake",
+    "import_deck"
+   ],
+   "terminal_facts": {
+    "provider_seed_supported": false,
+    "seed_sent_to_provider": false
+   }
+  }
+ },
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge @ /home/moeen/code/pb09-forge-bridge-pin-20260929",
+  "adapter_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "adapter_manifest_pin": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "adapter_repository": "https://github.com/moeendres-png/forge.git",
+  "boundary": "PB09_PRISTINE_UPSTREAM_EXECUTION",
+  "bridge_note": "the manifest's own bridge_source pin (secondary_engine.bridge_source.commit), whose six Rules-Core modules are byte-identical to the pristine candidate",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": false,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 4,
+   "mode_selection_supported": false,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "bounded proven subset only: priority pass, targetless nonmodal zero-mana execution (no discretionary mana payment; nonzero-mana candidates fail closed), fixed-output mana abilities, binary mulligan keep/ship, external starting-player choice; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are rejected: engine RNG is global and same-seed determinism is not claimed",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": false,
+   "seed_supported": false,
+   "stack_visible": true,
+   "starting_state_injection_supported": false,
+   "target_selection_supported": false,
+   "trigger_order_supported": false
+  },
+  "engine_candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "engine_candidate_release": "forge-2.0.14",
+  "engine_candidate_repository": "https://github.com/Card-Forge/forge.git",
+  "engine_identity_class": "PRISTINE_UPSTREAM_CANDIDATE_OF_RECORD",
+  "lab_fork_reference_not_executed": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "lane": "pin",
+  "nonclaims": [
+   "this run is about the pinned pristine candidate, not the Commander-Lab fork",
+   "no result here is evidence for the fork column, and no fork result transfers here",
+   "PB-09 itself remains OPEN and is a Coordinator decision"
+  ],
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "runner_commit": "74f26b8f6dd2ad796f4ac6518a451a1589f8699d",
+  "runner_tree": "414393c24f0f9201c69540ddcf15bf3eae9bfd4e",
+  "scenario_injection_supported": false,
+  "seed_supported": false,
+  "starting_state_injection_supported": false
+ },
+ "schema_version": "pb09.player-cardinality/1.0.0"
+}

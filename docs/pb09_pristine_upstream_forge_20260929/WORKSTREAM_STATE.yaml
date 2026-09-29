@@ -103,6 +103,12 @@ executor_handoff:
   rule: executor is recorded explicitly, never inferred from quota in-artifact;
     the successor must not claim the GLM session's observations were its own
     (all three receipts name the recording executor).
+  continuation_status: >
+    CLOSED. The launcher moved this session to opencode-go/space-bunny-free
+    (native max), confirmed by the running session's own model identity, so the
+    PB-09 workstream is continuing under Space Bunny MAX in the same worktree
+    from the committed state. The executor swap is recorded rather than
+    inferred, and no observation is re-attributed.
 
 phases:
   - id: PHASE-1

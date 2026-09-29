@@ -1,0 +1,65 @@
+{
+ "executing_checkout_head": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+ "executing_checkout_head_tree": "4cd539f1c56876590b8679dc1534d4632560c66d",
+ "lane": "pin",
+ "pinned_candidate": {
+  "bridge_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "bridge_repository": "https://github.com/moeendres-png/forge.git",
+  "bridge_rules_core_base": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "license": "GPL-3.0",
+  "release": "forge-2.0.14",
+  "repository": "https://github.com/Card-Forge/forge.git"
+ },
+ "rules_core_equivalence": {
+  "actual_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+  "compared_module_roots": [
+   "forge-game",
+   "forge-core",
+   "forge-ai",
+   "forge-gui",
+   "forge-gui-desktop",
+   "adventure-editor"
+  ],
+  "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+  "differing_modules": [],
+  "engine_equivalent": true,
+  "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+  "modules": {
+   "adventure-editor": {
+    "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+    "identical": true,
+    "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+   },
+   "forge-ai": {
+    "actual_tree": "a67338ba4d9dfbe22a14093bc999fbc4d34d6392",
+    "identical": true,
+    "recorded_tree": "a67338ba4d9dfbe22a14093bc999fbc4d34d6392"
+   },
+   "forge-core": {
+    "actual_tree": "e96fd92ae601eb5bb7051a77e9cc470619e3e10b",
+    "identical": true,
+    "recorded_tree": "e96fd92ae601eb5bb7051a77e9cc470619e3e10b"
+   },
+   "forge-game": {
+    "actual_tree": "2b4abdf995d308910a4432de8220c1b388dbd18a",
+    "identical": true,
+    "recorded_tree": "2b4abdf995d308910a4432de8220c1b388dbd18a"
+   },
+   "forge-gui": {
+    "actual_tree": "8f5beaa0d617d9124347d26228a99f6dac26dca3",
+    "identical": true,
+    "recorded_tree": "8f5beaa0d617d9124347d26228a99f6dac26dca3"
+   },
+   "forge-gui-desktop": {
+    "actual_tree": "d352edd9807e09f7e403df3f63e7c84d5c558532",
+    "identical": true,
+    "recorded_tree": "d352edd9807e09f7e403df3f63e7c84d5c558532"
+   }
+  },
+  "one_sided_modules": [],
+  "recorded_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+ },
+ "schema_version": "pb09.engine-identity/1.0.0",
+ "statement": "every observation in this lane is a property of the pristine upstream candidate: the six Rules-Core modules of the executing checkout are byte-identical to the pinned commit, and the bridge module is bound separately as the provider surface"
+}
