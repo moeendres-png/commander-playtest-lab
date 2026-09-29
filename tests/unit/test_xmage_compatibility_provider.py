@@ -6,7 +6,7 @@ from pathlib import Path
 XMAGE_REPOSITORY = "https://github.com/moeendres-png/mage.git"
 XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-XMAGE_COMMIT = "9cb5fb9e9558f980da81c85ca3fdc595161c8d34"
+XMAGE_COMMIT = "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c"
 
 
 def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
