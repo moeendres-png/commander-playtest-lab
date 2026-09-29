@@ -143,6 +143,47 @@ class TestRowClassification:
         # bit even when the mismatch list is empty. Both are reported.
         assert verdict.construction_match is False
 
+    def test_causal_verdict_requires_both_engine_match_and_terminal(self) -> None:
+        stack_verdict = {"causal_match": True, "mismatches": []}
+        terminal = {"kind": "priority_ring_with_live_response", "observed": True}
+        verdict = ml.classification_from_causal_verdict(
+            "WS05-MP-PRIO-3",
+            ml.MIDGAME_LANE,
+            "causal_stack",
+            stack_verdict,
+            terminal,
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_REACHABLE"
+        assert verdict.engine_accepted_starting_state is True
+        assert verdict.entry_mode == "causal_stack"
+
+    def test_causal_stack_without_terminal_observation_stays_measured(self) -> None:
+        stack_verdict = {"causal_match": True, "mismatches": []}
+        terminal = {"kind": "commander_zone_choice", "observed": False, "detail": "absent"}
+        verdict = ml.classification_from_causal_verdict(
+            "WS05-CMD-ZONE-GY-YES",
+            ml.MIDGAME_LANE,
+            "causal_stack",
+            stack_verdict,
+            terminal,
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        assert verdict.detail is not None and "absent" in verdict.detail
+
+    def test_causal_mismatch_is_never_promoted(self) -> None:
+        stack_verdict = {"causal_match": False, "mismatches": ["STACK_SOURCE_ABSENT: x"]}
+        verdict = ml.classification_from_causal_verdict(
+            "WS05-MP-PRIO-3",
+            ml.MIDGAME_LANE,
+            "causal_stack",
+            stack_verdict,
+            None,
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CONSTRUCTION_MISMATCH"
+
     def test_rejected_row_records_the_engine_code_and_no_credit(self) -> None:
         verdict = ml.rejected_verdict(
             "WS05-MP-PRIO-3",
@@ -180,6 +221,8 @@ class TestProbeReceipt:
         allowed = {
             "ENGINE_NATIVE_REACHABLE",
             "ENGINE_STATE_ACCEPTED",
+            "CAUSAL_ROUTE_REACHABLE",
+            "CAUSAL_ROUTE_MEASURED_BLOCKED",
             "CONSTRUCTION_MISMATCH",
             "ENGINE_REJECTED",
             "TRANSPORT_FAILURE",
@@ -218,6 +261,8 @@ class TestProbeReceipt:
             for key in (
                 "engine_native_reachable",
                 "engine_state_accepted_obligation_not_executed",
+                "causal_route_reachable",
+                "causal_route_measured_blocked",
                 "construction_mismatch",
                 "engine_rejected",
             )

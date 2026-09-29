@@ -50,6 +50,8 @@ DECLARATION_STEP_PRIORITY_ALLOWANCE = ("priority_player:", "priority ")
 Outcome = Literal[
     "ENGINE_NATIVE_REACHABLE",
     "ENGINE_STATE_ACCEPTED",
+    "CAUSAL_ROUTE_REACHABLE",
+    "CAUSAL_ROUTE_MEASURED_BLOCKED",
     "CONSTRUCTION_MISMATCH",
     "ENGINE_REJECTED",
     "TRANSPORT_FAILURE",
@@ -111,6 +113,8 @@ class RowVerdict:
     engine_commit: str | None
     allowance_applied: tuple[str, ...] = ()
     engine_accepted_starting_state: bool = False
+    entry_mode: str = "placement"
+    causal_verdict: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -122,6 +126,8 @@ class RowVerdict:
             "engine_construction_match": self.construction_match,
             "mismatches": list(self.mismatches),
             "declaration_step_priority_allowance_applied": list(self.allowance_applied),
+            "entry_mode": self.entry_mode,
+            "causal_verdict": self.causal_verdict,
             "requested_state_digest": self.requested_state_digest,
             "constructed_state_digest": self.constructed_state_digest,
             "lane": self.lane,
@@ -399,6 +405,60 @@ def classification_from_arrival(
         engine_commit=engine_commit,
         allowance_applied=allowance,
         engine_accepted_starting_state=True,
+    )
+
+
+def classification_from_causal_verdict(
+    fixture_id: str,
+    lane: str,
+    entry_mode: str,
+    verdict: dict[str, Any],
+    terminal_obligation: dict[str, Any] | None,
+    *,
+    engine_commit: str | None,
+) -> RowVerdict:
+    """Classify the engine's own causal-route verdict for one row.
+
+    The decision is entirely the engine's, in two separately reported parts.
+    ``CAUSAL_ROUTE_REACHABLE`` requires the engine to report ``causal_match``
+    with no mismatches **and** the row's terminal obligation to be observed.
+    A route the engine executed but whose terminal obligation it did not
+    produce — the commander-zone choice that never appears for a setup copy,
+    for example — is ``CAUSAL_ROUTE_MEASURED_BLOCKED``: the causal execution
+    is proven, the missing terminal is measured, and nothing is promoted. A
+    route the engine did not produce is ``CONSTRUCTION_MISMATCH``. The
+    engine's own verdict and the terminal record travel verbatim in the row.
+    """
+    mismatches = tuple(str(item) for item in (verdict.get("mismatches") or ()))
+    causal_match = bool(verdict.get("causal_match"))
+    outcome: Outcome
+    detail: str | None
+    if not causal_match or mismatches:
+        outcome = "CONSTRUCTION_MISMATCH"
+        detail = "; ".join(mismatches) or "the engine did not produce the causal route"
+    elif terminal_obligation is None or terminal_obligation.get("observed"):
+        outcome = "CAUSAL_ROUTE_REACHABLE"
+        detail = None
+    else:
+        outcome = "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        detail = str(terminal_obligation.get("detail") or "terminal obligation not observed")
+    combined_verdict = dict(verdict)
+    if terminal_obligation is not None:
+        combined_verdict["terminal_obligation"] = terminal_obligation
+    return RowVerdict(
+        fixture_id=fixture_id,
+        outcome=outcome,
+        code=None,
+        detail=detail,
+        construction_match=None,
+        mismatches=mismatches,
+        requested_state_digest=None,
+        constructed_state_digest=None,
+        lane=lane,
+        engine_commit=engine_commit,
+        engine_accepted_starting_state=True,
+        entry_mode=entry_mode,
+        causal_verdict=combined_verdict,
     )
 
 

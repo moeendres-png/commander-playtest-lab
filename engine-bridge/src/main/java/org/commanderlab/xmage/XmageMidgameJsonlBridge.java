@@ -64,6 +64,9 @@ final class XmageMidgameJsonlBridge {
     private XmageFullGameSession session;
     private XmageNativeStateRestoration restoration;
     private String planId;
+    private String entryMode = "placement";
+    private XmageMidgameCausalBridge.CausalStackPlan causalStackPlan;
+    private XmageMidgameCausalBridge.CausalEliminationPlan causalEliminationPlan;
 
     record Result(String json, boolean shutdown) {
     }
@@ -101,6 +104,8 @@ final class XmageMidgameJsonlBridge {
             case "get_midgame_decision" -> getDecision(requestId);
             case "submit_midgame_decision" -> submitDecision(requestId, request);
             case "complete_midgame_arrival" -> completeMidgameArrival(requestId, request);
+            case "complete_causal_reconstruction" ->
+                    completeCausalReconstruction(requestId, request);
             case "get_midgame_state" -> getState(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId);
             case "submit_action" -> submitAction(requestId, request);
@@ -282,44 +287,32 @@ final class XmageMidgameJsonlBridge {
                     : stringValue(payload, "plan_id");
             int startingPlayerSeat = optionalInt(payload, "starting_player_seat", 0);
             int startingLife = optionalInt(payload, "starting_life", 40);
+            String requestedEntryMode = stringValue(payload, "entry_mode");
+            String resolvedEntryMode = requestedEntryMode.isBlank()
+                    ? "placement"
+                    : requestedEntryMode;
+            if (!resolvedEntryMode.equals("placement")
+                    && !resolvedEntryMode.equals("causal_stack")
+                    && !resolvedEntryMode.equals("causal_elimination")) {
+                return error(
+                        requestId,
+                        "unsupported_entry_mode",
+                        "CREATE_MIDGAME_GAME supports entry_mode placement, causal_stack or "
+                                + "causal_elimination; observed " + requestedEntryMode,
+                        false
+                );
+            }
 
-            XmageNativeStateRestoration.Plan plan =
-                    XmageNativeStateRestoration.planFromFrozenRecord(
-                            payload.getAsJsonObject("requested_starting_state"), planTag, seed);
-            // Fail closed before any game mutation: the plan validator rejects
-            // every unsupported dimension with a coded reason.
-            XmageNativeStateRestoration.validatePlan(plan);
-
-            List<String> handles = importScaffolding(plan, planTag);
-            this.restoration = restorationFor(plan);
-            this.planId = planTag;
-            this.session = new XmageFullGameSession(
+            return createForEntryMode(
+                    requestId,
+                    payload.getAsJsonObject("requested_starting_state"),
                     gameId,
-                    handles,
+                    planTag,
+                    seed,
                     startingPlayerSeat,
                     startingLife,
-                    seed,
-                    deckImporter,
-                    restoration
-            );
-
-            JsonObject response = new JsonObject();
-            response.addProperty("game_id", gameId);
-            response.addProperty("plan_id", planTag);
-            response.addProperty("player_count", session.playerCount());
-            response.addProperty("starting_player_seat", startingPlayerSeat);
-            response.addProperty("starting_life", startingLife);
-            response.addProperty("seed", seed);
-            response.addProperty("seed_controlled", true);
-            response.add("rules_seed_binding", session.rulesSeedBindingPayload());
-            response.addProperty("seed_scope", "single_isolated_jvm_process");
-            response.addProperty("decision_protocol_version",
-                    XmageFullGameDecisionController.PROTOCOL_VERSION);
-            response.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
-            response.addProperty("scaffolding_decks_are_game_decks", false);
-            response.add("starting_state_dimensions_manifest",
-                    XmageNativeStateRestoration.dimensionsPayload());
-            return success(requestId, response, false);
+                    resolvedEntryMode,
+                    payload);
         } catch (XmageNativeStateRestoration.RestorationException exc) {
             return error(
                     requestId,
@@ -327,9 +320,245 @@ final class XmageMidgameJsonlBridge {
                     exceptionMessage(exc),
                     false
             );
+        } catch (XmageMidgameCausalBridge.CausalException exc) {
+            return error(
+                    requestId,
+                    "midgame_causal_preparation_rejected",
+                    exceptionMessage(exc),
+                    false
+            );
         } catch (Exception exc) {
             return error(requestId, "midgame_creation_failed", exceptionMessage(exc), false);
         }
+    }
+
+    /**
+     * Builds the session for one entry mode and answers with the success
+     * payload or a coded rejection. Unsupported causal preparations fail
+     * closed here, before any game exists.
+     */
+    private Result createForEntryMode(
+            String requestId,
+            JsonObject requestedState,
+            String gameId,
+            String planTag,
+            long seed,
+            int startingPlayerSeat,
+            int startingLife,
+            String resolvedEntryMode,
+            JsonObject payload) {
+        try {
+            if ("causal_stack".equals(resolvedEntryMode)) {
+                return success(requestId, createCausalStack(
+                        requestedState, gameId, planTag, seed,
+                        startingPlayerSeat, startingLife, payload), false);
+            }
+            if ("causal_elimination".equals(resolvedEntryMode)) {
+                return success(requestId, createCausalElimination(
+                        requestedState, gameId, planTag, seed,
+                        startingPlayerSeat, startingLife, payload), false);
+            }
+            return success(requestId, createPlacement(
+                    requestedState, gameId, planTag, seed,
+                    startingPlayerSeat, startingLife), false);
+        } catch (XmageMidgameCausalBridge.CausalException exc) {
+            return error(
+                    requestId,
+                    "midgame_causal_preparation_rejected",
+                    exceptionMessage(exc),
+                    false);
+        }
+    }
+
+    private JsonObject createPlacement(
+            JsonObject requestedState,
+            String gameId,
+            String planTag,
+            long seed,
+            int startingPlayerSeat,
+            int startingLife) {
+        XmageNativeStateRestoration.Plan plan =
+                XmageNativeStateRestoration.planFromFrozenRecord(
+                        requestedState, planTag, seed);
+        // Fail closed before any game mutation: the plan validator rejects
+        // every unsupported dimension with a coded reason.
+        XmageNativeStateRestoration.validatePlan(plan);
+
+        List<String> handles = importScaffolding(plan, planTag);
+        this.restoration = restorationFor(plan);
+        this.planId = planTag;
+        this.entryMode = "placement";
+        this.session = new XmageFullGameSession(
+                gameId,
+                handles,
+                startingPlayerSeat,
+                startingLife,
+                seed,
+                deckImporter,
+                restoration
+        );
+
+        JsonObject response = createdResponse(
+                gameId, planTag, startingPlayerSeat, startingLife, seed);
+        response.addProperty("entry_mode", "placement");
+        return response;
+    }
+
+    /**
+     * Causal-stack entry: the record's stack frames become a pre-causal
+     * position (source cards in hand, declared fuel on the battlefield) and
+     * the published causal plan tells the external pilot exactly which engine
+     * transitions to cause. The engine casts, targets, pays and resolves;
+     * this method places nothing on the stack itself.
+     */
+    private JsonObject createCausalStack(
+            JsonObject requestedState,
+            String gameId,
+            String planTag,
+            long seed,
+            int startingPlayerSeat,
+            int startingLife,
+            JsonObject payload) {
+        List<XmageMidgameCausalBridge.DeclaredCard> fuel =
+                parseDeclaredCards(payload, "fuel");
+        XmageMidgameCausalBridge.CausalStackPlan stackPlan =
+                XmageMidgameCausalBridge.prepareCausalStack(
+                        requestedState, fuel, planTag, seed);
+
+        List<String> handles = importScaffolding(stackPlan.prepared().preStackPlan(), planTag);
+        this.restoration = stackPlan.prepared().restoration();
+        this.planId = planTag;
+        this.entryMode = "causal_stack";
+        this.causalStackPlan = stackPlan;
+        this.session = new XmageFullGameSession(
+                gameId,
+                handles,
+                startingPlayerSeat,
+                startingLife,
+                seed,
+                deckImporter,
+                restoration
+        );
+
+        JsonObject response = createdResponse(
+                gameId, planTag, startingPlayerSeat, startingLife, seed);
+        response.addProperty("entry_mode", "causal_stack");
+        response.add("causal_plan", XmageMidgameCausalBridge.causalStackPayload(
+                stackPlan, restoration));
+        return response;
+    }
+
+    /**
+     * Causal-elimination entry: the record's placeable dimensions plus the
+     * declared instruments (damage spells in the actor's hand, mana on the
+     * actor's battlefield). A victim life the engine cannot honour at
+     * placement is substituted openly with the recorded starting life; the
+     * recorded value is then reachable only by causing real damage. The engine
+     * damages, resolves, applies SBAs and eliminates; this method sets no
+     * life total and no lost/left flag itself.
+     */
+    private JsonObject createCausalElimination(
+            JsonObject requestedState,
+            String gameId,
+            String planTag,
+            long seed,
+            int startingPlayerSeat,
+            int startingLife,
+            JsonObject payload) {
+        if (!payload.has("elimination") || !payload.get("elimination").isJsonObject()) {
+            throw new XmageMidgameCausalBridge.CausalException(
+                    "MISSING_ELIMINATION_SPEC",
+                    "CREATE_MIDGAME_GAME with entry_mode causal_elimination requires "
+                            + "payload.elimination {actor, victim, instruments}; the lane never "
+                            + "infers whom to eliminate or with what");
+        }
+        JsonObject spec = payload.getAsJsonObject("elimination");
+        String actor = requiredTextIn(spec, "actor");
+        String victim = requiredTextIn(spec, "victim");
+        List<XmageMidgameCausalBridge.DeclaredCard> instruments =
+                parseDeclaredCards(spec, "instruments");
+        XmageMidgameCausalBridge.CausalEliminationPlan elimPlan =
+                XmageMidgameCausalBridge.planCausalElimination(
+                        requestedState, actor, victim, instruments, planTag, seed);
+
+        List<String> handles = importScaffolding(elimPlan.plan(), planTag);
+        this.restoration = restorationFor(elimPlan.plan());
+        this.planId = planTag;
+        this.entryMode = "causal_elimination";
+        this.causalEliminationPlan = elimPlan;
+        this.session = new XmageFullGameSession(
+                gameId,
+                handles,
+                startingPlayerSeat,
+                startingLife,
+                seed,
+                deckImporter,
+                restoration
+        );
+
+        JsonObject response = createdResponse(
+                gameId, planTag, startingPlayerSeat, startingLife, seed);
+        response.addProperty("entry_mode", "causal_elimination");
+        response.add("elimination_plan", XmageMidgameCausalBridge.eliminationPlanPayload(
+                elimPlan, restoration));
+        return response;
+    }
+
+    private JsonObject createdResponse(
+            String gameId,
+            String planTag,
+            int startingPlayerSeat,
+            int startingLife,
+            long seed) {
+        JsonObject response = new JsonObject();
+        response.addProperty("game_id", gameId);
+        response.addProperty("plan_id", planTag);
+        response.addProperty("player_count", session.playerCount());
+        response.addProperty("starting_player_seat", startingPlayerSeat);
+        response.addProperty("starting_life", startingLife);
+        response.addProperty("seed", seed);
+        response.addProperty("seed_controlled", true);
+        response.add("rules_seed_binding", session.rulesSeedBindingPayload());
+        response.addProperty("seed_scope", "single_isolated_jvm_process");
+        response.addProperty("decision_protocol_version",
+                XmageFullGameDecisionController.PROTOCOL_VERSION);
+        response.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
+        response.addProperty("scaffolding_decks_are_game_decks", false);
+        response.add("starting_state_dimensions_manifest",
+                XmageNativeStateRestoration.dimensionsPayload());
+        return response;
+    }
+
+    private static List<XmageMidgameCausalBridge.DeclaredCard> parseDeclaredCards(
+            JsonObject holder, String property) {
+        List<XmageMidgameCausalBridge.DeclaredCard> cards = new ArrayList<>();
+        if (!holder.has(property) || holder.get(property).isJsonNull()) {
+            return cards;
+        }
+        if (!holder.get(property).isJsonArray()) {
+            throw new IllegalArgumentException(
+                    property + " must be an array of {semantic_id, card_identity, owner, zone}");
+        }
+        for (JsonElement element : holder.getAsJsonArray(property)) {
+            JsonObject card = element.getAsJsonObject();
+            cards.add(new XmageMidgameCausalBridge.DeclaredCard(
+                    requiredTextIn(card, "semantic_id"),
+                    requiredTextIn(card, "card_identity"),
+                    requiredTextIn(card, "owner"),
+                    requiredTextIn(card, "zone")));
+        }
+        return cards;
+    }
+
+    private static String requiredTextIn(JsonObject object, String property) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            throw new IllegalArgumentException("missing required field: " + property);
+        }
+        String value = object.get(property).getAsString();
+        if (value.isBlank()) {
+            throw new IllegalArgumentException("blank required field: " + property);
+        }
+        return value;
     }
 
     private Result startMidgameGame(String requestId) {
@@ -413,6 +642,73 @@ final class XmageMidgameJsonlBridge {
             return success(requestId, response, false);
         } catch (Exception exc) {
             return error(requestId, "midgame_arrival_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    /**
+     * Verifies a causal route against live engine state. This performs no
+     * player decision at all: it reads the engine's stack (for the stack
+     * route) or the engine's loss/leave flags plus survivor set (for the
+     * elimination route) and reports the engine's own verdict. A route whose
+     * causal outcome the engine has not produced fails closed with the
+     * verification mismatches, never with a pass.
+     */
+    private Result completeCausalReconstruction(String requestId, JsonObject request) {
+        try {
+            requireSession();
+            JsonObject payload = requireObjectPayload(
+                    request, "COMPLETE_CAUSAL_RECONSTRUCTION requires an object payload");
+            String mode = stringValue(payload, "mode");
+            if (!"stack".equals(mode) && !"elimination".equals(mode)) {
+                return error(
+                        requestId,
+                        "unknown_causal_mode",
+                        "COMPLETE_CAUSAL_RECONSTRUCTION requires payload.mode stack or "
+                                + "elimination",
+                        false
+                );
+            }
+            JsonObject verdict;
+            if ("stack".equals(mode)) {
+                if (!"causal_stack".equals(entryMode) || causalStackPlan == null) {
+                    return error(
+                            requestId,
+                            "no_causal_stack_plan",
+                            "This lane holds no causal-stack plan; create the game with "
+                                    + "entry_mode causal_stack first",
+                            false
+                    );
+                }
+                verdict = XmageMidgameCausalBridge.verifyCausalStack(
+                        requireSession(),
+                        requireSession().restorationSeats(),
+                        causalStackPlan.prepared());
+            } else {
+                if (!"causal_elimination".equals(entryMode)
+                        || causalEliminationPlan == null) {
+                    return error(
+                            requestId,
+                            "no_causal_elimination_plan",
+                            "This lane holds no causal-elimination plan; create the game with "
+                                    + "entry_mode causal_elimination first",
+                            false
+                    );
+                }
+                verdict = XmageMidgameCausalBridge.verifyCausalElimination(
+                        requireSession(),
+                        requireSession().restorationSeats(),
+                        causalEliminationPlan.victimPid(),
+                        causalEliminationPlan.expectedSurvivors());
+            }
+            JsonObject response = new JsonObject();
+            response.addProperty("plan_id", planId);
+            response.addProperty("entry_mode", entryMode);
+            response.add("verdict", verdict);
+            response.add("pending_decision", requireSession().pendingDecisionPayload());
+            return success(requestId, response, false);
+        } catch (Exception exc) {
+            return error(
+                    requestId, "causal_reconstruction_failed", exceptionMessage(exc), false);
         }
     }
 
