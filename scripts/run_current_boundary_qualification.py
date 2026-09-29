@@ -280,9 +280,7 @@ for _candidate in NATIVE_SUITE_BINDING:
     NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
     _suite_root = Path(NATIVE_SUITE_BINDING[_candidate]["root"])
     NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
-        git("rev-parse", "HEAD^{tree}", cwd=_suite_root)
-        if _suite_root.exists()
-        else "UNCONFIGURED"
+        git("rev-parse", "HEAD^{tree}", cwd=_suite_root) if _suite_root.exists() else "UNCONFIGURED"
     )
 
 
@@ -460,7 +458,6 @@ def write(name: str, payload: Any) -> None:
     print(f"wrote {name}")
 
 
-
 def _live_xmage_restoration_manifest() -> dict[str, Any]:
     """Read the itemised PB-03 restoration manifest from the running bridge."""
     plan = build_launch_plan("xmage", lane="full-game")
@@ -485,9 +482,7 @@ def _live_xmage_restoration_manifest() -> dict[str, Any]:
         if not isinstance(capabilities, dict):
             raise SystemExit("PB-03 capability payload omitted capabilities")
         if capabilities.get("starting_state_injection_supported") is not False:
-            raise SystemExit(
-                "PB-03 must not promote starting_state_injection_supported"
-            )
+            raise SystemExit("PB-03 must not promote starting_state_injection_supported")
         lane = payload.get("full_game_lane")
         if not isinstance(lane, dict):
             raise SystemExit("PB-03 capability payload omitted full_game_lane")
@@ -500,15 +495,12 @@ def _live_xmage_restoration_manifest() -> dict[str, Any]:
 def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
     """Build the 30-row frozen-state admission ledger from live capabilities."""
     manifest = _live_xmage_restoration_manifest()
-    document = pb03_admission_mod.admit_manifest(
-        materialization.denominator_records(), manifest
-    )
+    document = pb03_admission_mod.admit_manifest(materialization.denominator_records(), manifest)
     document.update(
         {
             "manifest": manifest,
             "manifest_source": (
-                "live full-game get_capabilities -> "
-                "full_game_lane.state_restoration_dimensions"
+                "live full-game get_capabilities -> full_game_lane.state_restoration_dimensions"
             ),
             "global_capability_flag": (
                 "starting_state_injection_supported remains false and is never "
