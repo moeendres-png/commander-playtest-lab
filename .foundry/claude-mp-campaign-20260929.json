@@ -2,11 +2,11 @@
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
   "worktree": "/home/moeen/code/claude-mp-apnap-20260929",
-  "branch": "claude/xmage-mp-block-legality-20260929",
+  "branch": "claude/xmage-mp-defending-player-20260929",
   "audit_base_sha": "128e91185b66df92e4bec726abb89c7c20fbbb11",
   "audit_base_tree": "aa0ccafd1105eb0c98bbdeb604328e1e0af25d97",
-  "state_written_against_head": "e545afe6d041fa8c100526f791709bcccdf5b8b1",
-  "validated_head": "e545afe6d041fa8c100526f791709bcccdf5b8b1",
+  "state_written_against_head": "18a62171c55ea5a558aa124d8e7492ed250612e9",
+  "validated_head": "18a62171c55ea5a558aa124d8e7492ed250612e9",
   "objective": "Autonomous multiplayer simulator advancement: actual-card 3-6P rules probes on the XMage full-game lane (APNAP triggers, each-player choices, split-attack block legality); fix defects at the correct layer.",
   "in_scope": [
     "engine-bridge full-game lane multiplayer decision surfaces (XmageFullGamePlayer)",
@@ -35,9 +35,10 @@
     "first/random option, default yes/no, silent skip, engine AI substitution, legality reconstruction"
   ],
   "validated_gates": [
-    "PR #311 head 76c09538: XmageMultiplayerApnapTriggerTest 6/6 (3P,4Px2,5Px2,6P); bridge suite 425/0/1",
-    "PR #312 head abdf64b7: XmageMultiplayerEachPlayerChoiceTest 4/4 (3-6P); bridge suite 429/0/1",
-    "PR #313 head e545afe6: XmageMultiplayerSplitCombatTest 4/4 (3-6P), red before fix; bridge suite 433/0/1"
+    "PR #311 MERGED, head 76c09538: XmageMultiplayerApnapTriggerTest 6/6 (3P,4Px2,5Px2,6P); bridge suite 425/0/1",
+    "PR #312 MERGED, head abdf64b7: XmageMultiplayerEachPlayerChoiceTest 4/4 (3-6P); bridge suite 429/0/1",
+    "PR #313 MERGED (55724ea7), head e545afe6: XmageMultiplayerSplitCombatTest 4/4 (3-6P), red before fix; bridge suite 433/0/1",
+    "branch claude/xmage-mp-defending-player-20260929 on main 55724ea7: Devils 4/4, Menace 6/6, Goad 4/4 (3-6P); bridge suite 447/0/1"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -54,23 +55,27 @@
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerSplitCombatTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageActualCardCorpusTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier1RowsTest.java (comment only)",
-    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md"
+    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerDefendingPlayerTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerMenaceTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMultiplayerGoadTest.java"
   ],
   "tests_run": [
     "mvn -o -Dcheckstyle.skip=true test (engine-bridge)"
   ],
   "evidence": [
-    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md F-15, F-16"
+    "docs/claude_independent_review_20260929/EVIDENCE_INTEGRITY_REVIEW.md F-15, F-16, F-17"
   ],
   "artifacts": [],
   "remaining_scope": [
-    "further multiplayer probes (defending-player targeting 802.2a, menace across defenders 802.4b, elimination mid-combat)"
+    "multiplayer probes: elimination mid-combat (800.4e), monarch/initiative, voting (each player votes in APNAP)"
   ],
   "status": "ACTIVE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "hypotheses_rejected": [
     "APNAP mis-ordering: engine turn order is counterclockwise (PlayerList built by prepending); APNAP, priority and turns are consistent",
-    "restored active seat ignored: test fixture must pass the matching startingPlayerSeat"
+    "restored active seat ignored: test fixture must pass the matching startingPlayerSeat",
+    "goad bypass via per-creature hold/defender offer: engine pre-declares forced attacks (checkAttackRequirements) and the lane never re-asks that creature"
   ],
   "technical_decisions": [
     "ENGINE_NATIVE_REUSE: block offers use CombatGroup.canBlock, the engine's own declareBlocker acceptance test"
@@ -79,7 +84,7 @@
   "first_failing_boundary": "XmageFullGamePlayer.selectBlockers option construction (Permanent.canBlock)",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Land #311 -> #312 -> #313; continue multiplayer probes.",
-  "exact_next_action": "Watch CI of #311/#312/#313; next probe: CR 802.2a defending-player targeting at 4P/5P.",
+  "exact_next_action": "Land the defending-player/menace/goad PR; continue multiplayer probes.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,
