@@ -171,6 +171,25 @@ python -m pip install -e .
 pytest
 ```
 
+### Run the suite this way, or expect a red baseline
+
+Install the dev extra before running the suite. Two failure modes follow from skipping it,
+and both are environmental rather than product defects:
+
+- `tests/integration/test_phase5_server.py` and `tests/unit/test_phase5_openai_adapter.py`
+  fail to **collect** because `httpx2` and `pytest-asyncio` (declared dev dependencies,
+  `pyproject.toml`) are not installed. `test_phase10_acceptance.py` fails for the same root
+  cause: `src/commander_lab/acceptance/phase10.py` catches the resulting exception and
+  reports `failed` instead of `passed_with_limitations`.
+- Tests that spawn a child interpreter cannot import the project, because
+  `pythonpath = ["src"]` in `pyproject.toml` applies to the pytest process only and is not
+  inherited by children. The `subprocess_env` fixture in `tests/conftest.py` handles this for
+  the tests that need it, so these are covered either way — but a bare run is still the
+  supported way to work.
+
+CI runs the suite with the project installed (`pip install --no-deps -e .`). A local run that
+matches CI needs the same install.
+
 Useful project commands include:
 
 ```bash
