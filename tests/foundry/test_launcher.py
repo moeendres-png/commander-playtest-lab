@@ -1196,6 +1196,23 @@ def test_muse_xhigh_does_not_fabricate_top_level_native_variant(target, canon):
     assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
 
 
+def test_nested_muse_launch_clears_ambient_native_variant(target, canon, monkeypatch):
+    monkeypatch.setenv("FOUNDRY_NATIVE_VARIANT", "max")
+    plan = _plan(target, canon, execution_profile="muse", effort="xhigh")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["execution"]["native_variant"] is None
+    assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
+
+
+def test_unsuppressed_nested_launch_clears_ambient_routing_suppression(target, canon, monkeypatch):
+    monkeypatch.setenv("OPENCODE_DISABLE_PROJECT_CONFIG", "1")
+    monkeypatch.setenv("FOUNDRY_ROUTING_SUPPRESSED", "1")
+    plan = _plan(target, canon, execution_profile="space-bunny")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert "OPENCODE_DISABLE_PROJECT_CONFIG" not in plan["_env"]
+    assert "FOUNDRY_ROUTING_SUPPRESSED" not in plan["_env"]
+
+
 def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
     captured = {}
 
