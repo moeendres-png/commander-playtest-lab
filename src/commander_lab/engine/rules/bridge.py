@@ -35,7 +35,12 @@ from commander_lab.models import (
     ValidationLevel,
 )
 
-from .base import RulesEngineAdapter, RulesEngineProtocolError, RulesEngineUnavailable
+from .base import (
+    RulesEngineAdapter,
+    RulesEngineProtocolError,
+    RulesEngineUnavailable,
+    resolve_engine_working_directory,
+)
 
 _BACKEND_ENV = {
     RulesBackend.FORGE: "COMMANDER_LAB_FORGE_BRIDGE_CMD",
@@ -66,7 +71,7 @@ class JsonLineBridgeClient:
         if not command:
             raise ValueError("bridge command must not be empty")
         self.command = command
-        self.cwd = None if cwd is None else str(cwd)
+        self.cwd = resolve_engine_working_directory(cwd)
         self.startup_timeout_seconds = startup_timeout_seconds
         self.request_timeout_seconds = request_timeout_seconds
         self.engine = engine
