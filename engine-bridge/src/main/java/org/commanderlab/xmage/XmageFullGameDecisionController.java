@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Blocking, fail-closed decision handoff for full-game XMage external control.
@@ -99,6 +100,13 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        // CR 722 (controlling another player): while the engine records that
+        // another player controls this player's turn, that controller makes
+        // every choice and decision for this player, so it is the principal
+        // asked. acting_for_seat names the player the decision is made for.
+        Player controlled = actor;
+        actor = decidingPlayer(game, actor);
+
         decisionOffset++;
         String actorId = actor.getId().toString();
         String gameId = game.getId().toString();
@@ -121,6 +129,9 @@ final class XmageFullGameDecisionController {
         request.addProperty("decision_offset", decisionOffset);
         request.addProperty("actor_id", actorId);
         request.addProperty("seat", XmageFullGameStateRedactor.seat(game, actor.getId()));
+        if (controlled != actor) {
+            request.addProperty("acting_for_seat", XmageFullGameStateRedactor.seat(game, controlled.getId()));
+        }
         request.addProperty("decision_class", decisionClass);
         request.addProperty("prompt", prompt == null ? "" : prompt);
         request.add("context", context == null ? new JsonObject() : context.deepCopy());
@@ -490,6 +501,19 @@ final class XmageFullGameDecisionController {
         event.addProperty("event_type", eventType);
         event.add("payload", payload == null ? new JsonObject() : payload.deepCopy());
         transcript.add(event);
+    }
+
+    /** The player who makes this player's decisions: its turn controller, or itself. */
+    static Player decidingPlayer(Game game, Player player) {
+        UUID controllerId = player.getTurnControlledBy();
+        if (controllerId == null || controllerId.equals(player.getId())) {
+            return player;
+        }
+        Player controller = game.getPlayer(controllerId);
+        if (controller == null) {
+            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: turn controller unavailable");
+        }
+        return controller;
     }
 
     static JsonObject option(String optionId, String label, String optionType, JsonObject metadata) {

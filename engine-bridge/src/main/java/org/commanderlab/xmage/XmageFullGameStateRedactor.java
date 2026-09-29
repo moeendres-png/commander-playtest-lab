@@ -68,15 +68,17 @@ final class XmageFullGameStateRedactor {
     private static final class ObservedCards {
         private final boolean revealed;
         private final UUID principalId;
+        private final UUID controllerId;
         private final int turn;
         private final String title;
         private final List<String> names;
         private final List<UUID> owners;
 
-        private ObservedCards(boolean revealed, UUID principalId, int turn, String title,
-                              List<String> names, List<UUID> owners) {
+        private ObservedCards(boolean revealed, UUID principalId, UUID controllerId, int turn,
+                              String title, List<String> names, List<UUID> owners) {
             this.revealed = revealed;
             this.principalId = principalId;
+            this.controllerId = controllerId;
             this.turn = turn;
             this.title = title;
             this.names = names;
@@ -106,8 +108,14 @@ final class XmageFullGameStateRedactor {
         }
         OBSERVED_CARDS
                 .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>())
-                .add(new ObservedCards(revealed, principalId, game.getState().getTurnNum(),
-                        title, names, owners));
+                .add(new ObservedCards(revealed, principalId, turnController(game, principalId),
+                        game.getState().getTurnNum(), title, names, owners));
+    }
+
+    /** CR 722: whoever controls the looking player's turn sees the look too. */
+    private static UUID turnController(Game game, UUID playerId) {
+        Player player = game.getPlayer(playerId);
+        return player == null ? null : player.getTurnControlledBy();
     }
 
     private static JsonArray observedView(Game game, Player viewer, boolean revealed) {
@@ -118,7 +126,8 @@ final class XmageFullGameStateRedactor {
         }
         for (ObservedCards entry : log) {
             if (entry.revealed != revealed
-                    || (!revealed && !entry.principalId.equals(viewer.getId()))) {
+                    || (!revealed && !entry.principalId.equals(viewer.getId())
+                            && !viewer.getId().equals(entry.controllerId))) {
                 continue;
             }
             JsonObject item = new JsonObject();
@@ -280,7 +289,9 @@ final class XmageFullGameStateRedactor {
             // outside the window. Read-only projection; no Rules semantics.
             p.add("granted_library", grantedLibraryView(game, actor, player));
 
-            if (player.getId().equals(actor.getId())) {
+            // CR 722: the controller of this player's turn sees all it could see.
+            if (player.getId().equals(actor.getId())
+                    || actor.getId().equals(player.getTurnControlledBy())) {
                 JsonArray hand = new JsonArray();
                 for (Card card : player.getHand().getCards(game)) {
                     hand.add(publicCard(card));
