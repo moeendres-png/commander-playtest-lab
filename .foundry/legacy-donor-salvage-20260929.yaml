@@ -12,7 +12,9 @@ observed_main_history:
 - sha: ba629cedc186ffbfac0cacee5cc959c7f6a5c07c
   note: prompt-time context, superseded before first edit
 - sha: d40dda9fc7590746c3453d449a0828cb69ea1e12
-  note: fresh origin/main at worktree creation; delta ba629ce..d40dda9f is XMage multiplayer lane only (10 files, java + evidence review docs), no overlap with salvage surfaces
+  note: worktree base; delta ba629ce..d40dda9f is XMage multiplayer lane only, no overlap with salvage surfaces
+- sha: 3d15bbe80849f84814a35d0d397955fa4eac28b4
+  note: fresh origin/main at push time; delta d40dda9f..3d15bbe8 is 5 Java XMage-MP test files, NO_RELEVANT_OVERLAP; branch NOT rebased
 branch: integration/legacy-donor-salvage-20260929
 worktree: /home/moeen/code/lab-legacy-donor-salvage-20260929
 owned_files:
@@ -132,6 +134,11 @@ drift_checks:
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
   delta_since_last: none
   verdict: NO_DRIFT safe to commit 289-D milestone
+- time_utc: '2026-09-29T19:00:00Z'
+  observed_main: 3d15bbe80849f84814a35d0d397955fa4eac28b4
+  delta_since_branch_base: 5 Java XMage-MP test files only, NO_RELEVANT_OVERLAP
+  open_pr_union_checked: PR333 paths disjoint from owned files
+  verdict: NO_RELEVANT_OVERLAP, no rebase, proceed to push + PR against current main
 unknowns: []
 blockers: []
 next_action: final validation (complete qualification suite already green; run full repo Python suite + integrity/hash tests if justified), then push branch, create PR, monitor workflows, terminal handoff
