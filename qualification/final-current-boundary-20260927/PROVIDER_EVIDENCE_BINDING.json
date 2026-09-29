@@ -60,8 +60,17 @@
      "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
      "runner_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b"
     },
-    "disposition": "BOUND_TO_CONSUMED_HEAD",
-    "reason": "no published candidate change touches a surface this artifact consumed"
+    "disposition": "STALE_FOR_PUBLISHED_HEAD",
+    "reason": "a published candidate change rewrites a surface this artifact consumed, so the artifact does not speak for that head and must be regenerated there before it is cited; relabelling it with the newer head would be a false credit",
+    "required_action": "re-execute this qualification on the actually consumed candidate head and regenerate the artifact; do not relabel, re-point or copy the current run forward",
+    "superseding_changes": [
+     {
+      "consumed_head": "f432605eba30abcb8d62f16299be8cc25a3c668b",
+      "field": "adapter_commit",
+      "head": "938719d0",
+      "surface": "adapter"
+     }
+    ]
    },
    "FULL107_XMAGE_RESULTS": {
     "artifact": "FULL107_XMAGE_RESULTS",
@@ -70,15 +79,24 @@
      "engine_candidate_commit": "b19596980f2734496ea1896504253e1bdd2756dd",
      "runner_commit": "f432605eba30abcb8d62f16299be8cc25a3c668b"
     },
-    "disposition": "BOUND_TO_CONSUMED_HEAD",
-    "reason": "no published candidate change touches a surface this artifact consumed"
+    "disposition": "STALE_FOR_PUBLISHED_HEAD",
+    "reason": "a published candidate change rewrites a surface this artifact consumed, so the artifact does not speak for that head and must be regenerated there before it is cited; relabelling it with the newer head would be a false credit",
+    "required_action": "re-execute this qualification on the actually consumed candidate head and regenerate the artifact; do not relabel, re-point or copy the current run forward",
+    "superseding_changes": [
+     {
+      "consumed_head": "f432605eba30abcb8d62f16299be8cc25a3c668b",
+      "field": "adapter_commit",
+      "head": "938719d0",
+      "surface": "adapter"
+     }
+    ]
    }
   }
  },
  "counts": {
   "BOUND_NO_SUPERSEDED_HEAD": 0,
-  "BOUND_TO_CONSUMED_HEAD": 2,
-  "STALE_FOR_PUBLISHED_HEAD": 2
+  "BOUND_TO_CONSUMED_HEAD": 0,
+  "STALE_FOR_PUBLISHED_HEAD": 4
  },
  "honesty_note": "A disposition describes the candidate identity an artifact actually consumed. It is not a pass: STALE artifacts remain valid evidence of what they did consume, and the gate they feed is unchanged until the artifact is regenerated on the new head.",
  "schema_version": "commander-lab.provider-evidence-binding/1.0.0"

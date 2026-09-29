@@ -1,0 +1,69 @@
+{
+  "schema_version": "commander-lab.bridge-validation/1.0.0",
+  "candidate": "xmage",
+  "captured_utc": "2026-09-29T00:42:53+00:00",
+  "lab_revision": {
+    "commit": "669c502276d31fb32decd2f16493c2bfa68e9ea0",
+    "tree": "db378e7e59f7dc2153d52286e756d2ee1caf9a19",
+    "dirty": true,
+    "note": "a dirty tree means this run is not reproducible from the commit alone"
+  },
+  "suite_totals": {
+    "tests": 344,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "focus_suites": [
+    {
+      "suite": "org.commanderlab.xmage.XmageBridgePlayerFailClosedTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "externallyControlledDiscretionaryCallbacksFailClosedInsteadOfDefaulting",
+        "everyDiscretionaryPlayerCallbackIsOverriddenOrExplicitlyAuditedAsDelegation",
+        "nullControllerPreservesValidatedBoundedCompatibilityBehavior",
+        "auditedSafeDelegationsRemainNarrowAndNamed",
+        "observableOldDefaultsAreNowFailClosed"
+      ]
+    },
+    {
+      "suite": "org.commanderlab.xmage.XmageFullGameRulesSeedBindingTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "sameSeedTwinsOpenIdentically",
+        "unboundGameWithRequiredSeedFailsClosedBeforeAnyConsumption",
+        "sessionBindsExplicitRulesSeedWithLiveProof",
+        "productionSessionRetiredRandomUtilAuthority"
+      ]
+    },
+    {
+      "suite": "org.commanderlab.xmage.XmageGenericLaneRulesSeedTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "genericBridgePlayerNeverOverridesTheEngineShuffle",
+        "bridgeAcknowledgesTheSeedFromEngineReadback",
+        "differentSeedChangesTheOpeningShuffle",
+        "principalScopedStateNeverCarriesTheSeedValue",
+        "sameSeedReproducesEveryOpeningLibraryAndHandForTwoToFivePlayers",
+        "unseededGameIsNeverReportedAsControlled",
+        "malformedOrConflictingSeedsFailClosed"
+      ]
+    }
+  ],
+  "focus_suites_missing": [],
+  "what_this_establishes": "the engine-bridge suites pass at this revision, including the generic-lane shuffle repair and the Rules-seed binding that PR #293 introduced",
+  "what_this_does_not_establish": [
+    "that the current-boundary XMage column is requalified: the FULL107 rows are produced by scripts/run_current_boundary_qualification.py, not by the bridge suite",
+    "that any gate verdict moves: AF05/AF09 stay UNKNOWN until the column is regenerated",
+    "that the repaired lane is Rules-correct in general; each affected obligation still needs its own observation"
+  ]
+}
