@@ -19,7 +19,7 @@ from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, 
 from commander_lab.storage import sha256_value
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
+XMAGE_COMMIT = "f79e4168902e65063034b21be6f4585397fd43b3"
 SCENARIO_ID = "real-existing-decks-4p-technical-smoke-v1"
 SEED = 20260923
 DEFAULT_SMOKE_DECISIONS = 40

@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -35,8 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       first (here the caster, who does not choose), then the others in turn
  *       order (P1, PN, …, P2). The pin asks in the order of the engine's
  *       priority pointer instead. This is F-21
- *       (commander-playtest-lab#328), so the order expectation stays
- *       disabled until a repin admits the fix.</li>
+ *       (commander-playtest-lab#328), fixed in the XMage multiplayer candidate f79e4168 (moeendres-png/mage#24) and enabled by the 2026-09-29 successor repin.</li>
  * </ul>
  */
 class XmageMultiplayerEachOpponentChoiceTest {
@@ -59,8 +57,6 @@ class XmageMultiplayerEachOpponentChoiceTest {
         assertEquals(opponents, sorted, "each opponent chooses exactly once; the caster does not");
     }
 
-    @Disabled("F-21: at the pin the choices follow the priority pointer, not APNAP "
-            + "(commander-playtest-lab#328)")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void opponentsChooseInApnapOrder(int playerCount) {

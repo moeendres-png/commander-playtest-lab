@@ -2,7 +2,6 @@ package org.commanderlab.xmage;
 
 import com.google.gson.JsonObject;
 import mage.game.Game;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -27,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * <p><b>F-19 (engine, pinned and upstream):</b> the official ruling says P3 decides
  * whether to pay first, and P1 decides whether to draw only after that. XMage
- * asks P1 first. The payer-first order is pinned by the disabled test below
+ * asks P1 first. The payer-first order was pinned by a disabled test (fixed in the XMage multiplayer candidate f79e4168 (moeendres-png/mage#24) and enabled by the 2026-09-29 successor repin)
  * until the Rules Core fix (Mage fork branch
  * {@code claude/f19-unless-pays-order-20260929}) is admitted by a Lab repin.</p>
  */
@@ -39,8 +38,9 @@ class XmageMultiplayerUnlessCostTest {
     @CsvSource({"4, true", "4, false", "5, true", "5, false"})
     void theCasterDecidesThePaymentAndTheControllerTheDraw(int playerCount, boolean pays) {
         Run run = run(playerCount, pays);
-        assertTrue(run.asks.contains("P1:draw") && (run.asks.contains("P3:pay")),
-                "both principals decide for themselves: " + run.asks);
+        assertTrue(run.asks.contains("P3:pay"), "the paying player decides: " + run.asks);
+        assertEquals(!pays, run.asks.contains("P1:draw"),
+                "the controller decides whether to draw only if the cost was not paid: " + run.asks);
         for (String ask : run.asks) {
             assertTrue(ask.equals("P1:draw") || ask.equals("P3:pay"),
                     "no other player is asked: " + run.asks);
@@ -50,7 +50,6 @@ class XmageMultiplayerUnlessCostTest {
         assertEquals(38, run.p2Life, "Shock resolves");
     }
 
-    @Disabled("F-19: engine asks the controller before the paying player (official ruling: payer first)")
     @ParameterizedTest(name = "{0} players, P3 pays: {1}")
     @CsvSource({"4, true", "4, false", "5, true", "5, false"})
     void thePayingPlayerDecidesBeforeTheController(int playerCount, boolean pays) {

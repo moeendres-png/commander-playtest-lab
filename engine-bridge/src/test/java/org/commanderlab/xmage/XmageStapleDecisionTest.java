@@ -196,22 +196,24 @@ class XmageStapleDecisionTest {
         payWith(s, "Forest");
         assertEquals(2, s.game().getStack().size(), "Rhystic Study triggered over the Bears");
         passUntil(s, () -> false);
+        // Official ruling (F-19, fixed in candidate f79e4168 / moeendres-png/mage#24): the paying
+        // player decides first; the Study's controller decides whether to draw only afterwards,
+        // and only if the cost was not paid.
         assertEquals("choose_use", decisionClass(s));
-        assertEquals("P2", actor(s), "Study's controller decides whether to draw");
-        take(s, "structural_decision", studyOwnerDraws ? "Yes" : "No");
-        if (studyOwnerDraws) {
+        assertEquals("P1", actor(s), "the caster decides first whether to pay {1}");
+        assertEquals(List.of("Yes", "No"), labels(s));
+        take(s, "structural_decision", casterPays ? "Yes" : "No");
+        if (casterPays) {
+            payWith(s, "Forest");
+        } else {
             assertEquals("choose_use", decisionClass(s));
-            assertEquals("P1", actor(s), "the caster decides whether to pay {1}");
-            assertEquals(List.of("Yes", "No"), labels(s));
-            take(s, "structural_decision", casterPays ? "Yes" : "No");
-            if (casterPays) {
-                payWith(s, "Forest");
-            }
+            assertEquals("P2", actor(s), "Study's controller then decides whether to draw");
+            take(s, "structural_decision", studyOwnerDraws ? "Yes" : "No");
         }
         assertEquals(1, s.game().getStack().size(), "trigger resolved; Bears still on the stack");
         boolean drew = studyOwnerDraws && !casterPays;
         assertEquals(p2Hand + (drew ? 1 : 0), s.p("P2").getHand().size());
-        assertEquals(studyOwnerDraws && casterPays ? 3 : 2, tapped(s, "P1", "Forest"),
+        assertEquals(casterPays ? 3 : 2, tapped(s, "P1", "Forest"),
                 "{1} paid only when the caster chose to pay");
         passUntil(s, () -> s.game().getStack().isEmpty());
         assertNotNull(permanent(s, "P1", "Grizzly Bears"), "the spell resolved either way");
@@ -229,7 +231,7 @@ class XmageStapleDecisionTest {
 
     @Test
     void rhysticStudyOwnerMayDecline() {
-        rhystic(false, false);
+        rhystic(false, false); // caster declines to pay, then the owner declines to draw
     }
 
     // ---- Kicker: Burst Lightning, 2 damage or 4 if kicked ({4}) ----
