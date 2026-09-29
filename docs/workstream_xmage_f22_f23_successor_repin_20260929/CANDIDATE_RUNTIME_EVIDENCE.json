@@ -1,0 +1,92 @@
+{
+  "schema_version": "commander-lab.xmage-f22-f23-runtime-evidence/1.0.0",
+  "recorded_date": "2026-09-29",
+  "candidate": {
+    "repository": "moeendres-png/mage",
+    "parent_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+    "commit": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
+    "tree": "ba0d02bdf5e9d62361d68dbdfb7e729d46ce9aed",
+    "pull_request": 26,
+    "merge_commit": "23b996a5048bf7b8e7e4a422f2f8ea4c4ba90f65",
+    "merged": true
+  },
+  "candidate_verification": {
+    "workflow_run_id": 36622158243,
+    "workflow_commit": "646a8ab4d85e0c90fa2869d100d8200d9c778fb8",
+    "workflow_delta": "CI_WORKFLOW_ONLY",
+    "targeted": {
+      "job_id": 109589982079,
+      "conclusion": "success",
+      "tests_run": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "classification": "RUNTIME_VERIFIED_PASS"
+    },
+    "full_reactor": {
+      "job_id": 109589982568,
+      "conclusion": "failure",
+      "mage_tests": {
+        "tests_run": 7015,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 125,
+        "classification": "RUNTIME_VERIFIED_PASS"
+      },
+      "mage_verify": {
+        "tests_run": 28,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 8,
+        "failing_tests": [
+          "VerifyCardDataTest.test_verifyCards",
+          "VerifyCardDataTest.test_checkMissingSetData"
+        ],
+        "hard_card_errors": {
+          "count": 15,
+          "scope": "Dragon Engine / Traxos, Scourge of Kroog subtype metadata"
+        },
+        "hard_set_errors": [
+          "SLZ - The Zeta Set - missing set implementation",
+          "FRA - Reality Fracture - booster settings",
+          "MBC - Mystery Booster Commander Edition - booster settings"
+        ],
+        "classification": "FAIL_NONATTRIBUTABLE_BASELINE"
+      }
+    }
+  },
+  "parent_baseline_verification": {
+    "source_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+    "ci_workflow_commit": "aba9343d1d5c99a04c7223e3fb085343100f24ed",
+    "workflow_run_id": 36626307792,
+    "job_id": 109604066587,
+    "conclusion": "failure",
+    "jdk": "17",
+    "command_scope": "Mage.Verify with reactor dependencies",
+    "reproduced_exact_hard_errors": {
+      "card_error_count": 15,
+      "card_scope": "same Dragon Engine / Traxos subtype mismatches",
+      "set_error_count": 3,
+      "set_scope": "same SLZ/FRA/MBC set metadata errors"
+    },
+    "classification": "RUNTIME_VERIFIED_BASELINE_REPRODUCTION"
+  },
+  "adjudication": {
+    "f22_runtime": "PASS",
+    "f23_runtime": "PASS",
+    "full_mage_tests": "PASS",
+    "full_repository_reactor": "FAIL_NONATTRIBUTABLE_BASELINE",
+    "candidate_caused_verify_regression": false,
+    "rationale": "The final candidate's targeted F-22/F-23 suite and all 7015 Mage.Tests pass. The only full-reactor failures occur in Mage.Verify, and the exact parent reproduces the same 15 card-data and 3 set-data hard errors under JDK 17. The candidate does not receive a false full-reactor PASS; the verify failure is retained explicitly as baseline."
+  },
+  "evidence_classifications": [
+    "DIRECTLY_VERIFIED",
+    "RUNTIME_VERIFIED",
+    "NONATTRIBUTABLE_BASELINE_RUNTIME_VERIFIED"
+  ],
+  "not_a": [
+    "PRODUCTION_PROVIDER_SELECTION",
+    "ARCHITECTURE_FREEZE",
+    "FULL_REPOSITORY_TEST_PASS"
+  ]
+}
