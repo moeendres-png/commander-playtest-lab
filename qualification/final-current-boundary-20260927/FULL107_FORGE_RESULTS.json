@@ -10,54 +10,6 @@
   "UNKNOWN": 58
  },
  "evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION",
- "native_promotions": 0,
- "native_runs": {
-  "direct": {
-   "candidate": "forge",
-   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
-   "errors": 0,
-   "executed_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
-   "failed": 0,
-   "failures": 0,
-   "passed": 150,
-   "receipt_digest": "6ad479ff423d66337f77274ec3da3e91d06aac515f0c47ab9162cfd413bc5e09",
-   "returncode": 0,
-   "tests": 150
-  },
-  "mechanism": {
-   "candidate": "forge",
-   "candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "engine_identity_justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
-   "errors": 0,
-   "executed_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
-   "failed": 0,
-   "failures": 0,
-   "passed": 67,
-   "receipt_digest": "602120ccdbf45c3030893e72456d3f2343c502d58d4adf017f417000aceb212a",
-   "returncode": 0,
-   "tests": 67
-  }
- },
- "native_runs_provenance": {
-  "absent_receipts_yield_no_credit": true,
-  "expected_engine_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-  "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
-  "summary": {
-   "errors": 0,
-   "failed": 0,
-   "groups_credited": [
-    "forge:direct",
-    "forge:mechanism"
-   ],
-   "passed": 217,
-   "receipt_digests": {
-    "forge:direct": "6ad479ff423d66337f77274ec3da3e91d06aac515f0c47ab9162cfd413bc5e09",
-    "forge:mechanism": "602120ccdbf45c3030893e72456d3f2343c502d58d4adf017f417000aceb212a"
-   },
-   "tests": 217
-  }
- },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "rows": [
   {
@@ -84,12 +36,12 @@
    "externally_supplied_decision_tape": [
     {
      "actor": "p1",
-     "chosen_option_id": "opt-86f33589-31e8-4bf6-97ef-69a1e82a39d2",
+     "chosen_option_id": "opt-368ac1cc-1615-4c6b-a189-a5fa4f90cc57",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-86f33589-31e8-4bf6-97ef-69a1e82a39d2",
-      "opt-1e1deaa5-60d3-43ee-8eb8-1a1dcdda37ab"
+      "opt-368ac1cc-1615-4c6b-a189-a5fa4f90cc57",
+      "opt-aa9e5177-9e41-423b-b176-54730555cd10"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -101,8 +53,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-d862dd72-6783-4f27-85d3-3a8cc6197aea",
-      "opt-5e8237ab-e0c9-410c-81f4-888e7032cc64"
+      "opt-ff01a03f-31a6-4a44-aef2-7ca654fee957",
+      "opt-b381bfbc-3e11-4fc1-a870-c6e043689495"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -114,8 +66,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-4e3982ab-e335-4ef3-82df-f2b640f37ac0",
-      "opt-6a3cd498-2fcd-4420-ba1c-01d1e3b54af2"
+      "opt-bd5d8020-494e-43b7-8253-cc065ea15e7d",
+      "opt-3c870e71-7290-4fbe-ad12-15a5240b280f"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -123,12 +75,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-b675f343-3791-4a0e-aab8-2a4345468da1",
+     "chosen_option_id": "opt-98867b08-18e9-4c40-a000-4c932e4e34d4",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-b675f343-3791-4a0e-aab8-2a4345468da1",
-      "opt-cf044d2f-98fc-4851-b68a-bea0b4393b6e"
+      "opt-98867b08-18e9-4c40-a000-4c932e4e34d4",
+      "opt-2468df54-1912-42ac-b05e-51e75d770eaa"
      ],
      "policy": "pass_when_offered",
      "revision": 4,
@@ -160,7 +112,7 @@
    },
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -202,8 +154,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -263,13 +215,13 @@
    "externally_supplied_decision_tape": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-4b6a5540-7ed6-4464-9f2f-bd5169d48dcf",
+     "chosen_option_id": "opt-e7c5b7a0-3ffb-40f7-9e84-5fddb3208590",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-4b6a5540-7ed6-4464-9f2f-bd5169d48dcf",
-      "opt-4a07a46d-a282-4554-b6d2-200465488267",
-      "opt-31992b46-7eba-409e-b56d-4da61b8cfb5d"
+      "opt-e7c5b7a0-3ffb-40f7-9e84-5fddb3208590",
+      "opt-fc9f96e8-9c25-4537-a3b2-96665d206ed3",
+      "opt-021811e1-e55c-4b1a-a2a6-9ae16b6d2979"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -281,8 +233,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-07d5ca41-1e16-4a1a-93b0-cc95145c7caf",
-      "opt-bc0cd48c-c252-4534-9df3-2726c19b6ccf"
+      "opt-a57af9e7-9587-4894-af6d-2ed671410052",
+      "opt-a2cd3ce2-d268-4a63-9f2a-15c7f2ea5120"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -294,8 +246,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-7c8475bc-b6fc-4c58-8384-0bb3ecbdfdde",
-      "opt-f0b5ccc2-c014-43d2-9e8c-1c2066a79580"
+      "opt-e66bf41f-c5bf-4040-88a7-a8167af9b604",
+      "opt-e3f4b8f0-8038-4d92-b4fd-6b81bf1d4658"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -307,8 +259,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-6d4f3202-97f2-478d-946a-c5c31f9344b2",
-      "opt-7bcfa798-223d-4b0d-ac23-de6ba23aa605"
+      "opt-f02b8019-fee2-4072-8ddb-a65c95560362",
+      "opt-030e0cf8-36cf-4b61-bcc3-40c5de36a1bb"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -316,12 +268,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-5c84f17b-8e36-40dc-ace5-2a64655ef164",
+     "chosen_option_id": "opt-d431a057-e936-4d20-9d37-92f9a5f5c8d4",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-5c84f17b-8e36-40dc-ace5-2a64655ef164",
-      "opt-b99036bd-531b-463d-8723-529eb9db16c7"
+      "opt-d431a057-e936-4d20-9d37-92f9a5f5c8d4",
+      "opt-11470b25-1627-43e6-9054-af03490c1e07"
      ],
      "policy": "pass_when_offered",
      "revision": 5,
@@ -353,7 +305,7 @@
    },
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -395,8 +347,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -456,14 +408,14 @@
    "externally_supplied_decision_tape": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-81fa014c-ced7-4842-80da-c129231bce05",
+     "chosen_option_id": "opt-b15f3406-43d5-4655-bae0-68013e05c5e9",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-81fa014c-ced7-4842-80da-c129231bce05",
-      "opt-ec556713-18e3-4bb2-a2c5-6c39c23f4cfd",
-      "opt-3bc00696-bb9a-4c08-b8f8-aacea7820b80",
-      "opt-f8638228-61c4-4cc9-b987-8caa0774d63a"
+      "opt-b15f3406-43d5-4655-bae0-68013e05c5e9",
+      "opt-6dcb86bc-1e7f-40a4-be44-bebd229ac762",
+      "opt-053f0103-766c-44a0-a11d-bb8bf7fd553a",
+      "opt-2c89d911-7979-42d6-9ade-845d75e4d92d"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -475,8 +427,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-4520d685-e864-4c72-8fdb-d5e0faa2214a",
-      "opt-39a56eb7-b1f6-4a2f-aa60-1aaa6c953876"
+      "opt-84848915-7d1c-44f7-b266-4efe0a92e415",
+      "opt-8e94d9c5-6d97-4dbe-b37a-3c0f197e6183"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -488,8 +440,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-899993de-a197-4ce1-9965-45a1957f15f2",
-      "opt-74c98a34-10c4-4e64-9763-ad0afa5136a8"
+      "opt-4b328f41-0be4-4c44-8f10-2fc7b3b639e5",
+      "opt-0a004267-1143-44f5-a32c-367f52e52a20"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -501,8 +453,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-8adb3104-1c45-4467-ad05-d9bfc7f299d2",
-      "opt-3b2f7317-627e-4561-a5a4-ec54c4bcb7bb"
+      "opt-b4926989-16c3-497e-9c88-634a32762d4f",
+      "opt-96b38bcb-1cb1-4862-9b98-109e490d96be"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -514,8 +466,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-6997f40f-dcf9-4348-ba84-e6d6761bbde7",
-      "opt-ac911065-9486-4f89-aa29-532d7a1e5fd4"
+      "opt-a172c477-63a6-42fc-b117-b4de5878a337",
+      "opt-6aa748a9-ed7e-48d9-be4c-bea4d234c477"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -523,12 +475,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-622ad3ff-3b5e-40a0-be13-8ba5386dd66c",
+     "chosen_option_id": "opt-488b0f52-d1e1-4577-82c7-3d3d29cb8887",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-622ad3ff-3b5e-40a0-be13-8ba5386dd66c",
-      "opt-dc87cb36-3df9-47fb-aff4-3c730731c4a0"
+      "opt-488b0f52-d1e1-4577-82c7-3d3d29cb8887",
+      "opt-5596ff44-124f-4d6d-9593-ba8304d5d648"
      ],
      "policy": "pass_when_offered",
      "revision": 6,
@@ -560,7 +512,7 @@
    },
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -602,8 +554,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -663,15 +615,15 @@
    "externally_supplied_decision_tape": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-f5ab982b-e248-4c6c-9e65-710f70b5581b",
+     "chosen_option_id": "opt-9127fe30-659b-4344-9d81-645a9a8f97b6",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-f5ab982b-e248-4c6c-9e65-710f70b5581b",
-      "opt-8a6a7b4c-f39c-4ad2-af3d-d7143fbb050b",
-      "opt-102b4b33-8791-4960-a237-8efad67c1939",
-      "opt-a117700d-8c0c-413b-b667-873644ae4ded",
-      "opt-11190e42-8523-49f1-885b-973273d10dc1"
+      "opt-9127fe30-659b-4344-9d81-645a9a8f97b6",
+      "opt-6cae63cf-3493-4828-b04c-b8ca8870304a",
+      "opt-9da54c81-2e72-4761-88dc-b421d3aec373",
+      "opt-c1e439ef-85a2-4d9a-b17e-3fa422019993",
+      "opt-0ae22e6e-e389-405d-99ce-b4ba53c1e5c0"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -683,8 +635,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-a1eae4d3-0dc5-4d94-8714-07c713d8cac0",
-      "opt-761933df-8e10-477f-baa6-3f95756255c0"
+      "opt-0997e0b5-3062-48ae-89d4-d24ca346872e",
+      "opt-0f53bf72-1d07-4073-9e07-736ba374c39e"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -696,8 +648,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-169d1568-10fd-438e-ac58-726e70c1a8bf",
-      "opt-843f0e23-e514-4379-8d7f-d564b475ff10"
+      "opt-9d8dc577-0ef4-427e-afe8-fee6abaafa8e",
+      "opt-2dc9f81d-57e9-4717-91e3-6de5a9edbd99"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -709,8 +661,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-13a170d6-d100-4b30-a664-27ddce847fb6",
-      "opt-124f41e9-0fc8-4ce9-b030-ca1645dec902"
+      "opt-17f6fd04-1cc7-4d55-8bf3-367feccd51d5",
+      "opt-0ec4afc8-5893-44a9-a1c3-a990935c01c7"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -722,8 +674,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-555c918e-d3eb-4843-b12b-f70b5bc43441",
-      "opt-4dd70339-b766-4f7f-ae71-eb55ded7785f"
+      "opt-a4e368de-16ff-4764-b6a3-e7298a55b216",
+      "opt-0e8d3ef3-dc4e-4f34-b47a-dda291450f99"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -735,8 +687,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-60a16043-ec10-4cb2-aa4d-2486ad21de5f",
-      "opt-8f0de30f-2e4d-4821-a034-1d3ea19d2a1f"
+      "opt-957f3e1e-99b5-4f5c-b22a-c2d4d2f59afc",
+      "opt-6e8a4b71-837c-4795-8609-ba699a9a5d52"
      ],
      "policy": "keep_all",
      "revision": 6,
@@ -744,12 +696,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-196b5228-21b7-4fc1-9841-78bdf4ebd1f6",
+     "chosen_option_id": "opt-bc6c514a-b6a6-49a1-8814-ea614986d54a",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-196b5228-21b7-4fc1-9841-78bdf4ebd1f6",
-      "opt-e38ab418-fb6d-4faa-a6c5-9cf3c641c736"
+      "opt-bc6c514a-b6a6-49a1-8814-ea614986d54a",
+      "opt-ffe7c05a-ae9c-4f9e-b748-5d8acf8e85c9"
      ],
      "policy": "pass_when_offered",
      "revision": 7,
@@ -781,7 +733,7 @@
    },
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -823,8 +775,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -884,12 +836,12 @@
    "externally_supplied_decision_tape": [
     {
      "actor": "p1",
-     "chosen_option_id": "opt-2032bbe9-7d4d-48d2-9e21-051888f53a06",
+     "chosen_option_id": "opt-317adeed-25e8-4e41-ba90-7899d5c85a61",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-2032bbe9-7d4d-48d2-9e21-051888f53a06",
-      "opt-3b2e0fe7-79ce-4ba1-b07b-72ed9f4a801d"
+      "opt-317adeed-25e8-4e41-ba90-7899d5c85a61",
+      "opt-cc15d5eb-a093-4a58-af84-ebbdd6961d98"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -901,8 +853,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-c2e3be2e-fd8b-40b2-b395-371d45ee2d07",
-      "opt-2f6b44d5-2a1c-4cec-9a3c-591c2209f357"
+      "opt-bea8c8ed-205d-4e8f-8f5e-6c58a1b7f9e3",
+      "opt-c15eb19a-14fe-4214-a739-cb31d041f2e0"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -914,8 +866,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-1752fca1-71dd-41d8-9d4d-d4d15124dd84",
-      "opt-147db9f6-5072-41de-bb34-342099a54030"
+      "opt-6c943737-2292-48b2-a4e5-a8162298648d",
+      "opt-2d2a1def-8862-4776-94c6-58d1d74aaeb7"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -923,12 +875,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-90d7a068-dff4-448c-a8ba-fb00557046de",
+     "chosen_option_id": "opt-27a07ef5-1b53-4c92-b03a-58f4e6476dda",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-90d7a068-dff4-448c-a8ba-fb00557046de",
-      "opt-79956b7a-8f58-4199-814a-cb1c994df2e9"
+      "opt-27a07ef5-1b53-4c92-b03a-58f4e6476dda",
+      "opt-a370aea0-41f9-4fd8-ac95-f9539edfa517"
      ],
      "policy": "pass_when_offered",
      "revision": 4,
@@ -960,7 +912,7 @@
    },
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1002,8 +954,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1083,7 +1035,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1125,8 +1077,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1162,7 +1114,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1204,8 +1156,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1241,7 +1193,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1283,8 +1235,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1320,7 +1272,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1362,8 +1314,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1399,7 +1351,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1441,8 +1393,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1478,7 +1430,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1520,8 +1472,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1557,7 +1509,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1599,8 +1551,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1636,7 +1588,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1678,8 +1630,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1715,7 +1667,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1757,8 +1709,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1794,7 +1746,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1836,8 +1788,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1873,7 +1825,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1915,8 +1867,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -1952,7 +1904,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -1994,8 +1946,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2031,7 +1983,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2073,8 +2025,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2110,7 +2062,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2152,8 +2104,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2189,7 +2141,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2231,8 +2183,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2268,7 +2220,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2310,8 +2262,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2347,7 +2299,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2389,8 +2341,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2426,7 +2378,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2468,8 +2420,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2505,7 +2457,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2547,8 +2499,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2584,7 +2536,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2626,8 +2578,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2663,7 +2615,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2705,8 +2657,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2742,7 +2694,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2784,8 +2736,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2821,7 +2773,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2863,8 +2815,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2900,7 +2852,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -2942,8 +2894,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -2979,7 +2931,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3021,8 +2973,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3058,7 +3010,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3100,8 +3052,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3137,7 +3089,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3179,8 +3131,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3216,7 +3168,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3258,8 +3210,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3295,7 +3247,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3337,8 +3289,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3374,7 +3326,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3416,8 +3368,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3453,7 +3405,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3495,8 +3447,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3532,7 +3484,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3574,8 +3526,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3611,7 +3563,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3653,8 +3605,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3690,7 +3642,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3732,8 +3684,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3769,7 +3721,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3811,8 +3763,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3848,7 +3800,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3890,8 +3842,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -3927,7 +3879,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -3969,8 +3921,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4006,7 +3958,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4048,8 +4000,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4085,7 +4037,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4127,8 +4079,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4164,7 +4116,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4206,8 +4158,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4243,7 +4195,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4285,8 +4237,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4322,7 +4274,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4364,8 +4316,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4401,7 +4353,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4443,8 +4395,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4480,7 +4432,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4522,8 +4474,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4559,7 +4511,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4601,8 +4553,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4638,7 +4590,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4680,8 +4632,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4717,7 +4669,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4759,8 +4711,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4796,7 +4748,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4838,8 +4790,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4875,7 +4827,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4917,8 +4869,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -4954,7 +4906,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -4996,8 +4948,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5033,7 +4985,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5075,8 +5027,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5112,7 +5064,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5154,8 +5106,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5191,7 +5143,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5233,8 +5185,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5270,7 +5222,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5312,8 +5264,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5349,7 +5301,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5391,8 +5343,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5428,7 +5380,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5470,8 +5422,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5507,7 +5459,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5549,8 +5501,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5586,7 +5538,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5628,8 +5580,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5665,7 +5617,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5707,8 +5659,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5744,7 +5696,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5786,8 +5738,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5823,7 +5775,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5865,8 +5817,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5902,7 +5854,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -5944,8 +5896,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -5981,7 +5933,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6023,8 +5975,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6060,7 +6012,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6102,8 +6054,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6139,7 +6091,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6181,8 +6133,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6218,7 +6170,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6260,8 +6212,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6297,7 +6249,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6339,8 +6291,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6376,7 +6328,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6418,8 +6370,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6455,7 +6407,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6497,8 +6449,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6534,7 +6486,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6576,8 +6528,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6613,7 +6565,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6655,8 +6607,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6692,7 +6644,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6734,8 +6686,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6771,7 +6723,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6813,8 +6765,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6850,7 +6802,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6892,8 +6844,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -6929,7 +6881,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -6971,8 +6923,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7008,7 +6960,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7050,8 +7002,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7087,7 +7039,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7129,8 +7081,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7166,7 +7118,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7208,8 +7160,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7245,7 +7197,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7287,8 +7239,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7324,7 +7276,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7366,8 +7318,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7403,7 +7355,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7445,8 +7397,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7482,7 +7434,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7524,8 +7476,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7561,7 +7513,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7603,8 +7555,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7640,7 +7592,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7682,8 +7634,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7719,7 +7671,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7761,8 +7713,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7798,7 +7750,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7840,8 +7792,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7877,7 +7829,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7919,8 +7871,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -7956,7 +7908,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -7998,8 +7950,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8035,7 +7987,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8077,8 +8029,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8114,7 +8066,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8156,8 +8108,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8193,7 +8145,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8235,8 +8187,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8272,7 +8224,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8314,8 +8266,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8351,7 +8303,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8393,8 +8345,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8430,7 +8382,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8472,8 +8424,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8509,7 +8461,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8551,8 +8503,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8588,7 +8540,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8630,8 +8582,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8667,7 +8619,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8709,8 +8661,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8746,7 +8698,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8788,8 +8740,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8825,7 +8777,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8867,8 +8819,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8904,7 +8856,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -8946,8 +8898,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -8983,7 +8935,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -9025,8 +8977,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -9062,7 +9014,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-    "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": true,
@@ -9104,8 +9056,8 @@
     "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lane": "protocol2-jsonl",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-    "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+    "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+    "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
     "scenario_injection_supported": true,
     "seed_supported": true,
     "starting_state_injection_supported": true,
@@ -9118,7 +9070,7 @@
  ],
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-  "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+  "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": true,
@@ -9160,8 +9112,8 @@
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-  "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+  "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+  "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
   "scenario_injection_supported": true,
   "seed_supported": true,
   "starting_state_injection_supported": true,

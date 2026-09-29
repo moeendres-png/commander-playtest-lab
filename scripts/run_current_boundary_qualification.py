@@ -95,9 +95,13 @@ def _native_identity(candidate: str) -> dict[str, str]:
                 {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}
             ),
         }
+    # PB-09: allow qualifying a different but equally real candidate (the
+    # pristine upstream engine) by naming the expected commit explicitly. The
+    # default stays the Lab fork pin, so nothing changes for existing runs.
+    expected = os.environ.get("FORGE_EXPECTED_ENGINE_COMMIT") or FORGE_CANDIDATE_COMMIT
     return {
         "repository": "https://github.com/moeendres-png/forge",
-        "expected_engine_commit": FORGE_CANDIDATE_COMMIT,
+        "expected_engine_commit": expected,
         "build_identity": json.dumps(
             {"bridge": "forge-protocol2-bridge", "lane": "maven-surefire"}
         ),

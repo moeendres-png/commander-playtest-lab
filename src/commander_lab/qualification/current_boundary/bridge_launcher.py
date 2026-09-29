@@ -280,16 +280,21 @@ def build_launch_plan(
             f"{module / 'target' / 'classes'}:{classpath}",
             "forge.bridge.BridgeMain",
         )
+        # PB-09: an explicit expected-commit override lets the harness qualify a
+        # different but equally real candidate (the pristine upstream engine)
+        # without renaming or relabelling the Lab fork pin. Absent the override,
+        # the historical fork pin remains the expectation.
+        expected = os.environ.get("FORGE_EXPECTED_ENGINE_COMMIT") or FORGE_CANDIDATE_COMMIT
         return LaunchPlan(
             candidate=candidate,
             lane="protocol2-jsonl",
             argv=argv,
             cwd=forge_workspace,
             env_overrides={
-                "FORGE_ENGINE_SHA": FORGE_CANDIDATE_COMMIT,
+                "FORGE_ENGINE_SHA": expected,
                 "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),
             },
-            expected_engine_commit=FORGE_CANDIDATE_COMMIT,
+            expected_engine_commit=expected,
             build_identity={
                 "module": "forge-protocol2-bridge",
                 "classes": str(module / "target" / "classes"),

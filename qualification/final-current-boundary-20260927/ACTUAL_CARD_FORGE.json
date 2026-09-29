@@ -111,7 +111,7 @@
  },
  "runtime_identity": {
   "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-  "adapter_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+  "adapter_commit": "ddf01c91faf1bcba1cd2bc0a0c1b742fc2b35c9b",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": true,
@@ -153,8 +153,8 @@
   "engine_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
   "lane": "protocol2-jsonl",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "f5d3197a90503b0ff1e50142a1828c89d83ab752",
-  "runner_tree": "5ed2d070688754989e83c4d560cf2d09c6cb456c",
+  "runner_commit": "e2f13666599c9bde2adc75a0c8377e3a19fda910",
+  "runner_tree": "bdab1a3ec707a861214a2c08f7b1f7e17f54d933",
   "scenario_injection_supported": true,
   "seed_supported": true,
   "starting_state_injection_supported": true,
