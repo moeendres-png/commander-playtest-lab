@@ -225,9 +225,7 @@ def _case_passed(report: Path, class_name: str, method_name: str) -> bool:
             continue
         if observed_method != method_name:
             continue
-        return not any(
-            testcase.find(tag) is not None for tag in ("failure", "error", "skipped")
-        )
+        return not any(testcase.find(tag) is not None for tag in ("failure", "error", "skipped"))
     return False
 
 
