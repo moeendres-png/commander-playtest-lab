@@ -156,9 +156,18 @@
       }
     ],
     "refused_illegal_cases": [
-      {"probe": "unknown_card_name", "mutation": "a mainboard entry naming a card the engine does not know"},
-      {"probe": "mainboard_short_of_one_hundred", "mutation": "a Commander mainboard of fewer than 100 cards"},
-      {"probe": "empty_mainboard", "mutation": "a Commander deck with an empty mainboard"}
+      {
+        "probe": "unknown_card_name",
+        "mutation": "a mainboard entry naming a card the engine does not know"
+      },
+      {
+        "probe": "mainboard_short_of_one_hundred",
+        "mutation": "a Commander mainboard of fewer than 100 cards"
+      },
+      {
+        "probe": "empty_mainboard",
+        "mutation": "a Commander deck with an empty mainboard"
+      }
     ],
     "measured_statement": "Deck-size and card-name validity are enforced at this import boundary; Commander format legality is not. This is recorded as observed candidate behaviour, not as a Rules ruling.",
     "generalisation_forbidden": "Do not extend this finding beyond the probed import boundary. It is not a claim about how the pristine engine behaves in a played game.",
@@ -170,15 +179,42 @@
     "command": "mvn -o -pl forge-protocol2-bridge -Dcheckstyle.skip=true -DskipTests test-compile",
     "result": "BUILD FAILURE (COMPILATION ERROR), rc=1",
     "missing_rules_core_apis": [
-      {"symbol": "forge.game.player.PlayerController#assignCombatDamage(Card, CardCollectionView, CardCollectionView, int, GameEntity, boolean)", "origin": "WS40 combat-damage legality migrated into the Rules Core"},
-      {"symbol": "forge.game.combat.CombatDamageSelection", "origin": "WS40"},
-      {"symbol": "forge.game.combat.CombatDamageDecisionView", "origin": "WS40"},
-      {"symbol": "forge.game.player.AmountDistributionDecisionView", "origin": "WS40"},
-      {"symbol": "forge.game.player.AmountDistributionSelection", "origin": "WS40"},
-      {"symbol": "forge.game.player.DividedAllocationDecision", "origin": "WS217 CR 601.2d chooser-divided allocation seam"},
-      {"symbol": "forge.game.player.DividedAllocationSelection", "origin": "WS217"},
-      {"symbol": "forge.game.player.DividedAllocationDecisionView", "origin": "WS217"},
-      {"symbol": "MyRandom#bindSeed(long) / getRootSeed() / isExplicitSeed() / clearBinding() / getCallCount()", "origin": "Lab-fork Rules-RNG seed surface"}
+      {
+        "symbol": "forge.game.player.PlayerController#assignCombatDamage(Card, CardCollectionView, CardCollectionView, int, GameEntity, boolean)",
+        "origin": "WS40 combat-damage legality migrated into the Rules Core"
+      },
+      {
+        "symbol": "forge.game.combat.CombatDamageSelection",
+        "origin": "WS40"
+      },
+      {
+        "symbol": "forge.game.combat.CombatDamageDecisionView",
+        "origin": "WS40"
+      },
+      {
+        "symbol": "forge.game.player.AmountDistributionDecisionView",
+        "origin": "WS40"
+      },
+      {
+        "symbol": "forge.game.player.AmountDistributionSelection",
+        "origin": "WS40"
+      },
+      {
+        "symbol": "forge.game.player.DividedAllocationDecision",
+        "origin": "WS217 CR 601.2d chooser-divided allocation seam"
+      },
+      {
+        "symbol": "forge.game.player.DividedAllocationSelection",
+        "origin": "WS217"
+      },
+      {
+        "symbol": "forge.game.player.DividedAllocationDecisionView",
+        "origin": "WS217"
+      },
+      {
+        "symbol": "MyRandom#bindSeed(long) / getRootSeed() / isExplicitSeed() / clearBinding() / getCallCount()",
+        "origin": "Lab-fork Rules-RNG seed surface"
+      }
     ],
     "evidence_class": "DIRECTLY_VERIFIED compile diagnostics, not chronology",
     "forbidden_repairs_not_applied": [
@@ -307,5 +343,28 @@
     "select upstream Forge vs the Lab fork",
     "claim Architecture Freeze",
     "activate GLM in Foundry routing"
-  ]
+  ],
+  "local_only_artifacts": {
+    "persisted": "qualification/pb09-pristine-upstream-20260929/diagnostics/ holds the raw live state payloads captured from the pristine candidate during the reachability probe",
+    "intentionally_not_committed": [
+      {
+        "path": "/tmp/opencode/pb09/smoke_handshake.py",
+        "reason": "throwaway handshake probe, fully superseded by PRISTINE_ENGINE_IDENTITY_PIN.json and RUNTIME_REACHABILITY.json"
+      },
+      {
+        "path": "/tmp/opencode/pb09/smoke_game.py",
+        "reason": "throwaway 2P probe; the 2P provider refusal it found is preserved as the PLAYER_COUNT_2P FAIL row"
+      },
+      {
+        "path": "/tmp/opencode/pb09/smoke_game4p.py",
+        "reason": "throwaway 4P lifecycle probe; superseded by the qualification runner's own 4P run and native suite"
+      },
+      {
+        "path": "/tmp/opencode/pb09/smoke_state.py",
+        "reason": "throwaway driver; its observations are preserved in diagnostics/ and HIDDEN_INFO_PIN.json"
+      }
+    ],
+    "note": "/tmp/opencode/pb09 is session scratch and is not durable; the two state payloads were therefore copied into the committed diagnostics directory. No useful evidence depends on the scratch directory."
+  },
+  "head_at_parking": "ebec07ef303fbbf5692f5c910f34a2eb325d3967"
 }

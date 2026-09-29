@@ -1,0 +1,185 @@
+{
+ "bridge": {
+  "pending_decision": null,
+  "revision": -1,
+  "session_status": "RUNNING",
+  "state_hash": null
+ },
+ "state": {
+  "active_player_id": "p1",
+  "event_sequence": 22,
+  "game_id": "pb09-state-probe",
+  "legal_actions": [],
+  "phase": "beginning",
+  "players": [
+   {
+    "commander_cast_count": {
+     "Isamaru, Hound of Konda": 0
+    },
+    "commander_damage_received": {},
+    "has_lost": false,
+    "land_plays_remaining": 1,
+    "life": 40,
+    "loss_reason": null,
+    "mana_pool": {
+     "B": 0,
+     "C": 0,
+     "G": 0,
+     "R": 0,
+     "U": 0,
+     "W": 0
+    },
+    "player_id": "p1",
+    "poison_counters": 0,
+    "seat": 0,
+    "zones": {
+     "battlefield": [],
+     "command": [
+      "Isamaru, Hound of Konda",
+      "Commander Effect"
+     ],
+     "exile": [],
+     "graveyard": [],
+     "hand": [
+      "Savannah Lions",
+      "Plains",
+      "Eager Cadet",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains"
+     ],
+     "library": []
+    }
+   },
+   {
+    "commander_cast_count": {
+     "Isamaru, Hound of Konda": 0
+    },
+    "commander_damage_received": {},
+    "has_lost": false,
+    "land_plays_remaining": 1,
+    "life": 40,
+    "loss_reason": null,
+    "mana_pool": {
+     "B": 0,
+     "C": 0,
+     "G": 0,
+     "R": 0,
+     "U": 0,
+     "W": 0
+    },
+    "player_id": "p2",
+    "poison_counters": 0,
+    "seat": 1,
+    "zones": {
+     "battlefield": [],
+     "command": [
+      "Isamaru, Hound of Konda",
+      "Commander Effect"
+     ],
+     "exile": [],
+     "graveyard": [],
+     "hand": [
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>"
+     ],
+     "library": []
+    }
+   },
+   {
+    "commander_cast_count": {
+     "Isamaru, Hound of Konda": 0
+    },
+    "commander_damage_received": {},
+    "has_lost": false,
+    "land_plays_remaining": 1,
+    "life": 40,
+    "loss_reason": null,
+    "mana_pool": {
+     "B": 0,
+     "C": 0,
+     "G": 0,
+     "R": 0,
+     "U": 0,
+     "W": 0
+    },
+    "player_id": "p3",
+    "poison_counters": 0,
+    "seat": 2,
+    "zones": {
+     "battlefield": [],
+     "command": [
+      "Isamaru, Hound of Konda",
+      "Commander Effect"
+     ],
+     "exile": [],
+     "graveyard": [],
+     "hand": [
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>"
+     ],
+     "library": []
+    }
+   },
+   {
+    "commander_cast_count": {
+     "Isamaru, Hound of Konda": 0
+    },
+    "commander_damage_received": {},
+    "has_lost": false,
+    "land_plays_remaining": 1,
+    "life": 40,
+    "loss_reason": null,
+    "mana_pool": {
+     "B": 0,
+     "C": 0,
+     "G": 0,
+     "R": 0,
+     "U": 0,
+     "W": 0
+    },
+    "player_id": "p4",
+    "poison_counters": 0,
+    "seat": 3,
+    "zones": {
+     "battlefield": [],
+     "command": [
+      "Isamaru, Hound of Konda",
+      "Commander Effect"
+     ],
+     "exile": [],
+     "graveyard": [],
+     "hand": [
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>",
+      "<hidden>"
+     ],
+     "library": []
+    }
+   }
+  ],
+  "priority_player_id": "p2",
+  "rng_counter": null,
+  "seed": null,
+  "stack": [],
+  "status": "in_progress",
+  "step": "UPKEEP",
+  "turn_number": 1,
+  "winner_ids": []
+ }
+}
