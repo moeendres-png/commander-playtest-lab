@@ -19,7 +19,10 @@ import mage.game.mulligan.MulliganType;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
 import mage.players.Player;
+import mage.util.ThreadUtils;
+import mage.util.XmageThreadFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -142,6 +145,8 @@ final class XmageGameManager {
         /* Explicit orchestration seed bound to the native Rules RNG, or null. */
         private final Long explicitRulesSeed;
 
+        private volatile Thread engineThread;
+        private volatile Throwable engineFailure;
         private Lifecycle lifecycle = Lifecycle.CREATED;
         private long stateObservationOffset = 0L;
 
@@ -408,38 +413,110 @@ final class XmageGameManager {
                 );
             }
 
-            GameOptions options = managed.game.getOptions();
+            Player choosingPlayer = managed.players.get(managed.startingPlayerSeat);
 
             if (managed.externalControl) {
+                if (managed.externalDecisionController == null) {
+                    managed.lifecycle = Lifecycle.FAILED;
+                    throw new GameException(
+                            "XMAGE_EXTERNAL_CONTROL_START_FAILED: controller is unavailable"
+                    );
+                }
+
                 /*
-                 * Reach precombat main under an engine-owned stop hook first.
-                 * Then clear the hook and resume until the real priority player
-                 * publishes a B4-B decision and pauses from priority().
+                 * Mulligan is a synchronous Player callback inside game.start().
+                 * Running the engine on this dedicated thread lets the callback
+                 * block in ExternalDecisionController while the JSONL thread
+                 * returns the authoritative decision domain to the pilot.
                  */
-                options.stopOnTurn = 1;
-                options.stopAtStep = PhaseStep.PRECOMBAT_MAIN;
-            } else {
-                /* Validated B3 bounded handoff. */
-                options.stopOnTurn = 1;
-                options.stopAtStep = PhaseStep.UPKEEP;
+                managed.lifecycle = Lifecycle.STARTED;
+                XmageThreadFactory gameThreadFactory = new XmageThreadFactory(
+                        ThreadUtils.THREAD_PREFIX_GAME + " generic-external " + managed.gameId,
+                        true
+                );
+                managed.engineThread = gameThreadFactory.newThread(
+                        () -> runExternalStart(managed, choosingPlayer.getId())
+                );
+                managed.engineThread.start();
+
+                ExternalDecisionController.Decision decision;
+                try {
+                    decision = managed.externalDecisionController.awaitCurrentDecision(
+                            managed.game.getId().toString(),
+                            Duration.ofSeconds(20)
+                    );
+                } catch (RuntimeException exc) {
+                    managed.lifecycle = Lifecycle.FAILED;
+                    throw new GameException(
+                            "XMAGE_EXTERNAL_CONTROL_START_FAILED: " + exc.getMessage(),
+                            exc
+                    );
+                }
+
+                if (managed.engineFailure != null) {
+                    managed.lifecycle = Lifecycle.FAILED;
+                    throw new GameException(
+                            "XMAGE_GAME_START_FAILED: " + managed.engineFailure.getMessage(),
+                            managed.engineFailure
+                    );
+                }
+                if (managed.game.getStartingPlayerId() == null) {
+                    managed.lifecycle = Lifecycle.FAILED;
+                    throw new GameException(
+                            "XMAGE_GAME_START_FAILED: starting player was not established"
+                    );
+                }
+                for (Player player : managed.game.getPlayers().values()) {
+                    if (player.getLife() != managed.startingLife) {
+                        managed.lifecycle = Lifecycle.FAILED;
+                        throw new GameException(
+                                "XMAGE_GAME_START_FAILED: "
+                                        + player.getName()
+                                        + " has unexpected life "
+                                        + player.getLife()
+                        );
+                    }
+                }
+
+                JsonObject startedPayload = new JsonObject();
+                startedPayload.addProperty(
+                        "starting_player_id",
+                        managed.game.getStartingPlayerId().toString()
+                );
+                startedPayload.addProperty("turn_number", managed.game.getState().getTurnNum());
+                startedPayload.addProperty("external_control", true);
+                startedPayload.addProperty("seed_controlled", managed.explicitRulesSeed != null);
+                startedPayload.addProperty("initial_decision_kind", decision.decisionKind());
+                managed.eventLog.record(
+                        "game_started",
+                        managed.game.getStartingPlayerId().toString(),
+                        decision.decisionId(),
+                        null,
+                        null,
+                        stateHash(managed),
+                        startedPayload
+                );
+
+                return new StartResult(
+                        requireText(gameHandle, "game_handle"),
+                        managed.gameId,
+                        managed.game.getId().toString(),
+                        managed.game.getPlayers().size(),
+                        managed.game.getStartingPlayerId().toString(),
+                        managed.game.getState().getTurnNum(),
+                        managed.game.isPaused(),
+                        true,
+                        rulesSeedBinding(managed)
+                );
             }
 
-            Player choosingPlayer = managed.players.get(managed.startingPlayerSeat);
+            /* Validated B3 bounded lifecycle path. */
+            GameOptions options = managed.game.getOptions();
+            options.stopOnTurn = 1;
+            options.stopAtStep = PhaseStep.UPKEEP;
 
             try {
                 managed.game.start(choosingPlayer.getId());
-
-                if (managed.externalControl) {
-                    if (!managed.game.isPaused()) {
-                        throw new GameException(
-                                "XMAGE_EXTERNAL_CONTROL_START_FAILED: "
-                                        + "precombat-main setup hook was not reached"
-                        );
-                    }
-                    options.stopOnTurn = 0;
-                    options.stopAtStep = null;
-                    managed.game.resume();
-                }
             } catch (RuntimeException | Error exc) {
                 managed.lifecycle = Lifecycle.FAILED;
                 if (exc instanceof GameException gameException) {
@@ -489,41 +566,13 @@ final class XmageGameManager {
                                     + player.getLife()
                     );
                 }
-                if (!managed.externalControl && player.getHand().size() != 7) {
+                if (player.getHand().size() != 7) {
                     managed.lifecycle = Lifecycle.FAILED;
                     throw new GameException(
                             "XMAGE_GAME_START_FAILED: "
                                     + player.getName()
                                     + " has unexpected opening hand size "
                                     + player.getHand().size()
-                    );
-                }
-            }
-
-            if (managed.externalControl) {
-                if (managed.externalDecisionController == null) {
-                    managed.lifecycle = Lifecycle.FAILED;
-                    throw new GameException(
-                            "XMAGE_EXTERNAL_CONTROL_START_FAILED: controller is unavailable"
-                    );
-                }
-                try {
-                    ExternalDecisionController.Decision decision =
-                            managed.externalDecisionController.requireCurrentDecision(
-                                    managed.game.getId().toString()
-                            );
-                    if (!"priority".equals(decision.decisionKind())) {
-                        throw new GameException(
-                                "XMAGE_EXTERNAL_CONTROL_START_FAILED: "
-                                        + "unexpected decision kind "
-                                        + decision.decisionKind()
-                        );
-                    }
-                } catch (IllegalStateException exc) {
-                    managed.lifecycle = Lifecycle.FAILED;
-                    throw new GameException(
-                            "XMAGE_EXTERNAL_CONTROL_START_FAILED: " + exc.getMessage(),
-                            exc
                     );
                 }
             }
@@ -535,7 +584,7 @@ final class XmageGameManager {
                     managed.game.getStartingPlayerId().toString()
             );
             startedPayload.addProperty("turn_number", managed.game.getState().getTurnNum());
-            startedPayload.addProperty("external_control", managed.externalControl);
+            startedPayload.addProperty("external_control", false);
             startedPayload.addProperty("seed_controlled", managed.explicitRulesSeed != null);
             managed.eventLog.record(
                     "game_started",
@@ -555,9 +604,41 @@ final class XmageGameManager {
                     managed.game.getStartingPlayerId().toString(),
                     managed.game.getState().getTurnNum(),
                     managed.game.isPaused(),
-                    managed.externalControl,
+                    false,
                     rulesSeedBinding(managed)
             );
+        }
+    }
+
+    private static void runExternalStart(ManagedGame managed, UUID startingPlayerId) {
+        try {
+            managed.game.start(startingPlayerId);
+            if (managed.game.getTotalErrorsCount() != 0) {
+                throw new IllegalStateException(
+                        "XMAGE_INTERNAL_ERRORS: " + managed.game.getTotalErrorsCount()
+                );
+            }
+        } catch (Throwable exc) {
+            managed.engineFailure = exc;
+            if (managed.externalDecisionController != null) {
+                managed.externalDecisionController.failClosed(
+                        "XMAGE_EXTERNAL_ENGINE_FAILED: "
+                                + exc.getClass().getSimpleName()
+                                + ": "
+                                + String.valueOf(exc.getMessage()),
+                        exc
+                );
+            }
+        } finally {
+            /*
+             * A normal priority handoff returns from game.start() because
+             * XmageBridgePlayer.priority() paused the game. That is not terminal:
+             * subsequent priority passes resume XMage synchronously on the JSONL
+             * control thread. Only a non-paused return is terminal here.
+             */
+            if (!managed.game.isPaused() && managed.externalDecisionController != null) {
+                managed.externalDecisionController.markTerminal();
+            }
         }
     }
 
@@ -593,17 +674,16 @@ final class XmageGameManager {
                         "LEGAL_ACTIONS_UNAVAILABLE: game was not created with external_control=true"
                 );
             }
-            if (!managed.game.isPaused()) {
-                throw new GameException(
-                        "LEGAL_ACTIONS_UNAVAILABLE: game is not paused at an external decision"
-                );
-            }
-
             try {
                 ExternalDecisionController.Decision decision =
                         managed.externalDecisionController.requireCurrentDecision(
                                 managed.game.getId().toString()
                         );
+                if ("priority".equals(decision.decisionKind()) && !managed.game.isPaused()) {
+                    throw new GameException(
+                            "LEGAL_ACTIONS_UNAVAILABLE: priority decision exists while game is not paused"
+                    );
+                }
                 return new LegalActionsSnapshot(
                         managed.gameId,
                         managed.game.getId().toString(),
@@ -620,6 +700,70 @@ final class XmageGameManager {
                         exc
                 );
             }
+        }
+    }
+
+    XmageActionExecutor.ExecutionResult resolveMulligan(
+            String gameHandle,
+            String decisionId,
+            String actorId,
+            boolean keep,
+            List<String> bottomCardIds
+    ) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException("MULLIGAN_UNAVAILABLE: game must be started");
+            }
+            if (!managed.externalControl || managed.externalDecisionController == null) {
+                throw new GameException(
+                        "MULLIGAN_UNAVAILABLE: game was not created with external_control=true"
+                );
+            }
+
+            ExternalDecisionController.Decision before;
+            String selectedActionId;
+            try {
+                before = managed.externalDecisionController.requireCurrentDecision(
+                        managed.game.getId().toString()
+                );
+                selectedActionId = managed.externalDecisionController.submitMulligan(
+                        managed.game.getId().toString(),
+                        decisionId,
+                        actorId,
+                        keep,
+                        bottomCardIds
+                );
+                managed.externalDecisionController.awaitDecisionAdvance(
+                        managed.game.getId().toString(),
+                        before.decisionId(),
+                        Duration.ofSeconds(20)
+                );
+            } catch (RuntimeException exc) {
+                throw new GameException(
+                        "MULLIGAN_RESOLUTION_FAILED: " + exc.getMessage(),
+                        exc
+                );
+            }
+
+            if (managed.engineFailure != null) {
+                throw new GameException(
+                        "MULLIGAN_RESOLUTION_FAILED: "
+                                + managed.engineFailure.getClass().getSimpleName()
+                                + ": "
+                                + String.valueOf(managed.engineFailure.getMessage()),
+                        managed.engineFailure
+                );
+            }
+
+            return new XmageActionExecutor.ExecutionResult(
+                    before.decisionId(),
+                    selectedActionId,
+                    "mulligan",
+                    before.actorId(),
+                    null,
+                    keep ? "keep" : "mulligan"
+            );
         }
     }
 
