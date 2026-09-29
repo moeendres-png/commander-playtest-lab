@@ -352,7 +352,8 @@ class XmagePb03Tier2CmdZoneTest {
                     java.util.Set.of(
                             "Forest \u2014 {T}: Add {G}.",
                             "Plains \u2014 {T}: Add {W}.",
-                            "Island \u2014 {T}: Add {U}."));
+                            "Island \u2014 {T}: Add {U}."),
+                    List.of("GREEN", "WHITE", "BLUE"));
         }
         assertSpellOnStack(session, causeCard, tag);
 
