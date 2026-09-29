@@ -883,6 +883,10 @@ final class JsonlBridge {
         JsonArray actions = new JsonArray();
         snapshot.actions().forEach(actions::add);
         payload.add("actions", actions);
+        // Authoritative decision context (for example the engine-declared
+        // selection minimum and maximum of a bottoming decision). Without it the
+        // consumer could only guess a cardinality, which is not permitted.
+        payload.add("context", snapshot.context() == null ? new JsonObject() : snapshot.context());
         return payload;
     }
 

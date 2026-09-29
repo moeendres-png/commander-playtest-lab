@@ -30,6 +30,11 @@ POLL_INTERVAL_S = 1.0
 # Named pilot policies. Each states its semantic intent explicitly; none is a
 # fallback and none is applied when the engine offers no matching option.
 MULLIGAN_POLICY = "keep_all"  # Commander: keep the opening hand.
+# London bottoming is a mandatory choice of which cards to bottom. The count
+# comes from the engine; the identities come only from the engine-offered
+# domain, taken in the engine's own order. Named explicitly so it is an
+# auditable policy rather than a hidden default.
+MULLIGAN_BOTTOM_POLICY = "engine_domain_identity_order"
 PRIORITY_POLICY = "pass_when_offered"  # Decline the optional priority action.
 STARTING_PLAYER_POLICY = "fixture_scripted_seat"
 
@@ -516,6 +521,7 @@ def drive_commander_game(
     scripted_starting_seat: str = "p1",
     drive_to: Literal["priority", "full_turn", "first_turn_draw_skip"] = "priority",
     max_steps: int = 400,
+    scripted_mulligans: frozenset[str] | None = None,
 ) -> CommandedGameResult:
     """Run a real Commander lifecycle for one candidate at one player count.
 
@@ -524,6 +530,8 @@ def drive_commander_game(
     """
     if player_count < 2 or player_count > 6:
         raise ValueError(f"player_count must be within 2..6, got {player_count}")
+
+    mulligan_taken: set[str] = set()
 
     result = CommandedGameResult(
         candidate=candidate,
@@ -646,13 +654,23 @@ def drive_commander_game(
                 continue
 
             if kind in {"MULLIGAN", "KEEP_OR_MULLIGAN"}:
+                # Scenario intent: a named seat takes exactly one mulligan. The
+                # engine decides what that costs; the driver only states the
+                # choice, and every later round keeps.
+                take_mulligan = bool(
+                    scripted_mulligans
+                    and actor in scripted_mulligans
+                    and actor not in mulligan_taken
+                )
+                if take_mulligan:
+                    mulligan_taken.add(actor)
                 keep = _require_ok(
                     proc.request(
                         "resolve_mulligan",
                         {
                             "player_id": actor,
                             **decision_identity_params(candidate, frame),
-                            "keep": True,
+                            "keep": not take_mulligan,
                             "bottom_card_ids": [],
                         },
                         game_id=game_id,
@@ -669,10 +687,71 @@ def drive_commander_game(
                         MULLIGAN_POLICY,
                         None,
                         offered,
-                        "external keep decision; no bottoming",
+                        "scenario intent takes one mulligan"
+                        if take_mulligan
+                        else "external keep decision",
                     )
                 )
                 result.observations.append(GameObservation("mulligan_keep", keep))
+                continue
+
+            if kind in {"MULLIGAN_BOTTOM", "MULLIGAN_BOTTOM_CARD"}:
+                domain = (frame.get("raw") or {}).get("context")
+                domain = domain if isinstance(domain, dict) else {}
+                minimum = domain.get("min_selection")
+                maximum = domain.get("max_selection")
+                if not isinstance(minimum, int) or not isinstance(maximum, int):
+                    raise DecisionUnsatisfied(
+                        "the engine did not declare a bottoming cardinality; the driver "
+                        "refuses to invent one"
+                    )
+                if minimum != maximum:
+                    raise DecisionUnsatisfied(
+                        f"the engine declared a range {minimum}..{maximum} for this "
+                        "bottoming; no bounded policy applies and guessing is not allowed"
+                    )
+                offered_ids = [
+                    str(action["metadata"]["card_id"])
+                    for action in actions
+                    if isinstance(action.get("metadata"), dict)
+                    and action["metadata"].get("card_id")
+                ]
+                if minimum > len(offered_ids):
+                    raise DecisionUnsatisfied(
+                        f"the engine requires {minimum} card(s) but offered only "
+                        f"{len(offered_ids)} identities"
+                    )
+                # Discretionary identity choice, bounded by the engine count and
+                # drawn only from the engine-offered domain. A zero requirement
+                # stays a zero selection rather than an invented one.
+                selected = offered_ids[:minimum]
+                answer = _require_ok(
+                    proc.request(
+                        "resolve_mulligan_bottom",
+                        {
+                            "player_id": actor,
+                            **decision_identity_params(candidate, frame),
+                            "selected_card_ids": selected,
+                        },
+                        game_id=game_id,
+                        timeout_s=120.0,
+                    ),
+                    "resolve_mulligan_bottom",
+                )
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "mulligan_bottom",
+                        kind,
+                        actor,
+                        revision,
+                        MULLIGAN_BOTTOM_POLICY,
+                        ",".join(selected),
+                        offered,
+                        "engine-declared bottoming of "
+                        f"{minimum} card(s) from {len(offered_ids)} offered identities",
+                    )
+                )
+                result.observations.append(GameObservation("mulligan_bottom", answer))
                 continue
 
             if kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}:
