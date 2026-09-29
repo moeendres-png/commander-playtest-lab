@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class XmageActualCardCorpusTest {
 
     private static final String ROGRAKH = "Rograkh, Son of Rohgahh";
-    private static final String MOUNTAIN_LABEL = "Mountain — {T}: Add {R}.";
+    static final String MOUNTAIN_LABEL = "Mountain — {T}: Add {R}.";
     private static final String ISLAND_LABEL = "Island — {T}: Add {U}.";
     static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
     private static final long SEED = 424242L;
