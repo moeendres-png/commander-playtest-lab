@@ -112,3 +112,25 @@ Added:
 - `tests/qualification/test_current_boundary_midgame_lane.py`
 - `qualification/midgame-lane-20260929/MIDGAME_CAPABILITY_PROBE.json`
 - `docs/engine_capability_reuse_delta_20260929/*`
+
+## 8. Remediation-era source lock (2026-09-29, additive)
+
+The lock in §1 records the workstream's original base. This section records the
+identity the review remediation was integrated and re-verified on, without
+changing the historical record above.
+
+| Field | Value |
+|---|---|
+| Main at task authoring | `234318cf83b29420a20d2e9878aa86b7110af55e` |
+| Main actually integrated | `83a547f739cc1a7072798c55e10829032df8fe88` (main advanced past the authoring lock; no #304-owned file was edited by main in between) |
+| PR #304 head at remediation start | `8a7e8e303cdb5f45d971d35c9ded4af25863385b` |
+| PR #304 head after the causal-completion commit | `dafe2ac6d903ed55c774841fbfa25cb7584f52d6` |
+| Remediation branch | `pb03/304-remediation-on-dafe2ac6` |
+| XMage engine pin | `b19596980f2734496ea1896504253e1bdd2756dd` (unchanged; still `org.mage:mage:1.4.61`) |
+| Forge Rules-Core pin | unchanged; not touched by this workstream |
+| Classpath manifest | `engine-bridge/target/cp-wsr22.txt`, regenerated with `mvn -B -o dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt` |
+
+Every suite was re-executed at this head; no pre-update PASS was carried forward.
+See `REVIEW_REMEDIATION_20260929.md`.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`

@@ -138,3 +138,13 @@ and #300 are all open.
   `ENGINE_NATIVE_REACHABLE` row carries an engine-produced digest and a
   field-level mismatch list, and every non-reachable row carries the engine's own
   rejection code.
+
+## Review remediation (2026-09-29)
+
+The authoritative record of the six closed review findings and the WS17
+artifact/hash repair is `docs/engine_capability_reuse_delta_20260929/REVIEW_REMEDIATION_20260929.md`.
+Probe counts in this document that predate that remediation are marked historical;
+the current receipt is the 29-row receipt at the remediated head and every digest in
+it was regenerated because the arrival observation and the digest scope changed.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`

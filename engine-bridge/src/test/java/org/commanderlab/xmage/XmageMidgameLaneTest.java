@@ -389,7 +389,7 @@ class XmageMidgameLaneTest {
         // exactly the requested turn/phase/step/active point.
         JsonObject temporal = frozenRecord("WS05-MP-COMBAT-4").getAsJsonObject("temporal_state");
         assertEquals(temporal.get("turn_number").getAsInt(), 1);
-        JsonObject readback = arrival.getAsJsonObject("readback");
+        JsonObject readback = arrival.getAsJsonObject("observation");
         assertEquals(temporal.get("turn_number").getAsInt(),
                 readback.get("turn_number").getAsInt());
         assertEquals(temporal.get("phase").getAsString().toUpperCase(),
@@ -564,7 +564,7 @@ class XmageMidgameLaneTest {
                     // While the engine is parked the message is a pure query,
                     // so polling it costs no decision and answers no decision.
                     JsonObject probe = lane.ok("complete_midgame_arrival", new JsonObject())
-                            .getAsJsonObject("readback");
+                            .getAsJsonObject("observation");
                     if (requestedPhase.equals(probe.get("phase").getAsString())
                             && requestedStep.equals(probe.get("step").getAsString())) {
                         arrival = lane.ok("complete_midgame_arrival", new JsonObject());

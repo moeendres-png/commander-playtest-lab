@@ -615,7 +615,9 @@ def classification_from_arrival(
         lane=lane,
         engine_commit=engine_commit,
         allowance_applied=allowance,
-        engine_accepted_starting_state=True,
+        # An acceptance statement is made only for a row that actually reached
+        # the engine's native reachability. A construction mismatch does not.
+        engine_accepted_starting_state=outcome == "ENGINE_NATIVE_REACHABLE",
     )
 
 
@@ -728,6 +730,83 @@ def transport_failure_verdict(
         engine_commit=engine_commit,
         engine_accepted_starting_state=False,
         entry_mode=entry_mode,
+    )
+
+
+def failure_verdict(
+    fixture_id: str,
+    lane: str,
+    exc: BaseException,
+    *,
+    engine_commit: str | None,
+    entry_mode: str = "placement",
+    obligation_code: str = "OBLIGATION_NOT_EXECUTED",
+    transport_code: str = "MIDGAME_LANE_TRANSPORT_FAILURE",
+    protocol_code: str = "MIDGAME_LANE_PROTOCOL_VIOLATION",
+    timeout_code: str = "MIDGAME_LANE_TIMEOUT",
+) -> tuple[RowVerdict, Outcome]:
+    """Map a lane failure to the row verdict it must produce.
+
+    This is the single place that decides what a failure means, so a transport
+    outcome can never be reclassified as an accepted engine state by a caller.
+    Only an explicit :class:`MidgameLaneError` obligation case — the engine was
+    engaged and the lane could not carry out the row's own scripted obligation
+    from engine-offered options — becomes ``ENGINE_STATE_ACCEPTED``, and even
+    that carries no reachability credit. Timeout, protocol and transport
+    failures become ``TRANSPORT_FAILURE`` with the engine untouched and no
+    acceptance statement. Anything that is not a lane error is returned to the
+    caller rather than converted.
+    """
+    if isinstance(exc, MidgameLaneTimeout):
+        return (
+            transport_failure_verdict(
+                fixture_id,
+                lane,
+                code=timeout_code,
+                detail=str(exc),
+                engine_commit=engine_commit,
+                entry_mode=entry_mode,
+            ),
+            "TRANSPORT_FAILURE",
+        )
+    if isinstance(exc, MidgameLaneProtocolError):
+        return (
+            transport_failure_verdict(
+                fixture_id,
+                lane,
+                code=protocol_code,
+                detail=str(exc),
+                engine_commit=engine_commit,
+                entry_mode=entry_mode,
+            ),
+            "TRANSPORT_FAILURE",
+        )
+    if isinstance(exc, MidgameLaneTransportError):
+        return (
+            transport_failure_verdict(
+                fixture_id,
+                lane,
+                code=transport_code,
+                detail=str(exc),
+                engine_commit=engine_commit,
+                entry_mode=entry_mode,
+            ),
+            "TRANSPORT_FAILURE",
+        )
+    if isinstance(exc, MidgameLaneError):
+        return (
+            rejected_verdict(
+                fixture_id,
+                lane,
+                code=obligation_code,
+                detail=str(exc),
+                engine_commit=engine_commit,
+                state_accepted=True,
+            ),
+            "ENGINE_STATE_ACCEPTED",
+        )
+    raise TypeError(
+        f"refusing to classify a non-lane failure as an engine verdict: {type(exc).__name__}: {exc}"
     )
 
 

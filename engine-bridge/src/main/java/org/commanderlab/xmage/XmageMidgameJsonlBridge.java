@@ -147,6 +147,16 @@ final class XmageMidgameJsonlBridge {
      * than a Lab-side table, so the scaffolding filler stays a construction
      * vehicle that tracks the real card's mana colours.
      */
+    /**
+     * The engine's own colored identity for a commander, from the card registry.
+     *
+     * <p>An empty set is a legitimate answer, not an error: a colorless
+     * Commander (for example Karn, Silver Golem) really has no colored
+     * component in its identity. The caller must scaffold such a deck with a
+     * colorless basic land instead of a fabricated colored one. Commander
+     * legality itself is decided by the engine's real-cards-only import, never
+     * by this projection.</p>
+     */
     private static Set<String> engineCommanderColors(String commanderName) {
         CardInfo cardInfo = CardRepository.instance.findCard(commanderName, true);
         if (cardInfo == null) {
@@ -169,10 +179,6 @@ final class XmageMidgameJsonlBridge {
         }
         if (color.isGreen()) {
             colors.add("G");
-        }
-        if (colors.isEmpty()) {
-            throw new XmageNativeStateRestoration.RestorationException(
-                    "UNSUPPORTED_COMMANDER_COLOR", commanderName);
         }
         return colors;
     }
@@ -611,6 +617,25 @@ final class XmageMidgameJsonlBridge {
      * Engine-side post-arrival completion plus the engine's own construction
      * verdict. This performs no player decision at all.
      */
+    /**
+     * Completes the explicitly requested arrival and reports the engine's own
+     * construction verdict.
+     *
+     * <p><b>Hidden information.</b> The internal comparison stays authoritative
+     * and complete: it runs against the engine's full field-level readback,
+     * including every seat's hand, and its verdict and mismatch list are exactly
+     * what the engine reported. The response, however, carries only externally
+     * observable information. The raw readback is never returned; a
+     * principal-scoped {@code observation} is returned instead, which follows the
+     * same policy as {@code XmageFullGameStateRedactor}: a named requester sees
+     * its own hand, every other principal's hand is present only as its count,
+     * and when no requester is named no hand identities appear at all. The
+     * reported {@code constructed_state_digest} is taken over that redacted
+     * observation so a digest exposed to a wrong principal never commits to a
+     * hidden hand identity. Mismatch strings carry the requester's own requested
+     * plan content and observed counts, never another principal's card
+     * identities.</p>
+     */
     private Result completeMidgameArrival(String requestId, JsonObject request) {
         try {
             requireSession();
@@ -622,6 +647,7 @@ final class XmageMidgameJsonlBridge {
                         false
                 );
             }
+            String requesterPrincipal = optionalRequesterPrincipal(request);
             Map<String, Player> seats = requireSession().restorationSeats();
             restoration.restoreCommanderCasts(requireSession().restorationGame(), seats);
             XmageNativeStateRestoration.revalidate(requireSession().restorationGame());
@@ -629,20 +655,109 @@ final class XmageMidgameJsonlBridge {
                     XmageNativeStateRestoration.readback(requireSession().restorationGame(), seats);
             XmageNativeStateRestoration.CompareVerdict verdict = restoration.compare(observed, seats);
 
+            JsonObject observation = principalScopedObservation(observed, requesterPrincipal);
             JsonObject response = new JsonObject();
             response.addProperty("plan_id", planId);
             response.addProperty("construction_match", verdict.match());
             response.addProperty("requested_state_digest", verdict.requestedDigest());
-            response.addProperty("constructed_state_digest", verdict.constructedDigest());
+            response.addProperty(
+                    "constructed_state_digest",
+                    XmageNativeStateRestoration.digestJson(observation));
+            response.addProperty(
+                    "constructed_state_digest_scope", "principal_scoped_observation");
             JsonArray mismatches = new JsonArray();
             verdict.mismatches().forEach(mismatches::add);
             response.add("mismatches", mismatches);
-            response.add("readback", observed);
+            response.add("observation", observation);
+            response.addProperty(
+                    "observation_scope",
+                    requesterPrincipal == null
+                            ? "principal_neutral_opponent_hands_counts_only"
+                            : "principal_scoped");
             response.add("pending_decision", requireSession().pendingDecisionPayload());
             return success(requestId, response, false);
         } catch (Exception exc) {
             return error(requestId, "midgame_arrival_failed", exceptionMessage(exc), false);
         }
+    }
+
+    /**
+     * The optional requester binding for an arrival observation, resolved to the
+     * requested-state principal label the observation's seats are keyed by.
+     *
+     * <p>A caller may name either the requested-state label ({@code P1}) or the
+     * native session principal id for the same seat; both resolve to the same
+     * seat, so a caller cannot accidentally receive a fully redacted observation
+     * while believing it asked for its own. An absent or blank binding means no
+     * principal is named, which is answered with the principal-neutral projection.
+     * An unrecognized binding fails closed rather than silently over-redacting.</p>
+     */
+    private String optionalRequesterPrincipal(JsonObject request) {
+        if (request == null || !request.has("payload") || !request.get("payload").isJsonObject()) {
+            return null;
+        }
+        JsonObject payload = request.getAsJsonObject("payload");
+        if (!payload.has("actor_id") || !payload.get("actor_id").isJsonPrimitive()) {
+            return null;
+        }
+        String actorId = payload.get("actor_id").getAsString();
+        if (actorId == null || actorId.isBlank()) {
+            return null;
+        }
+        XmageFullGameSession current = requireSession();
+        for (int seat = 0; seat < current.playerCount(); seat++) {
+            String planLabel = "P" + (seat + 1);
+            if (planLabel.equals(actorId) || actorId.equals(current.principalIdAtSeat(seat))) {
+                return planLabel;
+            }
+        }
+        throw new IllegalArgumentException("unknown requester principal: " + actorId);
+    }
+
+    /**
+     * Projects the engine's readback onto what one requester may legitimately
+     * observe. This is a projection of the readback the engine already produced
+     * for construction verification; it is not a second observation layer and it
+     * computes no game fact.
+     *
+     * <p>Public dimensions are preserved verbatim (temporal point, seed binding,
+     * seat life/lost/left/poison, hand and library counts, command zone, public
+     * battlefield and public graveyard/exile contents). The only field removed is
+     * a seat's {@code hand} identity list, which is re-attached solely for the
+     * named requester's own seat. With no named requester no seat carries a hand
+     * identity list, so an unbound caller cannot observe any principal's hand.</p>
+     */
+    private static JsonObject principalScopedObservation(
+            JsonObject readback, String requesterPrincipal) {
+        JsonObject redacted = new JsonObject();
+        for (Map.Entry<String, JsonElement> entry : readback.entrySet()) {
+            if (!"seats".equals(entry.getKey())) {
+                redacted.add(entry.getKey(), entry.getValue());
+            }
+        }
+        JsonArray seats = new JsonArray();
+        for (JsonElement element : readback.getAsJsonArray("seats")) {
+            JsonObject seat = element.getAsJsonObject();
+            JsonObject projected = new JsonObject();
+            boolean isRequester = requesterPrincipal != null
+                    && seat.has("player_id")
+                    && seat.get("player_id").isJsonPrimitive()
+                    && requesterPrincipal.equals(seat.get("player_id").getAsString());
+            for (Map.Entry<String, JsonElement> entry : seat.entrySet()) {
+                if ("hand".equals(entry.getKey()) && !isRequester) {
+                    // Opponent (and unbound) hands stay counts-only. hand_count
+                    // is already present separately and is public.
+                    continue;
+                }
+                projected.add(entry.getKey(), entry.getValue());
+            }
+            if (!isRequester) {
+                projected.remove("hand");
+            }
+            seats.add(projected);
+        }
+        redacted.add("seats", seats);
+        return redacted;
     }
 
     /**
@@ -743,6 +858,19 @@ final class XmageMidgameJsonlBridge {
         throw new IllegalArgumentException("unknown principal: " + principalId);
     }
 
+    /**
+     * The native principal id at a seat, for a direct engine driver that must
+     * address a principal in the native namespace (the concession contract's
+     * {@code player_id}) rather than by requested-state label.
+     *
+     * <p>Package-private and never projected onto the wire: observations mask
+     * every non-viewer id, so this cannot be reached through the protocol and
+     * discloses nothing a pilot could not already address by seat.</p>
+     */
+    String nativePrincipalIdAtSeat(int seat) {
+        return requireSession().principalIdAtSeat(seat);
+    }
+
     private Result getLegalActions(String requestId) {
         try {
             return success(requestId, requireSession().legalActionsPayload(), false);
@@ -784,12 +912,17 @@ final class XmageMidgameJsonlBridge {
         }
     }
 
+    /**
+     * Concession offer, using the exact Protocol-2 schema the full-game lane and
+     * the external consumer already use: {@code payload.player_id}. There is no
+     * second schema for this lane.
+     */
     private Result getConcedeOffer(String requestId, JsonObject request) {
         try {
             JsonObject payload = requireObjectPayload(request, "GET_CONCEDE_OFFER requires payload");
             return success(
                     requestId,
-                    requireSession().concedeOfferPayload(requiredText(payload, "actor_id")),
+                    requireSession().concedeOfferPayload(requiredText(payload, "player_id")),
                     false
             );
         } catch (Exception exc) {
@@ -797,12 +930,27 @@ final class XmageMidgameJsonlBridge {
         }
     }
 
+    /**
+     * Concession submission, using the exact Protocol-2 schema the full-game lane
+     * and the external consumer already use:
+     * {@code payload.proposal.{actor_id, player_id}} with actor == subject. The
+     * proposal is bound and executed by the session's authoritative concede path,
+     * so a stale or foreign proposal fails closed without touching game state.
+     */
     private Result submitConcede(String requestId, JsonObject request) {
         try {
             JsonObject payload = requireObjectPayload(request, "SUBMIT_CONCEDE requires payload");
+            if (!payload.has("proposal") || !payload.get("proposal").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_midgame_decision",
+                        "SUBMIT_CONCEDE requires payload.proposal",
+                        false
+                );
+            }
             return success(
                     requestId,
-                    requireSession().submitConcede(payload.getAsJsonObject("payload")),
+                    requireSession().submitConcede(payload.getAsJsonObject("proposal")),
                     false
             );
         } catch (Exception exc) {

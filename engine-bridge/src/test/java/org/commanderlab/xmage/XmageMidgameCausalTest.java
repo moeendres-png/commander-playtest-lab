@@ -810,7 +810,7 @@ class XmageMidgameCausalTest {
         int lifeAfter = -1;
         for (int step = 0; step < 80; step++) {
             JsonObject arrival = lane.ok("complete_midgame_arrival", new JsonObject());
-            JsonObject readback = arrival.getAsJsonObject("readback");
+            JsonObject readback = arrival.getAsJsonObject("observation");
             if ("COMBAT_DAMAGE".equals(readback.get("step").getAsString())) {
                 lifeAfter = readbackLife(lane, "P2");
                 break;
@@ -845,7 +845,7 @@ class XmageMidgameCausalTest {
      */
     private static int readbackLife(Lane lane, String principalId) {
         JsonObject readback = lane.ok("complete_midgame_arrival", new JsonObject())
-                .getAsJsonObject("readback");
+                .getAsJsonObject("observation");
         for (JsonElement element : readback.getAsJsonArray("seats")) {
             JsonObject seat = element.getAsJsonObject();
             if (principalId.equals(seat.get("player_id").getAsString())) {
@@ -894,7 +894,7 @@ class XmageMidgameCausalTest {
         String lastActive = "";
         for (int step = 0; step < 400; step++) {
             JsonObject readback = lane.ok("complete_midgame_arrival", new JsonObject())
-                    .getAsJsonObject("readback");
+                    .getAsJsonObject("observation");
             String active = readback.get("active_player").getAsString();
             if (!active.equals(lastActive)) {
                 activeSequence.add(active);
@@ -1445,7 +1445,7 @@ class XmageMidgameCausalTest {
             }
             if ("priority".equals(decisionClass)) {
                 JsonObject readback = lane.ok("complete_midgame_arrival", new JsonObject())
-                        .getAsJsonObject("readback");
+                        .getAsJsonObject("observation");
                 if ("PRECOMBAT_MAIN".equals(readback.get("phase").getAsString())
                         && "PRECOMBAT_MAIN".equals(readback.get("step").getAsString())) {
                     return;

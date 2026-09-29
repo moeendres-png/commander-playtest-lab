@@ -140,7 +140,7 @@ Not touched, mechanically verified: `XmageNativeStateRestoration.java`,
 |---|---|---|---|
 | Native lane suite | `mvn -o -Dtest=XmageMidgameLaneTest -DfailIfNoTests=false test` | 10 run, 0 failures, 0 errors | `DIRECTLY_VERIFIED` |
 | Native suite regression | `mvn -o test` | 412 run, 0 failures, 0 errors, 1 skipped, BUILD SUCCESS | `DIRECTLY_VERIFIED` |
-| Protocol-2 process probe | `python scripts/run_midgame_capability_probe.py --out qualification/midgame-lane-20260929/MIDGAME_CAPABILITY_PROBE.json` | 16 rows: 8 reachable, 3 state-accepted, 1 mismatch, 4 engine-rejected; `engine_commit=b1959698…` | `DIRECTLY_VERIFIED` |
+| Protocol-2 process probe (historical, pre-remediation) | `python scripts/run_midgame_capability_probe.py --out qualification/midgame-lane-20260929/MIDGAME_CAPABILITY_PROBE.json` | 16 rows: 8 reachable, 3 state-accepted, 1 mismatch, 4 engine-rejected; `engine_commit=b1959698…` | `DIRECTLY_VERIFIED` |
 | Python unit | `pytest tests/qualification/test_current_boundary_midgame_lane.py -q` | 14 passed | `DIRECTLY_VERIFIED` |
 | Lint | `ruff check` + `ruff format --check` on all new files | `All checks passed` | `DIRECTLY_VERIFIED` |
 | Types | `mypy --strict --python-version 3.12 …/midgame_lane.py` | `Success: no issues found` | `DIRECTLY_VERIFIED` |
@@ -274,3 +274,13 @@ and instead reach their own decisions through external control, then extend
 Owner: this workstream's successor. It is the same mechanism cluster, is on a
 free surface, and is the single largest remaining unlock before the boundary
 runner can be rerun by its owners.
+
+## Review remediation (2026-09-29)
+
+The authoritative record of the six closed review findings and the WS17
+artifact/hash repair is `docs/engine_capability_reuse_delta_20260929/REVIEW_REMEDIATION_20260929.md`.
+Probe counts in this document that predate that remediation are marked historical;
+the current receipt is the 29-row receipt at the remediated head and every digest in
+it was regenerated because the arrival observation and the digest scope changed.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`

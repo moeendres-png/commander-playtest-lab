@@ -382,7 +382,7 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
                 )
             client.submit_options(decision, [chosen])
         elif decision_class == "priority":
-            probe = client.complete_arrival().get("readback") or {}
+            probe = client.complete_arrival().get("observation") or {}
             if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
@@ -398,7 +398,7 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
             # A declaration checkpoint: the engine has reached the record's
             # temporal point. Stop and let the caller decide whether to
             # execute the obligation.
-            probe = client.complete_arrival().get("readback") or {}
+            probe = client.complete_arrival().get("observation") or {}
             if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
@@ -456,53 +456,20 @@ def probe_row(workspace: Path, classpath: str, fixture_id: str) -> dict[str, Any
             return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         try:
             row_verdict = drive_arrival(client, record)
-        except ml.MidgameLaneTimeout as exc:
-            # The child accepted a request and never answered. Nothing about the
-            # engine's starting-state capability can be concluded from this, so
-            # the row is a transport failure with no reachability credit.
-            verdict = ml.transport_failure_verdict(
-                fixture_id,
-                ml.MIDGAME_LANE,
-                code="MIDGAME_LANE_TIMEOUT",
-                detail=str(exc),
-                engine_commit=client.engine_commit,
-            )
-            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
-        except ml.MidgameLaneProtocolError as exc:
-            verdict = ml.transport_failure_verdict(
-                fixture_id,
-                ml.MIDGAME_LANE,
-                code="MIDGAME_LANE_PROTOCOL_VIOLATION",
-                detail=str(exc),
-                engine_commit=client.engine_commit,
-            )
-            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
-        except ml.MidgameLaneTransportError as exc:
-            verdict = ml.transport_failure_verdict(
-                fixture_id,
-                ml.MIDGAME_LANE,
-                code="MIDGAME_LANE_TRANSPORT_FAILURE",
-                detail=str(exc),
-                engine_commit=client.engine_commit,
-            )
-            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         except ml.MidgameLaneError as exc:
-            # The engine accepted the explicit starting state; the probe only
-            # failed to execute the row's own scripted obligation. Recorded
-            # distinctly so an accepted starting state is never reported as an
-            # engine rejection, and never as a row-level pass either. Only an
-            # explicitly recognized obligation case reaches this handler;
-            # transport, protocol and timeout failures are handled above.
-            verdict = ml.rejected_verdict(
+            # One mapping decides what this failure means. A timeout, protocol
+            # violation or transport failure becomes TRANSPORT_FAILURE with no
+            # reachability credit; only an explicitly recognized obligation case
+            # becomes ENGINE_STATE_ACCEPTED, which is still not a pass. Any
+            # non-lane exception propagates rather than being converted.
+            verdict, outcome = ml.failure_verdict(
                 fixture_id,
                 ml.MIDGAME_LANE,
-                code="OBLIGATION_NOT_EXECUTED",
-                detail=str(exc),
+                exc,
                 engine_commit=client.engine_commit,
-                state_accepted=True,
             )
             return verdict.as_dict() | {
-                "outcome": "ENGINE_STATE_ACCEPTED",
+                "outcome": outcome,
                 "elapsed_s": round(time.time() - started, 3),
             }
         if row_verdict is None:
@@ -1158,7 +1125,7 @@ def execute_damage_observation(
             break
         client.submit_options(decision, [held])
     for _ in range(80):
-        observation = client.complete_arrival().get("readback") or {}
+        observation = client.complete_arrival().get("observation") or {}
         if observation.get("step") == "COMBAT_DAMAGE":
             after = arrival_life(client, "P2")
             return {
@@ -1192,7 +1159,7 @@ def execute_damage_observation(
 
 
 def arrival_life(client: ml.MidgameLaneClient, principal_id: str) -> int:
-    observation = client.complete_arrival().get("readback") or {}
+    observation = client.complete_arrival().get("observation") or {}
     for seat in observation.get("seats") or ():
         if seat.get("player_id") == principal_id:
             return int(seat.get("life"))
@@ -1208,7 +1175,7 @@ def execute_turn_sequence(
     active_sequence: list[str] = []
     last_active = ""
     for _step in range(400):
-        observation = client.complete_arrival().get("readback") or {}
+        observation = client.complete_arrival().get("observation") or {}
         active = str(observation.get("active_player") or "")
         if active and active != last_active:
             active_sequence.append(active)
@@ -1308,7 +1275,7 @@ def drive_to_precombat_main(
                 raise ml.MidgameLaneError(f"the engine offered no option for {active_label}")
             client.submit_options(decision, [chosen])
         elif decision_class == "priority":
-            observation = client.complete_arrival().get("readback") or {}
+            observation = client.complete_arrival().get("observation") or {}
             if (
                 observation.get("phase") == "PRECOMBAT_MAIN"
                 and observation.get("step") == "PRECOMBAT_MAIN"
@@ -1401,50 +1368,20 @@ def probe_causal_row(
                 row = drive_causal_elimination(client, fixture_id, record, payload, spec)
             else:
                 row = drive_placement_obligation(client, fixture_id, record, payload, spec)
-        except ml.MidgameLaneTimeout as exc:
-            verdict = ml.transport_failure_verdict(
-                fixture_id,
-                ml.MIDGAME_LANE,
-                code="CAUSAL_LANE_TIMEOUT",
-                detail=str(exc),
-                engine_commit=client.engine_commit,
-                entry_mode=entry_mode,
-            )
-            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
-        except ml.MidgameLaneProtocolError as exc:
-            verdict = ml.transport_failure_verdict(
-                fixture_id,
-                ml.MIDGAME_LANE,
-                code="CAUSAL_LANE_PROTOCOL_VIOLATION",
-                detail=str(exc),
-                engine_commit=client.engine_commit,
-                entry_mode=entry_mode,
-            )
-            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
-        except ml.MidgameLaneTransportError as exc:
-            verdict = ml.transport_failure_verdict(
-                fixture_id,
-                ml.MIDGAME_LANE,
-                code="CAUSAL_LANE_TRANSPORT_FAILURE",
-                detail=str(exc),
-                engine_commit=client.engine_commit,
-                entry_mode=entry_mode,
-            )
-            return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         except ml.MidgameLaneError as exc:
-            # A recognized obligation case: the causal route's own scripted
-            # obligation could not be executed from the engine's offered
-            # options. Transport outcomes never reach this handler.
-            verdict = ml.rejected_verdict(
+            verdict, outcome = ml.failure_verdict(
                 fixture_id,
                 ml.MIDGAME_LANE,
-                code="CAUSAL_OBLIGATION_NOT_EXECUTED",
-                detail=str(exc),
+                exc,
                 engine_commit=client.engine_commit,
-                state_accepted=True,
+                entry_mode=entry_mode,
+                obligation_code="CAUSAL_OBLIGATION_NOT_EXECUTED",
+                transport_code="CAUSAL_LANE_TRANSPORT_FAILURE",
+                protocol_code="CAUSAL_LANE_PROTOCOL_VIOLATION",
+                timeout_code="CAUSAL_LANE_TIMEOUT",
             )
             return verdict.as_dict() | {
-                "outcome": "ENGINE_STATE_ACCEPTED",
+                "outcome": outcome,
                 "entry_mode": entry_mode,
                 "elapsed_s": round(time.time() - started, 3),
             }

@@ -193,7 +193,7 @@ third outcome with `engine_accepted_starting_state: true`.
 |---|---|---|
 | Native lane suite | `mvn -o -Dtest=XmageMidgameLaneTest -DfailIfNoTests=false test` | 10 run, 0 failures, 0 errors — `PASS` |
 | Native suite regression | `mvn -o test` | 412 run, 0 failures, 0 errors, 1 skipped — `PASS` |
-| Protocol-2 process probe | `python scripts/run_midgame_capability_probe.py --out qualification/midgame-lane-20260929/MIDGAME_CAPABILITY_PROBE.json` | 16 rows; 8 `ENGINE_NATIVE_REACHABLE`, 3 `ENGINE_STATE_ACCEPTED`, 1 `CONSTRUCTION_MISMATCH`, 4 `ENGINE_REJECTED`; `engine_commit=b1959698…` |
+| Protocol-2 process probe (historical, pre-remediation) | `python scripts/run_midgame_capability_probe.py --out qualification/midgame-lane-20260929/MIDGAME_CAPABILITY_PROBE.json` | 16 rows; 8 `ENGINE_NATIVE_REACHABLE`, 3 `ENGINE_STATE_ACCEPTED`, 1 `CONSTRUCTION_MISMATCH`, 4 `ENGINE_REJECTED`; `engine_commit=b1959698…` |
 | Python unit | `pytest tests/qualification/test_current_boundary_midgame_lane.py -q` | 14 passed — `PASS` |
 | Lint | `ruff check`, `ruff format --check` | `PASS` |
 | Types | `mypy --strict --python-version 3.12 src/commander_lab/qualification/current_boundary/midgame_lane.py` | `Success: no issues found` |
@@ -208,3 +208,13 @@ against the frozen record's own spec digest
 `EXTERNALLY_RULE_VALIDATED` is **not** claimed for any row: no row was
 adjudicated against the current official Comprehensive Rules text or Oracle text
 in this workstream.
+
+## Review remediation (2026-09-29)
+
+The authoritative record of the six closed review findings and the WS17
+artifact/hash repair is `docs/engine_capability_reuse_delta_20260929/REVIEW_REMEDIATION_20260929.md`.
+Probe counts in this document that predate that remediation are marked historical;
+the current receipt is the 29-row receipt at the remediated head and every digest in
+it was regenerated because the arrival observation and the digest scope changed.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`
