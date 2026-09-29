@@ -2,6 +2,21 @@
 
 Local, reproducible decision system for Commander deck validation, Structural simulation, pilot/ensemble analysis, paired comparisons, ablation, holdout, sensitivity and constrained optimization.
 
+## Project authority — read these before anything else
+
+This README is an orientation summary, not authority. Where it disagrees with a
+governing document, the governing document wins.
+
+| Question | Authoritative source |
+|---|---|
+| Durable rules every session must follow | [`AGENTS.md`](AGENTS.md) — including the source-truth order, rules authority, evidence semantics, Git/worktree authority, and the fact that filenames containing `CURRENT`/`FINAL`/`LATEST` prove nothing |
+| Governing mission and gates | [`docs/PROJECT_MISSION.md`](docs/PROJECT_MISSION.md) — outranks any summary, including the one on this page |
+| Current engine pins | [`config/rules_engines.json`](config/rules_engines.json) — the sole machine-readable pin authority. Do not restate pins from prose |
+| Current execution authority (who runs what, at which effort) | [`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`](docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md) with `AGENTS.md` §6–§7 |
+| Foundry execution system | [`docs/foundry-execution/README.md`](docs/foundry-execution/README.md) — start a workstream with `.opencode/skills/workstream-bootstrap/SKILL.md` |
+| Documentation map | [`docs/README.md`](docs/README.md) |
+| Live PRs, issues and branches | [`docs/REPOSITORY_TRIAGE_INDEX.md`](docs/REPOSITORY_TRIAGE_INDEX.md) |
+
 ## Project identity, licensing, and third-party software
 
 Commander Playtest Lab / Commander Simulator Next is an independent, unofficial research and engineering project. It is not maintained by XMage or Forge and is not affiliated with or endorsed by Wizards of the Coast.
