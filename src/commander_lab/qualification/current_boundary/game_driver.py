@@ -408,6 +408,111 @@ def _zone_count_record(
     return record
 
 
+def _observe_principal_checkpoint(
+    proc: BridgeProcess,
+    *,
+    game_id: str,
+    principal: str,
+    player_count: int,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Read one principal-scoped zone-count + temporal checkpoint from the engine.
+
+    The helper accepts only the two authoritative binding mechanisms already
+    qualified by the current boundary: an exact live-engine observer envelope
+    or a single in-state actor marker. It persists no live engine identifier.
+    """
+    if principal not in _SEATS[:player_count]:
+        raise GameDriveError(
+            f"principal {principal!r} is not one of {_SEATS[:player_count]}"
+        )
+    seat_index = _SEATS.index(principal)
+    observed = proc.request(
+        "get_game_state",
+        {"observer_player_id": principal},
+        game_id=game_id,
+        timeout_s=60.0,
+    )
+    payload = _payload(observed)
+    state_view = payload.get("state", payload)
+    if not isinstance(state_view, dict):
+        raise GameDriveError("principal-scoped response has no state object")
+    rows = state_view.get("players")
+    rows = rows if isinstance(rows, list) else []
+    if seat_index >= len(rows) or not isinstance(rows[seat_index], dict):
+        raise GameDriveError(
+            "the principal-scoped response carries no row for the requested seat"
+        )
+    actor_row = rows[seat_index]
+    if actor_row.get("seat") != seat_index:
+        raise GameDriveError("the requested seat row does not report the requested seat")
+
+    envelope_present = any(
+        key in payload
+        for key in ("observer_player_id", "observer_engine_player_id", "observer_seat")
+    )
+    envelope_bound = False
+    if envelope_present:
+        engine_id = payload.get("observer_engine_player_id")
+        envelope_bound = (
+            payload.get("observer_player_id") == principal
+            and payload.get("observer_seat") == seat_index
+            and isinstance(engine_id, str)
+            and bool(engine_id)
+            and actor_row.get("player_id") == engine_id
+        )
+        if not envelope_bound:
+            raise GameDriveError(
+                "the observer envelope does not bind the requested principal to "
+                "the live engine row at the requested seat"
+            )
+
+    marked = [row for row in rows if isinstance(row, dict) and row.get("is_actor") is True]
+    marker_bound = False
+    if marked:
+        marker_bound = len(marked) == 1 and marked[0].get("seat") == seat_index
+        if not marker_bound:
+            raise GameDriveError(
+                "the in-state actor marker does not identify exactly the requested principal"
+            )
+
+    if not (envelope_bound or marker_bound):
+        raise GameDriveError(
+            "the response establishes no authoritative requested principal"
+        )
+
+    raw_zones = actor_row.get("zones")
+    zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else {}
+    hand = zones.get("hand")
+    library_size = zones.get("library_size")
+    if isinstance(library_size, bool) or not isinstance(library_size, int):
+        library = zones.get("library")
+        library_size = len(library) if isinstance(library, list) else None
+
+    def _temporal_text(key: str) -> str | None:
+        value = state_view.get(key)
+        return str(value).strip().lower() if value is not None else None
+
+    turn_number = state_view.get("turn_number")
+    if isinstance(turn_number, bool) or not isinstance(turn_number, int):
+        turn_number = None
+    checkpoint = {
+        "turn_number": turn_number,
+        "phase": _temporal_text("phase"),
+        "step": _temporal_text("step"),
+        "observer_player_id": principal,
+    }
+    return (
+        _zone_count_record(
+            seat=seat_index,
+            hand=hand,
+            library_size=library_size,
+            principal=principal,
+            envelope_bound=envelope_bound,
+        ),
+        checkpoint,
+    )
+
+
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -503,6 +608,11 @@ def drive_commander_game(
         steps = 0
         draw_step_frames: list[dict[str, Any]] = []
         priority_seen = False
+        start2_baseline_counts: dict[str, Any] | None = None
+        start2_baseline_checkpoint: dict[str, Any] | None = None
+        start2_post_counts: dict[str, Any] | None = None
+        start2_post_checkpoint: dict[str, Any] | None = None
+        start2_priority_checkpoints: list[dict[str, Any]] = []
         while steps < max_steps:
             steps += 1
             frame = poll_decision(proc, game_id, seat_count=player_count, candidate=candidate)
@@ -615,6 +725,61 @@ def drive_commander_game(
 
             if kind == "PRIORITY":
                 priority_seen = True
+
+                # START-2 is a temporal/state-transition obligation. Observe the
+                # scripted starting principal at its own priority checkpoints:
+                # upkeep supplies the post-mulligan/pre-draw baseline; precombat
+                # main supplies the postcondition. A draw-step priority is itself
+                # proof that CR 103.8a was not applied.
+                if (
+                    drive_to == "first_turn_draw_skip"
+                    and frame.get("seat") == scripted_starting_seat
+                ):
+                    try:
+                        counts, checkpoint = _observe_principal_checkpoint(
+                            proc,
+                            game_id=game_id,
+                            principal=scripted_starting_seat,
+                            player_count=player_count,
+                        )
+                        start2_priority_checkpoints.append(checkpoint)
+                        turn = checkpoint.get("turn_number")
+                        phase = checkpoint.get("phase")
+                        step = checkpoint.get("step")
+                        if (
+                            turn == 1
+                            and phase == "beginning"
+                            and step == "upkeep"
+                            and start2_baseline_counts is None
+                        ):
+                            start2_baseline_counts = counts
+                            start2_baseline_checkpoint = checkpoint
+                        if turn == 1 and phase == "beginning" and step == "draw":
+                            draw_step_frames.append(
+                                {
+                                    "kind": kind,
+                                    "actor": actor,
+                                    "step": step,
+                                    "phase": phase,
+                                    "turn": turn,
+                                    "source": "principal_scoped_state",
+                                }
+                            )
+                            result.semantic_events.append(
+                                f"draw_step_exposed:{scripted_starting_seat}"
+                            )
+                        if turn == 1 and phase == "precombat_main":
+                            start2_post_counts = counts
+                            start2_post_checkpoint = checkpoint
+                            # The obligation is established at the first
+                            # post-draw-step checkpoint. Do not mutate state by
+                            # passing priority after the observation.
+                            break
+                    except Exception as exc:
+                        result.terminal_facts.setdefault(
+                            "start2_checkpoint_errors", []
+                        ).append(str(exc))
+
                 pass_actions = [a for a in actions if a.get("action_type") == "pass_priority"]
                 if not pass_actions:
                     result.observations.append(
@@ -664,8 +829,6 @@ def drive_commander_game(
                 )
                 if drive_to == "priority":
                     break
-                if drive_to == "first_turn_draw_skip" and steps >= 2:
-                    break
                 continue
 
             # Any other decision class: record the engine-offered domain and stop
@@ -686,124 +849,23 @@ def drive_commander_game(
             break
 
         if drive_to == "first_turn_draw_skip":
-            # Observe the acting principal's own zone counts from the engine, so
-            # the draw-skip obligation is judged on observed state rather than on
-            # the absence of a decision checkpoint. A checkpoint is not the same
-            # thing as a draw: an engine could skip the checkpoint and still draw
-            # the card, and only the counts can tell the difference.
-            #
-            # The read names the engine-stated acting principal explicitly. A
-            # provider may bind the response with an observer envelope (requested
-            # external id + resolved live engine id + seat) or with an in-state
-            # actor marker; whichever it emits must establish exactly the acting
-            # principal. A provider that emits neither, or emits contradictions,
-            # fails closed. Counts come from that principal's row only, and no
-            # live engine principal id is persisted.
-            try:
-                # The acting principal is derived from the LAB's own decision frame
-                # seat, NOT from the engine's reported actor.
-                #
-                # The engine actor is a LIVE ENGINE IDENTITY, and after the merged
-                # #283 remediation it is a UUID. Treating it as a Lab principal made
-                # every principal-scoped observation fail closed, which is why
-                # WS05-CMD-START-2 was UNKNOWN with "the engine reported no
-                # principal-scoped zone counts" even though the engine reports
-                # principal-scoped state correctly and is now demonstrably scoped.
-                #
-                # The Lab's external namespace is the seat it published in the frame;
-                # the engine resolves that to its own live id, and the binding below
-                # proves the two agree. The live id is used transiently and never
-                # persisted.
-                # The frame's "seat" is the Lab's OWN seat label, published by the
-                # poll loop, and is therefore authoritative for which principal acted.
-                # It is a label rather than an index, so the index is resolved from
-                # the Lab's declared namespace instead of being read off the engine.
-                frame_seat = frame.get("seat") if isinstance(frame, dict) else None
-                principal = str(frame_seat) if frame_seat is not None else ""
-                if principal not in _SEATS[:player_count]:
-                    raise GameDriveError(
-                        f"the Lab frame seat {principal!r} is not one of {_SEATS[:player_count]}"
-                    )
-                seat_index = _SEATS.index(principal)
-                observed = proc.request(
-                    "get_game_state",
-                    {"observer_player_id": principal},
-                    game_id=result.game_id,
-                    timeout_s=60.0,
-                )
-                payload = _payload(observed)
-                state_view = payload.get("state", payload)
-                rows = state_view.get("players") if isinstance(state_view, dict) else None
-                rows = rows if isinstance(rows, list) else []
-                if seat_index >= len(rows) or not isinstance(rows[seat_index], dict):
-                    raise GameDriveError(
-                        "the principal-scoped response carries no row for the acting seat"
-                    )
-                actor_row = rows[seat_index]
-                if actor_row.get("seat") != seat_index:
-                    raise GameDriveError("the acting seat row does not report the acting seat")
-
-                # Mechanism A: exact live-engine observer envelope.
-                envelope_present = any(
-                    key in payload
-                    for key in ("observer_player_id", "observer_engine_player_id", "observer_seat")
-                )
-                envelope_bound = False
-                if envelope_present:
-                    engine_id = payload.get("observer_engine_player_id")
-                    envelope_bound = (
-                        payload.get("observer_player_id") == principal
-                        and payload.get("observer_seat") == seat_index
-                        and isinstance(engine_id, str)
-                        and bool(engine_id)
-                        and actor_row.get("player_id") == engine_id
-                    )
-                    if not envelope_bound:
-                        raise GameDriveError(
-                            "the observer envelope does not bind the acting principal to the "
-                            "live engine row at the acting seat"
-                        )
-
-                # Mechanism B: authoritative in-state actor marker.
-                marked = [
-                    row for row in rows if isinstance(row, dict) and row.get("is_actor") is True
-                ]
-                marker_bound = False
-                if marked:
-                    marker_bound = len(marked) == 1 and marked[0].get("seat") == seat_index
-                    if not marker_bound:
-                        raise GameDriveError(
-                            "the in-state actor marker does not identify exactly the acting "
-                            "principal"
-                        )
-
-                if not (envelope_bound or marker_bound):
-                    raise GameDriveError(
-                        "the response establishes no authoritative acting principal"
-                    )
-
-                raw_zones = actor_row.get("zones")
-                zones: dict[str, Any] = raw_zones if isinstance(raw_zones, dict) else {}
-                hand = zones.get("hand")
-                library_size = zones.get("library_size")
-                if isinstance(library_size, bool) or not isinstance(library_size, int):
-                    library = zones.get("library")
-                    library_size = len(library) if isinstance(library, list) else None
-                result.terminal_facts["observed_actor_zone_counts"] = [
-                    _zone_count_record(
-                        seat=seat_index,
-                        hand=hand,
-                        library_size=library_size,
-                        principal=principal,
-                        envelope_bound=envelope_bound,
-                    )
-                ]
-                result.terminal_facts["observed_zone_count_source"] = (
-                    "ENGINE_REPORTED_PRINCIPAL_SCOPED"
-                )
-            except Exception as exc:  # fail closed on the evidence, not on the run
-                result.terminal_facts["observed_actor_zone_counts"] = None
-                result.terminal_facts["observed_zone_count_error"] = str(exc)
+            result.terminal_facts["start2_baseline_zone_counts"] = (
+                [start2_baseline_counts] if start2_baseline_counts is not None else None
+            )
+            result.terminal_facts["start2_post_zone_counts"] = (
+                [start2_post_counts] if start2_post_counts is not None else None
+            )
+            result.terminal_facts["start2_baseline_checkpoint"] = start2_baseline_checkpoint
+            result.terminal_facts["start2_post_checkpoint"] = start2_post_checkpoint
+            result.terminal_facts["start2_priority_checkpoints"] = start2_priority_checkpoints
+            result.terminal_facts["observed_actor_zone_counts"] = (
+                [start2_post_counts] if start2_post_counts is not None else None
+            )
+            result.terminal_facts["observed_zone_count_source"] = (
+                "ENGINE_REPORTED_PRINCIPAL_SCOPED"
+                if start2_post_counts is not None
+                else None
+            )
 
         result.terminal_facts["decision_identity_shape"] = DECISION_IDENTITY_SHAPES[candidate]
         result.terminal_facts["draw_step_decision_frames"] = draw_step_frames
