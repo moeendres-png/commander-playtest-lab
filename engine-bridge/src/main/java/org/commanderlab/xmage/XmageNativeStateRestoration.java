@@ -1059,8 +1059,6 @@ final class XmageNativeStateRestoration {
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
         unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
-        unsupported.add("zero-life pre-start state: full-game initialization re-derives "
-                + "starting life before the requested elimination state can be observed");
         unsupported.add("frozen requested_state_digest reproduction (no canonicalization spec in repo)");
         payload.add("unsupported_dimensions", unsupported);
         return payload;
