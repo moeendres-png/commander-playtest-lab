@@ -102,22 +102,40 @@ jobs:
 
           root = Path("qualification/final-current-boundary-20260927")
           admission = json.loads((root / "PB03_DIMENSION_ADMISSION.json").read_text())
-          runtime = json.loads((root / "PB03_RUNTIME_EXECUTION_MATRIX.json").read_text())
-          assert admission["counts"]["admitted"] + admission["counts"]["blocked"] == admission["rows_total"]
+          execution = json.loads((root / "PB03_RUNTIME_EXECUTION.json").read_text())
+          matrix = json.loads((root / "PB03_RUNTIME_EXECUTION_MATRIX.json").read_text())
+
+          assert admission["rows_total"] == 30
+          assert admission["counts"] == {"admitted": 14, "blocked": 16}
           assert admission["classification"] == "TECHNICALLY_CONFORMANT"
-          assert runtime["blocked_rows_not_fail_closed"] == []
-          assert runtime["PB03_DIMENSION_ADMISSION"] == "TECHNICALLY_CONFORMANT"
-          assert runtime["architecture_freeze"] == "NOT_CLAIMED"
-          assert runtime["production_provider"] == "NOT_SELECTED"
-          admitted = {row["fixture_id"] for row in runtime["rows"] if row["admission_verdict"] == "ADMITTED_TO_NATIVE_RESTORATION"}
-          for row in runtime["rows"]:
-              if row["runtime_exit_state"] == "PASS":
-                  assert row["fixture_id"] in admitted
-                  assert row["native_harness_classes"], row["fixture_id"]
+
+          assert execution["rows_total"] == 30
+          assert execution["executed_pass"] == 30
+          assert execution["not_run_or_failed"] == 0
+          assert execution["classification"] == "PASS"
+          assert all(row["runtime_execution"] == "PASS" for row in execution["rows"])
+
+          assert matrix["PB03_DIMENSION_ADMISSION"] == "TECHNICALLY_CONFORMANT"
+          assert matrix["PB03_RUNTIME_EXECUTION"] == "PASS"
+          assert matrix["rows_total"] == 30
+          assert matrix["architecture_freeze"] == "NOT_CLAIMED"
+          assert matrix["production_provider"] == "NOT_SELECTED"
+          assert all(row["full107_credit"] == "NONE_FROM_PB03_MATRIX" for row in matrix["rows"])
+
+          by_id = {row["fixture_id"]: row for row in matrix["rows"]}
+          for fixture_id in (
+              "MICRO_RULES_RANDOMNESS",
+              "WS05-MP-ELIM-STACK-3",
+              "WS05-MP-TURN-5",
+              "WS05-CMD-ZONE-LIB-YES",
+          ):
+              assert by_id[fixture_id]["admission_verdict"] != "ADMITTED_TO_NATIVE_RESTORATION"
+              assert by_id[fixture_id]["runtime_execution"] == "PASS"
+
           print(json.dumps({
               "admission_counts": admission["counts"],
-              "runtime_classification": runtime["PB03_RUNTIME_EXECUTION"],
-              "runtime_counts": runtime["admitted_runtime_counts"],
+              "runtime_classification": execution["classification"],
+              "runtime_executed_pass": execution["executed_pass"],
           }, sort_keys=True))
           PY
 
@@ -125,7 +143,7 @@ jobs:
         run: |
           set -euo pipefail
           root=qualification/final-current-boundary-20260927
-          sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
+          sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
 
       - name: Upload PB-03 runtime evidence
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
@@ -135,6 +153,7 @@ jobs:
           path: |
             qualification/final-current-boundary-20260927/PB03_ADMISSION_MATRIX.json
             qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json
+            qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json
             qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json
             qualification/final-current-boundary-20260927/PB03_RUNTIME_SHA256SUMS
             qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json
