@@ -38,10 +38,11 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: a3ffa44affa4567136d1e5c583c0a1e8f1a47cbb
-# Newest commit whose tests/evidence were actually validated. The checkpoint commit
-# below carries only this state change, so the validated content is a3ffa44a.
-validated_head: a3ffa44affa4567136d1e5c583c0a1e8f1a47cbb
+state_written_against_head: 2ea1391a9bc32d66f0a1248163e4cfc4bf208a16
+# Newest commit whose tests/evidence were actually validated. Re-pointed from a3ffa44a to the
+# merge commit after main drifted to 57b233fb; the merge brought in engine-bridge and CI changes,
+# so the earlier validated_head no longer described the content under test.
+validated_head: 2ea1391a9bc32d66f0a1248163e4cfc4bf208a16
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -234,6 +235,16 @@ validation:
     ruff_check: clean
     ruff_format: 1096 files formatted
     regression_guard_proof: fails on pre-fix index, passes on fixed index
+  on_2ea1391a_after_main_drift_merge:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1125 files formatted
+    note: >-
+      main drifted to 57b233fb (#300, #374) between push and merge; the drift touched no
+      .foundry or tests/foundry path, and the guard still passes. Re-validated rather than
+      reusing the pre-merge numbers.
   on_a3ffa44a_state_conformance:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2349 passed, 9 skipped
     tests_foundry: 643 passed, 0 skipped
