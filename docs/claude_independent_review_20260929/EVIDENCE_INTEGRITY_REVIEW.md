@@ -199,6 +199,14 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - Owner decision (restoration lane / #304): fail closed on such plans, restore after arrival, or compare after arrival. This review does not change the shared helper, because the fix changes restoration semantics.
   - Also observed: the engine seats counterclockwise (turns, priority and APNAP pass P1 → PN → … → P2). This is consistent and already documented in `XmagePb03Tier2StackTest`. Consumers must take turn order from the engine, not assume ascending seat numbers.
   - `XmageMultiplayerApnapTriggerTest` measures against the post-arrival baseline and pins the drift.
+- **F-16, P1: FIXED. The full-game lane offered blocks against creatures attacking other players (CR 802.4a).**
+  - `XmageFullGamePlayer.selectBlockers` built block options from `Permanent.canBlock`, which checks only that the attacker's controller is an opponent.
+  - In any game with attacks at two or more players, each defending player's creature was offered every attacker.
+  - When the pilot picked an attacker attacking someone else, the engine's `declareBlocker` rejected it through `CombatGroup.canBlock` and dropped it silently, because non-human players get no notice. This is a forbidden silent skip on an over-offered option.
+  - Fix: offer exactly what the engine will accept (`CombatGroup.canBlock`, which covers the defending player plus every attacker in the group).
+  - Pinned by `XmageMultiplayerSplitCombatTest` (Hellrider + Raging Goblin attacking P3 and P2; 3–6P). The test is red before the fix.
+  - `XmagePb03Tier1RowsTest.mpBlock4P2BlocksOnlyItsAttacker` had worked around it by holding the second attacker.
+  - Impact: any full-game-lane evidence from 3+P games in which one combat attacked two or more players has different block option sets and may contain silently dropped blocks, so it needs impact adjudication. 2P and single-defender combats are unaffected. The generic lane fails closed on blocks and is unaffected.
 - **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.

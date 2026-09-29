@@ -1708,7 +1708,7 @@ class XmageActualCardCorpusTest {
     }
 
     /** Submits an empty selection for an optional (minimum 0) target/object choice. */
-    private static void chooseNone(Started started, String tag) {
+    static void chooseNone(Started started, String tag) {
         XmageFullGameSession session = started.session();
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         assertEquals(0, pending.get("minimum_selections").getAsInt(),
