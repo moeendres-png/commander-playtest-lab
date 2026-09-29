@@ -87,9 +87,12 @@ class XmagePb03RuntimeGapClosureTest {
 
     private static Arrived arriveFromFrozenPrecombat(String fixtureId, String tag) {
         JsonObject record = XmageNativeStateRestorationTest.frozenRecord(fixtureId);
+        JsonObject causalPrecondition = record.deepCopy();
+        causalPrecondition.getAsJsonObject("temporal_state")
+                .addProperty("priority_player", "P1");
         XmageNativeStateRestoration.Plan plan =
                 XmagePb03Tier2CmdZoneTest.preconditionPlanForTest(
-                        record, tag, List.of(), Map.of(), Map.of());
+                        causalPrecondition, tag, List.of(), Map.of(), Map.of());
         XmageDeckImporter importer = new XmageDeckImporter();
         XmageNativeStateRestoration restoration =
                 XmageNativeStateRestorationTest.restorationFor(plan);
