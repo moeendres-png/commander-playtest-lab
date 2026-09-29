@@ -300,6 +300,17 @@ final class XmageBridgePlayer extends PlayerImpl {
             int count,
             List<UUID> cardIds
     ) {
+        // First-N selection exists only for the legacy non-external
+        // compatibility lane. Under external control the London bottoming is an
+        // authoritative engine decision projected to the control thread, so this
+        // helper must never be reached there: a silent First-N choice would be a
+        // fabricated selection. Fenced rather than left latent.
+        if (externalDecisionController != null) {
+            throw new XmageGameManager.GameException(
+                    "UNSUPPORTED_COMPATIBILITY_DECISION: First-N bottom selection is not "
+                            + "permitted under external decision control"
+            );
+        }
         return cardIds.subList(0, count);
     }
 
