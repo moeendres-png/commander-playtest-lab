@@ -178,6 +178,16 @@ Counterfactual `RV`. Source: main `afe09c61`, `start2_row` byte-identical on #28
   - XMage handles the card correctly: `XmageActualCardCorpusTest.findFinalityIsAPlainSplitCardCastableFromHandOnly`, runtime.
   - The smallest remediation is reverting the WS234 hunk for `find_finality.txt` in the Forge fork. The Forge lane owner and the Coordinator decide, because it changes the executing Rules Core (PB-09) and PR #6's premise. Before crediting Forge #6, its test must be re-derived from Oracle.
   - Scope check (`DV`): `find_finality.txt` is the only card script that Lab-authored commits changed between `a37a865a` and `ef958ee9`; the other 464 changed scripts come from upstream sync commits. Whether the Lab's Java changes in `forge-game` drift from Oracle is not covered here and remains UNKNOWN.
+- **F-12, P2: delve is not reachable for an external pilot on the XMage full-game lane.** `RV`, pin `b1959698`, Lab base `74841a08`.
+  - For Dig Through Time, with six cards in the graveyard and two Islands, the `mana_payment` decision offers only the Island mana abilities and "Cancel mana payment" (`pay_cost`). No delve option is projected, so {6}{U}{U} is unpayable.
+  - Recorded as the disabled `XmageActualCardCorpusTest.digThroughTimeDelvesSixAndKeepsTwoOfSeven`.
+  - Remediation surface: the lane's payment projection (`XmageFullGamePlayer` mana payment and special actions).
+  - Engine-native delve support is assumed but not verified here.
+- **F-13, UNKNOWN: Path of Ancestry's scry did not reach the external pilot.** `RV`.
+  - Kird Ape (Ape) was paid entirely with Path mana under Rograkh (Ape Ninja). No scry decision followed, although Oracle and the 2020-11-10 ruling require scry 1.
+  - Candidates: the engine's delayed `MANA_PAID` trigger, an artefact of the restored board, or a bridge gap. Not attributed. Disabled test `pathOfAncestryScriesForACreatureSharingACommanderType`.
+- **F-14, UNKNOWN: Magma Opus divided damage.** Answering the `target_amount` decision ("Select targets (selected 0 of 4) (damage)") with a single-target selection ended the game. The accepted response shape is not established. Disabled test `magmaOpusDividesFourTapsTwoMakesAFourFourAndDrawsTwo`. This is not a Rules claim.
+- **Note:** Sol's hardening commit `746a0f44` failed 5 corpus tests; single-step payment was not yet supported. Sol's follow-up `2ca4313c`/`b239a161`, merged with #294, resolves it. This review's own alternative payer was discarded in favour of Sol's.
 - **F-10, P3:**
   - Receipt `candidate_tree` fields hold executed or Lab trees.
   - The directory `SOURCE_LOCK.json` is stale.
