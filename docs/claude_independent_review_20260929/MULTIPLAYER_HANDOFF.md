@@ -95,3 +95,34 @@ The Coordinator authorises the repin workstream. A fresh session then:
 3. repins `config/rules_engines.json` on a Lab branch;
 4. removes `@Disabled` from `XmageMultiplayerCommanderZoneChoiceTest.commanderZoneChoicesFollowApnapOrder`, `XmageMultiplayerUnlessCostTest.thePayingPlayerDecidesBeforeTheController` and `XmageMultiplayerTemptingOfferTest.opponentsAreOfferedInApnapOrder`;
 5. runs `cd engine-bridge && mvn -o -Dcheckstyle.skip=true test` and impact-adjudicates the pin move.
+
+---
+
+## Addendum: phase 3 (after the Coordinator repin authority), 2026-09-29
+
+- **XMage candidate integration (mage#24, `f79e4168`).**
+  - Contents: F-18 + F-19 + F-20 + bounded F-21 (explicit APNAP primitive; `getOpponents` unchanged).
+  - Native evidence: 72/72 targeted; full `Mage.Tests` 7001 / 0 failures / 0 errors / 125 skipped.
+- **Lab successor repin (#337, merged as `ba629ced`).**
+  - The live pin is `f79e4168`, and the WSR22 `source_lock.py` stays historical.
+  - Successor lock: `qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json`.
+  - The F-18 to F-21 regressions were re-enabled: red on the prior pin, green on the candidate.
+  - Impact adjudication: `docs/workstream_xmage_mp_candidate_repin_20260929/`.
+- **F-24 (#338 → #339), bridge fix.** Attack-tax payments (Ghostly Prison family) previously offered only "Cancel", because `getPlayable` is silent during declare attackers. The lane now uses the engine's `getUseableManaAbilities`. Red 6/6 before, green 6/6 after.
+- **New probes (3–6P, all green, no defect):**
+  - player protection, Teferi's Protection (#341);
+  - join forces, Minds Aglow (#342);
+  - overload, Cyclonic Rift (#343);
+  - APNAP semantic replay, Grave Pact and Innocent Blood (#352);
+  - extort, Syndic of Tithes (#353).
+- **Forge unified successor (moeendres-png/forge#11, draft, not for master).**
+  - Contents: #6 + #7 + #9 Finality Oracle correction; #6's Aftermath regression re-bound to Cut // Ribbons (the fix is real: 3/6 red without it).
+  - Results: bridge 347/0, `forge-gui-desktop` 458/0/6, checkstyle pass, exact-head CI all pass.
+  - Handoff: `forge-protocol2-bridge/forge-unified-successor-20260929/HANDOFF.md`.
+- **Open decisions (Coordinator):**
+  - Forge #11: accept the #9 inclusion, or require a pure #6 + #7 identity;
+  - a successor FULL107 current-boundary run on the new XMage pin.
+- **Not mine / routed:**
+  - F-15 restoration (evidence posted on #304 and #333);
+  - F-22, F-23, F-25 to F-27 belong to the parallel lane;
+  - #333's `WS17_SHA256SUMS` conflict: guidance posted, left for its owner.
