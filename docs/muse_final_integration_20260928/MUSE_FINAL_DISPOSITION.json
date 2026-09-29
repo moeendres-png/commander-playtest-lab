@@ -1,0 +1,216 @@
+{
+  "schema": "commander-lab.muse-final-disposition/1.0.0",
+  "audit_base": {
+    "main_commit": "3910040b3ca4eb276f8895fa4c9801af3550f123",
+    "main_tree": "a28d98b29c84342056e5658f8f4423f927999108",
+    "salvage_branch": "sol/muse-final-salvage-20260929"
+  },
+  "donor": {
+    "branch": "donor/muse-xhigh-independent-20260928",
+    "head": "b7b16ef858e2d88bbb2946710eb054afe1246b78",
+    "tree": "1b6320abc0024bd90c093f9e68ecf056b88c0d3f",
+    "convergence_main": "c9277b90ed3835985dcd21824cfe1762b3f65dcd",
+    "unique_commit_count": 12
+  },
+  "branch_dispositions": [
+    {
+      "branch": "donor/muse-xhigh-independent-20260928",
+      "head": "b7b16ef858e2d88bbb2946710eb054afe1246b78",
+      "disposition": "PROVENANCE_ONLY_WITH_PARTIAL_PORT"
+    },
+    {
+      "branch": "muse/ws48-forge-v1.0.5-heavy-support",
+      "head": "895eca21a3f63a54e9173d0dc65f7d94e8b41818",
+      "disposition": "INVALID_DO_NOT_USE_PRODUCTION__PROVENANCE_ONLY_DESIGN"
+    },
+    {
+      "branch": "muse/ws49-xmage-local-execution-readiness",
+      "head": "ece12fde7b605eeafa0b0990623374551a8a3a8c",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "branch": "project/opencode-muse-cross-repo-hardening-v2-20260910",
+      "head": "ec68024593904b648fd03d2fb518bee94cfa4d3b",
+      "disposition": "ALREADY_CANONICAL"
+    },
+    {
+      "branch": "governance/space-bunny-max-muse-xhigh-successor-20260927",
+      "head": "e75efbc73c4aa6148a39b4dbac29bad78a2103ca",
+      "disposition": "ALREADY_CANONICAL_OR_SUPERSEDED"
+    },
+    {
+      "branch": "ops/opencode-muse-primary-privacy-20260908",
+      "head": "22e2a20fe2fab595f0bc01e40cf00dbdd4af856e",
+      "disposition": "PRIVACY_PRINCIPLE_CANONICAL__OLD_EXECUTION_POLICY_INVALID"
+    }
+  ],
+  "donor_commit_dispositions": [
+    {
+      "commit": "81ada1e22d189a261e0c43de9d97cd16b540c643",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "0f281841fab74dc0a5527fc09f8d840175aaf71f",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "abb747a7adcab706b6e11fdbccd1e134dcf14594",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "04d3e5997f12f1154b4bbf08ac6e5c8f0021c2d8",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "022782ad380f9d5733596973360a2b6938ba0485",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "0a36e47e31f09f053c42ec5c076a6b49d6e7b981",
+      "disposition": "MIXED_PB10_SUPERSEDED_PB03_VALUABLE"
+    },
+    {
+      "commit": "c8cc9b399b94d3a9ba381350e4e8b7a22ab4b194",
+      "disposition": "PORTED_TO_INTEGRATION_PR_CHARACTERIZATION_ONLY"
+    },
+    {
+      "commit": "164f166b23a87a1b5b11432cbb7844f32e16b3ba",
+      "disposition": "PROVENANCE_ONLY"
+    },
+    {
+      "commit": "cb185e580fa9af5df1a1ec9827f65a33d2a40209",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "468360a8a60ae39838d9add957f1fb7cb89abfb3",
+      "disposition": "PORTED_TO_INTEGRATION_PR_CREDIT_BLOCKED_PENDING_DISCRETION_HARDENING"
+    },
+    {
+      "commit": "d6d071cd92e037efdc68d6585d7aceb9331acf5e",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION"
+    },
+    {
+      "commit": "b7b16ef858e2d88bbb2946710eb054afe1246b78",
+      "disposition": "PROVENANCE_ONLY"
+    }
+  ],
+  "assets": [
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03DimensionAdmissionTest.java",
+      "disposition": "MERGED_CURRENT_MAIN_PR291",
+      "credit": "ZERO_FULL107_CREDIT_BY_ITSELF"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier1RowsTest.java",
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CURRENT_RUNTIME_REGRESSION_ASSET__QUALIFICATION_CREDIT_REQUIRES_NORMAL_RECEIPTS"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2CmdZoneTest.java",
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CHARACTERIZATION_REGRESSION__NOT_AUTO_PROMOTED"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2ControlTurnTest.java",
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CURRENT_RUNTIME_REGRESSION_ASSET__QUALIFICATION_CREDIT_REQUIRES_NORMAL_RECEIPTS"
+    },
+    {
+      "path": "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier2StackTest.java",
+      "disposition": "MERGED_CURRENT_MAIN_PR292_HARDENED",
+      "credit": "CURRENT_RUNTIME_REGRESSION_ASSET__RNG_CHOICE_REMAINS_FAIL_CLOSED"
+    },
+    {
+      "path": "qualification/pb03-wave1-20260928",
+      "disposition": "PROVENANCE_ONLY",
+      "credit": "NO_HISTORICAL_PASS_TRANSFER"
+    },
+    {
+      "path": "qualification/pb09-pristine-forge-20260928",
+      "disposition": "PROVENANCE_CONTROL_ONLY",
+      "credit": "NO_PROVIDER_CAPABILITY_CREDIT"
+    }
+  ],
+  "historical_r11": {
+    "reported_commit": "7ad4e944...",
+    "exact_bytes": "UNRECOVERABLE_LOCAL_ONLY",
+    "functional_disposition": "SUPERSEDED_BY_LATER_CANONICAL_IMPLEMENTATION",
+    "canonical_replacements": [
+      "WS213-WS232 replay-tape v1 successor chain (port commit 291dc89ae083b2f84eb826755439a49f8303bb3e)",
+      "RG-06 hidden-state semantic replay integration",
+      "cumulative L1-L7 residual runtime evidence"
+    ]
+  },
+  "active_overlap": {
+    "pr284_pr289_overlap": [
+      "scripts/run_current_boundary_qualification.py",
+      "src/commander_lab/qualification/current_boundary/game_driver.py",
+      "tests/qualification/test_current_boundary_redaction_placeholders.py",
+      "tests/qualification/test_current_boundary_start2_observed_state.py"
+    ],
+    "muse_java_test_paths_overlap_space_bunny": false
+  },
+  "coordinator_gate": {
+    "pr284_comment_id": 5879829287,
+    "classification": "P1_EVIDENCE_INTEGRITY",
+    "requirement": "remove or semantically justify unscripted sorted-first mana/pool selections before affected current behavior credit",
+    "original_pr284_comment_id": 5879829287,
+    "resolution": "RESOLVED_BY_CLEAN_HARDENED_PORT_PR292",
+    "canonical_merge_commit": "ca9356e3da662ce9e246e7f896f1a99772d59065",
+    "overlap_guard_pr284_comment_id": 5881400780
+  },
+  "flags": {
+    "MUSE_INVENTORY_COMPLETE": true,
+    "MUSE_UNIQUE_CODE_ADJUDICATED": true,
+    "MUSE_CODE_SALVAGE": "COMPLETE",
+    "MUSE_SAFE_VALUE_INTEGRATED": true,
+    "MUSE_REMAINING_INTEGRATION_READY": false,
+    "MUSE_UNRESOLVED_UNKNOWN": false,
+    "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT_SELECTED"
+  },
+  "historical_pr_hygiene": [
+    {
+      "pr": 165,
+      "head": "ebc318b3e90a92938e94da8067a78647ac7d304f",
+      "disposition": "SUPERSEDED_BY_BETTER_CURRENT_IMPLEMENTATION",
+      "receipt_comment_id": 5880021755,
+      "final_state": "CLOSED_UNMERGED_BRANCH_RETAINED"
+    }
+  ],
+  "terminal_integration": {
+    "completed_at": "2026-09-29",
+    "main_after_pr292": "ca9356e3da662ce9e246e7f896f1a99772d59065",
+    "pr291": {
+      "merge_commit": "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd",
+      "disposition": "MERGED_CANONICAL",
+      "scope": "dimension admission discriminator + terminal Muse inventory"
+    },
+    "pr292": {
+      "merge_commit": "ca9356e3da662ce9e246e7f896f1a99772d59065",
+      "disposition": "MERGED_CANONICAL",
+      "scope": "hardened PB-03 Tier-1/Tier-2 runtime tests",
+      "exact_head": "dfb033675a8604d7827d09d69dca9691a201475c",
+      "exact_head_gates": [
+        "Production Qualification",
+        "CI",
+        "External XMage Integration",
+        "XMage Full Game Conformance",
+        "XMage Real 4P Technical Smoke",
+        "H4 Docker Materialization"
+      ],
+      "mana_selection_contract": [
+        "semantic_source_id_to_native_source_object_id",
+        "explicit_mana_type_for_multi_option_pool_spend",
+        "missing_or_ambiguous_match_fail_closed",
+        "no_sorted_first_or_firstPoolSpend"
+      ]
+    },
+    "pr284": {
+      "disposition": "ACTIVE_BROADER_CARRIER",
+      "muse_overlap": "SUPERSEDED_BY_CURRENT_MAIN_PR292",
+      "coordinator_overlap_receipt_comment_id": 5881400780
+    },
+    "historical_pass_transfer": false
+  }
+}

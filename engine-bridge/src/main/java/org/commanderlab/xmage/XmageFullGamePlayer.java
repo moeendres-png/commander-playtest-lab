@@ -1058,8 +1058,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ));
                 attackerByOption.put(optionId, attackerId);
             }
-            int maxBlocks = Math.min(blocker.getMaxBlocks(), options.size());
-            if (maxBlocks <= 0 || options.isEmpty()) {
+            int maxBlocks = blockCapacity(blocker.getMaxBlocks(), options.size());
+            if (maxBlocks <= 0) {
                 continue;
             }
             XmageFullGameDecisionController.DecisionResponse response = request(
@@ -1080,6 +1080,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 declareBlocker(defendingPlayerId, blocker.getId(), attackerId, game, false);
             }
         }
+    }
+
+    /**
+     * How many of the offered attackers one blocker may block (CR 509.1a).
+     * XMage encodes "can block any number of creatures" as maxBlocks == 0
+     * (CanBlockAdditionalCreatureEffect), so zero means every offered
+     * attacker, never "cannot block". A positive value caps the selection.
+     */
+    static int blockCapacity(int engineMaxBlocks, int offeredAttackers) {
+        if (offeredAttackers <= 0) {
+            return 0;
+        }
+        if (engineMaxBlocks == 0) {
+            return offeredAttackers;
+        }
+        return Math.min(engineMaxBlocks, offeredAttackers);
     }
 
     /**

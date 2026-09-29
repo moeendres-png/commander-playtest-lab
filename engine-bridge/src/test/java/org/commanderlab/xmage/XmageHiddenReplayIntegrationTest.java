@@ -8,7 +8,7 @@ import mage.cards.Card;
 import mage.constants.PhaseStep;
 import mage.constants.TurnPhase;
 import mage.constants.Zone;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
 import org.junit.jupiter.api.Test;
@@ -394,7 +394,7 @@ class XmageHiddenReplayIntegrationTest {
         return new Arrived(session, restoration, seats);
     }
 
-    private static List<String> libraryNames(Player player, CommanderFreeForAll game) {
+    private static List<String> libraryNames(Player player, GameCommanderImpl game) {
         List<String> result = new ArrayList<>();
         for (UUID id : player.getLibrary().getCardList()) {
             Card card = game.getCard(id);
@@ -406,7 +406,7 @@ class XmageHiddenReplayIntegrationTest {
         return result;
     }
 
-    private static List<String> sortedSemanticOrder(Player player, CommanderFreeForAll game) {
+    private static List<String> sortedSemanticOrder(Player player, GameCommanderImpl game) {
         List<String> result = new ArrayList<>(libraryNames(player, game));
         Collections.sort(result);
         return result;
@@ -500,7 +500,7 @@ class XmageHiddenReplayIntegrationTest {
             XmageNativeStateRestoration restoration,
             Map<String, Player> seats
     ) {
-        CommanderFreeForAll game() {
+        GameCommanderImpl game() {
             return session.restorationGame();
         }
     }

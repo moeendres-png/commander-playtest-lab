@@ -9,7 +9,7 @@ import mage.abilities.Abilities;
 import mage.cards.Card;
 import mage.counters.Counter;
 import mage.counters.Counters;
-import mage.game.CommanderFreeForAll;
+import mage.game.GameCommanderImpl;
 import mage.game.permanent.Permanent;
 import org.junit.jupiter.api.Test;
 
@@ -300,7 +300,7 @@ class Ws92D1D2D3ProjectionTest {
                 7017L,
                 importer
         );
-        CommanderFreeForAll game = field(session, "game", CommanderFreeForAll.class);
+        GameCommanderImpl game = field(session, "game", GameCommanderImpl.class);
         @SuppressWarnings("unchecked")
         List<XmageFullGamePlayer> players = (List<XmageFullGamePlayer>) field(
                 session, "players", List.class
@@ -310,7 +310,7 @@ class Ws92D1D2D3ProjectionTest {
 
     private record Fixture(
             XmageFullGameSession session,
-            CommanderFreeForAll game,
+            GameCommanderImpl game,
             List<XmageFullGamePlayer> players
     ) {
     }
