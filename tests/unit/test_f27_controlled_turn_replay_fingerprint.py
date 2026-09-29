@@ -8,6 +8,7 @@ from typing import Any
 from commander_lab.semantic_replay.fingerprint import (
     canonical_actor_view,
     principal_observation_digest,
+    public_state_digest,
 )
 
 
@@ -96,6 +97,7 @@ def test_authorized_controlled_private_row_is_bound_into_observation_digest() ->
     assert controlled["granted_library"] == [{"name": "Brainstorm"}]
     assert controlled["battlefield"][0]["private_identity"] == "Grizzly Bears"
     assert principal_observation_digest(first) != principal_observation_digest(second)
+    assert public_state_digest(first) == public_state_digest(second)
 
 
 def test_unmarked_smuggled_private_row_stays_out_of_observation_digest() -> None:

@@ -497,27 +497,36 @@ def public_state_digest(pilot_state: dict[str, Any]) -> str:
     view = canonical_actor_view(pilot_state)
     public_players: list[dict[str, Any]] = []
     for entry in view.get("players", []):
-        public_players.append(
-            {
-                k: entry.get(k)
-                for k in (
-                    "battlefield",
-                    "command",
-                    "exile_count",
-                    "graveyard",
-                    "graveyard_count",
-                    "hand_count",
-                    "has_lost",
-                    "has_won",
-                    "is_actor",
-                    "library_count",
-                    "life",
-                    "player",
-                    "poison_counters",
-                    "seat",
-                )
-            }
-        )
+        public_entry = {
+            k: entry.get(k)
+            for k in (
+                "command",
+                "exile_count",
+                "graveyard",
+                "graveyard_count",
+                "hand_count",
+                "has_lost",
+                "has_won",
+                "is_actor",
+                "library_count",
+                "life",
+                "player",
+                "poison_counters",
+                "seat",
+            )
+        }
+        battlefield = entry.get("battlefield")
+        if isinstance(battlefield, list):
+            public_entry["battlefield"] = [
+                {
+                    key: value
+                    for key, value in permanent.items()
+                    if key != "private_identity"
+                }
+                for permanent in battlefield
+                if isinstance(permanent, dict)
+            ]
+        public_players.append(public_entry)
     return canonical_hash(
         {
             "active_player": view.get("active_player"),
