@@ -21,9 +21,9 @@
     "branch": "sol/xmage-f22-f23-final-20260929",
     "pull_request": "moeendres-png/mage#26",
     "parent_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
-    "commit": "9cb5fb9e9558f980da81c85ca3fdc595161c8d34",
-    "tree": "54aabe958a1d748c8fb509d66ee25b0900bc8e90",
-    "source_archive": "https://github.com/moeendres-png/mage/archive/9cb5fb9e9558f980da81c85ca3fdc595161c8d34.tar.gz",
+    "commit": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
+    "tree": "ba0d02bdf5e9d62361d68dbdfb7e729d46ce9aed",
+    "source_archive": "https://github.com/moeendres-png/mage/archive/fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c.tar.gz",
     "semantic_fingerprint": "mage.game.Game#getOpponentsInGame(UUID)"
   },
   "findings": [
@@ -39,24 +39,24 @@
     }
   ],
   "candidate_verification": {
-    "engine_code_head": "9cb5fb9e9558f980da81c85ca3fdc595161c8d34",
-    "verification_head": "9cb5fb9e9558f980da81c85ca3fdc595161c8d34",
+    "engine_code_head": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
+    "verification_head": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
     "verification_delta": {
       "classification": "NONE_WITHIN_SOURCE_HEAD",
       "changed_files": [],
       "production_engine_files_changed": 0,
-      "note": "Final candidate is frozen directly at the source head; CI-only child adds only the workflow file."
+      "note": "Final candidate includes the corrected F-22 native test harness; CI-only child adds only the workflow file."
     },
-    "ci_branch": "ci/xmage-f22-f23-final-20260929",
-    "workflow_commit": "c1fe54c864c0fa7d3629e2e2057de33abf8f87d5",
+    "ci_branch": "ci/xmage-f22-f23-final-v2-20260929",
+    "workflow_commit": "646a8ab4d85e0c90fa2869d100d8200d9c778fb8",
     "workflow_only_delta": true,
-    "run_id": 36621195990,
+    "run_id": 36622158243,
     "required_jobs": [
       "targeted",
       "full-mage-tests"
     ],
     "evidence_record": "docs/workstream_xmage_f22_f23_successor_repin_20260929/CANDIDATE_RUNTIME_EVIDENCE.json",
-    "credit_rule": "Runtime credit requires both jobs to pass on the frozen final candidate."
+    "credit_rule": "Runtime credit requires both jobs to pass on the exact frozen final candidate."
   },
   "rules_authority": {
     "source": "Wizards Comprehensive Rules, current official rules page",
