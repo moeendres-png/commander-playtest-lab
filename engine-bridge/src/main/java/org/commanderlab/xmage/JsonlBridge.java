@@ -75,6 +75,7 @@ final class JsonlBridge {
             case "get_game_state" -> getGameState(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId, request);
             case "resolve_mulligan" -> resolveMulligan(requestId, request);
+            case "resolve_mulligan_bottom" -> resolveMulliganBottom(requestId, request);
             case "pass_priority" -> passPriority(requestId, request);
             case "submit_action" -> submitAction(requestId, request);
             case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
@@ -471,6 +472,94 @@ final class JsonlBridge {
             return error(
                     requestId,
                     "invalid_legal_actions_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    /**
+     * Resolve the engine's London-bottoming decision from an explicit external
+     * selection. The bridge transports the selection; the Rules Core decides the
+     * cardinality and the legal identities, and the controller rejects anything
+     * outside the offered domain. The response deliberately reports only the
+     * count, never the acting player's card identities, because those are
+     * principal-scoped hidden information.
+     */
+    private Result resolveMulliganBottom(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_mulligan_bottom_payload",
+                    "RESOLVE_MULLIGAN_BOTTOM requires an object payload"
+            );
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            String decisionId = stringValue(payload, "decision_id").trim();
+            String actorId = stringValue(payload, "player_id").trim();
+            if (actorId.isBlank()) {
+                actorId = stringValue(payload, "actor_id").trim();
+            }
+            if (decisionId.isBlank() || actorId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_mulligan_bottom_payload",
+                        "RESOLVE_MULLIGAN_BOTTOM requires decision_id and player_id/actor_id",
+                        false
+                );
+            }
+            if (!payload.has("selected_card_ids")
+                    || !payload.get("selected_card_ids").isJsonArray()) {
+                return error(
+                        requestId,
+                        "invalid_mulligan_bottom_payload",
+                        "RESOLVE_MULLIGAN_BOTTOM requires selected_card_ids as an array",
+                        false
+                );
+            }
+            List<String> selectedCardIds = optionalStringArray(payload, "selected_card_ids");
+            if (selectedCardIds.size() != payload.getAsJsonArray("selected_card_ids").size()) {
+                return error(
+                        requestId,
+                        "invalid_mulligan_bottom_payload",
+                        "selected_card_ids must contain only non-blank strings",
+                        false
+                );
+            }
+
+            String preStateHash = gameManager.stateHashIfAvailable(gameHandle);
+            XmageActionExecutor.ExecutionResult executed = gameManager.resolveMulliganBottom(
+                    gameHandle,
+                    decisionId,
+                    actorId,
+                    selectedCardIds
+            );
+            String postStateHash = gameManager.stateHashIfAvailable(gameHandle);
+            gameManager.recordExternalAction(gameHandle, executed, preStateHash, postStateHash);
+
+            XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", gameId);
+            responsePayload.addProperty("executed_decision_id", executed.decisionId());
+            responsePayload.addProperty("executed_action_id", executed.actionId());
+            responsePayload.addProperty("executed_action_type", executed.actionType());
+            responsePayload.addProperty("executed_actor_id", executed.actorId());
+            responsePayload.addProperty("selected_card_count", selectedCardIds.size());
+            responsePayload.addProperty("bottom_selection_external", true);
+            responsePayload.addProperty("global_capability_promoted", false);
+            responsePayload.add("next_decision", legalActionsPayload(after));
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
+            );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "resolve_mulligan_bottom_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_mulligan_bottom_payload",
                     exceptionMessage(exc),
                     false
             );
