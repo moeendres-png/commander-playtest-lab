@@ -114,6 +114,20 @@ final class XmageBridgePlayer extends PlayerImpl {
      * {@code game.resume()} inside pass/submit reports a fail-closed action
      * failure instead of advancing state on a hidden default.</p>
      */
+    /**
+     * True when the engine is asking which cards go on the bottom of a library.
+     * The pinned engine marks that choice on the target filter message, which is
+     * the only structural signal available at this callback.
+     */
+    private static boolean isBottomSelection(Target target) {
+        if (target == null || target.getFilter() == null) {
+            return false;
+        }
+        String message = target.getFilter().getMessage();
+        return message != null
+                && message.endsWith(" more) to put on the bottom of your library");
+    }
+
     private void failIfExternallyControlled(String callback) {
         if (externalDecisionController != null) {
             throw new XmageGameManager.GameException(
@@ -240,22 +254,10 @@ final class XmageBridgePlayer extends PlayerImpl {
             Game game
     ) {
         if (externalDecisionController != null && BOTTOM_SELECTION.get()) {
-            // London bottoming is an authoritative engine decision: the engine
-            // supplies the acting player's own cards and the required count, and
-            // the external control thread submits an explicit selection. No
-            // default, First-N or engine-AI choice exists on this path.
-            List<Card> offered = new ArrayList<>(cards.getCards(game));
-            List<String> selected = externalDecisionController.requestMulliganBottom(
-                    this,
-                    game,
-                    offered,
-                    target.getMinNumberOfTargets(),
-                    target.getMaxNumberOfTargets()
+            throw new XmageGameManager.GameException(
+                    "UNSUPPORTED_COMPATIBILITY_DECISION: London bottom-card selection "
+                            + "requires external decision control; no default card choice is permitted"
             );
-            for (String selectedId : selected) {
-                target.add(UUID.fromString(selectedId), game);
-            }
-            return true;
         }
         failIfExternallyControlled("choose(Cards,TargetCard)");
         cards.getCards(game)
@@ -335,13 +337,34 @@ final class XmageBridgePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
+        if (externalDecisionController != null && isBottomSelection(target)) {
+            // Evidence from this implementation: the pinned engine reaches the
+            // London bottoming through this overload with the bottom message on
+            // the target filter, and the former helper chose the first N cards.
+            // The authoritative decision now goes to the external control thread.
+            // The candidate set is the acting player's own hand as the engine
+            // sees it: a London bottom is chosen from the hand, and those
+            // identities are actor-scoped engine state. The required cardinality
+            // still comes from the engine's target, never from the harness.
+            List<String> offeredIds = getHand()
+                    .getCards(game)
+                    .stream()
+                    .map(card -> card.getId().toString())
+                    .toList();
+            List<String> selected = externalDecisionController.requestMulliganBottom(
+                    this,
+                    game,
+                    offeredIds,
+                    target.getMinNumberOfTargets(),
+                    target.getMaxNumberOfTargets()
+            );
+            for (String selectedId : selected) {
+                target.add(UUID.fromString(selectedId), game);
+            }
+            return true;
+        }
         failIfExternallyControlled("chooseTarget(Target)");
-        if (target.getFilter().getMessage() != null
-                && target.getFilter()
-                        .getMessage()
-                        .endsWith(
-                                " more) to put on the bottom of your library"
-                        )) {
+        if (isBottomSelection(target)) {
 
             chooseDiscardBottom(
                     game,

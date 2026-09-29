@@ -38,7 +38,8 @@ final class ExternalDecisionController {
             String actorId,
             String decisionKind,
             boolean complete,
-            List<JsonObject> actions
+            List<JsonObject> actions,
+            JsonObject context
     ) {
     }
 
@@ -222,7 +223,8 @@ final class ExternalDecisionController {
                 actorId,
                 "priority",
                 complete,
-                List.copyOf(actions)
+                List.copyOf(actions),
+                new JsonObject()
         );
 
         return currentDecision;
@@ -294,7 +296,8 @@ final class ExternalDecisionController {
                 actorId,
                 "mulligan",
                 true,
-                actions
+                actions,
+                new JsonObject()
         );
         currentDecision = pending;
         submittedActionId = null;
@@ -364,7 +367,7 @@ final class ExternalDecisionController {
     synchronized List<String> requestMulliganBottom(
             Player player,
             Game game,
-            List<Card> offered,
+            List<String> offeredIds,
             int minCount,
             int maxCount
     ) {
@@ -372,15 +375,15 @@ final class ExternalDecisionController {
         if (currentDecision != null) {
             throw new IllegalStateException("CONCURRENT_EXTERNAL_DECISION");
         }
-        if (offered == null || offered.isEmpty()) {
+        if (offeredIds == null || offeredIds.isEmpty()) {
             throw new IllegalStateException(
                     "MULLIGAN_BOTTOM_DOMAIN_INVALID: engine offered no card to choose from"
             );
         }
-        if (minCount < 0 || maxCount < minCount || maxCount > offered.size()) {
+        if (minCount < 0 || maxCount < minCount || maxCount > offeredIds.size()) {
             throw new IllegalStateException(
                     "MULLIGAN_BOTTOM_DOMAIN_INVALID: engine declared min=" + minCount
-                            + " max=" + maxCount + " for " + offered.size() + " offered cards"
+                            + " max=" + maxCount + " for " + offeredIds.size() + " offered cards"
             );
         }
 
@@ -394,19 +397,19 @@ final class ExternalDecisionController {
                 "mulligan_bottom"
         );
 
-        List<JsonObject> actions = new ArrayList<>(offered.size());
-        for (int ordinal = 0; ordinal < offered.size(); ordinal++) {
-            Card card = offered.get(ordinal);
+        List<JsonObject> actions = new ArrayList<>(offeredIds.size());
+        for (int ordinal = 0; ordinal < offeredIds.size(); ordinal++) {
+            String cardId = offeredIds.get(ordinal);
             JsonObject metadata = new JsonObject();
             metadata.addProperty("option_type", "mulligan_bottom_card");
-            metadata.addProperty("card_id", card.getId().toString());
-            metadata.addProperty("card_name", card.getName());
+            metadata.addProperty("card_id", cardId);
+            metadata.addProperty("card_name", cardId);
             actions.add(legalAction(
                     decisionId,
                     ordinal,
                     actorId,
                     "mulligan_bottom",
-                    card.getId().toString(),
+                    cardId,
                     null,
                     true,
                     List.of(),
@@ -428,7 +431,8 @@ final class ExternalDecisionController {
                 actorId,
                 "mulligan_bottom",
                 true,
-                actions
+                actions,
+                context
         );
         currentDecision = pending;
         submittedActionId = null;
@@ -522,10 +526,19 @@ final class ExternalDecisionController {
                 );
             }
         }
-        if (selectedCardIds.size() != offeredIds.size()) {
+        JsonObject domain = decision.context();
+        int minSelection = domain.has("min_selection") ? domain.get("min_selection").getAsInt() : 0;
+        int maxSelection = domain.has("max_selection") ? domain.get("max_selection").getAsInt() : 0;
+        if (selectedCardIds.size() < minSelection || selectedCardIds.size() > maxSelection) {
             throw new IllegalStateException(
-                    "MULLIGAN_BOTTOM_SELECTION_INVALID: the engine requires exactly "
-                            + offeredIds.size() + " card(s), got " + selectedCardIds.size()
+                    "MULLIGAN_BOTTOM_SELECTION_INVALID: the engine requires "
+                            + minSelection + ".." + maxSelection
+                            + " card(s) from the offered domain, got " + selectedCardIds.size()
+            );
+        }
+        if (new java.util.HashSet<>(selectedCardIds).size() != selectedCardIds.size()) {
+            throw new IllegalStateException(
+                    "MULLIGAN_BOTTOM_SELECTION_INVALID: the same card may not be selected twice"
             );
         }
 

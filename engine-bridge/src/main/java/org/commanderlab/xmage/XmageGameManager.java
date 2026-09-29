@@ -91,7 +91,8 @@ final class XmageGameManager {
             String actorId,
             String decisionKind,
             boolean complete,
-            List<JsonObject> actions
+            List<JsonObject> actions,
+            JsonObject context
     ) {
     }
 
@@ -699,7 +700,8 @@ final class XmageGameManager {
                         decision.actorId(),
                         decision.decisionKind(),
                         decision.complete(),
-                        decision.actions()
+                        decision.actions(),
+                        decision.context()
                 );
             } catch (IllegalStateException exc) {
                 throw new GameException(
