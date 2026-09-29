@@ -20,10 +20,7 @@ def test_successor_source_lock_binds_exact_mage_candidate() -> None:
     assert data["new_live_pin"]["tree"] == CURRENT_TREE
     assert data["new_live_pin"]["parent_commit"] == PRIOR
     assert data["new_live_pin"]["pull_request"] == "moeendres-png/mage#26"
-    assert (
-        data["new_live_pin"]["semantic_fingerprint"]
-        == "mage.game.Game#getOpponentsInGame(UUID)"
-    )
+    assert data["new_live_pin"]["semantic_fingerprint"] == "mage.game.Game#getOpponentsInGame(UUID)"
 
 
 def test_live_pin_surfaces_bind_successor_not_prior() -> None:
