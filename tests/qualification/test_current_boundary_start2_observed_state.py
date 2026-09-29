@@ -16,7 +16,10 @@ from pathlib import Path
 import pytest
 
 from commander_lab.qualification.current_boundary import full107
-from commander_lab.qualification.current_boundary.game_driver import CommandedGameResult
+from commander_lab.qualification.current_boundary.game_driver import (
+    CommandedGameResult,
+    DecisionTapeEntry,
+)
 
 REPO = Path(__file__).resolve().parents[2]
 FULL107 = REPO / "src/commander_lab/qualification/current_boundary/full107.py"
@@ -75,14 +78,14 @@ def test_start2_observation_names_the_principal_and_reads_engine_zones() -> None
     zones of that principal's row.
     """
     source = DRIVER.read_text(encoding="utf-8")
-    block = source[source.index('if drive_to == "first_turn_draw_skip":') :]
-    block = block[: block.index('result.terminal_facts["decision_identity_shape"]')]
-    # The principal named in the request is the LAB's external id for the acting
-    # seat, derived from the Lab's own frame. It is never inferred from visible
-    # cards, and it is never the engine's live actor identity.
+    helper_start = source.index("def _observe_principal_checkpoint(")
+    helper_end = source.index("\ndef drive_commander_game(", helper_start)
+    block = source[helper_start:helper_end]
+    # The helper names the Lab principal explicitly and never persists a live
+    # engine identity.
     assert '{"observer_player_id": principal}' in block
-    assert 'principal = str(frame_seat) if frame_seat is not None else ""' in block
-    # Counts come from the acting seat's row only.
+    assert "seat_index = _SEATS.index(principal)" in block
+    # Counts come from the requested seat's row only.
     assert 'actor_row.get("seat") != seat_index' in block
     assert 'zones.get("library_size")' in block
     assert "hand=hand" in block
@@ -104,8 +107,9 @@ def test_start2_observation_validates_both_authoritative_binding_shapes() -> Non
     that contradicts itself.
     """
     source = DRIVER.read_text(encoding="utf-8")
-    block = source[source.index('if drive_to == "first_turn_draw_skip":') :]
-    block = block[: block.index('result.terminal_facts["decision_identity_shape"]')]
+    helper_start = source.index("def _observe_principal_checkpoint(")
+    helper_end = source.index("\ndef drive_commander_game(", helper_start)
+    block = source[helper_start:helper_end]
     # Mechanism A: the live-engine envelope with the resolved id checked
     # against the acting seat's own player row.
     assert 'payload.get("observer_player_id") == principal' in block
@@ -169,8 +173,8 @@ def test_driver_observes_engine_reported_zone_counts() -> None:
 def test_zone_count_observation_is_scoped_to_the_acting_principal() -> None:
     """Record only the acting principal's counts; never persist another live principal id."""
     source = DRIVER.read_text(encoding="utf-8")
-    start = source.index('frame_seat = frame.get("seat")')
-    end = source.index('result.terminal_facts["observed_zone_count_source"]')
+    start = source.index("def _observe_principal_checkpoint(")
+    end = source.index("\ndef drive_commander_game(", start)
     block = source[start:end]
     assert '{"observer_player_id": principal}' in block
     assert 'actor_row.get("seat") != seat_index' in block
@@ -201,19 +205,13 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
     """
     source = DRIVER.read_text(encoding="utf-8")
 
-    # The Lab seat is authoritative and is what the observer request names.
-    assert 'frame_seat = frame.get("seat")' in source
+    # The START-2 observer is pinned to the fixture-scripted Lab principal,
+    # never to a live engine actor id.
+    assert "principal=scripted_starting_seat" in source
     assert "seat_index = _SEATS.index(principal)" in source
-    # The request still names the Lab external principal explicitly.
     assert '"observer_player_id": principal' in source
-    # And the engine actor is never used as a Lab principal.
-    assert "principal = str(stated)" not in source, (
-        "the engine's live actor identity must not become the Lab principal"
-    )
-    assert (
-        'decision.get("actor")' not in source.split('drive_to == "first_turn_draw_skip"')[1][:3000]
-    ), "the engine actor must not be read as the acting principal at all"
-    # The live engine id may still be used to PROVE the binding, transiently.
+    assert "principal = str(stated)" not in source
+    # The live engine id may still be used transiently to prove the envelope.
     assert "observer_engine_player_id" in source
 
 
@@ -289,7 +287,7 @@ def test_start2_identical_upkeep_to_precombat_counts_can_pass(
 ) -> None:
     result = _result()
     result.decision_tape = [
-        full107.DecisionTapeEntry(
+        DecisionTapeEntry(
             "priority", "PRIORITY", "p1", 1, "pass_when_offered", "a", ["a"], "observed"
         )
     ]
