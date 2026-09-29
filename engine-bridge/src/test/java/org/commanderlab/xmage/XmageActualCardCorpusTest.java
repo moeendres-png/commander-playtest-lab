@@ -103,6 +103,14 @@ class XmageActualCardCorpusTest {
             String tag, int playerCount,
             List<XmageNativeStateRestoration.RequestedObject> objects,
             Map<String, String> extraCommanders, int forests) {
+        return start(tag, playerCount, objects, extraCommanders, forests, SEED);
+    }
+
+    /** As above, with an explicit Rules seed (for Rules-RNG reproducibility probes). */
+    static Started start(
+            String tag, int playerCount,
+            List<XmageNativeStateRestoration.RequestedObject> objects,
+            Map<String, String> extraCommanders, int forests, long seed) {
         List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
         List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
         for (int seat = 1; seat <= playerCount; seat++) {
@@ -116,7 +124,7 @@ class XmageActualCardCorpusTest {
             }
         }
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
-                tag, playerCount, SEED, List.copyOf(players), List.copyOf(commanders),
+                tag, playerCount, seed, List.copyOf(players), List.copyOf(commanders),
                 List.copyOf(objects),
                 1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
                 mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
