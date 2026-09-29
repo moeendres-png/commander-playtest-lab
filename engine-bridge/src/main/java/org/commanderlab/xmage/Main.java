@@ -33,6 +33,10 @@ public final class Main {
             runFullGameJsonl();
             return;
         }
+        if (args.length == 1 && "midgame".equals(args[0])) {
+            runMidgameJsonl();
+            return;
+        }
 
         // Preserve the pre-B4-F JSONL behavior for every other argument shape:
         // historical callers may have supplied ignored launcher arguments.
@@ -72,6 +76,27 @@ public final class Main {
                     continue;
                 }
                 XmageFullGameJsonlBridge.Result result = bridge.handle(line);
+                output.println(result.json());
+                output.flush();
+                if (result.shutdown()) {
+                    break;
+                }
+            }
+        }
+    }
+
+    private static void runMidgameJsonl() throws Exception {
+        XmageMidgameJsonlBridge bridge = new XmageMidgameJsonlBridge();
+        try (
+                BufferedReader input = stdin();
+                PrintWriter output = stdout()
+        ) {
+            String line;
+            while ((line = input.readLine()) != null) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                XmageMidgameJsonlBridge.Result result = bridge.handle(line);
                 output.println(result.json());
                 output.flush();
                 if (result.shutdown()) {
