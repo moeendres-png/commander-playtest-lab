@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import mage.MageItem;
 import mage.abilities.Ability;
 import mage.cards.Card;
+import mage.constants.AsThoughEffectType;
 import mage.constants.CommanderCardType;
 import mage.constants.ManaType;
 import mage.counters.Counter;
@@ -315,6 +316,10 @@ final class XmageFullGameStateRedactor {
             // Exile may contain face-down private cards. Expose only the public count here;
             // card identities are deliberately absent until XMage marks them publicly known.
             p.addProperty("exile_count", game.getExile().getCardsOwned(game, player.getId()).size());
+            // F-29: face-up exiled cards are public; a face-down one is shown
+            // only to a principal the engine lets look at it (LOOK_AT_FACE_DOWN,
+            // e.g. Gonti, Hideaway, foretell). Others see only the count.
+            p.add("exile", exileView(game, actor, player));
 
             // WS92-D1 grant-scoped library identities (systemic reacquisition).
             // Populated ONLY while the viewer holds a Rules-entitled full look
@@ -402,6 +407,15 @@ final class XmageFullGameStateRedactor {
             player.remove("mana_pool");
             player.remove("land_plays_remaining");
             player.remove("granted_library");
+            if (player.has("exile") && player.get("exile").isJsonArray()) {
+                JsonArray publicExile = new JsonArray();
+                for (JsonElement exiled : player.getAsJsonArray("exile")) {
+                    if (!exiled.getAsJsonObject().has("face_down")) {
+                        publicExile.add(exiled);
+                    }
+                }
+                player.add("exile", publicExile);
+            }
             if (player.has("battlefield") && player.get("battlefield").isJsonArray()) {
                 for (JsonElement permanentElement : player.getAsJsonArray("battlefield")) {
                     JsonObject permanent = permanentElement.getAsJsonObject();
@@ -510,6 +524,21 @@ final class XmageFullGameStateRedactor {
             item.addProperty("ability_count", 0);
         }
         return item;
+    }
+
+    private static JsonArray exileView(Game game, Player viewer, Player owner) {
+        JsonArray result = new JsonArray();
+        for (Card card : game.getExile().getCardsOwned(game, owner.getId())) {
+            if (!card.isFaceDown(game)) {
+                result.add(publicCard(card));
+            } else if (viewer != null && !game.getContinuousEffects().asThough(card.getId(),
+                    AsThoughEffectType.LOOK_AT_FACE_DOWN, null, viewer.getId(), game).isEmpty()) {
+                JsonObject item = publicCard(card);
+                item.addProperty("face_down", true);
+                result.add(item);
+            }
+        }
+        return result;
     }
 
     private static JsonArray grantedLibraryView(Game game, Player viewer, Player owner) {
