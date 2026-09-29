@@ -27,7 +27,7 @@ def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["secondary_engine"]["commit"] == "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
     # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-    assert config["primary_engine"]["commit"] == "9cb5fb9e9558f980da81c85ca3fdc595161c8d34"
+    assert config["primary_engine"]["commit"] == "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c"
     assert config["provider_decision"] == "NO_PROVIDER_READY"
     assert config["current_runtime"]["provider_selected"] is False
     assert config["current_runtime"]["production_provider"] is None
