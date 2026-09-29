@@ -445,7 +445,7 @@ final class XmageFullGameJsonlBridge {
         }
     }
 
-    private static JsonObject capabilitiesPayload() {
+    static JsonObject capabilitiesPayload() {
         JsonObject capabilities = new JsonObject();
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
