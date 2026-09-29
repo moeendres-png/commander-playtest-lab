@@ -126,7 +126,7 @@ class JsonlBridgeTest {
                 capabilities.get("deck_import_supported")
                         .getAsBoolean()
         );
-        assertFalse(
+        assertTrue(
                 capabilities.get("seed_supported")
                         .getAsBoolean()
         );
