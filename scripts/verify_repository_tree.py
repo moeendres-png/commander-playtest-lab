@@ -34,8 +34,9 @@ def inspect_tree(repo: Path, revision: str) -> dict[str, object]:
         except (OSError, subprocess.SubprocessError) as exc:
             raise ValueError("candidate commit cannot be inspected") from exc
 
-    # Reject tree/blob objects even if ls-tree would otherwise accept a tree SHA.
-    git("rev-parse", "--verify", f"{revision}^{{commit}}")
+    # Do not peel annotated tags or accept raw tree objects as a PR commit.
+    if git("cat-file", "-t", revision).strip() != b"commit":
+        raise ValueError("candidate object must be a commit")
     entries = {}
     for record in git("ls-tree", "-rz", "--full-tree", revision).split(b"\0"):
         if not record:

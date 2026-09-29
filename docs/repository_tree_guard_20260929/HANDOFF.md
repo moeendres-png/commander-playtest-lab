@@ -63,3 +63,13 @@ provenance pending owner/Coordinator recovery.
 
 ARCHITECTURE_FREEZE = NOT CLAIMED
 PRODUCTION_PROVIDER = NOT SELECTED
+
+## Checkpoint 2: local validation complete
+
+Checkpoint `06a61c9f` is pushed. Added explicit annotated-tag rejection so the
+reported head must be a commit object, not an object implicitly peeled by Git.
+Final local battery: **29 passed** (15 guard + 14 workflow contracts).
+Affected Ruff, formatting, strict mypy and compileall pass. Current main still
+matches the source lock; PR #285 readback confirms Draft at the same damaged head.
+Publication/remote exact-head CI and review follow. Live pull_request_target
+activation remains explicitly post-merge verification, not inherited local PASS.

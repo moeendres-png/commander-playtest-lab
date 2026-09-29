@@ -84,6 +84,12 @@ def test_tree_object_is_not_accepted_as_a_commit(repository: Path) -> None:
         guard.inspect_tree(repository, git(repository, "rev-parse", "HEAD^{tree}"))
 
 
+def test_annotated_tag_is_not_accepted_as_a_commit(repository: Path) -> None:
+    git(repository, "tag", "-am", "fixture tag", "candidate")
+    with pytest.raises(ValueError):
+        guard.inspect_tree(repository, git(repository, "rev-parse", "candidate"))
+
+
 def test_target_workflow_only_executes_trusted_base() -> None:
     path = SCRIPT.parent.parent / ".github/workflows/repository-tree-integrity.yml"
     workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
