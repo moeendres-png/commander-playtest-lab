@@ -41,6 +41,11 @@ class XmageActualCardCorpusTest {
     private static final String ISLAND_LABEL = "Island — {T}: Add {U}.";
     private static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
     private static final long SEED = 424242L;
+    private static final String PATH_LABEL = "Path of Ancestry \u2014 {T}: Add one mana of any "
+            + "color in your commander's color identity. When that mana is spent to cast a "
+            + "creature spell that shares a creature type with your commander, scry 1. "
+            + "<i>(Look at the top card of your library. You may put that card on the bottom "
+            + "of your library.)</i>";
 
     record Started(
             XmageFullGameSession session,
@@ -90,8 +95,9 @@ class XmageActualCardCorpusTest {
     /**
      * As {@link #start(String, int, List)}, but P-ids in {@code extraCommanders}
      * get a partner commander next to Rograkh (both have partner), and
-     * {@code forests} Mountains of every mainboard are replaced by Forests
-     * (colourless identity, legal under a red commander).
+     * {@code forests} Mountains are replaced by Forests in the decks of those
+     * players only (a basic Forest has green colour identity, so it needs a
+     * green partner commander).
      */
     private static Started start(
             String tag, int playerCount,
@@ -123,7 +129,7 @@ class XmageActualCardCorpusTest {
             List<String> deckCommanders = extra == null ? List.of(ROGRAKH) : List.of(ROGRAKH, extra);
             List<String> mainboard = new ArrayList<>();
             for (int index = 0; index < 100 - deckCommanders.size(); index++) {
-                mainboard.add(index < forests ? "Forest" : "Mountain");
+                mainboard.add(extra != null && index < forests ? "Forest" : "Mountain");
             }
             handles.add(importer.importCommanderDeck(
                     tag + "-" + player.playerId(), tag + "-hash",
@@ -437,6 +443,9 @@ class XmageActualCardCorpusTest {
             case "Swamp" -> "black";
             case "Mountain" -> "red";
             case "Forest" -> "green";
+            // Fixture-scoped: every commander here is Rograkh (colour identity
+            // red), so Path of Ancestry can only produce red.
+            case "Path of Ancestry" -> "red";
             default -> throw new AssertionError("unsupported scripted basic source " + sourceName);
         };
     }
@@ -448,6 +457,7 @@ class XmageActualCardCorpusTest {
             case "Swamp" -> "{B}";
             case "Mountain" -> "{R}";
             case "Forest" -> "{G}";
+            case "Path of Ancestry" -> "{R}";
             default -> throw new AssertionError("unsupported scripted basic source " + sourceName);
         };
     }
@@ -1435,6 +1445,268 @@ class XmageActualCardCorpusTest {
         assertEquals(decisionId, after.get("executed_decision_id").getAsString());
     }
 
+    /** Answers a divided-amount target decision: one target by engine id plus its amount. */
+    private static void submitTargetAmount(Started started, String tag, String objectId, int amount) {
+        XmageFullGameSession session = started.session();
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        JsonObject legal = session.legalActionsPayload();
+        String optionId = null;
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+            JsonObject engine = meta.getAsJsonObject("xmage_option_metadata");
+            if (engine != null && engine.has("object_id")
+                    && objectId.equals(engine.get("object_id").getAsString())) {
+                assertTrue(optionId == null, "unique target option expected");
+                optionId = meta.get("option_id").getAsString();
+            }
+        }
+        assertNotNull(optionId, "target must be engine-offered: " + objectId);
+        String decisionId = pending.get("decision_id").getAsString();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", decisionId + ":" + optionId);
+        proposal.addProperty("action_type", "choose_targets");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", decisionId);
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        JsonArray selected = new JsonArray();
+        selected.add(optionId);
+        choices.add("selected_option_ids", selected);
+        choices.addProperty("numeric_choice", amount);
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        JsonObject after = session.submitAction(proposal);
+        assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+    }
+
+    /**
+     * CARD_04 Kediss, Emberclaw Familiar: "Whenever a commander you control
+     * deals combat damage to an opponent, it deals that much damage to each
+     * other opponent." Ruling 2020-11-10: the extra damage is not combat
+     * damage. Three players; Kediss (1/1, P1's partner commander) is cast on
+     * turn 1 and attacks P2 on P1's next turn (turn 4).
+     */
+    @Test
+    void kedissMirrorsCommanderCombatDamageToEachOtherOpponent() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.addAll(lands("P1", "Mountain", 2));
+        Started started = start("card04-kediss", 3, objects,
+                Map.of("P1", "Kediss, Emberclaw Familiar"), 0);
+        submit(started, "card04-cast", XmageFullGameTaxExecutionTest.castOffer(
+                started.session().legalActionsPayload(), "Kediss, Emberclaw Familiar"));
+        resolveAll(started, "card04-cast", MOUNTAIN_LABEL, NONE);
+        assertEquals(1, onBattlefield(started, "P1", "Kediss, Emberclaw Familiar"));
+
+        mage.game.Game game = started.session().restorationGame();
+        java.util.UUID p2 = started.seats().get("P2").getId();
+        boolean attacked = false;
+        for (int step = 0; step < 400; step++) {
+            if (attacked && life(started, "P2") < 40 && game.getStack().isEmpty()
+                    && "priority".equals(decisionClass(started))) {
+                break;
+            }
+            String cls = decisionClass(started);
+            String actor = actorPid(started);
+            JsonObject legal = started.session().legalActionsPayload();
+            switch (cls) {
+                case "priority" -> pass(started, "card04-pass-" + step);
+                case "declare_attacker" -> {
+                    boolean kedissTurn = "P1".equals(actor)
+                            && game.getState().getTurnNum() >= 4;
+                    JsonObject action = null;
+                    for (JsonElement element : legal.getAsJsonArray("actions")) {
+                        JsonObject candidate = element.getAsJsonObject();
+                        JsonObject meta = candidate.getAsJsonObject("metadata")
+                                .getAsJsonObject("xmage_option_metadata");
+                        if (kedissTurn && meta != null && meta.has("defender_id")
+                                && p2.toString().equals(meta.get("defender_id").getAsString())) {
+                            assertTrue(action == null, "unique attack at P2 expected");
+                            action = candidate;
+                        }
+                    }
+                    if (kedissTurn) {
+                        assertNotNull(action, "Kediss must be able to attack P2: " + legal);
+                        attacked = true;
+                    } else {
+                        action = XmageFullGameTaxExecutionTest.singleActionOfType(
+                                legal, "declare_attackers", "hold_attacker");
+                    }
+                    submit(started, "card04-attack-" + step, action);
+                }
+                case "declare_blocker" -> chooseNone(started, "card04-noblock-" + step);
+                case "choose_object" -> {
+                    // Cleanup discard to seven: hands hold only Mountains.
+                    JsonObject pending = started.session().pendingDecisionPayload()
+                            .getAsJsonObject("decision");
+                    chooseNamed(started, "card04-discard-" + step, "Mountain",
+                            Math.max(1, pending.get("minimum_selections").getAsInt()));
+                }
+                default -> fail("unexpected decision " + cls + " for " + actor);
+            }
+        }
+        assertTrue(attacked, "Kediss attacked on P1's next turn");
+        assertEquals(39, life(started, "P2"), "1 combat damage from the commander");
+        assertEquals(39, life(started, "P3"), "Kediss mirrors it to each other opponent");
+        assertEquals(40, life(started, "P1"), "the controller is not an opponent");
+    }
+
+    /**
+     * Selects {@code count} options named exactly {@code name} from a choice
+     * that may also offer other cards. Same-named cards are rules-identical
+     * here, so which copy is taken does not matter.
+     */
+    private static void chooseByExactName(Started started, String tag, String name, int count) {
+        XmageFullGameSession session = started.session();
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        JsonObject legal = session.legalActionsPayload();
+        List<String> matching = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+            JsonObject engine = meta.getAsJsonObject("xmage_option_metadata");
+            String optionName = engine != null && engine.has("name")
+                    ? engine.get("name").getAsString() : meta.get("label").getAsString();
+            if (name.equals(optionName)) {
+                matching.add(meta.get("option_id").getAsString());
+            }
+        }
+        assertTrue(matching.size() >= count, "need " + count + " x " + name + ": " + legal);
+        matching.sort(String::compareTo);
+        List<String> selected = matching.subList(0, count);
+        String decisionId = pending.get("decision_id").getAsString();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", decisionId + ":" + selected.get(0));
+        proposal.addProperty("action_type", "choose_targets");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", decisionId);
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        JsonArray selectedJson = new JsonArray();
+        selected.forEach(selectedJson::add);
+        choices.add("selected_option_ids", selectedJson);
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        JsonObject after = session.submitAction(proposal);
+        assertEquals(decisionId, after.get("executed_decision_id").getAsString());
+    }
+
+    /**
+     * CARD_29 Boseiju Reaches Skyward // Branch of Boseiju (saga). I: search
+     * for up to two basic Forest cards, reveal them, put them into your hand.
+     * II: put up to one target land card from your graveyard on top of your
+     * library. III: exile this Saga, then return it transformed. Branch of
+     * Boseiju: reach, +1/+1 for each land you control (0/0 base).
+     */
+    @Test
+    void boseijuSagaSearchesRecursesAndTransforms() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(battlefield("P1", "Forest", 0));
+        objects.addAll(lands("P1", "Mountain", 3));
+        objects.add(hand("P1", "Boseiju Reaches Skyward", 0));
+        objects.add(object("gy", mage.constants.Zone.GRAVEYARD, "P1", "Mountain", 9));
+        // Tana, the Bloodsower (R/G, Partner) makes Forests legal for P1.
+        Started started = start("card29-boseiju", 2, objects,
+                Map.of("P1", "Tana, the Bloodsower"), 2);
+        mage.game.Game game = started.session().restorationGame();
+        Player p1 = started.seats().get("P1");
+
+        submit(started, "card29-cast", singleOffer(
+                offers(started, "Boseiju Reaches Skyward", "", true),
+                "Boseiju cast"));
+        boolean[] searched = {false};
+        boolean[] recursed = {false};
+        java.util.UUID[] recurredCard = {null};
+        for (int step = 0; step < 600; step++) {
+            if (onBattlefield(started, "P1", "Branch of Boseiju") == 1
+                    && game.getStack().isEmpty() && "priority".equals(decisionClass(started))) {
+                break;
+            }
+            String cls = decisionClass(started);
+            String actor = actorPid(started);
+            String text = prompt(started).toLowerCase();
+            JsonObject pending = started.session().pendingDecisionPayload()
+                    .getAsJsonObject("decision");
+            if (recurredCard[0] != null && !recursed[0] && "priority".equals(cls)
+                    && game.getStack().isEmpty()) {
+                // Chapter II resolved; P1 has not drawn again yet.
+                mage.cards.Card top = p1.getLibrary().getFromTop(game);
+                assertNotNull(top, "P1's library has a top card");
+                assertEquals(recurredCard[0], top.getId(),
+                        "chapter II put the chosen graveyard Mountain on top of the library");
+                assertTrue(p1.getGraveyard().getCards(game).stream()
+                                .noneMatch(card -> card.getId().equals(recurredCard[0])),
+                        "the recurred Mountain left the graveyard");
+                recursed[0] = true;
+            }
+            switch (cls) {
+                case "priority" -> pass(started, "card29-pass-" + step);
+                case "mana_payment" -> payOneFromRestoredMana(started, "card29-pay-" + step,
+                        List.of("Forest", "Mountain"),
+                        java.util.Set.of("Forest — {T}: Add {G}.", MOUNTAIN_LABEL));
+                case "declare_attacker" -> submit(started, "card29-hold-" + step,
+                        XmageFullGameTaxExecutionTest.singleActionOfType(
+                                started.session().legalActionsPayload(),
+                                "declare_attackers", "hold_attacker"));
+                case "declare_blocker" -> chooseNone(started, "card29-noblock-" + step);
+                case "choose_object", "target" -> {
+                    if ("P1".equals(actor) && text.contains("basic forest")) {
+                        // Chapter I: every Forest the library still holds
+                        // (one may already be in the opening hand).
+                        int offeredForests = started.session().legalActionsPayload()
+                                .getAsJsonArray("actions").size();
+                        chooseByExactName(started, "card29-search-" + step, "Forest",
+                                Math.min(offeredForests, pending.get("maximum_selections").getAsInt()));
+                        searched[0] = true;
+                    } else if ("P1".equals(actor) && text.contains("land card from your graveyard")) {
+                        // Chapter II: a Mountain from P1's graveyard to the top.
+                        // Remember its engine id so the zone move is verified.
+                        String chosen = null;
+                        for (JsonElement element : started.session().legalActionsPayload()
+                                .getAsJsonArray("actions")) {
+                            JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata")
+                                    .getAsJsonObject("xmage_option_metadata");
+                            if (meta != null && meta.has("object_id") && meta.has("name")
+                                    && "Mountain".equals(meta.get("name").getAsString())
+                                    && (chosen == null
+                                            || meta.get("object_id").getAsString().compareTo(chosen) < 0)) {
+                                chosen = meta.get("object_id").getAsString();
+                            }
+                        }
+                        assertNotNull(chosen, "a graveyard Mountain must be offered");
+                        chooseByObjectIds(started, "card29-recur-" + step, List.of(chosen));
+                        recurredCard[0] = java.util.UUID.fromString(chosen);
+                    } else if (text.contains("discard")) {
+                        // Cleanup discard to seven: discard Mountains only.
+                        chooseByExactName(started, "card29-discard-" + step, "Mountain",
+                                Math.max(1, pending.get("minimum_selections").getAsInt()));
+                    } else {
+                        fail("unexpected object choice for " + actor + ": " + text);
+                    }
+                }
+                default -> fail("unexpected decision " + cls + " for " + actor + ": " + text);
+            }
+        }
+        assertTrue(searched[0], "chapter I searched for basic Forests");
+        assertTrue(recursed[0],
+                "chapter II's zone move (graveyard to library top) was observed before the next draw");
+        long lands = game.getBattlefield().getAllActivePermanents(p1.getId()).stream()
+                .filter(permanent -> permanent.isLand(game)).count();
+        Permanent branch = permanent(started, "P1", "Branch of Boseiju");
+        assertEquals(lands, branch.getPower().getValue(), "+1/+1 for each land (0/0 base)");
+        assertEquals(lands, branch.getToughness().getValue());
+        assertTrue(branch.hasAbility(mage.abilities.keyword.ReachAbility.getInstance(), game),
+                "Branch of Boseiju has reach");
+        long forestsInHand = p1.getHand().getCards(game).stream()
+                .filter(card -> "Forest".equals(card.getName())).count();
+        assertEquals(2, forestsInHand,
+                "the deck's two Forests end in hand (chapter I; only Mountains are discarded)");
+    }
+
     /** Submits an empty selection for an optional (minimum 0) target/object choice. */
     private static void chooseNone(Started started, String tag) {
         XmageFullGameSession session = started.session();
@@ -1464,14 +1736,16 @@ class XmageActualCardCorpusTest {
      * CARD_27 Path of Ancestry: "{T}: Add one mana of any color in your
      * commander's color identity. When that mana is spent to cast a creature
      * spell that shares a creature type with your commander, scry 1." Rograkh
-     * is an Ape Ninja: Kird Ape (Ape) scries, Gray Ogre (Ogre) does not.
+     * is a Kobold Warrior (Oracle): Goblin Piker (Goblin Warrior) paid partly
+     * with Path mana scries; Kird Ape (Ape) paid with Path mana does not.
      */
     @Test
-    @org.junit.jupiter.api.Disabled("UNKNOWN (possible engine or lane gap): paying Kird Ape (Ape) "
-            + "entirely with Path of Ancestry mana under Rograkh (Ape Ninja) produced no scry "
-            + "decision on the full-game lane, although Oracle and the 2020-11-10 ruling require "
-            + "scry 1. Not yet attributed: engine delayed trigger vs restored board vs bridge.")
     void pathOfAncestryScriesForACreatureSharingACommanderType() {
+        pathOfAncestryProbe("Goblin Piker");
+    }
+
+    @Test
+    void pathOfAncestryDoesNotScryForACreatureSharingNoCommanderType() {
         pathOfAncestryProbe("Kird Ape");
     }
 
@@ -1479,18 +1753,19 @@ class XmageActualCardCorpusTest {
      * CARD_27 Path of Ancestry: "{T}: Add one mana of any color in your
      * commander's color identity. When that mana is spent to cast a creature
      * spell that shares a creature type with your commander, scry 1." Rograkh
-     * is an Ape Ninja: Kird Ape (Ape) scries, Gray Ogre (Ogre) does not.
+     * is a Kobold Warrior (Oracle): Goblin Piker (Goblin Warrior) paid partly
+     * with Path mana scries; Kird Ape (Ape) paid with Path mana does not.
      */
     private static void pathOfAncestryProbe(String creature) {
         {
-            boolean shares = "Kird Ape".equals(creature);
+            boolean shares = "Goblin Piker".equals(creature);
             List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
             objects.add(battlefield("P1", "Path of Ancestry", 0));
-            if (!shares) {
-                objects.addAll(lands("P1", "Mountain", 2));
+            if (shares) {
+                objects.add(battlefield("P1", "Mountain", 0));
             }
             objects.add(hand("P1", creature, 0));
-            String tag = "card27-" + (shares ? "ape" : "ogre");
+            String tag = "card27-" + (shares ? "piker" : "ape");
             Started started = start(tag, 2, objects);
             cast(started, tag + "-cast", creature);
             boolean[] scried = {false};
@@ -1498,8 +1773,7 @@ class XmageActualCardCorpusTest {
                 if ("mana_payment".equals(cls)) {
                     return payOneFromRestoredMana(started, tag + "-pay-" + step,
                             List.of("Path of Ancestry", "Mountain"),
-                            java.util.Set.of("Path of Ancestry — {T}: Add one mana of any color in your commander's color identity.",
-                                    MOUNTAIN_LABEL));
+                            java.util.Set.of(PATH_LABEL, MOUNTAIN_LABEL));
                 }
                 if ("choice".equals(cls) && prompt(started).toLowerCase().contains("color")) {
                     submit(started, tag + "-red-" + step, labelled(started, "Red"));
@@ -1519,7 +1793,7 @@ class XmageActualCardCorpusTest {
             });
             assertEquals(1, onBattlefield(started, "P1", creature));
             assertEquals(shares, scried[0], shares
-                    ? "Path mana on a creature sharing Rograkh's Ape type must scry 1"
+                    ? "Path mana spent on a creature sharing Rograkh's Warrior type must scry 1"
                     : "a creature sharing no type with the commander must not scry");
         }
     }
@@ -1531,10 +1805,6 @@ class XmageActualCardCorpusTest {
      * Islands pay {U}{U}.
      */
     @Test
-    @org.junit.jupiter.api.Disabled("FINDING F-12: the full-game lane's mana_payment decision "
-            + "offers only mana abilities and 'Cancel mana payment' (pay_cost); delve is not "
-            + "projected, so an external pilot cannot pay Dig Through Time's {6} by exiling "
-            + "graveyard cards. Observed 2026-09-29 on pin b1959698. Enable once delve is exposed.")
     void digThroughTimeDelvesSixAndKeepsTwoOfSeven() {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.addAll(lands("P1", "Island", 2));
@@ -1547,15 +1817,57 @@ class XmageActualCardCorpusTest {
         int libraryBefore = started.seats().get("P1").getLibrary().size();
 
         cast(started, "card12-cast", "Dig Through Time");
-        resolveAll(started, "card12", ISLAND_LABEL, (cls, step) -> {
+        boolean[] delved = {false};
+        int[] delvePicks = {0};
+        resolveAll(started, "card12", null, (cls, step) -> {
             String text = prompt(started);
-            if (("choose_object".equals(cls) || "target".equals(cls)) && text.contains("xile")) {
-                chooseNamed(started, "card12-delve-" + step, "Memnite", 6);
+            if ("mana_payment".equals(cls)) {
+                JsonObject delve = null;
+                boolean islandOffered = false;
+                for (JsonElement element : started.session().legalActionsPayload()
+                        .getAsJsonArray("actions")) {
+                    JsonObject meta = element.getAsJsonObject().getAsJsonObject("metadata");
+                    String type = meta.get("option_type").getAsString();
+                    String label = meta.get("label").getAsString();
+                    if (("mana_ability".equals(type) && label.equals(ISLAND_LABEL))
+                            || "mana_pool".equals(type)) {
+                        islandOffered = true;
+                    }
+                    if ("special_mana_action".equals(type) && label.contains("Delve")) {
+                        assertTrue(delve == null, "unique delve action expected");
+                        delve = element.getAsJsonObject();
+                    }
+                }
+                if (islandOffered) {
+                    return payOneFromRestoredMana(started, "card12-pay-" + step,
+                            List.of("Island"), java.util.Set.of(ISLAND_LABEL));
+                }
+                assertNotNull(delve, "delve must be engine-offered once only {6} remains: "
+                        + started.session().legalActionsPayload().getAsJsonArray("actions"));
+                submit(started, "card12-delve-action-" + step, delve);
+                delved[0] = true;
+                return true;
+            }
+            if (("choose_object".equals(cls) || "target".equals(cls))
+                    && started.session().legalActionsPayload().getAsJsonArray("actions")
+                            .toString().contains("Memnite")) {
+                // Delve's exile choice, one card per request: the graveyard
+                // holds exactly six Memnites and {6} is owed, so six picks.
+                if (delvePicks[0] < 6) {
+                    chooseNamed(started, "card12-delve-" + step, "Memnite", 1);
+                    delvePicks[0]++;
+                } else {
+                    chooseNone(started, "card12-delve-done-" + step);
+                }
                 return true;
             }
             if ("choose_object".equals(cls) || "target".equals(cls)) {
                 // The top seven are all Mountains: every pick is equivalent.
-                chooseNamed(started, "card12-pick-" + step, "Mountain", 2);
+                // The engine asks one card at a time.
+                JsonObject pending = started.session().pendingDecisionPayload()
+                        .getAsJsonObject("decision");
+                chooseNamed(started, "card12-pick-" + step, "Mountain",
+                        Math.max(1, pending.get("minimum_selections").getAsInt()));
                 return true;
             }
             if ("choose_use".equals(cls) && text.toLowerCase().contains("delve")) {
@@ -1565,6 +1877,7 @@ class XmageActualCardCorpusTest {
             return false;
         });
 
+        assertTrue(delved[0], "delve was chosen as an engine-offered special mana action");
         long exiledMemnites = started.session().restorationGame().getExile()
                 .getAllCards(started.session().restorationGame()).stream()
                 .filter(card -> "Memnite".equals(card.getName())).count();
@@ -1583,10 +1896,6 @@ class XmageActualCardCorpusTest {
      * Bears.
      */
     @Test
-    @org.junit.jupiter.api.Disabled("UNKNOWN: the divided-damage target_amount decision "
-            + "(\"Select targets (selected 0 of 4) (damage)\") ended the game when answered with "
-            + "a single-target selection; the lane's accepted response shape for divided damage "
-            + "is not yet established. Not a Rules claim either way.")
     void magmaOpusDividesFourTapsTwoMakesAFourFourAndDrawsTwo() {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(battlefield("P1", "Island", 0));
@@ -1600,6 +1909,7 @@ class XmageActualCardCorpusTest {
         submit(started, "card09-cast",
                 singleOffer(offers(started, "Magma Opus", "Cast Magma Opus", true), "Magma Opus cast"));
         int[] targetRounds = {0};
+        int[] tapPicks = {0};
         resolveAll(started, "card09", null, (cls, step) -> {
             if ("mana_payment".equals(cls)) {
                 return payOneFromRestoredMana(started, "card09-pay-" + step,
@@ -1608,14 +1918,30 @@ class XmageActualCardCorpusTest {
             }
             String text = prompt(started).toLowerCase();
             if ("target".equals(cls) && text.contains("tap")) {
-                chooseNamed(started, "card09-tap-" + step, "Grizzly Bears", 2);
+                // "Tap two target permanents": P2's two Bears, by engine identity.
+                List<String> bears = new ArrayList<>();
+                for (Permanent permanent : started.session().restorationGame()
+                        .getBattlefield().getAllPermanents()) {
+                    if ("Grizzly Bears".equals(permanent.getName())) {
+                        bears.add(permanent.getId().toString());
+                    }
+                }
+                int max = started.session().pendingDecisionPayload().getAsJsonObject("decision")
+                        .get("maximum_selections").getAsInt();
+                chooseByObjectIds(started, "card09-tap-" + step,
+                        max >= 2 ? bears : List.of(bears.get(tapPicks[0]++)));
                 return true;
             }
             if ("target_amount".equals(cls) && targetRounds[0] == 0) {
-                // Divided damage: all 4 at P2 (one target receives all).
-                chooseByObjectIds(started, "card09-dmg-" + step,
-                        List.of(started.seats().get("P2").getId().toString()));
+                // Divided damage: the target and its share are one response
+                // (options + numeric). All 4 at P2.
+                submitTargetAmount(started, "card09-dmg-" + step,
+                        started.seats().get("P2").getId().toString(), 4);
                 targetRounds[0]++;
+                return true;
+            }
+            if ("target_amount".equals(cls)) {
+                chooseNone(started, "card09-dmg-done-" + step);
                 return true;
             }
             return false;

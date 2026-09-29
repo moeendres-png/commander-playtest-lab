@@ -66,3 +66,13 @@ Obsolete worktree: `/home/moeen/code/claude-xmage-2p-draw-skip-20260929`; its br
 ## Exact next action
 
 Merge this branch after green CI. Then adjudicate F-11 before any Forge PB-07 or Forge #6 credit. Then land #300 and requalify the XMage 2P rows.
+
+## Addendum — branch `claude/xmage-special-mana-actions-20260929` (after #305)
+
+- **F-12 fixed (production bridge change, full-game lane).** `XmageFullGamePlayer.playMana` now projects the engine-authored special mana actions (delve, convoke, improvise), as XMage's human player does. `XmageFullGameActionProjection` maps `special_mana_action` to `pay_cost`, and its projection test pins that.
+  - Impact: this adds payment options only where the engine offers them. Pilots of already-qualified games with no delve/convoke/improvise cards see no difference, so evidence for those runs is NON_IMPACTING. Any lane evidence involving such cards needs re-execution.
+- **F-14 resolved.** Divided damage needs target plus amount in one response; Magma Opus passes.
+- **XMage corpus: all 29 cards now have native, Oracle- and ruling-derived runtime probes.** 28 are in `XmageActualCardCorpusTest`, including CARD_04 Kediss (a 3-player multi-turn commander attack) and CARD_29 Boseiju (all three saga chapters and the transform). CARD_02 is covered by its older native tests. This is native technical evidence only; FULL107/AF07 credit remains Sol's evidence-policy decision.
+- **Fixture correction:** a basic Forest has green colour identity, so Boseiju uses the partner Tana, the Bloodsower (R/G). The helper comment that claimed Forests are colourless was wrong and is fixed.
+- **F-13 withdrawn:** my test assumed the wrong commander type (Rograkh is a Kobold Warrior). XMage handles Path of Ancestry correctly in both directions.
+- Validation: engine-bridge suite 419 run, 0 failures, 1 skipped (START-2 v1.0.5 provenance only); corpus class 32/32.

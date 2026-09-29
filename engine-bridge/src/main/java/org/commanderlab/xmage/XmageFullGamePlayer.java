@@ -708,6 +708,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
             ));
             byId.put(optionId, manaAbility);
         }
+        // Engine-authored special mana actions for this payment (delve,
+        // convoke, improvise, ...): the same set XMage's own human player
+        // offers during payment (HumanPlayer.playManaHandling ->
+        // activateSpecialAction(game, unpaid)). Omitting them made those
+        // payments unreachable for an external pilot.
+        Map<UUID, mage.abilities.SpecialAction> specialManaActions =
+                game.getState().getSpecialActions().getControlledBy(getId(), true);
+        specialManaActions.values().stream()
+                .sorted(Comparator.comparing(this::abilitySortKey))
+                .forEach(specialAction -> {
+                    String optionId = abilityOptionId("mana-special", specialAction);
+                    options.add(XmageFullGameDecisionController.option(
+                            optionId,
+                            abilityLabel(specialAction, game),
+                            "special_mana_action",
+                            abilityMetadata(specialAction, game)
+                    ));
+                    byId.put(optionId, specialAction);
+                });
         JsonObject context = new JsonObject();
         context.addProperty("unpaid_mana", unpaid == null ? "" : unpaid.getText());
         String selected = requireSingle(request(
