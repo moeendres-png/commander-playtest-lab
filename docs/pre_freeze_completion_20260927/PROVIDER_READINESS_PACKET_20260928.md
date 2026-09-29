@@ -41,6 +41,42 @@ on every run and refuses credit if any differ.
 
 ---
 
+## 1b. Published candidate heads newer than the consumed evidence
+
+Two Forge pull requests are published against the head the committed evidence
+consumed. Neither is merged, and **no committed Forge artifact is valid for
+either**. This is recorded rather than acted on, because requalifying them
+would mean mutating a candidate this workstream does not own.
+
+| Candidate head | State | Touches | Effect on committed Forge evidence |
+|---|---|---|---|
+| `6f70e32e` (PR #6) | **OPEN draft**, 42 files, +13142/-19 | production Rules Core `forge-game/.../card/Card.java` (+24/-0, `getAllPossibleAbilities` aftermath surfacing) **and** `forge-protocol2-bridge/` | **STALE.** Committed Forge artifacts consumed Rules Core `ef958ee9` + bridge `e15f37d6`. |
+| `e15f37d6` (PR #5) | OPEN draft, consumed by current evidence | `forge-protocol2-bridge/` only | Current; this is the head the evidence ran against. |
+
+Consequences that follow directly, and are **not** decisions this workstream
+made:
+
+* **Nothing transfers from PR #5 evidence to PR #6.** PR #6 rewrites the Rules
+  Core, and the Rules Core is the sole authority for legal actions. Relabelling
+  a run with the newer head would be a silent false credit: the JSON stays
+  well-formed, the row outcomes do not move, and the denominators still add up.
+* **Split/fuse aftermath semantics need fresh adjudication.** `Card.java` changes
+  exactly the ability-discovery path that governs the aftermath half of split
+  cards, so `Find // Finality`, `Wear // Tear` and `Boseiju Reaches Skyward //
+  Branch of Boseiju` are directly affected. PR #6's own packet records
+  `Find // Finality` as `RUNTIME_QUALIFIED_FRONT_PLUS_ENGINE_GAP` and declares
+  `global_verdict: PARTIAL (Forge-side preparation only; PB-07 global closure
+  NOT claimed)`. That declaration is the donor's, not a Lab adjudication.
+* **Generated evidence must be regenerated at the actually consumed head.** The
+  `PROVIDER_EVIDENCE_BINDING.json` artifact records this mechanically: both
+  Forge artifacts are `STALE_FOR_PUBLISHED_HEAD`, both XMage artifacts remain
+  `BOUND_TO_CONSUMED_HEAD`. AF07 names the head it is bound to rather than
+  presenting itself as candidate-neutral.
+* Forge PR #6 is not mutated here. It is owned elsewhere and remains open.
+
+`PROVIDER_EVIDENCE_BINDING.json` performs the same check on every run, so a
+future relabelling attempt fails rather than passing quietly.
+
 ## 2. Runtime provenance
 
 Produced by `scripts/run_current_boundary_qualification.py` from a clean committed
@@ -291,7 +327,64 @@ The Forge-side ceiling recorded on Forge PR #5 is 28 runtime-qualified with one
 documented engine gap, `Find // Finality` (the Aftermath back-half legal ability
 discovery). That 28/29 is Forge-local and is **not** consumed as Lab credit here.
 
-### 6.5 Both denominators are shaped by Lab work
+### 6.5 The 29-card corpus is largely outside the 107-row denominator
+
+Structural finding (`CODE_DERIVED`). `COMMON_FIXTURE_MANIFEST_v1` defines 29
+`CARD_nn` fixtures and all 29 carry a `card_identity`, but only **`CARD_02`** is
+present in the 107-row denominator. `CARD_01` and `CARD_03`..`CARD_29` are
+manifest fixtures that are not rows.
+
+This is why `ACTUAL_CARD_*.json` reports `card_fixtures: 29` with
+`card_fixtures_passed: 0` and `behaviorally_executed_count: 0`: AF07 is scored
+against fixtures that the current denominator cannot execute. The corpus gap is
+therefore partly a **denominator/accounting** question and not only a missing
+engine harness.
+
+Not resolved here, deliberately. The `CARD_` mapping, execution dispatch and
+corpus accounting all live in `scripts/run_current_boundary_qualification.py`,
+and the native `CARD` harnesses in `engine-bridge/.../XmageFullGameCard02ExecutionTest.java`
+and `XmageNativeStateRestorationTest.java` — all under PR #284's active writer
+lock. Separately, *whether* the denominator should be widened to carry all 29
+fixtures, or AF07 satisfied by a separate corpus artifact, is an evidence-policy
+decision reserved to the Coordinator, not a Lab change.
+
+### 6.6 Per-obligation dispositions replaced two blanket UNKNOWN families
+
+Two families were recorded with a single reason that was too coarse to act on.
+Each obligation is now classified individually against the live observations,
+persisted as `PB06_HIDDEN_OBLIGATIONS_<CAND>.json` and
+`PB08_REPLAY_OBLIGATIONS_<CAND>.json`, and surfaced in AF05 and AF09.
+
+| Family | XMage | Forge | What the disposition records |
+|---|---|---|---|
+| PB-06 hidden info | 2 satisfied, 18 unestablished | 1 satisfied, 19 unestablished | `HIDDEN_01` (opponent hand identities absent, count visible) and `HIDDEN_02` (library identities/order absent, count visible) are stated purely over the principal-scoped state view the generic lane does expose, and the live observations satisfy them. |
+| PB-08 replay/RNG | 0 preconditions, 5 unestablished | 1 precondition, 4 unestablished | Forge acknowledges the requested seed `424242`; XMage does not. Both candidates **refuse** the semantic replay export. |
+
+The Forge/XMage split on `HIDDEN_02` is a real difference, not a gap in the
+evidence: Forge's projection returns no library **count**, so identity absence
+is unproven rather than assumed. A missing count is treated as unproven, never
+as safe.
+
+Boundaries these dispositions do not cross:
+
+* No obligation is credited from a different obligation's evidence. `HIDDEN_04`
+  (face-down permanent) is not satisfied by observing masked opponent hands.
+* Uncredible principal scoping credits nothing, so one principal's correct
+  scoping cannot launder an unscoped projection.
+* A fail-closed export refusal is an absent capability, never a satisfied
+  obligation.
+* An acknowledged seed is a **precondition** for RNG control, not a demonstrated
+  `RulesRngTape`, so the obligation stays unestablished.
+* **No disposition flips a FULL107 row.** Row outcomes belong to
+  `run_current_boundary_qualification.py` under PR #284's active writer lock, so
+  these classify only; the owner can consume them without a second
+  implementation. AF05 and AF09 both stay `UNKNOWN`.
+
+One false claim was removed while doing this: AF09 previously read "replay
+export **executed** in a live game" when the artifact records that the engine
+**refused** it. The line now states the attempt was refused.
+
+### 6.7 Both denominators are shaped by Lab work
 
 PB-03 showed the XMage column is shaped by a Lab harness shortcut; PB-09 shows the
 Forge column is shaped by Lab engine modification. Neither column is a clean
@@ -307,10 +400,12 @@ artifact is the Forge candidate is a Coordinator provider decision.
 | PB-03 starting-state classification | both | **RESOLVED** (mechanism); block attribution now per candidate | mechanism-based classifier, split measured exact against the effective materialization, no fixture-id prefix, 107-row denominator preserved. Block attribution reads each candidate's own declared capability: Forge declares the seam, so its 44 rows are a Lab execution-path gap, not a Forge capability gap |
 | PB-05 build provenance | forge | **RESOLVED** | Forge PR #5 (continuing the PR #4 repair) removes the fail-open paths; `verify_pb05_provenance` consumes build commit/tree/dirty/source/verified independently of the provider's self-assessment; Forge AF00 `PASS` |
 | PB-06 per-scenario hidden channels | both | **SPLIT: Forge RESOLVED on this boundary; XMage historical** | Forge now marks the observing principal (`observer_player_id` + exactly one `players[].is_actor`); `HIDDEN_INFO_FORGE.json` is `PRINCIPAL_SCOPED`, attribution `NONE`, four established requesters, and the distinctness comparison is content-only. The committed XMage artifact remains the pre-#283 demonstrated leak; PR #283 carries the XMage remediation and its own exact-head runtime verification, and this workstream does not re-run it. Per-scenario channels remain unexecuted (§6.2) |
-| PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4) |
-| PB-08 clean-process replay twin | both | **SPLIT: Forge seed acknowledgement RESOLVED; twin rows BLOCKED** | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge now acknowledges the accepted seed from engine state in the creation transaction (`ACKNOWLEDGED_ENGINE_SEED`, `rng_credit: true`); the clean-process twin half per fixture remains unproven and is what keeps AF09 `UNKNOWN` |
-| PB-09 Forge candidate identity | coordinator | **OPEN — RESERVED** | which artifact is the candidate: pinned upstream `a37a865a` or the Lab fork `ef958ee9`. Not a coding question |
+| PB-07 effective 29-card corpus | both | **BLOCKED** | 12 declared of 29 required, `CARD_02` `UNKNOWN`. Completion is derived from behaviourally executed cards, so naming 29 cards cannot advertise a complete corpus (§6.4). Additionally **28 of the 29 mandatory `CARD_nn` fixtures are not rows in the 107 denominator at all** (§6.5), so AF07 is partly a denominator-accounting question; the execution dispatch is under PR #284's active writer lock |
+| PB-08 clean-process replay twin | both | **SPLIT: Forge seed acknowledgement RESOLVED; twin rows BLOCKED** | XMage is fully uncontrolled, so a same-seed twin proves nothing. Forge now acknowledges the accepted seed from engine state in the creation transaction (`ACKNOWLEDGED_ENGINE_SEED`, `rng_credit: true`); the clean-process twin half per fixture remains unproven and is what keeps AF09 `UNKNOWN`. Per-obligation: Forge observes 1 precondition and 4 unestablished, XMage 0 and 5; **both candidates refuse the semantic replay export**, so the four `REPLAY_*` obligations need that seam on either side (§6.6) |
+| PB-09 Forge candidate identity | coordinator | **RESOLVED — IDENTITY SPLIT** | resolved as an identity split: the production candidate is the Lab fork `ef958ee9` (tree `fc3387bf`), and upstream `a37a865a` is retained for attribution and control only. The four Forge commits are kept distinct and no result is transferred between them (§1) |
 | Aftermath `Find // Finality` | forge | **NON_BLOCKING_CAPABILITY_GAP** | not decision- or release-blocking on current evidence; recorded, no engine mutation opened |
+| Forge PR #6 supersedes consumed evidence | forge | **STALE — REQUALIFICATION REQUIRED** | PR #6 (`6f70e32e`, OPEN draft) rewrites the production Rules Core `forge-game/.../card/Card.java` and the bridge. Committed Forge artifacts consumed Rules Core `ef958ee9` + bridge `e15f37d6`, so **nothing transfers**; split/fuse aftermath semantics are directly affected. Enforced by `PROVIDER_EVIDENCE_BINDING.json` (§1b) |
+| PB-03 Tier-1/Tier-2 behaviour credit | xmage | **WAIT_FOR_OWNER / #284** | `main` merged PR #291, which landed the Muse PB-03 dimension-admission discriminator (reused, not reimplemented). The Tier-1/Tier-2 behaviour credit stays blocked by a P1 in the shared mana helper that `main` documents and does **not** claim as passed. No co-edit with #284 |
 
 ---
 

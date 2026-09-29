@@ -202,7 +202,12 @@ def test_packet_states_the_pb_classifications() -> None:
     ):
         assert marker in TEXT, marker
     assert "RESOLVED" in TEXT
-    assert "OPEN — RESERVED" in TEXT or "OPEN - RESERVED" in TEXT
+    # PB-09 was OPEN — RESERVED while it was an open Coordinator question. It is
+    # now resolved as an identity split: the production candidate is the Lab fork
+    # ef958ee9 and upstream a37a865a is attribution/control only. The test pins
+    # the resolution, not the historical staleness.
+    assert "RESOLVED — IDENTITY SPLIT" in TEXT or "RESOLVED - IDENTITY SPLIT" in TEXT
+    assert "OPEN — RESERVED" not in TEXT, "PB-09 is resolved and must not still read as open"
 
 
 def test_seed_position_is_reported_per_candidate() -> None:
