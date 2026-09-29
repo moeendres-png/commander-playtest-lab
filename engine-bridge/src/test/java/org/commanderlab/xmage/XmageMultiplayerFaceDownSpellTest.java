@@ -98,6 +98,66 @@ class XmageMultiplayerFaceDownSpellTest {
         fail("the stack did not resolve");
     }
 
+    /**
+     * The resolved face-down permanent (CR 708.5): P1 is shown which card it
+     * is; no other principal and not the public view.
+     */
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {4, 5})
+    void aFaceDownPermanentIsIdentifiedOnlyToItsController(int playerCount) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Exalted Angel", 0, Zone.HAND));
+        for (int i = 1; i <= 3; i++) {
+            objects.add(XmageMultiplayerScenario.obj("P1", "Mountain", i, Zone.BATTLEFIELD));
+        }
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("morph-bf-" + playerCount + "p",
+                playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
+        s.submit(s.action("activate_ability", "using Morph"));
+        for (int i = 0; i < 20 && !faceDownOnBattlefield(game); i++) {
+            if ("mana_payment".equals(s.decisionClass())) {
+                s.payWith("Mountain");
+            } else {
+                s.submit(s.action("pass_priority", "Pass"));
+            }
+        }
+        assertTrue(faceDownOnBattlefield(game), "the morph resolved face down");
+        int p1Seat = XmageFullGameStateRedactor.seat(game, s.seats.get("P1").getId());
+        for (String pid : s.seats.keySet()) {
+            JsonObject view = XmageFullGameStateRedactor.actorView(game, s.seats.get(pid));
+            JsonObject permanent = faceDownPermanent(view, p1Seat);
+            if ("P1".equals(pid)) {
+                assertEquals("Exalted Angel", permanent.get("private_identity").getAsString(),
+                        "P1 may look at its face-down permanent");
+            } else {
+                assertFalse(permanent.has("private_identity"), pid + " must not learn the face-down card");
+                assertFalse(view.toString().contains("Exalted Angel"), pid + " must not learn it anywhere");
+            }
+        }
+        assertFalse(XmageFullGameStateRedactor.publicView(game).toString().contains("Exalted Angel"),
+                "the public view carries no face-down identity");
+    }
+
+    private static boolean faceDownOnBattlefield(Game game) {
+        return game.getBattlefield().getAllActivePermanents().stream().anyMatch(p -> p.isFaceDown(game));
+    }
+
+    private static JsonObject faceDownPermanent(JsonObject view, int seat) {
+        for (JsonElement e : view.getAsJsonArray("players")) {
+            JsonObject p = e.getAsJsonObject();
+            if (p.get("seat").getAsInt() != seat) {
+                continue;
+            }
+            for (JsonElement b : p.getAsJsonArray("battlefield")) {
+                if (b.getAsJsonObject().get("face_down").getAsBoolean()) {
+                    return b.getAsJsonObject();
+                }
+            }
+        }
+        fail("no face-down permanent for seat " + seat);
+        return null;
+    }
+
     private static JsonObject faceDownItem(JsonObject view) {
         for (JsonElement e : view.getAsJsonArray("stack")) {
             if (e.getAsJsonObject().has("face_down")) {

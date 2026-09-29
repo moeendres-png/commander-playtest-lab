@@ -34,3 +34,11 @@ Once the spell resolves, the face-down permanent has an empty engine name, so th
 - P2's Counterspell targets the spell by its "Face-down spell" option and counters it.
 
 Results: 2/2 red before the fix, 2/2 green after. Full bridge suite: 694 run, 0 failures.
+
+## Follow-up: the resolved face-down permanent
+
+Once the morph resolves, its controller may still look at it (CR 708.5).
+
+- **Bug:** `private_identity` came only from the registry used for restored face-down permanents. A controller who cast a morph in-game was never told which card it is.
+- **Fix:** the identity now falls back to the engine's own card behind the permanent. It is shown to the controller, to the controller of that player's turn (CR 723.4), and to anyone the engine grants `LOOK_AT_FACE_DOWN`. A face-down token has no hidden card, so it shows nothing. `publicView` still strips `private_identity`.
+- **Test:** `aFaceDownPermanentIsIdentifiedOnlyToItsController` (4P/5P) fails before the fix and passes after. It checks that P1 is shown "Exalted Angel" and that no other view, and not the public view, contains it.

@@ -257,14 +257,25 @@ final class XmageFullGameStateRedactor {
     }
 
     private static String restoredFaceDownIdentity(Game game, Permanent permanent, Player viewer) {
-        if (game == null || permanent == null || viewer == null
-                || !permanent.isFaceDown(game)
-                || !canViewPrivateStateFor(game, viewer, permanent.getControllerId())) {
+        if (game == null || permanent == null || viewer == null || !permanent.isFaceDown(game)) {
+            return null;
+        }
+        // F-30: the controller may look at its face-down permanent (CR 708.5),
+        // as may its turn controller (CR 723.4) and anyone the engine grants
+        // LOOK_AT_FACE_DOWN. A face-down token has no hidden card.
+        Card card = game.getCard(permanent.getId());
+        boolean entitled = canViewPrivateStateFor(game, viewer, permanent.getControllerId())
+                || (card != null && mayLookAtFaceDown(game, viewer, card));
+        if (!entitled) {
             return null;
         }
         Map<UUID, String> byPermanent =
                 RESTORED_FACE_DOWN_IDENTITIES.get(game.getId().toString());
-        return byPermanent == null ? null : byPermanent.get(permanent.getId());
+        String restored = byPermanent == null ? null : byPermanent.get(permanent.getId());
+        if (restored != null) {
+            return restored;
+        }
+        return card == null || card.getName().isEmpty() ? null : card.getName();
     }
 
     private static boolean hasZoneFullLook(Game game, Player viewer, Player owner) {
