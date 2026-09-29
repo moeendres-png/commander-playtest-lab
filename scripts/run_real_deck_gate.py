@@ -32,7 +32,7 @@ from commander_lab.models import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "4277b90b4ee49acd945e82335a9a04c4536f5340"
+XMAGE_COMMIT = "9cb5fb9e9558f980da81c85ca3fdc595161c8d34"
 GATE_LABEL = "REAL_CARD_TECHNICAL_USABILITY_GATE"
 
 # Seat plan: two verified decks, each fielded twice (only two distinct
