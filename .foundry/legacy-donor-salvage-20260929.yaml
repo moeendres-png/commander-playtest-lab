@@ -38,6 +38,8 @@ owned_files:
 - scripts/assemble_current_boundary_evidence.py
 - tests/qualification/test_current_boundary_receipts.py
 - tests/qualification/test_current_boundary_assembler_integrity.py
+- src/commander_lab/qualification/current_boundary/shortcut_campaign.py
+- tests/qualification/test_current_boundary_shortcut_campaign.py
 forbidden_files:
 - midgame PB-03 implementation / dimension admission / PB-03 receipt binding / runner assembler semantics
 - Mulligan / START-2 donor fc801c97118c6eed86f72105f5a4900a1094d0bb
@@ -67,6 +69,9 @@ rejected_units:
 - id: 289-B
   disposition: IMPLEMENTED
   note: hard-coded AF11 FAIL replaced with _af11_measure (distinct external adapters, no embedded engine, recorded boundary, licence metadata as fact; FAIL only on violated technical fact, else UNKNOWN with Coordinator-owned policy residual); 5 new behavioral tests including freeze-still-blocked guard; committed AF00_AF11 JSONs left untouched as historical executed-run records
+- id: 289-C
+  disposition: IMPLEMENTED
+  note: seam-specific negative campaign ported against production validate_action_proposal (7 obligations, positive control, stated narrow scope NO_FORBIDDEN_SHORTCUT_OBSERVED_ON_THIS_EXERCISED_SEAM); assembler wiring deliberately not added (no new evidence packet surface without a qualification run); 16 tests green with distinct per-case rejection reasons
 tests_run:
 - tests/architecture/test_engine_runtime_state_isolation.py: 7 passed (fail-before ImportError proven)
 - tests/foundry/test_launcher.py: 99 passed (2 new fail-before failures proven, then green)
@@ -77,6 +82,7 @@ tests_run:
 - tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed (7 new stale-identity tests)
 - tests/qualification/test_wsr22_current_boundary.py + test_wsr24_freeze_readiness.py + test_current_boundary_readiness_packet.py: 59 passed
 - full tests/qualification/: 388 passed, 5 skipped (pre-existing skips)
+- shortcut campaign: 16 passed (fail-before ModuleNotFoundError proven; per-case rejection reasons distinct)
 - live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
 - ruff check on all touched files: clean
 - ruff format --check on all touched files: clean
@@ -115,8 +121,12 @@ drift_checks:
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
   delta_since_last: none
   verdict: NO_DRIFT safe to commit 289-B milestone
+- time_utc: '2026-09-29T18:00:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-C milestone
 unknowns: []
 blockers: []
-next_action: adjudicate 289-C (forbidden-shortcut seam campaign) — inspect donor shortcut_campaign.py vs current validation seam
+next_action: adjudicate 289-D (replay/RNG classification) — check current AF09/RNG_REPLAY semantics for the generic distinction
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
