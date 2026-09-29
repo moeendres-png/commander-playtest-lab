@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *   <li>Now: every opponent is asked exactly once, through the external
  *       surface. Every search is honoured, and the caster searches once more per
  *       opponent who searched.</li>
- *   <li><b>F-20</b> (engine, pinned and upstream): the opponents should be asked
+ *   <li><b>F-21</b> (tracker #328, engine fix moeendres-png/mage#22; pinned and upstream): the opponents should be asked
  *       in APNAP order (101.4), i.e. P(N−1), …, P1 from the active caster.
  *       {@code Game.getOpponents()} iterates the turn-order list from its
  *       <i>current pointer</i>, not from the active player, so at 4P the order
@@ -63,7 +63,7 @@ class XmageMultiplayerTemptingOfferTest {
                 "the caster searched once, plus once per opponent who searched");
     }
 
-    @Disabled("F-20: Game.getOpponents iterates from the turn-order list's current pointer, not APNAP")
+    @Disabled("F-21 (#328): Game.getOpponents iterates from the turn-order list's current pointer, not APNAP")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void opponentsAreOfferedInApnapOrder(int playerCount) {
