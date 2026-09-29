@@ -36,7 +36,6 @@ import os
 import re
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -454,86 +453,6 @@ def native_suite_credit(
 # --------------------------------------------------------------------------- #
 
 
-def positive_fixture_receipts_from_junit_xml(
-    path: Path,
-    *,
-    candidate: str,
-    candidate_commit: str,
-    class_name: str,
-    cases: dict[str, tuple[str, str, str]],
-) -> tuple[dict[str, Any], ...]:
-    """Derive child receipts only from exact passing JUnit testcases.
-
-    A class or method name is routing metadata, never credit by itself.
-    """
-    try:
-        root = ET.parse(path).getroot()
-    except (OSError, ET.ParseError):
-        return ()
-
-    observed: dict[str, ET.Element] = {}
-    for testcase in root.iter("testcase"):
-        name = str(testcase.attrib.get("name") or "")
-        classname = str(testcase.attrib.get("classname") or "")
-        if classname != class_name and not classname.endswith("." + class_name):
-            continue
-        observed[name] = testcase
-
-    rows: list[dict[str, Any]] = []
-    for method, (fixture_id, obligation, assertion) in sorted(cases.items()):
-        testcase = observed.get(method)
-        if testcase is None:
-            continue
-        if any(testcase.find(tag) is not None for tag in ("failure", "error", "skipped")):
-            continue
-        rows.append(
-            {
-                "schema_version": POSITIVE_FIXTURE_RECEIPT_SCHEMA,
-                "candidate": candidate,
-                "candidate_commit": candidate_commit,
-                "fixture_id": fixture_id,
-                "test_identity": f"{class_name}.{method}",
-                "outcome": "PASS",
-                "assertion_kind": "POSITIVE_BEHAVIOUR",
-                "obligation_exercised": obligation,
-                "observed_assertion": assertion,
-            }
-        )
-    return tuple(rows)
-
-
-def _positive_fixture_rows(receipts: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Flatten child receipts only from digest-valid, all-green native envelopes."""
-    rows: list[dict[str, Any]] = []
-    for doc in receipts:
-        schema = doc.get("schema_version")
-        if schema == POSITIVE_FIXTURE_RECEIPT_SCHEMA:
-            rows.append(doc)
-            continue
-        if schema != NATIVE_SUITE_RECEIPT_SCHEMA:
-            continue
-        stated = doc.get("receipt_digest")
-        if not isinstance(stated, str) or not stated:
-            continue
-        recomputed = {key: value for key, value in doc.items() if key != "receipt_digest"}
-        if _digest(recomputed) != stated:
-            continue
-        if doc.get("returncode") != 0 or doc.get("failed") or doc.get("errors"):
-            continue
-        nested = doc.get("positive_fixtures")
-        if not isinstance(nested, list):
-            continue
-        for row in nested:
-            if not isinstance(row, dict):
-                continue
-            if row.get("candidate") != doc.get("candidate"):
-                continue
-            if row.get("candidate_commit") != doc.get("candidate_commit"):
-                continue
-            rows.append(row)
-    return rows
-
-
 def positive_fixture_credit(
     receipts: list[dict[str, Any]],
     *,
@@ -541,9 +460,15 @@ def positive_fixture_credit(
     expected_commit: str,
     denominator: set[str],
 ) -> dict[str, list[str]]:
-    """Fixture -> exact positive test identities from verified runtime receipts."""
+    """Fixture -> test identities, from positive observations only.
+
+    A fixture earns native-test credit only when a positive receipt states the
+    fixture, the test, the candidate head, the obligation exercised, the observed
+    assertion, and PASS. A negative assertion, a bare mention, a stale head or a
+    missing observation yields nothing.
+    """
     out: dict[str, list[str]] = {}
-    for doc in _positive_fixture_rows(receipts):
+    for doc in receipts:
         if doc.get("schema_version") != POSITIVE_FIXTURE_RECEIPT_SCHEMA:
             continue
         if doc.get("candidate") != candidate:
@@ -552,17 +477,17 @@ def positive_fixture_credit(
             continue
         if doc.get("outcome") != "PASS":
             continue
+        observation = doc.get("observed_assertion")
+        if not observation:
+            # A PASS with no observed assertion is construction/import evidence
+            # at best, never behaviour evidence.
+            continue
         if doc.get("assertion_kind") != "POSITIVE_BEHAVIOUR":
             continue
-        fixture = str(doc.get("fixture_id", "")).strip()
-        test_identity = str(doc.get("test_identity", "")).strip()
-        obligation = str(doc.get("obligation_exercised", "")).strip()
-        assertion = str(doc.get("observed_assertion", "")).strip()
+        fixture = str(doc.get("fixture_id", ""))
         if fixture not in denominator:
             continue
-        if not test_identity or not obligation or not assertion:
-            continue
-        out.setdefault(fixture, []).append(test_identity)
+        out.setdefault(fixture, []).append(str(doc.get("test_identity", "")))
     return {fixture: sorted(set(names)) for fixture, names in sorted(out.items())}
 
 
@@ -706,7 +631,6 @@ __all__ = [
     "parse_maven_summary",
     "persist",
     "positive_fixture_credit",
-    "positive_fixture_receipts_from_junit_xml",
     "require_clean_runner",
     "verify_candidate_identity",
     "verify_engine_identity",
