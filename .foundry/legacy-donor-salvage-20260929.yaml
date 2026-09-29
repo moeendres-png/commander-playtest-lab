@@ -1,0 +1,58 @@
+objective: LAB-LEGACY-DONOR-SALVAGE-20260929 bounded salvage of residual donor value from PR #284 and PR #289 onto fresh main successor
+source_lock:
+  observed_main_at_prompt: ba629cedc186ffbfac0cacee5cc959c7f6a5c07c
+  observed_main_tree_at_prompt: 82fe756934ca7f6bcb2cd0015c54d9abcad64d1d
+  fresh_main_at_worktree_creation: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  fresh_main_tree: 1a3c400aee3a29e6e661f5f6dedc509dd1749f73
+  lock_time_utc: '2026-09-29T16:00:00Z'
+  engine_pins:
+    primary_xmage_commit: f79e4168902e65063034b21be6f4585397fd43b3
+    authority_file: config/rules_engines.json
+observed_main_history:
+- sha: ba629cedc186ffbfac0cacee5cc959c7f6a5c07c
+  note: prompt-time context, superseded before first edit
+- sha: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  note: fresh origin/main at worktree creation; delta ba629ce..d40dda9f is XMage multiplayer lane only (10 files, java + evidence review docs), no overlap with salvage surfaces
+branch: integration/legacy-donor-salvage-20260929
+worktree: /home/moeen/code/lab-legacy-donor-salvage-20260929
+owned_files: []
+forbidden_files:
+- midgame PB-03 implementation / dimension admission / PB-03 receipt binding / runner assembler semantics
+- Mulligan / START-2 donor fc801c97118c6eed86f72105f5a4900a1094d0bb
+- PB-09 pristine-Forge baseline adjudication
+- moeendres-png/forge
+- moeendres-png/mage
+donor_heads:
+  pr284: 56a6629b415d9782be9b81a69834236a928228b5
+  pr289: 16e0ef194b7d200da7eb5e4208d606a44a4011b3
+  merge_base_284: ca9356e3da662ce9e246e7f896f1a99772d59065
+  merge_base_289: adee8b16a5c3f3807304c6718b83e11f86ab4c1c
+implemented_units: []
+rejected_units: []
+tests_run: []
+evidence: []
+drift_checks:
+- time_utc: '2026-09-29T16:00:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_prompt: XMage MP lane only, NO_RELEVANT_OVERLAP
+  open_prs_noted:
+  - 333
+  - 316
+  - 309
+  - 304
+  - 302
+  - 301
+  - 300
+  - 299
+  - 297
+  - 290
+  - 289
+  - 288
+  - 287
+  - 285
+  - 284
+unknowns: []
+blockers: []
+next_action: adjudicate 284-A and 284-B against current main, then 289-A through 289-D
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
