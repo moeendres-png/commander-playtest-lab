@@ -592,12 +592,25 @@ class ExternalRulesAdapter(RulesEngineAdapter):
         return GameState.model_validate(result.get("state", result))
 
     def resolve_mulligan(
-        self, game_id: str, *, player_id: str, keep: bool, bottom_card_ids: list[str] | None = None
+        self,
+        game_id: str,
+        *,
+        decision_id: str,
+        player_id: str,
+        keep: bool,
+        bottom_card_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         self._require_capability("mulligan_supported")
+        if not decision_id.strip():
+            raise RulesEngineProtocolError("resolve_mulligan requires a nonblank decision_id")
         return self._require_client().request(
             EngineMessageType.RESOLVE_MULLIGAN,
-            {"player_id": player_id, "keep": keep, "bottom_card_ids": bottom_card_ids or []},
+            {
+                "decision_id": decision_id,
+                "player_id": player_id,
+                "keep": keep,
+                "bottom_card_ids": bottom_card_ids or [],
+            },
             game_id=game_id,
         )
 
