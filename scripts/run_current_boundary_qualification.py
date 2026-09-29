@@ -62,7 +62,12 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     summarize,
 )
 
-OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
+OUT_DIR = Path(
+    os.environ.get(
+        "COMMANDER_LAB_OUT_DIR",
+        str(REPO_ROOT / "qualification" / "final-current-boundary-20260927"),
+    )
+)
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
