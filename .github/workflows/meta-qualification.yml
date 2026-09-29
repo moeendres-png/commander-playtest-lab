@@ -33,7 +33,7 @@ permissions:
 
 env:
   PYTHONHASHSEED: "0"
-  XMAGE_COMMIT: 4277b90b4ee49acd945e82335a9a04c4536f5340
+  XMAGE_COMMIT: 9cb5fb9e9558f980da81c85ca3fdc595161c8d34
 
 jobs:
   mutation-detection:
