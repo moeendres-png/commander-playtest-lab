@@ -39,17 +39,26 @@
     }
   ],
   "candidate_verification": {
-    "code_head": "4277b90b4ee49acd945e82335a9a04c4536f5340",
-    "ci_branch": "ci/xmage-f22-f23-v2-20260929",
-    "workflow_commit": "97868dcfa029dbd38dde2954dbb3076906ee39a0",
+    "engine_code_head": "4277b90b4ee49acd945e82335a9a04c4536f5340",
+    "verification_head": "cb7003fb44cea819ab0dc344f3340508cea30987",
+    "verification_delta": {
+      "classification": "TEST_HARNESS_ONLY",
+      "changed_files": [
+        "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/BattleProtectorLeaves4PTest.java"
+      ],
+      "production_engine_files_changed": 0,
+      "note": "Protector choices use the native TargetPlayer test-harness queue (addTarget) instead of the non-target choice queue."
+    },
+    "ci_branch": "ci/xmage-f22-f23-v3-20260929",
+    "workflow_commit": "c3fce437800b9f1b9bc0db5f8930d92cd7efa683",
     "workflow_only_delta": true,
-    "run_id": 36617667892,
+    "run_id": 36618905229,
     "required_jobs": [
       "targeted",
       "full-mage-tests"
     ],
     "evidence_record": "docs/workstream_xmage_f22_f23_successor_repin_20260929/CANDIDATE_RUNTIME_EVIDENCE.json",
-    "credit_rule": "No runtime credit unless the recorded run completes successfully on both required jobs."
+    "credit_rule": "Runtime credit requires both jobs to pass; the verification-head delta from the pinned engine commit must remain test-harness-only."
   },
   "rules_authority": {
     "source": "Wizards Comprehensive Rules, current official rules page",
