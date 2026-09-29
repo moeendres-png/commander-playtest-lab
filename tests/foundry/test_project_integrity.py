@@ -117,6 +117,9 @@ def test_inactive_executors_are_declared_inactive_in_canonical_docs():
         "docs/foundry-execution/ROUTING_AND_EFFORT.md",
         "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
         "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+        # The canonical Foundry index. It was left behind by the routing migration in
+        # PR #350 and nothing caught it, because the loop above did not cover it.
+        "docs/foundry-execution/README.md",
     ):
         text = (ROOT / rel).read_text()
         for phrase in (
@@ -129,6 +132,14 @@ def test_inactive_executors_are_declared_inactive_in_canonical_docs():
     agents = (ROOT / "AGENTS.md").read_text()
     assert "opencode-go/deepseek-v4.1-flash" in agents
     assert "Muse and GLM are inactive" in agents
+    # The index must name the current default executor positively, and must not still
+    # name the previous default as one. The phrase loop above does NOT match the
+    # wording the index actually used when PR #350 left it stale ("Space Bunny MAX
+    # default, Muse XHIGH alternate"), so without these two assertions the loop
+    # extension would be a false guarantee.
+    index = (ROOT / "docs/foundry-execution/README.md").read_text()
+    assert "DeepSeek MAX default" in index, "Foundry index omits the current default executor"
+    assert "Space Bunny MAX default" not in index, "Foundry index still names a retired default"
 
 
 def test_external_content_boundary_survives_policy_edits():

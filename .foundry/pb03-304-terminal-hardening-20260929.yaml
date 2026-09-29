@@ -1,0 +1,174 @@
+state_version: foundry-workstream-state/1.0.0
+workstream: PB03-304-TERMINAL-HARDENING
+workstream_id: pb03-304-terminal-hardening-20260929
+owner: single terminal hardening workstream for the #304 PB-03 midgame / production-reachable surface
+objective: >-
+  Finish the production-reachable PB-03/midgame transport surface to a terminal,
+  remotely preserved, exact-head validated state: principal-scoped, fail-closed,
+  causally honest, WS17-sealed.
+
+identity:
+  status: STOPPED_FOR_OWNERSHIP_HANDOVER
+  stopped_at: 2026-09-29 (ownership transferred to a successor owner by coordinator instruction)
+  worktree: /home/moeen/code/lab-pb03-remediation2-20260929
+  branch: pb03/304-remediation-on-dafe2ac6
+  head: 1b69c31f7958ec77df55ae72a9fb95fd19d424bc
+  tree: e5cc3e6a0ecf5df9b16869a60012a0395d842471
+  persisted_branch: donor/pb03-304-terminal-hardening-20260929
+  persisted_remote_head: 1b69c31f7958ec77df55ae72a9fb95fd19d424bc
+  persisted_local_equals_remote: true
+  earlier_pushed_commit_on_pr304: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+  pr304_remote_head: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+  pr304_modified_by_this_increment: false
+  main_untouched: true
+  main_at_stop: 92ac1cecd3a46628a77e9f58a4ddc46baffdf634
+  first_parent_chain: ["1b772706 (merge of main 83a547f7)", "dafe2ac6 (PR #304 causal completion)", "08d23aa4 (this remediation)"]
+  merge_base_vs_origin_main: 83a547f739cc1a7072798c55e10829032df8fe88
+  relationship_to_pr304_head: "dafe2ac6 is an ancestor of HEAD: clean continuation, no history rewrite"
+  origin_main_at_state_write: 29fd96d537c461e3c9258f01ec006160a107d324
+  coordinator_stated_main: 9d5b17af35dbb8bae83e8d698d8a29329532dc64 (main has advanced; not rebased on purpose)
+  remote_pr304_head_at_state_write: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c (this remediation, already pushed)
+  ahead_behind_vs_remote_pr304: "0 / 0"
+  unattributed_foreign_changes: none
+  attribution_note: >-
+    The 4 uncommitted files are this session's F1 (mismatch redaction) and F7
+    (causal gate + placement classifier) work. Verified line-by-line: every changed
+    line carries a remediation marker; no foreign symbol or unexplained content.
+
+preservation:
+  previous_worktree: /home/moeen/code/lab-pb03-remediation-20260929 (branch pb03/304-remediation-20260929, head e4edcd05)
+  preserved_foreign_work: /tmp/opencode/foreign-preserve (full file copies + FULL-UNCOMMITTED-DELTA.patch, hashed 1519 lines)
+  note: >-
+    The earlier worktree held concurrent-session content that was later committed by
+    that session as dafe2ac6. Nothing of it was destroyed or reverted by this
+    workstream; this branch was rebased onto it instead.
+
+f_dispositions:
+  F1_hidden_information:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    privileged_internal_readback: kept internal for the exact construction compare
+    pilot_facing: principal-scoped observation via the existing policy (own hand full, every other principal counts-only, no hand at all when unbound)
+    second_redactor_created: false
+    mismatch_diagnostics: hand card identities redacted for any principal other than the owner (this session, uncommitted)
+    digests: constructed_state_digest covers the redacted observation; digest scope published
+    honeycard_tests: present for the observation and the mismatch redactor; to be re-confirmed at final head
+  F2_negative_construction_verdict:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    arrival: strict JSON boolean + strict mismatch list; empty/missing/malformed/unknown fails closed as UNRECOGNIZED_CONSTRUCTION_VERDICT
+    causal: same strictness; non-boolean causal_match fails closed
+    placement: dedicated classifier that claims only the measured terminal obligation and no fabricated causal_match
+    layers_kept_distinguishable: transport / construction / causal / obligation
+  F3_timeout:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    mechanism: reuses the established bridge_launcher deadline-read shape (daemon thread + deadline, kill + reap)
+    competing_subsystem_created: false
+    regression: deterministic stalled-child test with a 1s deadline
+  F4_transport_classification:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    hierarchy: MidgameLaneTransportError / MidgameLaneTimeout / MidgameLaneProtocolError / MidgameLaneArrivalRejected under MidgameLaneError
+    mapping: single failure_verdict; non-lane exceptions refused
+    credit: transport/protocol/timeout grant zero credit and are not reported as accepted
+  F5_concession:
+    status: KEPT_AS_BOUNDED_SCHEMA_ALIGNMENT
+    justification: >-
+      The lane advertises concede_supported=true, so the endpoints are
+      production-reachable and a wrong request schema is a defect, not scope
+      expansion. get_concede_offer reads payload.player_id and submit_concede reads
+      payload.proposal, matching semantic_replay/consumer.py::_replay_concede.
+      Rules Core remains authoritative (Game.canConcede + native concede); no
+      outcome is injected.
+  F6_colorless_commander:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    root_cause: the lane threw UNSUPPORTED_COMMANDER_COLOR for a legal empty color identity
+    fix: scaffolding falls back to the colorless basic land (Wastes); engine import still decides legality
+    card_name_special_case_in_production: none
+  F7_causal_credit_gating:
+    status: IMPLEMENTED_PENDING_FINAL_VALIDATION
+    causal_stack_causal_elimination: gated on the engine's real arrival construction verdict (this session, uncommitted)
+    placement: no fabricated causal_match; dedicated classifier
+    wrong_reason_controls: to be added
+  F8_ws17_manifest:
+    status: REPAIRED_AT_08d23aa4_PENDING_RESEAL
+    cause: the midgame receipt was never registered in either manifest
+    repair: appended with its real digest to qualification/SHA256SUMS and WS17_SHA256SUMS, nested manifest re-hashed
+    test_weakened: false
+    exclusion_added: false
+    evidence_file_removed: false
+
+orthogonal_donors:
+  pr316: FROZEN_EVIDENCE_DONOR_ONLY_not_merged_not_modified_not_imported
+  muse_donor_fc801c97: FROZEN_not_integrated
+  pb03_runtime_execution_on_316: "bound JUnit execution only; not imported as semantic evidence"
+
+governance:
+  production_provider: NOT_SELECTED
+  architecture_freeze: NOT_CLAIMED
+  merge_to_main: forbidden
+  force_push: forbidden
+
+open_leak_vector_recorded:
+  item: pending_decision included unconditionally in the arrival response
+  code: XmageMidgameJsonlBridge.completeMidgameArrival -> response.add("pending_decision", requireSession().pendingDecisionPayload())
+  why_it_matters: >-
+    The decision frame is for whoever currently has priority. Its legal_options
+    labels can name that principal's hand cards ("cast_spell" labels carry the card
+    name), so a caller bound to a different principal can still learn the acting
+    principal's hand identity through this field. This is the same class as F1 and
+    it is NOT fixed.
+  suggested_repair: >-
+    Include pending_decision only when the requester resolves to the frame's acting
+    principal (compare the frame's decision.actor_id with the native principal id
+    at the requester's seat); otherwise omit it or return a neutral marker.
+
+validation_at_stop:
+  ran_and_green:
+    - "engine-bridge focused: XmageMidgameLaneTest 10/10, XmageMidgameCausalTest 25/25, XmageMidgameReviewRemediationTest 12/12 (47/47, BUILD SUCCESS)"
+    - "pytest tests/qualification/test_current_boundary_midgame_lane.py: 50 passed"
+    - "pytest tests/qualification/test_ws17_qualification.py: 12 passed"
+    - "ruff check . : All checks passed"
+    - "ruff format --check . : 1084 files already formatted"
+  not_ran_after_the_final_increment:
+    - "run_midgame_capability_probe.py (29-row partition re-derivation from runtime)"
+    - "full engine-bridge suite"
+    - "full repository pytest"
+    - "mypy strict"
+    - "exact-head GitHub workflows (no PR was opened for this increment)"
+  note: >-
+    The previously pushed commit 08d23aa4 had its own full validation and green
+    exact-head CI on PR #304 (12/12 checks) at the time it was pushed; that evidence
+    is about 08d23aa4, not about 1b69c31f.
+
+incomplete_work_for_successor:
+  - "F1 end-to-end honeycard control: needs a lane-supported frozen fixture that plants a sentinel identity in a non-requester hand (Lab qualification data -> authorization question)."
+  - "F1 pending_decision leak vector (see open_leak_vector_recorded)."
+  - "Re-derive the 29-row causal partition from runtime at the final head and re-seal both WS17 manifests if the receipt changes."
+  - "Run the remaining validation list above and open a PR if the successor wants remote CI evidence."
+  - "F5 concession is retained as schema alignment only; confirm the successor agrees with that adjudication."
+
+next_actions:
+  - "Successor: fetch donor/pb03-304-terminal-hardening-20260929 (head 1b69c31f) and review the two commits above dafe2ac6."
+  - "Successor: close the two F1 items, then re-run the full validation list and seal WS17."
+  - "Successor: decide whether to continue PR #304 or open a successor PR; do not rewrite #304 history."
+
+successor:
+  status: ACTIVE_TERMINAL_VALIDATION
+  owner: single writer for the #304 terminal-hardening surface (coordinator ownership update)
+  base: e31f4936c91abb0d37ea67f71d975304ffd37dfc (== origin/donor/pb03-304-terminal-hardening-20260929)
+  base_was_remotely_preserved: true
+  branch: research/csn-pb03-terminal-hardening-successor-20260929
+  three_way_adjudication:
+    merge_base: dafe2ac6d903ed55c774841fbfa25cb7584f52d6
+    remote_only_delta: 08d23aa44c721d0825d8be9f1b9c5d2af58cb91c
+    parallel_session_delta: [1b69c31f7958ec77df55ae72a9fb95fd19d424bc, 1098f365485cea949e456f04bec81216b84aaa73, e31f4936c91abb0d37ea67f71d975304ffd37dfc]
+    superseded_local_delta: f1613146cfa1af9004036bd48e2c518d3194a56b (redactor-based observation, probe/Python changes, blanket mismatch withhold) -> not re-created
+    unique_and_required:
+      - decision frames removed from complete_midgame_arrival and complete_causal_reconstruction (closes the open vector recorded by 1098f365)
+      - redactNativeIds removes the opaque native_id from hidden-hand diagnostics
+      - adversarial honeycard privacy test (falsifies the increment-2 "not provable" conclusion)
+    rejected: []
+  falsified_prior_claim: >-
+    Increment 2 recorded an end-to-end honeycard control as unprovable without
+    further fixture authorization. It is provable: the lane accepts a
+    caller-supplied requested starting state and zone=hand is a supported
+    placement dimension, so hidden hand objects can be added to a
+    placement-supported record without modifying the frozen corpus.

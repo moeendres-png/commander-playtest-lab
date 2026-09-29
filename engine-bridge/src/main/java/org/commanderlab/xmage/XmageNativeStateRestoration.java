@@ -100,6 +100,13 @@ final class XmageNativeStateRestoration {
         }
     }
 
+    /**
+     * The game's colorless basic land. Used only as the scaffolding filler for a
+     * commander with a legitimately empty colored identity, so a colorless
+     * Commander deck is never given a fabricated colored land.
+     */
+    static final String COLORLESS_BASIC_LAND = "Wastes";
+
     /** One requested object in a public zone. */
     record RequestedObject(
             String semanticId,
@@ -431,6 +438,15 @@ final class XmageNativeStateRestoration {
      * Deterministic scaffolding filler basics for a commander color set.
      * Scaffolding decks go through the full real-cards-only Commander import
      * (existence plus Commander legality enforced there).
+     *
+     * <p>A colorless commander legitimately has no colored component in its
+     * color identity ({@code CardInfo.getColor()} is empty), so the filler for
+     * it must be a colorless basic land rather than a fabricated colored one.
+     * {@code Wastes} is the game's colorless basic land; it goes through the
+     * same real-cards-only Commander import as every other filler, so its
+     * existence and legality are still decided by the engine. Rejecting the
+     * empty color set here would make an otherwise supported colorless
+     * Commander starting state unreachable.</p>
      */
     static List<String> scaffoldingFiller(int count, Set<String> commanderColors) {
         Map<String, String> colorToBasic = Map.of(
@@ -442,8 +458,7 @@ final class XmageNativeStateRestoration {
             }
         }
         if (pool.isEmpty()) {
-            throw new RestorationException(
-                    "UNSUPPORTED_COMMANDER_COLOR", "no basic-land filler for " + commanderColors);
+            pool.add(COLORLESS_BASIC_LAND);
         }
         List<String> filler = new ArrayList<>(count);
         for (int index = 0; index < count; index++) {

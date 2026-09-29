@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -73,7 +72,7 @@ def test_local_snapshot_build_is_portable_across_root_paths(
 
 
 def test_local_snapshot_build_is_stable_across_python_hash_seeds(
-    repo_root: Path, tmp_path: Path
+    repo_root: Path, tmp_path: Path, subprocess_env: dict[str, str]
 ) -> None:
     sandbox = tmp_path / "hash-seed-root"
     _prepare_snapshot_root(repo_root, sandbox)
@@ -87,7 +86,7 @@ def test_local_snapshot_build_is_stable_across_python_hash_seeds(
 
     snapshots: list[dict[str, bytes]] = []
     for seed in ("1", "8675309"):
-        environment = os.environ.copy()
+        environment = dict(subprocess_env)
         environment["PYTHONHASHSEED"] = seed
         subprocess.run(command, check=True, env=environment)
         snapshots.append(_snapshot_bytes(sandbox))
