@@ -220,6 +220,138 @@ def af03_gate(candidate: str) -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------------------
+# AF11 INTEROP_LICENSE_TOPOLOGY: measured, not asserted.
+#
+# The gate contract is "actual integration topology satisfies WS-09; Forge
+# remains a genuine separate process/service". That is a *technical* claim plus
+# a *policy* claim, and only the technical half is observable from inside the
+# Lab. This function therefore:
+#   1. measures every technical fact it can actually observe, and
+#   2. derives FAIL only when a technical fact is genuinely violated,
+#      leaving the residual policy question UNKNOWN and Coordinator-owned.
+#
+# The Lab must not decide the policy question: whether the observed separate-
+# process topology and the licence/redistribution consequences satisfy AF11/
+# WS-09 under existing policy is reserved to the Coordinator. Recording that
+# residual as UNKNOWN is the honest state; it is NOT a weakening, because
+# freeze eligibility requires PASS and UNKNOWN is already in NON_PASS_VERDICTS.
+# ---------------------------------------------------------------------------
+
+# Adapter identities that would mean engine code is compiled INTO the Lab
+# process. Neither candidate's adapter may resolve to any of these.
+_LAB_EMBEDDED_ENGINE_PREFIXES = ("commander_lab.engine", "src/commander_lab/engine")
+
+
+def _af11_measure(
+    per_candidate: dict[str, Any], candidate: str, data: dict[str, Any]
+) -> dict[str, Any]:
+    """Observe the AF11 technical facts. Returns facts, limitations, verdict."""
+
+    evidence: list[str] = []
+    limitations: list[str] = []
+    violated: list[str] = []
+
+    # -- Fact 1: each candidate is driven through its own distinct adapter.
+    adapters: dict[str, str] = {}
+    for cand, cdata in sorted(per_candidate.items()):
+        adapter = (cdata["results_runtime_identity"] or {}).get("adapter")
+        adapters[cand] = str(adapter) if adapter else ""
+
+    own_adapter = adapters.get(candidate, "")
+    if not own_adapter:
+        violated.append("no adapter identity was recorded for this candidate")
+    elif len({a for a in adapters.values() if a}) > 1:
+        evidence.append(
+            "each candidate was driven through its own distinct external adapter "
+            f"({', '.join(f'{k}={v}' for k, v in adapters.items())}) by one and the "
+            "same Lab driver column, so no single engine is reached in-process"
+        )
+    else:
+        violated.append(
+            "candidates do not resolve to distinct adapter identities, so the "
+            "separate-process boundary is not demonstrated"
+        )
+
+    # -- Fact 2: no engine code is embedded in the Lab process.
+    embedded = [
+        cand
+        for cand, adapter in adapters.items()
+        if any(adapter.startswith(p) for p in _LAB_EMBEDDED_ENGINE_PREFIXES)
+    ]
+    if embedded:
+        violated.append("engine code is embedded in the Lab process for: " + ", ".join(embedded))
+    else:
+        evidence.append(
+            "no adapter identity resolves to the Lab's in-tree engine package, so "
+            "no engine code is embedded in the Lab process"
+        )
+
+    # -- Fact 3: the recorded qualification boundary for this run.
+    boundary = (data["results_runtime_identity"] or {}).get("qualification_boundary")
+    if boundary:
+        evidence.append(f"qualification boundary recorded for this run: {boundary}")
+    else:
+        violated.append("no qualification boundary recorded on the runtime identity")
+
+    # -- Fact 4: licence topology as recorded metadata (a fact, not a ruling).
+    try:
+        cfg = load(REPO / "config" / "rules_engines.json")
+        lic = {
+            "xmage": (
+                cfg["primary_engine"].get("provider"),
+                cfg["primary_engine"].get("license"),
+            ),
+            "forge": (
+                cfg["secondary_engine"].get("provider"),
+                cfg["secondary_engine"].get("license"),
+            ),
+        }
+        evidence.append(
+            "recorded licence topology: "
+            + ", ".join(
+                f"{name} {provider} {name_lic}"
+                for name, (provider, name_lic) in sorted(lic.items())
+            )
+            + " (recorded metadata; no legal conclusion is drawn here)"
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        violated.append(f"licence topology could not be read from the source lock: {exc!r}")
+
+    # -- Fact 5: the decision-identity difference is real; whether any mapping
+    #    satisfies policy is not measured here.
+    if len({a for a in adapters.values() if a}) > 1:
+        evidence.append(
+            "the candidates publish different request-body and decision-identity "
+            "conventions (recorded in the AF04 evidence); whether a "
+            "candidate-scoped mapping satisfies AF11/WS-09 under existing policy "
+            "is not measured here"
+        )
+
+    # -- The residual question is not the Lab's to answer.
+    limitations.append(
+        "NOT MEASURED BY THE LAB: whether the observed separate-process topology "
+        "satisfies AF11/WS-09 under existing policy, and any "
+        "licence/redistribution consequence. That adjudication is reserved to "
+        "the Coordinator, so the Lab records it as UNKNOWN rather than deciding "
+        "it in either direction"
+    )
+
+    verdict = "FAIL" if violated else "UNKNOWN"
+    if violated:
+        limitations.extend(violated)
+        evidence.append("AF11 technical facts are VIOLATED, hence FAIL")
+    else:
+        evidence.append(
+            "every observable AF11 technical fact holds (separate external "
+            "processes, no embedded engine, shared recorded boundary); the only "
+            "residual is the Coordinator-owned policy question, hence UNKNOWN "
+            "rather than an invented PASS"
+        )
+
+    return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
+
+
 def assemble() -> None:
     bindings = native_bindings()
     # The Lab-side identity every native credit in this assembly is bound to.
@@ -289,6 +421,12 @@ def assemble() -> None:
         }
 
     # ---- AF00-AF11 matrix ------------------------------------------------
+    # AF11 is computed, never asserted: measured technical facts decide between
+    # FAIL (a fact is violated) and UNKNOWN (facts hold, policy unresolved).
+    af11_by_candidate = {
+        cand: _af11_measure(per_candidate, cand, cdata) for cand, cdata in per_candidate.items()
+    }
+
     for candidate, data in per_candidate.items():
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
@@ -535,21 +673,16 @@ def assemble() -> None:
             {
                 "gate": "AF11",
                 "name": "INTEROP_LICENSE_TOPOLOGY",
-                "verdict": "FAIL",
-                "evidence": [
-                    "both candidates run as genuine separate external processes over "
-                    "stdin/stdout JSONL; no engine code is embedded in Lab",
-                    "XMage MIT, Forge GPL-3.0 (recorded in the source lock)",
-                    "the two candidates publish different request-body conventions "
-                    "(XMage reads payload, Forge reads params) and different decision-identity "
-                    "fields, so one adapter cannot serve both without a shim",
-                ],
+                # COMPUTED, not asserted. This gate was a hard-coded FAIL with prose
+                # that did not address its own contract ("actual integration topology
+                # satisfies WS-09; Forge remains a genuine separate process/service").
+                # A gate that cannot observe anything cannot be evidence in either
+                # direction, so the technical facts are now measured above and the
+                # verdict is derived from them.
+                "verdict": af11_by_candidate[candidate]["verdict"],
+                "evidence": af11_by_candidate[candidate]["evidence"],
                 "blocking_rows": [],
-                "nonblocking_limitations": [
-                    "a provider-specific decision-identity shim in the "
-                    "Lab adapter would be required for a single "
-                    "provider-neutral pilot"
-                ],
+                "nonblocking_limitations": af11_by_candidate[candidate]["limitations"],
             },
         ]
         write(

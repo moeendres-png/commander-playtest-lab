@@ -210,3 +210,91 @@ def test_real_evidence_directory_has_no_receipts_yet() -> None:
         pytest.skip("no receipt directory yet; nothing can be credited, which is the point")
     valid, rejected = R.collect_receipts(directory)
     assert valid or rejected
+
+
+# --- AF11: measured technical facts, never an asserted verdict -------------- #
+
+
+def _assembler_module():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("salvage_assembler_under_test", ASSEMBLER)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _af11_identities(**overrides: object) -> dict:
+    base = {
+        "xmage": {
+            "results_runtime_identity": {
+                "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+                "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+            }
+        },
+        "forge": {
+            "results_runtime_identity": {
+                "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+                "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+            }
+        },
+    }
+    for candidate, identity in overrides.items():
+        base[candidate]["results_runtime_identity"] = identity
+    return base
+
+
+def test_af11_is_unknown_when_technical_facts_hold() -> None:
+    """Facts hold + policy unresolved must be UNKNOWN, never an asserted FAIL."""
+    asm = _assembler_module()
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "UNKNOWN"
+    assert measured["verdict"] != "PASS"
+    joined_evidence = " ".join(measured["evidence"])
+    assert "distinct external adapter" in joined_evidence
+    assert "no engine code is embedded" in joined_evidence
+    assert "no legal conclusion is drawn here" in joined_evidence
+    joined_limitations = " ".join(measured["limitations"])
+    assert "NOT MEASURED BY THE LAB" in joined_limitations
+
+
+def test_af11_fails_when_adapter_identity_is_missing() -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities(xmage={})
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "FAIL"
+    assert any("no adapter identity" in line for line in measured["limitations"])
+
+
+def test_af11_fails_when_adapters_are_not_distinct() -> None:
+    asm = _assembler_module()
+    shared = {
+        "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+        "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    }
+    per_candidate = _af11_identities(xmage=shared, forge=shared)
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "FAIL"
+
+
+def test_af11_fails_when_engine_code_is_embedded() -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities(
+        xmage={
+            "adapter": "commander_lab.engine.rules.bridge",
+            "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+        }
+    )
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    assert measured["verdict"] == "FAIL"
+    assert any("embedded" in line for line in measured["limitations"])
+
+
+def test_af11_unknown_still_blocks_freeze() -> None:
+    """UNKNOWN must remain a freeze-blocking verdict: this is not a weakening."""
+    from commander_lab.freeze_readiness import NON_PASS_VERDICTS
+
+    assert "UNKNOWN" in NON_PASS_VERDICTS
+    assert "PASS" not in NON_PASS_VERDICTS

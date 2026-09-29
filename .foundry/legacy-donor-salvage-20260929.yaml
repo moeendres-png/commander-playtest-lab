@@ -64,6 +64,9 @@ rejected_units:
 - id: 289-A
   disposition: IMPLEMENTED
   note: native_suite_credit and positive_fixture_credit now require expected_runner_digest in addition to engine candidate commit; mismatch/missing/empty fails closed with zero credit and auditable stale_runner_excluded; assembler binds live_runner_digest and records it in provenance; demonstrated on 4 committed receipts (all stale-excluded, zero credited)
+- id: 289-B
+  disposition: IMPLEMENTED
+  note: hard-coded AF11 FAIL replaced with _af11_measure (distinct external adapters, no embedded engine, recorded boundary, licence metadata as fact; FAIL only on violated technical fact, else UNKNOWN with Coordinator-owned policy residual); 5 new behavioral tests including freeze-still-blocked guard; committed AF00_AF11 JSONs left untouched as historical executed-run records
 tests_run:
 - tests/architecture/test_engine_runtime_state_isolation.py: 7 passed (fail-before ImportError proven)
 - tests/foundry/test_launcher.py: 99 passed (2 new fail-before failures proven, then green)
@@ -73,6 +76,7 @@ tests_run:
 - tests/integration/test_phase8_external_adapter.py + test_phase8_bridge.py: 2 passed
 - tests/qualification/test_current_boundary_receipts.py + test_current_boundary_assembler_integrity.py: 57 passed (7 new stale-identity tests)
 - tests/qualification/test_wsr22_current_boundary.py + test_wsr24_freeze_readiness.py + test_current_boundary_readiness_packet.py: 59 passed
+- full tests/qualification/: 388 passed, 5 skipped (pre-existing skips)
 - live-receipt demonstration: 4 committed receipts stale-excluded, 0 credited under current runner
 - ruff check on all touched files: clean
 - ruff format --check on all touched files: clean
@@ -107,8 +111,12 @@ drift_checks:
   observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
   delta_since_last: none
   verdict: NO_DRIFT safe to commit 289-A milestone
+- time_utc: '2026-09-29T17:30:00Z'
+  observed_main: d40dda9fc7590746c3453d449a0828cb69ea1e12
+  delta_since_last: none
+  verdict: NO_DRIFT safe to commit 289-B milestone
 unknowns: []
 blockers: []
-next_action: adjudicate 289-B (AF11 hardcoded FAIL) — replace with measured technical facts or classify ALREADY_CANONICAL/DEFERRED
+next_action: adjudicate 289-C (forbidden-shortcut seam campaign) — inspect donor shortcut_campaign.py vs current validation seam
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
