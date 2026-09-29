@@ -69,6 +69,6 @@ A runtime proof needs a seeded Rules-RNG harness that forces the departed index.
 
 
 ## 2026-09-29 successor remediation
-- Candidate engine: `9cb5fb9e9558f980da81c85ca3fdc595161c8d34` (Mage PR #26).
+- Candidate engine: `fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c` (Mage PR #26).
 - Commander Lab repin workstream: `xmage-f22-f23-successor-repin-20260929`.
 - Runtime status remains UNKNOWN until exact-candidate and Lab CI complete; this note does not itself close F-23.
