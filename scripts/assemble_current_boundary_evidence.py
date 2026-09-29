@@ -45,6 +45,21 @@ def write(name: str, payload: Any) -> None:
     print("wrote", name)
 
 
+def live_runner_digest() -> str:
+    """Digest of the Lab-side qualification code executing this assembly.
+
+    Native credit is bound to this identity in addition to the engine candidate
+    commit, so a Lab adapter/runner change invalidates old receipts even when
+    the engine head is unchanged. An unmeasurable identity fails closed: the
+    caller receives an empty digest and every credit call yields zero.
+    """
+    try:
+        return receipt_mod.capture_runner_identity(REPO).digest()
+    except receipt_mod.ReceiptError as exc:
+        print(f"runner identity unmeasurable ({exc}); native credit is unavailable")
+        return ""
+
+
 def native_bindings() -> dict[str, dict[str, list[str]]]:
     """Fixture -> test identities, derived from persisted positive receipts only.
 
@@ -68,17 +83,24 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
         for c in ("xmage", "forge")
     }
     out: dict[str, dict[str, list[str]]] = {}
+    runner_digest = live_runner_digest()
     for candidate in ("xmage", "forge"):
         commit = identity[candidate].get("engine_candidate_commit", "")
         credited = receipt_mod.positive_fixture_credit(
-            receipts, candidate=candidate, expected_commit=commit, denominator=denominator
+            receipts,
+            candidate=candidate,
+            expected_commit=commit,
+            denominator=denominator,
+            expected_runner_digest=runner_digest,
         )
         for fixture, tests in credited.items():
             out.setdefault(fixture, {})[candidate] = tests
     return out
 
 
-def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
+def native_credit(
+    candidate: str, expected_commit: str, expected_runner_digest: str
+) -> dict[str, Any]:
     """Native-suite credit for one candidate, from receipts only.
 
     `native_runs` keeps its established shape: a mapping of group name to that
@@ -88,7 +110,10 @@ def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
     """
     receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
     credit = receipt_mod.native_suite_credit(
-        receipts, candidate=candidate, expected_commit=expected_commit
+        receipts,
+        candidate=candidate,
+        expected_commit=expected_commit,
+        expected_runner_digest=expected_runner_digest,
     )
     # PURELY a per-group mapping. Every value must be subscriptable, because
     # consumers iterate it directly; scalar metadata lives beside it.
@@ -112,16 +137,23 @@ def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
     }
 
 
-def native_credit_provenance(candidate: str, expected_commit: str) -> dict[str, Any]:
+def native_credit_provenance(
+    candidate: str, expected_commit: str, expected_runner_digest: str
+) -> dict[str, Any]:
     """The provenance statement that accompanies `native_runs`."""
     receipts, _ = receipt_mod.collect_receipts(RECEIPT_DIR)
     credit = receipt_mod.native_suite_credit(
-        receipts, candidate=candidate, expected_commit=expected_commit
+        receipts,
+        candidate=candidate,
+        expected_commit=expected_commit,
+        expected_runner_digest=expected_runner_digest,
     )
     return {
         "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
         "absent_receipts_yield_no_credit": True,
         "expected_engine_commit": expected_commit,
+        "expected_runner_digest": expected_runner_digest,
+        "stale_runner_excluded": credit["stale_runner_excluded"],
         "summary": {
             "groups_credited": credit["groups_credited"],
             "tests": credit["tests"],
@@ -188,8 +220,202 @@ def af03_gate(candidate: str) -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------------------
+# AF11 INTEROP_LICENSE_TOPOLOGY: measured, not asserted.
+#
+# The gate contract is "actual integration topology satisfies WS-09; Forge
+# remains a genuine separate process/service". That is a *technical* claim plus
+# a *policy* claim, and only the technical half is observable from inside the
+# Lab. This function therefore:
+#   1. measures every technical fact it can actually observe, and
+#   2. derives FAIL only when a technical fact is genuinely violated,
+#      leaving the residual policy question UNKNOWN and Coordinator-owned.
+#
+# The Lab must not decide the policy question: whether the observed separate-
+# process topology and the licence/redistribution consequences satisfy AF11/
+# WS-09 under existing policy is reserved to the Coordinator. Recording that
+# residual as UNKNOWN is the honest state; it is NOT a weakening, because
+# freeze eligibility requires PASS and UNKNOWN is already in NON_PASS_VERDICTS.
+# ---------------------------------------------------------------------------
+
+# Adapter identities that would mean engine code is compiled INTO the Lab
+# process. Neither candidate's adapter may resolve to any of these.
+_LAB_EMBEDDED_ENGINE_PREFIXES = ("commander_lab.engine", "src/commander_lab/engine")
+
+
+def _af11_measure(
+    per_candidate: dict[str, Any], candidate: str, data: dict[str, Any]
+) -> dict[str, Any]:
+    """Observe the AF11 technical facts. Returns facts, limitations, verdict."""
+
+    evidence: list[str] = []
+    limitations: list[str] = []
+    violated: list[str] = []
+
+    # -- Fact 1: each candidate is driven through its own distinct adapter.
+    adapters: dict[str, str] = {}
+    for cand, cdata in sorted(per_candidate.items()):
+        adapter = (cdata["results_runtime_identity"] or {}).get("adapter")
+        adapters[cand] = str(adapter) if adapter else ""
+
+    own_adapter = adapters.get(candidate, "")
+    if not own_adapter:
+        violated.append("no adapter identity was recorded for this candidate")
+    elif len({a for a in adapters.values() if a}) > 1:
+        evidence.append(
+            "each candidate was driven through its own distinct external adapter "
+            f"({', '.join(f'{k}={v}' for k, v in adapters.items())}) by one and the "
+            "same Lab driver column, so no single engine is reached in-process"
+        )
+    else:
+        violated.append(
+            "candidates do not resolve to distinct adapter identities, so the "
+            "separate-process boundary is not demonstrated"
+        )
+
+    # -- Fact 2: no engine code is embedded in the Lab process.
+    embedded = [
+        cand
+        for cand, adapter in adapters.items()
+        if any(adapter.startswith(p) for p in _LAB_EMBEDDED_ENGINE_PREFIXES)
+    ]
+    if embedded:
+        violated.append("engine code is embedded in the Lab process for: " + ", ".join(embedded))
+    else:
+        evidence.append(
+            "no adapter identity resolves to the Lab's in-tree engine package, so "
+            "no engine code is embedded in the Lab process"
+        )
+
+    # -- Fact 3: the recorded qualification boundary for this run.
+    boundary = (data["results_runtime_identity"] or {}).get("qualification_boundary")
+    if boundary:
+        evidence.append(f"qualification boundary recorded for this run: {boundary}")
+    else:
+        violated.append("no qualification boundary recorded on the runtime identity")
+
+    # -- Fact 4: licence topology as recorded metadata (a fact, not a ruling).
+    try:
+        cfg = load(REPO / "config" / "rules_engines.json")
+        lic = {
+            "xmage": (
+                cfg["primary_engine"].get("provider"),
+                cfg["primary_engine"].get("license"),
+            ),
+            "forge": (
+                cfg["secondary_engine"].get("provider"),
+                cfg["secondary_engine"].get("license"),
+            ),
+        }
+        evidence.append(
+            "recorded licence topology: "
+            + ", ".join(
+                f"{name} {provider} {name_lic}"
+                for name, (provider, name_lic) in sorted(lic.items())
+            )
+            + " (recorded metadata; no legal conclusion is drawn here)"
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        violated.append(f"licence topology could not be read from the source lock: {exc!r}")
+
+    # -- Fact 5: the decision-identity difference is real; whether any mapping
+    #    satisfies policy is not measured here.
+    if len({a for a in adapters.values() if a}) > 1:
+        evidence.append(
+            "the candidates publish different request-body and decision-identity "
+            "conventions (recorded in the AF04 evidence); whether a "
+            "candidate-scoped mapping satisfies AF11/WS-09 under existing policy "
+            "is not measured here"
+        )
+
+    # -- The residual question is not the Lab's to answer.
+    limitations.append(
+        "NOT MEASURED BY THE LAB: whether the observed separate-process topology "
+        "satisfies AF11/WS-09 under existing policy, and any "
+        "licence/redistribution consequence. That adjudication is reserved to "
+        "the Coordinator, so the Lab records it as UNKNOWN rather than deciding "
+        "it in either direction"
+    )
+
+    verdict = "FAIL" if violated else "UNKNOWN"
+    if violated:
+        limitations.extend(violated)
+        evidence.append("AF11 technical facts are VIOLATED, hence FAIL")
+    else:
+        evidence.append(
+            "every observable AF11 technical fact holds (separate external "
+            "processes, no embedded engine, shared recorded boundary); the only "
+            "residual is the Coordinator-owned policy question, hence UNKNOWN "
+            "rather than an invented PASS"
+        )
+
+    return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
+
+
+def _describe_replay_evidence(document: dict[str, Any], candidate: str) -> dict[str, Any]:
+    """Derive the AF09 replay/RNG evidence lines from the recorded artifact.
+
+    Generic semantic distinctions, stated once and enforced here rather than
+    inferred per run:
+
+    * a seed acknowledgement is a precondition for RNG control, never a
+      demonstrated Rules RNG tape;
+    * a fail-closed export refusal is an absent capability, never a satisfied
+      obligation and never a replay PASS;
+    * deterministic setup alone (deck import, game creation, seed echo) is not
+      semantic replay proof.
+    """
+    evidence: list[str] = []
+    replay = document.get("semantic_replay") or {}
+    errors = replay.get("error") or []
+    if errors:
+        codes = sorted(
+            {str(item.get("code", "unknown")) for item in errors if isinstance(item, dict)}
+        )
+        evidence.append(
+            "replay export attempted in a live game and refused by the engine "
+            f"(RNG_REPLAY_{candidate.upper()}.json; refusal codes: {', '.join(codes)})"
+        )
+    elif replay:
+        evidence.append(
+            "replay export returned a payload in a live game "
+            f"(RNG_REPLAY_{candidate.upper()}.json); payload presence is recorded, "
+            "not replay proof"
+        )
+    else:
+        evidence.append(f"no replay export outcome recorded (RNG_REPLAY_{candidate.upper()}.json)")
+    binding = document.get("rules_rng_binding") or {}
+    evidence.append(
+        "seed binding: "
+        f"{binding.get('classification', 'UNKNOWN')} "
+        f"(requested={binding.get('requested_seed')}, "
+        f"acknowledged={binding.get('acknowledged_seed')}); "
+        "acknowledgement is a precondition for RNG control, not a demonstrated "
+        "Rules RNG tape"
+    )
+    limitations = [
+        "a fail-closed export refusal is an absent capability, never a satisfied "
+        "obligation and never a replay PASS",
+        "deterministic setup alone (deck import, game creation, seed acknowledgement) "
+        "is not semantic replay proof",
+        "the clean-process twin half of each replay obligation is not proven per fixture",
+    ]
+    return {"evidence": evidence, "limitations": limitations}
+
+
+def _load_replay_document(candidate: str) -> dict[str, Any] | None:
+    path = OUT / f"RNG_REPLAY_{candidate.upper()}.json"
+    if not path.is_file():
+        return None
+    return load(path)
+
+
 def assemble() -> None:
     bindings = native_bindings()
+    # The Lab-side identity every native credit in this assembly is bound to.
+    # Engine-commit equality alone no longer suffices: an adapter/runner change
+    # with an unchanged engine head must invalidate old receipts.
+    assembly_runner_digest = live_runner_digest()
     per_candidate: dict[str, dict[str, Any]] = {}
     for candidate in ("xmage", "forge"):
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
@@ -232,10 +458,14 @@ def assemble() -> None:
         results["counts"] = counts
         results["native_promotions"] = promoted
         results["native_runs"] = native_credit(
-            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+            candidate,
+            results["runtime_identity"].get("engine_candidate_commit", ""),
+            assembly_runner_digest,
         )
         results["native_runs_provenance"] = native_credit_provenance(
-            candidate, results["runtime_identity"].get("engine_candidate_commit", "")
+            candidate,
+            results["runtime_identity"].get("engine_candidate_commit", ""),
+            assembly_runner_digest,
         )
         write(f"FULL107_{candidate.upper()}_RESULTS.json", results)
         per_candidate[candidate] = {
@@ -249,6 +479,29 @@ def assemble() -> None:
         }
 
     # ---- AF00-AF11 matrix ------------------------------------------------
+    # AF11 is computed, never asserted: measured technical facts decide between
+    # FAIL (a fact is violated) and UNKNOWN (facts hold, policy unresolved).
+    af11_by_candidate = {
+        cand: _af11_measure(per_candidate, cand, cdata) for cand, cdata in per_candidate.items()
+    }
+    # AF09 is derived from the recorded RNG/replay artifact, never asserted:
+    # a refusal is recorded as a refusal, and seed acknowledgement is never
+    # presented as a Rules RNG tape.
+    replay_by_candidate = {
+        cand: (
+            _describe_replay_evidence(document, cand)
+            if (document := _load_replay_document(cand)) is not None
+            else {
+                "evidence": [f"no RNG_REPLAY artifact exists for {cand}"],
+                "limitations": [
+                    "without a recorded export attempt and seed binding, no replay "
+                    "or RNG claim can be evaluated"
+                ],
+            }
+        )
+        for cand in per_candidate
+    }
+
     for candidate, data in per_candidate.items():
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
@@ -458,7 +711,10 @@ def assemble() -> None:
                 "name": "RNG_REPLAY",
                 "verdict": "UNKNOWN",
                 "evidence": [
-                    f"replay export executed in a live game (RNG_REPLAY_{candidate.upper()}.json)",
+                    # Wording matters here: the live attempt REFUSED the export, so
+                    # claiming it "executed" would assert a capability the run
+                    # itself contradicts.
+                    *replay_by_candidate[candidate]["evidence"],
                     "native replay/semantic suites green",
                 ],
                 "blocking_rows": sorted(
@@ -467,10 +723,7 @@ def assemble() -> None:
                     if v["exit_state"] in ("UNKNOWN", "BLOCKED")
                     and (r.startswith("REPLAY_") or r.startswith("RNG_"))
                 ),
-                "nonblocking_limitations": [
-                    "the clean-process twin half of each replay "
-                    "obligation is not proven per fixture"
-                ],
+                "nonblocking_limitations": replay_by_candidate[candidate]["limitations"],
             },
             {
                 "gate": "AF10",
@@ -495,21 +748,16 @@ def assemble() -> None:
             {
                 "gate": "AF11",
                 "name": "INTEROP_LICENSE_TOPOLOGY",
-                "verdict": "FAIL",
-                "evidence": [
-                    "both candidates run as genuine separate external processes over "
-                    "stdin/stdout JSONL; no engine code is embedded in Lab",
-                    "XMage MIT, Forge GPL-3.0 (recorded in the source lock)",
-                    "the two candidates publish different request-body conventions "
-                    "(XMage reads payload, Forge reads params) and different decision-identity "
-                    "fields, so one adapter cannot serve both without a shim",
-                ],
+                # COMPUTED, not asserted. This gate was a hard-coded FAIL with prose
+                # that did not address its own contract ("actual integration topology
+                # satisfies WS-09; Forge remains a genuine separate process/service").
+                # A gate that cannot observe anything cannot be evidence in either
+                # direction, so the technical facts are now measured above and the
+                # verdict is derived from them.
+                "verdict": af11_by_candidate[candidate]["verdict"],
+                "evidence": af11_by_candidate[candidate]["evidence"],
                 "blocking_rows": [],
-                "nonblocking_limitations": [
-                    "a provider-specific decision-identity shim in the "
-                    "Lab adapter would be required for a single "
-                    "provider-neutral pilot"
-                ],
+                "nonblocking_limitations": af11_by_candidate[candidate]["limitations"],
             },
         ]
         write(

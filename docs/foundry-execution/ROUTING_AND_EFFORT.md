@@ -14,53 +14,56 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
 2. OpenCode Foundry — primary execution tier with one explicit executor per run:
-   - committed/default and preferred: `space-bunny` =
-     `opencode-go/space-bunny-free` at native `max`;
-   - explicit alternate only: `muse` =
-     `opencode-go/muse-spark-1.3-contributor` at native `xhigh`.
-   Muse HIGH is not an active project lane.
+   - committed/default and preferred: `deepseek` =
+     `opencode-go/deepseek-v4.1-flash` at native `max`;
+   - explicit secondary only: `space-bunny` =
+     `opencode-go/space-bunny-free` at native `max`, for bounded, mechanical,
+     token-heavy, bulk and background work.
+   Muse and GLM are inactive and are not selectable executors.
 3. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
-quota, credentials, child failure, or retry. A completed/terminated writer releases the
-existing writer lock, after which the other profile may resume the same workstream from
-the same branch + explicit state + evidence. Concurrent writers on the same worktree,
-branch, or semantic surface remain forbidden; parallel profiles require independent
-worktrees/ownership.
+quota, credentials, catalog availability, child failure, or retry. A DeepSeek failure is
+fail-closed; running another executor afterwards is an explicit task-rerouting decision.
+A completed/terminated writer releases the existing writer lock, after which the other
+profile may resume the same workstream from the same branch + explicit state + evidence.
+Concurrent writers on the same worktree, branch, or semantic surface remain forbidden;
+parallel profiles require independent worktrees/ownership.
 
-The legacy Zen override is not authorized for new work; historical receipts remain
+The legacy Zen Muse override is retired and always refused; historical receipts remain
 provenance. See `EXECUTION_PROVIDER_OVERRIDE.md`.
 
 ## Execution identity policy
 
 Active project work has exactly two supported execution identities:
 
-- `space-bunny` → `opencode-go/space-bunny-free` → native `max`.
+- `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max`.
   This is the default and preferred executor for implementation, debugging,
   qualification, integration, CI remediation, evidence generation and long campaigns.
-- `muse` → `opencode-go/muse-spark-1.3-contributor` → native `xhigh`.
-  This is an explicit alternate for deliberate cross-model work, difficult technical
-  adjudication, or continuation where Muse is specifically desired.
+- `space-bunny` → `opencode-go/space-bunny-free` → native `max`.
+  This is the explicit secondary for bounded, mechanical, token-heavy, bulk and
+  background work, and for deliberately authorized cross-model checks.
 
-The required launcher contract rejects mismatched pairs: Space Bunny with `xhigh`
-or Muse with `high`/`max` is invalid. There is no active-work HIGH lane. The current
-launcher does not yet enforce this contract; its foreign-owned implementation gap
-is recorded in `docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json`.
+The launcher rejects any profile outside this set, and rejects every provider override,
+so no mismatched or retired pair is reachable. There is no active-work native lane below
+`max`; the project-level `--effort` field describes task/authority routing only and never
+lowers either executor's native level.
 
-Root `opencode.json` is Space Bunny MAX by default and exposes Muse only at XHIGH.
-The GitHub OpenCode lane is also Space Bunny MAX. No executor fallback occurs on quota,
-auth, catalog or child failure.
+Root `opencode.json` is DeepSeek MAX by default and exposes Space Bunny MAX as the only
+other whitelisted model. The GitHub OpenCode lane is also DeepSeek MAX. No executor
+fallback occurs on quota, auth, catalog or child failure.
 
 ## Technical decision authority
 
 Authoritative model:
 `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`. Summary:
 
-- Space Bunny MAX: preferred new-work execution profile. Autonomous implementation,
+- DeepSeek MAX: preferred new-work execution profile. Autonomous implementation,
   debugging, qualification, evidence generation, tool use and technical decisions
   within the bounded workstream contract. Native reasoning remains `max`.
-- Muse XHIGH: explicit alternate/continuation execution profile. XHIGH owns difficult nonlocal technical adjudication
-  within already-defined policy.
+- Space Bunny MAX: explicit secondary execution profile for bounded, mechanical,
+  token-heavy and background work, and for deliberately authorized cross-model
+  technical adjudication within already-defined policy.
 - Sol High: final authority only for project-wide evidence-semantics or
   qualification-policy changes, ambiguous MTG Rules interpretation, new shared
   Rules/Decision architecture, cross-workstream authority conflicts, material scope

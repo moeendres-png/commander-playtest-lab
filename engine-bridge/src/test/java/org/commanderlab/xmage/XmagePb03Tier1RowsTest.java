@@ -1085,10 +1085,10 @@ class XmagePb03Tier1RowsTest {
         // Drive into the record's declare-blockers checkpoint. Setup choice
         // (documented): a2 attacks P2 as obligated; a3 HOLDS. The record
         // obligates no attack for a3, and holding it keeps the partition
-        // obligation literally testable: with a3 attacking elsewhere the
-        // engine offers it to P2 as well (offer-liberality, recorded in the
-        // packet), which the row's literal "options contain only" wording
-        // cannot distinguish from a genuine partition. Minimal setup first.
+        // obligation literally testable. (Historically, with a3 attacking
+        // elsewhere the lane offered it to P2 as well; that over-offer was a
+        // CR 802.4a defect, now fixed and pinned for split attacks at 3-6
+        // players by XmageMultiplayerSplitCombatTest.) Minimal setup first.
         java.util.concurrent.atomic.AtomicBoolean a2Done =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         assertPlacementMatches(arrived, "WS05-MP-BLOCK-4", "pb03-block4");

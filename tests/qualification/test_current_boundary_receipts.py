@@ -142,18 +142,93 @@ def test_one_bad_receipt_does_not_suppress_good_ones(tmp_path: Path) -> None:
     assert len(rejected) == 1 and "NO_CREDIT" in rejected[0]
 
 
+def _rebind_runner(doc: dict, digest: str) -> dict:
+    """Return a copy of a receipt doc bound to a different runner identity."""
+    rebound = dict(doc, runner_digest=digest)
+    rebound.pop("receipt_digest", None)
+    rebound["receipt_digest"] = R._digest(rebound)
+    return rebound
+
+
 def test_stale_candidate_commit_gets_no_credit() -> None:
-    receipts = [_good_receipt()]
-    credit = R.native_suite_credit(receipts, candidate="xmage", expected_commit="f" * 40)
+    receipt = _good_receipt()
+    credit = R.native_suite_credit(
+        [receipt],
+        candidate="xmage",
+        expected_commit="f" * 40,
+        expected_runner_digest=receipt["runner_digest"],
+    )
     assert credit["groups_credited"] == []
     assert credit["tests"] == 0
 
 
 def test_credit_aggregates_only_matching_candidate() -> None:
-    receipts = [_good_receipt(), _good_receipt(candidate="forge")]
-    credit = R.native_suite_credit(receipts, candidate="xmage", expected_commit="d" * 40)
+    xmage = _good_receipt()
+    forge = _rebind_runner(_good_receipt(candidate="forge"), xmage["runner_digest"])
+    credit = R.native_suite_credit(
+        [xmage, forge],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        expected_runner_digest=xmage["runner_digest"],
+    )
     assert credit["groups_credited"] == ["xmage:direct"]
     assert credit["tests"] == 34
+
+
+def test_stale_runner_digest_gets_no_credit() -> None:
+    """Engine-commit equality alone must not survive a Lab adapter/runner change."""
+    receipt = _good_receipt()
+    credit = R.native_suite_credit(
+        [receipt],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        expected_runner_digest="0" * 64,
+    )
+    assert credit["groups_credited"] == []
+    assert credit["tests"] == 0
+    assert credit["stale_runner_excluded"] == ["xmage:direct"]
+
+
+def test_receipt_without_runner_digest_gets_no_credit() -> None:
+    """Pre-guard receipts without the newly required identity become stale."""
+    doc = _good_receipt()
+    doc.pop("runner_digest")
+    doc.pop("receipt_digest", None)
+    doc["receipt_digest"] = R._digest(doc)
+    credit = R.native_suite_credit(
+        [doc],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        expected_runner_digest="r" * 64,
+    )
+    assert credit["groups_credited"] == []
+    assert credit["tests"] == 0
+
+
+def test_missing_expected_runner_identity_fails_closed() -> None:
+    """A caller that cannot name the executing runner identity gets zero credit."""
+    receipt = _good_receipt()
+    credit = R.native_suite_credit(
+        [receipt],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        expected_runner_digest="",
+    )
+    assert credit["groups_credited"] == []
+    assert credit["tests"] == 0
+
+
+def test_matching_runner_digest_grants_credit() -> None:
+    receipt = _good_receipt()
+    credit = R.native_suite_credit(
+        [receipt],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        expected_runner_digest=receipt["runner_digest"],
+    )
+    assert credit["groups_credited"] == ["xmage:direct"]
+    assert credit["tests"] == 34
+    assert credit["stale_runner_excluded"] == []
 
 
 def test_parse_maven_summary_requires_a_summary() -> None:
@@ -173,12 +248,15 @@ def test_parse_maven_summary_reads_the_last_summary() -> None:
 
 _DENOM = {"HIDDEN_02", "MICRO_STACK", "CARD_02"}
 
+_RUNNER_DIGEST = "r" * 64
+
 
 def _fixture_receipt(**overrides: object) -> dict:
     doc = {
         "schema_version": R.POSITIVE_FIXTURE_RECEIPT_SCHEMA,
         "candidate": "xmage",
         "candidate_commit": "d" * 40,
+        "runner_digest": _RUNNER_DIGEST,
         "fixture_id": "MICRO_STACK",
         "test_identity": "XmageFullGameMicroExecutionTest#microStack",
         "obligation_exercised": "spell resolution on the stack",
@@ -193,7 +271,11 @@ def _fixture_receipt(**overrides: object) -> dict:
 
 def test_positive_fixture_credit_accepted() -> None:
     credit = R.positive_fixture_credit(
-        [_fixture_receipt()], candidate="xmage", expected_commit="d" * 40, denominator=_DENOM
+        [_fixture_receipt()],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
 
@@ -213,6 +295,7 @@ def test_negative_assertion_cannot_promote() -> None:
         candidate="xmage",
         expected_commit="d" * 40,
         denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
@@ -223,6 +306,7 @@ def test_bare_mention_without_observation_cannot_promote() -> None:
         candidate="xmage",
         expected_commit="d" * 40,
         denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
@@ -233,6 +317,7 @@ def test_construction_only_assertion_cannot_promote() -> None:
         candidate="xmage",
         expected_commit="d" * 40,
         denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
@@ -243,20 +328,29 @@ def test_failed_outcome_cannot_promote() -> None:
         candidate="xmage",
         expected_commit="d" * 40,
         denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
 
 def test_stale_candidate_head_cannot_promote() -> None:
     credit = R.positive_fixture_credit(
-        [_fixture_receipt()], candidate="xmage", expected_commit="0" * 40, denominator=_DENOM
+        [_fixture_receipt()],
+        candidate="xmage",
+        expected_commit="0" * 40,
+        denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
 
 def test_wrong_candidate_cannot_promote() -> None:
     credit = R.positive_fixture_credit(
-        [_fixture_receipt()], candidate="forge", expected_commit="d" * 40, denominator=_DENOM
+        [_fixture_receipt()],
+        candidate="forge",
+        expected_commit="d" * 40,
+        denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
@@ -267,6 +361,7 @@ def test_fixture_outside_the_denominator_cannot_promote() -> None:
         candidate="xmage",
         expected_commit="d" * 40,
         denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
     )
     assert credit == {}
 
@@ -277,6 +372,42 @@ def test_wrong_schema_cannot_promote() -> None:
         candidate="xmage",
         expected_commit="d" * 40,
         denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
+    )
+    assert credit == {}
+
+
+def test_stale_runner_digest_cannot_promote() -> None:
+    credit = R.positive_fixture_credit(
+        [_fixture_receipt()],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=_DENOM,
+        expected_runner_digest="0" * 64,
+    )
+    assert credit == {}
+
+
+def test_missing_runner_digest_cannot_promote() -> None:
+    doc = _fixture_receipt()
+    doc.pop("runner_digest")
+    credit = R.positive_fixture_credit(
+        [doc],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=_DENOM,
+        expected_runner_digest=_RUNNER_DIGEST,
+    )
+    assert credit == {}
+
+
+def test_missing_expected_runner_identity_cannot_promote() -> None:
+    credit = R.positive_fixture_credit(
+        [_fixture_receipt()],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=_DENOM,
+        expected_runner_digest="",
     )
     assert credit == {}
 

@@ -92,7 +92,6 @@ def main() -> None:
 
     adapter = ExternalRulesAdapter(
         RulesBackend.XMAGE,
-        cwd=ROOT,
         request_timeout_seconds=120.0,
     )
     try:

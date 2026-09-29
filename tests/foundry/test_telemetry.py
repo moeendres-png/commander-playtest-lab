@@ -38,8 +38,8 @@ def _export_fixture() -> dict:
             "agent": "foundry-implementer",
             "model": {
                 "providerID": "opencode-go",
-                "id": "muse-spark-1.3-contributor",
-                "variant": "xhigh",
+                "id": "space-bunny-free",
+                "variant": "max",
             },
             "version": "1.18.30",
             "cost": 0.13,
@@ -73,8 +73,8 @@ def test_session_stats_counts_only(tmp_path: Path) -> None:
     summary = session_stats_mod.summarize(str(path))
     assert summary["session_id"] == "ses_test"
     assert summary["agent"] == "foundry-implementer"
-    assert summary["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert summary["variant"] == "xhigh"
+    assert summary["model"] == "opencode-go/space-bunny-free"
+    assert summary["variant"] == "max"
     assert summary["model_turns"] == 1
     assert summary["tool_calls"] == 3
     assert summary["tool_calls_by_tool"] == {"bash": 2, "edit": 1}
@@ -97,17 +97,60 @@ def test_session_stats_rejects_garbage(tmp_path: Path) -> None:
         session_stats_mod.summarize(str(path))
 
 
-def test_session_stats_against_live_export_shape() -> None:
-    """The real 1.18.30 export of this session aggregates to sane counts."""
-    live = Path("/tmp/opencode/session-shape.json")
-    if not live.is_file():
-        pytest.skip("no live export snapshot present")
-    summary = session_stats_mod.summarize(str(live))
-    assert summary["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert summary["model_turns"] > 100
+def test_session_stats_aggregates_a_multi_turn_export(tmp_path: Path) -> None:
+    """Aggregation over a realistically shaped multi-turn export.
+
+    Replaces a probe that read ``/tmp/opencode/session-shape.json`` — a path nothing in
+    this repository creates, so the test skipped on every CI run and every fresh checkout
+    and had no effective coverage at all. It also asserted
+    ``opencode-go/muse-spark-1.3-contributor`` as the expected session model, which is a
+    retired executor under ``AGENTS.md`` section 7. This version is hermetic, runs
+    everywhere, and uses a currently active executor.
+    """
+    turns = 4
+    export = {
+        "info": {
+            "id": "ses_multiturn",
+            "agent": "foundry-implementer",
+            "model": {
+                "providerID": "opencode-go",
+                "id": "space-bunny-free",
+                "variant": "max",
+            },
+            "version": "1.18.30",
+            "tokens": {
+                "input": 400,
+                "output": 80,
+                "reasoning": 20,
+                "cache": {"read": 40, "write": 0},
+            },
+        },
+        "messages": [
+            {
+                "info": {},
+                "parts": [
+                    {"type": "step-start", "id": f"s{index}"},
+                    {"type": "tool", "tool": "bash", "state": {"status": "completed"}},
+                    {"type": "step-finish", "tokens": {"total": 25}},
+                ],
+            }
+            for index in range(turns)
+        ],
+    }
+    path = tmp_path / "multiturn-export.json"
+    path.write_text(json.dumps(export), encoding="utf-8")
+    summary = session_stats_mod.summarize(str(path))
+    assert summary["model"] == "opencode-go/space-bunny-free"
+    assert summary["variant"] == "max"
+    assert summary["model_turns"] == turns
+    # Every turn issues one tool call, so tool calls are never below turns.
+    assert summary["tool_calls"] == turns
     assert summary["tool_calls"] >= summary["model_turns"]
-    assert summary["tokens_input"] > 0
-    assert summary["compaction_count"] is None
+    # Token totals are session-level in the export format, not per-message.
+    assert summary["tokens_input"] == 400
+    assert summary["tokens_output"] == 80
+    assert summary["tokens_cache_read"] == 40
+    assert summary["compaction_count"] is None  # unavailable, never inferred
 
 
 def test_metrics_provenance_accepted_and_validated(tmp_path: Path) -> None:

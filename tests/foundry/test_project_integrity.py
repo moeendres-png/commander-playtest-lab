@@ -8,6 +8,7 @@ import re
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -20,8 +21,7 @@ def test_config_ci_agents_and_durable_state_agree():
     config = json.loads((ROOT / "opencode.json").read_text())
     models = config["provider"][launcher.CANONICAL_PROVIDER]["models"]
     schema = json.loads((ROOT / ".foundry/WORKSTREAM_STATE.schema.json").read_text())
-    for profile in launcher.EXECUTION_PROFILES:
-        model = launcher.SPACE_BUNNY_MODEL if profile == "space-bunny" else launcher.ALTERNATE_MODEL
+    for model in launcher.PROFILE_MODELS.values():
         short = model.split("/", 1)[1]
         native = models[short]["options"]["reasoningEffort"]
         assert launcher.AUTHORIZED_NATIVE_VARIANT[short] == native
@@ -46,22 +46,60 @@ def test_config_ci_agents_and_durable_state_agree():
         assert front["variant"] == models[short]["options"]["reasoningEffort"]
 
 
-def test_launcher_native_pair_gap_has_an_explicit_foreign_owner():
+def test_launcher_exposes_exactly_the_two_routed_executors():
+    """No retired executor may be reachable through the canonical launcher."""
+    assert launcher.EXECUTION_PROFILES == ("deepseek", "space-bunny")
+    assert launcher.DEFAULT_EXECUTION_PROFILE == "deepseek"
+    assert launcher.PROFILE_MODELS == {
+        "deepseek": "opencode-go/deepseek-v4.1-flash",
+        "space-bunny": "opencode-go/space-bunny-free",
+    }
+    assert not hasattr(launcher, "ZEN_MODEL"), "retired Zen Muse model must be fully removed"
+    for retired in ("muse", "muse-free-zen", "glm"):
+        with pytest.raises(ValueError, match="unknown execution profile"):
+            launcher.execution_identity(None, "high", retired)
+    with pytest.raises(ValueError, match="retired"):
+        launcher.execution_identity("zen", "high")
+
+
+def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
+    """The 2026-09-28 deferral stays byte-identical provenance; it is no longer a live block."""
     deferred = json.loads(
         (ROOT / "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS.json").read_text()
     )
+    # Historical record, unmodified.
     assert deferred["disposition"] == "FOREIGN_ACTIVE_DO_NOT_EDIT"
     assert "tools/foundry/launcher.py" in deferred["paths"]
     assert deferred["observed_head"] and deferred["exact_next_action"]
+    # Supersession record, additive.
+    resolution = json.loads(
+        (
+            ROOT / "docs/project_integrity_20260928/OWNERSHIP_DEFERRALS_RESOLUTION_20260929.json"
+        ).read_text()
+    )
+    assert resolution["resolves"].endswith("OWNERSHIP_DEFERRALS.json")
+    assert resolution["historical_record_preserved"] is True
+    assert resolution["superseded_disposition"] == "FOREIGN_ACTIVE_DO_NOT_EDIT"
+    assert set(resolution["paths_released_for_edit"]) == {
+        "tools/foundry/launcher.py",
+        "tests/foundry/test_launcher.py",
+    }
+    assert resolution["superseding_authority"]
 
 
 def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
-    pairs = re.findall(r"--execution-profile (space-bunny|muse) --effort (\w+)", doc)
-    assert set(pairs) == {("space-bunny", "max"), ("muse", "xhigh")}
+    pairs = re.findall(r"--execution-profile (deepseek|space-bunny) --effort (\w+)", doc)
+    assert set(pairs) == {("deepseek", "high"), ("space-bunny", "high")}
     for profile, effort in pairs:
-        model = launcher.SPACE_BUNNY_MODEL if profile == "space-bunny" else launcher.ALTERNATE_MODEL
-        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == effort
+        model = launcher.PROFILE_MODELS[profile]
+        # The documented --effort is project/authority routing, NOT the native variant.
+        assert effort in launcher.ALLOWED_EFFORTS, (profile, effort)
+        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "max"
+    # The doc must not present a project effort as if it were a native variant.
+    assert "--effort max" not in doc
+    for profile, model in launcher.PROFILE_MODELS.items():
+        assert model in doc, profile
     # A narrow guard for the actual contradictory positive instructions found in
     # this audit; historical reports and explicit prohibitions remain readable.
     for name in ("README.md", "EXECUTION_PROVIDER_OVERRIDE.md"):
@@ -70,6 +108,38 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
         assert "Primary long-running worker (HIGH)" not in text
     authority = (ROOT / "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md").read_text()
     assert "- HIGH for ordinary bounded engineering" not in authority
+
+
+def test_inactive_executors_are_declared_inactive_in_canonical_docs():
+    """Muse/GLM must be described as inactive, never as an active or alternate executor."""
+    for rel in (
+        "AGENTS.md",
+        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+        "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
+        "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+        # The canonical Foundry index. It was left behind by the routing migration in
+        # PR #350 and nothing caught it, because the loop above did not cover it.
+        "docs/foundry-execution/README.md",
+    ):
+        text = (ROOT / rel).read_text()
+        for phrase in (
+            "preferred and alternate",
+            "explicit alternate only",
+            "Muse is an explicit alternate",
+            "supported alternate / continuation executor",
+        ):
+            assert phrase not in text, f"{rel}: stale active-executor claim {phrase!r}"
+    agents = (ROOT / "AGENTS.md").read_text()
+    assert "opencode-go/deepseek-v4.1-flash" in agents
+    assert "Muse and GLM are inactive" in agents
+    # The index must name the current default executor positively, and must not still
+    # name the previous default as one. The phrase loop above does NOT match the
+    # wording the index actually used when PR #350 left it stale ("Space Bunny MAX
+    # default, Muse XHIGH alternate"), so without these two assertions the loop
+    # extension would be a false guarantee.
+    index = (ROOT / "docs/foundry-execution/README.md").read_text()
+    assert "DeepSeek MAX default" in index, "Foundry index omits the current default executor"
+    assert "Space Bunny MAX default" not in index, "Foundry index still names a retired default"
 
 
 def test_external_content_boundary_survives_policy_edits():
