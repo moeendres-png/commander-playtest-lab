@@ -3,7 +3,6 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonObject;
 import mage.constants.PhaseStep;
 import mage.game.Game;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -37,8 +36,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *       in APNAP order (101.4), i.e. P(N−1), …, P1 from the active caster.
  *       {@code Game.getOpponents()} iterates the turn-order list from its
  *       <i>current pointer</i>, not from the active player, so at 4P the order
- *       observed is P1, P3, P2. That is pinned by the disabled test until the Rules
- *       Core fix is admitted.</li>
+ *       observed is P1, P3, P2. fixed in the XMage multiplayer candidate f79e4168 (moeendres-png/mage#24) and enabled by the 2026-09-29 successor repin.</li>
  * </ul>
  */
 class XmageMultiplayerTemptingOfferTest {
@@ -63,7 +61,6 @@ class XmageMultiplayerTemptingOfferTest {
                 "the caster searched once, plus once per opponent who searched");
     }
 
-    @Disabled("F-21 (#328): Game.getOpponents iterates from the turn-order list's current pointer, not APNAP")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void opponentsAreOfferedInApnapOrder(int playerCount) {

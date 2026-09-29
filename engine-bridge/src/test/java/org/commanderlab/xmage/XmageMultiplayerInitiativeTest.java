@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import mage.constants.PhaseStep;
 import mage.game.Game;
 import mage.game.command.Dungeon;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -38,8 +37,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  *       turn order takes it. Either way the new holder ventures. The pin
  *       {@code b19596980f} leaves the initiative with the player who left.
  *       This is F-20 (commander-playtest-lab#327, fixed on
- *       moeendres-png/mage#21), so those expectations stay disabled until a
- *       repin admits that fix.</li>
+ *       moeendres-png/mage#21); fixed in the XMage multiplayer candidate
+ *       f79e4168 (moeendres-png/mage#24) and enabled by the 2026-09-29 successor
+ *       repin. CR 726.4 was verified verbatim against CR 2026-09-25.</li>
  * </ul>
  *
  * <p>Rule numbers are inferred: the initiative section follows the
@@ -79,8 +79,6 @@ class XmageMultiplayerInitiativeTest {
     }
 
     /** PN takes the initiative, then concedes on its own turn: P(N−1) is next in turn order. */
-    @Disabled("F-20: at the pin the initiative stays with the player who left "
-            + "(commander-playtest-lab#327, fixed on moeendres-png/mage#21)")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void anActiveHolderLeavingPassesToTheNextPlayer(int playerCount) {
@@ -104,8 +102,6 @@ class XmageMultiplayerInitiativeTest {
     }
 
     /** P1 (not active) concedes during P(N−1)'s turn: the active player, not PN. */
-    @Disabled("F-20: at the pin the initiative stays with the player who left "
-            + "(commander-playtest-lab#327, fixed on moeendres-png/mage#21)")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void aNonActiveHolderLeavingPassesToTheActivePlayer(int playerCount) {

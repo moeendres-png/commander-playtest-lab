@@ -10,9 +10,26 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CURRENT_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
 HISTORICAL_PIN = "db134b9737e951367d65ef5806ad986319cc73ab"
+
+
+def _live_pin() -> str:
+    cfg = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
+    return cfg["primary_engine"]["commit"]
+
+
+# This file proves the 2026-09-25 repin EVENT. Its current-pin assertions hold only
+# while this repin's pin is live; after a later forward repin they are superseded by
+# that repin's successor guard (tests/qualification/test_xmage_mp_candidate_repin_20260929.py)
+# and are skipped, never rewritten. Its historical-evidence assertions stay active.
+superseded_by_later_repin = pytest.mark.skipif(
+    _live_pin() != CURRENT_PIN,
+    reason="superseded: live XMage pin moved forward (see test_xmage_mp_candidate_repin_20260929.py)",
+)
 
 ACTIVE_LITERAL_CONSUMERS = (
     "scripts/bootstrap_engine_linux.sh",
@@ -42,6 +59,7 @@ SEALED_HISTORICAL_EVIDENCE = (
 )
 
 
+@superseded_by_later_repin
 def test_current_machine_authority_is_residual_candidate() -> None:
     cfg = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
     primary = cfg["primary_engine"]
@@ -52,6 +70,7 @@ def test_current_machine_authority_is_residual_candidate() -> None:
     assert cfg["current_runtime"]["production_provider"] is None
 
 
+@superseded_by_later_repin
 def test_bridge_identity_and_phase6_use_current_native_restore() -> None:
     provider = (
         REPO_ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java"
@@ -69,6 +88,7 @@ def test_bridge_identity_and_phase6_use_current_native_restore() -> None:
     assert HISTORICAL_PIN not in phase6
 
 
+@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
