@@ -374,8 +374,54 @@ blockers:
       issued as recommendations only.
 
 next_action: >-
-  Verify highest-priority stale-doc claims directly, then apply Tier 1 documentation truth
-  remediations on the owned branch.
+  COMPLETE. Coordinator decisions remain, grouped in blockers below. The single recommended
+  next action is PR #285: close it as not-mergeable and open a successor from a NEW branch at
+  4a56d179. Nothing about this workstream's own merge is outstanding.
+
+final_receipt:
+  pr: 359
+  pr_url: https://github.com/moeendres-png/commander-playtest-lab/pull/359
+  merged_at: '2026-09-29T19:28:15Z'
+  merged_head: f28205b5f537f2cd3fd3f53dcfa14daf586febde
+  merge_commit: 5135d9c72fdb83984cbd87f5380906f7a78bf4ff
+  canonical_main_head: 5135d9c72fdb83984cbd87f5380906f7a78bf4ff
+  canonical_main_tree: 2f343205a7af1768642f326974317e73fda75788
+  exact_head_ci:
+    quality: SUCCESS
+    security: SUCCESS
+    infrastructure: SUCCESS
+    exact-main-admission: SKIPPED
+    note: exact-main-admission is push-to-main only by design and correctly skips on a PR
+  pre_merge_drift_adjudication: >-
+    origin/main advanced 72665dce -> 9e578836 -> 08c3cbcf during the campaign. The 8 commits
+    not in the branch at merge time were 3 merged PRs of XMage engine-bridge Java tests and
+    touched zero of this branch's 18 files. Merged head f28205b5 already contained 9e578836.
+  post_merge_verification:
+    - all six artifacts present on origin/main
+    - .gitattributes is 30 lines and contains zero references to the two removed scripts
+    - no force push, no admin bypass, no history rewrite, no branch deletion
+  baseline_note: >-
+    The zero-delta test proof compares against a pristine detached checkout of 72665dce. The 8
+    commits that landed afterwards are Java-only (engine-bridge/src/test/.../*.java) and cannot
+    affect the Python suite.
+
+fresh_context_review:
+  verdict_reported: FAIL
+  findings_raised_against_own_artifacts: 3 x P1, 3 x P2
+  repaired_in_commit: 05705161
+  repairs:
+    - CANONICAL_KNOWLEDGE_MAP.md pointed at a non-existent docs/project_integrity_20260929/
+    - the QUALIFIED evidence-class claim was false (substring count); removed, and the
+      RUNTIME_VERIFIED finding restated with its method and its machine-readable instance
+    - the "11 of 12 refuted" count matched nothing; replaced with the 6-proven / 9-uncertain split
+    - the dirty-tree cascade was cited as both 55 and ~49; unified to the measured 55 vs 6
+    - the freeze-status count was cited as both 62 and 57; unified to one stated method
+    - new index files annotated that AGENTS.md means the repository-root file
+  independent_confirmations:
+    - CLAUDE.md absent and never committed
+    - no tests/ edit, no evidence/qualification/artifacts edit
+    - .gitattributes removal confirmed safe
+    - no over-cleanup found
 
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
