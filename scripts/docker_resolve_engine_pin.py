@@ -121,9 +121,12 @@ def resolve(provider: str, manifest: dict) -> EnginePin:
     bridge_commit: str | None = None
     bridge_base: str | None = None
     if provider == "forge":
-        # Dual identity: the Forge materialization source is resolved
-        # independently from the Rules-Core pin, then cross-checked so the two
-        # levels can never be silently cross-wired.
+        # Forge role identity: the materialization/bridge role is resolved
+        # explicitly and cross-checked against the exact candidate source. Under
+        # R-1 the maintained fork is a unified source candidate, so the bridge
+        # role may intentionally share the same commit as secondary_engine.commit.
+        # Role separation is semantic/provenance separation, not a requirement
+        # for two different Git SHAs.
         bridge = section.get("bridge_source")
         if not isinstance(bridge, dict):
             raise PinResolutionError(
@@ -158,16 +161,10 @@ def resolve(provider: str, manifest: dict) -> EnginePin:
                 "does not equal the Rules-Core pin secondary_engine.commit; "
                 "materialization source and Rules pin cannot be cross-wired"
             )
-        if bridge_commit == commit:
-            # A bridge source identical to the Rules pin carries no additive
-            # surface by definition (same commit means same tree, so no bridge
-            # code can exist there); that collapses dual identity and is rejected
-            # so a stale single-level resolution can never pose as a qualified
-            # bridge source.
-            raise PinResolutionError(
-                "manifest secondary_engine.bridge_source.commit equals the "
-                "Rules-Core pin; a distinct bridge materialization commit is required"
-            )
+        # Same-SHA is valid for the R-1 maintained-fork candidate: the bridge
+        # module and Rules-Core modules co-reside in one clean exact-source
+        # checkout. A different bridge commit remains allowed only when its
+        # rules_core_base_commit points back to the candidate pin.
 
     return EnginePin(
         provider=provider,
