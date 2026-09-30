@@ -84,6 +84,20 @@ class XmageFullGameReplayTwinTest {
                 + " attacks=" + first.stream().filter(l -> l.contains("|=>") && l.substring(l.indexOf("|=>")).contains(" attacks ")).count()
                 + " blockDecisions=" + first.stream().filter(l -> l.contains("|declare_blocker|")).count()
                 + " lastTurn=" + first.get(first.size() - 1).split("\\|")[0] + " end=" + first.get(first.size() - 1).substring(Math.max(0, first.get(first.size() - 1).length() - 80)));
+        if (System.getProperty("twin.concede") != null) {
+            List<String> concessions = first.stream().filter(l -> l.contains("|CONCEDE at ")).map(
+                    l -> l.substring(l.indexOf("|CONCEDE at ") + 12, l.indexOf('\n') > 0 ? l.indexOf('\n') : l.length()))
+                    .toList();
+            String terminal = first.get(first.size() - 1);
+            System.out.println("SOAK " + playerCount + "P seed " + seed + ": concessions at " + concessions
+                    + " end=" + terminal.substring(0, Math.min(terminal.length(), 160)));
+            assertTrue(first.stream().noneMatch(l -> l.contains("|LEAK ")),
+                    "no frame reaches a departed player: " + first.stream().filter(l -> l.contains("|LEAK ")).toList());
+            assertTrue(first.stream().noneMatch(l -> l.startsWith("TERMINAL failure=") && !l.startsWith("TERMINAL failure=null")
+                            && !l.contains("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount")
+                            && !l.contains("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: replacement_effect")),
+                    "the lane never fails after a concession except at a documented fail-closed class: " + terminal);
+        }
         int limit = Math.min(first.size(), second.size());
         for (int index = 0; index < limit; index++) {
             if (!first.get(index).equals(second.get(index))) {
@@ -109,6 +123,8 @@ class XmageFullGameReplayTwinTest {
                 "replay-twin-" + playerCount + "p-" + seed + "-" + run, handles, 0, 40, seed, importer);
         session.start();
         List<String> transcript = new ArrayList<>();
+        java.util.Set<String> departed = new java.util.HashSet<>();
+        boolean concedeArmed = false;
         Map<String, Integer> castsThisTurn = new HashMap<>();
         int paymentSteps = 0;
         for (int step = 0; step < MAX_DECISIONS; step++) {
@@ -143,6 +159,35 @@ class XmageFullGameReplayTwinTest {
             String state = publicState(game);
             String head = "t" + turn + "|" + phase + "|" + actor + "|" + cls + "|"
                     + pending.get("minimum_selections") + ".." + pending.get("maximum_selections") + "|" + labels;
+            // Concession soak (-Dtwin.concede=K): every K-th decision after the
+            // opening, the asked player concedes instead of answering, while more
+            // than two players remain. Deterministic by step, so both twin runs
+            // concede identically. A departed player may only still get the
+            // engine's pass-only priority round (F-39); anything else is a LEAK.
+            String concedeEvery = System.getProperty("twin.concede");
+            if (departed.contains(actor)) {
+                boolean passOnly = "priority".equals(cls) && labels.size() == 1 && labels.get(0).startsWith("Pass");
+                if (!passOnly) {
+                    transcript.add(head + "|LEAK frame to departed " + actor);
+                }
+            }
+            if (concedeEvery != null && step > 40 && step % Integer.parseInt(concedeEvery) == 0) {
+                concedeArmed = true;
+            }
+            // Armed concessions fire at the next non-priority decision, so the soak
+            // reaches the decision classes a concession can interrupt.
+            if (concedeArmed && game != null && !"priority".equals(cls) && !departed.contains(actor)
+                    && game.getPlayers().values().stream().filter(mage.players.Player::isInGame).count() > 2) {
+                concedeArmed = false;
+                JsonObject concede = new JsonObject();
+                concede.addProperty("proposal_id", "soak-" + step);
+                concede.addProperty("actor_id", legal.get("actor_id").getAsString());
+                concede.addProperty("player_id", legal.get("actor_id").getAsString());
+                session.submitConcede(concede);
+                departed.add(actor);
+                transcript.add(head + "|CONCEDE at " + cls + "\n      state " + state);
+                continue;
+            }
             String kind = options.isEmpty() ? "none"
                     : options.get(0).getAsJsonObject("choices_schema").get("response_kind").getAsString();
             String chosen;
