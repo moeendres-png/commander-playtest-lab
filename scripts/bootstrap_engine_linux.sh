@@ -45,15 +45,21 @@ if [[ -f "$BINARY_ROOT/installation-identity.json" && -n "${ENGINE_START_COMMAND
   ID_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("commit", ""))' "$IDENTITY_PATH")" || {
     echo "ERROR: existing engine identity is unreadable" >&2; exit 4;
   }
-  [[ "$ID_PROVIDER" == "$PROVIDER" && "$ID_COMMIT" == "$RULES_COMMIT" ]] || {
-    echo "ERROR: existing engine identity does not match current $PROVIDER Rules-Core authority" >&2; exit 4;
+  [[ "$ID_PROVIDER" == "$PROVIDER" && "$ID_COMMIT" == "$COMMIT" ]] || {
+    echo "ERROR: existing engine identity does not match current $PROVIDER built-source authority" >&2; exit 4;
   }
   if [[ "$PROVIDER" == "forge" ]]; then
     ID_SOURCE_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("source_commit", ""))' "$IDENTITY_PATH")" || {
       echo "ERROR: existing Forge source identity is unreadable" >&2; exit 4;
     }
+    ID_RULES_CORE_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("rules_core_commit", ""))' "$IDENTITY_PATH")" || {
+      echo "ERROR: existing Forge Rules-Core identity is unreadable" >&2; exit 4;
+    }
     [[ "$ID_SOURCE_COMMIT" == "$COMMIT" ]] || {
       echo "ERROR: existing Forge source identity does not match current bridge/materialization authority" >&2; exit 4;
+    }
+    [[ "$ID_RULES_CORE_COMMIT" == "$RULES_COMMIT" ]] || {
+      echo "ERROR: existing Forge Rules-Core identity does not match current Rules-Core authority" >&2; exit 4;
     }
   fi
   echo "Existing offline binary identity matches current authority at $BINARY_ROOT."
@@ -142,7 +148,7 @@ else
   (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
 fi
 cat > "$BINARY_ROOT/installation-identity.json" <<EOF
-{"provider":"$PROVIDER","commit":"$RULES_COMMIT","source_commit":"$COMMIT","source_path":"$SOURCE_ROOT","built_with_java":"$JAVA_MAJOR","build_log":"$LOG","bridge_verified":false}
+{"provider":"$PROVIDER","commit":"$COMMIT","source_commit":"$COMMIT","rules_core_commit":"$RULES_COMMIT","source_path":"$SOURCE_ROOT","built_with_java":"$JAVA_MAJOR","build_log":"$LOG","bridge_verified":false}
 EOF
 
 echo "Source build completed. A provider-specific JSONL bridge must now be configured."

@@ -62,5 +62,5 @@ $Mvnw = Join-Path $Source "mvnw.cmd"
 if (Test-Path $Mvnw) { & $Mvnw -DskipTests install }
 elseif (Get-Command mvn -ErrorAction SilentlyContinue) { Push-Location $Source; try { mvn -DskipTests install } finally { Pop-Location } }
 else { throw "Maven is missing. Install Maven 3.9.16 or use a project-local Maven distribution." }
-@{provider=$Provider;commit=$RulesCommit;source_commit=$Commit;source_path=$Source;bridge_verified=$false} | ConvertTo-Json | Set-Content (Join-Path $Binary "installation-identity.json")
+@{provider=$Provider;commit=$Commit;source_commit=$Commit;rules_core_commit=$RulesCommit;source_path=$Source;bridge_verified=$false} | ConvertTo-Json | Set-Content (Join-Path $Binary "installation-identity.json")
 Write-Host "Build completed. Configure ENGINE_START_COMMAND for a conforming JSONL bridge, then run scripts\verify_engine.sh."

@@ -353,10 +353,12 @@ def test_operator_bootstraps_resolve_current_forge_roles_from_manifest(repo_root
         assert "forge-protocol2-bridge/" in text, rel
         assert "dirty" in text.lower(), rel
 
-    assert '"commit":"$RULES_COMMIT"' in linux
+    assert '"commit":"$COMMIT"' in linux
     assert '"source_commit":"$COMMIT"' in linux
-    assert "commit=$RulesCommit" in windows
+    assert '"rules_core_commit":"$RULES_COMMIT"' in linux
+    assert "commit=$Commit" in windows
     assert "source_commit=$Commit" in windows
+    assert "rules_core_commit=$RulesCommit" in windows
     assert "remote get-url origin" in windows
     assert "Unexpected source remote" in windows
 
@@ -755,8 +757,9 @@ def test_linux_bootstrap_reuses_only_current_forge_dual_identity(
         json.dumps(
             {
                 "provider": "forge",
-                "commit": secondary["commit"],
+                "commit": bridge["commit"],
                 "source_commit": bridge["commit"],
+                "rules_core_commit": secondary["commit"],
             }
         ),
         encoding="utf-8",
@@ -786,18 +789,27 @@ def test_linux_bootstrap_rejects_stale_or_cross_wired_forge_reuse(
     stale_cases = {
         "rules": {
             "provider": "forge",
-            "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+            "commit": bridge["commit"],
             "source_commit": bridge["commit"],
+            "rules_core_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+        },
+        "built-source": {
+            "provider": "forge",
+            "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+            "source_commit": bridge["commit"],
+            "rules_core_commit": secondary["commit"],
         },
         "source": {
             "provider": "forge",
-            "commit": secondary["commit"],
+            "commit": bridge["commit"],
             "source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+            "rules_core_commit": secondary["commit"],
         },
         "provider": {
             "provider": "xmage",
-            "commit": secondary["commit"],
+            "commit": bridge["commit"],
             "source_commit": bridge["commit"],
+            "rules_core_commit": secondary["commit"],
         },
     }
     for name, payload in stale_cases.items():
