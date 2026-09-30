@@ -105,25 +105,13 @@ class ForgeWorkspaceError(RuntimeError):
     """The Forge workspace is absent, ambiguous, or not the bound identity."""
 
 
-# Environment variables that redirect Git away from the checkout named by cwd.
-# An inherited GIT_DIR/GIT_WORK_TREE would otherwise let `git rev-parse HEAD`
-# answer with a different repository's identity while the evidence names this
-# one, which is precisely what the identity binding must not permit.
-_GIT_REDIRECTION_ENV = (
-    "GIT_DIR",
-    "GIT_WORK_TREE",
-    "GIT_INDEX_FILE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-    "GIT_COMMON_DIR",
-)
-
-
+# An inherited GIT_DIR/GIT_WORK_TREE would let `git rev-parse HEAD` answer with
+# a different repository's identity while the evidence names this one, which is
+# precisely what the identity binding must not permit. The canonical strip list
+# lives in receipts.clean_git_environment so the runner, the receipts and the
+# epoch resolver cannot drift.
 def _git_environment() -> dict[str, str]:
-    env = dict(os.environ)
-    for name in _GIT_REDIRECTION_ENV:
-        env.pop(name, None)
-    return env
+    return receipt_mod.clean_git_environment()
 
 
 def git(*args: str, cwd: Path | None = None) -> str:

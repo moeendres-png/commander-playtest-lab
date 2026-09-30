@@ -149,6 +149,42 @@ def test_runner_digest_covers_the_native_suite_test_sources() -> None:
     assert covered, "no native-suite test source is covered by the runner digest"
 
 
+def test_git_redirection_list_covers_config_and_index_overrides() -> None:
+    """One canonical strip list, shared by every evidence Git read.
+
+    A redirected index can hide a dirty worktree from the provenance gate, and
+    injected config/namespace/replace/shallow state can change what a Git fact
+    means. The list is owned by receipts and consumed by the runner and the epoch
+    resolver so the three cannot drift.
+    """
+    from commander_lab.qualification.current_boundary import receipts as R
+
+    required = {
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_COMMON_DIR",
+        "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_NAMESPACE",
+        "GIT_SHALLOW_FILE",
+        "GIT_REPLACE_REFS",
+        "GIT_CEILING_DIRECTORIES",
+        "GIT_DISCOVERY_ACROSS_FILESYSTEM",
+        "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_GLOBAL",
+        "GIT_CONFIG_SYSTEM",
+    }
+    assert required <= set(R._GIT_REDIRECTION_ENV)
+    assert not required & set(R.clean_git_environment())
+    runner_source = RUNNER.read_text(encoding="utf-8")
+    assert "receipt_mod.clean_git_environment()" in runner_source
+    epoch_sources = (
+        REPO / "src" / "commander_lab" / "qualification" / "current_boundary" / "evidence_epoch.py"
+    ).read_text(encoding="utf-8")
+    assert "clean_git_environment()" in epoch_sources
+
+
 def test_capture_runner_identity_is_not_redirected_by_inherited_git_environment(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -35,6 +35,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from .receipts import clean_git_environment
+
 EPOCH_IDENTITY_SCHEMA = "commander-lab.current-boundary-epoch-identity/1.0.0"
 HISTORICAL_EPOCH_ID = "final-current-boundary-20260927"
 EPOCH_PARENT = "current-boundary-epochs"
@@ -43,17 +45,9 @@ EPOCH_IDENTITY_FILENAME = "EPOCH_IDENTITY.json"
 
 _SHA = re.compile(r"[0-9a-f]{40}")
 
-#: Environment variables that redirect Git away from the directory it is run in.
-#: The epoch id is a source identity, so an inherited redirection must not be
-#: able to name another repository's commit.
-_GIT_REDIRECTION_ENV = (
-    "GIT_DIR",
-    "GIT_WORK_TREE",
-    "GIT_INDEX_FILE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-    "GIT_COMMON_DIR",
-)
+#: The epoch id is a source identity, so an inherited Git redirection must not
+#: be able to name another repository's commit; receipts.clean_git_environment
+#: owns the canonical list of variables that are stripped.
 
 
 class EvidenceEpochError(RuntimeError):
@@ -62,11 +56,13 @@ class EvidenceEpochError(RuntimeError):
 
 def _git(repo_root: Path, *args: str) -> str:
     """A Git fact the epoch identity needs; unavailable means fail closed."""
-    env = dict(os.environ)
-    for name in _GIT_REDIRECTION_ENV:
-        env.pop(name, None)
     completed = subprocess.run(
-        ["git", *args], cwd=str(repo_root), capture_output=True, text=True, check=False, env=env
+        ["git", *args],
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+        check=False,
+        env=clean_git_environment(),
     )
     if completed.returncode != 0:
         raise EvidenceEpochError(

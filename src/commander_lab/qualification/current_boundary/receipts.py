@@ -78,25 +78,46 @@ class ReceiptError(RuntimeError):
     """A receipt is missing, malformed, stale, or not positive. Never credit-worthy."""
 
 
-# Environment variables that redirect Git away from the directory it is run in.
-# Every Git fact this module reads is a source identity, so an inherited
-# GIT_DIR/GIT_WORK_TREE could otherwise bind a receipt to another repository's
-# commit while the evidence names this checkout.
+# Environment variables that redirect or reconfigure Git away from the directory
+# it is run in. Every Git fact this module reads is a source identity, so an
+# inherited GIT_DIR/GIT_WORK_TREE could otherwise bind a receipt to another
+# repository's commit while the evidence names this checkout, and an inherited
+# index could hide a dirty worktree from the provenance gate. This is the one
+# canonical list; the runner and the epoch resolver use this function instead of
+# keeping their own copies.
 _GIT_REDIRECTION_ENV = (
     "GIT_DIR",
     "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
     "GIT_INDEX_FILE",
     "GIT_OBJECT_DIRECTORY",
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-    "GIT_COMMON_DIR",
+    "GIT_NAMESPACE",
+    "GIT_SHALLOW_FILE",
+    "GIT_REPLACE_REFS",
+    "GIT_CEILING_DIRECTORIES",
+    "GIT_DISCOVERY_ACROSS_FILESYSTEM",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_GLOBAL",
+    "GIT_CONFIG_SYSTEM",
 )
 
 
-def _clean_git_environment() -> dict[str, str]:
+def clean_git_environment() -> dict[str, str]:
+    """The process environment with every Git redirection removed.
+
+    Reads must be answered by the intended checkout under the repository's own
+    configuration, never by an inherited override.
+    """
     env = dict(os.environ)
     for name in _GIT_REDIRECTION_ENV:
         env.pop(name, None)
     return env
+
+
+def _clean_git_environment() -> dict[str, str]:
+    """Backwards-compatible private alias for :func:`clean_git_environment`."""
+    return clean_git_environment()
 
 
 def _now() -> str:
