@@ -84,13 +84,9 @@ final class ExternalDecisionController {
         int ordinal = 1;
 
         List<ActivatedAbility> playable = new ArrayList<>(
-                player.getPlayable(game, false)
+                XmageActionExecutor.allPlayable(player, game)
         );
-        playable.sort(
-                Comparator
-                        .comparing((ActivatedAbility ability) -> ability.getSourceId().toString())
-                        .thenComparing(ability -> ability.getOriginalId().toString())
-        );
+        playable.sort(XmageStableOrder.abilities(game));
 
         Set<UUID> commanderIds = game.getCommandersIds(
                 player,
