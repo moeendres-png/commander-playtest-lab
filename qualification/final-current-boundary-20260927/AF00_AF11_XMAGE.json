@@ -37,7 +37,7 @@
     "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact",
     "the auxiliary full-game-lane AF01 artifact is bound to a different engine epoch (b19596980f27) than this assembly; its verdict is not cited as current evidence"
    ],
-   "verdict": "FAIL"
+   "verdict": "PASS"
   },
   {
    "all_or_nothing": true,
@@ -391,11 +391,11 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+   "executed_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "09a5d24b006b50362dacc9300485f051fec69648b3e815515e9ff801c4034712",
+   "receipt_digest": "8bcf70049d7ab6b15c1597acd9369a1813a61ed0efb56e825f815765f64d6f0c",
    "returncode": 0,
    "tests": 34
   },
@@ -404,11 +404,11 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+   "executed_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
    "failed": 0,
    "failures": 0,
    "passed": 181,
-   "receipt_digest": "ee086370d44fa0085aa71a09858466ee57cb4e3c265b84030c2ad9d44d695589",
+   "receipt_digest": "8f0e9a3082b59d08ae07bd8137bd3d69f76b3c67565314a862375d4066477620",
    "returncode": 0,
    "tests": 181
   }

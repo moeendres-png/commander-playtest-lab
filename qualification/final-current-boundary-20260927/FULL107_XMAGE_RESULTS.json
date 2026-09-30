@@ -17,11 +17,11 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+   "executed_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "09a5d24b006b50362dacc9300485f051fec69648b3e815515e9ff801c4034712",
+   "receipt_digest": "8bcf70049d7ab6b15c1597acd9369a1813a61ed0efb56e825f815765f64d6f0c",
    "returncode": 0,
    "tests": 34
   },
@@ -30,11 +30,11 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+   "executed_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
    "failed": 0,
    "failures": 0,
    "passed": 181,
-   "receipt_digest": "ee086370d44fa0085aa71a09858466ee57cb4e3c265b84030c2ad9d44d695589",
+   "receipt_digest": "8f0e9a3082b59d08ae07bd8137bd3d69f76b3c67565314a862375d4066477620",
    "returncode": 0,
    "tests": 181
   }
@@ -42,7 +42,7 @@
  "native_runs_provenance": {
   "absent_receipts_yield_no_credit": true,
   "expected_engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
-  "expected_runner_digest": "7dd56c350fbf5de8559085f1fd8e14df22d9759ce6d47219aee56d2d20be9ad9",
+  "expected_runner_digest": "71602b976f3963a7cfe3e06f6db7ff13823b129e7959effa4a2e515bafd6bc26",
   "source": "PERSISTED_EXECUTION_RECEIPTS_ONLY",
   "stale_runner_excluded": [],
   "summary": {
@@ -54,8 +54,8 @@
    ],
    "passed": 215,
    "receipt_digests": {
-    "xmage:direct": "09a5d24b006b50362dacc9300485f051fec69648b3e815515e9ff801c4034712",
-    "xmage:mechanism": "ee086370d44fa0085aa71a09858466ee57cb4e3c265b84030c2ad9d44d695589"
+    "xmage:direct": "8bcf70049d7ab6b15c1597acd9369a1813a61ed0efb56e825f815765f64d6f0c",
+    "xmage:mechanism": "8f0e9a3082b59d08ae07bd8137bd3d69f76b3c67565314a862375d4066477620"
    },
    "tests": 215
   }
@@ -85,38 +85,38 @@
    "exit_state": "PASS",
    "externally_supplied_decision_tape": [
     {
-     "actor": "01e193ca-f880-4b51-a599-6f842c461679",
+     "actor": "5f2ca04a-7bf5-4404-aaaf-25d33249626c",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "b28710a413e246c631f9bbcbc60212eea4d0a986bda22d340424a293d3ed8e1b",
-      "ff78e78b2863c23b1c5e5661a47ee0c4489a4d8aeffa9ad940d44f01bb379cd1"
+      "9fba6fe9b24fbe023eef3777fec17e2ec49dc90ee101777bdca9e83ede15e1fb",
+      "e8b82bc527cb71cf4e70bc6882d22e7a0785e7cbbe03a65324ddad8435ed1264"
      ],
      "policy": "keep_all",
      "revision": 1,
      "step": "mulligan"
     },
     {
-     "actor": "8c69ef9e-2d20-4641-84e9-001fc25b752f",
+     "actor": "3277f667-0c94-4709-a797-f1e44d3b1ae8",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "353993825f4a308721e13b588ce1ccb0b2df160ebfee33f99f01d0e9b3517de4",
-      "c77be8535c53fdc44059194b9199f3a00074c5ccf79b57dafee6442496c2165c"
+      "1bcdd75a1da0d3eb870b988aa300ced57d094c1b9c5d49d28084c76a906f3fa2",
+      "970160ab305df760ed0ba77d063985d72071a807b19c0be96d78808980c6ac46"
      ],
      "policy": "keep_all",
      "revision": 2,
      "step": "mulligan"
     },
     {
-     "actor": "01e193ca-f880-4b51-a599-6f842c461679",
-     "chosen_option_id": "d3538f87b4ab31f868ddbe069a8c9f9c830160337a45eeb446b7427aed5d9fdc",
+     "actor": "5f2ca04a-7bf5-4404-aaaf-25d33249626c",
+     "chosen_option_id": "3b8483dd7af8c5fa0e6d25e585e451cdc1e3b71771e799114956336a4d985f96",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "d3538f87b4ab31f868ddbe069a8c9f9c830160337a45eeb446b7427aed5d9fdc"
+      "3b8483dd7af8c5fa0e6d25e585e451cdc1e3b71771e799114956336a4d985f96"
      ],
      "policy": "pass_when_offered",
      "revision": 3,
@@ -148,7 +148,7 @@
    },
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -188,8 +188,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -248,51 +248,51 @@
    "exit_state": "PASS",
    "externally_supplied_decision_tape": [
     {
-     "actor": "16d4df9e-2f27-4f92-bb70-dd8c70fb5316",
+     "actor": "a0dbf4c4-c294-4a36-becd-654144583386",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "018b655ba535db9f722ee2f29b964ba3ecb6c4134c2549ef406aae4aba72f9cd",
-      "dc45b731c3f7ed6d50761f15a16308e0a3837bb8e9fc5c683021dd054b3aa6c3"
+      "a192149980a4a4a2b45a282e3bbdb2e20dd54912ffb68bcf488363a92a25806b",
+      "6f0aae20d2a58fb84fc1e668dff92fa455fc6dd51968c535738b5b2f7e2b28b9"
      ],
      "policy": "keep_all",
      "revision": 1,
      "step": "mulligan"
     },
     {
-     "actor": "9b34e954-da38-4274-9ebe-63c4566e4c05",
+     "actor": "734ed918-09be-4c1e-b658-8ee01c84285b",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "fa611d67845f166f2d0693cf9b5dba5367bd1d663200914b592808b4200462c2",
-      "d178ac0e5b21c5e3d2f5bac1eb136b28fa16045d51d6821d018f57a21b676ab9"
+      "7e30769033ede8bff34cc209a1d111eb85c7a43c156a6efa644941510a50128a",
+      "fc3672c1699320d4e265c295261baa20318c28537461e7bedfaa0fec061ff9fd"
      ],
      "policy": "keep_all",
      "revision": 2,
      "step": "mulligan"
     },
     {
-     "actor": "6c305b7e-87fe-4f4b-bd02-5fb3a2dfc875",
+     "actor": "339d7b93-0f2c-4815-a1f0-9ffd8f62e20d",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "0c58bd5a4f62383a3c16b543e4210721595215c9e8b68189ff8d2f5033e39d25",
-      "edd435322f18be8668a7e5b7304dd1cec5f0bf6a28b258d021c104ee8f966118"
+      "b2e326eaa4986794eb037082ad11d16809064d47de2df28a71910006414dee92",
+      "0e37ea4c78dfc81008b17c847bb79847d1d58a526caae747360c13259ef3a0f4"
      ],
      "policy": "keep_all",
      "revision": 3,
      "step": "mulligan"
     },
     {
-     "actor": "16d4df9e-2f27-4f92-bb70-dd8c70fb5316",
-     "chosen_option_id": "b6756108fc498e83eb5ca01d7a8642e66d93b61d3dcdde089ac5ff6450dc636b",
+     "actor": "a0dbf4c4-c294-4a36-becd-654144583386",
+     "chosen_option_id": "697325956562139bd311c3bf82b33beb48916a2b2b719b92b0b67650e462b041",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "b6756108fc498e83eb5ca01d7a8642e66d93b61d3dcdde089ac5ff6450dc636b"
+      "697325956562139bd311c3bf82b33beb48916a2b2b719b92b0b67650e462b041"
      ],
      "policy": "pass_when_offered",
      "revision": 4,
@@ -324,7 +324,7 @@
    },
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -364,8 +364,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -424,64 +424,64 @@
    "exit_state": "PASS",
    "externally_supplied_decision_tape": [
     {
-     "actor": "075b0351-5935-4da3-98fe-6d5223007a53",
+     "actor": "a1572a1a-a326-4a26-8be0-2e1bb8eb7146",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "63938e77619cb25893c9453c6f85812821061578e5d05694d775736458972b2e",
-      "16220f30cba57b5cabeefd31c487ec70a8f070331575c9eafdb786de9ea1cbc1"
+      "f3943d201e1b2b91008104ec42410eeb037eec20c3624838c04ffb280ba9686b",
+      "4bbf66a1a9c6c5ab876f7c96f52c3e7b9467994a40a4410599ff6a0ab7f0cae2"
      ],
      "policy": "keep_all",
      "revision": 1,
      "step": "mulligan"
     },
     {
-     "actor": "61288f3c-9e74-4b8e-bcca-bf0fa809a195",
+     "actor": "8008106e-b70e-4b17-8fee-62c6cd4deb4a",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "e82a6b97f87dd3db7bd6d69b9a5671cbbeb6698e30600ab94dd5ae71f420773f",
-      "5112fd725c5164511032073b462ddeef740ed5b57f888df173a502609362e574"
+      "2e053d10f485f3e41d386b3da027bd432c7f5f40be424dc898a8a580427cdf50",
+      "19ac75ecf69adc4675267d85f5917ebe2b0fe1ea8771c35cdcc953ae57c0f1b9"
      ],
      "policy": "keep_all",
      "revision": 2,
      "step": "mulligan"
     },
     {
-     "actor": "faf54c56-abab-4eb8-a1d4-5ab84c81bad4",
+     "actor": "47b62014-e832-41ab-bae3-0c424fd4221f",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "c11d0d0b61a2ff17b7da36a673f8832b928d649577c27961317134808c43ba8b",
-      "04d290cdf480f2fc32da00d2814f546e9e48231d4e91fba5163da4d59a6f069e"
+      "08d66f841ab591f0faa13cdc02a92b28c2afaee775c845d1a68005c20efc8c43",
+      "5915f0cc360d3c2e6f182f8ee2a926a8c3ff869c7f52031ac8856dba26c111be"
      ],
      "policy": "keep_all",
      "revision": 3,
      "step": "mulligan"
     },
     {
-     "actor": "3b6b1577-b12f-493e-91d4-e9111fd5a11c",
+     "actor": "a895ce8f-7f34-4583-97e1-2694a2d71495",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "f04a565b6bb5c1eeabef463ef70bc1f2b1d088bedf0c0c01ef00402f459d4dfc",
-      "352f0d5d50fce4a200f610a919c3673b42d8d0bdbd95d5dc36f08e3f20e4ec13"
+      "dcedc7b56927a38d3043f1c7f418cdceca271b448a484b3dfa5910de353972a1",
+      "031f7bc19881870d98b61a3e0560d242e379b8839948bc916e21c55cd58e84ff"
      ],
      "policy": "keep_all",
      "revision": 4,
      "step": "mulligan"
     },
     {
-     "actor": "075b0351-5935-4da3-98fe-6d5223007a53",
-     "chosen_option_id": "dae9d52354f7839afa3110b512584894fe46c8a2f7f08c319627d86aaa04883a",
+     "actor": "a1572a1a-a326-4a26-8be0-2e1bb8eb7146",
+     "chosen_option_id": "3bbb1bb5d24d68e5833b5beb03e6f2384d7a62b07d6718e4b57aea4823a364b7",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "dae9d52354f7839afa3110b512584894fe46c8a2f7f08c319627d86aaa04883a"
+      "3bbb1bb5d24d68e5833b5beb03e6f2384d7a62b07d6718e4b57aea4823a364b7"
      ],
      "policy": "pass_when_offered",
      "revision": 5,
@@ -513,7 +513,7 @@
    },
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -553,8 +553,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -613,77 +613,77 @@
    "exit_state": "PASS",
    "externally_supplied_decision_tape": [
     {
-     "actor": "b9ba71e0-d700-409e-b769-094eab8e989d",
+     "actor": "4477583f-3b27-40da-bd07-5d11d335de40",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "ea290934b761baa430321aaa545cd3729e5c634a672545098c51705a9c299bcd",
-      "3ec0a2be37d4326af005e6a56496775e5a474d22abfb33eac56d9bdfac1179ff"
+      "774a82d2db358667973fea484aac45437124bb1cb458c6bd9ae4da9f122b10b8",
+      "7f1885200b690851131aee83d2afc7ad0938b4fae34c5772df6ae89ec9d551b9"
      ],
      "policy": "keep_all",
      "revision": 1,
      "step": "mulligan"
     },
     {
-     "actor": "4ade17cd-4bbd-47c9-9dfa-b693273bb7cd",
+     "actor": "103293e1-0653-4809-b3a7-5c14d6c8637e",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "d25492c0c83eaad17faba1b4052a120bbca14aac91637082de5a0af1529aa24e",
-      "01bbf5721eea27299ced637ec7a0949a869d0e1f19f9897f3d818a7dd9148dd4"
+      "cb61174d0bfdd08f44557e6c0dbd91c11827050b26d28dcc45c3b50ce9aa82a6",
+      "3d2de6a0bf41686ad588b9195e3bebb56587e0056433c6db40a02a2313eae791"
      ],
      "policy": "keep_all",
      "revision": 2,
      "step": "mulligan"
     },
     {
-     "actor": "fd047733-98e9-46b1-b2e2-b1f35a37f82a",
+     "actor": "1b2360dd-eeaf-45bd-8e3b-4baddc9646b4",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "8879b97aed42aa5ae065cd858fd37cf967beb9e63929262b005f050b98b6c7b9",
-      "c4e6eefb34b222b2cd558dccfcb42a148f73a8adfdbc7748046ce7aece21b231"
+      "16292521ff71d43336628206298d7f4f3903238915dd096c1b1d40d5efbf8ea3",
+      "715fe123e6f39c3e21a5b145400c785034f732e15875c69c5878f7dd0ed78875"
      ],
      "policy": "keep_all",
      "revision": 3,
      "step": "mulligan"
     },
     {
-     "actor": "f4451f76-12b6-47dc-aa62-c59f9bea4d32",
+     "actor": "ed5a85f9-9fff-4b62-8152-635112255a93",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "70cac95df47e2a63059a7f5093e597eb20b5274a673fe1d5f7db3681f5f15982",
-      "d80e9c8cc8555cb4da7f320f5b6f414abb03209e2212e1c5ed8f988245ef0110"
+      "a17cf92b5239eae397dc218124441b52a1a866641dba207563f58c63ec19af52",
+      "42ccd7f986b589cc0c149dcbaa7cbd81263741b1b80aa7f4fa6d1081c01e5ebd"
      ],
      "policy": "keep_all",
      "revision": 4,
      "step": "mulligan"
     },
     {
-     "actor": "83dd7b0f-20a3-4918-a894-9ef3d740a774",
+     "actor": "e98d8cbf-9c09-43d4-b14e-ace2a530bf84",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "a1844ce08cda7b8967197598823cab914e24163f36f9a0f30c800595f53032ad",
-      "0aa1476fbe634d3970298d270d2177c44a62cbabf8cc7bb8cb2578b89450936a"
+      "fde50d686bfb9515f34f7fc1fac1699de7a41814ccedcf531e08c30e8c9fba63",
+      "24dd21fc724ac4da1490ccab803f839fc9f7e1f210fae151370779307897e120"
      ],
      "policy": "keep_all",
      "revision": 5,
      "step": "mulligan"
     },
     {
-     "actor": "b9ba71e0-d700-409e-b769-094eab8e989d",
-     "chosen_option_id": "dcdc59d1f5aa7859d0395996d83ed12cbbf0f77c143985f3e41baadd39dbdd5b",
+     "actor": "4477583f-3b27-40da-bd07-5d11d335de40",
+     "chosen_option_id": "6cde091064bb8dd00bab1eeb0c9d8f8672c2cb2cce8c356ee1f9396ae1543f3b",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "dcdc59d1f5aa7859d0395996d83ed12cbbf0f77c143985f3e41baadd39dbdd5b"
+      "6cde091064bb8dd00bab1eeb0c9d8f8672c2cb2cce8c356ee1f9396ae1543f3b"
      ],
      "policy": "pass_when_offered",
      "revision": 6,
@@ -715,7 +715,7 @@
    },
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -755,8 +755,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -815,50 +815,50 @@
    "exit_state": "PASS",
    "externally_supplied_decision_tape": [
     {
-     "actor": "c25ac96e-6bb9-448e-8bf9-b63f80f17d56",
+     "actor": "82afac4f-0329-44bc-a90f-22057196674b",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "01205bf60c2b69122a56d69d4122fc88c0d1f3a36c16bdc3b703d94bc128424c",
-      "9fc24a9652b076e93dcc2ae2085c54a9183d1ec3fb5a3cf97f7b6ed4506f2144"
+      "4420ed74dc39cc57c0413a1f3b2c00a72ecf235a0f52d901be1f64d024c053b4",
+      "c6388f6b8c3610cbcad02f2b9828175103a2e2292a5112c1f1163b7acd1973cd"
      ],
      "policy": "keep_all",
      "revision": 1,
      "step": "mulligan"
     },
     {
-     "actor": "353b7fbb-a1fb-4d34-80d3-339b3ada967c",
+     "actor": "2c01ed2b-0630-4984-9636-f506b5fa2304",
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "2d30aef76d9b1bf115540002cd336f4c3b8dc00a07cd9c507f4a0a4a62c17dcc",
-      "299f066b7def0941391830f0aa2fb006f2e4b2339fed686695e477c45dbd9b42"
+      "35fae067d4a1f9c4be59cc29d084d306d06e79e2a7792939ca6dea30c7f9eb8a",
+      "46b273828369fa0cad3e94e90cca5ae151c7fb8eb9a29c1fec80cac1aafb8bfb"
      ],
      "policy": "keep_all",
      "revision": 2,
      "step": "mulligan"
     },
     {
-     "actor": "c25ac96e-6bb9-448e-8bf9-b63f80f17d56",
-     "chosen_option_id": "2f5beda5927dcdc763b9c3b4f3bd1736f5b724e6ba4048b857762ada4c4ec757",
+     "actor": "82afac4f-0329-44bc-a90f-22057196674b",
+     "chosen_option_id": "f101de8bc293b6d95115b228f8972a761a6f9d55f0c9e9a39dfebe0f47953f23",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "2f5beda5927dcdc763b9c3b4f3bd1736f5b724e6ba4048b857762ada4c4ec757"
+      "f101de8bc293b6d95115b228f8972a761a6f9d55f0c9e9a39dfebe0f47953f23"
      ],
      "policy": "pass_when_offered",
      "revision": 3,
      "step": "priority"
     },
     {
-     "actor": "353b7fbb-a1fb-4d34-80d3-339b3ada967c",
-     "chosen_option_id": "bdd79922db5953603a0d01c1c522ea77e55052fdc82db0494d4881faa24e2d40",
+     "actor": "2c01ed2b-0630-4984-9636-f506b5fa2304",
+     "chosen_option_id": "4db689c817888f544c81f97bffae7b7f3b16a21913f5b9c6cddca7af144e8324",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "bdd79922db5953603a0d01c1c522ea77e55052fdc82db0494d4881faa24e2d40"
+      "4db689c817888f544c81f97bffae7b7f3b16a21913f5b9c6cddca7af144e8324"
      ],
      "policy": "pass_when_offered",
      "revision": 4,
@@ -890,7 +890,7 @@
    },
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -930,8 +930,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -967,7 +967,7 @@
      "PRIORITY"
     ],
     "observed_draw_semantic_events": [],
-    "observed_starting_actor": "c25ac96e-6bb9-448e-8bf9-b63f80f17d56",
+    "observed_starting_actor": "82afac4f-0329-44bc-a90f-22057196674b",
     "observed_zone_count_source": "ENGINE_REPORTED_PRINCIPAL_SCOPED",
     "priority_pass_state_changed": null,
     "priority_reached": true,
@@ -1064,7 +1064,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1104,8 +1104,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1140,7 +1140,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1180,8 +1180,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1216,7 +1216,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1256,8 +1256,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1292,7 +1292,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1332,8 +1332,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1368,7 +1368,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1408,8 +1408,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1444,7 +1444,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1484,8 +1484,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1520,7 +1520,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1560,8 +1560,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1596,7 +1596,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1636,8 +1636,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1672,7 +1672,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1712,8 +1712,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1748,7 +1748,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1788,8 +1788,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1824,7 +1824,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1864,8 +1864,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1900,7 +1900,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -1940,8 +1940,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -1976,7 +1976,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2016,8 +2016,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2052,7 +2052,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2092,8 +2092,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2128,7 +2128,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2168,8 +2168,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2204,7 +2204,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2244,8 +2244,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2280,7 +2280,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2320,8 +2320,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2356,7 +2356,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2396,8 +2396,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2432,7 +2432,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2472,8 +2472,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2508,7 +2508,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2548,8 +2548,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2584,7 +2584,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2624,8 +2624,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2660,7 +2660,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2700,8 +2700,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2736,7 +2736,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2776,8 +2776,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2812,7 +2812,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2852,8 +2852,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2888,7 +2888,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -2928,8 +2928,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -2964,7 +2964,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3004,8 +3004,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3040,7 +3040,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3080,8 +3080,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3116,7 +3116,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3156,8 +3156,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3192,7 +3192,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3232,8 +3232,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3268,7 +3268,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3308,8 +3308,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3344,7 +3344,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3384,8 +3384,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3420,7 +3420,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3460,8 +3460,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3496,7 +3496,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3536,8 +3536,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3572,7 +3572,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3612,8 +3612,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3648,7 +3648,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3688,8 +3688,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3724,7 +3724,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3764,8 +3764,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3800,7 +3800,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3840,8 +3840,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3876,7 +3876,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3916,8 +3916,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -3952,7 +3952,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -3992,8 +3992,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4028,7 +4028,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4068,8 +4068,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4104,7 +4104,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4144,8 +4144,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4180,7 +4180,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4220,8 +4220,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4256,7 +4256,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4296,8 +4296,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4332,7 +4332,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4372,8 +4372,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4408,7 +4408,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4448,8 +4448,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4484,7 +4484,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4524,8 +4524,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4560,7 +4560,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4600,8 +4600,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4636,7 +4636,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4676,8 +4676,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4712,7 +4712,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4752,8 +4752,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4788,7 +4788,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4828,8 +4828,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4864,7 +4864,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4904,8 +4904,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -4940,7 +4940,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -4980,8 +4980,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5016,7 +5016,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5056,8 +5056,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5092,7 +5092,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5132,8 +5132,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5168,7 +5168,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5208,8 +5208,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5244,7 +5244,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5284,8 +5284,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5320,7 +5320,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5360,8 +5360,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5396,7 +5396,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5436,8 +5436,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5472,7 +5472,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5512,8 +5512,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5548,7 +5548,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5588,8 +5588,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5624,7 +5624,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5664,8 +5664,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5700,7 +5700,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5740,8 +5740,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5776,7 +5776,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5816,8 +5816,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5852,7 +5852,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5892,8 +5892,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -5928,7 +5928,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -5968,8 +5968,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6004,7 +6004,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6044,8 +6044,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6080,7 +6080,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6120,8 +6120,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6156,7 +6156,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6196,8 +6196,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6232,7 +6232,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6272,8 +6272,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6308,7 +6308,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6348,8 +6348,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6384,7 +6384,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6424,8 +6424,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6460,7 +6460,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6500,8 +6500,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6536,7 +6536,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6576,8 +6576,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6612,7 +6612,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6652,8 +6652,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6688,7 +6688,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6728,8 +6728,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6764,7 +6764,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6804,8 +6804,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6840,7 +6840,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6880,8 +6880,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6916,7 +6916,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -6956,8 +6956,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -6992,7 +6992,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7032,8 +7032,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7068,7 +7068,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7108,8 +7108,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7144,7 +7144,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7184,8 +7184,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7220,7 +7220,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7260,8 +7260,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7296,7 +7296,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7336,8 +7336,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7372,7 +7372,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7412,8 +7412,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7448,7 +7448,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7488,8 +7488,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7524,7 +7524,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7564,8 +7564,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7600,7 +7600,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7640,8 +7640,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7676,7 +7676,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7716,8 +7716,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7752,7 +7752,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7792,8 +7792,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7828,7 +7828,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7868,8 +7868,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7904,7 +7904,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -7944,8 +7944,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -7980,7 +7980,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8020,8 +8020,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8056,7 +8056,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8096,8 +8096,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8132,7 +8132,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8172,8 +8172,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8208,7 +8208,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8248,8 +8248,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8284,7 +8284,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8324,8 +8324,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8360,7 +8360,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8400,8 +8400,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8436,7 +8436,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8476,8 +8476,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8512,7 +8512,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8552,8 +8552,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8588,7 +8588,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8628,8 +8628,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8664,7 +8664,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8704,8 +8704,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8740,7 +8740,7 @@
    "rules_rng_binding": null,
    "runtime_identity": {
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-    "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+    "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
     "capabilities_provider_reported": {
      "action_submission_supported": false,
      "commander_damage_visible": false,
@@ -8780,8 +8780,8 @@
     "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
     "lane": "generic protocol-2 compatibility lane",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-    "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-    "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+    "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
     "scenario_injection_supported": false,
     "seed_supported": true,
     "starting_state_injection_supported": false
@@ -8793,7 +8793,7 @@
  ],
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
+  "adapter_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": false,
@@ -8833,8 +8833,8 @@
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "bf08ffe08711695cedf8950489834169995a5e0e",
-  "runner_tree": "7195c4e700c72444de05da87f9ab89cbd0382bff",
+  "runner_commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+  "runner_tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca",
   "scenario_injection_supported": false,
   "seed_supported": true,
   "starting_state_injection_supported": false

@@ -91,10 +91,12 @@ NONE_FROM_PB03_MATRIX`.
 ## Current-Boundary Results
 
 Sealed at the requalified head: XMage 5 PASS / 58 UNKNOWN / 44 BLOCKED (native
-213 tests), Forge 5 / 58 / 44 (native 217 tests). XMage hidden information
+215 tests), Forge 5 / 58 / 44 (native 217 tests). XMage hidden information
 `PRINCIPAL_SCOPED` (4 distinct views, all requesters established), seed
-acknowledged at the creation transaction; AF01 `FAIL`, AF04 `FAIL`, AF11
-`UNKNOWN` for XMage; AF04 `UNKNOWN`, AF11 `UNKNOWN` for Forge.
+acknowledged at the creation transaction; XMage AF01 `PASS` after the F-37
+discriminating probes, AF04 `FAIL`, AF11 `UNKNOWN`; Forge AF01 `FAIL`
+(`fail_closed_unsupported_decision`: accepts an unsupported decision class for a
+live game), AF04 `UNKNOWN`, AF11 `UNKNOWN`.
 
 ## Privacy Evidence
 
@@ -144,8 +146,9 @@ compatibility debt).
 - PASS: dimension admission projection, native runtime execution (30/30),
   runner-identity freshness, privacy controls, midgame transport honesty,
   full repository Python suite, full engine-bridge suite, static gates.
-- FAIL: none introduced by this workstream. Pre-existing boundary failures
-  remain recorded (XMage AF01/AF04; Forge AF04) with no historical transfer.
+- FAIL: none introduced by this workstream. Recorded provider/boundary failures:
+  Forge AF01 (accepts an unsupported decision class for a live game) and XMage
+  AF04; no historical transfer.
 - UNKNOWN: AF05–AF09 and AF11 policy/per-scenario gates; FULL107 row credit;
   loaded-jar cryptographic engine identity.
 

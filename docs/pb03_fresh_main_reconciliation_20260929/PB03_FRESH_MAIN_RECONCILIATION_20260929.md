@@ -81,7 +81,7 @@ rows carry no construction verdict). Elimination rows record the engine's own
 | Blocked admission | never overridden by a runtime PASS |
 
 Current boundary columns (sealed at the requalified head): XMage 5 PASS / 58
-UNKNOWN / 44 BLOCKED (native 214 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
+UNKNOWN / 44 BLOCKED (native 215 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
 (native 217 tests). XMage hidden information is `PRINCIPAL_SCOPED` (four distinct
 views, all requesters established) and the seed is acknowledged at the creation
 transaction; the WSR22 "fully uncontrolled" position is retained only as

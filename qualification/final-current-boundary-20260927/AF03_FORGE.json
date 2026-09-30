@@ -17,13 +17,13 @@
      ],
      "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
      "deck_id": "af03-control",
-     "handle_id": "deck-5afc11e8-8856-4b67-83be-b45a7e4fc511",
+     "handle_id": "deck-183dfbdf-b66d-417c-8e53-4bd589346b7f",
      "rejected_cards": [],
      "warnings": []
     }
    },
    "protocol_version": "2.0.0",
-   "request_id": "78892afa-d484-4a7e-87d4-7f551e0c2a5d",
+   "request_id": "8044d6e2-4c85-4dd8-ab15-36b1e29391ac",
    "result": {
     "deck_handle": {
      "accepted_cards": 100,
@@ -33,14 +33,14 @@
      ],
      "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
      "deck_id": "af03-control",
-     "handle_id": "deck-5afc11e8-8856-4b67-83be-b45a7e4fc511",
+     "handle_id": "deck-183dfbdf-b66d-417c-8e53-4bd589346b7f",
      "rejected_cards": [],
      "warnings": []
     }
    },
    "status": "ok",
    "success": true,
-   "timestamp": "2026-09-30T07:48:23.589867610Z",
+   "timestamp": "2026-09-30T08:44:35.680379038Z",
    "warnings": []
   }
  },
@@ -68,10 +68,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "5577756f-bec3-4e11-ae8b-37ec6cae0faf",
+    "request_id": "f756a1f2-eb2d-41ab-952f-13a572be837d",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T07:48:23.594105288Z",
+    "timestamp": "2026-09-30T08:44:35.687752869Z",
     "warnings": []
    },
    "invariant": "deck_import_rejects_unknown_card",
@@ -98,10 +98,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "3811bac9-65cb-4e01-bef0-71c36385e391",
+    "request_id": "5b5604af-698c-4c27-b5c2-ad149802008c",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T07:48:23.598662741Z",
+    "timestamp": "2026-09-30T08:44:35.695128655Z",
     "warnings": []
    },
    "invariant": "deck_import_rejects_non_commander",
@@ -128,10 +128,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "f31a07f7-6bf1-4fcd-bb18-320ad2e91f82",
+    "request_id": "7632e50a-84d3-4261-8f0b-675a431cc79d",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T07:48:23.600077579Z",
+    "timestamp": "2026-09-30T08:44:35.697246449Z",
     "warnings": []
    },
    "invariant": "deck_import_rejects_colour_identity_violation",
@@ -158,10 +158,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "ee5f0694-de1f-4fa5-a81b-c30f0e985360",
+    "request_id": "78fe8549-98af-4930-9db5-84f7b02b3f68",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T07:48:23.600586521Z",
+    "timestamp": "2026-09-30T08:44:35.698155479Z",
     "warnings": []
    },
    "invariant": "deck_import_rejects_wrong_deck_size",
@@ -188,10 +188,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "86cdce19-4149-4cbd-a3be-911485b121ab",
+    "request_id": "89c28527-cf96-4375-9759-8ea1f1bcbc8a",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T07:48:23.600895089Z",
+    "timestamp": "2026-09-30T08:44:35.698652308Z",
     "warnings": []
    },
    "invariant": "deck_import_rejects_empty_mainboard",
