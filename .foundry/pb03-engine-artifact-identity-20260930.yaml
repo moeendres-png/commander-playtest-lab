@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "foundry/pb03-engine-artifact-identity-20260930"
 audit_base_sha: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
 audit_base_tree: "30addb023be1d9bbda3d7deff5f4d2f0df52d9b8"
-state_written_against_head: "91bb777c40453a5150b8402f30694706517ea66c"
-validated_head: "91bb777c40453a5150b8402f30694706517ea66c"
+state_written_against_head: "0488259a70a985b6f170495a053a01e5cb25dbe0"
+validated_head: "0488259a70a985b6f170495a053a01e5cb25dbe0"
 
 objective: "Close the documented PB-03 residual: bind the provider-reported loaded engine artifact identity (SHA-256, size, kind of the mage jar the bridge actually loaded) into the PB-03 dimension-admission document, the native runtime ledger, the midgame probe receipt and the assembled matrix, so engine identity is cryptographically observed instead of only declared."
 
@@ -66,6 +66,7 @@ technical_decisions:
   - "Observed loaded artifact on the canonical pin: kind=file, sha256=e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603, size=7112962, path=file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar. Bound through admission provider_identity, PB03_RUNTIME_EXECUTION, the midgame probe receipt and PB03_RUNTIME_EXECUTION_MATRIX (artifact_identity_consistent=true)."
   - "Runtime freshness now requires the artifact digest: missing/empty -> MISSING, directory/malformed -> INVALID, different artifact -> STALE; an unavailable expected digest is never fresh."
   - "The workflow asserts provider_identity, ledger and matrix carry the same file-backed 64-hex digest."
+  - "MAIN DRIFT (F-30/F-37, stable option order) merged normally at 0488259a and requalified. F-37 made AF01 discriminating: XMage AF01 FAIL->PASS on the live pin; Forge AF01 PASS->FAIL (fail_closed_unsupported_decision: the bridge accepted a request for an unsupported decision class for a live game). Boundary counts unchanged 5/58/44; the Forge finding is recorded as a provider gap, not masked."
 
 hypotheses_rejected: []
 
@@ -86,11 +87,11 @@ files_modified:
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "pytest tests -> 2411 passed, 13 skipped, 0 failed (91bb777c)"
-  - "pytest tests/qualification -> 514 passed, 9 skipped (91bb777c)"
-  - "mvn -o verify -> 813 tests, 0 failures, 0 errors, 1 skipped (91bb777c)"
+  - "pytest tests -> 2441 passed, 13 skipped, 0 failed (0488259a)"
+  - "pytest tests/qualification -> 518 passed, 9 skipped (0488259a)"
+  - "mvn -o verify -> 821 tests, 0 failures, 0 errors, 1 skipped (0488259a)"
   - "focused native PB-03/midgame/fingerprint -> 102 passed"
-  - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent"
+  - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent; XMage AF01 PASS, Forge AF01 FAIL (F-37)"
 
 evidence:
   - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json provider_identity.engine_artifact_sha256"
