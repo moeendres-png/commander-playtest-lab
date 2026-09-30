@@ -296,6 +296,134 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "entry_mode": "placement",
         "terminal": "damage_doubled_to_six",
     },
+    # The stack is built causally; the row's first scripted decision must then be
+    # offered to its scripted actor with the scripted option among the offers.
+    "PILOT_CHOOSE_OBJECT": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-swamp-p2",
+                "card_identity": "Swamp",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "PILOT_CHOICE": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-forest-p1",
+                "card_identity": "Forest",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "PILOT_MANA_PAYMENT": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "PILOT_REPLACEMENT_EFFECT": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-island-p2",
+                "card_identity": "Island",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "MICRO_MANA_PAYMENT": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "MICRO_PRIORITY": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p1",
+                "card_identity": "Mountain",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "MICRO_STACK": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p1",
+                "card_identity": "Mountain",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "CARD_13": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "CARD_20": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-swamp-p1-a",
+                "card_identity": "Swamp",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-swamp-p1-b",
+                "card_identity": "Swamp",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-swamp-p1-c",
+                "card_identity": "Swamp",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+            {
+                "semantic_id": "obj:fuel-swamp-p1-d",
+                "card_identity": "Swamp",
+                "owner": "P1",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
 }
 
 
@@ -1465,6 +1593,8 @@ def drive_causal_stack(
             "together (a combined causal entry the lane does not have). "
             f"stack_match={stack_ok}",
         }
+    elif terminal_kind == "scripted_decision_offered":
+        terminal = observe_scripted_decision(client, f"probe-{fixture_id}", record, placed)
     elif terminal_kind == "spell_resolves_to_graveyard":
         before = graveyard_count(client, record)
         resolve_and_record_classes(client, f"probe-{fixture_id}")
@@ -1485,6 +1615,109 @@ def drive_causal_stack(
         engine_commit=client.engine_commit,
     )
     return row_verdict.as_dict()
+
+
+def decision_principal(decision: dict[str, Any], legal: dict[str, Any]) -> str:
+    """The requested-state principal (P1..PN) the engine asks, from its seat index."""
+    seat = decision.get("seat")
+    if not isinstance(seat, int):
+        actions = legal.get("actions") or ()
+        metadata = (actions[0].get("metadata") or {}) if actions else {}
+        seat = metadata.get("seat")
+    if not isinstance(seat, int) or isinstance(seat, bool):
+        raise ml.MidgameLaneError("the pending decision names no seat")
+    return f"P{seat + 1}"
+
+
+def scripted_value_offered(
+    legal: dict[str, Any],
+    family: str,
+    value: Any,
+    placed: dict[str, str],
+) -> tuple[bool, str]:
+    """Whether the scripted selection is among the engine's own offers.
+
+    Exactly one offer must match; zero or several are not a match, as the
+    decision script's FAIL_CLOSED selection contract requires.
+    """
+    actions = list(legal.get("actions") or ())
+    if family == "choose_object" and isinstance(value, str):
+        native = placed.get(value)
+        if native is None:
+            return False, f"{value} has no placed native id"
+        found = find_native_offer(legal, native) is not None
+        return found, f"{value} offered={found}"
+    if family == "choice" and isinstance(value, str):
+        labels = [str((a.get("metadata") or {}).get("label") or "") for a in actions]
+        matches = [label for label in labels if label.strip().lower() == value.lower()]
+        return len(matches) == 1, f"{value} matched {len(matches)} of {labels}"
+    if isinstance(value, bool):
+        matches = [
+            a
+            for a in actions
+            if ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("value") is value
+        ]
+        return len(matches) == 1, f"boolean {value} matched {len(matches)}"
+    return False, f"selector for {family} not evaluated by this probe"
+
+
+def observe_scripted_decision(
+    client: ml.MidgameLaneClient,
+    tag: str,
+    record: dict[str, Any],
+    placed: dict[str, str],
+) -> dict[str, Any]:
+    """After the causal stack, the row's first scripted decision must be offered.
+
+    Priority is passed only through engine-offered passes, never by the
+    scripted actor when the scripted decision is itself a priority action.
+    The family must equal the engine's decision class exactly; a different
+    class is reported, not aliased.
+    """
+    script = record.get("decision_script") or []
+    if not script:
+        raise ml.MidgameLaneError(f"{tag}: the record scripts no decision")
+    step = script[0]
+    actor = str(step.get("actor"))
+    family = str(step.get("decision_family"))
+    value = (step.get("selection") or {}).get("semantic_value")
+    trace: list[str] = []
+    for _ in range(40):
+        decision = client.pending_decision(attempts=5)
+        if decision is None:
+            break
+        decision_class = str(decision.get("decision_class"))
+        legal = legal_actions(client)
+        principal = decision_principal(decision, legal)
+        trace.append(f"{decision_class}:{principal}")
+        if decision_class == "priority" and family == "priority" and principal == actor:
+            wanted = str((value or {}).get("object")) if isinstance(value, dict) else ""
+            native = placed.get(wanted)
+            offered = native is not None and find_source_cast(legal, native) is not None
+            return {
+                "kind": "scripted_decision_offered",
+                "observed": offered,
+                "detail": f"{actor} holds priority; cast of {wanted} offered={offered}; "
+                f"trace={trace}",
+            }
+        if decision_class != "priority":
+            matched, why = scripted_value_offered(legal, family, value, placed)
+            observed = decision_class == family and principal == actor and matched
+            return {
+                "kind": "scripted_decision_offered",
+                "observed": observed,
+                "detail": f"scripted {family}:{actor}, engine asked {decision_class}:"
+                f"{principal}; {why}; trace={trace}",
+            }
+        passed = option_of_type(decision, "pass_priority")
+        if passed is None:
+            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
+        client.submit_options(decision, [passed])
+    return {
+        "kind": "scripted_decision_offered",
+        "observed": False,
+        "detail": f"the scripted {family} for {actor} was never asked; trace={trace}",
+    }
 
 
 def graveyard_count(client: ml.MidgameLaneClient, record: dict[str, Any]) -> int:

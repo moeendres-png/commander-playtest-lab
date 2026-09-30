@@ -251,7 +251,7 @@ class XmageNativeStateRestorationTest {
             XmageNativeStateRestoration restoration,
             Map<String, Player> seats) {
         driveArrival(session, restoration, seats);
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
     }
 
@@ -758,7 +758,7 @@ class XmageNativeStateRestorationTest {
 
         // The causal route completes commanders before the stack; arrival completion
         // repeats it. The placement happens once and the compare judges the result.
-        restoration.restoreCommanderCasts(game, seats);
+        restoration.restoreAfterArrival(game, seats);
         assertEquals(prebound, game.getPermanent(prebound).getId());
         assertTrue(restoration.compare(
                 XmageNativeStateRestoration.readback(game, seats), seats).match());
@@ -805,6 +805,29 @@ class XmageNativeStateRestorationTest {
         JsonObject tapped = commanderOnBattlefieldRecord();
         semanticObject(tapped, "obj:cmd-zone-test").addProperty("tapped", true);
         assertPlanRejected(tapped, "UNSUPPORTED_COMMANDER_OBJECT_STATE");
+    }
+
+    @Test
+    void aLifeTotalOtherThanTheStartingLifeIsNeverSet() {
+        // F-40: 30 life at a starting life of 40 is history (10 life lost); it
+        // must be caused through the engine, so it is compared and never set.
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "ws2-life-history", 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 30, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 20, 20)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
+                List.of(),
+                1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageNativeStateRestoration.CompareVerdict verdict =
+                restoreAndCompare("ws2-life-history", plan, new XmageDeckImporter());
+        assertFalse(verdict.match());
+        assertEquals(List.of("life P1: requested 30 observed 40"), verdict.mismatches(),
+                "P2's starting life of 20 is restored; P1's lost life is not fabricated");
     }
 
     @Test

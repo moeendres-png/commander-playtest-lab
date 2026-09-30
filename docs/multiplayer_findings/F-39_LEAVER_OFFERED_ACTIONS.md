@@ -61,7 +61,17 @@ The existing `leftMidAction()` checks remain defensive guards for failures that 
 **Regression:** `aCastInProgressUnwindsWhenItsCasterLeaves` (4P/5P × target/payment) proves:
 
 - the pre-concession decision id is retired;
+- the retirement is recorded exactly once as `engine_decision_cancelled`, naming the retired
+  decision id and class, with reason `native_player_concede_signal` and the conceding seat;
+- **no `decision_accepted` event represents a response to the retired frame** — a fabricated or
+  defaulted answer would have to record one, so its absence is asserted rather than inferred from
+  the fact that this test submits nothing;
 - after P2 leaves, the next published decision belongs to a remaining player;
 - there is no `submit()` for the stale target/payment frame;
 - the stack ends empty;
 - P3 stays at 40.
+
+The `decision_accepted` assertion is load-bearing and was verified to be: injecting a fabricated
+acceptance into the retirement path turns all four parameterized cases red on exactly that
+assertion, while every other assertion in the test still passes. Without it, a regression that
+answered the stale frame on the player's behalf would pass unnoticed.
