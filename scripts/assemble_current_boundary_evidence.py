@@ -20,6 +20,9 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    evidence_epoch as epoch_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     midgame_rows as midgame_rows_mod,
@@ -30,7 +33,10 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
-OUT = REPO / "qualification" / "final-current-boundary-20260927"
+# The runtime evidence epoch resolved from the same source identity the runner
+# used. The historical WSR22 tree is a read-only predecessor and is never read
+# here as current evidence.
+OUT = epoch_mod.epoch_root(REPO)
 
 # Execution receipts. The assembler trusts nothing else for native credit: no
 # receipt means no credit, and source text is never a substitute.
@@ -175,6 +181,42 @@ def native_credit_provenance(
             "receipt_digests": credit["receipt_digests"],
         },
     }
+
+
+def _annotate_carried_gates(
+    matrix: list[dict[str, Any]], column_provenance: dict[str, Any]
+) -> None:
+    """State on every gate that a carried-forward column is historical.
+
+    Every gate in a carried-forward column is assembled from the historical
+    record, not from an execution in this epoch. Saying so per gate stops the
+    per-gate verdicts from being read as current observations.
+    """
+    if column_provenance.get("class") == "FRESH_CURRENT_BOUNDARY_EXECUTION":
+        return
+    note = (
+        "This gate was assembled from the historical record carried forward into this epoch "
+        f"({column_provenance.get('source_epoch', 'unknown')}); it records what that run "
+        "observed, not a fresh execution."
+    )
+    for gate in matrix:
+        gate["nonblocking_limitations"] = [*gate.get("nonblocking_limitations", []), note]
+
+
+def _load_fullgame_lane_auxiliary(candidate: str) -> dict[str, Any] | None:
+    """The xmage full-game-lane auxiliary, only when this epoch carries one.
+
+    The artifact is produced by an earlier boundary epoch, not by the runner, so
+    a runtime epoch normally does not contain it. Absence is therefore normal
+    and must not crash the assembly; when it is present it is still epoch-checked
+    before any citation.
+    """
+    if candidate != "xmage":
+        return None
+    path = OUT / "AF01_XMAGE_FULLGAME_LANE.json"
+    if not path.is_file():
+        return None
+    return load(path)
 
 
 def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
@@ -423,6 +465,16 @@ def _load_replay_document(candidate: str) -> dict[str, Any] | None:
 
 
 def assemble() -> None:
+    # Only an epoch whose recorded producing source is the source assembling
+    # right now may be credited. An absent identity means no run produced this
+    # epoch; a foreign identity means the bytes belong to another source.
+    epoch_identity = epoch_mod.require_epoch_identity(OUT, repo_root=REPO)
+    print(
+        "assembling evidence epoch:",
+        epoch_identity["epoch_root"],
+        "producing source",
+        epoch_identity["producing_source"]["commit"][:12],
+    )
     bindings = native_bindings()
     # The Lab-side identity every native credit in this assembly is bound to.
     # Engine-commit equality alone no longer suffices: an adapter/runner change
@@ -432,10 +484,17 @@ def assemble() -> None:
     for candidate in ("xmage", "forge"):
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
+        carried_forward = bool(results.get("carried_forward"))
         promoted = 0
         for fixture, per in bindings.items():
             classes = per.get(candidate)
             if not classes or fixture not in rows:
+                continue
+            if carried_forward:
+                # A carried-forward column has no executions in this epoch, so a
+                # receipt crediting one of its rows cannot exist. If one ever did,
+                # relabelling a historical row as fresh would be a provenance
+                # lie: refuse the promotion instead.
                 continue
             row = rows[fixture]
             if row["exit_state"] == "PASS":
@@ -498,6 +557,17 @@ def assemble() -> None:
             # Bound here so the AF matrix can never read another candidate's
             # identity through a leaked loop variable.
             "results_runtime_identity": results["runtime_identity"],
+            # Whether this column executed in this epoch or is the historical
+            # record carried forward for the comparison. A carried-forward
+            # column must never be presented as a fresh execution.
+            "column_provenance": {
+                "class": (
+                    "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH"
+                    if results.get("carried_forward")
+                    else "FRESH_CURRENT_BOUNDARY_EXECUTION"
+                ),
+                **(results.get("carried_forward") or {}),
+            },
         }
 
     # ---- PB-03 admission x runtime ledger ---------------------------------
@@ -634,7 +704,7 @@ def assemble() -> None:
     for candidate, data in per_candidate.items():
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
-        extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        extra = _load_fullgame_lane_auxiliary(candidate)
         extra_note: str | None = None
         if extra is not None:
             # An auxiliary artifact produced by an earlier boundary epoch must
@@ -905,6 +975,8 @@ def assemble() -> None:
                 "nonblocking_limitations": af11_by_candidate[candidate]["limitations"],
             },
         ]
+        if data["column_provenance"]["class"] != "FRESH_CURRENT_BOUNDARY_EXECUTION":
+            _annotate_carried_gates(matrix, data["column_provenance"])
         write(
             f"AF00_AF11_{candidate.upper()}.json",
             {
@@ -912,7 +984,8 @@ def assemble() -> None:
                 "candidate": candidate,
                 "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
                 "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
-                "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+                "boundary": data["column_provenance"]["class"],
+                "column_provenance": data["column_provenance"],
                 "native_runs": native,
                 "full107_counts": counts,
                 "gates": matrix,
@@ -989,6 +1062,12 @@ def assemble() -> None:
             "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
             "denominator": 107,
             "dispositions": dispositions,
+            # Which columns executed in this epoch and which are the historical
+            # record carried forward; the comparison is only as fresh as its
+            # least fresh column, and that is stated rather than implied.
+            "column_provenance": {
+                candidate: data["column_provenance"] for candidate, data in per_candidate.items()
+            },
             "rows": comparison,
             "no_ranking": "this packet contains no score, no ranking and no preferred provider",
         },
