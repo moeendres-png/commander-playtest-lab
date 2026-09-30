@@ -1024,5 +1024,9 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
     assert "space-bunny" in flat
     assert "native `max`" in flat
     assert "muse" in flat
-    assert "neither supported opencode foundry executor can perform it" in flat
+    assert (
+        "neither supported opencode foundry executor nor an available authorized claude campaign "
+        "can perform it"
+        in flat
+    )
     assert "docs/coordinator_execution_authority_2026-09-27.md" in flat
