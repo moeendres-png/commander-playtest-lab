@@ -290,6 +290,54 @@ def test_positive_fixture_credit_accepted() -> None:
     assert credit == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
 
 
+def test_positive_fixture_credit_requires_exact_current_obligation_digests() -> None:
+    denominator = {
+        "MICRO_STACK": {
+            "fixture_id": "MICRO_STACK",
+            "requested_state_digest": "state-current",
+            "obligation_digest": "obligation-current",
+        }
+    }
+    exact = _fixture_receipt(
+        obligation_exercised={
+            "requested_state_digest": "state-current",
+            "obligation_digest": "obligation-current",
+        }
+    )
+    assert R.positive_fixture_credit(
+        [exact],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=denominator,
+        expected_runner_digest=_RUNNER_DIGEST,
+    ) == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
+
+    for field, stale in (
+        ("requested_state_digest", "state-stale"),
+        ("obligation_digest", "obligation-stale"),
+    ):
+        obligation = dict(exact["obligation_exercised"])
+        obligation[field] = stale
+        receipt = _fixture_receipt(obligation_exercised=obligation)
+        assert R.positive_fixture_credit(
+            [receipt],
+            candidate="xmage",
+            expected_commit="d" * 40,
+            denominator=denominator,
+            expected_runner_digest=_RUNNER_DIGEST,
+        ) == {}
+
+
+def test_native_suite_receipt_never_earns_full107_fixture_credit() -> None:
+    assert R.positive_fixture_credit(
+        [_good_receipt()],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator={"MICRO_STACK": {"fixture_id": "MICRO_STACK"}},
+        expected_runner_digest=_RUNNER_DIGEST,
+    ) == {}
+
+
 def test_negative_assertion_cannot_promote() -> None:
     """The exact HIDDEN_02 defect: a test asserting FAILURE must never promote."""
     credit = R.positive_fixture_credit(

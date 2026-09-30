@@ -699,10 +699,16 @@ def execute_and_persist(
     """
     probe = probe_module()
     out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in out_dir.glob("*.json"):
-        stale.unlink()
+    selected = tuple(ROWS) if fixtures is None else fixtures
+    # This producer owns only the unprefixed receipts for its declared rows.
+    # R-4 adds other direct producers to the same positive-receipt directory;
+    # deleting every JSON here would erase their evidence before assembly.
+    for fixture_id in selected:
+        stale = out_dir / f"{fixture_id}.json"
+        if stale.is_file():
+            stale.unlink()
     executions: dict[str, Any] = {}
-    for fixture_id in tuple(ROWS) if fixtures is None else fixtures:
+    for fixture_id in selected:
         record = records[fixture_id]
         request = {
             "game_id": f"row-{fixture_id}",
