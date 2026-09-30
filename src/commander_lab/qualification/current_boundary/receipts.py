@@ -34,11 +34,12 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any
 from xml.etree import ElementTree
 
@@ -806,21 +807,87 @@ def collect_positive_fixture_receipts(directory: Path) -> tuple[list[dict[str, A
     return valid, rejected
 
 
+def _short_digest(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8", errors="replace")).hexdigest()[:16]
+
+
+_JVM_OPTION_NAME = re.compile(r"^(-D[A-Za-z0-9_.\-]+|-X[A-Za-z:]+|-[A-Za-z]+)")
+
+
+def _jvm_option_names(value: str) -> str:
+    """Option names of a JVM/Maven option string, never their values.
+
+    ``-Dmaven.repo.local=/home/u/.m2 -Xmx2g -Dtoken=s3cret`` becomes
+    ``-Dmaven.repo.local,-Dtoken,-Xmx``: which knobs were set is behaviour-
+    relevant, their values (paths, credentials) are not persisted.
+    """
+    names: set[str] = set()
+    for token in value.split():
+        match = _JVM_OPTION_NAME.match(token)
+        names.add(match.group(1) if match else "<arg>")
+    return ",".join(sorted(names))
+
+
+_BRIDGE_SUBCOMMANDS = frozenset({"full-game", "compat"})
+
+
+def _command_shape(value: str) -> str:
+    """Shape of a bridge command without any value that could be private.
+
+    Kept: the executable's basename, flag names (``-Dauth``, ``-jar``, not
+    their values), the basename of path arguments and the known bridge
+    subcommands. Every other argument, including any value that follows a
+    flag, becomes ``<arg>``.
+    """
+    try:
+        tokens = shlex.split(value)
+    except ValueError:
+        return "<unparseable>"
+    shape: list[str] = []
+    for index, token in enumerate(tokens):
+        is_path = "/" in token or "\\" in token
+        if token.startswith("-"):
+            shape.append(token.split("=", 1)[0])
+        elif is_path or (index == 0 and re.fullmatch(r"[A-Za-z0-9_.\-]+", token)):
+            shape.append(PurePath(token.replace("\\", "/")).name)
+        elif token in _BRIDGE_SUBCOMMANDS:
+            shape.append(token)
+        else:
+            shape.append("<arg>")
+    return " ".join(shape)
+
+
 def environment_identity() -> dict[str, str]:
-    """Non-secret environment facts that can change native-suite behaviour."""
-    keys = (
-        "JAVA_HOME",
-        "MAVEN_OPTS",
-        "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
-        "COMMANDER_LAB_FORGE_BRIDGE_CMD",
-        "FORGE_ENGINE_SHA",
-        "PYTHONHASHSEED",
-    )
+    """Behaviour-relevant environment facts, in a form that is safe to persist (E2).
+
+    Raw values of these variables can carry local paths, usernames or
+    credentials (for example a token passed as a ``-D`` property). Receipts
+    therefore record structure plus a digest: option names, command shape,
+    validated scalars. The digest lets two runs be compared for equality
+    without the value being written anywhere.
+    """
     out: dict[str, str] = {}
-    for key in keys:
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home is not None:
+        out["JAVA_HOME.basename"] = PurePath(java_home.replace("\\", "/")).name
+        out["JAVA_HOME.sha256_16"] = _short_digest(java_home)
+    maven_opts = os.environ.get("MAVEN_OPTS")
+    if maven_opts is not None:
+        out["MAVEN_OPTS.option_names"] = _jvm_option_names(maven_opts)
+        out["MAVEN_OPTS.sha256_16"] = _short_digest(maven_opts)
+    for key in ("COMMANDER_LAB_XMAGE_BRIDGE_CMD", "COMMANDER_LAB_FORGE_BRIDGE_CMD"):
         value = os.environ.get(key)
         if value is not None:
-            out[key] = value[:200]
+            out[f"{key}.shape"] = _command_shape(value)
+            out[f"{key}.sha256_16"] = _short_digest(value)
+    forge_sha = os.environ.get("FORGE_ENGINE_SHA")
+    if forge_sha is not None:
+        out["FORGE_ENGINE_SHA"] = (
+            forge_sha if re.fullmatch(r"[0-9a-f]{40}", forge_sha) else "<invalid>"
+        )
+    seed = os.environ.get("PYTHONHASHSEED")
+    if seed is not None:
+        out["PYTHONHASHSEED"] = seed if re.fullmatch(r"random|[0-9]{1,10}", seed) else "<invalid>"
     out["python"] = sys.version.split()[0]
     return out
 
