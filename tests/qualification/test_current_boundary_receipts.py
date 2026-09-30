@@ -53,6 +53,16 @@ def _good_receipt(**overrides: object) -> dict:
         "runner": _identity(Path(".")).to_document(),
         "runner_digest": _identity(Path(".")).digest(),
         "classes": ["XmageFull107ResidualRequalificationTest"],
+        "executed_classes": {
+            "XmageFull107ResidualRequalificationTest": {
+                "tests": 34,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "report": "TEST-org.commanderlab.xmage.XmageFull107ResidualRequalificationTest.xml",
+            }
+        },
+        "unexecuted_classes": [],
         "positive_fixtures": [],
     }
     doc.update(overrides)
@@ -610,3 +620,52 @@ def test_ancestor_is_not_accepted_as_identity() -> None:
             actual_commit="18bba95a4528f6ab5910633f1f87f603b8c4ddf8",
             recorded_label="forge fork",
         )
+
+
+# --- B3: requested classes must equal executed classes ---------------------- #
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"executed_classes": None},
+        {"executed_classes": {}},
+        {"unexecuted_classes": ["XmageFull107ResidualRequalificationTest"]},
+    ],
+    ids=["no-identity", "missing-class", "unexecuted"],
+)
+def test_a_receipt_without_per_class_execution_gets_no_credit(
+    tmp_path: Path, overrides: dict
+) -> None:
+    path = R.persist(tmp_path / "r.json", _good_receipt(**overrides))
+    with pytest.raises(R.ReceiptError, match="NO_CREDIT"):
+        R.load_native_receipt(path)
+
+
+def _report(directory: Path, name: str, tests: int, skipped: int = 0, failures: int = 0) -> Path:
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"TEST-org.commanderlab.xmage.{name}.xml"
+    path.write_text(
+        f'<testsuite name="{name}" tests="{tests}" failures="{failures}" errors="0" skipped="{skipped}"/>',
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_every_requested_class_needs_a_fresh_executed_report(tmp_path: Path) -> None:
+    import os
+    import time
+
+    reports = tmp_path / "surefire-reports"
+    _report(reports, "Ran", 3)
+    _report(reports, "AllSkipped", 2, skipped=2)
+    _report(reports, "Empty", 0)
+    _report(reports, "Failed", 2, failures=1)
+    stale = _report(reports, "Stale", 4)
+    start = time.time() - 5
+    os.utime(stale, (start - 100, start - 100))
+    observed, unexecuted = R.observed_class_executions(
+        [reports], ("Ran", "AllSkipped", "Empty", "Failed", "Stale", "Missing"), not_before=start
+    )
+    assert observed["Ran"]["tests"] == 3
+    assert set(unexecuted) == {"AllSkipped", "Empty", "Failed", "Stale", "Missing"}
