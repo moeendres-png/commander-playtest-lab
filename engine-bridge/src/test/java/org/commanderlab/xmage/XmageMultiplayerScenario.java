@@ -36,6 +36,17 @@ final class XmageMultiplayerScenario {
 
     static XmageMultiplayerScenario start(String tag, int count, String active,
             List<XmageNativeStateRestoration.RequestedObject> objects) {
+        return start(tag, count, active, objects, Map.of());
+    }
+
+    /**
+     * As {@link #start(String, int, String, List)}, with named cards in a
+     * seat's library: {@code libraryCards} replaces that many of the seat's
+     * 99 Mountains (the library itself stays engine-shuffled).
+     */
+    static XmageMultiplayerScenario start(String tag, int count, String active,
+            List<XmageNativeStateRestoration.RequestedObject> objects,
+            Map<String, List<String>> libraryCards) {
         List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
         List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
         for (int seat = 1; seat <= count; seat++) {
@@ -53,8 +64,9 @@ final class XmageMultiplayerScenario {
                 XmageNativeStateRestorationTest.restorationFor(plan);
         List<String> handles = new ArrayList<>();
         for (XmageNativeStateRestoration.RequestedPlayer player : players) {
-            List<String> mainboard = new ArrayList<>();
-            for (int index = 0; index < 99; index++) {
+            List<String> mainboard = new ArrayList<>(
+                    libraryCards.getOrDefault(player.playerId(), List.of()));
+            while (mainboard.size() < 99) {
                 mainboard.add("Mountain");
             }
             handles.add(importer.importCommanderDeck(tag + "-" + player.playerId(),
