@@ -25,7 +25,7 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
 
 def test_manifest_records_current_owner_adjudicated_pins(repo_root: Path) -> None:
     config = _manifest(repo_root)
-    assert config["secondary_engine"]["commit"] == "201cad9576d004b71fd9af260ab4c981f606eb19"
+    assert config["secondary_engine"]["commit"] == "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
     # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
     assert config["primary_engine"]["commit"] == "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
     assert config["provider_decision"] == "NO_PROVIDER_READY"
