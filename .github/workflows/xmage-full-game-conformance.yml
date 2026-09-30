@@ -74,6 +74,7 @@ jobs:
             src/commander_lab/models/**
             src/commander_lab/storage/**
             tests/conftest.py
+            src/commander_lab/semantic_replay/**
 
   conformance:
     needs: [conformance-scope]
@@ -157,6 +158,9 @@ jobs:
           assert conformance['tactical_authority'] is False
           assert conformance['fallback_used'] is False
           assert replay['semantic_replay_match'] is True
+          assert replay['semantic_tape']['basis'] == 'semantic_replay_tape'
+          assert replay['semantic_tape']['tape_comparison_match'] is True
+          assert replay['semantic_tape']['fresh_process_replay_pass'] is True
           assert replay['bit_exact_replay_validated'] is False
           assert hidden['status'] == 'PASS'
           assert invariant['random_or_default_discretionary_fallback'] is False

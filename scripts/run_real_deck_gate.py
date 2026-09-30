@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 from commander_lab.candidates.models import FutureXmageScenario
@@ -30,6 +31,7 @@ from commander_lab.models import (
     PilotStrength,
     RulesDeckInput,
 )
+from commander_lab.semantic_replay.gate import run_semantic_tape_replay
 
 ROOT = Path(__file__).resolve().parents[1]
 XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
@@ -188,12 +190,23 @@ def cmd_replay(args: argparse.Namespace) -> int:
         scenario, decks, pilots = build_gate_setup(root, args.seed)
         result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
         runs.append(summarize_result(result, GATE_LABEL))
-    semantic_match = runs[0]["semantic_transcript_sha256"] == runs[1]["semantic_transcript_sha256"]
+    # C1: the verdict comes from the semantic replay tape system (two
+    # fresh-process recordings compared step by step, then a third fresh process
+    # consuming the first tape); the twin transcript hash is a diagnostic.
+    scenario, decks, pilots = build_gate_setup(root, args.seed)
+    with tempfile.TemporaryDirectory(prefix="real-deck-tapes-") as tape_dir:
+        tape = run_semantic_tape_replay(
+            runner, scenario=scenario, decks=decks, pilots=pilots, tape_dir=tape_dir
+        )
+    semantic_match = tape.passed
+    twin_match = runs[0]["semantic_transcript_sha256"] == runs[1]["semantic_transcript_sha256"]
     raw_match = runs[0]["raw_result_sha256"] == runs[1]["raw_result_sha256"]
     payload = {
         "gate": GATE_LABEL,
         "seed": args.seed,
         "semantic_replay_match": semantic_match,
+        "semantic_tape": tape.model_dump(mode="json"),
+        "twin_transcript_hash_match": twin_match,
         "raw_result_match": raw_match,
         "bit_exact_replay_validated": False,
         "runs": runs,
