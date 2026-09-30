@@ -34,7 +34,29 @@ JAVA_MAJOR="$(java -version 2>&1 | sed -n '1s/.*version "\([0-9]*\).*/\1/p')"
 mkdir -p "$(dirname "$SOURCE_ROOT")" "$BINARY_ROOT" "$ROOT/.tools"
 
 if [[ -f "$BINARY_ROOT/installation-identity.json" && -n "${ENGINE_START_COMMAND:-}" ]]; then
-  echo "Existing offline binary identity found at $BINARY_ROOT."
+  IDENTITY_PATH="$BINARY_ROOT/installation-identity.json"
+  PYTHON_BIN="$(command -v python3 || command -v python || true)"
+  [[ -n "$PYTHON_BIN" ]] || {
+    echo "ERROR: Python is required to verify existing engine identity" >&2; exit 4;
+  }
+  ID_PROVIDER="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("provider", ""))' "$IDENTITY_PATH")" || {
+    echo "ERROR: existing engine identity is unreadable" >&2; exit 4;
+  }
+  ID_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("commit", ""))' "$IDENTITY_PATH")" || {
+    echo "ERROR: existing engine identity is unreadable" >&2; exit 4;
+  }
+  [[ "$ID_PROVIDER" == "$PROVIDER" && "$ID_COMMIT" == "$RULES_COMMIT" ]] || {
+    echo "ERROR: existing engine identity does not match current $PROVIDER Rules-Core authority" >&2; exit 4;
+  }
+  if [[ "$PROVIDER" == "forge" ]]; then
+    ID_SOURCE_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("source_commit", ""))' "$IDENTITY_PATH")" || {
+      echo "ERROR: existing Forge source identity is unreadable" >&2; exit 4;
+    }
+    [[ "$ID_SOURCE_COMMIT" == "$COMMIT" ]] || {
+      echo "ERROR: existing Forge source identity does not match current bridge/materialization authority" >&2; exit 4;
+    }
+  fi
+  echo "Existing offline binary identity matches current authority at $BINARY_ROOT."
   echo "Skipping source build; run scripts/verify_engine.sh for the real handshake."
   exit 0
 fi
