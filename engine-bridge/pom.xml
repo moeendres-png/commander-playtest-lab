@@ -77,6 +77,31 @@
                 </configuration>
             </plugin>
 
+            <!-- Reproducible runtime classpath manifest.
+                 commander_lab.qualification.current_boundary.bridge_launcher builds
+                 its process-identity launch plan from target/classes plus this
+                 manifest and fails closed when it is absent. It must therefore
+                 be a real build output of the pinned dependency set, never a
+                 hand-written file, or the recorded build identity is unproven. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>write-runtime-classpath-manifest</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputFile>${project.build.directory}/cp-wsr22.txt</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

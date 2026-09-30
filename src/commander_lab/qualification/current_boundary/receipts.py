@@ -46,15 +46,21 @@ NATIVE_SUITE_RECEIPT_SCHEMA = "commander-lab.native-suite-receipt/1.0.0"
 POSITIVE_FIXTURE_RECEIPT_SCHEMA = "commander-lab.positive-fixture-receipt/1.0.0"
 SEED_BINDING_SCHEMA = "commander-lab.seed-binding/1.0.0"
 
-#: Classes the runner digest must cover. A change to any of these changes what the
-#: evidence means, so the receipt must change with it.
+#: Inputs the runner digest must cover. A change to any of these changes what the
+#: evidence means, so the receipt must change with it. The Lab XMage adapter is
+#: included: a bridge-source change with an unchanged engine candidate is still
+#: an adapter drift, and a receipt produced by the old bridge must not survive
+#: it. The probe is included for the same reason on the PB-03 route.
 _EXECUTED_INPUT_GLOBS = (
     "scripts/run_current_boundary_qualification.py",
     "scripts/assemble_current_boundary_evidence.py",
+    "scripts/run_midgame_capability_probe.py",
     "src/commander_lab/qualification/current_boundary/*.py",
     "src/commander_lab/engine/rules/*.py",
     "schemas/engine_adapter_protocol.schema.json",
     "config/rules_engines.json",
+    "engine-bridge/pom.xml",
+    "engine-bridge/src/main/java/org/commanderlab/xmage/*.java",
 )
 
 _NO_CREDIT = "NO_CREDIT"
@@ -71,6 +77,16 @@ def _now() -> str:
 def _digest(payload: Any) -> str:
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def document_digest(document: dict[str, Any]) -> str:
+    """Canonical content digest for an evidence document.
+
+    Any pipeline that persists a receipt-like document computes its self-digest
+    with this one function, so a document's integrity binding cannot drift
+    between producers.
+    """
+    return _digest(dict(document))
 
 
 def _git(root: Path, args: list[str]) -> str:
@@ -164,7 +180,20 @@ class RunnerIdentity:
         }
 
     def digest(self) -> str:
-        return _digest(self.to_document())
+        """Content identity of the executing code, independent of capture time.
+
+        ``built_utc`` remains in :meth:`to_document` as provenance, but is
+        deliberately excluded from the digest: it is set at capture time, so
+        including it would make two captures of the same clean tree disagree.
+        The freshness gate compares this digest across the *runner* and
+        *assembler* processes, and a receipt produced by one process could then
+        never be credited by the other. Content drift (commit, tree, dirty
+        state, any executed-input digest) still changes the digest, which is the
+        property the gate exists for.
+        """
+        document = self.to_document()
+        document.pop("built_utc", None)
+        return _digest(document)
 
 
 # Paths this qualification run writes as its own output. They are produced BY the
@@ -653,6 +682,7 @@ __all__ = [
     "capture_runner_identity",
     "classify_seed_binding",
     "collect_receipts",
+    "document_digest",
     "engine_tree_equivalence",
     "environment_identity",
     "load_native_receipt",

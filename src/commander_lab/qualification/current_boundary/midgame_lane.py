@@ -29,16 +29,38 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import subprocess
 import threading
 import uuid
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
 PROTOCOL_VERSION = "2.0.0"
 MIDGAME_LANE = "xmage_midgame_native_starting_state"
+MIDGAME_RECEIPT_SCHEMA = "commander-lab.midgame-capability-probe/1.0.0"
+
+# Every identity field a persisted mid-game receipt must carry before any of its
+# rows can be described as fresh on the exact head that is being assembled. A
+# receipt that names the engine but not the Lab runner that drove it cannot be
+# distinguished from one produced by a different harness, so it is never fresh.
+MIDGAME_RECEIPT_IDENTITY_FIELDS = (
+    "runner_commit",
+    "runner_tree",
+    "runner_digest",
+    "engine_commit",
+)
+
+# Freshness classifications for a persisted mid-game receipt. They mirror the
+# current-boundary receipt vocabulary so one staleness story holds across the
+# whole evidence pipeline: a missing, empty or mismatched required identity is
+# zero credit, never grandfathered.
+MIDGAME_RECEIPT_FRESH = "FRESH_EXACT"
+MIDGAME_RECEIPT_STALE = "STALE"
+MIDGAME_RECEIPT_MISSING = "MISSING"
+MIDGAME_RECEIPT_INVALID = "INVALID"
 
 # Field prefixes the engine's readback may legitimately report differently at a
 # declaration checkpoint. During a declaration step the engine does not hold
@@ -110,6 +132,50 @@ class MidgameLaneProtocolError(MidgameLaneTransportError):
     """
 
 
+def receipt_freshness(
+    receipt: Mapping[str, Any] | None,
+    *,
+    expected_runner_digest: str,
+    expected_engine_commit: str,
+) -> str:
+    """Classify a persisted mid-game receipt against the exact executing head.
+
+    ``FRESH_EXACT`` requires the schema, the canonical content digest, the Lab
+    runner digest and the engine commit to all match the executing head. A
+    receipt that carries no runner identity at all is ``MISSING``; a malformed
+    or tampered one is ``INVALID``; a well-formed receipt from another runner or
+    another engine epoch is ``STALE``. Every non-``FRESH_EXACT`` classification
+    is zero credit: the caller may report it as an auditable stale fact but must
+    never promote a row from it.
+    """
+    if not isinstance(receipt, Mapping):
+        return MIDGAME_RECEIPT_INVALID
+    if receipt.get("schema_version") != MIDGAME_RECEIPT_SCHEMA:
+        return MIDGAME_RECEIPT_INVALID
+    recorded_digest = receipt.get("receipt_digest")
+    if not isinstance(recorded_digest, str) or not recorded_digest:
+        # A receipt persisted without its own content digest cannot be bound to
+        # the bytes that produced it, so it is unbound rather than fresh.
+        return MIDGAME_RECEIPT_MISSING
+    from . import receipts as receipt_mod
+
+    body = {key: value for key, value in receipt.items() if key != "receipt_digest"}
+    if receipt_mod.document_digest(body) != recorded_digest:
+        return MIDGAME_RECEIPT_INVALID
+    identity = {field: receipt.get(field) for field in MIDGAME_RECEIPT_IDENTITY_FIELDS}
+    if not all(isinstance(value, str) and value for value in identity.values()):
+        return MIDGAME_RECEIPT_MISSING
+    if not expected_runner_digest or not expected_engine_commit:
+        # The executing identity is itself unavailable; nothing can be fresh.
+        return MIDGAME_RECEIPT_MISSING
+    if (
+        identity["runner_digest"] != expected_runner_digest
+        or identity["engine_commit"] != expected_engine_commit
+    ):
+        return MIDGAME_RECEIPT_STALE
+    return MIDGAME_RECEIPT_FRESH
+
+
 @dataclass(frozen=True)
 class DimensionManifest:
     """The engine's own per-dimension starting-state statement.
@@ -163,6 +229,14 @@ class RowVerdict:
     engine_accepted_starting_state: bool = False
     entry_mode: str = "placement"
     causal_verdict: dict[str, Any] | None = None
+    # The construction classification, stated explicitly instead of leaving a
+    # reader to infer it from outcome + the raw engine bit: EXACT when the
+    # engine's own compare matched; ALLOWED_VARIANCE when the only reported
+    # mismatches are the documented declaration-step priority allowance (the raw
+    # ``engine_construction_match`` stays false and visible); MISMATCH when a
+    # real mismatch exists; UNRECOGNIZED when the verdict was uninterpretable.
+    # None means the row carries no construction verdict (transport failure).
+    construction_verdict: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -172,6 +246,7 @@ class RowVerdict:
             "code": self.code,
             "detail": self.detail,
             "engine_construction_match": self.construction_match,
+            "construction_verdict": self.construction_verdict,
             "mismatches": list(self.mismatches),
             "declaration_step_priority_allowance_applied": list(self.allowance_applied),
             "entry_mode": self.entry_mode,
@@ -184,11 +259,26 @@ class RowVerdict:
 
 
 class MidgameLaneClient:
-    """One isolated mid-game session over the pinned engine's Protocol 2.0.0."""
+    """One isolated mid-game session over the pinned engine's Protocol 2.0.0.
 
-    def __init__(self, argv: tuple[str, ...], cwd: Path) -> None:
+    The launch contract is the canonical current-boundary one: the caller builds
+    the exact launch recipe through ``bridge_launcher.build_launch_plan`` (so the
+    classpath manifest, the isolated runtime cwd outside every candidate worktree
+    and the engine identity are the shared ones), and this client applies the
+    same parent-environment clearing on spawn. It never inspects engine
+    internals, never computes legality and never fabricates a response.
+    """
+
+    def __init__(
+        self,
+        argv: tuple[str, ...],
+        cwd: Path,
+        *,
+        env_overrides: dict[str, str] | None = None,
+    ) -> None:
         self._argv = argv
         self._cwd = cwd
+        self._env_overrides = dict(env_overrides or {})
         self._process: subprocess.Popen[str] | None = None
         self._engine_commit: str | None = None
         self._tape: list[dict[str, Any]] = []
@@ -198,10 +288,17 @@ class MidgameLaneClient:
     # -- transport ---------------------------------------------------
 
     def __enter__(self) -> MidgameLaneClient:
+        # Same spawn contract as bridge_launcher.launch: a parent
+        # JAVA_TOOL_OPTIONS must not leak into the child engine JVM, and the
+        # plan's own overrides are applied on top of the cleared environment.
+        env = dict(os.environ)
+        env.pop("JAVA_TOOL_OPTIONS", None)
+        env.update(self._env_overrides)
         try:
             self._process = subprocess.Popen(
                 list(self._argv),
                 cwd=str(self._cwd),
+                env=env,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -562,6 +659,7 @@ def classification_from_arrival(
             lane=lane,
             engine_commit=engine_commit,
             engine_accepted_starting_state=False,
+            construction_verdict="UNRECOGNIZED",
         )
     allowance = tuple(
         mismatch
@@ -590,12 +688,14 @@ def classification_from_arrival(
             lane=lane,
             engine_commit=engine_commit,
             engine_accepted_starting_state=False,
+            construction_verdict="UNRECOGNIZED",
         )
     elif construction_match:
         outcome = "ENGINE_NATIVE_REACHABLE"
     elif mismatches and allowance:
         # A negative raw bit survives only as the explicitly modeled
-        # declaration-step allowance, which the contract permits.
+        # declaration-step allowance, which the contract permits. The raw bit,
+        # the allowance, and the resulting classification are all reported.
         outcome = "ENGINE_NATIVE_REACHABLE"
     else:
         # construction_match is false and the mismatch list is empty: the engine
@@ -615,6 +715,7 @@ def classification_from_arrival(
             lane=lane,
             engine_commit=engine_commit,
             engine_accepted_starting_state=False,
+            construction_verdict="UNRECOGNIZED",
         )
     return RowVerdict(
         fixture_id=fixture_id,
@@ -631,6 +732,13 @@ def classification_from_arrival(
         # An acceptance statement is made only for a row that actually reached
         # the engine's native reachability. A construction mismatch does not.
         engine_accepted_starting_state=outcome == "ENGINE_NATIVE_REACHABLE",
+        construction_verdict=(
+            "EXACT"
+            if outcome == "ENGINE_NATIVE_REACHABLE" and construction_match
+            else "ALLOWED_VARIANCE"
+            if outcome == "ENGINE_NATIVE_REACHABLE"
+            else "MISMATCH"
+        ),
     )
 
 
@@ -682,7 +790,14 @@ def classification_from_causal_verdict(
     if not causal_match or mismatches:
         outcome = "CONSTRUCTION_MISMATCH"
         detail = "; ".join(mismatches) or "the engine did not produce the causal route"
-    elif terminal_obligation is None or terminal_obligation.get("observed"):
+    elif terminal_obligation is None:
+        # An unrecorded terminal is not an observed one. The causal route may
+        # have executed, but reachability requires the row's terminal
+        # obligation to be produced and recorded, so a caller that supplies no
+        # terminal gets MEASURED_BLOCKED rather than credit.
+        outcome = "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        detail = "the engine produced the causal route but no terminal obligation was recorded"
+    elif terminal_obligation.get("observed"):
         outcome = "CAUSAL_ROUTE_REACHABLE"
         detail = None
     else:
@@ -931,6 +1046,7 @@ def rejected_verdict(
     detail: str | None,
     engine_commit: str | None,
     state_accepted: bool = False,
+    entry_mode: str = "placement",
 ) -> RowVerdict:
     """Record a row the lane did not reach a verdict on, with the engine's own code.
 
@@ -939,6 +1055,10 @@ def rejected_verdict(
     materializable. When it is true the engine accepted the state and the lane
     simply did not execute the row's scripted obligation, which is recorded as
     ``ENGINE_STATE_ACCEPTED`` by the caller. Neither is a pass.
+
+    ``entry_mode`` records the route the row actually requested. A causal row
+    rejected before arrival must not be labelled as a placement row: the
+    persisted evidence would then claim a route the probe never attempted.
     """
     return RowVerdict(
         fixture_id=fixture_id,
@@ -952,6 +1072,7 @@ def rejected_verdict(
         lane=lane,
         engine_commit=engine_commit,
         engine_accepted_starting_state=state_accepted,
+        entry_mode=entry_mode,
     )
 
 

@@ -1,0 +1,708 @@
+{
+ "admitted": [
+  "PILOT_DECLARE_ATTACKER",
+  "PILOT_DECLARE_BLOCKER",
+  "WS05-CMD-DMG-SAME-21",
+  "WS05-CMD-DMG-SPLIT",
+  "WS05-CMD-ELIM-4",
+  "WS05-MP-BLOCK-4",
+  "WS05-MP-COMBAT-4",
+  "WS05-MP-COMBAT-5",
+  "WS05-MP-ELIM-5",
+  "WS05-MP-ELIM-OWNED-3",
+  "WS05-MP-ELIM-PRIO-3",
+  "WS05-MP-ELIM-TURN-3"
+ ],
+ "blocked": {
+  "MICRO_RULES_RANDOMNESS": {
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "missing_tokens": [
+    "<unmapped-required-event>"
+   ],
+   "reason": "at least one required event or zone has no declared restoration dimension",
+   "required_tokens": [
+    "<unmapped-required-event>",
+    "battlefield/graveyard/exile placement",
+    "stack spells",
+    "temporal points outside the qualified"
+   ],
+   "unknown_tokens": [
+    "<unmapped-required-event>"
+   ],
+   "verdict": "BLOCKED_UNKNOWN_DIMENSION"
+  },
+  "WS05-CMD-DMG-CONTROL": {
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "missing_tokens": [
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['controller/owner divergence']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-EXILE-NO": {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-EXILE-YES": {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-GY-NO": {
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-GY-YES": {
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-HAND-NO": {
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-HAND-YES": {
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-LIB-NO": {
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "missing_tokens": [
+    "partial library identity",
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['partial library identity', 'stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "partial library identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-CMD-ZONE-LIB-YES": {
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "missing_tokens": [
+    "partial library identity",
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['partial library identity', 'stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "partial library identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-ELIM-CONTROL-3": {
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "missing_tokens": [
+    "attachments and counters",
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['attachments and counters', 'controller/owner divergence']",
+   "required_tokens": [
+    "attachments and counters",
+    "battlefield/graveyard/exile placement",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-ELIM-STACK-3": {
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-PRIO-3": {
+   "fixture_id": "WS05-MP-PRIO-3",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "qualified turn-1",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-PRIO-5": {
+   "fixture_id": "WS05-MP-PRIO-5",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "qualified turn-1",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-TRIG-3": {
+   "fixture_id": "WS05-MP-TRIG-3",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-TRIG-5": {
+   "fixture_id": "WS05-MP-TRIG-5",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-TURN-3": {
+   "fixture_id": "WS05-MP-TURN-3",
+   "missing_tokens": [
+    "temporal points outside the qualified"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['temporal points outside the qualified']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "temporal points outside the qualified"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  "WS05-MP-TURN-5": {
+   "fixture_id": "WS05-MP-TURN-5",
+   "missing_tokens": [
+    "temporal points outside the qualified"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['temporal points outside the qualified']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "temporal points outside the qualified"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  }
+ },
+ "classification": "TECHNICALLY_CONFORMANT",
+ "counts": {
+  "admitted": 12,
+  "blocked": 18
+ },
+ "derivation": "required_events + semantic_objects[].zone + semantic_objects[].owner/controller declared attributes only",
+ "full107_credit": "NONE_FROM_ADMISSION",
+ "global_capability_flag": "starting_state_injection_supported remains false and is never used as the row admission verdict",
+ "manifest": {
+  "schema_version": "native-state-restoration-dimensions-1.1.0",
+  "starting_state_injection_supported": false,
+  "supported_dimensions": [
+   "commanders with prior cast counts (native game-load restore path)",
+   "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+   "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+   "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+   "owner-equals-controller attribution with 1:1 readback",
+   "life totals (pre-start assembly; state-based actions stay authoritative)",
+   "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+   "explicit Rules-seed binding with replay determinism",
+   "strict native readback with field-level compare and digests",
+   "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+   "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)"
+  ],
+  "unsupported_dimensions": [
+   "stack spells (casting requires real costs/timing: executor scope)",
+   "legacy/frozen partial library identity: no complete permutation, fail closed",
+   "legacy/frozen face_down=true without explicit native type: fail closed",
+   "revealed-zone restoration",
+   "controller/owner divergence (engine layers re-derive control)",
+   "attachments and counters",
+   "tapped permanents (unqualified dimension)",
+   "commander relations other than validated Partner linkage",
+   "poison counters",
+   "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+   "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+  ]
+ },
+ "manifest_source": "live full-game get_capabilities -> full_game_lane.state_restoration_dimensions",
+ "rows": [
+  {
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "missing_tokens": [
+    "<unmapped-required-event>"
+   ],
+   "reason": "at least one required event or zone has no declared restoration dimension",
+   "required_tokens": [
+    "<unmapped-required-event>",
+    "battlefield/graveyard/exile placement",
+    "stack spells",
+    "temporal points outside the qualified"
+   ],
+   "unknown_tokens": [
+    "<unmapped-required-event>"
+   ],
+   "verdict": "BLOCKED_UNKNOWN_DIMENSION"
+  },
+  {
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "missing_tokens": [
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['controller/owner divergence']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "missing_tokens": [
+    "partial library identity",
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['partial library identity', 'stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "partial library identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "missing_tokens": [
+    "partial library identity",
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['partial library identity', 'stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "partial library identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-5",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "missing_tokens": [
+    "attachments and counters",
+    "controller/owner divergence"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['attachments and counters', 'controller/owner divergence']",
+   "required_tokens": [
+    "attachments and counters",
+    "battlefield/graveyard/exile placement",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "missing_tokens": [],
+   "reason": "all frozen-state dimensions are supported by the live restoration manifest; this is admission only and grants no runtime or FULL107 credit",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "unknown_tokens": [],
+   "verdict": "ADMITTED_TO_NATIVE_RESTORATION"
+  },
+  {
+   "fixture_id": "WS05-MP-PRIO-3",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "qualified turn-1",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-PRIO-5",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "qualified turn-1",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-TRIG-3",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-TRIG-5",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['stack spells']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-TURN-3",
+   "missing_tokens": [
+    "temporal points outside the qualified"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['temporal points outside the qualified']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "temporal points outside the qualified"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  },
+  {
+   "fixture_id": "WS05-MP-TURN-5",
+   "missing_tokens": [
+    "temporal points outside the qualified"
+   ],
+   "reason": "live restoration manifest marks required dimension unsupported: ['temporal points outside the qualified']",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "temporal points outside the qualified"
+   ],
+   "unknown_tokens": [],
+   "verdict": "BLOCKED_MISSING_DIMENSION"
+  }
+ ],
+ "rows_total": 30,
+ "runtime_relation": "ORTHOGONAL: blocked admission does not prohibit genuine causal runtime execution; admitted admission does not prove runtime execution",
+ "schema_version": "commander-lab.pb03-dimension-admission/3.0.0"
+}

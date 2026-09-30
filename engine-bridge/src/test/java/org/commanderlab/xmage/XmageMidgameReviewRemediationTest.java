@@ -401,33 +401,33 @@ class XmageMidgameReviewRemediationTest {
     }
 
     /*
-     * KNOWN GAP (recorded, not silently accepted): an END-TO-END honeycard
-     * control over the wire is not yet provable with the fixtures available to
-     * this lane.
+     * RESOLVED (2026-09-29): the two recorded privacy vectors are closed at this
+     * head and are regression-locked by this class and by
+     * `XmageMidgamePrivacyTest`.
      *
-     * The project's own adversarial sentinel `HIDDEN_HONEYCARD_SENTINEL` (P2 holds
-     * `Demonic Tutor`) is rejected before any arrival:
-     *   midgame_starting_state_rejected
-     *   RestorationException: UNSUPPORTED_ZONE: HIDDEN_HONEYCARD_SENTINEL
-     *   obj:hidden-lib-0 requests library
-     * and the only other lane-supported records carrying a hand identity,
-     * `WS05-MP-PRIO-3` / `WS05-MP-PRIO-5` (Giant Growth), are rejected too:
-     *   RestorationException: UNSUPPORTED_ZONE: WS05-MP-PRIO-3 obj:mp-bolt requests stack
+     * 1. Decision-frame vector. An earlier revision returned the pending
+     *    `decision` frame inside the arrival observation, and that frame's
+     *    `legal_options` labels can name the acting principal's hand cards. The
+     *    arrival and causal-verification responses now carry no decision frame
+     *    at all; the only decision channel is `get_midgame_decision` for the
+     *    acting principal.
+     * 2. Honeycard control. The earlier note said an end-to-end planted-identity
+     *    control was not provable with the frozen corpus. It now is:
+     *    `XmageMidgamePrivacyTest.opposingHandIdentitiesNeverCrossTheBoundary`
+     *    plants `Runeclaw Bear` / `Serra Angel` / `Sol Ring` in the opposing
+     *    seats' supported hands of `WS05-CMD-DMG-SPLIT` and scans the complete
+     *    wire surface (create, unbound arrival, P1-bound arrival,
+     *    `get_midgame_state`, causal-verification error, pending decision) for
+     *    them, and `causalVerificationNeverExposesABystanderHand` does the same
+     *    for the causal lane. Early `HIDDEN_HONEYCARD_SENTINEL` attempts really
+     *    were rejected before arrival with `UNSUPPORTED_ZONE`; the
+     *    `WS05-CMD-DMG-SPLIT` route is the lane-supported record that makes the
+     *    control executable.
      *
-     * So the honeycard is unreachable by this lane's own create step, and there is
-     * no way to plant a distinctive identity in a non-requester's hand with the
-     * current frozen corpus. What IS proven here and below is the disclosure
-     * machinery itself: `redactMismatch` withholds a hand identity from any
-     * principal other than its owner (unit controls) and the live arrival mismatch
-     * list carries no foreign hand identity. A true end-to-end honeycard control
-     * needs a lane-supported frozen fixture with a hand-planted sentinel, which is
-     * Lab qualification data and therefore an authorization question, not
-     * something this workstream may fabricate.
-     *
-     * Separately, the arrival response still includes `pending_decision`
-     * unconditionally, and that frame's `legal_options` labels can name the acting
-     * principal's hand cards. That is an OPEN leak vector for a wrong requester and
-     * is recorded in the handoff; it is NOT fixed here.
+     * The disclosure machinery itself remains unit-controlled below:
+     * `redactMismatch` withholds a hand identity from any principal other than
+     * its owner and `redactNativeIds` removes the opaque handle for every
+     * requester.
      */
 
     @Test

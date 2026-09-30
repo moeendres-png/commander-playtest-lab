@@ -29,7 +29,9 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
+from commander_lab.qualification.current_boundary import bridge_launcher  # noqa: E402
 from commander_lab.qualification.current_boundary import midgame_lane as ml  # noqa: E402
+from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 
 MATERIALIZATION = (
     REPO_ROOT / "qualification" / "ws47" / "SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json"
@@ -296,16 +298,20 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
 }
 
 
-def launch_argv(workspace: Path, classpath: str) -> tuple[str, ...]:
-    return (
-        "java",
-        "-Djava.awt.headless=true",
-        f"-Dcommanderlab.repoRoot={REPO_ROOT}",
-        "-cp",
-        f"{workspace / 'target' / 'classes'}:{classpath}",
-        "org.commanderlab.xmage.Main",
-        "midgame",
-    )
+def open_client(workspace: Path) -> ml.MidgameLaneClient:
+    """Open one isolated mid-game session under the canonical launch plan.
+
+    The plan supplies the exact classpath manifest, the engine identity and the
+    shared runtime directory outside every candidate worktree; the client adds
+    no launch model of its own.
+    """
+    plan = bridge_launcher.build_launch_plan("xmage", lane="midgame", xmage_workspace=workspace)
+    return ml.MidgameLaneClient(plan.argv, plan.cwd, env_overrides=dict(plan.env_overrides))
+
+
+def live_engine_pin() -> str:
+    """The canonical XMage candidate identity from ``config/rules_engines.json``."""
+    return bridge_launcher.canonical_xmage_engine_pin()
 
 
 def option_of_type(decision: dict[str, Any], option_type: str) -> str | None:
@@ -417,7 +423,7 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
     raise ml.MidgameLaneError("the engine did not reach the record's temporal checkpoint")
 
 
-def probe_row(workspace: Path, classpath: str, fixture_id: str) -> dict[str, Any]:
+def probe_row(workspace: Path, fixture_id: str) -> dict[str, Any]:
     record = ml.frozen_record(MATERIALIZATION, fixture_id)
     game_id = f"probe-{fixture_id}"
     request = {
@@ -427,7 +433,7 @@ def probe_row(workspace: Path, classpath: str, fixture_id: str) -> dict[str, Any
         "requested_starting_state": record,
     }
     started = time.time()
-    with ml.MidgameLaneClient(launch_argv(workspace, classpath), workspace) as client:
+    with open_client(workspace) as client:
         client.request("get_provider_version", None)
         client.read_dimension_manifest()
         created = client.request("create_midgame_game", request)
@@ -826,7 +832,11 @@ def observe_priority_ring(
         "kind": "priority_ring_with_live_response",
         "observed": len(actors) >= passes and len(distinct) >= passes,
         "detail": f"ring actors observed in order: {len(actors)} passes across {len(distinct)} principals",
-        "actors_sample": distinct[:passes],
+        # The persisted evidence carries the public count only. The engine's
+        # raw principal ids are opaque handles to private seats and must never
+        # enter a principal-facing artifact.
+        "principals_observed": len(distinct),
+        "passes_observed": len(actors),
     }
 
 
@@ -1209,20 +1219,23 @@ def execute_turn_sequence(
             client.submit_options(decision, [kept])
             continue
         if decision_class == "choose_object":
-            # Cleanup discard: discard scaffolding filler first. An external
-            # discretionary choice among engine-offered options; it cannot
-            # create an extra turn.
+            # Cleanup discard: discard a declared scaffolding filler (a basic
+            # land) by identity. This is an external discretionary choice among
+            # the engine's own offered options, and it cannot create an extra
+            # turn. When no declared filler is offered the probe fails the row
+            # closed instead of silently taking the engine's first option: a
+            # first-option fallback would be an internal policy substitute for
+            # the external decision, which this lane forbids.
             options = decision.get("legal_options") or []
             choice = None
             for option in options:
                 label = str(option.get("label") or "")
                 if any(
-                    land in label for land in ("Mountain", "Plains", "Island", "Swamp", "Forest")
+                    land in label
+                    for land in ("Mountain", "Plains", "Island", "Swamp", "Forest", "Wastes")
                 ):
                     choice = str(option.get("option_id"))
                     break
-            if choice is None and options:
-                choice = str(options[0].get("option_id"))
             if choice is None:
                 break
             client.submit_options(decision, [choice])
@@ -1293,7 +1306,6 @@ def drive_to_precombat_main(
 
 def probe_causal_row(
     workspace: Path,
-    classpath: str,
     fixture_id: str,
     spec: dict[str, object],
 ) -> dict[str, Any]:
@@ -1301,7 +1313,7 @@ def probe_causal_row(
     game_id = f"probe-causal-{fixture_id}"
     entry_mode = str(spec["entry_mode"])
     started = time.time()
-    with ml.MidgameLaneClient(launch_argv(workspace, classpath), workspace) as client:
+    with open_client(workspace) as client:
         client.request("get_provider_version", None)
         client.read_dimension_manifest()
         request: dict[str, Any] = {
@@ -1348,6 +1360,7 @@ def probe_causal_row(
                 code=errors[0].get("code") if errors else None,
                 detail=errors[0].get("message") if errors else None,
                 engine_commit=client.engine_commit,
+                entry_mode=entry_mode,
             )
             return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         payload = created.get("payload") or {}
@@ -1360,6 +1373,7 @@ def probe_causal_row(
                 code=errors[0].get("code") if errors else None,
                 detail=errors[0].get("message") if errors else None,
                 engine_commit=client.engine_commit,
+                entry_mode=entry_mode,
             )
             return verdict.as_dict() | {"elapsed_s": round(time.time() - started, 3)}
         try:
@@ -1515,12 +1529,28 @@ def drive_causal_elimination(
             expected_life,
         )
     verdict = complete_causal(client, "elimination").get("verdict") or {}
+    victim_lost = verdict.get("victim_lost") is True
+    victim_left = verdict.get("victim_left") is True
+    eliminated = victim_lost or victim_left
+    # The terminal obligation is the engine's own elimination verdict, recorded
+    # explicitly. It is never inferred from the row's requested terminal.
+    terminal = {
+        "kind": "victim_eliminated_by_engine",
+        "observed": eliminated,
+        "victim_lost": victim_lost,
+        "victim_left": victim_left,
+        "detail": (
+            "the engine reported the victim lost/left the game"
+            if eliminated
+            else "the engine did not report the victim as lost or left"
+        ),
+    }
     row_verdict = ml.classification_from_causal_verdict(
         fixture_id,
         ml.MIDGAME_LANE,
         "causal_elimination",
         verdict,
-        None,
+        terminal,
         engine_commit=client.engine_commit,
     )
     return row_verdict.as_dict()
@@ -1584,6 +1614,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    # Bind the executing Lab runner before any engine process starts. A dirty
+    # tree cannot issue runtime evidence: an artifact that names one commit
+    # while other bytes executed is a false provenance claim.
+    runner = receipt_mod.capture_runner_identity(REPO_ROOT)
+    receipt_mod.require_clean_runner(runner)
+
     classpath_file = args.workspace / "target" / "cp-wsr22.txt"
     if not classpath_file.is_file():
         print(
@@ -1592,24 +1628,25 @@ def main() -> int:
             file=sys.stderr,
         )
         return 2
-    classpath = classpath_file.read_text(encoding="utf-8").strip()
 
     manifest_payload: dict[str, Any] | None = None
     engine_commit: str | None = None
-    with ml.MidgameLaneClient(launch_argv(args.workspace, classpath), args.workspace) as client:
-        client.request("get_provider_version", None)
-        manifest = client.read_dimension_manifest()
-        manifest_payload = manifest.as_dict()
-        engine_commit = client.engine_commit
+    try:
+        with open_client(args.workspace) as client:
+            client.request("get_provider_version", None)
+            manifest = client.read_dimension_manifest()
+            manifest_payload = manifest.as_dict()
+            engine_commit = client.engine_commit
+    except bridge_launcher.BridgeLaunchError as exc:
+        print(f"the mid-game lane could not be launched: {exc}", file=sys.stderr)
+        return 2
 
     rows: list[dict[str, Any]] = []
     for fixture_id in args.rows:
         if fixture_id in CAUSAL_ROWS:
-            rows.append(
-                probe_causal_row(args.workspace, classpath, fixture_id, CAUSAL_ROWS[fixture_id])
-            )
+            rows.append(probe_causal_row(args.workspace, fixture_id, CAUSAL_ROWS[fixture_id]))
         else:
-            rows.append(probe_row(args.workspace, classpath, fixture_id))
+            rows.append(probe_row(args.workspace, fixture_id))
 
     reachable = [row["fixture_id"] for row in rows if row["outcome"] == "ENGINE_NATIVE_REACHABLE"]
     accepted_only = [row["fixture_id"] for row in rows if row["outcome"] == "ENGINE_STATE_ACCEPTED"]
@@ -1643,9 +1680,14 @@ def main() -> int:
         "evidence_class": "FRESH_RUNTIME_PROTOCOL2_PROCESS",
         "rules_core": "xmage",
         "engine_commit": engine_commit,
+        "candidate_commit": live_engine_pin(),
         "lane": ml.MIDGAME_LANE,
         "protocol_version": ml.PROTOCOL_VERSION,
         "seed": SEED,
+        "runner_commit": runner.commit,
+        "runner_tree": runner.tree,
+        "runner_digest": runner.digest(),
+        "runner": runner.to_document(),
         "materialization": {
             "path": str(MATERIALIZATION.relative_to(REPO_ROOT)),
             "version": "commander-lab.semantic-fixture-materialization/1.0.5",
@@ -1692,8 +1734,23 @@ def main() -> int:
             "A stalled child is terminated and reaped and classified as a timeout here.",
             "This probe is technical capability evidence. It is not provider selection and does "
             "not establish Architecture Freeze.",
+            "The receipt binds the executing Lab runner (commit, tree, digest of every executed "
+            "runner/adapter input) and the engine commit the provider reported. A receipt whose "
+            "runner or engine identity does not match the assembling head is stale and earns "
+            "zero runtime credit; it is never grandfathered.",
         ],
     }
+    if receipt["engine_commit"] != receipt["candidate_commit"]:
+        # The provider must report the engine candidate the manifest pins. A
+        # different engine executed, so the rows describe an identity this
+        # evidence cannot claim; the run refuses to seal a mismatched receipt.
+        print(
+            f"engine identity mismatch: provider reported {receipt['engine_commit']!r}, "
+            f"canonical candidate is {receipt['candidate_commit']!r}",
+            file=sys.stderr,
+        )
+        return 3
+    receipt["receipt_digest"] = receipt_mod.document_digest(receipt)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(

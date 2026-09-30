@@ -212,7 +212,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_FORGE.json",
-    "native hidden/replay suites green: 0 tests"
+    "native hidden/replay suites green: 217 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -341,12 +341,15 @@
     "RNG_RULES_TAPE"
    ],
    "evidence": [
-    "replay export executed in a live game (RNG_REPLAY_FORGE.json)",
+    "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json; refusal codes: unknown_message)",
+    "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape",
     "native replay/semantic suites green"
    ],
    "gate": "AF09",
    "name": "RNG_REPLAY",
    "nonblocking_limitations": [
+    "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+    "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
     "the clean-process twin half of each replay obligation is not proven per fixture"
    ],
    "verdict": "UNKNOWN"
@@ -356,7 +359,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 0 tests, all green"
+    "native suites: 217 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -366,16 +369,19 @@
   {
    "blocking_rows": [],
    "evidence": [
-    "both candidates run as genuine separate external processes over stdin/stdout JSONL; no engine code is embedded in Lab",
-    "XMage MIT, Forge GPL-3.0 (recorded in the source lock)",
-    "the two candidates publish different request-body conventions (XMage reads payload, Forge reads params) and different decision-identity fields, so one adapter cannot serve both without a shim"
+    "each candidate was driven through its own distinct external adapter (forge=forge-protocol2-bridge (read-only reference checkout), xmage=engine-bridge/src/main/java/org/commanderlab/xmage) by one and the same Lab driver column, so no single engine is reached in-process",
+    "no adapter identity resolves to the Lab's in-tree engine package, so no engine code is embedded in the Lab process",
+    "qualification boundary recorded for this run: commander-lab.pre-freeze-qualification/2.0.0",
+    "recorded licence topology: forge forge GPL-3.0, xmage xmage MIT (recorded metadata; no legal conclusion is drawn here)",
+    "the candidates publish different request-body and decision-identity conventions (recorded in the AF04 evidence); whether a candidate-scoped mapping satisfies AF11/WS-09 under existing policy is not measured here",
+    "every observable AF11 technical fact holds (separate external processes, no embedded engine, shared recorded boundary); the only residual is the Coordinator-owned policy question, hence UNKNOWN rather than an invented PASS"
    ],
    "gate": "AF11",
    "name": "INTEROP_LICENSE_TOPOLOGY",
    "nonblocking_limitations": [
-    "a provider-specific decision-identity shim in the Lab adapter would be required for a single provider-neutral pilot"
+    "NOT MEASURED BY THE LAB: whether the observed separate-process topology satisfies AF11/WS-09 under existing policy, and any licence/redistribution consequence. That adjudication is reserved to the Coordinator, so the Lab records it as UNKNOWN rather than deciding it in either direction"
    ],
-   "verdict": "FAIL"
+   "verdict": "UNKNOWN"
   }
  ],
  "native_runs": {
@@ -388,7 +394,7 @@
    "failed": 0,
    "failures": 0,
    "passed": 150,
-   "receipt_digest": "6ad479ff423d66337f77274ec3da3e91d06aac515f0c47ab9162cfd413bc5e09",
+   "receipt_digest": "8d480e7cd7ed9719262c233c3cf8eb8705e82cd728ef46088a012005aa557b01",
    "returncode": 0,
    "tests": 150
   },
@@ -401,7 +407,7 @@
    "failed": 0,
    "failures": 0,
    "passed": 67,
-   "receipt_digest": "602120ccdbf45c3030893e72456d3f2343c502d58d4adf017f417000aceb212a",
+   "receipt_digest": "8ca568242c9008239cf579dd8a38e42ce54fd436de234717a46f7d055b62c62f",
    "returncode": 0,
    "tests": 67
   }

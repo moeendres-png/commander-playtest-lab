@@ -1,0 +1,163 @@
+schema_version: "2.0"
+repository: "moeendres-png/commander-playtest-lab"
+worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
+branch: "integration/pb03-fresh-main-reconciliation-20260929"
+audit_base_sha: "72665dcea00d3c74b3272586a9b2794bb86fd93c"
+audit_base_tree: "bc16a510b2ff120298035af61372354b9dac422a"
+state_written_against_head: "d4d1b6718d165bf6ebb4d2e56ba4961c20ecee16"
+validated_head: "d4d1b6718d165bf6ebb4d2e56ba4961c20ecee16"
+
+objective: "Reconcile PR #333 production-reachable PB-03 midgame transport with PR #316 dimension admission/native receipt semantics on fresh current main, preserving post-#344 evidence freshness and fail-closed boundaries."
+
+in_scope:
+  - "Fresh-main semantic reconciliation of PR #333"
+  - "Fresh-main semantic reconciliation of PR #316"
+  - "PB-03 production-reachable midgame transport"
+  - "PB-03 dimension admission"
+  - "Native runtime receipt binding"
+  - "Current runner-digest evidence freshness"
+  - "Fresh exact-head PB-03 runtime execution"
+  - "Current-boundary evidence regeneration"
+  - "PB-03 donor retirement after complete preservation"
+
+out_of_scope:
+  - "PB-09 / PR #299"
+  - "Muse historical donor / London Mulligan / START-2"
+  - "Forge or Mage repository mutation"
+  - "Production Provider selection"
+  - "Architecture Freeze"
+  - "General RNG/replay remediation outside what PB-03 evidence classification requires"
+
+ownership: "PB03-FRESH-MAIN-RECONCILIATION-20260929"
+
+dependencies:
+  - "PR #333 donor head 20b52958b43a3b373cdcb5e9e19bf706bcd2feeb (now merged to main as 10a43d2c, content byte-identical)"
+  - "PR #316 donor head 662db683bd43bab106d61c2b5af9fab6406fdcb0 (not merged; ported here)"
+  - "PR #344 merged evidence-hardening semantics"
+  - "Current main engine pins"
+
+hard_gates:
+  - "No wholesale merge/rebase of stale donors"
+  - "One writer for Commander Lab"
+  - "Transport != construction != causal reachability != semantic obligation != credit"
+  - "Hidden information remains principal-scoped"
+  - "Historical PASS does not transfer"
+  - "Runner identity freshness is mandatory"
+  - "Blocked admission cannot be overridden by native receipt"
+  - "No provider selection or architecture freeze"
+
+forbidden_shortcuts:
+  - "first option"
+  - "random option"
+  - "default yes/no"
+  - "internal engine AI fallback"
+  - "silent skip"
+  - "requested-option filtering"
+  - "fabricated legal actions"
+  - "manual outcome injection"
+
+validated_gates:
+  - "Qualification pytest suite 497 passed / 5 documented skips at 9edea29a"
+  - "Focused native suite 104 tests green on the merged tree (PB-03 + midgame + F-27 privacy + fingerprint)"
+  - "Current-boundary XMage + Forge runner and assembler re-executed at 9edea29a: PB-03 admission TECHNICALLY_CONFORMANT 12/18, runtime PASS 30/30, native receipt FRESH_EXACT, runtime credit EXECUTED_PASS"
+  - "Midgame probe resealed at 9edea29a with the same runner digest as the PB-03 runtime ledger (8/9/9/1/2 partition)"
+failed_gates: []
+invalidated_gates:
+  - "All pre-merge current-boundary receipts and PB-03 documents (superseded by the 9edea29a run; the earlier 82419e83/777dd489 runs are historical)"
+do_not_rerun:
+  - "Donor #333/#316 receipts as credit (requalified here)"
+
+current_failure: "NONE"
+failure_class: "NONE"
+root_cause_class: "NONE"
+current_hypothesis: "NONE"
+
+status: "ACTIVE"
+technical_decision_authority: "AUTONOMOUS_WITHIN_CONTRACT"
+current_reasoning_tier: "max"
+authority_gates: []
+
+technical_decisions:
+  - "MAIN ADVANCE 2026-09-29: origin/main moved 72665dce -> 7cb9e56a -> 12d3e1ac -> 23977253. Drift was merged normally (no rebase) at 9edea29a. PR #333 was merged to main as 10a43d2c with content byte-identical to the donor head; main's Java PB-03 files equal ours, while our Python consumer/probe/tests keep the successor adaptations. Conflicts (5) resolved in favour of the reconciled superset; manifests regenerated."
+  - "ENGINE PIN v2 (2026-09-30): canonical live pin moved f79e4168 -> 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326 (repin v2, mage#24 F-22/F-23/F-28/F-29/F-34). Built and installed the successor candidate; runtime fingerprint green; every engine-bound artifact requalified on 9375f35a. bridge_launcher.canonical_xmage_engine_pin() reads config/rules_engines.json, so the binding followed the pin automatically. Frozen WSR22 b1959698 stays historical and is not repinned."
+  - "RUNNER DIGEST DEFECT REPAIRED: RunnerIdentity.digest() included built_utc, so runner and assembler could never agree and every real post-#344 receipt was stale. built_utc remains recorded; the digest is now content-bound (commit/tree/dirty/executed inputs) and regression-locked."
+  - "RUNNER DIGEST COVERAGE: added scripts/run_midgame_capability_probe.py, engine-bridge/pom.xml and engine-bridge main Java sources (61 executed inputs) so adapter/probe drift invalidates receipts even when the engine commit is unchanged."
+  - "ADMISSION: declared object attributes now govern admission from the live manifest. WS05-MP-ELIM-CONTROL-3 and WS05-CMD-DMG-CONTROL declare owner != controller, the manifest marks controller/owner divergence unsupported, and the seam rejects both, so admission is 12 admitted / 18 blocked (was 14/16). Attribute tokens: controller/owner divergence, tapped permanents, attachments and counters."
+  - "CONSTRUCTION HONESTY: classification_from_arrival now states construction_verdict explicitly (EXACT / ALLOWED_VARIANCE / MISMATCH / UNRECOGNIZED); two combat rows survive only as ALLOWED_VARIANCE with the raw engine bit and the exact priority allowance visible. No negative verdict is silently promoted."
+  - "CAUSAL HONESTY: an unrecorded terminal obligation is CAUSAL_ROUTE_MEASURED_BLOCKED, not reachability credit; elimination rows record the engine's own victim_lost/victim_left terminal."
+  - "PROBE: canonical launch plan (bridge_launcher lane=midgame, isolated runtime cwd, cleared JAVA_TOOL_OPTIONS), runner identity + content digest sealed, raw principal UUIDs removed (counts only), causal rejection entry_mode fixed, first-option discard fallback removed, and the receipt must name the canonical engine pin."
+  - "PB-03 RUNTIME LEDGER: exact class+method binding, all-green requirement, content receipt digest, runner digest + candidate commit freshness; the assembler reports native_receipt classification and zeroes runtime credit unless FRESH_EXACT. The runner clears surefire reports first so a stale report cannot be credited, and the runtime engine fingerprint test is bound in the mechanism suite."
+  - "ASSEMBLER: refuses to cite a stale auxiliary full-game-lane AF01 artifact (different engine epoch) and derives the AF01 seed limitation text from the artifact instead of hard-coding a stale claim."
+  - "CURRENT-BOUNDARY REQUALIFICATION: XMage fresh on the live pin (native 213 tests, AF11 FAIL->UNKNOWN, hidden information now PRINCIPAL_SCOPED with 4 distinct views, seed acknowledged at the creation transaction); Forge re-executed in the documented bridge/evidence checkout e15f37d6 (Rules Core trees proven identical to ef958ee9; native 217 tests) after the default workspace was found on a divergent WSR20 branch whose bridge lacks the Commander-legality repair. Historical WSR22 positions retained as history in the readiness packet."
+  - "PR #285 (recovery point 4a56d179) READ-ONLY AUDIT: NO_UNIQUE_PB03_SEMANTIC_VALUE. Every PB-03-semantic unit is already canonical, superseded by #333/#316/#344, or stale. The single donor-unique unit relevant to the PB-03 launch path is non-semantic build plumbing (maven-dependency-plugin writes target/cp-wsr22.txt at package); it was integrated into engine-bridge/pom.xml. PR285_CURRENT_HEAD = REJECT_NEVER_MERGE; branch kept as provenance; no separate PR."
+  - "EVIDENCE VOCABULARY (Coordinator decision consumed): canonical classes unchanged; RUNTIME_VERIFIED is legacy compatibility metadata, not an eighth class. No historical evidence was rewritten. COMPATIBILITY DEBT RECORDED: existing machine-readable contracts that still use RUNTIME_VERIFIED need a future bounded schema-normalization workstream."
+  - "ADVERSARIAL REVIEW (fresh context) findings repaired: construction-verdict explicitness, admission attribute derivation, stale auxiliary artifact citation, probe/bridge digest coverage, unrecorded terminal, first-option fallback, surefire reset, AF01 exact-pin guard, derived seed limitation. Findings on the hardcoded engine constant are mitigated by the bound runtime fingerprint; loaded-jar cryptographic identity remains a documented limitation."
+
+hypotheses_rejected:
+  - "Wholesale donor merge/rebase: rejected; resolved by semantic transplant and a normal merge of main's #333 line."
+  - "Accepting the sealed donor receipt or donor counts as current: rejected; all rows rederived at 9edea29a."
+  - "Keeping admission at 14/16 after the manifest declares controller/owner divergence unsupported: rejected as an overstatement; now 12/18."
+  - "Treating the #333 declaration-step allowance as exact construction: rejected; it is now explicit ALLOWED_VARIANCE with the raw bit visible."
+  - "Forge requalification against the divergent WSR20 workspace: rejected as a wrong-bridge artifact (spurious AF03 FAIL); re-run in the documented e15f37d6 checkout."
+
+files_modified:
+  - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java"
+  - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameCausalBridge.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameLaneTest.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameCausalTest.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgamePrivacyTest.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameReviewRemediationTest.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03CapabilityManifestTest.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03RuntimeGapClosureTest.java"
+  - "engine-bridge/pom.xml"
+  - "src/commander_lab/qualification/current_boundary/midgame_lane.py"
+  - "src/commander_lab/qualification/current_boundary/dimension_admission.py"
+  - "src/commander_lab/qualification/current_boundary/pb03_runtime.py"
+  - "src/commander_lab/qualification/current_boundary/bridge_launcher.py"
+  - "src/commander_lab/qualification/current_boundary/receipts.py"
+  - "src/commander_lab/qualification/current_boundary/__init__.py"
+  - "scripts/run_midgame_capability_probe.py"
+  - "scripts/run_current_boundary_qualification.py"
+  - "scripts/assemble_current_boundary_evidence.py"
+  - "tests/qualification/test_current_boundary_midgame_lane.py"
+  - "tests/qualification/test_current_boundary_dimension_admission.py"
+  - "tests/qualification/test_current_boundary_pb03_runtime.py"
+  - "tests/qualification/test_current_boundary_receipts.py"
+  - "tests/qualification/test_wsr22_current_boundary.py"
+  - "tests/qualification/test_current_boundary_readiness_packet.py"
+  - "tests/qualification/test_current_boundary_redaction_placeholders.py"
+  - ".github/workflows/pb03-runtime-qualification.yml"
+  - "docs/pre_freeze_completion_20260927/PROVIDER_READINESS_PACKET_20260928.md"
+  - "qualification/final-current-boundary-20260927/**"
+  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
+
+tests_run:
+  - "pytest tests -> 2402 passed, 13 skipped, 0 failed (d4d1b671)"
+  - "mvn -o verify -> 812 tests, 0 failures, 0 errors, 1 skipped (d4d1b671)"
+  - "pytest tests/qualification -> 506 passed, 9 skipped (d4d1b671)"
+  - "mvn focused -> 104 passed (PB-03, midgame, control divergence, F-27 privacy, fingerprint)"
+  - "runner xmage + forge + assembler at 9edea29a -> PB-03 FRESH_EXACT / EXECUTED_PASS; XMage 213 native tests, Forge 217"
+  - "midgame probe at 9edea29a -> 29 rows, 8/9/9/1/2, zero transport failures, runner digest equals the runtime ledger's"
+
+evidence:
+  - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json (12/18)"
+  - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json (30/30 PASS)"
+  - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json (FRESH_EXACT / EXECUTED_PASS)"
+  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
+
+remaining_scope:
+  - "PR #381 exact-head CI and merge-gate evaluation"
+  - "Post-merge donor retirement for PR #316 (branches never deleted)"
+  - "Terminal receipt on main after merge"
+
+artifacts:
+  - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_20260929.md"
+  - "docs/pb03_fresh_main_reconciliation_20260929/DONOR_SEMANTIC_LEDGER.json"
+  - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_FINAL_HANDOFF_20260929.md"
+
+exact_next_action: "Wait for PR #381 exact-head CI; re-fetch origin/main and adjudicate drift; if every merge-gate condition holds, merge through the normal PR path, then close PR #316 with a provenance comment."
+
+execution_profile: "deepseek"
+executor_model: "opencode-go/deepseek-v4.1-flash"
+native_variant: "max"
+variant_resolution: "native_max"

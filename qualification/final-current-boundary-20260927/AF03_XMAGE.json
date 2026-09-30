@@ -16,13 +16,13 @@
      ],
      "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
      "deck_id": "af03-control",
-     "handle_id": "xmage-deck-3023dac6-8ecf-496f-ba84-f72ce97f08f3",
+     "handle_id": "xmage-deck-3590d672-864c-4415-8024-4f9acbb4b605",
      "rejected_cards": [],
      "warnings": []
     }
    },
    "protocol_version": "2.0.0",
-   "request_id": "f19cdb39-c029-4b49-bd95-ad6e04442b78",
+   "request_id": "45040c95-66d7-413d-a5fd-359c11f1223e",
    "status": "ok",
    "success": true
   }
@@ -44,7 +44,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "96d07a1e-9c97-4d9f-8de5-ce42248410dd",
+    "request_id": "97fc5a4e-e33c-4ab6-8475-93b21510a648",
     "status": "error",
     "success": false
    },
@@ -65,7 +65,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "e1bb4fa8-201d-4718-8c5f-b3731eff4d4a",
+    "request_id": "1a855164-1d92-4953-957f-24ac796c1ce1",
     "status": "error",
     "success": false
    },
@@ -81,12 +81,12 @@
     "errors": [
      {
       "code": "deck_import_failed",
-      "message": "COMMANDER_VALIDATION_FAILED: type=BANNED,group=Black Lotus,card=Black Lotus,message=Banned | type=OTHER,group=Black Lotus,card=Black Lotus,message=Too many: 99",
+      "message": "COMMANDER_VALIDATION_FAILED: type=OTHER,group=Shivan Reef,card=Shivan Reef,message=Too many: 99",
       "retryable": false
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "b66a92bf-9244-4f27-aa75-593e111d787d",
+    "request_id": "c40eaace-b5ef-4ebe-a748-3598ca7ea041",
     "status": "error",
     "success": false
    },
@@ -107,7 +107,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "95c5bfe6-1fc3-4fb3-9985-64c2012aa7e5",
+    "request_id": "373c2c58-50c3-4d55-b9f7-b4fc7611fd8f",
     "status": "error",
     "success": false
    },
@@ -128,7 +128,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "915b6820-0e9d-433d-b400-cd9ef469b1d3",
+    "request_id": "3533ef0c-702b-45e6-96c1-5d2159288c20",
     "status": "error",
     "success": false
    },

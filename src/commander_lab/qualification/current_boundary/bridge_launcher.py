@@ -10,6 +10,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import subprocess
 import threading
 import uuid
@@ -23,13 +24,31 @@ from commander_lab.engine.rules.base import resolve_engine_working_directory
 from .source_lock import (
     CURRENT_TRANSPORT_PROTOCOL,
     FORGE_CANDIDATE_COMMIT,
-    XMAGE_CANDIDATE_COMMIT,
     repo_root,
 )
 
 CandidateId = Literal["xmage", "forge"]
 
 DEFAULT_TIMEOUT_S = 180.0
+
+_SHA40 = re.compile(r"[0-9a-f]{40}")
+
+
+def canonical_xmage_engine_pin() -> str:
+    """The canonical live XMage candidate commit.
+
+    ``config/rules_engines.json`` is the sole machine-readable authority for
+    current engine pins. The frozen WSR22 ``source_lock`` identity is
+    deliberately not repinned and remains the historical WSR22 evidence epoch;
+    a live launch must bind the canonical pin so its evidence can never be
+    attributed to an engine commit that did not execute.
+    """
+    manifest_path = repo_root() / "config" / "rules_engines.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    commit = manifest.get("primary_engine", {}).get("commit")
+    if not isinstance(commit, str) or _SHA40.fullmatch(commit) is None:
+        raise BridgeLaunchError(f"canonical XMage engine pin is missing or malformed: {commit!r}")
+    return commit
 
 
 def _candidate_runtime_cwd(candidate: CandidateId) -> Path:
@@ -252,11 +271,20 @@ def build_launch_plan(
     """
     if candidate == "xmage":
         workspace = xmage_workspace or (repo_root() / "engine-bridge")
-        # "full-game" is the dedicated full-game JSONL lane; "compat"/"" select
-        # the generic Protocol-2 compatibility lane that both candidates
-        # implement, which is the candidate-neutral comparison surface.
-        resolved_lane = "full-game" if lane in (None, "full-game") else "compatibility"
-        lane_args = ("full-game",) if resolved_lane == "full-game" else ()
+        # "full-game" is the dedicated full-game JSONL lane; "midgame" is the
+        # dedicated starting-state mid-game lane (production-reachable PB-03
+        # transport); "compat"/"" select the generic Protocol-2 compatibility
+        # lane that both candidates implement, which is the candidate-neutral
+        # comparison surface. Every dedicated lane shares this one launch
+        # contract: the same classpath manifest, the same isolated runtime cwd
+        # outside any candidate worktree, and the same cleared parent env.
+        if lane in (None, "full-game"):
+            resolved_lane = "full-game"
+        elif lane == "midgame":
+            resolved_lane = "midgame"
+        else:
+            resolved_lane = "compatibility"
+        lane_args = (resolved_lane,) if resolved_lane in ("full-game", "midgame") else ()
         classpath = _read_classpath(workspace, "target/cp-wsr22.txt")
         argv = (
             "java",
@@ -273,7 +301,7 @@ def build_launch_plan(
             argv=argv,
             cwd=_candidate_runtime_cwd("xmage"),
             env_overrides={},
-            expected_engine_commit=XMAGE_CANDIDATE_COMMIT,
+            expected_engine_commit=canonical_xmage_engine_pin(),
             build_identity={
                 "module": "engine-bridge",
                 "classes": str(workspace / "target" / "classes"),

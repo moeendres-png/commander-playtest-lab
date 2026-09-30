@@ -21,6 +21,9 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    pb03_runtime as pb03_runtime_mod,
+)
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
@@ -478,6 +481,86 @@ def assemble() -> None:
             "results_runtime_identity": results["runtime_identity"],
         }
 
+    # ---- PB-03 admission x runtime ledger ---------------------------------
+    admission_path = OUT / "PB03_DIMENSION_ADMISSION.json"
+    runtime_path = OUT / "PB03_RUNTIME_EXECUTION.json"
+    if admission_path.is_file() and runtime_path.is_file():
+        admission = load(admission_path)
+        runtime = load(runtime_path)
+        admission_rows = {
+            str(row["fixture_id"]): row
+            for row in admission.get("rows", [])
+            if isinstance(row, dict) and row.get("fixture_id")
+        }
+        runtime_rows = {
+            str(row["fixture_id"]): row
+            for row in runtime.get("rows", [])
+            if isinstance(row, dict) and row.get("fixture_id")
+        }
+        if set(admission_rows) != set(runtime_rows):
+            raise RuntimeError(
+                "PB-03 admission/runtime denominator mismatch: "
+                f"admission_only={sorted(set(admission_rows) - set(runtime_rows))} "
+                f"runtime_only={sorted(set(runtime_rows) - set(admission_rows))}"
+            )
+        # The runtime ledger earns credit only when it proves the exact audited
+        # test executed under the exact assembling runner and engine candidate.
+        # The raw execution is still reported, but a stale/missing/invalid
+        # identity block zeroes the runtime credit with an auditable reason; it
+        # is never grandfathered from a previous runner or engine epoch.
+        xmage_identity = per_candidate["xmage"]["results_runtime_identity"]
+        runtime_freshness = pb03_runtime_mod.runtime_execution_freshness(
+            runtime,
+            expected_runner_digest=assembly_runner_digest,
+            expected_candidate_commit=str(xmage_identity.get("engine_candidate_commit", "")),
+        )
+        runtime_credited = runtime_freshness == pb03_runtime_mod.PB03_RUNTIME_FRESH
+        pb03_matrix_rows = []
+        for fixture_id in sorted(admission_rows):
+            runtime_row = runtime_rows[fixture_id]
+            pb03_matrix_rows.append(
+                {
+                    "fixture_id": fixture_id,
+                    "admission_verdict": admission_rows[fixture_id]["verdict"],
+                    "required_tokens": admission_rows[fixture_id].get("required_tokens", []),
+                    "missing_tokens": admission_rows[fixture_id].get("missing_tokens", []),
+                    "runtime_execution": runtime_row["runtime_execution"],
+                    "runtime_credit": "EXECUTED_PASS" if runtime_credited else "NONE",
+                    "native_receipt": runtime_freshness,
+                    "harness_class": runtime_row["harness_class"],
+                    "harness_method": runtime_row["harness_method"],
+                    "route": runtime_row["route"],
+                    "semantic_relation": runtime_row["semantic_relation"],
+                    "full107_credit": "NONE_FROM_PB03_MATRIX",
+                }
+            )
+        write(
+            "PB03_RUNTIME_EXECUTION_MATRIX.json",
+            {
+                "schema_version": "commander-lab.pb03-admission-runtime-matrix/2.0.0",
+                "PB03_DIMENSION_ADMISSION": admission.get("classification", "UNKNOWN"),
+                "PB03_RUNTIME_EXECUTION": runtime.get("classification", "UNKNOWN"),
+                "native_receipt": runtime_freshness,
+                "runtime_credit": "EXECUTED_PASS" if runtime_credited else "NONE",
+                "runtime_credit_reason": (
+                    "runner digest and engine candidate match the assembling head"
+                    if runtime_credited
+                    else f"receipt identity classified {runtime_freshness}; zero runtime credit"
+                ),
+                "rows_total": len(pb03_matrix_rows),
+                "admission_counts": admission.get("counts", {}),
+                "runtime_executed_pass": runtime.get("executed_pass", 0),
+                "runtime_not_run_or_failed": runtime.get("not_run_or_failed", 0),
+                "rows": pb03_matrix_rows,
+                "orthogonality": (
+                    "Admission is frozen-state restorability; runtime execution is exact "
+                    "native-harness execution. Neither axis promotes FULL107 rows."
+                ),
+                "architecture_freeze": "NOT_CLAIMED",
+                "production_provider": "NOT_SELECTED",
+            },
+        )
+
     # ---- AF00-AF11 matrix ------------------------------------------------
     # AF11 is computed, never asserted: measured technical facts decide between
     # FAIL (a fact is violated) and UNKNOWN (facts hold, policy unresolved).
@@ -506,22 +589,36 @@ def assemble() -> None:
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
         extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        extra_note: str | None = None
+        if extra is not None:
+            # An auxiliary artifact produced by an earlier boundary epoch must
+            # never be quoted as current evidence. It is dropped from the gate
+            # and its exclusion is recorded instead of silently inherited.
+            expected_engine = str(
+                data["results_runtime_identity"].get("engine_candidate_commit", "")
+            )
+            if str(extra.get("engine_commit_reported") or "") != expected_engine:
+                extra_note = (
+                    "the auxiliary full-game-lane AF01 artifact is bound to a different "
+                    f"engine epoch ({str(extra.get('engine_commit_reported') or 'unknown')[:12]}) "
+                    "than this assembly; its verdict is not cited as current evidence"
+                )
+                extra = None
+        seed_supported = (af01.get("capabilities_provider_reported") or {}).get("seed_supported")
+        rng_clause = next(
+            (
+                item.get("verdict")
+                for item in af01.get("invariants", [])
+                if item.get("invariant") == "rules_randomness_core_owned"
+            ),
+            "absent",
+        )
         # Receipt-derived, never the retired NATIVE_RUNS literal. The summary
         # counts only what a verified receipt observed, and it is empty when no
         # receipt exists, so the gate cannot inherit a historical count.
         native = data["native_runs"]
-        native_summary = native.get("summary", {})
-        native_groups = [
-            k
-            for k in native
-            if k
-            not in {
-                "source",
-                "summary",
-                "absent_receipts_yield_no_credit",
-                "expected_engine_commit",
-            }
-        ]
+        native_summary = data["native_runs_provenance"].get("summary", {})
+        native_groups = list(native)
         native_tests = int(native_summary.get("tests", 0))
         native_green = (
             bool(native_groups)
@@ -581,14 +678,16 @@ def assemble() -> None:
                 "blocking_rows": [],
                 "nonblocking_limitations": (
                     [
-                        "the generic compatibility lane reports seed_supported=false, so the "
-                        "Rules-RNG invariant is UNKNOWN on that lane; the full-game lane reports "
-                        "seed_supported=true and AF01 PASS"
+                        "the generic compatibility lane reports "
+                        f"seed_supported={seed_supported}; the rules_randomness_core_owned "
+                        f"invariant verdict is {rng_clause}, and any engine seed "
+                        "acknowledgement is recorded in the candidate's HIDDEN_INFO artifact"
                     ]
                     if candidate == "xmage"
                     else []
                 )
-                + ([f"full-game lane AF01 verdict: {extra['verdict']}"] if extra else []),
+                + ([f"full-game lane AF01 verdict: {extra['verdict']}"] if extra else [])
+                + ([extra_note] if extra_note else []),
             },
             {
                 "gate": "AF02",

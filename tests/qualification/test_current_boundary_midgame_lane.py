@@ -16,10 +16,17 @@ from typing import Any
 
 import pytest
 
+from commander_lab.qualification.current_boundary import bridge_launcher
 from commander_lab.qualification.current_boundary import midgame_lane as ml
+from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-RECEIPT = REPO_ROOT / "qualification" / "midgame-lane-20260929" / "MIDGAME_CAPABILITY_PROBE.json"
+RECEIPT = (
+    REPO_ROOT
+    / "qualification"
+    / "pb03-fresh-main-reconciliation-20260929"
+    / "MIDGAME_CAPABILITY_PROBE.json"
+)
 
 
 def _arrival(**overrides: Any) -> dict[str, Any]:
@@ -101,9 +108,15 @@ class TestRowClassification:
         assert verdict.outcome == "ENGINE_NATIVE_REACHABLE"
         assert verdict.engine_accepted_starting_state is True
         assert verdict.mismatches == ()
+        assert verdict.construction_verdict == "EXACT"
 
     def test_declaration_step_priority_mismatch_is_named_not_hidden(self) -> None:
-        """The documented allowance is applied, and reported, never erased."""
+        """The documented allowance is applied, and reported, never erased.
+
+        The classification is stated explicitly as ALLOWED_VARIANCE rather than
+        being inferable only from outcome + raw bit: the engine's own compare
+        reported a mismatch, and the row must never read as an exact match.
+        """
         verdict = ml.classification_from_arrival(
             "WS05-MP-COMBAT-4",
             ml.MIDGAME_LANE,
@@ -114,7 +127,39 @@ class TestRowClassification:
         )
         assert verdict.outcome == "ENGINE_NATIVE_REACHABLE"
         assert verdict.construction_match is False, "the engine's own raw bit must be reported"
+        assert verdict.construction_verdict == "ALLOWED_VARIANCE"
         assert verdict.allowance_applied == ("priority_player: requested P1 observed P2",)
+
+    def test_the_allowance_is_never_vacuous_or_inferred(self) -> None:
+        """Only the exact declared prefix is an allowance; nothing else is."""
+        exact = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            _arrival(construction_match=True, mismatches=[]),
+            engine_commit="abc",
+        )
+        assert exact.construction_verdict == "EXACT"
+        mismatched = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            _arrival(
+                construction_match=False,
+                mismatches=["priority_player: requested P1 observed P2", "hand count mismatch"],
+            ),
+            engine_commit="abc",
+        )
+        assert mismatched.outcome == "CONSTRUCTION_MISMATCH"
+        assert mismatched.construction_verdict == "MISMATCH"
+        assert mismatched.engine_accepted_starting_state is False
+        # A negative raw bit with no recognized mismatch is uninterpretable.
+        unrecognized = ml.classification_from_arrival(
+            "WS05-MP-COMBAT-4",
+            ml.MIDGAME_LANE,
+            _arrival(construction_match=False, mismatches=[]),
+            engine_commit="abc",
+        )
+        assert unrecognized.outcome == "UNRECOGNIZED_CONSTRUCTION_VERDICT"
+        assert unrecognized.construction_verdict == "UNRECOGNIZED"
 
     def test_a_zone_mismatch_is_never_allowanced(self) -> None:
         verdict = ml.classification_from_arrival(
@@ -173,6 +218,25 @@ class TestRowClassification:
         assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
         assert verdict.detail is not None and "absent" in verdict.detail
 
+    def test_an_unrecorded_terminal_is_not_reachability_credit(self) -> None:
+        """A produced route without a recorded terminal is measured blocked.
+
+        Reachability requires the row's terminal obligation to be produced and
+        recorded; a caller that supplies no terminal must not inherit credit
+        for a route whose terminal was never observed.
+        """
+        verdict = ml.classification_from_causal_verdict(
+            "WS05-MP-ELIM-PRIO-3",
+            ml.MIDGAME_LANE,
+            "causal_elimination",
+            {"causal_match": True, "mismatches": []},
+            None,
+            engine_commit="abc",
+        )
+        assert verdict.outcome == "CAUSAL_ROUTE_MEASURED_BLOCKED"
+        assert verdict.detail is not None and "terminal" in verdict.detail
+        assert verdict.engine_accepted_starting_state is True
+
     def test_causal_mismatch_is_never_promoted(self) -> None:
         stack_verdict = {"causal_match": False, "mismatches": ["STACK_SOURCE_ABSENT: x"]}
         verdict = ml.classification_from_causal_verdict(
@@ -196,6 +260,25 @@ class TestRowClassification:
         assert verdict.outcome == "ENGINE_REJECTED"
         assert verdict.engine_accepted_starting_state is False
         assert verdict.construction_match is None
+
+    def test_a_rejected_causal_row_keeps_its_requested_entry_mode(self) -> None:
+        """A causal row rejected before arrival must not be labelled placement.
+
+        The persisted evidence would otherwise claim the probe attempted a route
+        it never requested, and the admission/runtime matrix would describe the
+        wrong route for that record.
+        """
+        verdict = ml.rejected_verdict(
+            "WS05-MP-ELIM-CONTROL-3",
+            ml.MIDGAME_LANE,
+            code="midgame_causal_preparation_rejected",
+            detail="CAUSAL_ELIMINATION_PREPARATION_REJECTED",
+            engine_commit="abc",
+            entry_mode="causal_elimination",
+        )
+        assert verdict.outcome == "ENGINE_REJECTED"
+        assert verdict.entry_mode == "causal_elimination"
+        assert verdict.as_dict()["entry_mode"] == "causal_elimination"
         assert verdict.requested_state_digest is None
 
 
@@ -205,10 +288,58 @@ class TestProbeReceipt:
     def test_receipt_is_present_and_engine_identity_pinned(self) -> None:
         assert RECEIPT.is_file(), f"missing runtime receipt {RECEIPT}"
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
-        assert receipt["engine_commit"] == "b19596980f2734496ea1896504253e1bdd2756dd"
+        # The receipt must name the canonical live pin, not a historical donor
+        # pin: a row observed on another engine epoch is not evidence for this
+        # one.
+        assert receipt["engine_commit"] == bridge_launcher.canonical_xmage_engine_pin()
+        assert receipt["candidate_commit"] == receipt["engine_commit"]
         assert receipt["lane"] == ml.MIDGAME_LANE
         assert receipt["protocol_version"] == ml.PROTOCOL_VERSION
         assert receipt["evidence_class"] == "FRESH_RUNTIME_PROTOCOL2_PROCESS"
+        assert receipt["receipt_digest"]
+        assert receipt["runner_digest"]
+
+    def test_receipt_content_digest_binds_every_field(self) -> None:
+        receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        body = {key: value for key, value in receipt.items() if key != "receipt_digest"}
+        assert receipt_mod.document_digest(body) == receipt["receipt_digest"]
+
+    def test_probe_and_runtime_ledger_share_the_exact_run_identity(self) -> None:
+        """The two PB-03 runtime artifacts must come from the same run.
+
+        They are produced back-to-back on one clean head, so their recorded
+        runner digests and engine candidate must agree. Regenerating one without
+        the other leaves evidence from two epochs joined as if one, which this
+        guard refuses.
+        """
+        receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        ledger = json.loads(
+            (
+                REPO_ROOT
+                / "qualification"
+                / "final-current-boundary-20260927"
+                / "PB03_RUNTIME_EXECUTION.json"
+            ).read_text(encoding="utf-8")
+        )
+        assert receipt["runner_digest"] == ledger["runner_digest"]
+        assert receipt["runner_commit"] == ledger["runner_commit"]
+        assert receipt["runner_tree"] == ledger["runner_tree"]
+        assert receipt["engine_commit"] == ledger["candidate_commit"]
+        assert receipt["engine_commit"] == bridge_launcher.canonical_xmage_engine_pin()
+
+    def test_every_row_states_its_construction_verdict_explicitly(self) -> None:
+        receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        allowed = {"EXACT", "ALLOWED_VARIANCE", "MISMATCH", "UNRECOGNIZED", None}
+        for row in receipt["rows"]:
+            assert row.get("construction_verdict") in allowed, row["fixture_id"]
+            if row["outcome"] == "ENGINE_NATIVE_REACHABLE":
+                if row["engine_construction_match"] is True:
+                    assert row["construction_verdict"] == "EXACT", row["fixture_id"]
+                else:
+                    # The raw engine bit said "no match"; the row survives only
+                    # as the documented allowance, and that must be visible.
+                    assert row["construction_verdict"] == "ALLOWED_VARIANCE", row["fixture_id"]
+                    assert row["declaration_step_priority_allowance_applied"], row["fixture_id"]
 
     def test_receipt_publishes_the_per_dimension_manifest(self) -> None:
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
@@ -255,7 +386,7 @@ class TestProbeReceipt:
     def test_receipt_declares_the_row_set_it_probed(self) -> None:
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
         probed = {row["fixture_id"] for row in receipt["rows"]}
-        assert probed == {row["fixture_id"] for row in receipt["rows"]}
+        assert len(probed) == len(receipt["rows"]), "a row id must appear exactly once"
         assert receipt["counts"]["probed"] == len(receipt["rows"])
         total = sum(
             receipt["counts"][key]
@@ -265,10 +396,122 @@ class TestProbeReceipt:
                 "causal_route_reachable",
                 "causal_route_measured_blocked",
                 "construction_mismatch",
+                "unrecognized_construction_verdict",
+                "transport_failure",
                 "engine_rejected",
             )
         )
         assert total == len(receipt["rows"]), "row counts must account for every probed row"
+
+
+class TestReceiptFreshness:
+    """A receipt is only fresh when the exact executing identities match.
+
+    Missing, empty or mismatched runner identity is zero credit with an
+    auditable stale classification, never a grandfather.
+    """
+
+    @staticmethod
+    def _receipt(**overrides: Any) -> dict[str, Any]:
+        body: dict[str, Any] = {
+            "schema_version": ml.MIDGAME_RECEIPT_SCHEMA,
+            "engine_commit": "a" * 40,
+            "candidate_commit": "a" * 40,
+            "runner_commit": "b" * 40,
+            "runner_tree": "c" * 40,
+            "runner_digest": "d" * 64,
+        }
+        body.update(overrides)
+        body["receipt_digest"] = receipt_mod.document_digest(body)
+        return body
+
+    def test_exact_identities_are_fresh(self) -> None:
+        receipt = self._receipt()
+        assert (
+            ml.receipt_freshness(
+                receipt,
+                expected_runner_digest="d" * 64,
+                expected_engine_commit="a" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_FRESH
+        )
+
+    def test_another_runner_or_engine_epoch_is_stale(self) -> None:
+        assert (
+            ml.receipt_freshness(
+                self._receipt(),
+                expected_runner_digest="e" * 64,
+                expected_engine_commit="a" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_STALE
+        )
+        assert (
+            ml.receipt_freshness(
+                self._receipt(),
+                expected_runner_digest="d" * 64,
+                expected_engine_commit="f" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_STALE
+        )
+
+    def test_missing_identity_is_missing_not_fresh(self) -> None:
+        receipt = self._receipt(runner_digest="")
+        assert (
+            ml.receipt_freshness(
+                receipt,
+                expected_runner_digest="d" * 64,
+                expected_engine_commit="a" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_MISSING
+        )
+        without_digest = self._receipt()
+        del without_digest["receipt_digest"]
+        assert (
+            ml.receipt_freshness(
+                without_digest,
+                expected_runner_digest="d" * 64,
+                expected_engine_commit="a" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_MISSING
+        )
+
+    def test_tampered_or_wrong_schema_is_invalid(self) -> None:
+        tampered = self._receipt()
+        tampered["engine_commit"] = "9" * 40
+        assert (
+            ml.receipt_freshness(
+                tampered,
+                expected_runner_digest="d" * 64,
+                expected_engine_commit="9" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_INVALID
+        )
+        assert (
+            ml.receipt_freshness(
+                self._receipt(schema_version="something-else"),
+                expected_runner_digest="d" * 64,
+                expected_engine_commit="a" * 40,
+            )
+            == ml.MIDGAME_RECEIPT_INVALID
+        )
+        assert (
+            ml.receipt_freshness(
+                None, expected_runner_digest="d" * 64, expected_engine_commit="a" * 40
+            )
+            == ml.MIDGAME_RECEIPT_INVALID
+        )
+
+    def test_unavailable_expected_identity_is_never_fresh(self) -> None:
+        receipt = self._receipt()
+        for expected_runner, expected_engine in (("", "a" * 40), ("d" * 64, "")):
+            assert (
+                ml.receipt_freshness(
+                    receipt,
+                    expected_runner_digest=expected_runner,
+                    expected_engine_commit=expected_engine,
+                )
+                == ml.MIDGAME_RECEIPT_MISSING
+            )
 
 
 class TestFrozenRecords:

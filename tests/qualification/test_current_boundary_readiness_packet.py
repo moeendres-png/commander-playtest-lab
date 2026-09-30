@@ -206,13 +206,16 @@ def test_packet_states_the_pb_classifications() -> None:
 
 
 def test_seed_position_is_reported_per_candidate() -> None:
-    """A blanket "no seed was sent" was false for Forge.
+    """Both candidates now acknowledge the seed; the evidence depth differs.
 
-    XMage reports `seed_supported: false` and genuinely sends nothing. Forge
-    reports `seed_supported: true`, the driver sends the seed, the observed state
-    carries `rng_binding.root_seed` with the Rules call count, and the creation
-    transaction acknowledges the engine-accepted seed. The packet must state the
-    two positions separately.
+    The sealed WSR22 packet recorded XMage as fully uncontrolled
+    (`seed_supported: false`, no seed sent). The successor current-boundary run
+    on the current XMage bridge reports `seed_supported: true`, sends the seed
+    and receives the engine's acknowledgement in the creation transaction. Forge
+    acknowledges it from engine state and exposes the root seed and Rules call
+    count. The packet must state the two positions separately and must not
+    collapse Forge's engine-state binding with XMage's creation-transaction
+    acknowledgement.
     """
     af01 = {
         candidate: json.loads((OUT / f"AF01_{candidate}.json").read_text(encoding="utf-8"))
@@ -222,19 +225,31 @@ def test_seed_position_is_reported_per_candidate() -> None:
         candidate: document["capabilities_provider_reported"]["seed_supported"]
         for candidate, document in af01.items()
     }
-    assert reported["XMAGE"] is False
+    assert reported["XMAGE"] is True, "the packet's XMage seed claim depends on this"
     assert reported["FORGE"] is True, "the packet's Forge seed claim depends on this"
 
-    # Forge's observed state must actually carry a bound root seed.
-    hidden = json.loads((OUT / "HIDDEN_INFO_FORGE.json").read_text(encoding="utf-8"))
-    state = json.dumps(hidden)
-    assert "explicit_seed" in state
-    assert "root_seed" in state
-    assert "424242" in state
+    # Both candidates must bind the requested seed to an engine acknowledgement,
+    # and the acknowledgement must be the engine's, not the request echo.
+    xmage_hidden = json.loads((OUT / "HIDDEN_INFO_XMAGE.json").read_text(encoding="utf-8"))
+    xmage_binding = xmage_hidden["game"]["rules_rng_binding"]
+    assert xmage_binding["classification"] == "ACKNOWLEDGED_ENGINE_SEED"
+    assert xmage_binding["acknowledgement_source"] == "create_commander_game_response"
+    assert xmage_binding["controlled"] is True
+    assert xmage_binding["rng_credit"] is True
+    assert xmage_binding["acknowledged_seed"] == xmage_binding["requested_seed"] == 424242
+    # Forge's observed state must carry the engine's own accepted root seed.
+    forge_state = json.dumps(
+        json.loads((OUT / "HIDDEN_INFO_FORGE.json").read_text(encoding="utf-8"))
+    )
+    assert "424242" in forge_state
+    assert "explicit_seed" in forge_state
+    assert "root_seed" in forge_state
 
-    # The packet must not make the blanket claim for both.
+    # The packet must not make the blanket claim for both, and it must record
+    # the historical XMage position as history rather than as current state.
     assert "Rules RNG is uncontrolled on both candidates" not in TEXT
     assert "the two candidates are in different states" in TEXT
     assert "Forge — seed acknowledged from engine state at creation" in TEXT
-    assert "XMage — fully uncontrolled" in TEXT
+    assert "XMage — seed acknowledged at the creation transaction" in TEXT
+    assert "XMage was fully uncontrolled" in TEXT
     assert "393" in TEXT
