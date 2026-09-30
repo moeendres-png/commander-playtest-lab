@@ -58,7 +58,11 @@
     "F-28 RULES_CORE_DEFECT forced-block livelock (802.4a): fork fix moeendres-png/mage#27 268e3d0f; native red (1260 CPU-s spin) / green 2/2; Lab red 4/4 (hang) on f79e4168",
     "F-29 RULES_CORE_DEFECT block declaration order not APNAP / not replay-stable (802.4): fork fix moeendres-png/mage#28 3c0fe388; native red 2/3 / green 3/3; Lab red 4/4 on f79e4168; Lab PR #368",
     "Combined candidate head 3c0fe388: full Mage.Tests 7006/0/0/125 (baseline 7001/125)",
-    "Lure in split attack (Prized Unicorn) 4/4"
+    "Lure in split attack (Prized Unicorn) 4/4",
+    "Repin v2 #385 MERGED (24b355b7): live XMage pin 9375f35a (F-22/F-23 mage#26, F-28/F-29 mage#27/#28, F-34 donor 2786665809); full Mage.Tests 7020/0/0/125; Lab bridge 807/0/1; Python 2364 passed",
+    "F-30/F-35 (#382 MERGED) and F-36 (#384 MERGED): lane option completeness, executability and twin-stable order; red->green each",
+    "Whole-game replay harness XmageFullGameReplayTwinTest: 20+ real-deck 2-6P twin games identical after F-30/F-35/F-36",
+    "CI: #374 (pin-keyed engine cache, bridge suite once, H4 provider scope) and #383 MERGED; #386 required-check enablement in CI"
   ],
   "failed_gates": [],
   "invalidated_gates": [
@@ -120,12 +124,12 @@
   "authority_gates": [
     "Forge #11: Coordinator to accept #9 (Find // Finality Oracle correction) inclusion or require pure #6+#7",
     "Successor current-boundary (FULL107) run on the new XMage pin before any current-boundary credit",
-    "USER: integrate mage#27/#28 into the candidate branch (auto-mode classifier refused the fast-forward as merge-without-review); the Lab successor repin v2 depends on it"
+    "OWNER: add required checks conformance/real-4p-smoke/build-and-integrate/preflight/h4-xmage/h4-forge; disable 181 dead workflow registrations (docs/ci_efficiency_20260930)"
   ],
   "first_failing_boundary": "XmageFullGamePlayer.selectBlockers option construction (Permanent.canBlock)",
   "root_cause_class": "PROVIDER_ADAPTER_DEFECT",
   "next_action": "Coordinator: authorize the repin workstream.",
-  "exact_next_action": "User decision on mage#27/#28 integration; then repin v2 (see MULTIPLAYER_HANDOFF phase 4). Meanwhile continue probes on f79e4168.",
+  "exact_next_action": "Successor FULL107 current-boundary run on 9375f35a (Coordinator gate); keep running the replay harness after lane changes; F-30 pattern in the generic Protocol-2 lane is routed to #300's owner.",
   "execution_profile": null,
   "executor_model": "claude-opus-5-5 (Claude Code)",
   "native_variant": null,
