@@ -183,6 +183,26 @@ def native_credit_provenance(
     }
 
 
+def _annotate_carried_gates(
+    matrix: list[dict[str, Any]], column_provenance: dict[str, Any]
+) -> None:
+    """State on every gate that a carried-forward column is historical.
+
+    Every gate in a carried-forward column is assembled from the historical
+    record, not from an execution in this epoch. Saying so per gate stops the
+    per-gate verdicts from being read as current observations.
+    """
+    if column_provenance.get("class") == "FRESH_CURRENT_BOUNDARY_EXECUTION":
+        return
+    note = (
+        "This gate was assembled from the historical record carried forward into this epoch "
+        f"({column_provenance.get('source_epoch', 'unknown')}); it records what that run "
+        "observed, not a fresh execution."
+    )
+    for gate in matrix:
+        gate["nonblocking_limitations"] = [*gate.get("nonblocking_limitations", []), note]
+
+
 def _load_fullgame_lane_auxiliary(candidate: str) -> dict[str, Any] | None:
     """The xmage full-game-lane auxiliary, only when this epoch carries one.
 
@@ -464,10 +484,17 @@ def assemble() -> None:
     for candidate in ("xmage", "forge"):
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
+        carried_forward = bool(results.get("carried_forward"))
         promoted = 0
         for fixture, per in bindings.items():
             classes = per.get(candidate)
             if not classes or fixture not in rows:
+                continue
+            if carried_forward:
+                # A carried-forward column has no executions in this epoch, so a
+                # receipt crediting one of its rows cannot exist. If one ever did,
+                # relabelling a historical row as fresh would be a provenance
+                # lie: refuse the promotion instead.
                 continue
             row = rows[fixture]
             if row["exit_state"] == "PASS":
@@ -948,6 +975,8 @@ def assemble() -> None:
                 "nonblocking_limitations": af11_by_candidate[candidate]["limitations"],
             },
         ]
+        if data["column_provenance"]["class"] != "FRESH_CURRENT_BOUNDARY_EXECUTION":
+            _annotate_carried_gates(matrix, data["column_provenance"])
         write(
             f"AF00_AF11_{candidate.upper()}.json",
             {

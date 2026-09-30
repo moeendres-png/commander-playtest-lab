@@ -650,13 +650,28 @@ def run_native_suite(
     # The binding declares build identity as a JSON document (a string), while the
     # receipt carries it as a JSON document as well; normalise here so the two
     # shapes can never be confused (the pb03-runtime CI job caught exactly that:
-    # dict() over a JSON string raised before any receipt was persisted).
-    declared_build_identity = spec.get("build_identity", {})
-    build_identity: dict[str, Any] = (
-        json.loads(declared_build_identity)
-        if isinstance(declared_build_identity, str)
-        else dict(declared_build_identity)
-    )
+    # dict() over a JSON string raised before any receipt was persisted). A
+    # missing or malformed declaration fails closed: a receipt that cannot name
+    # the build that executed proves nothing.
+    declared_build_identity = spec.get("build_identity")
+    if declared_build_identity is None:
+        raise SystemExit(
+            f"native suite {candidate}:{group} binding declares no build_identity; a receipt "
+            "cannot name the build that ran"
+        )
+    if isinstance(declared_build_identity, str):
+        try:
+            declared_build_identity = json.loads(declared_build_identity)
+        except ValueError as exc:
+            raise SystemExit(
+                f"native suite {candidate}:{group} build_identity is not valid JSON: {exc}"
+            ) from exc
+    if not isinstance(declared_build_identity, dict):
+        raise SystemExit(
+            f"native suite {candidate}:{group} build_identity must be a JSON object, got "
+            f"{type(declared_build_identity).__name__}"
+        )
+    build_identity: dict[str, Any] = dict(declared_build_identity)
     if checkout_identity["kind"] == "EXPLICIT_WORKSPACE":
         bridge_proof = checkout_identity["bridge_identity_proof"]
         engine_equivalence = {

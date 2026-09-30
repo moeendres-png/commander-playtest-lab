@@ -44,6 +44,34 @@ def _runner_module(monkeypatch: pytest.MonkeyPatch):
     return module
 
 
+def _write_surefire_reports(root: Path, module, group: str) -> None:
+    reports = root / "target" / "surefire-reports"
+    reports.mkdir(parents=True, exist_ok=True)
+    for name in module.NATIVE_SUITE_BINDING["xmage"]["classes"][group]:
+        (reports / f"TEST-org.commanderlab.xmage.{name}.xml").write_text(
+            f'<testsuite name="{name}" tests="1" failures="0" errors="0" skipped="0"/>',
+            encoding="utf-8",
+        )
+
+
+def _pin_suite_root(monkeypatch: pytest.MonkeyPatch, module, root: Path) -> None:
+    def fake_resolve(candidate: str) -> dict:
+        assert candidate == "xmage"
+        return {
+            "root": root,
+            "expected_engine_commit": module.canonical_xmage_engine_pin(),
+            "checkout_identity": {
+                "kind": "LAB_MODULE",
+                "suite_root": str(root),
+                "containing_repository": str(REPO),
+                "actual_commit": module.git_sha("rev-parse", "HEAD", cwd=REPO),
+                "actual_tree": module.git_sha("rev-parse", "HEAD^{tree}", cwd=REPO),
+            },
+        }
+
+    monkeypatch.setattr(module, "resolve_suite_root", fake_resolve)
+
+
 def _clean_identity() -> receipt_mod.RunnerIdentity:
     captured = receipt_mod.capture_runner_identity(REPO)
     return receipt_mod.RunnerIdentity(
@@ -103,7 +131,11 @@ def test_run_native_suite_produces_a_receipt_from_the_executed_command(
     assert document["returncode"] == 0
     assert document["tests"] == 3
     assert document["passed"] == 3
-    assert document["classes"] == module.NATIVE_SUITE_BINDING["xmage"]["classes"]["direct"]
+    requested = module.NATIVE_SUITE_BINDING["xmage"]["classes"]["direct"]
+    assert document["classes"] == requested
+    # The per-class execution identity is read from the reports this run wrote.
+    assert set(document["executed_classes"]) == set(requested)
+    assert document["unexecuted_classes"] == []
     runner_identity = _clean_identity()
     assert document["executed_commit"] == runner_identity.commit
     assert document["candidate_commit"] == module.canonical_xmage_engine_pin()
@@ -132,19 +164,27 @@ def test_run_native_suite_receipt_records_the_failure_tail_without_credit(
         return real_run(argv, **kwargs)
 
     monkeypatch.setattr(module.subprocess, "run", fake_run)
-    monkeypatch.setattr(
-        module.receipt_mod,
-        "observed_class_executions",
-        lambda report_dirs, classes, *, not_before: (
-            {name: {"tests": 1, "failures": 1, "errors": 0, "skipped": 0} for name in classes},
-            tuple(classes),
-        ),
-    )
+    suite_root = tmp_path / "suite"
+    _write_surefire_reports(suite_root, module, "direct")
+    _pin_suite_root(monkeypatch, module, suite_root)
     document = module.run_native_suite("xmage", "direct", runner=_clean_identity())
     assert document["returncode"] == 1
     persisted = tmp_path / "receipts" / "native-xmage-direct.json"
     with pytest.raises(receipt_mod.ReceiptError):
         receipt_mod.load_native_receipt(persisted)
+
+
+def test_missing_or_malformed_build_identity_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = _runner_module(monkeypatch)
+    suite_root = tmp_path / "suite"
+    _write_surefire_reports(suite_root, module, "direct")
+    _pin_suite_root(monkeypatch, module, suite_root)
+    for declared in (None, "not json", '["a list"]'):
+        monkeypatch.setitem(module.NATIVE_SUITE_BINDING["xmage"], "build_identity", declared)
+        with pytest.raises(SystemExit):
+            module.run_native_suite("xmage", "direct", runner=_clean_identity())
 
 
 def test_binding_declares_build_identity_that_the_runner_can_consume(

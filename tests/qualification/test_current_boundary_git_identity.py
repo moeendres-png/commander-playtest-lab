@@ -172,11 +172,26 @@ def test_git_redirection_list_covers_config_and_index_overrides() -> None:
         "GIT_CEILING_DIRECTORIES",
         "GIT_DISCOVERY_ACROSS_FILESYSTEM",
         "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_PARAMETERS",
         "GIT_CONFIG_GLOBAL",
         "GIT_CONFIG_SYSTEM",
     }
     assert required <= set(R._GIT_REDIRECTION_ENV)
     assert not required & set(R.clean_git_environment())
+    # Injected config entries are name-prefixed rather than fixed names.
+    import os
+
+    os.environ["GIT_CONFIG_KEY_0"] = "status.showUntrackedFiles"
+    try:
+        assert "GIT_CONFIG_KEY_0" not in R.clean_git_environment()
+    finally:
+        del os.environ["GIT_CONFIG_KEY_0"]
+
+    os.environ["GIT_CONFIG_VALUE_0"] = "no"
+    try:
+        assert "GIT_CONFIG_VALUE_0" not in R.clean_git_environment()
+    finally:
+        del os.environ["GIT_CONFIG_VALUE_0"]
     runner_source = RUNNER.read_text(encoding="utf-8")
     assert "receipt_mod.clean_git_environment()" in runner_source
     epoch_sources = (

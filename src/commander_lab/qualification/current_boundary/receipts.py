@@ -98,9 +98,13 @@ _GIT_REDIRECTION_ENV = (
     "GIT_CEILING_DIRECTORIES",
     "GIT_DISCOVERY_ACROSS_FILESYSTEM",
     "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
     "GIT_CONFIG_GLOBAL",
     "GIT_CONFIG_SYSTEM",
 )
+
+# Injected config entries are name-prefixed rather than fixed names.
+_GIT_REDIRECTION_ENV_PREFIXES = ("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")
 
 
 def clean_git_environment() -> dict[str, str]:
@@ -111,6 +115,8 @@ def clean_git_environment() -> dict[str, str]:
     """
     env = dict(os.environ)
     for name in _GIT_REDIRECTION_ENV:
+        env.pop(name, None)
+    for name in [key for key in env if key.startswith(_GIT_REDIRECTION_ENV_PREFIXES)]:
         env.pop(name, None)
     return env
 
