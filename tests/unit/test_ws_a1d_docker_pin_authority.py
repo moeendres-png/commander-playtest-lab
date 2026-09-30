@@ -348,6 +348,9 @@ def test_operator_bootstraps_resolve_current_forge_roles_from_manifest(repo_root
         assert "bridge_commit" in text, rel
         assert "source_commit" in text, rel
         assert "status" in text and "--porcelain" in text, rel
+        assert "merge-base" in text and "--is-ancestor" in text, rel
+        assert "diff" in text and "--name-only" in text, rel
+        assert "forge-protocol2-bridge/" in text, rel
         assert "dirty" in text.lower(), rel
 
     assert '"commit":"$RULES_COMMIT"' in linux
