@@ -113,6 +113,21 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        if (!actor.isInGame() && !"priority".equals(decisionClass)) {
+            // A player who left makes no choices (CR 800.4a): no frame is ever
+            // published for it; the lane fails closed instead of guessing.
+            // Priority keeps the owner's F-39 path: the engine still gives a
+            // player who just lost one priority round, answered with pass.
+            DecisionException failure = new DecisionException(
+                    "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: the engine asked a player who left the game for "
+                            + decisionClass
+            );
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            notifyAll();
+            throw failure;
+        }
+
         // CR 723 (controlling another player): XMage remains the sole authority
         // for whether this player's turn is controlled. The bridge only routes
         // the engine-generated decision to that controller's principal.
@@ -326,6 +341,68 @@ final class XmageFullGameDecisionController {
         notifyAll();
         return true;
     }
+
+    /**
+     * F-42: the native signal above reaches only the priority player (or its
+     * controller), because XMage stops only that player's dialog. A player
+     * who concedes while one of its <em>own</em> choices is pending during
+     * another player's spell (for example the "may" of a tempting offer) is
+     * not signalled, and its stale frame stayed answerable: a player who had
+     * left still decided (a tempting offer, a sacrifice, a council vote),
+     * and the engine counted the answer (CR 800.4a: a player who left makes
+     * no choices). After the native concession this
+     * handles a frame of a player no longer in the game systemically: a
+     * class whose callback unwinds natively is retired; priority keeps its
+     * F-39 path; every other class ends the lane fail-closed
+     * ({@code PLAYER_LEFT_GAME_UNSUPPORTED_DECISION}). No departed player's
+     * frame is ever left answerable.
+     */
+    synchronized boolean cancelPendingForDepartedPlayer(Game game) {
+        if (pendingRequest == null
+                || response != null
+                || terminalFailure != null
+                || terminal
+                || game == null
+                || pendingPlayerId == null) {
+            return false;
+        }
+        Player player = game.getPlayer(pendingPlayerId);
+        String decisionClass = pendingRequest.get("decision_class").getAsString();
+        if (player == null || player.isInGame() || "priority".equals(decisionClass)) {
+            // Priority keeps its F-39 path (followTurnControl).
+            return false;
+        }
+        String decisionId = pendingRequest.get("decision_id").getAsString();
+        JsonObject event = new JsonObject();
+        event.addProperty("decision_id", decisionId);
+        event.addProperty("decision_class", decisionClass);
+        event.addProperty("actor_seat", pendingRequest.get("seat").getAsInt());
+        if (!DEPARTED_CANCELLABLE.contains(decisionClass)) {
+            // Systemic rule: a departed player's pending frame is never left
+            // answerable. A class whose callback is not qualified to unwind
+            // natively ends the lane fail-closed instead of guessing a result.
+            event.addProperty("reason", "player_left_game_unsupported_class");
+            recordTranscript("engine_decision_cancelled", event);
+            DecisionException failure = new DecisionException(
+                    "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: " + decisionClass
+                            + " frame of a player who left the game has no qualified native unwind"
+            );
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            pendingRequest = null;
+            notifyAll();
+            return true;
+        }
+        event.addProperty("reason", "player_left_game");
+        recordTranscript("engine_decision_cancelled", event);
+
+        cancelledDecisionId = decisionId;
+        pendingRequest = null;
+        notifyAll();
+        return true;
+    }
+
+    private static final Set<String> DEPARTED_CANCELLABLE = Set.of("target", "choose_object", "mana_payment", "choose_use");
 
     /** Narrows a priority frame to its pass option; false when there is nothing to remove. */
     private static boolean keepOnlyPass(JsonObject request) {
