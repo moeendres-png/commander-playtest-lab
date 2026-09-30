@@ -25,7 +25,7 @@ Requires:
   FORGE_SOURCE_DIR -- checkout of moeendres-png/forge containing the qualified
     forge-protocol2-bridge module (read-only use; the test only runs Maven
     package/classpath derivation and launches the bridge JVM);
-  Java 17+ and Maven on PATH (for the module build + classpath).
+  Java 17+, Maven and Git on PATH (for source binding, build and classpath).
 
 Skipped (NOT_RUN) when unavailable. Never fabricates runtime evidence.
 """
@@ -226,7 +226,7 @@ def _bridge_command(source: Path, tmp_path: Path) -> tuple[str, ...]:
 def live_bridge(tmp_path_factory):
     source = _forge_source()
     if source is None:
-        pytest.skip("FORGE_SOURCE_DIR with Java+Maven is required for the live Forge test")
+        pytest.skip("FORGE_SOURCE_DIR with Java+Maven+Git is required for the live Forge test")
     assert FORGE_BRIDGE_BASE_COMMIT == FORGE_RULES_COMMIT, (
         "Forge bridge materialization base is not the current Rules-Core candidate"
     )
