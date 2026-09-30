@@ -3,7 +3,7 @@
   "candidate": "xmage",
   "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
   "candidate_repository": "https://github.com/moeendres-png/mage",
-  "candidate_tree": "33a989299b208b60a926daaf751c5810fb0b2f95",
+  "candidate_tree": "5ac260e2afcc1550ed443c41e91cacea82494936",
   "classes": [
     "XmageFull107ResidualRequalificationTest",
     "XmageDigestCreditTest",
@@ -16,9 +16,9 @@
     "XmageFullGameDecisionExecutionTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=XmageFull107ResidualRequalificationTest,XmageDigestCreditTest,XmageFullGameWs05MulliganTest,XmageFullGameTaxExecutionTest,XmageFullGamePartnerExecutionTest,XmageFullGameCard02ExecutionTest,XmageFullGameMicroExecutionTest,XmageFullGameTrigExecutionTest,XmageFullGameDecisionExecutionTest",
-  "ended_utc": "2026-09-30T09:57:26+00:00",
+  "ended_utc": "2026-09-30T10:37:29+00:00",
   "engine_identity_proof": {
-    "actual_commit": "f6d7f0e796053ce5d948e2e3d237f3764198c1ad",
+    "actual_commit": "b71d6cbdcadc61aa7de702d86f5b398f4c9bbe05",
     "containing_repository": "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929",
     "detail": "the executing suite root is a module of the containing repository, so its HEAD identifies that repository, not the engine. The engine identity is the provider's own reported commit, verified fail-closed at handshake by AF00. No checkout identity is asserted for this candidate.",
     "engine_equivalent": null,
@@ -30,29 +30,29 @@
     "python": "3.14.4"
   },
   "errors": 0,
-  "executed_commit": "f6d7f0e796053ce5d948e2e3d237f3764198c1ad",
+  "executed_commit": "b71d6cbdcadc61aa7de702d86f5b398f4c9bbe05",
   "failed": 0,
   "group": "direct",
   "passed": 34,
   "positive_fixtures": [],
-  "receipt_digest": "4987d20c384a03483b5fc35d1fb7afd517ebcb86a7332ebde2b90371cf442e79",
+  "receipt_digest": "4b1339fd0ea584e567c0198eb312f698f4c96839beb15d8beaa6c5751b116283",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.525 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTrigExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m14\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.805 s -- in org.commanderlab.xmage.\u001b[1mXmageDigestCreditTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.184 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTaxExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m1\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.067 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameCard02ExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.245 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameMicroExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m6\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.339 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGamePartnerExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m3\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.132 s -- in org.commanderlab.xmage.\u001b[1mXmageFull107ResidualRequalificationTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.234 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameDecisionExecutionTest\u001b[m",
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameWs05MulliganTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.393 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTrigExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m14\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.767 s -- in org.commanderlab.xmage.\u001b[1mXmageDigestCreditTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.196 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameTaxExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m1\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.069 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameCard02ExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.153 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameMicroExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m6\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.491 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGamePartnerExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m3\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.127 s -- in org.commanderlab.xmage.\u001b[1mXmageFull107ResidualRequalificationTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.237 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameDecisionExecutionTest\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m2\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in org.commanderlab.xmage.\u001b[1mXmageFullGameWs05MulliganTest\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 34, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
     "branch": "foundry/pb03-engine-artifact-identity-20260930",
-    "built_utc": "2026-09-30T09:57:15+00:00",
-    "commit": "f6d7f0e796053ce5d948e2e3d237f3764198c1ad",
+    "built_utc": "2026-09-30T10:37:14+00:00",
+    "commit": "b71d6cbdcadc61aa7de702d86f5b398f4c9bbe05",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -72,9 +72,9 @@
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageControlDivergenceReconstruction.java": "1e3d882fa2c3683a3933b8d7cb4f380201d23d7d5afb94ba998fadd6b33f6b72",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java": "afac9c6c308adbd4da8363db63bb8cf1025847e1dde401a90a5e0374ab1f404b",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java": "a60a53ac074afe652efee98d1bf191b0b2e3c33dafa9ae08ef7246f6c7596da0",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "370d005c13d9b2fe99e4ac0a6df27f7c22cf09e31fbb4abdb30de884c116a7a4",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "cc8161c78beb761947a11ea87d2d1e99a78b1fc0f62350c712b4049fe7b3cede",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java": "09460dbd2dc85acc675497777c2db54ce09afa28feaf32adb4c7f23d632c5fe7",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "7ee1ed7adcbbc402ab4830b111e820a28d64e565303dd652ed697a78b0891a4a",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "cfd2feb7f567491e7a2748805f497ef926a10023f0f0b1f90e48f31910a5bcb9",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "61b9358fa497a08ba698f2c6bb9204e945f01dd433f868d9264ed48a23fc228b",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "befa70d8b4a30ef8ae573a13bff248c992a4efdf0fed7612d0527e84218c0652",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "461dba93386f14b7f8308334f8b1a6d877099e96861ac3601fadb571028a5e36",
@@ -124,11 +124,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "33a989299b208b60a926daaf751c5810fb0b2f95"
+    "tree": "5ac260e2afcc1550ed443c41e91cacea82494936"
   },
-  "runner_digest": "c15ff6e36f7d0a0c846dd7a3212e693c73483e5474c3892021fe177f63720d95",
+  "runner_digest": "760662c4527360879f85612d28d0454b6a12e0d5403f2fac43a943ad115d4352",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-30T09:57:15+00:00",
+  "started_utc": "2026-09-30T10:37:14+00:00",
   "tests": 34
 }

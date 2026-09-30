@@ -1,13 +1,13 @@
 {
  "receipt_count": 2,
  "receipt_digests": {
-  "forge:direct": "e4e2b2aaeca7f6707af3c5aeaa9267dae9653e80e22c970b26a8cd0bbedeac90",
-  "forge:mechanism": "e4a9c881e208651f8a70aa62c7f062b2398e4e9ef4b3d1d4cbf00b76cbf4bbf7"
+  "forge:direct": "c65c420cd37a68cd00587de2ec635fa4acf194c6a94beb67b39f12d68c6fe319",
+  "forge:mechanism": "01bbe489d4dd592f3db9478d8031430de3ded3851ce70e3d8e1a0c5aea60d832"
  },
  "runner": {
   "branch": "foundry/pb03-engine-artifact-identity-20260930",
-  "built_utc": "2026-09-30T09:58:14+00:00",
-  "commit": "f6d7f0e796053ce5d948e2e3d237f3764198c1ad",
+  "built_utc": "2026-09-30T10:38:18+00:00",
+  "commit": "b71d6cbdcadc61aa7de702d86f5b398f4c9bbe05",
   "dirty": false,
   "dirty_paths": [],
   "input_digests": {
@@ -27,9 +27,9 @@
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageControlDivergenceReconstruction.java": "1e3d882fa2c3683a3933b8d7cb4f380201d23d7d5afb94ba998fadd6b33f6b72",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java": "afac9c6c308adbd4da8363db63bb8cf1025847e1dde401a90a5e0374ab1f404b",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java": "a60a53ac074afe652efee98d1bf191b0b2e3c33dafa9ae08ef7246f6c7596da0",
-   "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "370d005c13d9b2fe99e4ac0a6df27f7c22cf09e31fbb4abdb30de884c116a7a4",
+   "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "cc8161c78beb761947a11ea87d2d1e99a78b1fc0f62350c712b4049fe7b3cede",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java": "09460dbd2dc85acc675497777c2db54ce09afa28feaf32adb4c7f23d632c5fe7",
-   "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "7ee1ed7adcbbc402ab4830b111e820a28d64e565303dd652ed697a78b0891a4a",
+   "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "cfd2feb7f567491e7a2748805f497ef926a10023f0f0b1f90e48f31910a5bcb9",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "61b9358fa497a08ba698f2c6bb9204e945f01dd433f868d9264ed48a23fc228b",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "befa70d8b4a30ef8ae573a13bff248c992a4efdf0fed7612d0527e84218c0652",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "461dba93386f14b7f8308334f8b1a6d877099e96861ac3601fadb571028a5e36",
@@ -79,7 +79,7 @@
    "qualification/final-current-boundary-20260927/"
   ],
   "schema_version": "commander-lab.runner-identity/1.0.0",
-  "tree": "33a989299b208b60a926daaf751c5810fb0b2f95"
+  "tree": "5ac260e2afcc1550ed443c41e91cacea82494936"
  },
  "schema_version": "wsr22.native-suite-receipt-index/1.0.0"
 }

@@ -15,7 +15,7 @@
     "WS202SeparateProcessTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=ProtocolTest,BridgeProtocolProcessTest,HeadlessGuiFailClosedTest,WS216SeparateProcessTest,WS217SeparateProcessTest,WS227SeparateProcessTest,WS233CardinalityProcessTest,WS202SeparateProcessTest",
-  "ended_utc": "2026-09-30T10:16:37+00:00",
+  "ended_utc": "2026-09-30T10:56:24+00:00",
   "engine_identity_proof": {
     "actual_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
     "compared_module_roots": [
@@ -74,16 +74,16 @@
   "group": "mechanism",
   "passed": 67,
   "positive_fixtures": [],
-  "receipt_digest": "e4a9c881e208651f8a70aa62c7f062b2398e4e9ef4b3d1d4cbf00b76cbf4bbf7",
+  "receipt_digest": "01bbe489d4dd592f3db9478d8031430de3ded3851ce70e3d8e1a0c5aea60d832",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m67\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 351.9 s -- in \u001b[1mTestSuite\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m67\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 326.6 s -- in \u001b[1mTestSuite\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 67, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
     "branch": "foundry/pb03-engine-artifact-identity-20260930",
-    "built_utc": "2026-09-30T09:58:14+00:00",
-    "commit": "f6d7f0e796053ce5d948e2e3d237f3764198c1ad",
+    "built_utc": "2026-09-30T10:38:18+00:00",
+    "commit": "b71d6cbdcadc61aa7de702d86f5b398f4c9bbe05",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -103,9 +103,9 @@
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageControlDivergenceReconstruction.java": "1e3d882fa2c3683a3933b8d7cb4f380201d23d7d5afb94ba998fadd6b33f6b72",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java": "afac9c6c308adbd4da8363db63bb8cf1025847e1dde401a90a5e0374ab1f404b",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java": "a60a53ac074afe652efee98d1bf191b0b2e3c33dafa9ae08ef7246f6c7596da0",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "370d005c13d9b2fe99e4ac0a6df27f7c22cf09e31fbb4abdb30de884c116a7a4",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "cc8161c78beb761947a11ea87d2d1e99a78b1fc0f62350c712b4049fe7b3cede",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java": "09460dbd2dc85acc675497777c2db54ce09afa28feaf32adb4c7f23d632c5fe7",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "7ee1ed7adcbbc402ab4830b111e820a28d64e565303dd652ed697a78b0891a4a",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "cfd2feb7f567491e7a2748805f497ef926a10023f0f0b1f90e48f31910a5bcb9",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "61b9358fa497a08ba698f2c6bb9204e945f01dd433f868d9264ed48a23fc228b",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "befa70d8b4a30ef8ae573a13bff248c992a4efdf0fed7612d0527e84218c0652",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "461dba93386f14b7f8308334f8b1a6d877099e96861ac3601fadb571028a5e36",
@@ -155,11 +155,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "33a989299b208b60a926daaf751c5810fb0b2f95"
+    "tree": "5ac260e2afcc1550ed443c41e91cacea82494936"
   },
-  "runner_digest": "c15ff6e36f7d0a0c846dd7a3212e693c73483e5474c3892021fe177f63720d95",
+  "runner_digest": "760662c4527360879f85612d28d0454b6a12e0d5403f2fac43a943ad115d4352",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-30T10:10:26+00:00",
+  "started_utc": "2026-09-30T10:50:34+00:00",
   "tests": 67
 }
