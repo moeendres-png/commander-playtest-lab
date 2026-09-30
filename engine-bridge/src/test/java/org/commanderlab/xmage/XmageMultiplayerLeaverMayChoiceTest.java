@@ -222,13 +222,15 @@ class XmageMultiplayerLeaverMayChoiceTest {
     }
 
     /**
-     * Systemic rule: a departed player's pending frame of a class that has no
-     * qualified native unwind is never left answerable; the lane fails closed.
-     * P1 casts Fact or Fiction and concedes while choosing a pile.
+     * P1 casts Fact or Fiction and concedes while choosing a pile. {@code pile}
+     * is a qualified class: the frame is retired (XMage's own no-response,
+     * {@code false}), no pile frame stays answerable for P1, both piles' cards
+     * are P1's and left with it, and the game goes on for everyone else.
+     * (Until the pile unwind was qualified this case failed closed.)
      */
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {4, 5})
-    void aDepartedPlayersUnqualifiedPendingDecisionFailsClosed(int playerCount) {
+    void aDepartedCasterAtItsPileChoiceDoesNotStopTheGame(int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Fact or Fiction", 0, Zone.HAND));
         for (int i = 1; i <= 4; i++) {
@@ -251,9 +253,17 @@ class XmageMultiplayerLeaverMayChoiceTest {
                 concede.addProperty("player_id", p1);
                 JsonObject result = s.session.submitConcede(concede);
                 assertFalse(s.seats.get("P1").isInGame(), "P1 left the game");
-                assertTrue(result.get("decision").isJsonNull(), "no pile frame stays answerable for P1: " + result);
-                assertTrue(result.getAsJsonObject("failure").get("message").getAsString()
-                        .startsWith("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: pile"), result.get("failure").toString());
+                assertTrue(result.get("failure").isJsonNull(), "the game goes on: " + result.get("failure"));
+                Game game = s.session.restorationGame();
+                int turn = game.getTurnNum();
+                for (int j = 0; j < 200 && game.getTurnNum() == turn; j++) {
+                    JsonObject after = s.session.pendingDecisionPayload();
+                    assertTrue(after.get("failure").isJsonNull(), "the game goes on: " + after.get("failure"));
+                    assertFalse("P1".equals(s.actor()), "no frame is exposed to P1 after it left: " + s.decisionClass());
+                    assertEquals("priority", s.decisionClass(), "only priority remains this turn: " + s.labels());
+                    s.submit(s.action("pass_priority", "Pass"));
+                }
+                assertEquals(s.seats.get("P2").getId(), game.getActivePlayerId(), "the next turn belongs to P2");
                 return;
             }
             switch (cls) {

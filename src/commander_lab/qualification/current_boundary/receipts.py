@@ -145,18 +145,44 @@ def document_digest(document: dict[str, Any]) -> str:
     return _digest(dict(document))
 
 
+_GIT_TIMEOUT_SECONDS = 60
+_SHA_RE = re.compile(r"[0-9a-f]{40}")
+
+
 def _git(root: Path, args: list[str]) -> str:
-    proc = subprocess.run(
-        ["git", *args],
-        cwd=str(root),
-        capture_output=True,
-        text=True,
-        check=False,
-        env=_clean_git_environment(),
-    )
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=str(root),
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=_GIT_TIMEOUT_SECONDS,
+            env=_clean_git_environment(),
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ReceiptError(f"git {' '.join(args)} in {root} did not complete: {exc}") from exc
     if proc.returncode != 0:
         raise ReceiptError(f"git {' '.join(args)} failed: {proc.stderr.strip()[:200]}")
     return proc.stdout.rstrip("\n")
+
+
+def git_fact(root: Path, *args: str, sha: bool = False) -> str:
+    """A Git fact an identity is built from, or ReceiptError.
+
+    Identity feeds credit, so a missing fact must never degrade into an empty
+    string that is then recorded as if it were a commit: the checkout must exist,
+    the command must finish in time and succeed, the output must be non-empty,
+    and a ``sha`` fact must be a full 40-hex object name.
+    """
+    if not Path(root).is_dir():
+        raise ReceiptError(f"git {' '.join(args)}: {root} is not a directory")
+    value = _git(Path(root), list(args)).strip()
+    if not value:
+        raise ReceiptError(f"git {' '.join(args)} in {root} returned nothing")
+    if sha and not _SHA_RE.fullmatch(value):
+        raise ReceiptError(f"git {' '.join(args)} in {root} returned {value[:60]!r}, not a SHA")
+    return value
 
 
 def _git_porcelain(root: Path) -> list[str]:

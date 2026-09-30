@@ -1,11 +1,11 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
 worktree: /home/moeen/code/claude-lab-repin-20260929
-branch: claude/midgame-row-receipts-20260930
+branch: hardening/runner-strict-git-forge-hermetic-20260930
 audit_base_sha: 808799915b478ef2e7726ac941a83387cb2f1a3c
 audit_base_tree: 93ceaaa22210fe3f1c82948be255e15d61647068
-state_written_against_head: 567b914ed24c14e3e8a9bb63744399236355699d
-validated_head: 567b914ed24c14e3e8a9bb63744399236355699d
+state_written_against_head: 0fbea2ecf0a5d8e1ad6dedcfd090f75998b8d874
+validated_head: 0fbea2ecf0a5d8e1ad6dedcfd090f75998b8d874
 objective: 'CSN-POST-AUDIT-HARDENING-2026-09-30: fix the independently audited defects that are live on current
   main, not owned by an active workstream and need no authority decision.'
 in_scope:
@@ -25,8 +25,8 @@ out_of_scope:
 - 'issue #192 destructive cleanup'
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); one branch/PR per milestone
 status: WAITING
-exact_next_action: 'Merge #409, #411, #412, #413, #416, #417 and the B3 PR (owner); then B4, B5, C4, C3, E2, C1,
-  C2, D2, F1, F2, G1, H1, R1 per docs in the handoff prompt.'
+exact_next_action: 'Owner merges the B4/B5 PR. Coordinator decides B1 (docs/post_audit_hardening_20260930/B1_EVIDENCE_EPOCH_MEMO.md);
+  then requalify. Next unadjudicated milestones in order: C4, C3, E2, C1, C2, D2, F1, F2, G1, H1, R1.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -46,14 +46,20 @@ source_lock:
   pin_authority: config/rules_engines.json
   verified_utc: '2026-09-30'
 ownership_observed:
-  PR#395: 'ACTIVE foundry lane: runner, assembler, pb03_runtime, midgame_lane, probe, PB-03 workflow, re-seals qualification/final-current-boundary-20260927.
-    Do not write these surfaces in parallel.'
+  PR#395: MERGED 2026-09-30; runner/assembler/PB-03 workflow surface is free
   PR#404: MERGED 80879991 (F-42 leaver own choice)
   PR#410: 'ACTIVE parallel Claude lane: engine-bridge multiplayer probe tests only'
-  PR#409: 'OWN: midgame public event tape'
-  issue#408: GATE 2 producer gap; records ownership with the current-boundary lane (#395)
+  PR#409: MERGED (own)
+  issue#408: 'producer merged in #411; closed by this campaign'
   issue#255: AUTHORITY_GATE (provider adjudication)
   issue#192: OPERATOR_GATE (destructive cleanup)
+  PR#411: MERGED (own)
+  PR#412: MERGED (own)
+  PR#413: MERGED (own)
+  PR#416: MERGED (own)
+  PR#417: MERGED (own)
+  PR#418: MERGED (own)
+  PR#419: MERGED (own)
 tasks:
   A1:
     status: FIXED
@@ -72,11 +78,13 @@ tasks:
   A4:
     status: FIXED
     pr: '#417'
-    evidence: audit_workflow_impact.py per-job coverage, --fix, guard test; pb03 workflow reported, not rewritten
+    evidence: 'audit_workflow_impact.py per-job coverage, --fix, guard test; pb03 workflow reported, not rewritten;
+      closeout: pb03 exemption removed after #395 merged, 8 trigger globs added'
   B1:
     status: AUTHORITY_GATE
     evidence: LEDGER H-08 calls final-current-boundary-20260927 sealed, but the current-boundary lane requalifies
-      into it on main (6 commits on 2026-09-30); which epoch is sealed is an evidence-policy decision
+      into it on main (6 commits on 2026-09-30); which epoch is sealed is an evidence-policy decision; memo docs/post_audit_hardening_20260930/B1_EVIDENCE_EPOCH_MEMO.md
+      recommends (a) living tree
   B2:
     status: FIXED
     pr: '#411'
@@ -84,14 +92,18 @@ tasks:
       PASS, native_promotions 9, runner and assembler exit 0'
   B3:
     status: FIXED
-    pr: see hardening/native-suite-executed-identity-20260930
+    pr: '#418'
     evidence: per-class surefire identity; loader refuses missing/empty/all-skipped/failed/stale classes
   B4:
-    status: OPEN
-    evidence: 'runner git() still check=False; surface free since #395 merged'
+    status: FIXED
+    pr: hardening/runner-strict-git-forge-hermetic-20260930
+    evidence: runner git() delegates to receipts.git_fact (dir, timeout, returncode, non-empty, 40-hex SHA); tests
+      red on 0fbea2ec, green after
   B5:
-    status: OPEN
-    evidence: 'Forge workspace default path; surface free since #395 merged'
+    status: FIXED
+    pr: hardening/runner-strict-git-forge-hermetic-20260930
+    evidence: no default FORGE_WORKSPACE; a Forge run requires an explicit top-level checkout and fails before writing;
+      assembler dead path removed; PB-09 not decided
   C1:
     status: UNADJUDICATED
   C2:

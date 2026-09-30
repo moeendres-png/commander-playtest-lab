@@ -28,7 +28,6 @@ import shutil
 import subprocess
 import sys
 import time
-from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -97,45 +96,28 @@ EVIDENCE_EPOCH_RELATIVE = epoch_mod.relative_epoch_root(REPO_ROOT)
 RECEIPT_DIR = OUT_DIR / "receipts"
 
 
-class RunnerGitError(RuntimeError):
+class RunnerGitError(SystemExit):
     """A Git fact required for evidence could not be established (fail closed)."""
 
 
-class ForgeWorkspaceError(RuntimeError):
+class ForgeWorkspaceError(SystemExit):
     """The Forge workspace is absent, ambiguous, or not the bound identity."""
 
 
-# An inherited GIT_DIR/GIT_WORK_TREE would let `git rev-parse HEAD` answer with
-# a different repository's identity while the evidence names this one, which is
-# precisely what the identity binding must not permit. The canonical strip list
-# lives in receipts.clean_git_environment so the runner, the receipts and the
-# epoch resolver cannot drift.
-def _git_environment() -> dict[str, str]:
-    return receipt_mod.clean_git_environment()
-
-
 def git(*args: str, cwd: Path | None = None) -> str:
-    """Run Git against the intended checkout; a failed call fails closed.
+    """A Git fact for an identity; fails closed instead of recording an empty string.
 
-    This previously ran with ``check=False`` and returned whatever stdout held,
-    so a missing repository, an unborn HEAD or a redirecting environment yielded
-    an empty (or other-repository) value that flowed into evidence as measured.
+    Reads go through receipts.git_fact, which requires an existing directory, a
+    finished command, return code 0, non-empty output and -- for HEAD/tree facts
+    -- a full 40-hex SHA, over an environment with every Git redirection removed.
+    The error type is a SystemExit subclass so a caller can distinguish it while
+    the process still stops before any evidence names the failed fact.
     """
-    root = Path(cwd or REPO_ROOT)
-    completed = subprocess.run(
-        ["git", *args],
-        cwd=str(root),
-        capture_output=True,
-        text=True,
-        check=False,
-        env=_git_environment(),
-    )
-    if completed.returncode != 0:
-        raise RunnerGitError(
-            f"git {' '.join(args)} failed in {root} (exit {completed.returncode}): "
-            f"{completed.stderr.strip()[:200]}"
-        )
-    return completed.stdout.strip()
+    sha = len(args) >= 2 and args[0] == "rev-parse" and args[-1] in {"HEAD", "HEAD^{tree}"}
+    try:
+        return receipt_mod.git_fact(cwd or REPO_ROOT, *args, sha=sha)
+    except receipt_mod.ReceiptError as exc:
+        raise RunnerGitError(f"no identity, no credit: {exc}") from exc
 
 
 _SHA = re.compile(r"[0-9a-f]{40}")
@@ -237,7 +219,6 @@ def _bridge_identity_proof(
 def resolve_forge_workspace(
     workspace: Path | str | None = None,
     *,
-    environ: Mapping[str, str] | None = None,
     expected_rules_core_commit: str = FORGE_CANDIDATE_COMMIT,
     expected_bridge_commit: str = FORGE_BRIDGE_EVIDENCE_COMMIT,
     expected_bridge_tree: str = FORGE_BRIDGE_EVIDENCE_TREE,
@@ -246,41 +227,34 @@ def resolve_forge_workspace(
 
     There is deliberately no default. A machine-local path is not a source
     identity, and "the checkout that happens to exist on this machine" is not
-    the checkout the evidence is about. ``FORGE_WORKSPACE`` must name the exact
-    checkout explicitly; the checkout must then prove, from its own Git state,
-    that it is a work-tree root, that its Rules Core is equivalent to the
-    recorded candidate, and that its bridge module is the bound bridge/evidence
-    identity. Anything unprovable fails closed.
+    the checkout the evidence is about. Without an explicit workspace argument
+    the module-level explicit input (``FORGE_WORKSPACE``) is required through
+    :func:`require_forge_workspace`; the checkout must then prove, from its own
+    Git state, that it is a clean work-tree root, that its Rules Core is
+    equivalent to the recorded candidate, and that its bridge module is the
+    bound bridge/evidence identity. Anything unprovable fails closed.
     """
-    source = os.environ if environ is None else environ
-    raw = str(workspace) if workspace is not None else str(source.get(FORGE_WORKSPACE_ENV) or "")
-    if not raw.strip():
-        raise ForgeWorkspaceError(
-            f"{FORGE_WORKSPACE_ENV} is not set: a credited Forge execution must name its exact "
-            "checkout explicitly, and no ambient machine-local default is substituted. Export "
-            "the checkout the evidence is about and re-run."
-        )
-    root = Path(raw).expanduser()
-    if not root.is_dir():
-        raise ForgeWorkspaceError(f"{FORGE_WORKSPACE_ENV}={raw!r} is not an existing directory")
-    root = root.resolve()
-    try:
-        toplevel = git_toplevel(root)
-    except RunnerGitError as exc:
-        raise ForgeWorkspaceError(
-            f"{FORGE_WORKSPACE_ENV}={raw!r} is not a Git work-tree root: {exc}"
-        ) from exc
-    if toplevel != root:
-        raise ForgeWorkspaceError(
-            f"{FORGE_WORKSPACE_ENV}={raw!r} resolves to work tree {toplevel}, not itself; a "
-            "credited execution must name the checkout root, not a directory inside it"
-        )
-    dirty_paths = tuple(
-        line for line in git("status", "--porcelain", cwd=root).splitlines() if line.strip()
-    )
+    if workspace is None:
+        root = require_forge_workspace().resolve()
+    else:
+        root = Path(workspace).expanduser().resolve()
+        if not root.is_dir():
+            raise ForgeWorkspaceError(f"FORGE_WORKSPACE {root} is not a directory")
+        try:
+            toplevel = git_toplevel(root)
+        except RunnerGitError as exc:
+            raise ForgeWorkspaceError(
+                f"FORGE_WORKSPACE {root} is not a Git work-tree root: {exc}"
+            ) from exc
+        if toplevel != root:
+            raise ForgeWorkspaceError(
+                f"FORGE_WORKSPACE {root} is not the top level of its Git checkout "
+                f"({toplevel}); the engine identity would name another tree"
+            )
+    dirty_paths = tuple(receipt_mod._git_porcelain(root))
     if dirty_paths:
         raise ForgeWorkspaceError(
-            f"{FORGE_WORKSPACE_ENV}={raw!r} has uncommitted changes "
+            f"FORGE_WORKSPACE {root} has uncommitted changes "
             f"({len(dirty_paths)} paths, e.g. {list(dirty_paths[:5])}); the committed checkout "
             "identity would not describe the bytes that execute. A credited Forge run requires a "
             "clean checkout."
@@ -363,11 +337,46 @@ def resolve_suite_root(candidate: str) -> dict[str, Any]:
     }
 
 
-# The Forge checkout a credited Forge execution runs in is an explicit input
-# (resolution above). There is no machine-local default, because a default path
-# is not an identity and the historical WSR20 checkout carries a
-# forge-protocol2-bridge tree that differs from the bound bridge/evidence head.
+# The Forge checkout the native suites execute in. It must be named explicitly
+# (FORGE_WORKSPACE) so the bound bridge/evidence head can be a detached worktree
+# at the exact Forge PR head without moving any other lane's checkout. There is
+# no default: a machine-specific fallback silently bound whatever happened to sit
+# at that path, so a Forge run without an explicit workspace fails closed
+# (require_forge_workspace). Which Forge head is the candidate is PB-09's
+# question, not this runner's.
+#
+# The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
+# evidence head is Forge PR #5 e15f37d6, which changes forge-protocol2-bridge
+# only. engine_tree_equivalence re-proves that separation on every run, and
+# resolve_forge_workspace additionally binds the executing bridge module tree and
+# refuses a dirty checkout.
 FORGE_WORKSPACE_ENV = "FORGE_WORKSPACE"
+FORGE_WORKSPACE: Path | None = (
+    Path(os.environ[FORGE_WORKSPACE_ENV]) if os.environ.get(FORGE_WORKSPACE_ENV) else None
+)
+
+
+def require_forge_workspace() -> Path:
+    """The explicit Forge checkout, or SystemExit: no workspace means no Forge run."""
+    if FORGE_WORKSPACE is None:
+        raise ForgeWorkspaceError(
+            "FORGE_WORKSPACE is not set; a Forge run needs an explicit, source-locked "
+            "Forge checkout (no default path is assumed)"
+        )
+    if not FORGE_WORKSPACE.is_dir():
+        raise ForgeWorkspaceError(f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not a directory")
+    try:
+        toplevel = git_toplevel(FORGE_WORKSPACE)
+    except RunnerGitError as exc:
+        raise ForgeWorkspaceError(
+            f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not the top level of its Git checkout: {exc}"
+        ) from exc
+    if toplevel != FORGE_WORKSPACE.resolve():
+        raise ForgeWorkspaceError(
+            f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not the top level of its Git "
+            f"checkout ({toplevel}); the engine identity would name another tree"
+        )
+    return FORGE_WORKSPACE
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -458,6 +467,10 @@ NATIVE_SUITE_BINDING = {
         },
     },
     "forge": {
+        # Explicit input only: None when FORGE_WORKSPACE is not set. The binding
+        # records the configured root for the tree marker; the run itself proves
+        # identity through resolve_suite_root/resolve_forge_workspace.
+        "root": FORGE_WORKSPACE,
         "runner": "mvn",
         "argv": [
             "mvn",
@@ -499,13 +512,6 @@ NATIVE_SUITE_BINDING = {
         },
     },
 }
-
-# Bind each suite's declared identity into the table. No Git read happens here:
-# the execution checkout is resolved and validated at run time by
-# resolve_suite_root(), so module import can never record an unmeasured identity.
-for _candidate in NATIVE_SUITE_BINDING:
-    NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
-
 
 # The actual-card names this artifact declares. Named once so the corpus
 # completeness statement is derived from the list rather than restated in prose.
@@ -568,6 +574,27 @@ def frozen_actual_card_corpus() -> tuple[str, ...]:
             "actual-card obligation cannot be measured"
         )
     return tuple(str(name) for name in corpus)
+
+
+def _bound_engine_tree(root: Path | None) -> str:
+    """The suite root's tree for the binding table, or UNCONFIGURED.
+
+    Importing the runner must not require every candidate's checkout; a run that
+    uses one proves it strictly first (require_forge_workspace, git()).
+    """
+    if root is None:
+        return "UNCONFIGURED"
+    try:
+        return receipt_mod.git_fact(root, "rev-parse", "HEAD^{tree}", sha=True)
+    except receipt_mod.ReceiptError:
+        return "UNCONFIGURED"
+
+
+for _candidate in NATIVE_SUITE_BINDING:
+    NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
+    NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = _bound_engine_tree(
+        NATIVE_SUITE_BINDING[_candidate]["root"]
+    )
 
 
 def runtime_identity(candidate: str) -> dict[str, Any]:
@@ -636,6 +663,8 @@ def run_native_suite(
     counts, environment identity, the bound runner identity and a content digest.
     """
     receipt_mod.require_clean_runner(runner)
+    if candidate == "forge":
+        require_forge_workspace()
     spec = NATIVE_SUITE_BINDING[candidate]
     # Resolve the execution checkout and prove its identity before anything runs.
     # For Forge this is the explicit FORGE_WORKSPACE, validated as a work-tree
@@ -1502,7 +1531,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", default="all", choices=["all", "xmage", "forge"])
     args = parser.parse_args()
-    # Bind the evidence epoch before the first byte is written. The identity is
+    if args.candidate in {"all", "forge"}:
+        # Fail before anything is written: a Forge run has no default checkout.
+        require_forge_workspace()
+    # Bind the evidence epoch before the first artifact is written. The identity is
     # the producing source; an epoch that another source produced is never
     # overwritten, and the historical WSR22 epoch cannot be selected at all.
     epoch_identity = bootstrap_evidence_epoch()

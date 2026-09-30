@@ -115,22 +115,21 @@ def test_runner_git_toplevel_matches_the_repository_root(monkeypatch: pytest.Mon
     assert module.git_toplevel(REPO) == REPO.resolve()
 
 
-def test_import_records_no_fabricated_suite_tree_from_an_ambient_path(
+def test_import_records_only_an_explicit_unconfigured_marker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """An existing non-repository path must not yield a silent empty engine_tree.
+    """An existing non-repository path must not yield an empty engine_tree.
 
-    Module import resolved each suite root's tree with the same check=False helper,
-    so a directory that exists but is not a Git checkout produced the string ``""``
-    recorded as an engine tree. Resolution is deferred to execution, which validates
-    the root, so import records nothing it did not measure.
+    Module import tolerated a missing checkout by recording ``""`` as an engine
+    tree. The canonical behaviour is the explicit ``UNCONFIGURED`` marker, and a
+    run never uses that marker: resolve_suite_root re-proves the checkout and
+    fails closed.
     """
     module = runner_module(monkeypatch, forge_workspace=tmp_path)
     forge = module.NATIVE_SUITE_BINDING["forge"]
-    assert "engine_tree" not in forge, (
-        "the import-time tree resolution recorded an unmeasured engine tree: "
-        f"{forge.get('engine_tree')!r}. Resolve suite roots at execution time."
-    )
+    assert forge["engine_tree"] == "UNCONFIGURED"
+    with pytest.raises(module.ForgeWorkspaceError):
+        module.resolve_suite_root("forge")
 
 
 def test_runner_digest_covers_the_native_suite_test_sources() -> None:
@@ -192,8 +191,12 @@ def test_git_redirection_list_covers_config_and_index_overrides() -> None:
         assert "GIT_CONFIG_VALUE_0" not in R.clean_git_environment()
     finally:
         del os.environ["GIT_CONFIG_VALUE_0"]
+    # The runner consumes the same strict reader (which strips the environment),
+    # and the epoch resolver calls the sanitizer directly; neither keeps a
+    # second strip list that could drift.
     runner_source = RUNNER.read_text(encoding="utf-8")
-    assert "receipt_mod.clean_git_environment()" in runner_source
+    assert "receipt_mod.git_fact(" in runner_source
+    assert "_GIT_REDIRECTION_ENV =" not in runner_source
     epoch_sources = (
         REPO / "src" / "commander_lab" / "qualification" / "current_boundary" / "evidence_epoch.py"
     ).read_text(encoding="utf-8")

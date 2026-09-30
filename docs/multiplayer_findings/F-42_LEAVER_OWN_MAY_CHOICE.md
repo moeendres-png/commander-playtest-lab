@@ -28,7 +28,7 @@ A conceder whose own choice is pending during another player's spell is not the 
 
 After the native concession, `XmageFullGameSession.submitConcede` calls `XmageFullGameDecisionController.cancelPendingForDepartedPlayer`.
 
-- It retires a pending frame whose own player is no longer in the game, for the observed classes whose callbacks unwind natively: `target`, `choose_object`, `mana_payment`, `choose_use` and (follow-up below) `declare_blocker`.
+- It retires a pending frame whose own player is no longer in the game, for the observed classes whose callbacks unwind natively: `target`, `choose_object`, `mana_payment`, `choose_use`, and (follow-ups below) `declare_blocker`, `declare_attacker`, `mode`, `announce_x`, `amount`, `choice`, `target_amount`, `pile`, `trigger_order` and `mulligan`.
 - The retirement is recorded as `engine_decision_cancelled` with reason `player_left_game`.
 - A retired `choose_use` returns `false`, which is what XMage's own player returns once it cannot respond. No pilot response is accepted, and nothing is chosen on the player's behalf beyond that native no-response.
 - Priority keeps its F-39 path.
@@ -85,3 +85,37 @@ The other leave suites stay green:
   - combat finishes;
   - P2 still declares its blocks, takes 1 from Hellrider's trigger and 1 from the Goblin;
   - nobody else is affected, and the game goes on.
+
+## Follow-up 2: every decision class a player can concede at
+
+`XmageMultiplayerLeaverDecisionClassTest` (4P/5P) has the active player concede while one of its own decisions is open. `XmageMultiplayerLeaverMulliganTest` covers the mulligan at game start.
+
+**Before:** every class outside the first allow-list ended the lane fail-closed (`PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`), and each game stopped for everyone.
+
+**After:** each class now returns what XMage's own `HumanPlayer` returns once it cannot respond (read at the pinned engine), except `trigger_order`:
+
+| Class | Unwind | Why it decides nothing for the departed player |
+|---|---|---|
+| `declare_attacker` | no further attackers | its creatures left with it |
+| `mode` | no mode (`null`) | the cast is abandoned; the card left with it |
+| `announce_x`, `amount` | the minimum | the spell or effect is its own and gone |
+| `choice` (including cast-ability choice) | `false` / `null` | the same |
+| `target_amount` | `false` | the cast is abandoned |
+| `pile` | `false` | both piles are its own cards and left with it |
+| `mulligan` | keep | its hand left with it |
+| `trigger_order` | **none (`null`)** | see below |
+
+**`trigger_order` is a rules defect, not only an availability gap.** XMage's own player returns the *first* ability once it cannot respond. `GameImpl.checkTriggered` then puts that ability on the stack for a player who has left, and it resolves.
+- **Measured:** P1 casts Grizzly Bears with Impact Tremors and Purphoros out, and concedes while ordering the two triggers. Impact Tremors' trigger, controlled by the departed P1, dealt 1 damage to every remaining opponent.
+- **Rule:** CR 800.4a says objects on the stack that a departed player controls, and that are not represented by cards, cease to exist.
+- **Bridge fix:** the bridge answers "none" (`null`). `checkTriggered` plays nothing for `null`, and it stops asking a player who cannot respond. Now no ability of the departed player reaches the stack, and every opponent stays at 40.
+- **Engine-side note for the repin lane:** native XMage has the same defect for its own players. `checkTriggered` plays the chosen ability without re-checking `canRespond()` after `chooseTriggeredAbility` returns.
+
+**Still fail-closed:**
+- `multi_amount` (combat damage assignment among blockers). A control test pins this.
+- `replacement_effect`.
+
+**Results:**
+- `XmageMultiplayerLeaverDecisionClassTest`: 12/12 red before, 12/12 green after; `trigger_order` was red on damage even with a native-style unwind. The 2 `multi_amount` control cases stay fail-closed.
+- `XmageMultiplayerLeaverMulliganTest`: 2/2 red before, 2/2 green after.
+- The Fact or Fiction pile case in `XmageMultiplayerLeaverMayChoiceTest` now asserts that the game goes on.
