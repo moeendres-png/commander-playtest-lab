@@ -8,7 +8,7 @@
  "engine_artifact_size": 7112962,
  "executed_pass": 30,
  "not_run_or_failed": 0,
- "receipt_digest": "508978cce60fab32298b4ea6748a5c6275939b43f3ad121a2559ea6bb788e49d",
+ "receipt_digest": "88f9e398c5329a19bb02a2d5512dba95c2b0f04d3a31b5c4671feb15e91c7c79",
  "rows": [
   {
    "fixture_id": "PILOT_DECLARE_ATTACKER",
@@ -342,8 +342,8 @@
   }
  ],
  "rows_total": 30,
- "runner_commit": "52de27d450cc0bc478e24be0cf5f83f337a9d126",
- "runner_digest": "2546afedafecfcc3fd7820c949dac3f6fa8c64769ef4c6957e3b0a35ba1dda0c",
- "runner_tree": "7b7f221c69f0d8d9bd127bf7afc3450b93bf2a52",
+ "runner_commit": "b0a66111cbf9d12d4dc82397e0e16a77f690331b",
+ "runner_digest": "e70c312f0ef8f2d4c6dd5029c27489d3be0b7d712c9e771038193df9c22ea038",
+ "runner_tree": "bf290e95e345c99b818ae637689d093fab02d065",
  "schema_version": "commander-lab.pb03-runtime-execution/2.0.0"
 }
