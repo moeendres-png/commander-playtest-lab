@@ -140,7 +140,8 @@ tests_run:
   - "midgame probe at 9edea29a -> 29 rows, 8/9/9/1/2, zero transport failures, runner digest equals the runtime ledger's"
 
 evidence:
-  - "PR #381 merged as eecb296391ce6622ed4340d42fce4ca2e2c8be74, tree c3bc806cd9790278af4d07ceb75994ab7977b6bf; 17/17 checks green on exact head 9b0e4d49ccd5"
+  - "PR #381 merged as eecb296391ce6622ed4340d42fce4ca2e2c8be74 (tree c3bc806cd9790278af4d07ceb75994ab7977b6bf); 17/17 checks green on exact head 9b0e4d49ccd5"
+  - "Terminal receipt PR #388 merged as 5c69b999205e467d3c6b99875c45a8d7981e77d6 (tree 30addb023be1d9bbda3d7deff5f4d2f0df52d9b8)"
   - "PR #316 closed 2026-09-30T03:38:18Z as consumed; PR #304 closed; PR #333 merged as 10a43d2c"
   - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json (12/18)"
   - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json (30/30 PASS)"
