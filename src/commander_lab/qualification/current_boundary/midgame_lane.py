@@ -148,16 +148,18 @@ def receipt_freshness(
     *,
     expected_runner_digest: str,
     expected_engine_commit: str,
+    expected_engine_artifact_sha256: str = "",
 ) -> str:
     """Classify a persisted mid-game receipt against the exact executing head.
 
     ``FRESH_EXACT`` requires the schema, the canonical content digest, the Lab
-    runner digest and the engine commit to all match the executing head. A
-    receipt that carries no runner identity at all is ``MISSING``; a malformed
-    or tampered one is ``INVALID``; a well-formed receipt from another runner or
-    another engine epoch is ``STALE``. Every non-``FRESH_EXACT`` classification
-    is zero credit: the caller may report it as an auditable stale fact but must
-    never promote a row from it.
+    runner digest, the engine commit and the provider-reported loaded engine
+    artifact digest to all match the executing head. A receipt that carries no
+    identity (or whose expected identity is unavailable) is ``MISSING``; a
+    malformed or tampered one is ``INVALID``; a well-formed receipt from another
+    runner, engine epoch or engine artifact is ``STALE``. Every
+    non-``FRESH_EXACT`` classification is zero credit: the caller may report it
+    as an auditable stale fact but must never promote a row from it.
     """
     if not isinstance(receipt, Mapping):
         return MIDGAME_RECEIPT_INVALID
@@ -176,24 +178,26 @@ def receipt_freshness(
     identity = {field: receipt.get(field) for field in MIDGAME_RECEIPT_IDENTITY_FIELDS}
     if not all(isinstance(value, str) and value for value in identity.values()):
         return MIDGAME_RECEIPT_MISSING
-    artifact_kind = receipt.get("engine_artifact_kind")
-    artifact_digest = receipt.get("engine_artifact_sha256")
-    if not isinstance(artifact_kind, str) or not artifact_kind:
+    artifact = {field: receipt.get(field) for field in MIDGAME_RECEIPT_ARTIFACT_FIELDS}
+    if not all(isinstance(value, str) and value for value in artifact.values()):
         return MIDGAME_RECEIPT_MISSING
-    if artifact_kind != "file":
+    if artifact["engine_artifact_kind"] != "file":
         # A reported directory or unavailable artifact is not an identity.
         return MIDGAME_RECEIPT_INVALID
-    if not isinstance(artifact_digest, str) or not artifact_digest:
-        return MIDGAME_RECEIPT_MISSING
-    if _ENGINE_ARTIFACT_DIGEST.fullmatch(artifact_digest) is None:
+    if _ENGINE_ARTIFACT_DIGEST.fullmatch(artifact["engine_artifact_sha256"]) is None:
         # A malformed digest is not an identity this receipt can claim.
         return MIDGAME_RECEIPT_INVALID
-    if not expected_runner_digest or not expected_engine_commit:
+    if (
+        not expected_runner_digest
+        or not expected_engine_commit
+        or not expected_engine_artifact_sha256
+    ):
         # The executing identity is itself unavailable; nothing can be fresh.
         return MIDGAME_RECEIPT_MISSING
     if (
         identity["runner_digest"] != expected_runner_digest
         or identity["engine_commit"] != expected_engine_commit
+        or artifact["engine_artifact_sha256"] != expected_engine_artifact_sha256
     ):
         return MIDGAME_RECEIPT_STALE
     return MIDGAME_RECEIPT_FRESH

@@ -118,38 +118,32 @@ jobs:
             tests/qualification/test_current_boundary_pb03_runtime.py \
             tests/qualification/test_current_boundary_receipts.py
 
-      - name: Execute the production-reachable mid-game probe and verify receipt freshness
+      - name: Execute the production-reachable mid-game probe
         run: |
           set -euo pipefail
           python scripts/run_midgame_capability_probe.py --out "$RUNNER_TEMP/MIDGAME_CAPABILITY_PROBE.json"
           python - <<'PY'
           import json
           import os
+          import re
           from pathlib import Path
 
           from commander_lab.qualification.current_boundary import bridge_launcher
-          from commander_lab.qualification.current_boundary import midgame_lane as ml
-          from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
           receipt = json.loads(
               (Path(os.environ["RUNNER_TEMP"]) / "MIDGAME_CAPABILITY_PROBE.json").read_text()
           )
-          runner = receipt_mod.capture_runner_identity(Path("."))
           expected_engine = bridge_launcher.canonical_xmage_engine_pin()
-          classification = ml.receipt_freshness(
-              receipt,
-              expected_runner_digest=runner.digest(),
-              expected_engine_commit=expected_engine,
-          )
-          assert classification == ml.MIDGAME_RECEIPT_FRESH, classification
           assert receipt["engine_commit"] == expected_engine, receipt["engine_commit"]
+          assert receipt["engine_artifact_kind"] == "file", receipt["engine_artifact_kind"]
+          assert re.fullmatch(r"[0-9a-f]{64}", receipt["engine_artifact_sha256"] or "")
           assert receipt["counts"]["probed"] == len(receipt["rows"])
           assert receipt["counts"]["transport_failure"] == 0, receipt["counts"]
           print(
               json.dumps(
                   {
-                      "receipt_freshness": classification,
                       "engine_commit": receipt["engine_commit"],
+                      "engine_artifact_sha256": receipt["engine_artifact_sha256"],
                       "counts": receipt["counts"],
                   },
                   sort_keys=True,
@@ -167,12 +161,14 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           import re
           import sys
           from pathlib import Path
 
           sys.path.insert(0, "src")
           from commander_lab.qualification.current_boundary import bridge_launcher
+          from commander_lab.qualification.current_boundary import midgame_lane as ml
           from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
           root = Path("qualification/final-current-boundary-20260927")
@@ -210,6 +206,22 @@ jobs:
           live_runner_digest = receipt_mod.capture_runner_identity(Path(".")).digest()
           assert execution["runner_digest"] == live_runner_digest
           assert execution["candidate_commit"] == expected_engine
+
+          # The live probe receipt must name the exact same run identity and
+          # loaded artifact as the admission handshake. A well-formed digest of a
+          # different artifact is STALE, never fresh.
+          live_receipt = json.loads(
+              (Path(os.environ["RUNNER_TEMP"]) / "MIDGAME_CAPABILITY_PROBE.json").read_text()
+          )
+          assert (
+              ml.receipt_freshness(
+                  live_receipt,
+                  expected_runner_digest=live_runner_digest,
+                  expected_engine_commit=expected_engine,
+                  expected_engine_artifact_sha256=artifact_digest,
+              )
+              == ml.MIDGAME_RECEIPT_FRESH
+          )
 
           assert matrix["PB03_DIMENSION_ADMISSION"] == "TECHNICALLY_CONFORMANT"
           assert matrix["PB03_RUNTIME_EXECUTION"] == "PASS"
