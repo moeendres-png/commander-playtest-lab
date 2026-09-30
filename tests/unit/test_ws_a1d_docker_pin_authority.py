@@ -29,7 +29,7 @@ STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
 CANONICAL_XMAGE_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
-CANONICAL_FORGE_PIN = "201cad9576d004b71fd9af260ab4c981f606eb19"
+CANONICAL_FORGE_PIN = "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
