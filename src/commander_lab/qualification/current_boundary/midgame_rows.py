@@ -72,6 +72,14 @@ class TerminalCheck:
             return f"{self.card_identity} on {self.principal}'s battlefield is tapped={self.value}"
         if self.kind == "no_mana_payment":
             return "no mana payment was asked"
+        if self.kind == "draws":
+            return f"{self.principal} moved exactly {self.value} card(s) from library to hand"
+        if self.kind == "tokens_created":
+            return f"exactly {self.value} {self.card_identity} token(s) were created"
+        if self.kind == "no_permanent_damage":
+            return "no permanent was dealt damage"
+        if self.kind == "mana_charged":
+            return f"the engine charged exactly {self.value} mana"
         return self.kind
 
 
@@ -85,6 +93,20 @@ class RowSpec:
     # A card fact the record's own postcondition states (e.g. Rograkh costs {0}),
     # used to read commander tax as mana paid minus printed mana value.
     commander_printed_mana_value: int | None = None
+    # A record's semantic mode key, bound to the text of the engine mode it names.
+    # The key has no machine definition in the record; its meaning comes from the
+    # record's own postcondition prose ("the Devil-token mode"). The bound text
+    # must occur in exactly one engine-offered mode label or the row fails closed.
+    mode_bindings: tuple[tuple[str, str], ...] = ()
+
+
+# The record's decision family and the engine's decision class name the same
+# decision differently for these families; every other family is spelled alike.
+ENGINE_DECISION_CLASS = {"choose_mode": "mode"}
+
+
+def engine_decision_class(family: str) -> str:
+    return ENGINE_DECISION_CLASS.get(family, family)
 
 
 def _life(principal: str, value: int) -> TerminalCheck:
@@ -127,6 +149,34 @@ ROWS: dict[str, RowSpec] = {
             TerminalCheck("no_mana_payment"),
         ),
     ),
+    # The 4-player instance of WS05-CMD-TAX-2: same commander, same two prior
+    # casts, same four declared Mountains, same postcondition.
+    "WS05-CMD-TAX-4": RowSpec(
+        mana_sources=tuple(f"obj:tax-mountain-{index}" for index in range(4)),
+        terminal_checks=(TerminalCheck("commander_prior_casts", principal="P1", value=3),),
+        commander_printed_mana_value=0,
+    ),
+    # Finale of Revelation costs {X}{U}{U}. "X=3 is bound into the announced
+    # spell and cost calculation by the Rules Core": the engine charges X + 2
+    # mana and the resolved spell draws X cards. Both are read from the engine,
+    # not from the announced number.
+    "PILOT_ANNOUNCE_X": RowSpec(
+        mana_sources=tuple(f"obj:finale-island-{index}" for index in range(1, 6)),
+        terminal_checks=(
+            TerminalCheck("mana_charged", value=5),
+            TerminalCheck("draws", principal="P1", value=3),
+        ),
+    ),
+    # "Selected mode is the provider-offered Devil-token mode": the spell resolves
+    # exactly that mode, three Devils and no damage from the other mode.
+    "PILOT_CHOOSE_MODE": RowSpec(
+        mana_sources=tuple(f"obj:pilot-burn-mountain-{index}" for index in range(1, 6)),
+        mode_bindings=(("create_devils", "Devil creature tokens"),),
+        terminal_checks=(
+            TerminalCheck("tokens_created", card_identity="Devil", value=3),
+            TerminalCheck("no_permanent_damage"),
+        ),
+    ),
 }
 
 
@@ -138,6 +188,10 @@ class Frame:
     selected_label: str | None = None
     selected_option_type: str | None = None
     scripted: bool = False
+    # The record's semantic key the selected offer was bound to, or the number
+    # submitted on a numeric frame the engine accepted.
+    selected_key: str | None = None
+    numeric: int | None = None
 
 
 @dataclass
@@ -273,7 +327,27 @@ def verify_token(
         frames = [
             index
             for index, frame in enumerate(trace)
-            if frame.decision_class == family and frame.principal == principal
+            if frame.decision_class == engine_decision_class(family)
+            and frame.principal == principal
+        ]
+        return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"mode_selected:([a-z_]+)", token):
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "mode"
+            and frame.scripted
+            and frame.selected_key == match.group(1)
+            and frame.selected_label in frame.offered_labels
+        ]
+        return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"x_announced:(\d+)", token):
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "announce_x"
+            and frame.scripted
+            and frame.numeric == int(match.group(1))
         ]
         return {"decision_frames": frames} if frames else None
     if match := re.fullmatch(r"target_selected:(P\d+)", token):
@@ -287,15 +361,19 @@ def verify_token(
         ]
         return {"decision_frames": frames} if frames else None
     if match := re.fullmatch(r"mana_paid:(\d+)", token):
-        taps = _mana_taps(trace)
-        return {"decision_frames": taps} if len(taps) == int(match.group(1)) else None
-    if match := re.fullmatch(r"commander_tax:\+(\d+)_generic", token):
-        if commander_printed_mana_value is None:
-            return None
-        taps = _mana_taps(trace)
-        paid_tax = len(taps) - commander_printed_mana_value
+        spent = _mana_charged(trace)
         return (
-            {"decision_frames": taps, "paid_minus_printed": paid_tax}
+            {"decision_frames": spent}
+            if spent is not None and len(spent) == int(match.group(1))
+            else None
+        )
+    if match := re.fullmatch(r"commander_tax:\+(\d+)_generic", token):
+        spent = _mana_charged(trace)
+        if commander_printed_mana_value is None or spent is None:
+            return None
+        paid_tax = len(spent) - commander_printed_mana_value
+        return (
+            {"decision_frames": spent, "paid_minus_printed": paid_tax}
             if paid_tax == int(match.group(1))
             else None
         )
@@ -315,6 +393,30 @@ def _mana_taps(trace: list[Frame]) -> list[int]:
         for index, frame in enumerate(trace)
         if frame.decision_class == "mana_payment" and frame.selected_option_type == "mana_ability"
     ]
+
+
+def _mana_spends(trace: list[Frame]) -> list[int]:
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.decision_class == "mana_payment" and frame.selected_option_type == "mana_pool"
+    ]
+
+
+def _mana_charged(trace: list[Frame]) -> list[int] | None:
+    """The payment frames of the mana the engine actually charged, or None.
+
+    A mana ability only adds mana to the pool; the engine charges the cost by
+    asking for one pool spend per unit until the cost is paid. So the charged
+    amount is the number of pool spends, never the number of sources tapped: a
+    tapped source whose mana is not spent says nothing about the cost. Every
+    tapped mana must also have been spent, otherwise mana floated and the tap
+    count and the charge disagree; the measurement then refuses to answer.
+    """
+    spends = _mana_spends(trace)
+    if len(_mana_taps(trace)) != len(spends):
+        return None
+    return spends
 
 
 def check_terminal(
@@ -349,6 +451,29 @@ def check_terminal(
         )
     if check.kind == "no_mana_payment":
         return not any(frame.decision_class == "mana_payment" for frame in trace)
+    if check.kind == "draws":
+        # The engine reports a draw as its hidden LIBRARY -> HAND zone change for
+        # the drawing player; the tape names the player but never the card.
+        draws = [
+            e
+            for e in _events(tape, "ZONE_CHANGE")
+            if e.get("from") == "LIBRARY"
+            and e.get("to") == "HAND"
+            and e.get("player_player") == check.principal
+        ]
+        return bool(len(draws) == check.value)
+    if check.kind == "tokens_created":
+        tokens = [
+            e
+            for e in _events(tape, "CREATED_TOKEN")
+            if _name_matches(e, "target_name", str(check.card_identity))
+        ]
+        return bool(len(tokens) == check.value)
+    if check.kind == "no_permanent_damage":
+        return not _events(tape, "DAMAGED_PERMANENT")
+    if check.kind == "mana_charged":
+        charged = _mana_charged(trace)
+        return charged is not None and len(charged) == check.value
     return False
 
 
@@ -385,14 +510,29 @@ def _scripted_priority_action(
     return offer
 
 
+@dataclass(frozen=True)
+class ScriptedAnswer:
+    """The engine offer a script step names, plus what the step bound it to."""
+
+    action: dict[str, Any]
+    key: str | None = None
+    numeric: int | None = None
+
+
+def _option_type(action: dict[str, Any]) -> str:
+    return str((action.get("metadata") or {}).get("option_type") or "")
+
+
 def _scripted_answer(
-    legal: dict[str, Any], step: dict[str, Any], placed: dict[str, str]
-) -> dict[str, Any]:
+    legal: dict[str, Any], step: dict[str, Any], placed: dict[str, str], spec: RowSpec
+) -> ScriptedAnswer:
     probe = probe_module()
     selection = step.get("selection") or {}
     kind = selection.get("selector_kind")
     value = selection.get("semantic_value")
     actions = list(legal.get("actions") or ())
+    key: str | None = None
+    numeric: int | None = None
     if kind == "semantic_player":
         label = probe.seat_label(str(value))
         matches = [a for a in actions if _label_of(a) == label]
@@ -401,14 +541,28 @@ def _scripted_answer(
         matches = [
             a for a in actions if native and probe.find_native_offer({"actions": [a]}, native)
         ]
+    elif kind == "semantic_mode_key":
+        key = str(value)
+        bound = dict(spec.mode_bindings).get(key)
+        if bound is None:
+            raise ml.MidgameLaneError(f"mode key {key!r} has no binding for this row")
+        matches = [
+            a
+            for a in actions
+            if _option_type(a) == "mode" and bound.lower() in _label_of(a).lower()
+        ]
+    elif kind == "integer":
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise ml.MidgameLaneError(f"integer selector carries {value!r}")
+        numeric = value
+        matches = [a for a in actions if _option_type(a) == "numeric_choice"]
     else:
         raise ml.MidgameLaneError(f"selector {kind!r} is not executed by this lane")
     if len(matches) != 1:
         raise ml.MidgameLaneError(
             f"the scripted {step.get('decision_family')} {value!r} matched {len(matches)} engine offers"
         )
-    chosen: dict[str, Any] = matches[0]
-    return chosen
+    return ScriptedAnswer(matches[0], key=key, numeric=numeric)
 
 
 def _attacker_answer(
@@ -452,13 +606,20 @@ def _attacker_answer(
 
 
 def _mana_offer(legal: dict[str, Any], sources: list[str]) -> dict[str, Any] | None:
-    """The first declared mana source the engine offers, else the one advancing pool spend.
+    """The one advancing pool spend, else the next declared mana source.
 
-    Declared sources are tried in the record's order; the engine never re-offers a
-    tapped land. Pool mana is spent only when exactly one advancing spend is
-    offered, so no colour choice is ever made on the pilot's behalf.
+    Mana already in the pool is spent before another source is tapped, so a
+    source is tapped only while the charged cost still needs mana and nothing
+    floats: tapping every declared source first would make the tap count
+    describe the declaration, not the cost. Pool mana is spent only when exactly
+    one advancing spend is offered, so no colour choice is ever made on the
+    pilot's behalf. Declared sources are tried in the record's order; the engine
+    never re-offers a tapped land.
     """
     actions = list(legal.get("actions") or ())
+    spend = _single_pool_spend(actions)
+    if spend is not None:
+        return spend
     for native in sources:
         for action in actions:
             metadata = action.get("metadata") or {}
@@ -469,6 +630,10 @@ def _mana_offer(legal: dict[str, Any], sources: list[str]) -> dict[str, Any] | N
             ):
                 found: dict[str, Any] = action
                 return found
+    return None
+
+
+def _single_pool_spend(actions: list[dict[str, Any]]) -> dict[str, Any] | None:
     spends = []
     for action in actions:
         metadata = action.get("metadata") or {}
@@ -499,6 +664,13 @@ def execute_row(
     lane-level refusal: an unverifiable row is returned unverified with the reason."""
     probe = probe_module()
     fixture_id = str(record["fixture_id"])
+    if not (record.get("expected_events") or {}).get("required_events") and not (
+        spec.terminal_checks
+    ):
+        # Nothing would be observed, so "verified" would hold for any behaviour.
+        return RowExecution(
+            fixture_id, False, None, "the obligation names no required event and no terminal check"
+        )
     placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
     commanders = {str(k): str(v) for k, v in (created.get("commander_objects") or {}).items()}
     semantic_commanders = {
@@ -598,10 +770,21 @@ def execute_row(
                 frame.selected_option_type = str((offer.get("metadata") or {}).get("option_type"))
                 probe.submit_proposal(client, legal, offer, f"{fixture_id}-mana-{len(trace)}")
                 continue
-            if scripted and step is not None and step.get("decision_family") == decision_class:
-                action = _scripted_answer(legal, step, placed)
-                frame.selected_label, frame.scripted = _label_of(action), True
-                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+            if (
+                scripted
+                and step is not None
+                and engine_decision_class(str(step.get("decision_family"))) == decision_class
+            ):
+                answer = _scripted_answer(legal, step, placed, spec)
+                frame.selected_label, frame.scripted = _label_of(answer.action), True
+                frame.selected_key, frame.numeric = answer.key, answer.numeric
+                probe.submit_proposal(
+                    client,
+                    legal,
+                    answer.action,
+                    f"{fixture_id}-{len(trace)}",
+                    numeric_choice=answer.numeric,
+                )
                 position += 1
                 continue
             detail = f"unscripted {decision_class} for {principal}: the row stops unverified"

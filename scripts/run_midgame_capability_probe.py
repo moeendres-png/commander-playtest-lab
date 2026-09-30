@@ -636,7 +636,12 @@ def submit_proposal(
     legal: dict[str, Any],
     action: dict[str, Any],
     proposal_id: str,
+    numeric_choice: int | None = None,
 ) -> dict[str, Any]:
+    """Submit one engine-offered action; a numeric answer only where the frame asks one."""
+    choices: dict[str, Any] = {"ordering": []}
+    if numeric_choice is not None:
+        choices["numeric_choice"] = numeric_choice
     proposal = {
         "proposal_id": proposal_id,
         "actor_id": legal["actor_id"],
@@ -644,7 +649,7 @@ def submit_proposal(
         "action_type": action["action_type"],
         "target_ids": [],
         "selected_modes": [],
-        "choices": {"ordering": []},
+        "choices": choices,
         "decision_tier": 1,
         "policy_name": "midgame-causal-external-pilot",
     }

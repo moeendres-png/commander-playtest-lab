@@ -74,6 +74,7 @@ TAPE: list[dict[str, Any]] = [
 TRACE = [
     mr.Frame("priority", "P1", ["Cast Grizzly Bears"], "Cast Grizzly Bears", scripted=True),
     mr.Frame("mana_payment", "P1", ["Forest"], "Forest", selected_option_type="mana_ability"),
+    mr.Frame("mana_payment", "P1", ["Spend"], "Spend", selected_option_type="mana_pool"),
     mr.Frame(
         "target", "P1", ["Full Game Seat 2", "Full Game Seat 3"], "Full Game Seat 2", scripted=True
     ),
@@ -127,13 +128,44 @@ def test_an_unobserved_or_unknown_token_is_never_assumed(token: str) -> None:
     assert mr.verify_token(token, TAPE, TRACE, set()) is None
 
 
-def test_commander_tax_is_paid_mana_minus_the_declared_printed_value() -> None:
-    trace = [
+def _payment(taps: int, spends: int) -> list[mr.Frame]:
+    return [
         mr.Frame("mana_payment", "P1", [], "Mountain", selected_option_type="mana_ability")
-        for _ in range(4)
+        for _ in range(taps)
+    ] + [
+        mr.Frame("mana_payment", "P1", [], "Spend", selected_option_type="mana_pool")
+        for _ in range(spends)
     ]
+
+
+def test_commander_tax_is_charged_mana_minus_the_declared_printed_value() -> None:
+    trace = _payment(4, 4)
     assert mr.verify_token("commander_tax:+4_generic", [], trace, set(), 0) is not None
     assert mr.verify_token("commander_tax:+4_generic", [], trace, set(), 1) is None
+
+
+def test_charged_mana_is_the_engine_charge_not_the_number_of_tapped_sources() -> None:
+    """Tapping every declared source first made the tap count describe the
+    declaration: a 4-mana charge paid from 5 tapped Islands still read as 5."""
+    assert mr.verify_token("mana_paid:5", [], _payment(5, 4), set()) is None
+    assert mr.verify_token("mana_paid:4", [], _payment(5, 4), set()) is None
+    assert mr.verify_token("commander_tax:+4_generic", [], _payment(4, 2), set(), 0) is None
+    charged = mr.TerminalCheck("mana_charged", value=5)
+    assert mr.check_terminal(charged, {}, [], _payment(5, 5))
+    assert not mr.check_terminal(charged, {}, [], _payment(5, 4))
+
+
+def test_mana_is_spent_from_the_pool_before_another_source_is_tapped() -> None:
+    def action(option_type: str, source: str | None = None) -> dict[str, Any]:
+        engine = {"source_object_id": source} if source else {}
+        return {"metadata": {"option_type": option_type, "xmage_option_metadata": engine}}
+
+    tap = action("mana_ability", "native-island-1")
+    spend = action("mana_pool")
+    assert mr._mana_offer({"actions": [tap, spend]}, ["native-island-1"]) is spend
+    assert mr._mana_offer({"actions": [tap]}, ["native-island-1"]) is tap
+    # Two advancing spends would be a colour choice: never made for the pilot.
+    assert mr._mana_offer({"actions": [spend, action("mana_pool")]}, []) is None
 
 
 def test_terminal_checks_read_the_engine_observation() -> None:
@@ -278,3 +310,118 @@ def test_execute_and_persist_clears_stale_receipts_first(tmp_path: Path) -> None
     )
     assert list(directory.glob("*.json")) == []
     assert summary["rows_verified"] == 0
+
+
+def test_decision_families_map_to_the_engine_decision_class() -> None:
+    trace = [mr.Frame("mode", "P1", ["a", "b"], "b", scripted=True, selected_key="create_devils")]
+    assert mr.verify_token("choose_mode_frame:P1", [], trace, set()) is not None
+    assert mr.verify_token("choose_mode_frame:P2", [], trace, set()) is None
+    assert mr.verify_token("mode_selected:create_devils", [], trace, set()) is not None
+    assert mr.verify_token("mode_selected:deal_damage", [], trace, set()) is None
+    unscripted = [mr.Frame("mode", "P1", ["a", "b"], "b", selected_key="create_devils")]
+    assert mr.verify_token("mode_selected:create_devils", [], unscripted, set()) is None
+
+
+def test_x_is_the_number_the_engine_accepted_on_the_announce_frame() -> None:
+    trace = [mr.Frame("announce_x", "P1", ["Provide numeric choice"], scripted=True, numeric=3)]
+    assert mr.verify_token("x_announced:3", [], trace, set()) is not None
+    assert mr.verify_token("x_announced:2", [], trace, set()) is None
+    assert mr.verify_token("announce_x_frame:P1", [], trace, set()) is not None
+
+
+def _mode_legal() -> dict[str, Any]:
+    def mode(label: str) -> dict[str, Any]:
+        return {"metadata": {"option_type": "mode", "label": label}}
+
+    return {
+        "actions": [
+            mode("{this} deals 5 damage to each creature and each planeswalker."),
+            mode('Create three 1/1 red Devil creature tokens with "When this creature dies..."'),
+        ]
+    }
+
+
+def _step(kind: str, value: Any) -> dict[str, Any]:
+    return {
+        "decision_family": "choose_mode",
+        "selection": {"selector_kind": kind, "semantic_value": value},
+    }
+
+
+def test_a_mode_key_selects_exactly_the_engine_mode_its_binding_names() -> None:
+    spec = mr.RowSpec(mode_bindings=(("create_devils", "Devil creature tokens"),))
+    answer = mr._scripted_answer(
+        _mode_legal(), _step("semantic_mode_key", "create_devils"), {}, spec
+    )
+    assert "Devil" in mr._label_of(answer.action) and answer.key == "create_devils"
+
+
+@pytest.mark.parametrize(
+    "bindings",
+    [(), (("create_devils", "Angel"),), (("create_devils", "creature"),)],
+    ids=["unbound", "no-match", "ambiguous"],
+)
+def test_a_mode_key_without_exactly_one_matching_offer_fails_closed(
+    bindings: tuple[tuple[str, str], ...],
+) -> None:
+    spec = mr.RowSpec(mode_bindings=bindings)
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(_mode_legal(), _step("semantic_mode_key", "create_devils"), {}, spec)
+
+
+def test_an_integer_answer_goes_only_to_the_engine_numeric_offer() -> None:
+    numeric = {"metadata": {"option_type": "numeric_choice", "label": "Provide numeric choice"}}
+    answer = mr._scripted_answer({"actions": [numeric]}, _step("integer", 3), {}, mr.RowSpec())
+    assert answer.action is numeric and answer.numeric == 3
+    for bad in (True, "3", None):
+        with pytest.raises(mr.ml.MidgameLaneError):
+            mr._scripted_answer({"actions": [numeric]}, _step("integer", bad), {}, mr.RowSpec())
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer({"actions": []}, _step("integer", 3), {}, mr.RowSpec())
+
+
+def test_engine_side_terminal_checks() -> None:
+    tape: list[dict[str, Any]] = [
+        {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "HAND", "player_player": "P1"},
+        {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "HAND", "player_player": "P1"},
+        {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "HAND", "player_player": "P2"},
+        {"type": "ZONE_CHANGE", "from": "GRAVEYARD", "to": "HAND", "player_player": "P1"},
+        {"type": "CREATED_TOKEN", "target_name": "Devil Token"},
+        {"type": "CREATED_TOKEN", "target_name": "Devil Token"},
+    ]
+    draws = mr.TerminalCheck("draws", principal="P1", value=2)
+    assert mr.check_terminal(draws, {}, tape, [])
+    assert not mr.check_terminal(mr.TerminalCheck("draws", principal="P1", value=3), {}, tape, [])
+    devils = mr.TerminalCheck("tokens_created", card_identity="Devil", value=2)
+    assert mr.check_terminal(devils, {}, tape, [])
+    assert not mr.check_terminal(
+        mr.TerminalCheck("tokens_created", card_identity="Devil", value=3), {}, tape, []
+    )
+    quiet = mr.TerminalCheck("no_permanent_damage")
+    assert mr.check_terminal(quiet, {}, tape, [])
+    assert not mr.check_terminal(quiet, {}, [*tape, {"type": "DAMAGED_PERMANENT"}], [])
+
+
+def test_an_obligation_that_observes_nothing_is_never_verified() -> None:
+    """A row with no required event and no terminal check would verify for any
+    behaviour; it must stop before the lane is even driven."""
+    record = {"fixture_id": "WS05-CMD-PARTNER-DMG", "expected_events": {"required_events": []}}
+    execution = mr.execute_row(object(), record, {}, mr.RowSpec())  # type: ignore[arg-type]
+    assert not execution.verified
+    assert "no required event and no terminal check" in execution.detail
+
+
+def test_every_registered_row_observes_something() -> None:
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    records = {
+        r["fixture_id"]: r
+        for r in load_effective_materialization(
+            Path(__file__).resolve().parents[2]
+        ).denominator_records()
+    }
+    for fixture_id, spec in mr.ROWS.items():
+        required = records[fixture_id]["expected_events"]["required_events"]
+        assert required or spec.terminal_checks, fixture_id
