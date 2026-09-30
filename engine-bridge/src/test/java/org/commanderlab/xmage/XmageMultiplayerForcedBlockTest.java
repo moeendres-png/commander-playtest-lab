@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.constants.PhaseStep;
 import mage.game.Game;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -47,7 +46,6 @@ class XmageMultiplayerForcedBlockTest {
     private static final String BEARS = "Grizzly Bears";
     private static final String ELEMENTAL = "Air Elemental";
 
-    @Disabled("F-28: engine fix moeendres-png/mage#27; enabled by the repin to a candidate containing it")
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void aForcedBlockerThatCanOnlyReachAnotherPlayersAttackerDoesNotDeadlockCombat(int playerCount) {

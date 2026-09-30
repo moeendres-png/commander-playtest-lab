@@ -1,0 +1,95 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-mp-candidate-repin-v2-20260930",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+  "tree": "18c3e8e7588627b22accc08a644729399d702ee3",
+  "role": "prior live XMage pin (multiplayer candidate F-18..F-21); its successor lock qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json stays historical",
+  "wsr22_source_lock": "src/commander_lab/qualification/current_boundary/source_lock.py#XMAGE_CANDIDATE_COMMIT stays b19596980f27 (NOT repinned)"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "pull_request": "moeendres-png/mage#24 (candidate integration PR; base sol/rg06-hidden-state-restore-20260924)",
+  "commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "tree": "0fb7c2f9a038e471de3a6e56419244482a645218",
+  "tested_code_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/9375f35ac7c9a540ebcb8b262b8645b8c6b1b326.tar.gz"
+ },
+ "donors": [
+  {
+   "finding": "F-22",
+   "tracker": "docs/multiplayer_findings/F-22_BATTLE_PROTECTOR_LEAVES.md",
+   "pr": "moeendres-png/mage#26",
+   "head": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
+   "integration": "merged (merge commit 23b996a5048bf7b8e7e4a422f2f8ea4c4ba90f65, by the F-22/F-23 lane)"
+  },
+  {
+   "finding": "F-23",
+   "tracker": "docs/multiplayer_findings/F-23_LEFT_PLAYERS_STILL_OPPONENTS.md",
+   "pr": "moeendres-png/mage#26",
+   "head": "fcfde9dad30fa56e60d5f5bc40ddce6ecd68019c",
+   "integration": "merged together with F-22"
+  },
+  {
+   "finding": "F-28",
+   "tracker": "docs/multiplayer_findings/F-28_FORCED_BLOCK_OTHER_DEFENDER.md",
+   "pr": "moeendres-png/mage#27",
+   "head": "268e3d0f2700ffd44bc53d932a670554bdff5f71",
+   "integration": "merged (merge commit 2dc89b3c9d348870889faa55f1dbbf28b03827d3)"
+  },
+  {
+   "finding": "F-29",
+   "tracker": "docs/multiplayer_findings/F-29_BLOCK_DECLARATION_ORDER.md",
+   "pr": "moeendres-png/mage#28",
+   "head": "3c0fe388b2be9a2ef337ddc26970a4ff115fa093",
+   "integration": "merged (merge commit 2dc89b3c9d348870889faa55f1dbbf28b03827d3)"
+  },
+  {
+   "finding": "F-34",
+   "tracker": "docs/multiplayer_findings/F-34_CONTROLLER_LEAVES_THE_GAME.md",
+   "pr": "branch claude/f34-turn-control-leave-20260929 (no PR)",
+   "head": "2786665809f1fdbe627949a326a2f0648d21e6ba",
+   "integration": "merged (merge commit 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326)"
+  }
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "mvn -o -pl Mage,Mage.Sets,Mage.Tests test",
+   "commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+   "run": 7020,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "baseline_at_prior_pin": "7001 run / 125 skipped"
+  },
+  "targeted": "ForcedBlockOtherDefenderTest 2/2 (red before: 1260 CPU-s livelock), BlockDeclarationOrderTest 3/3 (red 2/3 before)"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "scratchpad m2-xmage-candidate-9375f35a (all groups symlinked to ~/.m2 except a real copy of org/mage; candidate Mage + Mage.Sets installed there; shared ~/.m2 untouched)",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 31f96748d577b251d70a6a5ec6d0d90c88bb744ed914686f2b53fb30695c48d7",
+   "org.mage:mage-sets:1.4.61": "sha256 ebb7498e9af8802eea6b60cc8a0da4dc735858fb26b299b41665f626ae71005e"
+  },
+  "bridge_suite": {
+   "command": "cd engine-bridge && mvn -o -Dmaven.repo.local=<isolated> test (checkstyle on)",
+   "run": 807,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test"
+  },
+  "enabled_regressions": "XmageMultiplayerForcedBlockTest 4/4 (F-28), XmageMultiplayerBlockOrderTest 4/4 (F-29), XmageMultiplayerBattleTest leave case (F-22), XmageMultiplayerVoteTest left-player case (F-23); the F-22/F-23 enablements are ported from Lab PR #360",
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; runtime fingerprints: Game.getOpponentsInGame (F-23), Combat.canBlockInThisCombat (F-28), Combat.getPlayerDefendersInApnapOrder (F-29)"
+ }
+}
