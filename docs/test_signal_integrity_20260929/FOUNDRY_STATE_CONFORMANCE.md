@@ -177,21 +177,57 @@ that `context_capsule.py:30` and `bootstrap.py:13` assume. That protection is co
 
 ---
 
-## 7. Recommendations, none actioned here
+## 7. Recommendations
 
-Ordered by leverage. All are Coordinator decisions because they touch the durable-state contract.
+Ordered by leverage. Originally all were left to the Coordinator on the reasoning that they touch
+the durable-state contract. **That reasoning was too broad, and acting on it left real defects in
+place.** Two of the five have since been done; the rest are marked with why they genuinely remain
+someone else's decision.
 
-1. **Add a test that validates every tracked `.foundry` state file** against the schema, or
-   explicitly against `state.py`, and states which authority is normative. This is the single
-   highest-value change: it converts an unexecuted document into an enforced one.
-2. **Reconcile the schema with `state.py`**, or delete the schema and document `state.py` as the
-   normative validator. Two divergent specifications is worse than one.
-3. **Migrate `wsr24-…-20260927.json`** to schema 2.0, including the `audit_base_commit` →
-   `audit_base_sha` and `head_at_state_write` → `state_written_against_head` renames.
-4. **Correct the `ACTIVE` status** in `claude-mp-campaign-20260929.json`, or add an explicit
-   `superseded_by` field — as a new recorded fact, not a rewrite.
-5. Consider whether `.foundry` needs a `WORKSTREAM_STATE.yaml` filename convention that is
-   enforced rather than assumed.
+**DONE — 1. Validate every tracked `.foundry` state file.** Landed as
+`tests/foundry/test_foundry_state_conformance.py` plus the conformance fix to this workstream's own
+state file (PRs #375). The "which authority is normative" question did **not** need a Coordinator
+ruling: `safe_push.py` already answers it by calling `state.py.validate` and rejecting the push on
+any error. The guard therefore mirrors `state.py`, and the JSON schema is deliberately not used.
+Note what the original deferral concealed: this workstream's own state file **failed that
+validator as merged in #371**, so it could not have pushed through the canonical gate. It never
+surfaced because the workstream pushed with plain `git push` and never called the gate. A defect
+that only appears on a code path you never take is still a defect.
+
+**PARTLY DONE — 2. Reconcile the schema with `state.py`.** The *decision* is still the
+Coordinator's, and this workstream does not make it. What has changed is that the situation is no
+longer unmonitored. `tests/foundry/test_state_spec_agreement.py` now asserts, in both directions,
+every part of the overlap that must agree — the required field sets, the three shared enum
+vocabularies, `root_cause_class`, and the 17 `LIST_FIELDS` — so editing one specification without
+mirroring it in the other fails. It also pins the premise (that `safe_push` enforces `state.py`)
+and records each of the four known divergences with a rot-proof check. Mutation-tested: six
+one-sided schema mutations, six catches.
+
+The four recorded divergences are the complete, verified agenda for the Coordinator:
+
+| Divergence | Consequence |
+|---|---|
+| `additionalProperties: false` over 43 fields | the three tracked `.json` files fit inside it; every hand-written `.yaml` file needs keys it forbids, so enforcing the schema would delete recorded research |
+| `schema_version` pattern vs `SUPPORTED_VERSIONS` | `1.5` passes the schema's pattern and is refused by `state.py` |
+| `execution_profile` / `native_variant` enums | schema-constrained, absent from `state.py` entirely |
+| no 1.0 model in the schema | `state.py` models 1.0 with `current_head`; no 1.0 file can validate against the schema |
+
+**REMAINS COORDINATOR / OWNER — 3. Migrate `wsr24-…-20260927.json`** to schema 2.0, including the
+`audit_base_commit` → `audit_base_sha` and `head_at_state_write` → `state_written_against_head`
+renames. WSR24 is a foreign workstream (merged as PR #274); the file is registered as an
+exemption with its owner in the guard rather than rewritten here.
+
+**REMAINS OPEN — 4. Correct the `ACTIVE` status** in `claude-mp-campaign-20260929.json`, or add an
+explicit `superseded_by` field — as a new recorded fact, not a rewrite. Still `ACTIVE` against a
+branch, `claude/mp-campaign-checkpoint-2-20260929`, that no longer exists on the remote; only
+`claude/optimistic-bohr-6asye6` remains. Deliberately **not** changed here: stating what superseded
+it requires that lane's knowledge, and inventing it would be a worse defect than the stale field.
+
+**PARTLY ADDRESSED — 5. Filename convention.** The guard detects state files by *content*
+(`objective` or `workstream`) rather than by filename, which is strictly more robust than
+enforcing the `WORKSTREAM_STATE.yaml` name: a state file under any naming convention is still
+covered. The convention assumption in `context_capsule.py:30` and `bootstrap.py:13` remains
+unenforced.
 
 ## 8. Classification
 
@@ -199,6 +235,11 @@ Conformance results are `DIRECTLY_VERIFIED` by executed validator runs (`jsonsch
 `Draft7Validator` and the project's own `state.py`). Staleness is `DIRECTLY_VERIFIED` for
 branch existence and ancestry via `git ls-remote --heads origin` and `git merge-base`.
 
-**NOT_ESTABLISHED** (read-only limits): whether PR #274 (`wsr24`) and the `project-hygiene` PR
-are still open on GitHub, and the merge outcome of PR #344 (`legacy-donor-salvage`) — these need
-API calls beyond `ls-remote`. Branch existence and ancestry are directly verified.
+**NOT_ESTABLISHED** (read-only limits at audit time): whether PR #274 (`wsr24`) and the
+`project-hygiene` PR were still open, and the merge outcome of PR #344 (`legacy-donor-salvage`).
+
+**Now established.** A later session, with API access, resolved all three: PR #274 and PR #359
+(`project-hygiene`) and PR #344 (`legacy-donor-salvage`) are all **MERGED**. That is why the two
+closed campaigns from this writer's lineage are recorded as exemptions rather than open work, and
+it is the fact that distinguishes them from `pb03`, which is still live. Recorded here because the
+audit's own limitation should be closed out rather than left standing as an unknown.
