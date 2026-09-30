@@ -68,10 +68,11 @@ See the PR #381 file list. Core surfaces:
 
 ## Fresh Midgame Partition (engine `9375f35a`)
 
-8 `ENGINE_NATIVE_REACHABLE`, 17 `CAUSAL_ROUTE_REACHABLE`,
-1 `CAUSAL_ROUTE_MEASURED_BLOCKED` (WS05-MP-TURN-5), 1 `CONSTRUCTION_MISMATCH`,
-2 `ENGINE_REJECTED`, 0 transport failures, 0 unrecognized verdicts. The 17
-causal-reachable rows followed main's commander-object binding fix; the
+38 rows: 8 `ENGINE_NATIVE_REACHABLE`, 24 `CAUSAL_ROUTE_REACHABLE`,
+3 `CAUSAL_ROUTE_MEASURED_BLOCKED` (WS05-MP-TURN-5, PILOT_REPLACEMENT_EFFECT, CARD_20),
+1 `CONSTRUCTION_MISMATCH`, 2 `ENGINE_REJECTED`, 0 transport failures, 0
+unrecognized verdicts. The causal-reachable growth followed main's
+commander-object binding fix and its nine new scripted-decision rows; the
 partition is rederived on every run and never copied from history. Construction verdicts:
 6 `EXACT`, 2 `ALLOWED_VARIANCE`, 1 `MISMATCH`, 20 not-applicable.
 

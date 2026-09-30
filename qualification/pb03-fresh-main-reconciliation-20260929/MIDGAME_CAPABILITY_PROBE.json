@@ -4,6 +4,14 @@
     {
       "detail": "normal rotation with no extra turn; sequence=['P1', 'P5', 'P4', 'P3', 'P2', 'P1', 'P5']. Reaching the obligated P3-then-P2 extra turns needs the placed graveyard spells cast from hand for real (a causal-cast entry the lane does not have).",
       "fixture_id": "WS05-MP-TURN-5"
+    },
+    {
+      "detail": "scripted replacement_effect:P1, engine asked choose_use:P1; boolean True matched 1; trace=['priority:P2', 'priority:P1', 'priority:P4', 'priority:P3', 'choose_use:P1']",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT"
+    },
+    {
+      "detail": "scripted choose_object:P2, engine asked choose_object:P4; obj:card20-P2-hand offered=False; trace=['priority:P1', 'priority:P4', 'priority:P3', 'priority:P2', 'choose_object:P4']",
+      "fixture_id": "CARD_20"
     }
   ],
   "causal_route_reachable": [
@@ -23,19 +31,26 @@
     "WS05-CMD-ZONE-LIB-NO",
     "WS05-MP-ELIM-OWNED-3",
     "WS05-MP-ELIM-TURN-3",
-    "WS05-MP-ELIM-5"
+    "WS05-MP-ELIM-5",
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_CHOICE",
+    "PILOT_MANA_PAYMENT",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_PRIORITY",
+    "MICRO_STACK",
+    "CARD_13"
   ],
   "construction_mismatch": [
     "WS05-MP-ELIM-STACK-3"
   ],
   "counts": {
-    "causal_route_measured_blocked": 1,
-    "causal_route_reachable": 17,
+    "causal_route_measured_blocked": 3,
+    "causal_route_reachable": 24,
     "construction_mismatch": 1,
     "engine_native_reachable": 8,
     "engine_rejected": 2,
     "engine_state_accepted_obligation_not_executed": 0,
-    "probed": 29,
+    "probed": 38,
     "transport_failure": 0,
     "unrecognized_construction_verdict": 0
   },
@@ -66,7 +81,7 @@
   ],
   "engine_state_accepted_obligation_not_executed": [],
   "evidence_class": "FRESH_RUNTIME_PROTOCOL2_PROCESS",
-  "generated_at_utc": "2026-09-30T11:56:05Z",
+  "generated_at_utc": "2026-09-30T12:59:31Z",
   "lane": "xmage_midgame_native_starting_state",
   "materialization": {
     "path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
@@ -83,9 +98,9 @@
     "This probe is technical capability evidence. It is not provider selection and does not establish Architecture Freeze.",
     "The receipt binds the executing Lab runner (commit, tree, digest of every executed runner/adapter input) and the engine commit the provider reported. A receipt whose runner or engine identity does not match the assembling head is stale and earns zero runtime credit; it is never grandfathered."
   ],
-  "probe_run_id": "fe18e91c-3617-4b48-903f-e077e910c02d",
+  "probe_run_id": "20de9cd7-6bfe-4a5b-bc8b-2edc909c4515",
   "protocol_version": "2.0.0",
-  "receipt_digest": "23c5800c47c58b9ce61c6385e6fdd9e9dd48897d694c48c7409e4777b1aef0cf",
+  "receipt_digest": "d4dd423b1467755d2d9b032dd7b4569152db68dfda13baa4e2cac733b3ea027e",
   "rows": [
     {
       "causal_verdict": null,
@@ -96,7 +111,7 @@
         "priority_player: requested P1 observed P2"
       ],
       "detail": null,
-      "elapsed_s": 5.61,
+      "elapsed_s": 5.407,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": false,
@@ -118,7 +133,7 @@
         "priority_player: requested P1 observed P2"
       ],
       "detail": null,
-      "elapsed_s": 5.666,
+      "elapsed_s": 6.78,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": false,
@@ -148,7 +163,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.429,
+      "elapsed_s": 6.43,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -189,7 +204,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.968,
+      "elapsed_s": 5.943,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -217,7 +232,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": "normal rotation with no extra turn; sequence=['P1', 'P5', 'P4', 'P3', 'P2', 'P1', 'P5']. Reaching the obligated P3-then-P2 extra turns needs the placed graveyard spells cast from hand for real (a causal-cast entry the lane does not have).",
-      "elapsed_s": 8.207,
+      "elapsed_s": 6.651,
       "engine_accepted_starting_state": false,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -235,7 +250,7 @@
       "construction_verdict": "EXACT",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.107,
+      "elapsed_s": 5.251,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": true,
@@ -253,7 +268,7 @@
       "construction_verdict": "EXACT",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.663,
+      "elapsed_s": 5.225,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": true,
@@ -271,7 +286,7 @@
       "construction_verdict": "EXACT",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.17,
+      "elapsed_s": 5.171,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": true,
@@ -289,7 +304,7 @@
       "construction_verdict": "EXACT",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 4.902,
+      "elapsed_s": 4.723,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": true,
@@ -317,7 +332,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.575,
+      "elapsed_s": 5.512,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -335,7 +350,7 @@
       "construction_verdict": "EXACT",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.131,
+      "elapsed_s": 5.106,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": true,
@@ -353,7 +368,7 @@
       "construction_verdict": "EXACT",
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.277,
+      "elapsed_s": 5.073,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": true,
@@ -386,7 +401,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.14,
+      "elapsed_s": 5.219,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -404,7 +419,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": "RestorationException: UNSUPPORTED_CONTROL_DIVERGENCE: obj:isamaru-controlled; control must equal ownership in v1 (engine layers re-derive control; divergence needs resolved control-change effects)",
-      "elapsed_s": 0.167,
+      "elapsed_s": 0.178,
       "engine_accepted_starting_state": false,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -435,7 +450,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.476,
+      "elapsed_s": 5.096,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -466,7 +481,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.874,
+      "elapsed_s": 5.644,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -499,7 +514,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.459,
+      "elapsed_s": 5.33,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -530,7 +545,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.829,
+      "elapsed_s": 5.539,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -561,7 +576,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.639,
+      "elapsed_s": 5.542,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -592,7 +607,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.592,
+      "elapsed_s": 5.625,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -623,7 +638,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.56,
+      "elapsed_s": 5.746,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -654,7 +669,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.124,
+      "elapsed_s": 5.746,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -685,7 +700,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.266,
+      "elapsed_s": 5.751,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -716,7 +731,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 5.868,
+      "elapsed_s": 5.367,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -757,7 +772,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.996,
+      "elapsed_s": 5.982,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -775,7 +790,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": "CausalException: CAUSAL_ELIMINATION_PREPARATION_REJECTED: UNSUPPORTED_CONTROL_DIVERGENCE: obj:p1-owned-controlled; control must equal ownership in v1 (engine layers re-derive control; divergence needs resolved control-change effects)",
-      "elapsed_s": 0.156,
+      "elapsed_s": 0.145,
       "engine_accepted_starting_state": false,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -816,7 +831,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 6.974,
+      "elapsed_s": 6.056,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -861,7 +876,7 @@
       "construction_verdict": null,
       "declaration_step_priority_allowance_applied": [],
       "detail": null,
-      "elapsed_s": 7.579,
+      "elapsed_s": 6.16,
       "engine_accepted_starting_state": true,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": null,
@@ -879,7 +894,7 @@
       "construction_verdict": "MISMATCH",
       "declaration_step_priority_allowance_applied": [],
       "detail": "life P2: requested 0 observed 40",
-      "elapsed_s": 5.54,
+      "elapsed_s": 4.953,
       "engine_accepted_starting_state": false,
       "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
       "engine_construction_match": false,
@@ -891,13 +906,292 @@
       ],
       "outcome": "CONSTRUCTION_MISMATCH",
       "requested_state_digest": "0d0d61fc83a00b2e9e5f6e14d0bff8cc01ec56910a514f3dce5b178fa9ac757c"
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:syphon"
+        ],
+        "terminal_obligation": {
+          "detail": "scripted choose_object:P1, engine asked choose_object:P1; obj:p1-hand-a offered=True; trace=['priority:P2', 'priority:P1', 'priority:P4', 'priority:P3', 'choose_object:P1']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.262,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:utopia"
+        ],
+        "terminal_obligation": {
+          "detail": "scripted choice:P1, engine asked choice:P1; RED matched 1 of ['Black', 'Blue', 'Green', 'Red', 'White']; trace=['priority:P1', 'priority:P4', 'priority:P3', 'priority:P2', 'choice:P1']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.607,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "PILOT_CHOICE",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:opp-bolt"
+        ],
+        "terminal_obligation": {
+          "detail": "P1 holds priority; cast of obj:counterspell offered=True; trace=['priority:P2', 'priority:P1']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.451,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:pilot-unsummon"
+        ],
+        "terminal_obligation": {
+          "detail": "scripted replacement_effect:P1, engine asked choose_use:P1; boolean True matched 1; trace=['priority:P2', 'priority:P1', 'priority:P4', 'priority:P3', 'choose_use:P1']",
+          "kind": "scripted_decision_offered",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "scripted replacement_effect:P1, engine asked choose_use:P1; boolean True matched 1; trace=['priority:P2', 'priority:P1', 'priority:P4', 'priority:P3', 'choose_use:P1']",
+      "elapsed_s": 5.564,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:micro-bolt"
+        ],
+        "terminal_obligation": {
+          "detail": "P1 holds priority; cast of obj:micro-counterspell offered=True; trace=['priority:P2', 'priority:P1']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.696,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:micro-bolt"
+        ],
+        "terminal_obligation": {
+          "detail": "P2 holds priority; cast of obj:micro-growth offered=True; trace=['priority:P1', 'priority:P4', 'priority:P3', 'priority:P2']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.492,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "MICRO_PRIORITY",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:micro-bolt"
+        ],
+        "terminal_obligation": {
+          "detail": "P2 holds priority; cast of obj:micro-growth offered=True; trace=['priority:P1', 'priority:P4', 'priority:P3', 'priority:P2']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.565,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "MICRO_STACK",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:card13-bolt"
+        ],
+        "terminal_obligation": {
+          "detail": "P1 holds priority; cast of obj:card_13-subject offered=True; trace=['priority:P2', 'priority:P1']",
+          "kind": "scripted_decision_offered",
+          "observed": true
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": null,
+      "elapsed_s": 5.493,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "CARD_13",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_REACHABLE",
+      "requested_state_digest": null
+    },
+    {
+      "causal_verdict": {
+        "causal_match": true,
+        "frames_requested": 1,
+        "frames_verified": 1,
+        "mismatches": [],
+        "stack_order_top_to_bottom": [
+          "obj:card_20-subject"
+        ],
+        "terminal_obligation": {
+          "detail": "scripted choose_object:P2, engine asked choose_object:P4; obj:card20-P2-hand offered=False; trace=['priority:P1', 'priority:P4', 'priority:P3', 'priority:P2', 'choose_object:P4']",
+          "kind": "scripted_decision_offered",
+          "observed": false
+        }
+      },
+      "code": null,
+      "constructed_state_digest": null,
+      "construction_verdict": null,
+      "declaration_step_priority_allowance_applied": [],
+      "detail": "scripted choose_object:P2, engine asked choose_object:P4; obj:card20-P2-hand offered=False; trace=['priority:P1', 'priority:P4', 'priority:P3', 'priority:P2', 'choose_object:P4']",
+      "elapsed_s": 5.817,
+      "engine_accepted_starting_state": true,
+      "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+      "engine_construction_match": null,
+      "entry_mode": "causal_stack",
+      "fixture_id": "CARD_20",
+      "lane": "xmage_midgame_native_starting_state",
+      "mismatches": [],
+      "outcome": "CAUSAL_ROUTE_MEASURED_BLOCKED",
+      "requested_state_digest": null
     }
   ],
   "rules_core": "xmage",
   "runner": {
     "branch": "foundry/pb03-engine-artifact-identity-20260930",
-    "built_utc": "2026-09-30T11:53:21+00:00",
-    "commit": "78bb8bcc49aa47487792e6b257223817c7591c00",
+    "built_utc": "2026-09-30T12:56:03+00:00",
+    "commit": "52de27d450cc0bc478e24be0cf5f83f337a9d126",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -912,7 +1206,7 @@
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageAuditEventLog.java": "790ff213e160d0a3c8020ea3b776363784c858ebd1f8423c1e58006b06e127da",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java": "13aef40b0b4ca70c045634d1b1fb50cde0e1b4c3135a0b4d511262e97b7d03ec",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageCausalEliminationReconstruction.java": "cfccebc5a3dcbe61b91927d9bfa708b426a08ceb4d31afd1b6650318c21699a4",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageCausalStackReconstruction.java": "6575b9a0df012de69f1d6957f5543d91272ba62aa2ec681a89f8edcb838c7e22",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageCausalStackReconstruction.java": "60573b5f6b63d83a9987da51a1a2d12856d4a78f63df4c745cca44c7142a52f9",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageCommanderGames.java": "8bbf6d7a12d9eac3b9bc51d9ef0bd867a7b3fecc989a0b63215fd57187af5034",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageControlDivergenceReconstruction.java": "1e3d882fa2c3683a3933b8d7cb4f380201d23d7d5afb94ba998fadd6b33f6b72",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java": "afac9c6c308adbd4da8363db63bb8cf1025847e1dde401a90a5e0374ab1f404b",
@@ -925,8 +1219,8 @@
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "461dba93386f14b7f8308334f8b1a6d877099e96861ac3601fadb571028a5e36",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageHiddenStateRestoration.java": "d1468f54f211878d56cde0fda4cec8ef276d3a01d69842f637c76d3bb1408d9a",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameCausalBridge.java": "18466cb96f8b258915cf1bb14e9dddf2ec231dd163b7da0a852406dc5854ea5a",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java": "819881a84c82f601215b49e2364222945b1ebaec0832979ce7d691aacf8684a1",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "a00b53dbb32b602e891a84ca7436e112e061326cc5854f29fb72a5e23edb4d28",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java": "46e1a4f1372c50b5eb38647ecb987b9a3f750fd00d3e62ad5bcd472264d5d6e5",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "88acf2ac006995429164ff24a50c3792b7a1430b88c6f16153042151d08d7604",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java": "0391f2dd453f4111e03b34eb649235a880a9b343024592c65f3085470cd2d795",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageRulesSeedBinding.java": "831658759dc3e53b695b5e78fb600085cb504f42114343ed4175ca689aa8de50",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageStableOrder.java": "c58aac0561a2e7d1ec60a273e511dce72fea9ae72a47df39303c0fcf5fb905cb",
@@ -934,7 +1228,7 @@
       "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
       "scripts/assemble_current_boundary_evidence.py": "ec2670d536859f5cdc6fdf4c55b70597afb5407c6fbc5a522b71bdd4c63cb1d8",
       "scripts/run_current_boundary_qualification.py": "85bfb2a93068c1e7c4151e38263d48a3114cda271be2f8a2a185595eae0fb506",
-      "scripts/run_midgame_capability_probe.py": "e1686a3323664a3e2e372b938624bd481e5c54100c9b61e4f5f282f2958ec6ed",
+      "scripts/run_midgame_capability_probe.py": "624972dd8604f5f57a31ecbc0ad0f59f218694277426be2b9d546d1509cf5d63",
       "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
       "src/commander_lab/engine/rules/base.py": "14b1248504d8b96cac9d7758ab2e0c9917182c2c5a72b2c56557445400dd0db5",
       "src/commander_lab/engine/rules/bridge.py": "c8419eb217e763d6434a4b4536a3d4fdd7e722a71c482ad6798a7ddef42bd059",
@@ -969,11 +1263,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "8b8a28a8fbea15a1cc835455fffc527e319bc653"
+    "tree": "7b7f221c69f0d8d9bd127bf7afc3450b93bf2a52"
   },
-  "runner_commit": "78bb8bcc49aa47487792e6b257223817c7591c00",
-  "runner_digest": "9edf582d66c5d80a924fadd980143058f471f7ce1b6917a9c10cc05b6b7fa6f5",
-  "runner_tree": "8b8a28a8fbea15a1cc835455fffc527e319bc653",
+  "runner_commit": "52de27d450cc0bc478e24be0cf5f83f337a9d126",
+  "runner_digest": "2546afedafecfcc3fd7820c949dac3f6fa8c64769ef4c6957e3b0a35ba1dda0c",
+  "runner_tree": "7b7f221c69f0d8d9bd127bf7afc3450b93bf2a52",
   "schema_version": "commander-lab.midgame-capability-probe/1.0.0",
   "seed": 424242,
   "starting_state_dimensions_manifest": {
@@ -987,7 +1281,7 @@
       "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
       "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
       "owner-equals-controller attribution with 1:1 readback",
-      "life totals (pre-start assembly; state-based actions stay authoritative)",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
       "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
       "explicit Rules-seed binding with replay determinism",
       "strict native readback with field-level compare and digests",

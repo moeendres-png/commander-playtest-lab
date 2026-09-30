@@ -289,7 +289,7 @@
    "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
    "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
    "owner-equals-controller attribution with 1:1 readback",
-   "life totals (pre-start assembly; state-based actions stay authoritative)",
+   "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
    "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
    "explicit Rules-seed binding with replay determinism",
    "strict native readback with field-level compare and digests",

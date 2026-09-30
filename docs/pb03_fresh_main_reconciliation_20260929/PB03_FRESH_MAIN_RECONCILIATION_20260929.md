@@ -50,15 +50,16 @@ Machine-readable ledger: `DONOR_SEMANTIC_LEDGER.json` in this directory.
 
 ## 3. Fresh runtime partition (midgame capability probe, engine `9375f35a`)
 
-29 rows rederived on the canonical candidate; counts are runtime facts, not
-historical copies:
+38 rows rederived on the canonical candidate (29 original plus nine
+scripted-decision rows from main's causal-stack workstream); counts are runtime
+facts, not historical copies:
 
 | Outcome | Count | Rows (2026-09-30, after main's commander-object binding fix) |
 |---|---|---|
-| `ENGINE_NATIVE_REACHABLE` | 8 | COMBAT-4/5, CMD-ELIM-4, CMD-DMG-SPLIT, CMD-PARTNER-ZONE, CMD-TAX-2, MICRO_COMBAT, CARD_02 |
-| `CAUSAL_ROUTE_REACHABLE` | 17 | BLOCK-4, ELIM-PRIO-3, MICRO_REPLACEMENT, PRIO-3/5, all eight `WS05-CMD-ZONE-*` rows, MICRO_ZONE_CHANGES, ELIM-OWNED-3, ELIM-TURN-3, ELIM-5 |
-| `CAUSAL_ROUTE_MEASURED_BLOCKED` | 1 | TURN-5 |
-| `CONSTRUCTION_MISMATCH` | 1 | ELIM-STACK-3 |
+| `ENGINE_NATIVE_REACHABLE` | 8 | WS05-MP-COMBAT-4, WS05-MP-COMBAT-5, WS05-CMD-ELIM-4, WS05-CMD-DMG-SPLIT, WS05-CMD-PARTNER-ZONE, WS05-CMD-TAX-2, MICRO_COMBAT, CARD_02 |
+| `CAUSAL_ROUTE_REACHABLE` | 24 | WS05-MP-BLOCK-4, WS05-MP-ELIM-PRIO-3, MICRO_REPLACEMENT, WS05-MP-PRIO-3, WS05-CMD-ZONE-GY-YES, MICRO_ZONE_CHANGES, WS05-MP-PRIO-5, WS05-CMD-ZONE-GY-NO, WS05-CMD-ZONE-EXILE-YES, WS05-CMD-ZONE-EXILE-NO, WS05-CMD-ZONE-HAND-YES, WS05-CMD-ZONE-HAND-NO, WS05-CMD-ZONE-LIB-YES, WS05-CMD-ZONE-LIB-NO, WS05-MP-ELIM-OWNED-3, WS05-MP-ELIM-TURN-3, WS05-MP-ELIM-5, PILOT_CHOOSE_OBJECT, PILOT_CHOICE, PILOT_MANA_PAYMENT, MICRO_MANA_PAYMENT, MICRO_PRIORITY, MICRO_STACK, CARD_13 |
+| `CAUSAL_ROUTE_MEASURED_BLOCKED` | 3 | WS05-MP-TURN-5, PILOT_REPLACEMENT_EFFECT, CARD_20 |
+| `CONSTRUCTION_MISMATCH` | 1 | WS05-MP-ELIM-STACK-3 |
 | `ENGINE_REJECTED` | 2 | CMD-DMG-CONTROL (`midgame_starting_state_rejected`), ELIM-CONTROL-3 (`midgame_causal_preparation_rejected`) |
 | `TRANSPORT_FAILURE` | 0 | — |
 
@@ -81,7 +82,7 @@ rows carry no construction verdict). Elimination rows record the engine's own
 | Blocked admission | never overridden by a runtime PASS |
 
 Current boundary columns (sealed at the requalified head): XMage 5 PASS / 58
-UNKNOWN / 44 BLOCKED (native 215 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
+UNKNOWN / 44 BLOCKED (native 219 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
 (native 217 tests). XMage hidden information is `PRINCIPAL_SCOPED` (four distinct
 views, all requesters established) and the seed is acknowledged at the creation
 transaction; the WSR22 "fully uncontrolled" position is retained only as

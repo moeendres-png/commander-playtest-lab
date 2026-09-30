@@ -62,8 +62,8 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `78bb8bcc` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 183 | 183 | Lab `78bb8bcc` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `52de27d4` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 185 | 185 | Lab `52de27d4` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is

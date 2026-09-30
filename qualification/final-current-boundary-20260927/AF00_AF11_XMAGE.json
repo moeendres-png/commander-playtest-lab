@@ -213,7 +213,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_XMAGE.json",
-    "native hidden/replay suites green: 217 tests"
+    "native hidden/replay suites green: 219 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -360,7 +360,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 217 tests, all green"
+    "native suites: 219 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -391,11 +391,11 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "78bb8bcc49aa47487792e6b257223817c7591c00",
+   "executed_commit": "52de27d450cc0bc478e24be0cf5f83f337a9d126",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "8de28db2c8eeba32cdc0ce48656e83e08b071978cc60c6c2e060ca47b7ace003",
+   "receipt_digest": "3a19f3e5cb73a0ef2a37b3a1dbd7e5615b53b8686161799b21caea9e619c5e72",
    "returncode": 0,
    "tests": 34
   },
@@ -404,13 +404,13 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "78bb8bcc49aa47487792e6b257223817c7591c00",
+   "executed_commit": "52de27d450cc0bc478e24be0cf5f83f337a9d126",
    "failed": 0,
    "failures": 0,
-   "passed": 183,
-   "receipt_digest": "6f2f615d3aa53dbe0610c8f20ce5af33bcc7ed5f939c422744af5672afdce390",
+   "passed": 185,
+   "receipt_digest": "9321669f4a73a27f2bc98c17bec145b48307c27267e8a9b2d322942c054cf14b",
    "returncode": 0,
-   "tests": 183
+   "tests": 185
   }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
