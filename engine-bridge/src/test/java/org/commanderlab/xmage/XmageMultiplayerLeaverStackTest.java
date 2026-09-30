@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-37: a player who leaves while holding priority, with actual cards at 4P
+ * F-39: a player who leaves while holding priority, with actual cards at 4P
  * and 5P on the full-game lane.
  *
  * <p>On P1's turn P2 casts Lightning Bolt ("Lightning Bolt deals 3 damage to

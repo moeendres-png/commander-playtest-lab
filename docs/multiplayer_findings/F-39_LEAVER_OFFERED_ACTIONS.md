@@ -1,6 +1,6 @@
-# F-37: a player who leaves while holding priority is still offered actions
+# F-39: a player who leaves while holding priority is still offered actions
 
-- **Issue:** #389
+- **Issue:** #389 (first filed as F-37; renumbered because F-37 and F-38 were taken by parallel lanes the same day)
 - **Surface:** XMage full-game lane, concession (WS213) combined with a pending priority frame (CR 800.4a).
 - **Classification:** bridge defect. The rules engine is correct.
 - **Related:** F-35, same family (offered options that abort the game) with a different cause; F-34, same re-issue step.
