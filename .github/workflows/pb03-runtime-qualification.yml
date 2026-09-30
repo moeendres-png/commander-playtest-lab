@@ -308,6 +308,67 @@ jobs:
           }, sort_keys=True))
           PY
 
+      - name: Assert R-3/R-4 two-candidate current-boundary invariants
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
+          expected = {
+              "xmage": os.environ["XMAGE_COMMIT"],
+              "forge": os.environ["FORGE_COMMIT"],
+          }
+
+          for candidate, commit in expected.items():
+              upper = candidate.upper()
+              full107 = json.loads((root / f"FULL107_{upper}_RESULTS.json").read_text())
+              assert not full107.get("carried_forward"), (candidate, full107.get("carried_forward"))
+              assert full107["runtime_identity"]["engine_candidate_commit"] == commit
+              assert full107["r4_unreceipted_pass_demotions"] == 0, (
+                  candidate,
+                  full107["r4_unreceipted_pass_demotions"],
+              )
+              pass_rows = [row for row in full107["rows"] if row["exit_state"] == "PASS"]
+              assert len(pass_rows) == full107["counts"]["PASS"]
+              assert all(row.get("positive_receipt_identities") for row in pass_rows), (
+                  candidate,
+                  [row["fixture_id"] for row in pass_rows if not row.get("positive_receipt_identities")],
+              )
+
+              af = json.loads((root / f"AF00_AF11_{upper}.json").read_text())
+              assert af["boundary"] == "FRESH_CURRENT_BOUNDARY_EXECUTION", candidate
+              gates = {gate["gate"]: gate for gate in af["gates"]}
+              assert set(f"AF{i:02d}" for i in range(11)).issubset(gates), sorted(gates)
+
+          forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
+          invariants = forge_af01["invariants"]
+          assert len(invariants) == 20, len(invariants)
+          assert all(item["verdict"] == "PASS" for item in invariants), [
+              item for item in invariants if item["verdict"] != "PASS"
+          ]
+          assert forge_af01["verdict"] == "PASS", forge_af01["verdict"]
+
+          packet = json.loads((root / "PROVIDER_READINESS_CURRENT.json").read_text())
+          assert packet["production_provider"] == "NOT_SELECTED"
+          assert packet["architecture_freeze"] == "NOT_CLAIMED"
+          assert packet["ranking"] == "NONE"
+          assert set(packet["candidates"]) == {"xmage", "forge"}
+          assert all(
+              data["column_provenance"]["class"] == "FRESH_CURRENT_BOUNDARY_EXECUTION"
+              for data in packet["candidates"].values()
+          )
+
+          print(json.dumps({
+              "xmage_full107": packet["candidates"]["xmage"]["full107_counts"],
+              "forge_full107": packet["candidates"]["forge"]["full107_counts"],
+              "forge_af01": forge_af01["verdict"],
+              "provider": packet["production_provider"],
+              "freeze": packet["architecture_freeze"],
+          }, sort_keys=True))
+          PY
+
       - name: Hash current-boundary packet
         run: |
           set -euo pipefail
