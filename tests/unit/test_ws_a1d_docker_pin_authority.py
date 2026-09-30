@@ -486,7 +486,7 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
 
 
 CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"
-CANONICAL_FORGE_BRIDGE_COMMIT = "82c53c53b4d7eb4d86a121d5df7d0041ccb9c3ca"
+CANONICAL_FORGE_BRIDGE_COMMIT = "e8b8aec60720aee218338754224721597b8c6ec5"
 
 
 def test_forge_bridge_source_resolves_dual_identity(repo_root: Path) -> None:
