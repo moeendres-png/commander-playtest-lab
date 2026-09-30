@@ -39,7 +39,7 @@ provenance. See `EXECUTION_PROVIDER_OVERRIDE.md`.
 
 ## Execution identity policy
 
-Active project work has exactly two supported execution identities:
+Active OpenCode Foundry work has exactly two supported launcher execution identities:
 
 - `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max`.
   This is the default and preferred executor for implementation, debugging,
