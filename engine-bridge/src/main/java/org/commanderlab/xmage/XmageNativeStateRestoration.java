@@ -22,6 +22,8 @@ import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
 import mage.watchers.common.CommanderPlaysCountState;
 import mage.watchers.common.CommanderPlaysCountWatcher;
+import mage.watchers.common.PlayerGainedLifeWatcher;
+import mage.watchers.common.PlayerLostLifeWatcher;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -834,23 +836,31 @@ final class XmageNativeStateRestoration {
         }
 
         placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
-        restoreStartingLife(playersByPid);
+        restoreStartingLife(game, playersByPid);
     }
 
     /**
      * F-39: a player's recorded starting life other than the table's is set once,
      * silently, through the engine's own {@code initLife} (the call game start
-     * uses), so no life gain or loss event is fabricated. A requested life that
-     * differs from the player's starting life is history: it must be caused
-     * through the engine and is only compared, never set.
+     * uses), so no life gain or loss event is fabricated. It is set only while
+     * that player's life is untouched since game start: life the engine already
+     * changed during arrival (a restored start trigger, say) is real history and
+     * is never overwritten. A requested life that differs from the player's
+     * starting life is history too: it must be caused and is only compared.
      */
-    private void restoreStartingLife(Map<String, Player> playersByPid) {
+    private void restoreStartingLife(GameCommanderImpl game, Map<String, Player> playersByPid) {
         if (startingLifeRestored) {
             return;
         }
+        PlayerLostLifeWatcher lost = game.getState().getWatcher(PlayerLostLifeWatcher.class);
+        PlayerGainedLifeWatcher gained = game.getState().getWatcher(PlayerGainedLifeWatcher.class);
         for (RequestedPlayer requested : plan.players()) {
-            if (requested.life() == requested.startingLife()) {
-                requirePlayer(playersByPid, requested.playerId()).initLife(requested.life());
+            Player player = requirePlayer(playersByPid, requested.playerId());
+            boolean untouched = player.getLife() == game.getStartingLife()
+                    && (lost == null || lost.getLifeLost(player.getId()) == 0)
+                    && (gained == null || gained.getLifeGained(player.getId()) == 0);
+            if (requested.life() == requested.startingLife() && untouched) {
+                player.initLife(requested.life());
             }
         }
         startingLifeRestored = true;

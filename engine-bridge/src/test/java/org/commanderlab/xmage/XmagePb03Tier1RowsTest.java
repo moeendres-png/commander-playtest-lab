@@ -1010,19 +1010,49 @@ class XmagePb03Tier1RowsTest {
     @Test
     void microTriggersWarstormSurgeDealsTwoToP2() {
         Arrived arrived = arrive("MICRO_TRIGGERS", "pb03-triggers");
+        Player p2 = arrived.seats().get("P2");
+        int lifeBefore = p2.getLife();
+        castBearsUnderWarstormSurge(arrived, "pb03-triggers",
+                List.of("obj:trigger-forest-1", "obj:trigger-forest-2"));
+        assertEquals(lifeBefore - 2, p2.getLife(), "Surge trigger deals 2 to P2 on resolution");
+    }
+
+    // ---- CARD_24: the same trigger against P2's recorded starting life of 20 ----
+    //
+    // F-39: the record gives P2 a starting life of 20 at a 40-life table. The
+    // restoration sets it once after game start through the engine's own
+    // initLife, so no life loss is fabricated: the engine's lost-life ledger
+    // holds exactly the trigger's 2.
+
+    @Test
+    void card24WarstormSurgeTakesP2FromItsStartingTwentyToEighteen() {
+        Arrived arrived = arrive("CARD_24", "pb03-card24");
+        Player p2 = arrived.seats().get("P2");
+        assertEquals(20, p2.getLife(), "P2's recorded starting life is restored");
+        assertEquals(40, arrived.seats().get("P3").getLife(), "the table's starting life stays");
+        castBearsUnderWarstormSurge(arrived, "pb03-card24",
+                List.of("obj:card_24-mana-p1-0", "obj:card_24-mana-p1-1"));
+        assertEquals(18, p2.getLife(), "P2 is at 18 life after the trigger resolves");
+        mage.watchers.common.PlayerLostLifeWatcher lost = arrived.session().restorationGame()
+                .getState().getWatcher(mage.watchers.common.PlayerLostLifeWatcher.class);
+        assertEquals(2, lost.getLifeLost(p2.getId()), "only the trigger's damage is a life loss");
+        // Completion repeats on every arrival query; it never resets life after real damage.
+        arrived.restoration().restoreAfterArrival(arrived.session().restorationGame(), arrived.seats());
+        assertEquals(18, p2.getLife());
+    }
+
+    /** P1 casts Grizzly Bears; Warstorm Surge's trigger targets P2 and resolves. */
+    private static void castBearsUnderWarstormSurge(
+            Arrived arrived, String tag, List<String> forests) {
         XmageFullGameSession session = arrived.session();
         Map<String, Player> seats = arrived.seats();
         Player p2 = seats.get("P2");
         int lifeBefore = p2.getLife();
 
-        castSpellAs(session, seats, "pb03-triggers", "Grizzly Bears", "P1");
-        payFromSemanticSources(
-                session,
-                arrived.restoration(),
-                "pb03-triggers",
-                List.of("obj:trigger-forest-1", "obj:trigger-forest-2"),
+        castSpellAs(session, seats, tag, "Grizzly Bears", "P1");
+        payFromSemanticSources(session, arrived.restoration(), tag, forests,
                 java.util.Set.of("Forest \u2014 {T}: Add {G}."));
-        assertSpellOnStack(session, "Grizzly Bears", "pb03-triggers");
+        assertSpellOnStack(session, "Grizzly Bears", tag);
         // Bears resolves, Surge triggers, P2 is targeted, damage resolves;
         // the game then continues into combat, which is answered neutrally.
         List<String> trace = new ArrayList<>();
@@ -1036,27 +1066,27 @@ class XmagePb03Tier1RowsTest {
             }
             trace.add(pending);
             if ("target".equals(pending)) {
-                submit(session, "pb03-triggers-target",
+                submit(session, tag + "-target",
                         findTargetOffer(session, p2.getId().toString(), "P2"));
                 continue;
             }
             if ("choose_object".equals(pending)) {
                 // Some engine builds present "any target" selection as a
                 // choose_object: select P2 by exact engine identity.
-                submit(session, "pb03-triggers-choose",
+                submit(session, tag + "-choose",
                         findTargetOffer(session, p2.getId().toString(), "P2"));
                 continue;
             }
             if ("declare_attacker".equals(pending)) {
-                submit(session, "pb03-triggers-hold-" + step,
+                submit(session, tag + "-hold-" + step,
                         XmageFullGameTaxExecutionTest.singleActionOfType(
                                 session.legalActionsPayload(),
                                 "declare_attackers", "hold_attacker"));
                 continue;
             }
             if ("declare_blocker".equals(pending)) {
-                submitProposal(session, "pb03-triggers-noblock-" + step,
-                        emptyBlockProposal("pb03-triggers-noblock-" + step,
+                submitProposal(session, tag + "-noblock-" + step,
+                        emptyBlockProposal(tag + "-noblock-" + step,
                                 session.legalActionsPayload()));
                 continue;
             }
@@ -1066,9 +1096,8 @@ class XmagePb03Tier1RowsTest {
                         + " trace=" + trace
                         + " during trigger resolution");
             }
-            passPriority(session, "pb03-triggers-pass-" + step);
+            passPriority(session, tag + "-pass-" + step);
         }
-        assertEquals(lifeBefore - 2, p2.getLife(), "Surge trigger deals 2 to P2 on resolution");
     }
 
     // ---- MP-BLOCK-4: P2 blocks exactly the P2-attacked attacker ----
