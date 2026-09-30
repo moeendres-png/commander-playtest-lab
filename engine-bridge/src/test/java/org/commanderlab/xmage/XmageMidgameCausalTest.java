@@ -1087,6 +1087,67 @@ class XmageMidgameCausalTest {
                 List.of("Swamp"));
     }
 
+    /**
+     * The public event tape of the GY-NO row: the engine's own events, named by
+     * seat and semantic id, with hidden draws carrying no identity and no native
+     * id anywhere.
+     */
+    @Test
+    void thePublicEventTapeRecordsTheCausalRouteWithoutHiddenIdentities() {
+        Lane lane = newLane();
+        executeZoneChoice(lane, "tape-gy-no", "WS05-CMD-ZONE-GY-NO", "Doom Blade",
+                List.of(new FuelSpec("obj:fuel-swamp-a", "Swamp", "P2"),
+                        new FuelSpec("obj:fuel-swamp-b", "Swamp", "P2")),
+                List.of("Swamp"));
+        JsonObject after = new JsonObject();
+        after.addProperty("after_offset", 0);
+        JsonObject tape = lane.ok("get_midgame_events", after);
+        JsonArray events = tape.getAsJsonArray("events");
+        assertEquals(events.size(), tape.get("latest_offset").getAsInt());
+        assertFalse(java.util.regex.Pattern
+                .compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+                .matcher(tape.toString()).find(), "no native id on the wire: " + tape);
+
+        boolean cast = false;
+        boolean destroyed = false;
+        boolean toGraveyard = false;
+        int hiddenDraws = 0;
+        for (JsonElement element : events) {
+            JsonObject event = element.getAsJsonObject();
+            String type = event.get("type").getAsString();
+            if ("SPELL_CAST".equals(type) && "Doom Blade".equals(text(event, "source_name"))) {
+                assertEquals("P2", text(event, "player_player"));
+                cast = true;
+            }
+            if ("DESTROYED_PERMANENT".equals(type)
+                    && "obj:cmd-zone-test".equals(text(event, "target_object"))) {
+                destroyed = true;
+            }
+            if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-test".equals(text(event, "target_object"))
+                    && "BATTLEFIELD".equals(text(event, "from")) && "GRAVEYARD".equals(text(event, "to"))) {
+                toGraveyard = true;
+            }
+            if ("ZONE_CHANGE".equals(type) && "LIBRARY".equals(text(event, "from"))
+                    && "HAND".equals(text(event, "to"))) {
+                assertFalse(event.get("public_identity").getAsBoolean(), "a draw is hidden: " + event);
+                assertFalse(event.has("target_name") || event.has("target_object"), "a draw names nothing: " + event);
+                hiddenDraws++;
+            }
+        }
+        assertTrue(cast, "Doom Blade's cast by P2 is on the tape");
+        assertTrue(destroyed, "the commander's destruction is on the tape");
+        assertTrue(toGraveyard, "the commander's move to the graveyard is on the tape");
+        assertTrue(hiddenDraws >= 1, "the turn draw is on the tape, anonymously: " + hiddenDraws);
+
+        JsonObject beyond = new JsonObject();
+        beyond.addProperty("after_offset", events.size() + 1);
+        lane.rejected("get_midgame_events", beyond);
+    }
+
+    private static String text(JsonObject event, String key) {
+        return event.has(key) && !event.get(key).isJsonNull() ? event.get(key).getAsString() : null;
+    }
+
     @Test
     void cmdZoneExileYesExecutesZoneChoice() {
         Lane lane = newLane();

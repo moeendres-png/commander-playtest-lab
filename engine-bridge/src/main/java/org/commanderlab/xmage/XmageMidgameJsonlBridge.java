@@ -9,6 +9,7 @@ import mage.cards.repository.CardRepository;
 import mage.players.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -110,6 +111,7 @@ final class XmageMidgameJsonlBridge {
             case "complete_causal_reconstruction" ->
                     completeCausalReconstruction(requestId, request);
             case "get_midgame_state" -> getState(requestId, request);
+            case "get_midgame_events" -> getEvents(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId);
             case "submit_action" -> submitAction(requestId, request);
             case "get_midgame_result" -> getResult(requestId);
@@ -913,6 +915,81 @@ final class XmageMidgameJsonlBridge {
     }
 
     /**
+     * The public semantic event tape after {@code after_offset} events.
+     *
+     * <p>Every event is the engine's own {@link mage.game.events.GameEvent},
+     * recorded by {@link XmagePublicEventWatcher} as part of the game state.
+     * Players are named by requested-state seat label, objects by semantic id
+     * when the restoration placed them; no native id is emitted. An object
+     * whose identity was hidden at the event (a draw) carries no identity.</p>
+     */
+    private Result getEvents(String requestId, JsonObject request) {
+        try {
+            XmageFullGameSession current = requireSession();
+            if (restoration == null) {
+                return error(requestId, "no_starting_state_plan",
+                        "This lane only records events for an explicitly requested starting state", false);
+            }
+            int afterOffset = 0;
+            JsonObject payload = request.has("payload") && request.get("payload").isJsonObject()
+                    ? request.getAsJsonObject("payload") : new JsonObject();
+            if (payload.has("after_offset") && !payload.get("after_offset").isJsonNull()) {
+                afterOffset = payload.get("after_offset").getAsInt();
+            }
+            XmagePublicEventWatcher watcher = current.restorationGame().getState()
+                    .getWatcher(XmagePublicEventWatcher.class);
+            if (watcher == null) {
+                return error(requestId, "event_tape_unavailable", "no public event tape is registered", false);
+            }
+            if (afterOffset < 0 || afterOffset > watcher.size()) {
+                return error(requestId, "invalid_event_offset",
+                        "after_offset must be between 0 and " + watcher.size(), false);
+            }
+            Map<String, String> seatByPlayer = new HashMap<>();
+            current.restorationSeats().forEach((label, player) -> seatByPlayer.put(player.getId().toString(), label));
+            JsonArray events = new JsonArray();
+            for (JsonObject raw : watcher.eventsAfter(afterOffset)) {
+                events.add(publicEvent(raw, seatByPlayer));
+            }
+            JsonObject response = new JsonObject();
+            response.addProperty("after_offset", afterOffset);
+            response.addProperty("latest_offset", watcher.size());
+            response.addProperty("observation_scope", "public");
+            response.add("events", events);
+            return success(requestId, response, false);
+        } catch (Exception exc) {
+            return error(requestId, "midgame_events_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    private JsonObject publicEvent(JsonObject raw, Map<String, String> seatByPlayer) {
+        JsonObject event = new JsonObject();
+        for (String key : List.of("sequence", "type", "turn", "step", "amount", "flag", "data",
+                "from", "to", "combat", "public_identity", "target_name", "source_name")) {
+            if (raw.has(key)) {
+                event.add(key, raw.get(key));
+            }
+        }
+        boolean publicIdentity = raw.get("public_identity").getAsBoolean();
+        for (String key : List.of("player", "target", "source")) {
+            if (!raw.has(key)) {
+                continue;
+            }
+            String nativeId = raw.get(key).getAsString();
+            String seat = seatByPlayer.get(nativeId);
+            if (seat != null) {
+                event.addProperty(key + "_player", seat);
+            } else if (publicIdentity && !"player".equals(key)) {
+                String semanticId = restoration.semanticIdOf(UUID.fromString(nativeId));
+                if (semanticId != null) {
+                    event.addProperty(key + "_object", semanticId);
+                }
+            }
+        }
+        return event;
+    }
+
+    /**
      * Seat order is public information, so resolving a real principal id to
      * its engine uuid uses the session's own seat map rather than recovering
      * an identity from an observation.
@@ -1046,7 +1123,8 @@ final class XmageMidgameJsonlBridge {
         capabilities.addProperty("deck_import_supported", true);
         capabilities.addProperty("legal_actions_supported", false);
         capabilities.addProperty("action_submission_supported", false);
-        capabilities.addProperty("event_log_supported", false);
+        capabilities.addProperty("event_log_supported", true);
+        capabilities.addProperty("event_log_scope", "public_semantic_event_tape");
         capabilities.addProperty("replay_supported", false);
         capabilities.addProperty("stack_visible", true);
         capabilities.addProperty("priority_visible", true);

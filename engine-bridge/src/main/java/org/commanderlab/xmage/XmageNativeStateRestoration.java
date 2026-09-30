@@ -210,7 +210,7 @@ final class XmageNativeStateRestoration {
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
-    private boolean startingLifeRestored;
+    private boolean arrivalRestored;
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -246,6 +246,21 @@ final class XmageNativeStateRestoration {
      */
     Map<String, UUID> commanderObjectIds() {
         return Map.copyOf(commanderObjectIdsBySemanticId);
+    }
+
+    /** The semantic id of a placed object or commander, or null for any other native id. */
+    String semanticIdOf(UUID nativeId) {
+        for (Map.Entry<String, UUID> entry : injectedObjectIdsBySemanticId.entrySet()) {
+            if (entry.getValue().equals(nativeId)) {
+                return entry.getKey();
+            }
+        }
+        for (Map.Entry<String, UUID> entry : commanderObjectIdsBySemanticId.entrySet()) {
+            if (entry.getValue().equals(nativeId)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     UUID injectedObjectId(String semanticId) {
@@ -760,6 +775,8 @@ final class XmageNativeStateRestoration {
             // restoreStartingLife, which runs after arrival (F-40).
         }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
+        // After placement: the public event tape starts with the game, not the setup.
+        game.getState().addWatcher(new XmagePublicEventWatcher());
         preStartApplied = true;
     }
 
@@ -772,6 +789,12 @@ final class XmageNativeStateRestoration {
     synchronized void restoreAfterArrival(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
         requireApplied();
+        if (arrivalRestored) {
+            // Completion is queried again after the game moved on (the causal
+            // route, every arrival readback). Re-applying cast counts, damage,
+            // placement or life then would overwrite real engine history.
+            return;
+        }
 
         // Resolve every semantic Commander to one genuine native Commander id
         // before mutating any watcher state. Generic setup-placed copies are
@@ -837,6 +860,7 @@ final class XmageNativeStateRestoration {
 
         placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
         restoreStartingLife(game, playersByPid);
+        arrivalRestored = true;
     }
 
     /**
@@ -849,9 +873,6 @@ final class XmageNativeStateRestoration {
      * starting life is history too: it must be caused and is only compared.
      */
     private void restoreStartingLife(GameCommanderImpl game, Map<String, Player> playersByPid) {
-        if (startingLifeRestored) {
-            return;
-        }
         PlayerLostLifeWatcher lost = game.getState().getWatcher(PlayerLostLifeWatcher.class);
         PlayerGainedLifeWatcher gained = game.getState().getWatcher(PlayerGainedLifeWatcher.class);
         for (RequestedPlayer requested : plan.players()) {
@@ -863,7 +884,6 @@ final class XmageNativeStateRestoration {
                 player.initLife(requested.life());
             }
         }
-        startingLifeRestored = true;
     }
 
     /**
@@ -886,16 +906,6 @@ final class XmageNativeStateRestoration {
                 // published before the game started.
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
-            }
-            UUID placed = injectedObjectIdsBySemanticId.get(requested.semanticId());
-            if (placed != null) {
-                // Completion runs after the causal route already placed it; the
-                // compare, not a second placement, judges where it is now.
-                if (!placed.equals(liveId)) {
-                    throw new RestorationException(
-                            "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
-                }
-                continue;
             }
             Card card = game.getCard(liveId);
             Player owner = requirePlayer(playersByPid, requested.owner());
