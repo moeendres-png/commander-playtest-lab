@@ -13,6 +13,17 @@ on:
       - 'docs/architecture/deckbuilding-simulation-separation.md'
       - 'pyproject.toml'
       - '.github/workflows/candidate-lossless-handoff.yml'
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/canonical_features.py"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/deck_registry.py"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/repositories/**"
+      - "src/commander_lab/semantic_features.py"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
   push:
     branches: [main]
     paths:
@@ -25,6 +36,17 @@ on:
       - 'docs/architecture/deckbuilding-simulation-separation.md'
       - 'pyproject.toml'
       - '.github/workflows/candidate-lossless-handoff.yml'
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/canonical_features.py"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/deck_registry.py"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/repositories/**"
+      - "src/commander_lab/semantic_features.py"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
   workflow_dispatch:
 
 permissions:

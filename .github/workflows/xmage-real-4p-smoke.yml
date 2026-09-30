@@ -71,6 +71,11 @@ jobs:
             data/opponents/hosts_of_mordor_precon.json
             data/opponents/lorehold_spirit_precon.json
             .github/workflows/xmage-real-4p-smoke.yml
+            src/commander_lab/__init__.py
+            src/commander_lab/candidates/**
+            src/commander_lab/cards/**
+            src/commander_lab/engine/**
+            tests/conftest.py
 
   real-4p-smoke:
     needs: [smoke-scope]
