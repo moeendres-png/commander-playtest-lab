@@ -1,6 +1,6 @@
-# F-37: a player who leaves while holding priority is still offered actions
+# F-39: a player who leaves while holding priority is still offered actions
 
-- **Issue:** #389
+- **Issue:** #389 (first filed as F-37; renumbered because F-37 and F-38 were taken by parallel lanes the same day)
 - **Surface:** XMage full-game lane, concession (WS213) combined with a pending priority frame (CR 800.4a).
 - **Classification:** bridge defect. The rules engine is correct.
 - **Related:** F-35, same family (offered options that abort the game) with a different cause; F-34, same re-issue step.
@@ -46,6 +46,22 @@ Options are only removed, never added. The pilot still answers the frame, so not
 
 It is 2/2 red before the fix, because "Cast Lightning Bolt" is still offered, and 2/2 green after. `XmageMultiplayerControllerLeavesTest` and `XmageFullGameConcedeActionTest` stay green.
 
-## Known limit
+## Follow-up: a concession in the middle of a cast
 
-A concession in the middle of a cast (a pending target or payment frame of the conceder) keeps its options. That surface is WS213's; native XMage aborts every open dialog there.
+The first fix left frames in the middle of a cast unchanged. The probe then showed that they failed the lane too:
+
+- P2 concedes while its own Lightning Bolt's target or payment frame is open.
+- Native XMage calls `signalPlayerConcede(true)` to stop that open dialog. `PlayerImpl` leaves the hook empty, so the headless `XmageFullGamePlayer` previously failed to propagate that native cancellation to the external decision controller.
+- Without that signal propagation, the stale pre-concession frame remained externally visible and required a pilot answer even though P2 had already left.
+
+**Fix:** `XmageFullGamePlayer.signalPlayerConcede(true)` now retires the matching pending `target` or `mana_payment` frame through `XmageFullGameDecisionController.cancelPendingForConcession`. The blocked engine callback resumes via an internal engine-cancellation signal, returns false to XMage, and the cast unwinds. No pilot option is selected, no replacement option is fabricated, and the cancelled frame is recorded separately as `engine_decision_cancelled`.
+
+The existing `leftMidAction()` checks remain defensive guards for failures that happen after a decision has already been consumed; they are not used to legitimize a stale pilot response.
+
+**Regression:** `aCastInProgressUnwindsWhenItsCasterLeaves` (4P/5P × target/payment) proves:
+
+- the pre-concession decision id is retired;
+- after P2 leaves, the next published decision belongs to a remaining player;
+- there is no `submit()` for the stale target/payment frame;
+- the stack ends empty;
+- P3 stays at 40.

@@ -98,6 +98,17 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     private boolean noViableMode;
 
+    /**
+     * Set only when XMage's native concede signal retires an in-progress
+     * target/payment callback. This is engine cancellation, not a pilot
+     * choice; the surrounding cast/activation then unwinds without creating
+     * a replacement decision.
+     */
+    private boolean concessionInterruptedAction;
+
+    /** True only while an explicitly authorized native concede call is active. */
+    private volatile boolean concessionInProgress;
+
     XmageFullGamePlayer(
             String name,
             RangeOfInfluence range,
@@ -319,6 +330,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         paymentCancelled = false;
         emptyRequiredTarget = false;
         noViableMode = false;
+        concessionInterruptedAction = false;
         JsonArray options = new JsonArray();
         Map<String, ActivatedAbility> abilities = new LinkedHashMap<>();
 
@@ -372,7 +384,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     (SpellAbility) ability, game, false,
                     new mage.ApprovingObject(ability, game));
             if (!cast) {
-                if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+                if (paymentCancelled
+                        || emptyRequiredTarget
+                        || noViableMode
+                        || concessionInterruptedAction
+                        || leftMidAction()) {
                     // Graceful abort: pilot cancelled funding mid-payment,
                     // or a required target choice had zero legal options
                     // (paper 601.2 rewinds the illegal announcement).
@@ -387,7 +403,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         boolean activated = activateAbility(ability, game);
         if (!activated) {
-            if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+            if (paymentCancelled
+                    || emptyRequiredTarget
+                    || noViableMode
+                    || concessionInterruptedAction
+                    || leftMidAction()) {
                 // Graceful abort: pilot cancelled funding mid-payment, or
                 // a required target choice had zero legal options.
                 // Pass priority; partial payments are real game state
@@ -787,16 +807,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 });
         JsonObject context = new JsonObject();
         context.addProperty("unpaid_mana", unpaid == null ? "" : unpaid.getText());
-        String selected = requireSingle(request(
-                game,
-                "mana_payment",
-                promptText,
-                1,
-                1,
-                options,
-                context,
-                ability
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "mana_payment",
+                    promptText,
+                    1,
+                    1,
+                    options,
+                    context,
+                    ability
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // Native XMage stopped this dialog because the payer conceded.
+            // No pilot response is fabricated or accepted.
+            concessionInterruptedAction = true;
+            return false;
+        }
         if (cancel.equals(selected)) {
             paymentCancelled = true;
             return false;
@@ -812,6 +840,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         boolean activated = activateAbility(manaAbility, game);
         if (!activated) {
+            if (leftMidAction()) {
+                // F-39: the payer left the game mid-payment; the engine
+                // refuses the activation, so the cast unwinds as cancelled.
+                paymentCancelled = true;
+                return false;
+            }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "mana activation failed: " + selected);
         }
         return true;
@@ -1358,6 +1392,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
         super.shuffleLibrary(source, game);
     }
 
+    /**
+     * F-39: this player conceded while one of its own casts or activations
+     * was in progress. A player who left takes no actions (CR 800.4a), so
+     * the engine refuses the rest of it; the action unwinds like a cancelled
+     * payment instead of failing the lane. Nothing is chosen for the player.
+     */
+    private boolean leftMidAction() {
+        return !isInGame();
+    }
+
     @Override
     public void abort() {
         // Process shutdown interrupts the controller; no hidden/default game decision exists here.
@@ -1394,10 +1438,28 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // still fail closed. Only a submitConcede-authorized synchronous call
         // for the exact principal reaches the native PlayerImpl path.
         if (game != null && concessionArmed.remove(getId())) {
-            super.concede(game);
+            concessionInProgress = true;
+            try {
+                super.concede(game);
+            } finally {
+                concessionInProgress = false;
+            }
             return;
         }
         fail("OUT_OF_SCOPE_DECISION", "concession is not part of Commander full-game conformance");
+    }
+
+    @Override
+    public void signalPlayerConcede(boolean stopCurrentChooseDialog) {
+        // GameImpl.setConcedingPlayer invokes this native synchronization hook
+        // while an open human dialog must be stopped. PlayerImpl is a no-op;
+        // the headless player must explicitly retire the matching external
+        // target/payment frame. Only the submitConcede-authorized principal
+        // may trigger this path; controller-for-controlled concessions stay
+        // on followTurnControl and are not silently cancelled here.
+        if (stopCurrentChooseDialog && concessionInProgress) {
+            decisionController.cancelPendingForConcession(getId());
+        }
     }
 
     @Override
@@ -1473,16 +1535,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
             lookGranted = true;
         }
         try {
-            XmageFullGameDecisionController.DecisionResponse response = request(
-                    game,
-                    targeted ? "target" : "choose_object",
-                    target.getMessage(game),
-                    min,
-                    max,
-                    objectOptions(sorted, game, targeted ? "target" : "choice"),
-                    context,
-                    source
-            );
+            XmageFullGameDecisionController.DecisionResponse response;
+            try {
+                response = request(
+                        game,
+                        targeted ? "target" : "choose_object",
+                        target.getMessage(game),
+                        min,
+                        max,
+                        objectOptions(sorted, game, targeted ? "target" : "choice"),
+                        context,
+                        source
+                );
+            } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+                // Native XMage stopped this target dialog because this player
+                // conceded. Returning false lets the engine unwind the cast;
+                // no stale target choice is accepted from the pilot.
+                concessionInterruptedAction = true;
+                return false;
+            }
             for (String selected : response.selectedOptionIds()) {
                 UUID id = UUID.fromString(selected);
                 if (targeted) {
