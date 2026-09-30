@@ -54,7 +54,7 @@ failure_class: "NONE"
 root_cause_class: "NONE"
 current_hypothesis: "The bridge can compute the loaded engine artifact digest at handshake time; binding it into the PB-03 evidence closes the declared-constant residual without changing Rules semantics."
 
-status: "ACTIVE"
+status: "COMPLETE"
 technical_decision_authority: "AUTONOMOUS_WITHIN_CONTRACT"
 current_reasoning_tier: "max"
 authority_gates: []
@@ -98,6 +98,8 @@ tests_run:
   - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent; XMage AF01 PASS, Forge AF01 FAIL (F-37)"
 
 evidence:
+  - "TERMINAL: PR #395 merged 2026-09-30T14:40:02Z as edff9e19b6b06197cb2be263d19a865e60f32faf (tree fd2b81d0ba5b05e87c6dbff704d74c36f01f1cfd); exact head a6ac01ad4165; 17/17 checks green (1 by-design skip)"
+  - "TERMINAL: donor dispositions — PR #304 CLOSED (historical predecessor), PR #333 MERGED as 10a43d2c, PR #316 CLOSED 2026-09-30T03:38:18Z (semantic value consumed); branches retained"
   - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json provider_identity.engine_artifact_sha256"
   - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json engine_artifact_sha256"
   - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json artifact_identity_consistent"
@@ -108,9 +110,9 @@ artifacts:
   - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_FINAL_HANDOFF_20260929.md (residual closed)"
 
 remaining_scope:
-  - "Push branch, open PR, exact-head CI, merge"
+  - "None (complete)"
 
-exact_next_action: "Push foundry/pb03-engine-artifact-identity-20260930 via safe_push, open the PR, wait for exact-head CI, and merge when every gate holds."
+exact_next_action: "None. PR #395 merged as edff9e19b6b06197cb2be263d19a865e60f32faf; terminal receipt emitted."
 
 execution_profile: "deepseek"
 executor_model: "opencode-go/deepseek-v4.1-flash"
