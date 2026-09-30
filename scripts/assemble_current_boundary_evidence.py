@@ -1034,6 +1034,61 @@ def assemble() -> None:
             },
         )
 
+    # ---- R-5 current provider-readiness packet ---------------------------
+    # This is an evidence handoff, not a selection algorithm. It reports the
+    # current AF00-AF10 and FULL107 residuals for #255 without assigning scores,
+    # ranks or a preferred provider. AF11 is intentionally deferred until after
+    # provider selection by the accepted slot order.
+    readiness_candidates: dict[str, Any] = {}
+    for candidate, data in per_candidate.items():
+        af_document = load(OUT / f"AF00_AF11_{candidate.upper()}.json")
+        af00_af10 = [gate for gate in af_document["gates"] if gate["gate"] != "AF11"]
+        residual_rows = [
+            {
+                "fixture_id": fixture,
+                "exit_state": row["exit_state"],
+                "execution_mode": row.get("execution_mode"),
+                "reason": row.get("reason"),
+            }
+            for fixture, row in sorted(data["rows"].items())
+            if row["exit_state"] != "PASS"
+        ]
+        readiness_candidates[candidate] = {
+            "column_provenance": data["column_provenance"],
+            "runtime_identity": data["results_runtime_identity"],
+            "full107_counts": data["counts"],
+            "full107_residual_count": len(residual_rows),
+            "full107_residual_rows": residual_rows,
+            "af00_af10": af00_af10,
+            "af00_af10_non_pass": [
+                gate for gate in af00_af10 if gate.get("verdict") != "PASS"
+            ],
+            "native_suite_role": (
+                "SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT"
+            ),
+        }
+    write(
+        "PROVIDER_READINESS_CURRENT.json",
+        {
+            "schema_version": "commander-lab.provider-readiness-current/1.0.0",
+            "issue": 425,
+            "coordinator_tracker": 255,
+            "evidence_epoch": epoch_identity,
+            "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+            "owner_rulings": ["R-1", "R-2", "R-3", "R-4"],
+            "r4_credit_policy": (
+                "FULL107 PASS requires a current exact positive per-fixture receipt "
+                "bound to candidate, runner, requested-state digest and obligation digest"
+            ),
+            "candidates": readiness_candidates,
+            "af11": "DEFERRED_UNTIL_AFTER_PROVIDER_SELECTION",
+            "production_provider": "NOT_SELECTED",
+            "architecture_freeze": "NOT_CLAIMED",
+            "ranking": "NONE",
+            "selection": "COORDINATOR_OWNED_IN_ISSUE_255",
+        },
+    )
+
     # ---- comparison ------------------------------------------------------
     x = per_candidate["xmage"]["rows"]
     f = per_candidate["forge"]["rows"]
