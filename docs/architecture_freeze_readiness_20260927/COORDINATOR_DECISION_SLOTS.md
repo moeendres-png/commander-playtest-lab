@@ -1,5 +1,13 @@
 # WSR24 Coordinator Decision Slots — 2026-09-27
 
+> **Decided 2026-09-30 (owner acceptance on #255):**
+> - SLOT-02 → option (a);
+> - SLOT-03 → option (c);
+> - SLOT-07 → option (a);
+> - PB-09 → the Lab Forge fork is the candidate.
+>
+> Rationale and conditions are in `docs/coordinator_adjudication_20260930/ADJUDICATION.md` (R-1 to R-4). The remaining slots are still open.
+
 Scope: ONLY decisions that genuinely require Sol High authority.
 Routine implementation choices are NOT in this file; they were decided
 inside WSR24 and recorded in the readiness JSON packets.

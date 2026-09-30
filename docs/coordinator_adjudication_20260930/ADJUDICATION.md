@@ -4,6 +4,16 @@
 - **Source:** `main` `3e3cd11a`, with #420 merged. The evidence tree of record is `qualification/final-current-boundary-20260927/`, requalified on `main` through `820a4642`. The documented #411 run is cited where it adds to that tree.
 - **Author:** the Claude campaign lane, at the owner's request ("die wenigen echten Coordinator-Entscheidungen explizit adjudizieren").
 
+## Decision record
+
+**ACCEPTED by the repository owner on 2026-09-30:** R-1, R-2, R-3 and R-4. The acceptance is recorded on #255 (comment 5918493550), in the owner's words: "ja dann R-1 annehmen genauso wie R-2 bis R-4 etc und alles umsetzen".
+
+Follow-ups executed:
+- #297 and #299 are closed as `DONOR_EVIDENCE`.
+- The R-3 Forge bridge repair was opened as a PR against forge#11.
+
+R-5 stays a finding, not a ruling. B1, SLOT-04/05/06/08/09, provider selection and Freeze are **not** decided by this record.
+
 ## Status of this packet
 
 Under AGENTS.md §4/§8, Provider Selection, Architecture Freeze and evidence-policy rulings are Coordinator authority. They are not executor authority, so the rulings below are written as **binding texts ready for signature**:

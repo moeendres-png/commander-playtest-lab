@@ -25,8 +25,8 @@ out_of_scope:
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
   session after the handoff of 2026-09-30 evening (single writer)
 status: ACTIVE
-exact_next_action: 'Owner merges #423. Coordinator decides B1 and accepts or rejects R-1..R-4 on #255. Next milestones:
-  C1, C2, D2, F1, F2, G1, E1, R1.'
+exact_next_action: 'Merge #423 when exact-head CI is green; open the forge R-3 PR against #11; then C1, C2, D2,
+  F1, F2, G1, E1, R1 and PB-03 row onboarding (R-4). B1 still a Coordinator decision.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -36,6 +36,8 @@ technical_decisions:
   Then Wave A (all four live, none owned by an open PR).'
 - 'B2 uses separate positive fixture receipts in receipts/positive/ with their own validated loader (option A);
   the runner/assembler wiring is handed to #408/#395 because that surface is theirs.'
+- 'Owner accepted R-1..R-4 on #255 (2026-09-30); PB-09 closed (#297/#299 DONOR_EVIDENCE); R-3 Forge AF01 unsupported-decision
+  fix goes to forge#11 as a PR from claude/optimistic-bohr-6asye6'
 source_lock:
   repository: moeendres-png/commander-playtest-lab
   audit_start_main: c7f420fb49c704444349c5f24a8570c224f2b63d
