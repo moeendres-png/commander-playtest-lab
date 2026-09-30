@@ -3,7 +3,6 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonObject;
 import mage.constants.Zone;
 import mage.game.permanent.Permanent;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -135,7 +134,6 @@ class XmageMultiplayerVoteTest {
      * P3 leaves the game before P1 casts Council's Judgment: only players in the game vote.
      * F-23 (#335): at the pin the lane asks the departed P3 to vote.
      */
-    @Disabled("F-23 (#335): at the pin a player who left the game this turn is asked to vote")
     @Test
     void aPlayerWhoLeftThisTurnDoesNotVote() {
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start("mp-vote-left", 4, "P1",

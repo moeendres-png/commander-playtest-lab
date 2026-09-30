@@ -10,9 +10,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Successor-repin identity guard (2026-09-29): the bridge declares the XMage
- * multiplayer candidate as its engine commit, and the engine classes actually
- * loaded at runtime are that candidate's.
+ * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30): the bridge
+ * declares the XMage multiplayer candidate as its engine commit, and the engine
+ * classes actually loaded at runtime are that candidate's.
  *
  * <p>XmageProvider.ENGINE_COMMIT is a declared constant. This test adds a
  * runtime fingerprint: the candidate's bounded F-21 APNAP primitives must be
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "f79e4168902e65063034b21be6f4585397fd43b3";
+    static final String CANDIDATE = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -37,5 +37,22 @@ class XmageCandidateEngineFingerprintTest {
                 "loaded engine is not the candidate: " + Game.class.getProtectionDomain()
                         .getCodeSource().getLocation());
         assertEquals(List.class, opponents.getReturnType());
+    }
+
+    /**
+     * Successor v2 (2026-09-30): the loaded engine also carries F-23's explicit
+     * current-opponent query and the F-28/F-29 combat fixes.
+     */
+    @Test
+    void loadedEngineCarriesTheSuccessorFixes() throws Exception {
+        Method inGame = Game.class.getMethod("getOpponentsInGame", UUID.class);
+        assertEquals(java.util.Set.class, inGame.getReturnType(), "F-23");
+        Class<?> combat = mage.game.combat.Combat.class;
+        Method forcedBlock = combat.getDeclaredMethod("canBlockInThisCombat",
+                mage.game.permanent.Permanent.class, UUID.class, Game.class);
+        assertEquals(boolean.class, forcedBlock.getReturnType(), "F-28");
+        Method blockOrder = combat.getDeclaredMethod("getPlayerDefendersInApnapOrder", Game.class);
+        assertEquals(List.class, blockOrder.getReturnType(), "F-29: loaded engine is not the successor: "
+                + combat.getProtectionDomain().getCodeSource().getLocation());
     }
 }
