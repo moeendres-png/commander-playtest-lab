@@ -1,11 +1,10 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/claude-lab-repin-20260929
-branch: hardening/runner-strict-git-forge-hermetic-20260930
+worktree: /home/user/commander-playtest-lab
+branch: claude/optimistic-bohr-6asye6
 audit_base_sha: 808799915b478ef2e7726ac941a83387cb2f1a3c
 audit_base_tree: 93ceaaa22210fe3f1c82948be255e15d61647068
-state_written_against_head: 0fbea2ecf0a5d8e1ad6dedcfd090f75998b8d874
-validated_head: 0fbea2ecf0a5d8e1ad6dedcfd090f75998b8d874
+state_written_against_head: 31f49443fea547e0da558c3ad1e84b9b3fcd8688
 objective: 'CSN-POST-AUDIT-HARDENING-2026-09-30: fix the independently audited defects that are live on current
   main, not owned by an active workstream and need no authority decision.'
 in_scope:
@@ -23,10 +22,11 @@ out_of_scope:
 - 'surfaces owned by PR #395 (runner, assembler, pb03_runtime, PB-03 workflow, WSR22 evidence tree)'
 - 'issue #255 adjudication'
 - 'issue #192 destructive cleanup'
-ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); one branch/PR per milestone
-status: WAITING
-exact_next_action: 'Owner merges the B4/B5 PR. Coordinator decides B1 (docs/post_audit_hardening_20260930/B1_EVIDENCE_EPOCH_MEMO.md);
-  then requalify. Next unadjudicated milestones in order: C4, C3, E2, C1, C2, D2, F1, F2, G1, H1, R1.'
+ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
+  session after the handoff of 2026-09-30 evening (single writer)
+status: ACTIVE
+exact_next_action: 'Owner merges #423. Coordinator decides B1 (memo) and accepts or rejects R-1..R-4 on #255 (docs/coordinator_adjudication_20260930/ADJUDICATION.md).
+  Next milestones in order: C4, C3, E2, C1, C2, D2, F1, F2, G1, E1, R1.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -45,10 +45,11 @@ source_lock:
   forge_pin_of_record: a37a865a53280dd8ad6fad3384d69611e8c5a42f
   pin_authority: config/rules_engines.json
   verified_utc: '2026-09-30'
+  main_at_handoff: b3d29ff9315aa2a320d777ce93cc7d6216891a39
+  main_at_handoff_tree: e35346cd890af89d8626f7393dee59e68a597b04
 ownership_observed:
   PR#395: MERGED 2026-09-30; runner/assembler/PB-03 workflow surface is free
   PR#404: MERGED 80879991 (F-42 leaver own choice)
-  PR#410: 'ACTIVE parallel Claude lane: engine-bridge multiplayer probe tests only'
   PR#409: MERGED (own)
   issue#408: 'producer merged in #411; closed by this campaign'
   issue#255: AUTHORITY_GATE (provider adjudication)
@@ -60,6 +61,10 @@ ownership_observed:
   PR#417: MERGED (own)
   PR#418: MERGED (own)
   PR#419: MERGED (own)
+  PR#422: MERGED b3d29ff9 (B4, B5, A4 closeout, B1 memo)
+  PR#420: 'MERGED 3e3cd11a (F-42 follow-up 2; conformance was red at merge, fixed in #423)'
+  PR#423: 'OPEN (this session): red-main fix, Node-24 pins, first-option ratchet, PR classification, Coordinator
+    decision packet'
 tasks:
   A1:
     status: FIXED
@@ -96,12 +101,12 @@ tasks:
     evidence: per-class surefire identity; loader refuses missing/empty/all-skipped/failed/stale classes
   B4:
     status: FIXED
-    pr: hardening/runner-strict-git-forge-hermetic-20260930
+    pr: '#422'
     evidence: runner git() delegates to receipts.git_fact (dir, timeout, returncode, non-empty, 40-hex SHA); tests
       red on 0fbea2ec, green after
   B5:
     status: FIXED
-    pr: hardening/runner-strict-git-forge-hermetic-20260930
+    pr: '#422'
     evidence: no default FORGE_WORKSPACE; a Forge run requires an explicit top-level checkout and fails before writing;
       assembler dead path removed; PB-09 not decided
   C1:
@@ -130,8 +135,15 @@ tasks:
   G1:
     status: UNADJUDICATED
   H1:
-    status: UNADJUDICATED
-    note: read-only
+    status: SUPERSEDED_ALREADY_FIXED
+    pr: '#423'
+    evidence: 'docs/project_health_20260930/PR_TERMINAL_CLASSIFICATION.md; at the owner''s explicit request the
+      terminal PRs were also closed with a measured comment each (lab 21, forge 6, mage 5); no branch deleted; #297/#299
+      stay open until PB-09 is signed'
   R1:
     status: UNADJUDICATED
     note: investigation, not an assumed bug
+  D8_first_option_ratchet:
+    status: FIXED
+    pr: '#423'
+    evidence: tests/unit/test_first_option_ratchet.py; mutation-checked
