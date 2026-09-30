@@ -269,9 +269,7 @@ def af00_gate(candidate: str, data: dict[str, Any], af01: dict[str, Any]) -> dic
     rules_tree = str(runtime.get("engine_candidate_tree") or "")
     rules_proof = runtime.get("rules_core_identity") or {}
     bridge_proof = runtime.get("bridge_identity") or {}
-    version_payload = (
-        (af01.get("engine_identity") or {}).get("get_provider_version_payload") or {}
-    )
+    version_payload = (af01.get("engine_identity") or {}).get("get_provider_version_payload") or {}
     provenance = receipt_mod.verify_pb05_provenance(
         version_payload,
         expected_source_commit=source_commit,
@@ -630,10 +628,7 @@ def assemble() -> None:
                 continue
             row["exit_state"] = "PASS"
             row["failure_reason"] = None
-            if all(
-                name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX)
-                for name in receipt_ids
-            ):
+            if all(name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX) for name in receipt_ids):
                 row["execution_mode"] = midgame_rows_mod.EXECUTION_MODE
                 row["reason"] = (
                     "exact placement obligation executed on the production midgame lane "
@@ -1120,12 +1115,8 @@ def assemble() -> None:
             "full107_residual_count": len(residual_rows),
             "full107_residual_rows": residual_rows,
             "af00_af10": af00_af10,
-            "af00_af10_non_pass": [
-                gate for gate in af00_af10 if gate.get("verdict") != "PASS"
-            ],
-            "native_suite_role": (
-                "SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT"
-            ),
+            "af00_af10_non_pass": [gate for gate in af00_af10 if gate.get("verdict") != "PASS"],
+            "native_suite_role": ("SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT"),
         }
     write(
         "PROVIDER_READINESS_CURRENT.json",

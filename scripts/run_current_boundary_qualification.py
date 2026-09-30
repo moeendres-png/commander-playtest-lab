@@ -78,6 +78,7 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     run_cardinality,
     summarize,
 )
+
 # The evidence epoch this run writes into: an explicitly identified runtime
 # epoch whose identity is the producing source (commit+tree), never the
 # historical WSR22 tree. Both scripts resolve it through the one shared function
@@ -1018,9 +1019,7 @@ def _direct_positive_receipt(
         "candidate_commit": candidate_commit,
         "runner_digest": runner_digest,
         "fixture_id": row.fixture_id,
-        "test_identity": (
-            f"{DIRECT_RECEIPT_IDENTITY_PREFIX}{row.execution_mode}#{row.fixture_id}"
-        ),
+        "test_identity": (f"{DIRECT_RECEIPT_IDENTITY_PREFIX}{row.execution_mode}#{row.fixture_id}"),
         "execution_mode": row.execution_mode,
         "obligation_exercised": obligation,
         "observed_assertion": {
@@ -1060,9 +1059,9 @@ def persist_direct_positive_receipts(
             stale.unlink()
         candidate_commit = ""
         for row in rows:
-            candidate_commit = str(row.evidence.get("runtime_identity", {}).get(
-                "engine_candidate_commit", ""
-            ))
+            candidate_commit = str(
+                row.evidence.get("runtime_identity", {}).get("engine_candidate_commit", "")
+            )
             if candidate_commit:
                 break
         written: list[str] = []

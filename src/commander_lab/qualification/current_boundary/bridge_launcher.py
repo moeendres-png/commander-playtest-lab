@@ -81,7 +81,9 @@ def canonical_forge_authority() -> dict[str, str]:
         if not isinstance(value, str) or _SHA40.fullmatch(value) is None:
             raise BridgeLaunchError(f"current Forge {label} is missing or malformed: {value!r}")
     if repository != "https://github.com/moeendres-png/forge.git":
-        raise BridgeLaunchError(f"current Forge repository is not the maintained fork: {repository!r}")
+        raise BridgeLaunchError(
+            f"current Forge repository is not the maintained fork: {repository!r}"
+        )
     if bridge_repository != repository:
         raise BridgeLaunchError(
             "current Forge bridge repository does not equal the maintained-fork repository"
@@ -91,11 +93,15 @@ def canonical_forge_authority() -> dict[str, str]:
             "current Forge bridge rules_core_base_commit does not match secondary_engine.commit"
         )
     if current_candidate.get("commit") != rules_commit:
-        raise BridgeLaunchError("current Forge PB-09 candidate commit disagrees with manifest commit")
+        raise BridgeLaunchError(
+            "current Forge PB-09 candidate commit disagrees with manifest commit"
+        )
     if bridge_identity.get("commit") != bridge_commit:
         raise BridgeLaunchError("current Forge PB-09 bridge commit disagrees with bridge_source")
     if bridge_identity.get("rules_core_base_commit") != rules_commit:
-        raise BridgeLaunchError("current Forge PB-09 bridge base disagrees with Rules-Core candidate")
+        raise BridgeLaunchError(
+            "current Forge PB-09 bridge base disagrees with Rules-Core candidate"
+        )
     return {
         "repository": repository,
         "rules_core_commit": rules_commit,
@@ -112,6 +118,7 @@ def canonical_forge_rules_core_pin() -> str:
 
 def canonical_forge_bridge_source_pin() -> str:
     return canonical_forge_authority()["bridge_commit"]
+
 
 def canonical_xmage_engine_pin() -> str:
     """The canonical live XMage candidate commit.

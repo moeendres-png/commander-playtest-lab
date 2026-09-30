@@ -128,6 +128,11 @@ def test_upstream_ancestry_is_not_treated_as_identity() -> None:
         )
 
 
+def _config() -> dict:
+    loaded: dict = json.loads(CONFIG.read_text(encoding="utf-8"))
+    return loaded
+
+
 def test_config_records_r1_current_authority_without_rewriting_history() -> None:
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     secondary = config["secondary_engine"]

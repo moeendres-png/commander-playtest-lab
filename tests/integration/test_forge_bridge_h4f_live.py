@@ -58,14 +58,10 @@ from commander_lab.models import (
 pytestmark = pytest.mark.external
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_AUTHORITY = json.loads(
-    (_REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8")
-)
+_AUTHORITY = json.loads((_REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
 FORGE_RULES_COMMIT = _AUTHORITY["secondary_engine"]["commit"]
 FORGE_BRIDGE_COMMIT = _AUTHORITY["secondary_engine"]["bridge_source"]["commit"]
-FORGE_BRIDGE_BASE_COMMIT = _AUTHORITY["secondary_engine"]["bridge_source"][
-    "rules_core_base_commit"
-]
+FORGE_BRIDGE_BASE_COMMIT = _AUTHORITY["secondary_engine"]["bridge_source"]["rules_core_base_commit"]
 
 # Bounded H4F-style fixture data (card NAMES only; the bridge resolves them
 # against real Forge card data and rejects unknown names explicitly).
@@ -107,11 +103,7 @@ def _forge_source() -> Path | None:
         return None
     if not (root / "forge-protocol2-bridge" / "pom.xml").is_file():
         return None
-    if (
-        shutil.which("java") is None
-        or shutil.which("mvn") is None
-        or shutil.which("git") is None
-    ):
+    if shutil.which("java") is None or shutil.which("mvn") is None or shutil.which("git") is None:
         return None
     return root
 
@@ -248,7 +240,9 @@ def live_bridge(tmp_path_factory):
         check=False,
     )
     assert dirty.returncode == 0, f"cannot inspect Forge source cleanliness: {dirty.stderr}"
-    assert not dirty.stdout.strip(), "FORGE_SOURCE_DIR is dirty; current evidence must be source-bound"
+    assert not dirty.stdout.strip(), (
+        "FORGE_SOURCE_DIR is dirty; current evidence must be source-bound"
+    )
     ancestry = subprocess.run(
         [
             "git",

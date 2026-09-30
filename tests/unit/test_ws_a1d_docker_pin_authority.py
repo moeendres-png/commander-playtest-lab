@@ -723,7 +723,7 @@ def _forge_bootstrap_env(tmp_path: Path, repo_root: Path) -> tuple[dict, Path]:
     java = fakebin / "java"
     javac = fakebin / "javac"
     java.write_text(
-        '#!/usr/bin/env bash\necho \'openjdk version "17.0.0"\' >&2\n',
+        "#!/usr/bin/env bash\necho 'openjdk version \"17.0.0\"' >&2\n",
         encoding="utf-8",
     )
     javac.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")

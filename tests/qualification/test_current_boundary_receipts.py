@@ -319,23 +319,29 @@ def test_positive_fixture_credit_requires_exact_current_obligation_digests() -> 
         obligation = dict(exact["obligation_exercised"])
         obligation[field] = stale
         receipt = _fixture_receipt(obligation_exercised=obligation)
-        assert R.positive_fixture_credit(
-            [receipt],
-            candidate="xmage",
-            expected_commit="d" * 40,
-            denominator=denominator,
-            expected_runner_digest=_RUNNER_DIGEST,
-        ) == {}
+        assert (
+            R.positive_fixture_credit(
+                [receipt],
+                candidate="xmage",
+                expected_commit="d" * 40,
+                denominator=denominator,
+                expected_runner_digest=_RUNNER_DIGEST,
+            )
+            == {}
+        )
 
 
 def test_native_suite_receipt_never_earns_full107_fixture_credit() -> None:
-    assert R.positive_fixture_credit(
-        [_good_receipt()],
-        candidate="xmage",
-        expected_commit="d" * 40,
-        denominator={"MICRO_STACK": {"fixture_id": "MICRO_STACK"}},
-        expected_runner_digest=_RUNNER_DIGEST,
-    ) == {}
+    assert (
+        R.positive_fixture_credit(
+            [_good_receipt()],
+            candidate="xmage",
+            expected_commit="d" * 40,
+            denominator={"MICRO_STACK": {"fixture_id": "MICRO_STACK"}},
+            expected_runner_digest=_RUNNER_DIGEST,
+        )
+        == {}
+    )
 
 
 def test_negative_assertion_cannot_promote() -> None:
