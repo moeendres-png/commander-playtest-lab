@@ -490,7 +490,9 @@ final class XmageFullGameJsonlBridge {
 
         JsonArray notes = new JsonArray();
         notes.add("Dedicated full-game lane; existing B3/B4 JsonlBridge capability truth is unchanged");
-        notes.add("Operational scope is 2..5-player Commander Free-for-All with one authoritative cardinality contract");
+        notes.add("Operational scope is " + XmageFullGameSession.MIN_PLAYERS + ".."
+                + XmageFullGameSession.MAX_PLAYERS
+                + "-player Commander Free-for-All with one authoritative cardinality contract");
         notes.add("XMage is rules authority; Commander Lab external pilots are discretionary decision authority");
         notes.add("No Tactical, Structural, XMage-AI, random or default discretionary fallback is permitted");
         notes.add("Rules randomness remains XMage-owned and uses the explicit per-game Rules seed bound before start (setRulesSeed + requireExplicitSeed; RandomUtil retired as authority)");
