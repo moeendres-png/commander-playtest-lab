@@ -1,11 +1,11 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/cpl-cb-postmerge-20260930
-branch: hardening/current-boundary-wave-b-postmerge-20260930
+worktree: /home/moeen/code/cpl-cb-closeout-20260930
+branch: hardening/current-boundary-wave-b-closeout-20260930
 audit_base_sha: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
 audit_base_tree: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
-state_written_against_head: 2f37acfc0a844b978faa534c5a8038eac41aecfc
-validated_head: 2f37acfc0a844b978faa534c5a8038eac41aecfc
+state_written_against_head: 2cabb3ebf0d5cba2f25b2a4e8b1db5a75d7ffca5
+validated_head: 08a9b0df279cd9ed17d9a41c0f32951f724d2ef7
 objective: >-
   CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930: close the Current-Boundary / PB-03
   hardening residuals that PR #395's ownership previously blocked, without colliding
@@ -30,7 +30,7 @@ out_of_scope:
   - Rewriting, moving or re-sealing historical WSR22 evidence
   - Surfaces still owned by an open PR (#420 F-42 follow-up; old PB-09/WS PRs)
 ownership: CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930 (DeepSeek V4.1 Flash MAX, OpenCode Foundry)
-status: ACTIVE
+status: COMPLETE
 dependencies:
   - 'PR #409/#411/#412/#413/#416/#417/#418/#419: MERGED by 0fbea2ec (observed). No active
     ownership collision remains on the current-boundary runner/assembler/receipts surfaces.'
@@ -112,6 +112,12 @@ evidence:
     binding, the merged A4 trigger globs and the branch epoch workflow changes are both kept, and
     B1 stays the branch design because the workstream contract requires the successor epoch
     (the #422 memo leaves sealed-vs-living to the Coordinator and does not take the decision).'
+  - 'Closeout: PR #426 merged as 2cabb3eb (tree 47f7622d93f4d7106955dbc53cafe3b3a09c64ee);
+    its merge candidate tree equals the merged main tree, and the pb03-runtime job passed on that
+    exact tree (run 36773445119, artifact pb03-runtime-560a92f3..., native_promotions 9, XMage
+    14 PASS). Issue #408 was already closed at 2026-09-30T18:42:42Z; this workstream added the
+    canonical-code chain verification comment. PR #424 (WS190 docs cleanup) merged into main
+    before this closeout.'
   - 'Post-merge window: PR #421 was merged by the Coordinator at 2026-09-30T20:10:22Z as
     merge commit 1a7a52a3 (parents ec4abe5a + f64074b3) while this session was preparing the
     final state commit; PR #423 (C4/E2/C3) had merged as ec4abe5a into the same base. The
@@ -134,18 +140,18 @@ evidence:
     an explicit epoch must now live under the runtime epochs parent.'
 artifacts: []
 remaining_scope:
-  - 'push the post-merge follow-up branch, open its PR, wait for exact-head CI including
-    pb03-runtime'
-  - 'verify the pb03 artifact on the follow-up merge candidate (the chain must run on code that
-    includes PR #423, not only on the f64074b3 candidate)'
-  - 'merge the follow-up, verify main HEAD/tree, close issue #408 with the fresh chain evidence,
-    record the post-merge receipt'
+  - 'none for this workstream; B1/B3/B4/B5/D1 are terminal and issue #408 is closed with fresh
+    canonical-code chain evidence'
+  - 'observed adjacent work (not this workstream): PR #427 and #431 are open and actively touch
+    the runner/assembler/receipts/midgame_rows; they do not touch evidence_epoch.py or this state
+    file, so this workstream is complete without collision'
 exact_next_action: >-
-  Push hardening/current-boundary-wave-b-postmerge-20260930 (2f37acfc + state commit) and open a
-  PR against main (1a7a52a3). Wait for exact-head CI, download the pb03-runtime artifact and
-  confirm the GATE 2 chain still credits (native_promotions 9, XMage 14 PASS) on the candidate
-  that includes PR #423; then merge through the normal path, verify main HEAD/tree and close
-  issue #408 with that artifact as the canonical-code chain evidence.
+  None: CURRENT-BOUNDARY-HARDENING-WAVE-B is complete. Canonical main is 2cabb3eb (tree
+  47f7622d93f4d7106955dbc53cafe3b3a09c64ee), whose tree is exactly the tree the pb03-runtime
+  job executed for the issue #408 chain (epoch 560a92f32b29-47f7622d93f4, native_promotions 9,
+  XMage 14 PASS). Issue #408 is closed with that evidence. A fresh session should re-verify live
+  Git/GitHub rather than trusting this index, and should treat any further current-boundary
+  mutation as a new workstream owned by the #427/#431 authors.
 hypotheses_rejected:
   - 'PR #411 does not wire the runner/assembler: REJECTED at recon, then merged (8e07c9de); the
     chain is now canonical and this branch no longer collides with an active owner'
