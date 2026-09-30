@@ -70,74 +70,13 @@ jobs:
           cp XMAGE_FULL_GAME_CLOSEOUT.md "$inner/XMAGE_FULL_GAME_CLOSEOUT.md"
           cp docs/architecture/xmage-full-game-external-pilots.md \
             "$inner/xmage-full-game-external-pilots.md"
-          python - <<PY
-          import json
-          from pathlib import Path
-
-          provenance = {
-              'schema_version': 'exact-main-recovery-provenance-1.1.0',
-              'git_commit': '$commit',
-              'git_tree': '$tree',
-              'package_version': '$version',
-              'candidate_pipeline_runtime': 'candidate-pipeline-1.0.0',
-              'candidate_set_schema': 'deck-candidate-set-1.0.0',
-              'candidate_validation_report_schema': 'candidate-validation-report-1.0.0',
-              'simulation_queue_schema': 'simulation-candidate-queue-1.0.0',
-              'pre_simulation_invariant_report_schema': 'pre-simulation-invariant-report-1.0.0',
-              'future_xmage_scenario_contract': 'future-xmage-scenario-contract-1.0.0',
-              'xmage_full_game_lane': 'xmage_full_game_external_pilots',
-              'xmage_full_game_decision_protocol': 'xmage-external-decision-protocol-1.0.0',
-              'xmage_pinned_commit': 'cfc36f445f917f101fa2ed588770e043f53bc44c',
-              'operational_pod_size': 4,
-              'xmage_rules_authority': True,
-              'our_pilots_decision_authority': True,
-              'structural_decision_authority': False,
-              'tactical_decision_authority': False,
-              'random_or_default_discretionary_fallback': False,
-              'official_gameplay_evidence_consumed': False,
-              'sealed_holdout_opened': False,
-              'canonical_mutation_performed': False,
-          }
-          Path('$inner/PROVENANCE.json').write_text(
-              json.dumps(provenance, indent=2, sort_keys=True) + '\n', encoding='utf-8'
-          )
-
-          closeout = {
-              'schema_version': 'commander-lab-architecture-closeout-1.1.0',
-              'pre_simulation_architecture_reset_complete': True,
-              'external_candidate_set_supported': True,
-              'hard_validation_only_before_gameplay': True,
-              'lossless_handoff': True,
-              'pre_simulation_heuristic_elimination': False,
-              'structural_decision_authority': False,
-              'tactical_decision_authority': False,
-              'full_xmage_pilot_loop_implemented': True,
-              'full_xmage_lane': 'xmage_full_game_external_pilots',
-              'xmage_rules_authority': True,
-              'our_pilots_decision_policy_authority': True,
-              'full_game_operational_pod_size': 4,
-              'full_game_state_injection': False,
-              'full_game_hidden_information_actor_scoped': True,
-              'full_game_default_fallback': False,
-              'full_game_one_isolated_jvm_per_game': True,
-              'full_game_real_engine_conformance': 'VERIFIED_BY_SEPARATE_XMAGE_FULL_GAME_CONFORMANCE_WORKFLOW',
-              'canonical_deck_changed': False,
-              'inventory_changed': False,
-              'allocation_changed': False,
-              'purchase_changed': False,
-              'opponent_truth_changed': False,
-              'official_gameplay_evidence_consumed': False,
-              'sealed_holdout_opened': False,
-              'final_main_commit': '$commit',
-              'final_main_tree': '$tree',
-              'package_version': '$version',
-              'recovery_created': True,
-              'drive_upload': 'PENDING_EXTERNAL_READBACK',
-          }
-          Path('$inner/EXACT_MAIN_FINAL_CLOSEOUT.json').write_text(
-              json.dumps(closeout, indent=2, sort_keys=True) + '\n', encoding='utf-8'
-          )
-          PY
+          # The pin comes from config/rules_engines.json; runtime claims this run
+          # does not check are recorded NOT_BOUND (scripts/build_exact_main_recovery_payload.py).
+          python scripts/build_exact_main_recovery_payload.py \
+            --root . --inner "$inner" \
+            --commit "$commit" --tree "$tree" --version "$version" \
+            --focused-test "pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py" \
+            --focused-test "python scripts/run_candidate_handoff_conformance.py --root . --output-dir artifacts/candidate-handoff"
           verify="$RUNNER_TEMP/recovery-bundle-clone"
           rm -rf "$verify"
           git clone "$inner/repository-${commit}.bundle" "$verify"

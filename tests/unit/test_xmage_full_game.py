@@ -193,6 +193,7 @@ def _result(scenario: FutureXmageScenario) -> FullGameConformanceResult:
         },
         semantic_transcript_sha256="a" * 64,
         raw_result_sha256="b" * 64,
+        shutdown_disposition="graceful_shutdown",
     )
 
 
