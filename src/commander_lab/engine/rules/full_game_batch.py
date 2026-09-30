@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import RulesDeckInput
 
+from .failure_privacy import redacted_exception_message
 from .full_game import (
     FULL_GAME_EVIDENCE_CLASS,
     FullGameConformanceError,
@@ -227,7 +228,7 @@ class XmageFullGameBatchRunner:
             status="failed",
             elapsed_seconds=time.monotonic() - started,
             failure_class=failure_class,
-            failure_message=str(exc),
+            failure_message=redacted_exception_message(exc),
         )
 
     @staticmethod

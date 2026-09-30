@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from commander_lab.agents import BasePilot, build_pilot
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.base import resolve_engine_working_directory
+from commander_lab.engine.rules.failure_privacy import redacted_summary
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     CardRole,
@@ -53,11 +54,37 @@ _LOG = logging.getLogger(__name__)
 
 
 class FullGameProtocolError(RuntimeError):
-    """Fail-closed full-game bridge or external-pilot protocol error."""
+    """Fail-closed full-game bridge or external-pilot protocol error.
+
+    ``str(exc)`` is the public message and is safe to persist: Lab-authored
+    text plus, for transport failures, a stable ``code``. Raw bridge output
+    (protocol lines, engine error text, stderr) lives only in
+    ``diagnostics`` in memory and never reaches the message (C4).
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str | None = None,
+        diagnostics: tuple[str, ...] = (),
+    ) -> None:
+        super().__init__(message)
+        self.public_message = message
+        self.code = code
+        self.diagnostics = diagnostics
 
 
 class FullGameConformanceError(RuntimeError):
-    """A run violated a full-game conformance invariant."""
+    """A run violated a full-game conformance invariant.
+
+    Every message is Lab-authored; engine-supplied text is reduced with
+    ``redacted_summary`` before it is interpolated (C4).
+    """
+
+    @property
+    def public_message(self) -> str:
+        return str(self)
 
 
 class _StrictModel(BaseModel):
@@ -203,12 +230,22 @@ class _RawFullGameClient:
     def stderr_tail(self) -> tuple[str, ...]:
         return tuple(self._stderr_lines[-80:])
 
+    def _transport_error(self, code: str, message: str) -> FullGameProtocolError:
+        """A transport failure whose stderr stays in memory only (C4)."""
+        tail = self.stderr_tail
+        return FullGameProtocolError(
+            f"{message}: " + redacted_summary(code, tail),
+            code=code,
+            diagnostics=tail,
+        )
+
     def start(self) -> None:
         if self._process is not None:
             if self._process.poll() is None:
                 return
             raise FullGameProtocolError(
-                f"full-game bridge already exited with code {self._process.returncode}"
+                f"full-game bridge already exited with code {self._process.returncode}",
+                code="BRIDGE_EXITED",
             )
         try:
             self._process = subprocess.Popen(
@@ -221,7 +258,11 @@ class _RawFullGameClient:
                 bufsize=1,
             )
         except OSError as exc:
-            raise FullGameProtocolError(f"unable to start full-game bridge: {exc}") from exc
+            raise FullGameProtocolError(
+                redacted_summary("BRIDGE_START_FAILED", (str(exc),)),
+                code="BRIDGE_START_FAILED",
+                diagnostics=(str(exc),),
+            ) from exc
         assert self._process.stdout is not None
         assert self._process.stderr is not None
         self._stdout_thread = threading.Thread(
@@ -242,9 +283,7 @@ class _RawFullGameClient:
         process = self._process
         assert process is not None
         if process.poll() is not None or process.stdin is None:
-            raise FullGameProtocolError(
-                "full-game bridge is not writable: " + " | ".join(self.stderr_tail)
-            )
+            raise self._transport_error("BRIDGE_NOT_WRITABLE", "full-game bridge is not writable")
         request_id = str(uuid.uuid4())
         body = payload or {}
         request = {
@@ -261,32 +300,40 @@ class _RawFullGameClient:
         try:
             line = self._stdout_queue.get(timeout=self.request_timeout_seconds)
         except queue.Empty as exc:
-            raise FullGameProtocolError(
-                f"full-game bridge timeout for {message_type!r}; stderr="
-                + " | ".join(self.stderr_tail)
+            raise self._transport_error(
+                "BRIDGE_TIMEOUT", f"full-game bridge timeout for {message_type!r}"
             ) from exc
         if line is None:
-            raise FullGameProtocolError(
-                f"full-game bridge closed before replying to {message_type!r}: "
-                + " | ".join(self.stderr_tail)
+            raise self._transport_error(
+                "BRIDGE_CLOSED", f"full-game bridge closed before replying to {message_type!r}"
             )
         try:
             response = EngineProtocolResponse.from_wire(json.loads(line))
         except Exception as exc:
             raise FullGameProtocolError(
-                f"invalid full-game bridge response for {message_type!r}: {line!r}"
+                f"invalid full-game bridge response for {message_type!r}: "
+                + redacted_summary("INVALID_RESPONSE", (line,)),
+                code="INVALID_RESPONSE",
+                diagnostics=(line,),
             ) from exc
         if response.protocol_version != ENGINE_PROTOCOL_VERSION:
             raise FullGameProtocolError(
                 f"protocol mismatch: expected {ENGINE_PROTOCOL_VERSION}, "
-                f"received {response.protocol_version}"
+                f"received {response.protocol_version}",
+                code="PROTOCOL_MISMATCH",
             )
         if response.request_id != request_id:
-            raise FullGameProtocolError("full-game bridge response request_id mismatch")
+            raise FullGameProtocolError(
+                "full-game bridge response request_id mismatch", code="REQUEST_ID_MISMATCH"
+            )
         if not response.success:
             error = response.errors[0] if response.errors else None
-            detail = "unknown bridge error" if error is None else f"{error.code}: {error.message}"
-            raise FullGameProtocolError(f"{message_type} failed: {detail}")
+            raw = () if error is None else (error.code, error.message)
+            raise FullGameProtocolError(
+                f"{message_type} failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                code="BRIDGE_ERROR",
+                diagnostics=raw,
+            )
         return response.payload
 
     def close(self) -> str:
@@ -2014,8 +2061,10 @@ class XmageFullGameRunner:
         while True:
             failure = status.get("failure")
             if isinstance(failure, dict):
+                raw_failure = json.dumps(failure, sort_keys=True)
                 raise FullGameConformanceError(
-                    "XMage full-game engine failed: " + json.dumps(failure, sort_keys=True)
+                    "XMage full-game engine failed: "
+                    + redacted_summary("ENGINE_FAILURE", (raw_failure,))
                 )
             decision = status.get("decision")
             if isinstance(decision, dict):

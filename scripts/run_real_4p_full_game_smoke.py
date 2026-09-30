@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.engine.rules.failure_privacy import redacted_exception_message
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_EVIDENCE_CLASS,
     FullGameConformanceError,
@@ -197,7 +198,7 @@ def run_live_smoke(
             {
                 "status": "FAIL",
                 "failure_class": type(exc).__name__,
-                "failure_message": str(exc),
+                "failure_message": redacted_exception_message(exc),
             }
         )
         _artifact_path(root).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
