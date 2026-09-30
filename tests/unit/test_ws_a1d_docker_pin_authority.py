@@ -332,6 +332,43 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
     assert "set -euo pipefail" in text
 
 
+def test_operator_bootstraps_resolve_current_forge_roles_from_manifest(repo_root: Path) -> None:
+    old_upstream = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")
+    windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
+
+    for rel, text in (
+        ("scripts/bootstrap_engine_linux.sh", linux),
+        ("scripts/bootstrap_engine_windows.ps1", windows),
+    ):
+        assert "docker_resolve_engine_pin.py" in text, rel
+        assert old_upstream not in text, rel
+        assert CANONICAL_FORGE_PIN not in text, rel
+        assert CANONICAL_FORGE_BRIDGE_COMMIT not in text, rel
+        assert "bridge_commit" in text, rel
+        assert "source_commit" in text, rel
+
+    assert '"commit":"$RULES_COMMIT"' in linux
+    assert '"source_commit":"$COMMIT"' in linux
+    assert "commit=$RulesCommit" in windows
+    assert "source_commit=$Commit" in windows
+
+
+def test_live_forge_integration_binds_current_rules_and_bridge_roles(repo_root: Path) -> None:
+    text = (repo_root / "tests/integration/test_forge_bridge_h4f_live.py").read_text(
+        encoding="utf-8"
+    )
+    assert "config/rules_engines.json" in text
+    assert "FORGE_RULES_COMMIT" in text
+    assert "FORGE_BRIDGE_COMMIT" in text
+    assert "FORGE_BRIDGE_BASE_COMMIT" in text
+    assert "merge-base" in text and "--is-ancestor" in text
+    assert "status" in text and "--porcelain" in text
+    assert "a37a865a53280dd8ad6fad3384d69611e8c5a42f" not in text
+    assert CANONICAL_FORGE_PIN not in text
+    assert CANONICAL_FORGE_BRIDGE_COMMIT not in text
+
+
 def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
     text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
     assert _HEX40.search(_without_base_image_digests(text)) is None
