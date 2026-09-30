@@ -28,11 +28,20 @@ A conceder whose own choice is pending during another player's spell is not the 
 
 After the native concession, `XmageFullGameSession.submitConcede` calls `XmageFullGameDecisionController.cancelPendingForDepartedPlayer`.
 
-- It retires a pending frame whose own player is no longer in the game, for the observed classes whose callbacks unwind natively: `target`, `mana_payment` and `choose_use`.
+- It retires a pending frame whose own player is no longer in the game, for the observed classes whose callbacks unwind natively: `target`, `choose_object`, `mana_payment` and `choose_use`.
 - The retirement is recorded as `engine_decision_cancelled` with reason `player_left_game`.
 - A retired `choose_use` returns `false`, which is what XMage's own player returns once it cannot respond. No pilot response is accepted, and nothing is chosen on the player's behalf beyond that native no-response.
 - Priority keeps its F-39 path.
 - Other classes are unchanged until they are observed and qualified. This is the same rule the F-39 follow-up states.
+
+## Follow-up: object choices (`choose_object`)
+
+The same defect held for a pending object choice of a departed player:
+
+- **Innocent Blood** (each player sacrifices): the departed player's sacrifice choice was still exposed to it and answered.
+- **Council's Judgment** (will of the council vote): the departed player's vote frame was still exposed and answered.
+
+`choose_object` shares the target callback (`chooseTargetInternal`), which returns `false` when retired: no sacrifice and no vote, as CR 800.4a requires. It is now in the retirable set.
 
 ## Tests
 
@@ -43,7 +52,15 @@ After the native concession, `XmageFullGameSession.submitConcede` calls `XmageFu
 - P1 searches exactly once per remaining opponent who accepted;
 - the retirement is recorded.
 
-It is 2/2 red before the fix ("no choose_use frame is exposed to P4/P5 after it left") and 2/2 green after.
+Each case runs at 4P and 5P:
+
+| Case | What it asserts | Before the fix | After |
+|---|---|---|---|
+| Tempt with Discovery | P1 searches exactly once per remaining opponent who accepted | 2/2 red | 2/2 green |
+| Innocent Blood | every remaining player sacrificed exactly its chosen creature | 2/2 red | 2/2 green |
+| Council's Judgment | only the most-voted permanent is exiled | 2/2 red | 2/2 green |
+
+In every case the red message is "no choose_use/choose_object frame is exposed to P4/P5 after it left".
 
 The other leave suites stay green:
 

@@ -333,8 +333,9 @@ final class XmageFullGameDecisionController {
      * who concedes while one of its <em>own</em> choices is pending during
      * another player's spell (for example the "may" of a tempting offer) is
      * not signalled, and its stale frame stayed answerable: a player who had
-     * left still decided, and the engine counted the answer (CR 800.4a: a
-     * player who left makes no choices). After the native concession this
+     * left still decided (a tempting offer, a sacrifice, a council vote),
+     * and the engine counted the answer (CR 800.4a: a player who left makes
+     * no choices). After the native concession this
      * retires such a frame of a player no longer in the game, for the
      * observed classes whose callbacks unwind natively; others are unchanged
      * until observed and qualified.
@@ -367,7 +368,7 @@ final class XmageFullGameDecisionController {
         return true;
     }
 
-    private static final Set<String> DEPARTED_CANCELLABLE = Set.of("target", "mana_payment", "choose_use");
+    private static final Set<String> DEPARTED_CANCELLABLE = Set.of("target", "choose_object", "mana_payment", "choose_use");
 
     /** Narrows a priority frame to its pass option; false when there is nothing to remove. */
     private static boolean keepOnlyPass(JsonObject request) {
