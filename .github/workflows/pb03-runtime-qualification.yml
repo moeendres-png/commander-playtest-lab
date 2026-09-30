@@ -101,7 +101,12 @@ jobs:
         working-directory: engine-bridge
         run: |
           set -euo pipefail
-          mvn -B -ntp -DskipTests -Dcheckstyle.skip=true test-compile
+          # Online warm-up: execute one small bound test class so the surefire
+          # provider and every test-phase dependency are resolved into the local
+          # Maven cache. The qualification runner executes its suites with
+          # `mvn -o` (hermetic, no network during a credited run), so the cache
+          # must be complete before it starts.
+          mvn -B -ntp -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=XmageCandidateEngineFingerprintTest
           mvn -B -ntp -DskipTests -Dcheckstyle.skip=true dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
           test -s target/cp-wsr22.txt
 

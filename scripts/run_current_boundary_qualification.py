@@ -398,6 +398,14 @@ def run_native_suite(
         argv, cwd=str(spec["root"]), capture_output=True, text=True, check=False, timeout=7200
     )
     text = completed.stdout + completed.stderr
+    if completed.returncode != 0:
+        # A failing suite must be attributable from the CI log alone. The
+        # receipt records only counts and the command, so the output tail is
+        # printed here (never stored) for the operator.
+        tail = [line.rstrip() for line in text.splitlines() if line.strip()][-25:]
+        print(f"native suite {candidate}:{group}: exit {completed.returncode}; output tail:")
+        for line in tail:
+            print(f"    {line}")
     try:
         summary = receipt_mod.parse_maven_summary(text)
     except receipt_mod.ReceiptError as exc:
