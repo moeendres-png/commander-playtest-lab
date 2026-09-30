@@ -1183,15 +1183,37 @@ def _valid_sha(value: Any) -> bool:
 
 
 def verify_pb05_provenance(
-    identity: dict[str, Any], *, expected_rules_core: str, expected_tree: str | None = None
+    identity: dict[str, Any],
+    *,
+    expected_source_commit: str | None = None,
+    expected_rules_core: str | None = None,
+    expected_tree: str | None = None,
 ) -> dict[str, Any]:
     """Fail-closed consumption of the provider's build provenance.
 
-    AF00 and PB-05 credit require all of: a build-derived commit equal to the
-    expected Rules Core, a well-formed build tree, a clean build source, and
-    ``engine_commit_verified`` true. A missing, malformed, unknown or dirty value
-    yields no credit; it is never treated as clean by default.
+    AF00 and PB-05 credit require the build-derived commit/tree to equal the
+    exact source that was actually materialized, plus a clean build source and
+    ``engine_commit_verified`` true. For legacy callers,
+    ``expected_rules_core`` is accepted as an alias only when
+    ``expected_source_commit`` is omitted. R-1 dual-identity Forge callers
+    must pass the bridge/materialization source here and prove Rules-Core
+    equivalence separately.
     """
+    expected_commit = expected_source_commit or expected_rules_core
+    if not expected_commit:
+        return {
+            "pb05_credit": False,
+            "af00_credit": False,
+            "build_commit": None,
+            "build_tree": None,
+            "build_dirty": identity.get("engine_build_dirty"),
+            "build_source": identity.get("engine_build_source"),
+            "engine_commit_verified": identity.get("engine_commit_verified"),
+            "expected_source_commit": expected_commit,
+            "expected_tree": expected_tree,
+            "findings": ["no expected source commit was supplied"],
+            "rule": "no exact expected build source means no AF00 or PB-05 credit",
+        }
     findings: list[str] = []
 
     raw_commit = identity.get("engine_build_commit")
@@ -1204,16 +1226,16 @@ def verify_pb05_provenance(
 
     if not _valid_sha(build_commit):
         findings.append(f"engine_build_commit is absent or malformed: {raw_commit!r}")
-    elif build_commit is None or build_commit != expected_rules_core:
+    elif build_commit is None or build_commit != expected_commit:
         findings.append(
-            f"build commit {(build_commit or '<none>')[:12]} is not the expected Rules Core "
+            f"build commit {(build_commit or '<none>')[:12]} is not the expected source "
             f"{expected_rules_core[:12]}"
         )
     if not _valid_sha(build_tree):
         findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
     elif expected_tree and (build_tree is None or build_tree != expected_tree):
         findings.append(
-            f"build tree {(build_tree or '<none>')[:12]} is not the expected Rules Core tree "
+            f"build tree {(build_tree or '<none>')[:12]} is not the expected source tree "
             f"{expected_tree[:12]}"
         )
     if build_dirty is None:
@@ -1236,7 +1258,7 @@ def verify_pb05_provenance(
         "build_dirty": build_dirty,
         "build_source": build_source,
         "engine_commit_verified": verified,
-        "expected_rules_core": expected_rules_core,
+        "expected_source_commit": expected_commit,
         "expected_tree": expected_tree,
         "findings": findings,
         "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown "
