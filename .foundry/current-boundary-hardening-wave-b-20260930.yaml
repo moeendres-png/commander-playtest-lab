@@ -1,11 +1,11 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/cpl-cb-hardening-wave-b-20260930
-branch: hardening/current-boundary-wave-b-20260930
+worktree: /home/moeen/code/cpl-cb-postmerge-20260930
+branch: hardening/current-boundary-wave-b-postmerge-20260930
 audit_base_sha: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
 audit_base_tree: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
-state_written_against_head: 6037534fb35c9b18e47b161a905b75d1d2fbc53b
-validated_head: 6037534fb35c9b18e47b161a905b75d1d2fbc53b
+state_written_against_head: 2f37acfc0a844b978faa534c5a8038eac41aecfc
+validated_head: 2f37acfc0a844b978faa534c5a8038eac41aecfc
 objective: >-
   CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930: close the Current-Boundary / PB-03
   hardening residuals that PR #395's ownership previously blocked, without colliding
@@ -34,7 +34,10 @@ status: ACTIVE
 dependencies:
   - 'PR #409/#411/#412/#413/#416/#417/#418/#419: MERGED by 0fbea2ec (observed). No active
     ownership collision remains on the current-boundary runner/assembler/receipts surfaces.'
-  - 'PR #420 (F-42 follow-up) OPEN and disjoint from this surface.'
+  - 'PR #422 (B4/B5, A4 closeout, B1 memo) MERGED as b3d29ff9 while this branch was in flight;
+    impact-adjudicated and merged into this branch at f64074b3.'
+  - 'PR #420 MERGED (3e3cd11a); no open PR owns any file changed by this branch at final
+    verification time (see drift check).'
 hard_gates:
   - 'Fail-before evidence exists for every implemented defect item'
   - 'No edit to any active foreign PR branch or its worktree'
@@ -54,7 +57,7 @@ validated_gates:
   - 'B1 source-bound runtime epoch + historical protection + carry-forward provenance (17 tests)'
   - 'B3 merged owner fix verified; residual test-source digest coverage added (1 test)'
   - 'native-suite receipt path covered end to end with a faked Maven process (4 tests)'
-  - 'full pytest suite 2737 passed / 14 skipped / 0 failed at 6037534f'
+  - 'full pytest suite 2754 passed / 13 skipped / 0 failed at the merge head f64074b3 and at 52668b02'
   - 'ruff check . and ruff format --check . clean at fc7b919e'
   - 'mypy 1.20.2 on src/commander_lab/qualification: zero errors in changed modules
     (environment lacks lock-installed stubs for unrelated modules)'
@@ -80,7 +83,7 @@ files_modified:
   - tests/qualification/test_current_boundary_forge_workspace.py (new)
   - tests/qualification/test_current_boundary_assembler_integrity.py
 tests_run:
-  - 'pytest -q (full suite) at 6037534f: 2737 passed, 14 skipped'
+  - 'pytest -q (full suite) at 52668b02: 2754 passed, 13 skipped'
   - 'pytest -q tests/qualification/ at 1de9cd68: 601 passed, 9 skipped'
   - 'ruff check . / ruff format --check . at fc7b919e: clean'
   - 'mypy 1.20.2 src/commander_lab/qualification at fc7b919e: clean for changed modules'
@@ -101,6 +104,29 @@ evidence:
     executed and a clean 225-input runner digest bound; then crashed with ValueError on
     build_identity (JSON string treated as a mapping). Reproduced locally in a new test and fixed
     at 0e72d1de.'
+  - 'Drift: origin/main moved to b3d29ff9 (PR #422, B4/B5 on the same files) while this branch
+    was in flight; the PR went merge-conflicted and pull_request workflows stopped being created.
+    Merged with full adjudication at f64074b3: the merged receipts.git_fact() is the single Git reader
+    with the branch sanitized environment, the merged require_forge_workspace() keeps its exact
+    messages, the branch resolve_forge_workspace() adds clean-checkout/Rules-Core/bridge
+    binding, the merged A4 trigger globs and the branch epoch workflow changes are both kept, and
+    B1 stays the branch design because the workstream contract requires the successor epoch
+    (the #422 memo leaves sealed-vs-living to the Coordinator and does not take the decision).'
+  - 'Post-merge window: PR #421 was merged by the Coordinator at 2026-09-30T20:10:22Z as
+    merge commit 1a7a52a3 (parents ec4abe5a + f64074b3) while this session was preparing the
+    final state commit; PR #423 (C4/E2/C3) had merged as ec4abe5a into the same base. The
+    canonical tree now differs from the CI-validated f64074b3 by PR #423 only; full pytest on
+    1a7a52a3 in a detached worktree: 2787 passed, 13 skipped, 0 failed. The two commits not
+    contained in that merge (the epoch timeout fix and the state adjudication) are landed by
+    hardening/current-boundary-wave-b-postmerge-20260930 on top of 1a7a52a3.'
+  - 'CI at merge head f64074b3: all workflows green; PB-03 runtime succeeded (run 36768896191,
+    job pb03-runtime success). Artifact verified: epoch 30da829773af-83d004bdca70, XMage counts
+    14 PASS / 0 FAIL / 53 UNKNOWN / 40 BLOCKED, native_promotions 9 with
+    MIDGAME_LANE_PLACEMENT_OBLIGATION, 9 positive receipts POSITIVE_BEHAVIOUR/PASS bound to
+    candidate 9375f35a and the live runner digest 5228f93a, native receipts per-class
+    requested==executed (34+185 tests), PB-03 matrix TECHNICALLY_CONFORMANT/PASS/FRESH_EXACT/
+    EXECUTED_PASS with artifact_identity_consistent. Issue #408 producer->runner->receipt->
+    assembler->credit chain freshly executed on the canonical merge candidate.'
   - 'Fresh-context review (foundry-reviewer) P1: receipts.capture_runner_identity and
     engine_tree_equivalence were still redirectable by inherited GIT_DIR/GIT_WORK_TREE; fixed with
     fail-before tests. P2: carried-forward inner freshness markers were not rewritten; fixed.
@@ -108,17 +134,18 @@ evidence:
     an explicit epoch must now live under the runtime epochs parent.'
 artifacts: []
 remaining_scope:
-  - 'monitor exact-head CI on 6037534f, repair attributable failures'
-  - 'inspect the PB-03 runtime artifact from CI to verify the issue #408 chain freshly executed
-    (native_promotions > 0 with midgame harness classes on canonical code)'
-  - 'fresh-context re-review of the post-review changes before any merge'
-  - 'merge-gate adjudication; leave PR #421 open if any active ownership collision remains'
+  - 'push the post-merge follow-up branch, open its PR, wait for exact-head CI including
+    pb03-runtime'
+  - 'verify the pb03 artifact on the follow-up merge candidate (the chain must run on code that
+    includes PR #423, not only on the f64074b3 candidate)'
+  - 'merge the follow-up, verify main HEAD/tree, close issue #408 with the fresh chain evidence,
+    record the post-merge receipt'
 exact_next_action: >-
-  Watch CI on PR #421 at head 6037534f (pb03-runtime is the critical job). If it passes, download
-  the pb03-runtime artifact, verify the GATE 2 positive-receipt chain from the fresh epoch
-  (native_promotions and midgame harness classes) and only then consider issue #408 closed. If
-  pb03-runtime fails, classify and repair the attributable step, then re-run. After CI is green,
-  obtain a fresh-context re-review of the post-review commits and adjudicate the merge gate.
+  Push hardening/current-boundary-wave-b-postmerge-20260930 (2f37acfc + state commit) and open a
+  PR against main (1a7a52a3). Wait for exact-head CI, download the pb03-runtime artifact and
+  confirm the GATE 2 chain still credits (native_promotions 9, XMage 14 PASS) on the candidate
+  that includes PR #423; then merge through the normal path, verify main HEAD/tree and close
+  issue #408 with that artifact as the canonical-code chain evidence.
 hypotheses_rejected:
   - 'PR #411 does not wire the runner/assembler: REJECTED at recon, then merged (8e07c9de); the
     chain is now canonical and this branch no longer collides with an active owner'
@@ -166,6 +193,6 @@ drift_checks:
 source_lock:
   origin_main_at_start: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
   origin_main_tree_at_start: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
-  origin_main_latest_observed: 0fbea2ecf0a5d8e1ad6dedcfd090f75998b8d874
+  origin_main_latest_observed: 1a7a52a3698476a0f7a668bd10f8a0154b2e559d
   local_main_worktree_note: 'main checkout is stale (e91819ae, 591 behind); work happens in the
     isolated worktree only'
