@@ -27,6 +27,9 @@ git -C $Source fetch --tags --prune
 git -C $Source checkout --detach $Commit
 $Observed = (git -C $Source rev-parse HEAD).Trim()
 if ($Observed -ne $Commit) { throw "Pinned commit mismatch: $Observed" }
+$Dirty = @(git -C $Source status --porcelain)
+if ($LASTEXITCODE -ne 0) { throw "Unable to inspect source worktree cleanliness" }
+if ($Dirty.Count -ne 0) { throw "Source worktree is dirty; refusing to build unbound engine source" }
 $Mvnw = Join-Path $Source "mvnw.cmd"
 if (Test-Path $Mvnw) { & $Mvnw -DskipTests install }
 elseif (Get-Command mvn -ErrorAction SilentlyContinue) { Push-Location $Source; try { mvn -DskipTests install } finally { Pop-Location } }
