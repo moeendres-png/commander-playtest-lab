@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "integration/pb03-fresh-main-reconciliation-20260929"
 audit_base_sha: "72665dcea00d3c74b3272586a9b2794bb86fd93c"
 audit_base_tree: "bc16a510b2ff120298035af61372354b9dac422a"
-state_written_against_head: "5722a52b9ebab6ad870650ff53db35cc07fa52a5"
-validated_head: "5722a52b9ebab6ad870650ff53db35cc07fa52a5"
+state_written_against_head: "c36e6eb175ce7ee867416def8e5668dde19cfbec"
+validated_head: "c36e6eb175ce7ee867416def8e5668dde19cfbec"
 
 objective: "Reconcile PR #333 production-reachable PB-03 midgame transport with PR #316 dimension admission/native receipt semantics on fresh current main, preserving post-#344 evidence freshness and fail-closed boundaries."
 
@@ -132,7 +132,9 @@ files_modified:
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "pytest tests/qualification -> 497 passed, 5 skipped (9edea29a)"
+  - "pytest tests -> 2401 passed, 9 skipped, 0 failed (c36e6eb1)"
+  - "mvn -o verify -> 787 tests, 0 failures, 0 errors, 5 skipped (c36e6eb1)"
+  - "pytest tests/qualification -> 505 passed, 5 skipped (c36e6eb1)"
   - "mvn focused -> 104 passed (PB-03, midgame, control divergence, F-27 privacy, fingerprint)"
   - "runner xmage + forge + assembler at 9edea29a -> PB-03 FRESH_EXACT / EXECUTED_PASS; XMage 213 native tests, Forge 217"
   - "midgame probe at 9edea29a -> 29 rows, 8/9/9/1/2, zero transport failures, runner digest equals the runtime ledger's"
