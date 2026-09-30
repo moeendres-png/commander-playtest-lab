@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -477,10 +478,16 @@ def write(name: str, payload: Any) -> None:
     print(f"wrote {name}")
 
 
-def _live_xmage_restoration_manifest() -> dict[str, Any]:
-    """Read the itemised PB-03 restoration manifest from the running bridge."""
+def _live_xmage_provider_identity() -> tuple[dict[str, Any], dict[str, Any]]:
+    """Read the itemised PB-03 manifest and the provider's own identity.
+
+    The provider-reported identity includes the loaded engine artifact's
+    SHA-256; the declared commit constant alone cannot prove which bytes ran, so
+    the PB-03 evidence refuses to be produced without it.
+    """
     plan = build_launch_plan("xmage", lane="full-game")
     with launch(plan) as proc:
+        provider_payload: dict[str, Any] | None = None
         for message_type in ("start_engine", "get_provider_version"):
             response = proc.request(message_type, {})
             if response.get("success") is not True:
@@ -488,6 +495,11 @@ def _live_xmage_restoration_manifest() -> dict[str, Any]:
                     f"PB-03 live manifest handshake failed at {message_type}: "
                     f"{response.get('errors')!r}"
                 )
+            if message_type == "get_provider_version":
+                payload = response.get("payload")
+                if not isinstance(payload, dict):
+                    raise SystemExit("PB-03 provider version payload is not an object")
+                provider_payload = payload
         response = proc.request("get_capabilities", {})
         if response.get("success") is not True:
             raise SystemExit(
@@ -508,15 +520,49 @@ def _live_xmage_restoration_manifest() -> dict[str, Any]:
         manifest = lane.get("state_restoration_dimensions")
         if not isinstance(manifest, dict):
             raise SystemExit("PB-03 live restoration dimension manifest missing")
-        return manifest
+        assert provider_payload is not None
+        return manifest, provider_payload
+
+
+def _validated_provider_identity(provider: dict[str, Any]) -> dict[str, Any]:
+    """Validate the live provider identity fail-closed and project it for evidence."""
+    reported_commit = provider.get("engine_commit")
+    expected_commit = canonical_xmage_engine_pin()
+    if reported_commit != expected_commit:
+        raise SystemExit(
+            f"PB-03 provider reports engine commit {reported_commit!r}, "
+            f"canonical pin is {expected_commit!r}"
+        )
+    artifact_kind = provider.get("engine_artifact_kind")
+    artifact_digest = provider.get("engine_artifact_sha256")
+    if artifact_kind != "file" or not isinstance(artifact_digest, str) or not re.fullmatch(
+        r"[0-9a-f]{64}", artifact_digest
+    ):
+        raise SystemExit(
+            "PB-03 provider artifact identity unavailable: "
+            f"kind={artifact_kind!r} sha256={artifact_digest!r}"
+        )
+    return {
+        "engine": provider.get("engine"),
+        "engine_version": provider.get("engine_version"),
+        "engine_commit": reported_commit,
+        "protocol_version": provider.get("protocol_version"),
+        "xmage_code_source": provider.get("xmage_code_source"),
+        "engine_artifact_kind": artifact_kind,
+        "engine_artifact_path": provider.get("engine_artifact_path"),
+        "engine_artifact_sha256": artifact_digest,
+        "engine_artifact_size": provider.get("engine_artifact_size"),
+    }
 
 
 def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
     """Build the 30-row frozen-state admission ledger from live capabilities."""
-    manifest = _live_xmage_restoration_manifest()
+    manifest, provider = _live_xmage_provider_identity()
+    provider_identity = _validated_provider_identity(provider)
     document = pb03_admission_mod.admit_manifest(materialization.denominator_records(), manifest)
     document.update(
         {
+            "provider_identity": provider_identity,
             "manifest": manifest,
             "manifest_source": (
                 "live full-game get_capabilities -> full_game_lane.state_restoration_dimensions"
@@ -1031,8 +1077,10 @@ def main() -> int:
     )
 
     candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
+    xmage_provider_identity: dict[str, Any] | None = None
     if "xmage" in candidates:
-        build_xmage_pb03_admission(materialization)
+        admission_document = build_xmage_pb03_admission(materialization)
+        xmage_provider_identity = admission_document["provider_identity"]
     summary: dict[str, Any] = {}
     for candidate in candidates:
         outcome = execute_candidate(candidate, materialization)
@@ -1112,9 +1160,21 @@ def main() -> int:
         pb03_runtime["runner_tree"] = runner.tree
         pb03_runtime["runner_digest"] = runner.digest()
         pb03_runtime["candidate_commit"] = canonical_xmage_engine_pin()
+        if xmage_provider_identity is None:
+            raise SystemExit(
+                "PB-03 provider identity missing; refusing to seal a runtime ledger "
+                "that cannot name the loaded engine artifact"
+            )
+        # The loaded engine artifact identity is the provider's own report from
+        # the admission handshake of this same run. The declared commit constant
+        # alone cannot prove which bytes executed.
+        pb03_runtime["engine_artifact_kind"] = xmage_provider_identity["engine_artifact_kind"]
+        pb03_runtime["engine_artifact_sha256"] = xmage_provider_identity["engine_artifact_sha256"]
+        pb03_runtime["engine_artifact_path"] = xmage_provider_identity["engine_artifact_path"]
+        pb03_runtime["engine_artifact_size"] = xmage_provider_identity["engine_artifact_size"]
         # Seal the identity block: the assembler rejects any ledger whose content
-        # digest, runner digest or candidate commit does not match the assembling
-        # head, so a stale ledger can never be credited.
+        # digest, runner digest, candidate commit or engine artifact digest does
+        # not match the assembling head, so a stale ledger can never be credited.
         pb03_runtime["receipt_digest"] = receipt_mod.document_digest(pb03_runtime)
         write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
     write(

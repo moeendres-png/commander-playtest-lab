@@ -1,0 +1,87 @@
+schema_version: "2.0"
+repository: "moeendres-png/commander-playtest-lab"
+worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
+branch: "foundry/pb03-engine-artifact-identity-20260930"
+audit_base_sha: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
+audit_base_tree: "30addb023be1d9bbda3d7deff5f4d2f0df52d9b8"
+state_written_against_head: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
+validated_head: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
+
+objective: "Close the documented PB-03 residual: bind the provider-reported loaded engine artifact identity (SHA-256, size, kind of the mage jar the bridge actually loaded) into the PB-03 dimension-admission document, the native runtime ledger, the midgame probe receipt and the assembled matrix, so engine identity is cryptographically observed instead of only declared."
+
+in_scope:
+  - "XmageProvider provider-version artifact identity (kind, path, sha256, size)"
+  - "Runtime fingerprint test proving the reported digest equals an independently computed digest of the loaded artifact"
+  - "Runner capture of the provider identity and fail-closed PB-03 admission binding"
+  - "PB-03 runtime ledger artifact binding and freshness classification"
+  - "Midgame probe receipt artifact binding and same-run equality with the ledger"
+  - "Assembler cross-artifact consistency and matrix reporting"
+  - "PB-03 workflow assertions"
+  - "Requalification of the current-boundary evidence on the canonical pin"
+
+out_of_scope:
+  - "PB-09 / Forge candidate identity"
+  - "FULL107 obligation credit or row promotion"
+  - "Engine pin changes"
+  - "Production Provider selection / Architecture Freeze"
+  - "Historical evidence rewriting"
+
+ownership: "PB03-ENGINE-ARTIFACT-IDENTITY-20260930"
+
+dependencies:
+  - "PB-03 successor merged as eecb2963 (PR #381) and terminal receipt 5c69b999 (PR #388)"
+  - "Canonical engine pin 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+
+hard_gates:
+  - "Provider-reported artifact identity only; never inferred from a path string"
+  - "Missing/malformed/mismatched artifact identity grants zero native runtime credit"
+  - "Historical PASS does not transfer"
+  - "No production provider or freeze claim"
+  - "No second identity system: extend the canonical receipt/digest helpers"
+
+forbidden_shortcuts:
+  - "hard-coded artifact digests"
+  - "path-string identity without a digest"
+  - "silent fallback when the artifact cannot be hashed"
+
+validated_gates: []
+failed_gates: []
+invalidated_gates: []
+do_not_rerun: []
+
+current_failure: "NONE"
+failure_class: "NONE"
+root_cause_class: "NONE"
+current_hypothesis: "The bridge can compute the loaded engine artifact digest at handshake time; binding it into the PB-03 evidence closes the declared-constant residual without changing Rules semantics."
+
+status: "ACTIVE"
+technical_decision_authority: "AUTONOMOUS_WITHIN_CONTRACT"
+current_reasoning_tier: "max"
+authority_gates: []
+
+technical_decisions:
+  - "Audit base is the merged successor main 5c69b999 (tree 30addb02); PB-03 successor and terminal receipt are canonical on main."
+  - "Engine artifact identity is provider-reported (computed by the bridge from the loaded Game code source), not harness-derived, so it proves what actually executed."
+  - "A directory or unreadable code source reports kind/sha256 explicitly; consumers fail closed rather than inventing an identity."
+
+hypotheses_rejected: []
+
+files_modified: []
+
+tests_run: []
+
+evidence: []
+
+artifacts: []
+
+remaining_scope:
+  - "Java provider artifact identity + fingerprint test"
+  - "Runner/probe/ledger/assembler/workflow binding"
+  - "Requalification + CI + merge"
+
+exact_next_action: "Implement XmageProvider engine artifact identity (kind/path/sha256/size), extend the runtime fingerprint test, then bind it through the runner, probe, ledger and assembler."
+
+execution_profile: "deepseek"
+executor_model: "opencode-go/deepseek-v4.1-flash"
+native_variant: "max"
+variant_resolution: "native_max"

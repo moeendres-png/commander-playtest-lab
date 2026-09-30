@@ -167,6 +167,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import re
           import sys
           from pathlib import Path
 
@@ -178,11 +179,25 @@ jobs:
           admission = json.loads((root / "PB03_DIMENSION_ADMISSION.json").read_text())
           execution = json.loads((root / "PB03_RUNTIME_EXECUTION.json").read_text())
           matrix = json.loads((root / "PB03_RUNTIME_EXECUTION_MATRIX.json").read_text())
+          expected_engine = bridge_launcher.canonical_xmage_engine_pin()
 
           assert admission["rows_total"] == 30
           assert admission["counts"] == {"admitted": 12, "blocked": 18}
           assert admission["classification"] == "TECHNICALLY_CONFORMANT"
           assert admission["manifest_source"].endswith("state_restoration_dimensions")
+
+          # The loaded engine artifact identity is provider-reported and must be
+          # a file-backed 64-hex digest, consistent across the admission
+          # handshake, the runtime ledger and the assembled matrix.
+          provider = admission["provider_identity"]
+          artifact_digest = provider["engine_artifact_sha256"]
+          assert provider["engine_artifact_kind"] == "file"
+          assert re.fullmatch(r"[0-9a-f]{64}", artifact_digest)
+          assert provider["engine_commit"] == expected_engine
+          assert execution["engine_artifact_sha256"] == artifact_digest
+          assert execution["engine_artifact_kind"] == "file"
+          assert matrix["engine_artifact"]["sha256"] == artifact_digest
+          assert matrix["artifact_identity_consistent"] is True
 
           assert execution["rows_total"] == 30
           assert execution["executed_pass"] == 30
@@ -193,7 +208,6 @@ jobs:
           # The ledger and the matrix are bound to the exact executing runner and
           # to the canonical engine pin. A stale ledger earns zero runtime credit.
           live_runner_digest = receipt_mod.capture_runner_identity(Path(".")).digest()
-          expected_engine = bridge_launcher.canonical_xmage_engine_pin()
           assert execution["runner_digest"] == live_runner_digest
           assert execution["candidate_commit"] == expected_engine
 

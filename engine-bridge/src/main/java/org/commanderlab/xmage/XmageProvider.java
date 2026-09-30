@@ -1,8 +1,20 @@
 package org.commanderlab.xmage;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.game.Game;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
 final class XmageProvider {
 
@@ -24,6 +36,66 @@ final class XmageProvider {
         }
     }
 
+    /**
+     * The cryptographic identity of the engine artifact the bridge actually
+     * loaded, computed from the loaded {@code Game} class's own code source.
+     *
+     * <p>{@link #ENGINE_COMMIT} is a declared constant; this record is the
+     * observed counterpart. Consumers that require exact engine identity (the
+     * runtime fingerprint test, the PB-03 admission/runtime evidence and the
+     * midgame probe receipt) fail closed when the kind is not {@code file} or
+     * the digest is absent, so a directory, an unreadable artifact or a
+     * hand-written claim can never satisfy them.</p>
+     */
+    record EngineArtifact(String kind, String path, String sha256, long size) {
+
+        static final String KIND_FILE = "file";
+        static final String KIND_DIRECTORY = "directory";
+        static final String KIND_UNAVAILABLE = "unavailable";
+
+        boolean digestPresent() {
+            return sha256 != null && sha256.matches("[0-9a-f]{64}");
+        }
+    }
+
+    static EngineArtifact engineArtifactIdentity() {
+        verifyRuntimeLoaded();
+        String location = Game.class.getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toString();
+        Path path;
+        try {
+            path = Path.of(new URI(location));
+        } catch (URISyntaxException | IllegalArgumentException exc) {
+            return new EngineArtifact(EngineArtifact.KIND_UNAVAILABLE, location, null, 0L);
+        }
+        try {
+            if (!Files.isRegularFile(path)) {
+                String kind = Files.isDirectory(path)
+                        ? EngineArtifact.KIND_DIRECTORY
+                        : EngineArtifact.KIND_UNAVAILABLE;
+                return new EngineArtifact(kind, location, null, 0L);
+            }
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            try (InputStream stream = Files.newInputStream(path);
+                 DigestInputStream digestStream = new DigestInputStream(stream, digest)) {
+                byte[] buffer = new byte[8192];
+                while (digestStream.read(buffer) != -1) {
+                    // The digest is the product; the bytes are not retained.
+                }
+            }
+            return new EngineArtifact(
+                    EngineArtifact.KIND_FILE,
+                    location,
+                    HexFormat.of().formatHex(digest.digest()),
+                    Files.size(path)
+            );
+        } catch (IOException | NoSuchAlgorithmException | RuntimeException exc) {
+            return new EngineArtifact(EngineArtifact.KIND_UNAVAILABLE, location, null, 0L);
+        }
+    }
+
     static JsonObject providerVersion() {
         verifyRuntimeLoaded();
 
@@ -32,13 +104,16 @@ final class XmageProvider {
         payload.addProperty("engine_version", ENGINE_VERSION);
         payload.addProperty("engine_commit", ENGINE_COMMIT);
         payload.addProperty("protocol_version", PROTOCOL_VERSION);
-        payload.addProperty(
-                "xmage_code_source",
-                Game.class.getProtectionDomain()
-                        .getCodeSource()
-                        .getLocation()
-                        .toString()
-        );
+        EngineArtifact artifact = engineArtifactIdentity();
+        payload.addProperty("xmage_code_source", artifact.path());
+        payload.addProperty("engine_artifact_kind", artifact.kind());
+        payload.addProperty("engine_artifact_path", artifact.path());
+        if (artifact.sha256() == null) {
+            payload.add("engine_artifact_sha256", JsonNull.INSTANCE);
+        } else {
+            payload.addProperty("engine_artifact_sha256", artifact.sha256());
+        }
+        payload.addProperty("engine_artifact_size", artifact.size());
         return payload;
     }
 

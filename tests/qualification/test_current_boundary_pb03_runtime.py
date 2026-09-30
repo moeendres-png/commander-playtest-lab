@@ -106,3 +106,96 @@ def test_missing_or_malformed_report_does_not_count(tmp_path: Path) -> None:
     malformed = tmp_path / "broken.xml"
     malformed.write_text("<testsuite><testcase", encoding="utf-8")
     assert R._case_passed(malformed, "Example", "doesThing") is False
+
+
+# --- runtime ledger freshness (runner + engine + loaded artifact) ---------- #
+
+
+def _ledger(**overrides: object) -> dict:
+    from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+    body: dict = {
+        "schema_version": "commander-lab.pb03-runtime-execution/2.0.0",
+        "classification": "PASS",
+        "rows_total": len(PB03_FIXTURE_IDS),
+        "executed_pass": len(PB03_FIXTURE_IDS),
+        "not_run_or_failed": 0,
+        "rows": [
+            {"fixture_id": fixture_id, "runtime_execution": "PASS"}
+            for fixture_id in PB03_FIXTURE_IDS
+        ],
+        "runner_commit": "a" * 40,
+        "runner_tree": "b" * 40,
+        "runner_digest": "c" * 64,
+        "candidate_commit": "d" * 40,
+        "engine_artifact_kind": "file",
+        "engine_artifact_sha256": "e" * 64,
+    }
+    body.update(overrides)
+    body["receipt_digest"] = receipt_mod.document_digest(body)
+    return body
+
+
+_EXPECTED = {
+    "expected_runner_digest": "c" * 64,
+    "expected_candidate_commit": "d" * 40,
+    "expected_engine_artifact_sha256": "e" * 64,
+}
+
+
+def test_matching_runner_engine_and_artifact_is_fresh() -> None:
+    assert R.runtime_execution_freshness(_ledger(), **_EXPECTED) == R.PB03_RUNTIME_FRESH
+
+
+def test_a_different_engine_artifact_is_stale() -> None:
+    ledger = _ledger(engine_artifact_sha256="f" * 64)
+    assert R.runtime_execution_freshness(ledger, **_EXPECTED) == R.PB03_RUNTIME_STALE
+
+
+def test_a_missing_engine_artifact_is_missing() -> None:
+    ledger = _ledger(engine_artifact_sha256="")
+    assert R.runtime_execution_freshness(ledger, **_EXPECTED) == R.PB03_RUNTIME_MISSING
+    without_kind = _ledger(engine_artifact_kind="")
+    assert R.runtime_execution_freshness(without_kind, **_EXPECTED) == R.PB03_RUNTIME_MISSING
+
+
+def test_a_malformed_or_directory_artifact_is_invalid() -> None:
+    malformed = _ledger(engine_artifact_sha256="not-a-digest")
+    assert R.runtime_execution_freshness(malformed, **_EXPECTED) == R.PB03_RUNTIME_INVALID
+    directory = _ledger(engine_artifact_kind="directory", engine_artifact_sha256=None)
+    assert R.runtime_execution_freshness(directory, **_EXPECTED) == R.PB03_RUNTIME_INVALID
+
+
+def test_an_unavailable_expected_artifact_is_never_fresh() -> None:
+    ledger = _ledger()
+    expectations = dict(_EXPECTED)
+    expectations["expected_engine_artifact_sha256"] = ""
+    assert R.runtime_execution_freshness(ledger, **expectations) == R.PB03_RUNTIME_MISSING
+
+
+def test_runner_or_candidate_drift_is_stale() -> None:
+    assert (
+        R.runtime_execution_freshness(_ledger(), **{**_EXPECTED, "expected_runner_digest": "9" * 64})
+        == R.PB03_RUNTIME_STALE
+    )
+    assert (
+        R.runtime_execution_freshness(
+            _ledger(), **{**_EXPECTED, "expected_candidate_commit": "9" * 40}
+        )
+        == R.PB03_RUNTIME_STALE
+    )
+
+
+def test_a_non_all_green_or_tampered_ledger_is_invalid() -> None:
+    partial = _ledger(
+        classification="PARTIAL",
+        executed_pass=len(PB03_FIXTURE_IDS) - 1,
+        not_run_or_failed=1,
+    )
+    assert R.runtime_execution_freshness(partial, **_EXPECTED) == R.PB03_RUNTIME_INVALID
+    tampered = _ledger()
+    tampered["candidate_commit"] = "9" * 40
+    assert R.runtime_execution_freshness(tampered, **_EXPECTED) == R.PB03_RUNTIME_INVALID
+    without_digest = _ledger()
+    del without_digest["receipt_digest"]
+    assert R.runtime_execution_freshness(without_digest, **_EXPECTED) == R.PB03_RUNTIME_MISSING
