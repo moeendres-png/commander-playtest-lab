@@ -97,6 +97,26 @@ import java.util.UUID;
  */
 final class XmageNativeStateRestoration {
 
+    /**
+     * Whether a requested counter map places any counter. A kind requested with a
+     * count of zero places none (a permanent has a counter only while its count is
+     * at least one), so {"age": 0} is the same request as no counters and needs no
+     * counter dimension. A count that is not a non-negative integer fails closed.
+     */
+    static boolean hasNonZeroCounter(JsonObject counters) {
+        for (Map.Entry<String, JsonElement> entry : counters.entrySet()) {
+            JsonElement count = entry.getValue();
+            if (count == null || !count.isJsonPrimitive() || !count.getAsJsonPrimitive().isNumber()) {
+                return true;
+            }
+            java.math.BigDecimal value = count.getAsBigDecimal();
+            if (value.signum() != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Fail-closed rejection before any game mutation. */
     static final class RestorationException extends RuntimeException {
         RestorationException(String code, String detail) {
@@ -363,7 +383,7 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException("UNSUPPORTED_FACEDOWN", fixtureId + " " + semanticId);
             }
             if (object.has("counters") && !object.get("counters").isJsonNull()
-                    && !object.getAsJsonObject("counters").keySet().isEmpty()) {
+                    && hasNonZeroCounter(object.getAsJsonObject("counters"))) {
                 throw new RestorationException("UNSUPPORTED_COUNTERS", fixtureId + " " + semanticId);
             }
             if (object.has("attachments") && !object.get("attachments").isJsonNull()

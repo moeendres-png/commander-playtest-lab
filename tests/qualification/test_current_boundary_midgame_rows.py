@@ -425,3 +425,59 @@ def test_every_registered_row_observes_something() -> None:
     for fixture_id, spec in mr.ROWS.items():
         required = records[fixture_id]["expected_events"]["required_events"]
         assert required or spec.terminal_checks, fixture_id
+
+
+def _ordering_legal() -> dict[str, Any]:
+    def ability(source: str) -> dict[str, Any]:
+        return {
+            "metadata": {
+                "option_type": "triggered_ability",
+                "label": f"{source} - ability",
+                "xmage_option_metadata": {"source_name": source},
+            }
+        }
+
+    return {"actions": [ability("Mystic Remora"), ability("Phyrexian Arena")]}
+
+
+def _order_step(value: Any) -> dict[str, Any]:
+    return {
+        "decision_family": "trigger_order",
+        "selection": {"selector_kind": "order", "semantic_value": value},
+    }
+
+
+def test_the_order_selector_names_the_ability_to_put_on_the_stack_next() -> None:
+    order = ["trigger:Phyrexian_Arena", "trigger:Mystic_Remora"]
+    first = mr._scripted_answer(_ordering_legal(), _order_step(order), {}, mr.RowSpec())
+    assert first.key == "trigger:Phyrexian_Arena"
+    second = mr._scripted_answer(_ordering_legal(), _order_step(order), {}, mr.RowSpec(), 1)
+    assert second.key == "trigger:Mystic_Remora"
+    for bad in (["trigger:Soul_Warden"], ["Phyrexian Arena"], "trigger:Phyrexian_Arena", []):
+        with pytest.raises(mr.ml.MidgameLaneError):
+            mr._scripted_answer(_ordering_legal(), _order_step(bad), {}, mr.RowSpec())
+
+
+def test_simultaneous_triggers_need_the_ordering_frame_and_the_abilities_put() -> None:
+    frame = mr.Frame("trigger_order", "P1", ["Remora", "Arena"], "Arena", scripted=True)
+    put = [
+        {"sequence": 6, "type": "TRIGGERED_ABILITY", "player_player": "P1"},
+        {"sequence": 7, "type": "TRIGGERED_ABILITY", "player_player": "P1"},
+    ]
+    assert mr.verify_token("simultaneous_triggers:P1:2", put, [frame], set()) is not None
+    assert mr.verify_token("simultaneous_triggers:P1:2", put[:1], [frame], set()) is None
+    assert mr.verify_token("simultaneous_triggers:P1:2", put, [], set()) is None
+    assert mr.verify_token("simultaneous_triggers:P2:2", put, [frame], set()) is None
+
+
+def test_the_stack_order_is_the_order_the_engine_put_the_abilities() -> None:
+    check = mr.TerminalCheck(
+        "stack_order", principal="P1", value=("Phyrexian Arena", "Mystic Remora")
+    )
+    arena_first = [
+        {"type": "TRIGGERED_ABILITY", "player_player": "P1", "source_name": "Phyrexian Arena"},
+        {"type": "TRIGGERED_ABILITY", "player_player": "P1", "source_name": "Mystic Remora"},
+    ]
+    assert mr.check_terminal(check, {}, arena_first, [])
+    assert not mr.check_terminal(check, {}, list(reversed(arena_first)), [])
+    assert not mr.check_terminal(check, {}, arena_first[:1], [])

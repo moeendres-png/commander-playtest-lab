@@ -78,6 +78,8 @@ class TerminalCheck:
             return f"exactly {self.value} {self.card_identity} token(s) were created"
         if self.kind == "no_permanent_damage":
             return "no permanent was dealt damage"
+        if self.kind == "stack_order":
+            return f"{self.principal}'s triggered abilities went on the stack in the order {self.value}"
         if self.kind == "mana_charged":
             return f"the engine charged exactly {self.value} mana"
         return self.kind
@@ -165,6 +167,17 @@ ROWS: dict[str, RowSpec] = {
         terminal_checks=(
             TerminalCheck("mana_charged", value=5),
             TerminalCheck("draws", principal="P1", value=3),
+        ),
+    ),
+    # Phyrexian Arena and Mystic Remora trigger together at P1's upkeep; the
+    # record orders Arena onto the stack first. "Both triggers are on stack in the
+    # selected relative order" is read from the order the engine put them there.
+    # (The record's counters {"age": 0} place no counter.)
+    "PILOT_TRIGGER_ORDER": RowSpec(
+        terminal_checks=(
+            TerminalCheck(
+                "stack_order", principal="P1", value=("Phyrexian Arena", "Mystic Remora")
+            ),
         ),
     ),
     # "Selected mode is the provider-offered Devil-token mode": the spell resolves
@@ -341,6 +354,24 @@ def verify_token(
             and frame.selected_label in frame.offered_labels
         ]
         return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"simultaneous_triggers:(P\d+):(\d+)", token):
+        # The engine asks its controller to order triggered abilities only when
+        # they are put on the stack together: an ordering frame offering exactly
+        # n abilities, and n of that player's abilities put on the stack.
+        principal, count = match.group(1), int(match.group(2))
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "trigger_order"
+            and frame.principal == principal
+            and len(frame.offered_labels) == count
+        ]
+        put = [
+            e["sequence"]
+            for e in _events(tape, "TRIGGERED_ABILITY")
+            if e.get("player_player") == principal
+        ]
+        return {"decision_frames": frames, "events": put} if frames and len(put) == count else None
     if match := re.fullmatch(r"x_announced:(\d+)", token):
         frames = [
             index
@@ -471,6 +502,15 @@ def check_terminal(
         return bool(len(tokens) == check.value)
     if check.kind == "no_permanent_damage":
         return not _events(tape, "DAMAGED_PERMANENT")
+    if check.kind == "stack_order":
+        # XMage reports TRIGGERED_ABILITY as each ability is put on the stack, so
+        # the tape order is the stack order, bottom first.
+        put = [
+            str(e.get("source_name"))
+            for e in _events(tape, "TRIGGERED_ABILITY")
+            if e.get("player_player") == check.principal
+        ]
+        return put == list(check.value)
     if check.kind == "mana_charged":
         charged = _mana_charged(trace)
         return charged is not None and len(charged) == check.value
@@ -524,7 +564,11 @@ def _option_type(action: dict[str, Any]) -> str:
 
 
 def _scripted_answer(
-    legal: dict[str, Any], step: dict[str, Any], placed: dict[str, str], spec: RowSpec
+    legal: dict[str, Any],
+    step: dict[str, Any],
+    placed: dict[str, str],
+    spec: RowSpec,
+    ordinal: int = 0,
 ) -> ScriptedAnswer:
     probe = probe_module()
     selection = step.get("selection") or {}
@@ -556,6 +600,24 @@ def _scripted_answer(
             raise ml.MidgameLaneError(f"integer selector carries {value!r}")
         numeric = value
         matches = [a for a in actions if _option_type(a) == "numeric_choice"]
+    elif kind == "order":
+        # XMage asks "choose next triggered ability" once per ability still to be
+        # put on the stack: the listed order is the order onto the stack, and
+        # the ordinal-th frame of this step names the ordinal-th entry.
+        if not isinstance(value, list) or ordinal >= len(value):
+            raise ml.MidgameLaneError(f"order selector has no entry {ordinal} in {value!r}")
+        key = str(value[ordinal])
+        wanted = re.fullmatch(r"trigger:(.+)", key)
+        if wanted is None:
+            raise ml.MidgameLaneError(f"order entry {key!r} names no triggered ability")
+        name = wanted.group(1).replace("_", " ")
+        matches = [
+            a
+            for a in actions
+            if _option_type(a) == "triggered_ability"
+            and ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("source_name")
+            == name
+        ]
     else:
         raise ml.MidgameLaneError(f"selector {kind!r} is not executed by this lane")
     if len(matches) != 1:
@@ -702,6 +764,7 @@ def execute_row(
         )
     required = list((record.get("expected_events") or {}).get("required_events") or ())
     position = 0
+    ordinal = 0
     declaring = False
     placed_by_native = {native: semantic for semantic, native in placed.items()}
     detail = "bound reached"
@@ -775,7 +838,7 @@ def execute_row(
                 and step is not None
                 and engine_decision_class(str(step.get("decision_family"))) == decision_class
             ):
-                answer = _scripted_answer(legal, step, placed, spec)
+                answer = _scripted_answer(legal, step, placed, spec, ordinal)
                 frame.selected_label, frame.scripted = _label_of(answer.action), True
                 frame.selected_key, frame.numeric = answer.key, answer.numeric
                 probe.submit_proposal(
@@ -785,6 +848,18 @@ def execute_row(
                     f"{fixture_id}-{len(trace)}",
                     numeric_choice=answer.numeric,
                 )
+                selection = step.get("selection") or {}
+                entries = selection.get("semantic_value")
+                if (
+                    selection.get("selector_kind") == "order"
+                    and isinstance(entries, list)
+                    and ordinal + 2 < len(entries)
+                ):
+                    # More than one ability is still to be ordered: the engine
+                    # asks again, and the last one goes on the stack by itself.
+                    ordinal += 1
+                    continue
+                ordinal = 0
                 position += 1
                 continue
             detail = f"unscripted {decision_class} for {principal}: the row stops unverified"

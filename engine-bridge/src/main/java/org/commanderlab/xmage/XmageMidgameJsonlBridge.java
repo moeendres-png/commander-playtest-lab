@@ -663,7 +663,14 @@ final class XmageMidgameJsonlBridge {
             String requesterPrincipal = optionalRequesterPrincipal(request);
             Map<String, Player> seats = requireSession().restorationSeats();
             restoration.restoreAfterArrival(requireSession().restorationGame(), seats);
-            XmageNativeStateRestoration.revalidate(requireSession().restorationGame());
+            if (!"trigger_order".equals(requireSession().parkedDecisionClass())) {
+                // XMage asks trigger_order from inside GameImpl.checkTriggered: the
+                // engine thread is in the middle of its own state-based-action and
+                // trigger check. A nested checkStateAndTriggered from this thread
+                // would re-enter it and ask the same ordering again (a concurrent
+                // pending decision). There the completion is a pure readback.
+                XmageNativeStateRestoration.revalidate(requireSession().restorationGame());
+            }
             JsonObject observed =
                     XmageNativeStateRestoration.readback(requireSession().restorationGame(), seats);
             XmageNativeStateRestoration.CompareVerdict verdict = restoration.compare(observed, seats);
