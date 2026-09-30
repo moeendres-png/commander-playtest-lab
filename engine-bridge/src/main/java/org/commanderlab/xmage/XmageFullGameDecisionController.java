@@ -113,6 +113,19 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        if (!actor.isInGame()) {
+            // A player who left makes no choices (CR 800.4a): no frame is ever
+            // published for it; the lane fails closed instead of guessing.
+            DecisionException failure = new DecisionException(
+                    "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: the engine asked a player who left the game for "
+                            + decisionClass
+            );
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            notifyAll();
+            throw failure;
+        }
+
         // CR 723 (controlling another player): XMage remains the sole authority
         // for whether this player's turn is controlled. The bridge only routes
         // the engine-generated decision to that controller's principal.
@@ -336,9 +349,11 @@ final class XmageFullGameDecisionController {
      * left still decided (a tempting offer, a sacrifice, a council vote),
      * and the engine counted the answer (CR 800.4a: a player who left makes
      * no choices). After the native concession this
-     * retires such a frame of a player no longer in the game, for the
-     * observed classes whose callbacks unwind natively; others are unchanged
-     * until observed and qualified.
+     * handles a frame of a player no longer in the game systemically: a
+     * class whose callback unwinds natively is retired; priority keeps its
+     * F-39 path; every other class ends the lane fail-closed
+     * ({@code PLAYER_LEFT_GAME_UNSUPPORTED_DECISION}). No departed player's
+     * frame is ever left answerable.
      */
     synchronized boolean cancelPendingForDepartedPlayer(Game game) {
         if (pendingRequest == null
@@ -351,7 +366,8 @@ final class XmageFullGameDecisionController {
         }
         Player player = game.getPlayer(pendingPlayerId);
         String decisionClass = pendingRequest.get("decision_class").getAsString();
-        if (player == null || player.isInGame() || !DEPARTED_CANCELLABLE.contains(decisionClass)) {
+        if (player == null || player.isInGame() || "priority".equals(decisionClass)) {
+            // Priority keeps its F-39 path (followTurnControl).
             return false;
         }
         String decisionId = pendingRequest.get("decision_id").getAsString();
@@ -359,6 +375,22 @@ final class XmageFullGameDecisionController {
         event.addProperty("decision_id", decisionId);
         event.addProperty("decision_class", decisionClass);
         event.addProperty("actor_seat", pendingRequest.get("seat").getAsInt());
+        if (!DEPARTED_CANCELLABLE.contains(decisionClass)) {
+            // Systemic rule: a departed player's pending frame is never left
+            // answerable. A class whose callback is not qualified to unwind
+            // natively ends the lane fail-closed instead of guessing a result.
+            event.addProperty("reason", "player_left_game_unsupported_class");
+            recordTranscript("engine_decision_cancelled", event);
+            DecisionException failure = new DecisionException(
+                    "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: " + decisionClass
+                            + " frame of a player who left the game has no qualified native unwind"
+            );
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            pendingRequest = null;
+            notifyAll();
+            return true;
+        }
         event.addProperty("reason", "player_left_game");
         recordTranscript("engine_decision_cancelled", event);
 

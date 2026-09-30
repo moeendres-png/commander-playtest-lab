@@ -32,7 +32,12 @@ After the native concession, `XmageFullGameSession.submitConcede` calls `XmageFu
 - The retirement is recorded as `engine_decision_cancelled` with reason `player_left_game`.
 - A retired `choose_use` returns `false`, which is what XMage's own player returns once it cannot respond. No pilot response is accepted, and nothing is chosen on the player's behalf beyond that native no-response.
 - Priority keeps its F-39 path.
-- Other classes are unchanged until they are observed and qualified. This is the same rule the F-39 follow-up states.
+- **Every other class fails closed.** An external audit of #404 pointed out that a per-class allow-list alone left any unlisted class answerable. The rule is now systemic:
+  - a departed player's pending frame of any class without a qualified native unwind ends the lane fail-closed with `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`;
+  - the frame is removed and the event is recorded with reason `player_left_game_unsupported_class`;
+  - `request` never publishes a new frame for a player who left.
+
+  Test: P1 concedes at its own Fact or Fiction pile choice, which fails closed. It is 2/2 red before, when the pile frame stayed answerable for P1, and 2/2 green after.
 
 ## Follow-up: object choices (`choose_object`)
 

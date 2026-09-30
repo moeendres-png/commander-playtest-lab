@@ -216,4 +216,53 @@ class XmageMultiplayerLeaverMayChoiceTest {
         assertTrue(cancelled, "the retirement of the departed player's frame is recorded");
         return leaver;
     }
+
+    /**
+     * Systemic rule: a departed player's pending frame of a class that has no
+     * qualified native unwind is never left answerable; the lane fails closed.
+     * P1 casts Fact or Fiction and concedes while choosing a pile.
+     */
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {4, 5})
+    void aDepartedPlayersUnqualifiedPendingDecisionFailsClosed(int playerCount) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Fact or Fiction", 0, Zone.HAND));
+        for (int i = 1; i <= 4; i++) {
+            objects.add(XmageMultiplayerScenario.obj("P1", "Island", i, Zone.BATTLEFIELD));
+        }
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("fof-leave-" + playerCount + "p",
+                playerCount, "P1", objects);
+        s.submit(s.action("activate_ability", "Cast Fact or Fiction"));
+        for (int i = 0; i < 40; i++) {
+            JsonObject payload = s.session.pendingDecisionPayload();
+            assertTrue(payload.get("failure").isJsonNull(), "control: the lane runs until P1's pile choice");
+            String cls = s.decisionClass();
+            String actor = s.actor();
+            if ("pile".equals(cls)) {
+                assertEquals("P1", actor, "control: the caster chooses a pile");
+                String p1 = s.seats.get("P1").getId().toString();
+                JsonObject concede = new JsonObject();
+                concede.addProperty("proposal_id", "p1-concede-pile");
+                concede.addProperty("actor_id", p1);
+                concede.addProperty("player_id", p1);
+                JsonObject result = s.session.submitConcede(concede);
+                assertFalse(s.seats.get("P1").isInGame(), "P1 left the game");
+                assertTrue(result.get("decision").isJsonNull(), "no pile frame stays answerable for P1: " + result);
+                assertTrue(result.getAsJsonObject("failure").get("message").getAsString()
+                        .startsWith("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: pile"), result.get("failure").toString());
+                return;
+            }
+            switch (cls) {
+                case "mana_payment" -> s.payWith("Island");
+                case "priority" -> s.submit(s.action("pass_priority", "Pass"));
+                case "target" -> s.submit(s.action("choose_targets", "Seat " + Math.min(3, playerCount)));
+                case "choose_object" -> XmageActualCardCorpusTest.chooseNamed(
+                        new XmageActualCardCorpusTest.Started(s.session, s.seats, null), "c" + i, "Mountain",
+                        Math.max(1, s.session.pendingDecisionPayload().getAsJsonObject("decision")
+                                .get("minimum_selections").getAsInt()));
+                default -> fail("unexpected " + cls + " for " + actor + " " + s.labels());
+            }
+        }
+        fail("P1 never reached its pile choice");
+    }
 }
