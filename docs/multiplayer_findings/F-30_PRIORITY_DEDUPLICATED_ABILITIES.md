@@ -3,7 +3,7 @@
 Status: FIXED in the full-game lane (this PR). Found by the full-game replay harness (`XmageFullGameReplayTwinTest`) with real decks. Claude Opus 5.5, 2026-09-30.
 
 - **Classification:** `BRIDGE_SURFACE_DEFECT` in `XmageFullGamePlayer.priority` and `playMana`. It also affects semantic replay.
-- **Source lock:** Lab main `24e0b71f`, live XMage pin `f79e4168`.
+- **Source lock:** Lab main `23977253`, live XMage pin `f79e4168`.
 - **Rules:** CR 117.1b / 602.2. Every activatable ability of every permanent is a separate legal action.
 
 ## Defect
