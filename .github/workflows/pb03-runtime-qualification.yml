@@ -142,7 +142,12 @@ jobs:
           Xvfb :99 -screen 0 800x600x8 >/tmp/forge-xvfb.log 2>&1 &
           mvn -U -B -ntp -DskipTests -Dcheckstyle.skip=true install
           mvn -U -B -ntp -Dcheckstyle.skip=true -DfailIfNoTests=false             -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=BridgeEngineTest
-          mvn -B -ntp -pl forge-protocol2-bridge -DskipTests             dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
+          # Resolve the bridge classpath inside the reactor (-am, packaged in the same
+          # invocation): the sibling modules then resolve to the jars built from this
+          # exact checkout. Without -am Maven reads them from ~/.m2, whose installed
+          # POMs keep the parent version as ${revision} and cannot be resolved.
+          mvn -B -ntp -pl forge-protocol2-bridge -am -DskipTests -Dcheckstyle.skip=true \
+            package dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
           test -s forge-protocol2-bridge/target/cp-wsr22.txt
 
       - name: Install lab
@@ -386,7 +391,9 @@ jobs:
 
       - name: Upload complete source-bound current-boundary packet
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        if: always()
+        # Never with an unresolved epoch: an empty path expands to "/" (the runner's
+        # whole filesystem), as seen when an earlier step failed.
+        if: always() && env.CURRENT_BOUNDARY_EVIDENCE_EPOCH != ''
         with:
           name: current-boundary-two-candidate-${{ github.sha }}
           path: |
