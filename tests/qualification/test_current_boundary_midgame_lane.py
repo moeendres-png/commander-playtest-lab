@@ -790,6 +790,21 @@ class TestTransportDeadlineAndClassification:
         with pytest.raises(ml.MidgameLaneTransportError):
             client.request("get_capabilities", None, timeout_s=5.0)
 
+    def test_an_arrival_rejection_carries_the_engine_reason(self, monkeypatch: Any) -> None:
+        client = ml.MidgameLaneClient((sys.executable, "-c", "pass"), Path("."))
+        refusal = {
+            "success": False,
+            "errors": [
+                {
+                    "code": "midgame_arrival_failed",
+                    "message": "RestorationException: COMMANDER_NOT_IN_COMMAND_ZONE: cmd:P1-A",
+                }
+            ],
+        }
+        monkeypatch.setattr(client, "request", lambda *_args, **_kwargs: refusal)
+        with pytest.raises(ml.MidgameLaneArrivalRejected, match="COMMANDER_NOT_IN_COMMAND_ZONE"):
+            client.complete_arrival()
+
 
 class TestReceiptCarriesNoHiddenIdentity:
     """The persisted receipt is a public artifact: it must carry no hand identity.

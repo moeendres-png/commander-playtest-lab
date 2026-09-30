@@ -90,7 +90,7 @@ class XmageFull107ResidualRequalificationTest {
         XmageTemporalProgressionDriver.ProgressionResult result =
                 XmageTemporalProgressionDriver.driveToPlanTarget(
                         session, seats, plan, arrivalSource("full107-start3"), 80);
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
 
         assertEquals("P1", result.observed().get("active_player").getAsString());

@@ -120,7 +120,7 @@ class XmageFullGameReplacementTest {
         Map<String, Player> seats = session.restorationSeats();
         if (declineDredgeArrival) {
             driveArrivalDecliningDredge(session, restoration, seats, tag);
-            restoration.restoreCommanderCasts(session.restorationGame(), seats);
+            restoration.restoreAfterArrival(session.restorationGame(), seats);
             XmageNativeStateRestoration.revalidate(session.restorationGame());
         } else {
             XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
