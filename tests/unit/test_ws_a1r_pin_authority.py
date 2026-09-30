@@ -23,9 +23,16 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
     assert "NO_PROVIDER_READY" in terminology["selection_truth"]
 
 
-def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
+def test_manifest_pins_match_current_owner_authority(repo_root: Path) -> None:
     config = _manifest(repo_root)
-    assert config["secondary_engine"]["commit"] == "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    # R-1: current Forge authority is the admitted Commander-Lab fork successor.
+    assert config["secondary_engine"]["commit"] == "b3ed4fe5433b9272c4e58f3d909a7fbb673de169"
+    assert config["secondary_engine"]["bridge_source"]["commit"] == "bb0a740d2bef725194798383c2452213ecdd0b37"
+    assert config["secondary_engine"]["bridge_source"]["rules_core_base_commit"] == "b3ed4fe5433b9272c4e58f3d909a7fbb673de169"
+    assert config["secondary_engine"]["repository"] == "https://github.com/moeendres-png/forge.git"
+    assert config["secondary_engine"]["engine_identity_pb09"]["pb09_status"].startswith(
+        "RESOLVED_BY_OWNER_R1"
+    )
     # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
     assert config["primary_engine"]["commit"] == "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
     assert config["provider_decision"] == "NO_PROVIDER_READY"

@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "workstream": "R-1 Forge candidate authority successor",
+  "lab_source_lock": {
+    "base_commit": "ed94cf0ae26cef3bf7ec064ccded675a793f5edd",
+    "base_tree": "1dbd3e694565b69890a0f3cf4741690d7d2ca04"
+  },
+  "authority": {
+    "parent_issue": 255,
+    "execution_issue": 425,
+    "owner_rulings": [
+      "R-1",
+      "R-2",
+      "R-3",
+      "R-4"
+    ],
+    "r1_effective": true,
+    "production_provider": "NOT_SELECTED",
+    "architecture_freeze": "NOT_CLAIMED"
+  },
+  "previous_machine_authority": {
+    "forge_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "bridge_source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+    "disposition": "HISTORICAL_PRE_R1_CURRENT_AUTHORITY"
+  },
+  "current_forge_candidate": {
+    "repository": "https://github.com/moeendres-png/forge.git",
+    "rules_core_data_commit": "b3ed4fe5433b9272c4e58f3d909a7fbb673de169",
+    "rules_core_data_tree": "2a633943ca147f53991e750296c2cd95059c8199",
+    "bridge_materialization_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "bridge_materialization_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+    "bridge_rules_core_base_commit": "b3ed4fe5433b9272c4e58f3d909a7fbb673de169",
+    "fork_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "fork_base_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
+    "upstream_reference_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "forge_pr": 11,
+    "admitted_merged_pr": 12
+  },
+  "directly_verified_relation": {
+    "comparison": "b3ed4fe5433b9272c4e58f3d909a7fbb673de169..bb0a740d2bef725194798383c2452213ecdd0b37",
+    "result": "NO_RULES_CORE_OR_CARD_DATA_DRIFT",
+    "changed_surface": "forge-protocol2-bridge only",
+    "evidence_note": "Fresh GitHub compare observed no changes under the Forge Rules-Core main-source roots or forge-gui/res/cardsfolder between the admitted Rules-Core/data commit and the #11/#12 materialization head."
+  },
+  "evidence_transfer": {
+    "historical_receipts_relabelled": false,
+    "rule": "Historical receipts remain bound to the exact identity that produced them. The R-1 successor earns current credit only through fresh execution or explicit impact adjudication."
+  }
+}

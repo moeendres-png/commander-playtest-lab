@@ -85,6 +85,13 @@ BRIDGE = "4753bb7c72ea60d653121e0bab989077b4009f9c"
 BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
 BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
 
+# Current R-1 successor identities. Historical source_lock.py / readiness bytes above
+# remain intentionally unchanged and continue to describe their original epoch.
+CURRENT_RULES = "b3ed4fe5433b9272c4e58f3d909a7fbb673de169"
+CURRENT_RULES_TREE = "2a633943ca147f53991e750296c2cd95059c8199"
+CURRENT_BRIDGE = "bb0a740d2bef725194798383c2452213ecdd0b37"
+CURRENT_BRIDGE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
+
 
 def test_the_four_forge_commits_are_all_distinct() -> None:
     assert len({FORK, UPSTREAM, TIP, BRIDGE}) == 4
@@ -122,66 +129,64 @@ def test_upstream_ancestry_is_not_treated_as_identity() -> None:
 
 
 @pytest.mark.parametrize("path", [CONFIG, READINESS])
-def test_config_and_readiness_carry_the_same_identities(path: Path) -> None:
-    document = json.loads(path.read_text(encoding="utf-8"))
-    identity = (
-        document["secondary_engine"]["engine_identity_pb09"]
-        if "secondary_engine" in document
-        else document["engine_identity_pb09"]
-    )
-    assert identity["executing_engine"]["commit"] == FORK
-    assert identity["executing_engine"]["is_pristine_upstream"] is False
+
+def test_current_config_carries_the_r1_successor_without_rewriting_historical_readiness() -> None:
+    current = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
+    identity = current["engine_identity_pb09"]
+
+    assert current["commit"] == CURRENT_RULES
+    assert current["repository"] == "https://github.com/moeendres-png/forge.git"
+    assert current["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert current["bridge_source"]["rules_core_base_commit"] == CURRENT_RULES
+    assert identity["executing_engine"]["commit"] == CURRENT_RULES
+    assert identity["executing_engine"]["tree"] == CURRENT_RULES_TREE
+    assert identity["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert identity["bridge_source"]["tree"] == CURRENT_BRIDGE_TREE
+    assert identity["fork_base"]["commit"] == FORK
     assert identity["upstream_baseline"]["commit"] == UPSTREAM
-    assert identity["upstream_baseline"]["verified_pristine"] is False
-    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is False
-    assert "confusion_forbidden" in identity
+    assert identity["pb09_status"].startswith("RESOLVED_BY_OWNER_R1")
+
+    # The 2026-09-27 readiness packet is historical evidence and must retain the
+    # pre-R-1 identity/open disposition rather than being silently rewritten.
+    historical = json.loads(READINESS.read_text(encoding="utf-8"))["engine_identity_pb09"]
+    assert historical["executing_engine"]["commit"] == FORK
+    assert historical["upstream_baseline"]["commit"] == UPSTREAM
+    assert historical["pb09_status"].startswith("OPEN")
 
 
-def test_config_does_not_repin_the_candidate_to_the_fork() -> None:
-    """PB-09 forbids repinning the pin to the fork to make evidence consistent.
-
-    The executed fork carries Lab's own Rules engineering, so designating it as the
-    Forge candidate would launder 47 Rules-touching Lab commits into a provider
-    pin. The pin is the Coordinator's to change, not this harness's.
-    """
+def test_config_repins_current_candidate_only_after_owner_r1() -> None:
     secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
-    assert secondary["commit"] == UPSTREAM, "the Forge candidate pin must not move"
-    assert secondary["bridge_source"]["commit"] == BRIDGE
+    assert secondary["commit"] == CURRENT_RULES
+    assert secondary["commit"] != UPSTREAM
+    assert secondary["repository"] == "https://github.com/moeendres-png/forge.git"
+    assert secondary["source_archive"].endswith(f"/archive/{CURRENT_RULES}.tar.gz")
+    assert secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert secondary["bridge_source"]["rules_core_base_commit"] == CURRENT_RULES
 
 
-def test_commit_field_is_the_pin_of_record_not_a_verdict_on_pb09() -> None:
-    """The field states what the pin IS, and does not pre-judge the open question."""
+def test_commit_field_records_the_signed_r1_candidate_without_selecting_provider() -> None:
     secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
     meaning = secondary["commit_meaning"].upper()
-    assert "PINNED CANDIDATE OF RECORD" in meaning
-    assert "OPEN" in meaning and "COORDINATOR" in meaning
-    # It must not assert the fork is not the engine, which would pre-judge PB-09.
-    assert "NOT THE ENGINE THAT EXECUTES" not in meaning
-    assert secondary["engine_identity_pb09"]["pb09_status"].startswith("OPEN")
+    assert "CURRENT ADMITTED COMMANDER-LAB FORGE CANDIDATE" in meaning
+    assert "R-1" in meaning
+    assert "REFERENCE BASELINE ONLY" in meaning
+    assert secondary["engine_identity_pb09"]["pb09_status"].startswith("RESOLVED_BY_OWNER_R1")
 
 
-def test_identity_blocks_declare_pb09_open_rather_than_resolved() -> None:
-    for path in (CONFIG, READINESS):
-        document = json.loads(path.read_text(encoding="utf-8"))
-        identity = (
-            document["secondary_engine"]["engine_identity_pb09"]
-            if "secondary_engine" in document
-            else document["engine_identity_pb09"]
-        )
-        assert identity["pb09_status"].startswith("OPEN"), path.name
-        assert "RESOLVED" not in identity["pb09_status"].upper()
+def test_current_identity_is_resolved_while_historical_readiness_stays_open() -> None:
+    current = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"][
+        "engine_identity_pb09"
+    ]
+    historical = json.loads(READINESS.read_text(encoding="utf-8"))["engine_identity_pb09"]
+    assert current["pb09_status"].startswith("RESOLVED_BY_OWNER_R1")
+    assert historical["pb09_status"].startswith("OPEN")
 
 
-def test_readiness_records_pb09_as_a_freeze_blocker() -> None:
+def test_historical_readiness_still_records_pb09_as_a_then_blocker() -> None:
     document = json.loads(READINESS.read_text(encoding="utf-8"))
     blockers = document["freeze_eligibility"]["prevented_by"]
     assert any("PB-09" in blocker for blocker in blockers)
-    # And it must not claim freeze eligibility.
     assert document["freeze_eligibility"]["freeze_eligible"] is False
-
-
-# --- the engine-equivalence proof, which is what actually resolves PB-09 ----- #
-
 
 def test_engine_equivalence_accepts_a_harness_only_descendant() -> None:
     """A descendant that adds only harness and evidence executes the same engine."""
@@ -314,6 +319,19 @@ def test_real_forge_descendant_is_engine_equivalent() -> None:
 
 
 # --- the bridge is a separate identity, never collapsed into the Rules Core --- #
+
+
+
+def test_current_bridge_head_is_rules_core_equivalent_to_current_r1_candidate() -> None:
+    forge = _require_forge_reference(CURRENT_RULES, CURRENT_BRIDGE)
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    proof = verify_engine_identity(
+        forge, CURRENT_RULES, CURRENT_BRIDGE, recorded_label="forge R-1 successor"
+    )
+    assert proof["engine_equivalent"] is True
+    assert proof["differing_modules"] == []
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
 
 
 def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:

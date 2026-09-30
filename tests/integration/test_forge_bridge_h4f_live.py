@@ -56,7 +56,7 @@ from commander_lab.models import (
 
 pytestmark = pytest.mark.external
 
-FORGE_RULES_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+FORGE_RULES_COMMIT = "b3ed4fe5433b9272c4e58f3d909a7fbb673de169"
 
 # Bounded H4F-style fixture data (card NAMES only; the bridge resolves them
 # against real Forge card data and rejects unknown names explicitly).
