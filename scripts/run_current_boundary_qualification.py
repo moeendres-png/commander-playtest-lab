@@ -535,8 +535,10 @@ def _validated_provider_identity(provider: dict[str, Any]) -> dict[str, Any]:
         )
     artifact_kind = provider.get("engine_artifact_kind")
     artifact_digest = provider.get("engine_artifact_sha256")
-    if artifact_kind != "file" or not isinstance(artifact_digest, str) or not re.fullmatch(
-        r"[0-9a-f]{64}", artifact_digest
+    if (
+        artifact_kind != "file"
+        or not isinstance(artifact_digest, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", artifact_digest)
     ):
         raise SystemExit(
             "PB-03 provider artifact identity unavailable: "

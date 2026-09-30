@@ -175,7 +175,9 @@ def test_an_unavailable_expected_artifact_is_never_fresh() -> None:
 
 def test_runner_or_candidate_drift_is_stale() -> None:
     assert (
-        R.runtime_execution_freshness(_ledger(), **{**_EXPECTED, "expected_runner_digest": "9" * 64})
+        R.runtime_execution_freshness(
+            _ledger(), **{**_EXPECTED, "expected_runner_digest": "9" * 64}
+        )
         == R.PB03_RUNTIME_STALE
     )
     assert (
