@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 361d692421d847fe7caa838825a222a4526810f7
+state_written_against_head: 683fd4885a6237d0325946cdf9821e464053935d
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -47,7 +47,7 @@ state_written_against_head: 361d692421d847fe7caa838825a222a4526810f7
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
-validated_head: 361d692421d847fe7caa838825a222a4526810f7
+validated_head: 683fd4885a6237d0325946cdf9821e464053935d
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -234,22 +234,46 @@ forensics_completed:
     disposition: one real bug fixed (F4), rest recommendations
 
 validation:
-  on_branch_head_21ec51a1:
+  # Chronological, oldest first. Every entry is named by the head it measured, so an
+  # entry can be checked against Git rather than taken on trust. Earlier revisions of
+  # this file used generic names ("on_the_third_repair_head") and had drifted out of
+  # order, which defeats the purpose of a record meant to be independently checkable.
+  on_21ec51a1_pr_371_head:
     full_suite_excluding_2_env_bound_modules: 2 failed, 2249 passed, 7 skipped
     tests_foundry: 632 passed, 0 skipped
     ruff_check: clean
     ruff_format: 1096 files formatted
     regression_guard_proof: fails on pre-fix index, passes on fixed index
-  on_bc08bc79_after_second_drift_merge:
+    note: the 2 failures were the httpx2 dev dependency, later resolved independently
+  on_12d3e1ac_main_after_371:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2251 passed, 7 skipped
+    tests_foundry: 632 passed, 0 skipped
+    ruff_check: clean
+    ruff_format: 1100 files formatted
+    foundry_yaml_parses: 3 of 3
+    note: >-
+      Requalification performed on a detached worktree of the merge commit itself, not on the
+      feature branch, so the numbers describe integrated main rather than the PR head.
+  on_a3ffa44a_conformance_guard:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2349 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
+    state_py_validate: STATE_OK (schema=2.0 status=COMPLETE)
+    ruff_check: clean
+    ruff_format: 1125 files formatted
+    fail_before_proof: >-
+      the guard was placed in the working tree before the state fix and failed with
+      "missing required field: schema_version" naming this workstream's own file; it passes
+      after the fix, so the guard detects the defect it was written for.
+  on_2ea1391a_after_drift_57b233fb:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
     tests_foundry: 643 passed, 0 skipped
     state_py_validate: STATE_OK
     ruff_check: clean
-    ruff_format: 1126 files formatted
+    ruff_format: 1125 files formatted
     drift_note: >-
-      main moved to 73399357 (#378: multiplayer findings, engine-bridge); it touched no .foundry
-      or tests/foundry path and merged without conflict. Re-validated rather than reusing the
-      earlier numbers.
+      main moved to 57b233fb (#300, #374) between push and merge; it touched no .foundry or
+      tests/foundry path and merged without conflict. Re-validated rather than reusing the
+      pre-merge numbers.
   on_d171bcaa_drift_portability:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
     tests_foundry: 643 passed, 0 skipped
@@ -262,27 +286,17 @@ validation:
       local coverage away
     ruff_check: clean
     ruff_format: 1125 files formatted
-  on_361d6924_after_drift_merge:
-    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
-    drift_note: >-
-      main moved to 2c4dec27 (#392: multiplayer findings, engine-bridge); it touched no .foundry,
-      tests/foundry or qualification path and merged without conflict. Re-validated rather than
-      reusing the pre-merge numbers.
-  on_the_fourth_repair_head:
-    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
-    branch_point_baseline_6c177f70: 0 failed, 2422 passed, 13 skipped
-    delta: >-
-      0 on both arms, which is the correct signature for a portability change: the two live PB-09
-      tests still RUN here rather than skipping, so no coverage moved. A delta of zero is
-      therefore evidence, not an absence of evidence.
-    forge_source_dir_branches_verified:
-      - no checkout -> skip attributing the cause to the machine
-      - git checkout lacking the pinned commits -> skip naming the exact missing SHAs
-      - default path -> both tests run and pass
+  on_bc08bc79_after_drift_73399357:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
+    tests_foundry: 643 passed, 0 skipped
     state_py_validate: STATE_OK
     ruff_check: clean
-    ruff_format: 1140 files formatted
-  on_the_third_repair_head:
+    ruff_format: 1126 files formatted
+    drift_note: >-
+      main moved to 73399357 (#378: multiplayer findings, engine-bridge); it touched no .foundry
+      or tests/foundry path and merged without conflict. Re-validated rather than reusing the
+      earlier numbers.
+  on_60a82d75_spec_agreement_guard:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
     branch_point_baseline_5c69b999: 0 failed, 2396 passed, 13 skipped
     delta: +26 passed, exactly the 26 tests added by test_state_spec_agreement.py; skips unchanged
@@ -295,35 +309,36 @@ validation:
       The skip count rose from 9 to 13 with main's drift, not with this change: the engine repin
       lane added superseded-pin tests that skip by design. Measured on both arms rather than
       inferred, which is why the same 13 appears in the baseline row.
-  on_2ea1391a_after_main_drift_merge:
-    full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
-    tests_foundry: 643 passed, 0 skipped
+  on_361d6924_after_drift_2c4dec27:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
+    drift_note: >-
+      main moved to 2c4dec27 (#392: multiplayer findings, engine-bridge); it touched no .foundry,
+      tests/foundry or qualification path and merged without conflict. Re-validated rather than
+      reusing the pre-merge numbers.
+  on_6ba0c4a2_forge_source_dir:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
+    branch_point_baseline_6c177f70: 0 failed, 2422 passed, 13 skipped
+    delta: >-
+      0 on both arms, which is the correct signature for a portability change: the two live PB-09
+      tests still RUN here rather than skipping, so no coverage moved. A delta of zero is
+      evidence, not an absence of evidence.
+    forge_source_dir_branches_verified:
+      - no checkout -> skip attributing the cause to the machine
+      - git checkout lacking the pinned commits -> skip naming the exact missing SHAs
+      - default path -> both tests run and pass
     state_py_validate: STATE_OK
     ruff_check: clean
-    ruff_format: 1125 files formatted
-    note: >-
-      main drifted to 57b233fb (#300, #374) between push and merge; the drift touched no
-      .foundry or tests/foundry path, and the guard still passes. Re-validated rather than
-      reusing the pre-merge numbers.
-  on_a3ffa44a_state_conformance:
-    full_suite_excluding_2_env_bound_modules: 0 failed, 2349 passed, 9 skipped
-    tests_foundry: 643 passed, 0 skipped
-    state_py_validate: STATE_OK (schema=2.0 status=COMPLETE)
+    ruff_format: 1140 files formatted
+  on_683fd488_after_drift_eb2c6163:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2426 passed, 13 skipped
     ruff_check: clean
-    ruff_format: 1125 files formatted
-    fail_before_proof: >-
-      the new guard was placed in the working tree before the state fix and failed with
-      "missing required field: schema_version" naming this workstream's own file; it passes
-      after the fix. The guard therefore detects the defect it was written for.
-  on_canonical_main_12d3e1ac_after_merge:
-    full_suite_excluding_2_env_bound_modules: 0 failed, 2251 passed, 7 skipped
-    tests_foundry: 632 passed, 0 skipped
-    ruff_check: clean
-    ruff_format: 1100 files formatted
-    foundry_yaml_parses: 3 of 3
-    note: >-
-      Requalification performed on a detached worktree of the merge commit itself, not on the
-      feature branch, so the numbers describe the integrated main rather than the PR head.
+    ruff_format: 1143 files formatted
+    drift_note: >-
+      main moved to eb2c6163 (#390, #393) adding tests under engine-bridge and
+      tests/qualification. No overlap with this change; merged without conflict. The +4 over the
+      previous arm arrives with that drift, not with this branch. The newly added qualification
+      file was checked for the hardcoded-path pattern and is clean, recorded because a new test
+      repeating the defect would be exactly what this repair series is about.
   excluded_modules_and_why: >-
     tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py fail
     COLLECTION here because their dev dependencies are absent; they are not test failures and
@@ -332,7 +347,8 @@ validation:
 
 not_actioned_and_why:
   - the 2 httpx2 failures - environmental; RESOLVED independently after merge, see baseline_after
-  - tests/foundry/test_drift.py:26 hardcoded local path - environment-dependent, not broken
+  - tests/foundry/test_drift.py:26 hardcoded local path - RECLASSIFIED and FIXED as R2; the
+    earlier "environment-dependent, not broken" note was wrong
   - migrating wsr24 state file to schema 2.0 - touches a dated record
   - correcting the ACTIVE status in claude-mp-campaign-20260929.json - would rewrite a recorded state
   - the schema execution_profile enum - correct, it must record historical provenance
