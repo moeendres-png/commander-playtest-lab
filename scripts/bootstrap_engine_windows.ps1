@@ -30,6 +30,21 @@ if ($Observed -ne $Commit) { throw "Pinned commit mismatch: $Observed" }
 $Dirty = @(git -C $Source status --porcelain)
 if ($LASTEXITCODE -ne 0) { throw "Unable to inspect source worktree cleanliness" }
 if ($Dirty.Count -ne 0) { throw "Source worktree is dirty; refusing to build unbound engine source" }
+if ($Provider -eq "forge") {
+  git -C $Source merge-base --is-ancestor $RulesCommit $Commit
+  if ($LASTEXITCODE -ne 0) {
+    throw "Forge bridge/materialization commit does not descend from current Rules-Core authority $RulesCommit"
+  }
+  $ForgeDrift = @(git -C $Source diff --name-only $RulesCommit $Commit)
+  if ($LASTEXITCODE -ne 0) { throw "Unable to compare Forge Rules-Core and bridge/materialization source" }
+  if ($ForgeDrift.Count -eq 0) {
+    throw "Forge bridge/materialization commit carries no explicit bridge delta from Rules-Core authority"
+  }
+  $Unexpected = @($ForgeDrift | Where-Object { -not $_.StartsWith("forge-protocol2-bridge/") })
+  if ($Unexpected.Count -ne 0) {
+    throw "Forge bridge/materialization source drifts outside the approved bridge surface: $($Unexpected -join ', ')"
+  }
+}
 $Mvnw = Join-Path $Source "mvnw.cmd"
 if (Test-Path $Mvnw) { & $Mvnw -DskipTests install }
 elseif (Get-Command mvn -ErrorAction SilentlyContinue) { Push-Location $Source; try { mvn -DskipTests install } finally { Pop-Location } }
