@@ -127,7 +127,7 @@ class XmageCausalEliminationReconstructionTest {
         // turn completion, next-turn rotation, future-turn skip).
         JsonObject atLoss = XmageNativeStateRestoration.readback(
                 arrived.session().restorationGame(), arrived.seats());
-        assertEquals(3, atLoss.get("turn_number").getAsInt());
+        assertEquals(2, atLoss.get("turn_number").getAsInt());
         assertEquals("P2", atLoss.get("active_player").getAsString(),
                 "scheduling slot must not be silently reassigned to P3");
 
@@ -170,16 +170,17 @@ class XmageCausalEliminationReconstructionTest {
             }
             return progressionScript().choose(pending, legal, index);
         };
-        // Rotation from here is P1 (T4) -> P3 (T5) -> P1 (T6, P2's slot skipped).
+        // Rotation from here (seat order, F-41) is P3 (T3) -> P1 (T4) -> P3 (T5,
+        // P2's slot skipped).
+        driveToPrecombat(arrived, "P3", 3, guarded);
         driveToPrecombat(arrived, "P1", 4, guarded);
-        driveToPrecombat(arrived, "P3", 5, guarded);
         // G: P2's scheduled turn does not begin (CR 800.4k).
-        driveToPrecombat(arrived, "P1", 6, guarded);
+        driveToPrecombat(arrived, "P3", 5, guarded);
         JsonObject observed = XmageNativeStateRestoration.readback(
                 arrived.session().restorationGame(), arrived.seats());
-        assertEquals(6, observed.get("turn_number").getAsInt());
-        assertEquals("P1", observed.get("active_player").getAsString());
-        assertEquals("P1", observed.get("priority_player").getAsString(),
+        assertEquals(5, observed.get("turn_number").getAsInt());
+        assertEquals("P3", observed.get("active_player").getAsString());
+        assertEquals("P3", observed.get("priority_player").getAsString(),
                 "a surviving player must hold authoritative continuation");
         assertFalse(arrived.seats().get("P1").hasLost());
         assertFalse(arrived.seats().get("P3").hasLost());

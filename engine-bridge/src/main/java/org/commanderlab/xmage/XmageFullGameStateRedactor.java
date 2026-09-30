@@ -331,13 +331,12 @@ final class XmageFullGameStateRedactor {
         }
 
         JsonArray players = new JsonArray();
-        int currentSeat = 0;
-        for (Player player : game.getPlayers().values()) {
+        for (Player player : XmageSeating.playersInSeatOrder(game)) {
             JsonObject p = new JsonObject();
             // Actor-safe: the viewer sees its own id, every other principal is an
             // opaque token that is stable for this game.
             p.addProperty("player_id", ActorSafeIdentity.forSeat(game, actor, player));
-            p.addProperty("seat", currentSeat++);
+            p.addProperty("seat", XmageSeating.seat(game, player.getId()));
             p.addProperty("life", player.getLife());
             p.addProperty("poison_counters", player.getCountersCount(CounterType.POISON));
             p.addProperty("hand_count", player.getHand().size());
@@ -538,14 +537,7 @@ final class XmageFullGameStateRedactor {
     }
 
     static int seat(Game game, UUID playerId) {
-        int seat = 0;
-        for (Player player : game.getPlayers().values()) {
-            if (player.getId().equals(playerId)) {
-                return seat;
-            }
-            seat++;
-        }
-        return -1;
+        return XmageSeating.seat(game, playerId);
     }
 
     /**

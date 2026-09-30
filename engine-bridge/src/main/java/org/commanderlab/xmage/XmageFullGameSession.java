@@ -172,8 +172,11 @@ final class XmageFullGameSession {
             player.init(game);
             game.loadCards(deck.getCards(), player.getId());
             game.loadCards(deck.getSideboard(), player.getId());
-            game.addPlayer(player, deck);
             createdPlayers.add(player);
+        }
+        // F-41: seat order is turn order (see XmageSeating).
+        for (int index : XmageSeating.additionOrder(seatIndices(playerCount))) {
+            game.addPlayer(createdPlayers.get(index), decks.get(index));
         }
         if (game.getPlayers().size() != playerCount) {
             throw new IllegalStateException(
@@ -195,6 +198,14 @@ final class XmageFullGameSession {
      */
     GameCommanderImpl restorationGame() {
         return game;
+    }
+
+    private static List<Integer> seatIndices(int count) {
+        List<Integer> indices = new ArrayList<>(count);
+        for (int index = 0; index < count; index++) {
+            indices.add(index);
+        }
+        return indices;
     }
 
     /** Deterministic seat map (P1..PN in deck-handle order) for restoration. */
@@ -293,10 +304,9 @@ final class XmageFullGameSession {
     JsonObject zoneCountsPayload(Player actor) {
         ensureStarted();
         JsonArray seats = new JsonArray();
-        int seat = 0;
-        for (Player player : game.getPlayers().values()) {
+        for (Player player : XmageSeating.playersInSeatOrder(game)) {
             JsonObject item = new JsonObject();
-            item.addProperty("seat", seat++);
+            item.addProperty("seat", XmageSeating.seat(game, player.getId()));
             // Actor-safe: counts are public, but the principal id behind each
             // seat is not. The viewer keeps its own id; every other seat is an
             // opaque token stable for this game.
@@ -709,10 +719,9 @@ final class XmageFullGameSession {
         }
 
         JsonArray outcomes = new JsonArray();
-        int seat = 0;
-        for (Player player : game.getPlayers().values()) {
+        for (Player player : XmageSeating.playersInSeatOrder(game)) {
             JsonObject item = new JsonObject();
-            item.addProperty("seat", seat++);
+            item.addProperty("seat", XmageSeating.seat(game, player.getId()));
             // Actor-safe: a game result must not enumerate opponents' real ids.
             item.addProperty("player_id", ActorSafeIdentity.forSeat(game, player, player));
             item.addProperty("life", player.getLife());

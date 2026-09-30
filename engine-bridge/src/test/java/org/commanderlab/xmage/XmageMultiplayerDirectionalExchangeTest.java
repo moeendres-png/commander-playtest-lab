@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * of the creature they chose."). Every player controls exactly one creature,
  * each with a different name.</p>
  *
- * <p>Seat topology follows CR 103.1: turns go clockwise, P1 → PN → … → P2, so
+ * <p>Seat topology follows CR 103.1: turns go clockwise, P1 → P2 → … → PN, so
  * the player to a player's left is the next player in turn order.</p>
  *
  * <ul>
@@ -46,7 +46,7 @@ class XmageMultiplayerDirectionalExchangeTest {
     void eachPlayerTakesTheCreatureOfItsNeighbourInTheChosenDirection(int playerCount, String direction) {
         String tag = "succession-" + playerCount + "p-" + direction;
         List<String> turnOrder = new ArrayList<>(List.of("P1"));
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             turnOrder.add("P" + seat);
         }
         boolean left = "Left".equals(direction);

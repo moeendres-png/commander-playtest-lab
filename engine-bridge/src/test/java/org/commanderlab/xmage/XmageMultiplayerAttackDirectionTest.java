@@ -22,16 +22,17 @@ import static org.junit.jupiter.api.Assertions.fail;
  * <p>P1 casts Mystic Barrier (Oracle: "When Mystic Barrier enters and at the
  * beginning of your upkeep, choose left or right. Each player may attack only
  * the nearest opponent in the last chosen direction and planeswalkers
- * controlled by that player.") and chooses a direction. P1 and PN each control
+ * controlled by that player.") and chooses a direction. P1 and P2 each control
  * a Grizzly Bears.</p>
  *
  * <p>CR 103.1: the default turn order proceeds clockwise. Seen from above, the
  * next player in turn order therefore sits to the current player's left.
- * Turns here run P1 → PN → … → P2. So P1's left neighbour is PN and its right
- * neighbour is P2. PN's left neighbour is P(N−1) and its right is P1.</p>
+ * Turns run in seat order, P1 → P2 → … → PN (F-41). So P1's left neighbour is
+ * P2 and its right neighbour is PN. P2's left neighbour is P3 and its right
+ * is P1.</p>
  *
  * <p>The engine's attack offers must name exactly that one opponent: P1's
- * attack on turn 1, and PN's attack on turn 2, which is PN's turn.</p>
+ * attack on turn 1, and P2's attack on turn 2, which is P2's turn.</p>
  */
 class XmageMultiplayerAttackDirectionTest {
 
@@ -45,8 +46,8 @@ class XmageMultiplayerAttackDirectionTest {
         String pn = "P" + playerCount;
         boolean left = "left".equals(direction);
         Map<String, String> expected = new LinkedHashMap<>();
-        expected.put("P1", left ? pn : "P2");
-        expected.put(pn, left ? "P" + (playerCount - 1) : "P1");
+        expected.put("P1", left ? "P2" : pn);
+        expected.put("P2", left ? "P3" : "P1");
 
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(obj("hand", "P1", BARRIER, 0));
@@ -54,7 +55,7 @@ class XmageMultiplayerAttackDirectionTest {
             objects.add(obj("bf", "P1", "Plains", index));
         }
         objects.add(obj("bf", "P1", BEARS, 0));
-        objects.add(obj("bf", pn, BEARS, 0));
+        objects.add(obj("bf", "P2", BEARS, 0));
         XmageActualCardCorpusTest.Started started =
                 XmageActualCardCorpusTest.start(tag, playerCount, objects);
         Game game = started.session().restorationGame();
@@ -110,8 +111,8 @@ class XmageMultiplayerAttackDirectionTest {
             }
         }
         assertTrue(chosen, "direction chosen");
-        assertEquals(List.of("P1", pn), new ArrayList<>(offered.keySet()),
-                "P1 attacks on turn 1, PN (next in turn order) on turn 2");
+        assertEquals(List.of("P1", "P2"), new ArrayList<>(offered.keySet()),
+                "P1 attacks on turn 1, P2 (next in turn order) on turn 2");
         for (Map.Entry<String, String> entry : expected.entrySet()) {
             assertEquals(List.of(entry.getValue()), offered.get(entry.getKey()),
                     entry.getKey() + " may attack only the nearest opponent to its " + direction);

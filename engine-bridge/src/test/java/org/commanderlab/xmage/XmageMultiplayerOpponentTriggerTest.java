@@ -24,19 +24,18 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Opponent-driven triggers whose choices and results belong to a player other
  * than the trigger's controller, at 3–6 players on the full-game lane.
  *
- * <p>The engine's turn order is counterclockwise, so the turn after P1's is
- * PN's.</p>
+ * <p>Turns run in seat order (F-41), so the turn after P1's is P2's.</p>
  *
  * <ul>
  *   <li>Smothering Tithe (P1). Oracle: "Whenever an opponent draws a card, that
  *       player may pay {2}. If the player doesn't, you create a Treasure token."
- *       In PN's draw step, PN (now active) is the one asked, through the external
- *       surface. If PN pays, no Treasure; if PN declines, P1 gets exactly one
+ *       In P2's draw step, P2 (now active) is the one asked, through the external
+ *       surface. If P2 pays, no Treasure; if P2 declines, P1 gets exactly one
  *       Treasure.</li>
- *   <li>Curse of Opulence (P1, cast on P2). Oracle: "Whenever enchanted player
+ *   <li>Curse of Opulence (P1, cast on PN). Oracle: "Whenever enchanted player
  *       is attacked, create a Gold token. Each opponent attacking that player does
- *       the same." When PN attacks P2, the curse's controller P1 and the attacking
- *       opponent PN each get one Gold, and nobody else does.</li>
+ *       the same." When P2 attacks PN, the curse's controller P1 and the attacking
+ *       opponent P2 each get one Gold, and nobody else does.</li>
  * </ul>
  */
 class XmageMultiplayerOpponentTriggerTest {
@@ -48,7 +47,7 @@ class XmageMultiplayerOpponentTriggerTest {
     @CsvSource({"4, true", "4, false", "5, true", "5, false"})
     void theDrawingOpponentDecidesSmotheringTithe(int playerCount, boolean pays) {
         String tag = "tithe-" + playerCount + "p-" + pays;
-        String pn = "P" + playerCount;
+        String next = "P2";
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         // Cast, not restored: a pre-placed Tithe would see the opening-hand draws
         // during arrival (restoration finding F-15).
@@ -56,12 +55,12 @@ class XmageMultiplayerOpponentTriggerTest {
         for (int index = 0; index < 4; index++) {
             objects.add(obj("bf", "P1", "Plains", index));
         }
-        objects.add(obj("bf", pn, "Mountain", 0));
-        objects.add(obj("bf", pn, "Mountain", 1));
+        objects.add(obj("bf", next, "Mountain", 0));
+        objects.add(obj("bf", next, "Mountain", 1));
         XmageActualCardCorpusTest.Started started =
                 XmageActualCardCorpusTest.start(tag, playerCount, objects);
         Game game = started.session().restorationGame();
-        UUID pnId = started.seats().get(pn).getId();
+        UUID nextId = started.seats().get(next).getId();
         XmageActualCardCorpusTest.cast(started, tag + "-cast", "Smothering Tithe");
         XmageActualCardCorpusTest.resolveAll(started, tag, PLAINS_LABEL, XmageActualCardCorpusTest.NONE);
         assertEquals(1, XmageActualCardCorpusTest.onBattlefield(started, "P1", "Smothering Tithe"));
@@ -70,7 +69,7 @@ class XmageMultiplayerOpponentTriggerTest {
         for (int step = 0; step < 200; step++) {
             String cls = XmageActualCardCorpusTest.decisionClass(started);
             String actor = XmageActualCardCorpusTest.actorPid(started);
-            if ("priority".equals(cls) && pnId.equals(game.getActivePlayerId())
+            if ("priority".equals(cls) && nextId.equals(game.getActivePlayerId())
                     && game.getStep().getType() == PhaseStep.PRECOMBAT_MAIN) {
                 break;
             }
@@ -84,7 +83,7 @@ class XmageMultiplayerOpponentTriggerTest {
                             XmageActualCardCorpusTest.labelled(started, pays ? "Yes" : "No"));
                 }
                 case "mana_payment" -> {
-                    assertEquals(pn, actor, "only the drawing opponent pays");
+                    assertEquals(next, actor, "only the drawing opponent pays");
                     XmageActualCardCorpusTest.payOneFromRestoredMana(started, tag + "-pay-" + step,
                             List.of("Mountain"), Set.of(MOUNTAIN_LABEL));
                 }
@@ -93,33 +92,34 @@ class XmageMultiplayerOpponentTriggerTest {
                 default -> fail("unexpected decision " + cls + " for " + actor);
             }
         }
-        assertEquals(List.of(pn), asks, "only " + pn + ", the opponent who drew, is asked");
+        assertEquals(List.of(next), asks, "only " + next + ", the opponent who drew, is asked");
         assertEquals(pays ? 0 : 1, XmageActualCardCorpusTest.onBattlefield(started, "P1", "Treasure Token"),
                 pays ? "paid: no Treasure" : "declined: P1 creates one Treasure");
         for (int seat = 2; seat <= playerCount; seat++) {
             assertEquals(0, XmageActualCardCorpusTest.onBattlefield(started, "P" + seat, "Treasure Token"));
         }
         int tapped = 0;
-        for (Permanent permanent : game.getBattlefield().getAllActivePermanents(pnId)) {
+        for (Permanent permanent : game.getBattlefield().getAllActivePermanents(nextId)) {
             tapped += "Mountain".equals(permanent.getName()) && permanent.isTapped() ? 1 : 0;
         }
-        assertEquals(pays ? 2 : 0, tapped, pn + " paid {2} only if they chose to");
+        assertEquals(pays ? 2 : 0, tapped, next + " paid {2} only if they chose to");
     }
 
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void anotherOpponentAttackingTheCursedPlayerAlsoGetsGold(int playerCount) {
         String tag = "opulence-" + playerCount + "p";
-        String pn = "P" + playerCount;
+        String next = "P2";
+        String cursed = "P" + playerCount;
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(obj("hand", "P1", "Curse of Opulence", 0));
         objects.add(obj("bf", "P1", "Mountain", 0));
-        objects.add(obj("bf", pn, "Grizzly Bears", 0));
+        objects.add(obj("bf", next, "Grizzly Bears", 0));
         XmageActualCardCorpusTest.Started started =
                 XmageActualCardCorpusTest.start(tag, playerCount, objects);
         Game game = started.session().restorationGame();
-        UUID p2 = started.seats().get("P2").getId();
-        UUID pnId = started.seats().get(pn).getId();
+        UUID cursedId = started.seats().get(cursed).getId();
+        UUID nextId = started.seats().get(next).getId();
 
         XmageActualCardCorpusTest.cast(started, tag + "-cast", "Curse of Opulence");
         XmageActualCardCorpusTest.resolveAll(started, tag, MOUNTAIN_LABEL, (cls, step) -> {
@@ -127,7 +127,7 @@ class XmageMultiplayerOpponentTriggerTest {
                 return false;
             }
             XmageActualCardCorpusTest.submit(started, tag + "-enchant",
-                    XmageActualCardCorpusTest.playerTarget(started, "P2"));
+                    XmageActualCardCorpusTest.playerTarget(started, cursed));
             return true;
         });
         Permanent curse = null;
@@ -137,7 +137,7 @@ class XmageMultiplayerOpponentTriggerTest {
             }
         }
         assertNotNull(curse, "the Curse resolved");
-        assertEquals(p2, curse.getAttachedTo(), "it enchants P2");
+        assertEquals(cursedId, curse.getAttachedTo(), "it enchants " + cursed);
 
         boolean attacked = false;
         for (int step = 0; step < 300; step++) {
@@ -152,8 +152,8 @@ class XmageMultiplayerOpponentTriggerTest {
             switch (cls) {
                 case "priority" -> XmageActualCardCorpusTest.pass(started, tag + "-pass-" + step);
                 case "declare_attacker" -> {
-                    assertEquals(pn, actor, "only " + pn + " has a creature");
-                    XmageFullGameTaxExecutionTest.submit(started.session(), tag + "-attack", attackAt(legal, p2));
+                    assertEquals(next, actor, "only " + next + " has a creature");
+                    XmageFullGameTaxExecutionTest.submit(started.session(), tag + "-attack", attackAt(legal, cursedId));
                     attacked = true;
                 }
                 case "choose_object" -> XmageActualCardCorpusTest.chooseNamed(started,
@@ -161,15 +161,15 @@ class XmageMultiplayerOpponentTriggerTest {
                 default -> fail("unexpected decision " + cls + " for " + actor);
             }
         }
-        assertTrue(attacked, pn + " attacked P2");
-        assertEquals(pnId, game.getActivePlayerId());
+        assertTrue(attacked, next + " attacked " + cursed);
+        assertEquals(nextId, game.getActivePlayerId());
         assertEquals(1, XmageActualCardCorpusTest.onBattlefield(started, "P1", "Gold Token"),
                 "the Curse's controller creates a Gold");
-        assertEquals(1, XmageActualCardCorpusTest.onBattlefield(started, pn, "Gold Token"),
-                "the opponent attacking P2 does the same");
-        for (int seat = 2; seat < playerCount; seat++) {
+        assertEquals(1, XmageActualCardCorpusTest.onBattlefield(started, next, "Gold Token"),
+                "the opponent attacking " + cursed + " does the same");
+        for (int seat = 3; seat <= playerCount; seat++) {
             assertEquals(0, XmageActualCardCorpusTest.onBattlefield(started, "P" + seat, "Gold Token"),
-                    "P" + seat + " did not attack P2");
+                    "P" + seat + " did not attack " + cursed);
         }
     }
 

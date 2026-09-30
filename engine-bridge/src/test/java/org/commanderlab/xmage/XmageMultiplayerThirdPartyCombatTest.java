@@ -28,16 +28,16 @@ import static org.junit.jupiter.api.Assertions.fail;
  * a creature deals combat damage to one of your opponents, its controller may
  * draw a card.").</p>
  *
- * <p>On turn 2, PN's turn, PN attacks P1 with Grizzly Bears, and P(N−1) with Hill
+ * <p>On turn 2, P2's turn, P2 attacks P1 with Grizzly Bears, and P3 with Hill
  * Giant and Raging Goblin.</p>
  *
  * <ul>
  *   <li>Karazikar triggers exactly once. It triggers per attacked player, not per
- *       attacking creature, and not for the attack on P1 itself. P1 and PN each
+ *       attacking creature, and not for the attack on P1 itself. P1 and P2 each
  *       draw one card and lose 1 life.</li>
- *   <li>Edric triggers twice, once for each creature that damaged P(N−1), and not
- *       for the Bears that damaged P1. Each "may draw" is PN's decision, not
- *       Edric's controller's. PN accepts the first and declines the second, so PN
+ *   <li>Edric triggers twice, once for each creature that damaged P3, and not
+ *       for the Bears that damaged P1. Each "may draw" is P2's decision, not
+ *       Edric's controller's. P2 accepts the first and declines the second, so P2
  *       draws exactly one card from Edric.</li>
  * </ul>
  */
@@ -50,14 +50,14 @@ class XmageMultiplayerThirdPartyCombatTest {
     @ValueSource(ints = {3, 4, 5, 6})
     void anOpponentAttackingAnotherOpponentTriggersPerDefenderAndPerDamagingCreature(int playerCount) {
         String tag = "third-party-" + playerCount + "p";
-        String pn = "P" + playerCount;
-        String victim = "P" + (playerCount - 1);
+        String attackerPid = "P2";
+        String victim = "P3";
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(obj("P1", KARAZIKAR));
         objects.add(obj("P1", EDRIC));
-        objects.add(obj(pn, "Grizzly Bears"));
-        objects.add(obj(pn, "Hill Giant"));
-        objects.add(obj(pn, "Raging Goblin"));
+        objects.add(obj(attackerPid, "Grizzly Bears"));
+        objects.add(obj(attackerPid, "Hill Giant"));
+        objects.add(obj(attackerPid, "Raging Goblin"));
         Map<String, String> attackAt = Map.of("Grizzly Bears", "P1", "Hill Giant", victim, "Raging Goblin", victim);
         XmageActualCardCorpusTest.Started started =
                 XmageActualCardCorpusTest.start(tag, playerCount, objects);
@@ -93,7 +93,7 @@ class XmageMultiplayerThirdPartyCombatTest {
                         XmageActualCardCorpusTest.submit(started, tag + "-hold-" + step,
                                 XmageActualCardCorpusTest.labelled(started, "Do not attack"));
                     } else {
-                        assertEquals(pn, actor);
+                        assertEquals(attackerPid, actor);
                         if (handAtAttack.isEmpty()) {
                             started.seats().forEach((pid, player) -> handAtAttack.put(pid, player.getHand().size()));
                         }
@@ -120,7 +120,7 @@ class XmageMultiplayerThirdPartyCombatTest {
                 case "choose_use" -> {
                     assertEquals(2, game.getTurnNum());
                     assertEquals("Use draw effect?", prompt);
-                    assertEquals(pn, actor, "Edric: the damaging creature's controller decides");
+                    assertEquals(attackerPid, actor, "Edric: the damaging creature's controller decides");
                     boolean accept = edricAnswers.isEmpty();
                     edricAnswers.add(actor + (accept ? ":yes" : ":no"));
                     XmageActualCardCorpusTest.submit(started, tag + "-edric-" + step,
@@ -137,7 +137,7 @@ class XmageMultiplayerThirdPartyCombatTest {
         assertEquals(2, game.getTurnNum());
         assertEquals(PhaseStep.END_COMBAT, game.getStep().getType());
         assertEquals(1, karazikarResolutions, "Karazikar: one trigger for the one other opponent attacked");
-        assertEquals(List.of(pn + ":yes", pn + ":no"), edricAnswers,
+        assertEquals(List.of(attackerPid + ":yes", attackerPid + ":no"), edricAnswers,
                 "Edric: one may-draw per creature that damaged an opponent of P1, asked to its controller");
 
         Map<String, Integer> life = new LinkedHashMap<>();
@@ -153,12 +153,12 @@ class XmageMultiplayerThirdPartyCombatTest {
             expectedDrawn.put(pid, 0);
         }
         expectedLife.put("P1", 40 - 2 - 1);
-        expectedLife.put(pn, 40 - 1);
+        expectedLife.put(attackerPid, 40 - 1);
         expectedLife.put(victim, 40 - 3 - 1);
         expectedDrawn.put("P1", 1);
-        expectedDrawn.put(pn, 2);
-        assertEquals(expectedLife, life, "combat damage plus Karazikar's life loss for P1 and PN");
-        assertEquals(expectedDrawn, drawn, "Karazikar: P1 and PN draw one; Edric: PN draws one (accepted once)");
+        expectedDrawn.put(attackerPid, 2);
+        assertEquals(expectedLife, life, "combat damage plus Karazikar's life loss for P1 and P2");
+        assertEquals(expectedDrawn, drawn, "Karazikar: P1 and P2 draw one; Edric: P2 draws one (accepted once)");
     }
 
     private static int countOnStack(Game game, String sourceName) {
