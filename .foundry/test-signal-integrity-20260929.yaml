@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 6ba0c4a2dac8b5f0306921c592776b833deea393
+state_written_against_head: 361d692421d847fe7caa838825a222a4526810f7
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -47,7 +47,7 @@ state_written_against_head: 6ba0c4a2dac8b5f0306921c592776b833deea393
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
-validated_head: 6ba0c4a2dac8b5f0306921c592776b833deea393
+validated_head: 361d692421d847fe7caa838825a222a4526810f7
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -262,6 +262,12 @@ validation:
       local coverage away
     ruff_check: clean
     ruff_format: 1125 files formatted
+  on_361d6924_after_drift_merge:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
+    drift_note: >-
+      main moved to 2c4dec27 (#392: multiplayer findings, engine-bridge); it touched no .foundry,
+      tests/foundry or qualification path and merged without conflict. Re-validated rather than
+      reusing the pre-merge numbers.
   on_the_fourth_repair_head:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
     branch_point_baseline_6c177f70: 0 failed, 2422 passed, 13 skipped
