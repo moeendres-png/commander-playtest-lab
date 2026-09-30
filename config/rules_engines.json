@@ -100,20 +100,20 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "201cad9576d004b71fd9af260ab4c981f606eb19",
-   "rules_core_base_commit": "201cad9576d004b71fd9af260ab4c981f606eb19",
+   "commit": "e22c424adde043e23892e4bb59aaeb4d2fb089d9",
+   "rules_core_base_commit": "e22c424adde043e23892e4bb59aaeb4d2fb089d9",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
    "role": "Exact bridge/materialization source for the unified maintained-fork candidate. Same SHA as candidate source is intentional; bridge and Rules-Core roles remain separately bound."
   },
-  "commit": "201cad9576d004b71fd9af260ab4c981f606eb19",
+  "commit": "e22c424adde043e23892e4bb59aaeb4d2fb089d9",
   "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact-source Commander-Lab-maintained Forge fork successor rooted in accepted forge PR #11 (including #12 and the #9 Find // Finality source-truth correction), with the bounded R-3 AF01 bridge remediation stacked in forge PR #13. This is qualification authority only: it is not a Production Provider selection and does not authorize a merge to forge/master.",
   "engine_identity_pb09": {
    "pb09_status": "RESOLVED_BY_OWNER_R1_2026_09_30_FOR_CURRENT_QUALIFICATION_AUTHORITY",
    "current_candidate": {
     "role": "CURRENT ADMITTED EXACT-SOURCE QUALIFICATION CANDIDATE. Maintained fork; not pristine upstream and not production-selected.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "201cad9576d004b71fd9af260ab4c981f606eb19",
-    "tree": "345ff8cddda9888f3414dc3fb91132694aa3cc8a",
+    "commit": "e22c424adde043e23892e4bb59aaeb4d2fb089d9",
+    "tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
     "qualification_dependency_pr": 11,
     "bounded_af01_successor_pr": 13,
     "is_pristine_upstream": false
@@ -127,7 +127,7 @@
    "bridge_source": {
     "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. It co-resides at the exact current candidate commit; role separation does not require a different SHA.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "201cad9576d004b71fd9af260ab4c981f606eb19"
+    "commit": "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
    },
    "upstream_baseline": {
     "role": "REFERENCE BASELINE / DONOR EVIDENCE ONLY. Not the current candidate and not the engine under current qualification.",
@@ -153,7 +153,7 @@
   "release": "commander-lab-maintained-forge-candidate",
   "repository": "https://github.com/moeendres-png/forge.git",
   "role": "candidate provider; PARTIAL real evidence, not production-selected",
-  "source_archive": "https://github.com/moeendres-png/forge/archive/201cad9576d004b71fd9af260ab4c981f606eb19.tar.gz",
+  "source_archive": "https://github.com/moeendres-png/forge/archive/e22c424adde043e23892e4bb59aaeb4d2fb089d9.tar.gz",
   "status": "PARTIAL_R1_ADMITTED_CURRENT_QUALIFICATION_CANDIDATE"
  },
  "truth_boundary": "B4-D is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection, bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast, an externally exportable monotonic bridge audit event stream with action/decision identity and pre/post state hashes, and explicit per-game XMage lifecycle cleanup/reuse. The audit stream covers real bridge/XMage lifecycle and externally controlled action boundaries; it is not claimed to be an exhaustive raw internal XMage GameEvent tap. Globally complete legal-action enumeration and action submission remain unproven because target, mode, choice and combat classes are incomplete. Mulligan, seed-control, replay and complete production game-loop coverage remain unproven. This is not win-rate evidence and does not make XMage a production-ready provider."
