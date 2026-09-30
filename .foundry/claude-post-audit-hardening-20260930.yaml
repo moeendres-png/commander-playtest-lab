@@ -25,8 +25,8 @@ out_of_scope:
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
   session after the handoff of 2026-09-30 evening (single writer)
 status: ACTIVE
-exact_next_action: 'Next milestones: C1, C2, D2, F1, F2, G1, E1, R1 and PB-03 row onboarding (R-4), each after an
-  ownership check against #425 and the open PRs. B1 still a Coordinator decision.'
+exact_next_action: 'Merge #437 when exact-head CI is green; then C1 (replay convergence onto semantic_replay), F1
+  (process-pool spawn test), E1 (OpenCode canary), R1 (moveObjectToLibrary investigation).'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -114,7 +114,10 @@ tasks:
   C1:
     status: UNADJUDICATED
   C2:
-    status: UNADJUDICATED
+    status: FIXED
+    pr: '#437'
+    evidence: 'per-frame actor-scope audit in XmageFullGameRunner.run, fail closed on leak; live 2x4P conformance:
+      8864 frames, 26592 opponent rows, 0 leaks; claim_basis OBSERVED only when frames audited'
   C3:
     status: FIXED
     pr: '#423'
@@ -130,8 +133,10 @@ tasks:
     status: SUPERSEDED_ALREADY_FIXED
     evidence: 'PR #395 merged 2026-09-30 14:40 (artifact identity)'
   D2:
-    status: OPEN
-    evidence: D1 done; A3 already forces re-execution of pre-1.1.0 batch records
+    status: FIXED
+    pr: '#437'
+    evidence: run_key = sha256(case + protocol + result schema + bridge artifact digests); stored run_key must match;
+      rebuilt jar re-executes (3/4 red before)
   E1:
     status: UNADJUDICATED
   E2:
@@ -142,9 +147,13 @@ tasks:
   F1:
     status: UNADJUDICATED
   F2:
-    status: UNADJUDICATED
+    status: FIXED
+    pr: '#437'
+    evidence: ExternalValidationOutcome per attempt; external mismatch outranks tactical oracle (card -> STRUCTURAL_ONLY);
+      4/4 red before
   G1:
-    status: UNADJUDICATED
+    status: OWNERSHIP_BLOCKED
+    evidence: '#436 (Sol R-5 integration gate) owns config/rules_engines.json and the pin-authority tests'
   H1:
     status: SUPERSEDED_ALREADY_FIXED
     pr: '#423'
@@ -158,3 +167,8 @@ tasks:
     status: FIXED
     pr: '#423'
     evidence: tests/unit/test_first_option_ratchet.py; mutation-checked
+  T1_git_env_test_hygiene:
+    status: FIXED
+    pr: '#437'
+    evidence: test_current_boundary_git_identity deleted pre-existing GIT_CONFIG_KEY_0/VALUE_0 -> 73 failures +
+      37 errors in sandboxes that set them; monkeypatch fix; full suite 2796/0
