@@ -67,6 +67,13 @@ jobs:
             scripts/generate_full_game_contract_artifacts.py
             scripts/run_external_full_game_conformance.py
             .github/workflows/xmage-full-game-conformance.yml
+            src/commander_lab/__init__.py
+            src/commander_lab/candidates/**
+            src/commander_lab/cards/**
+            src/commander_lab/engine/**
+            src/commander_lab/models/**
+            src/commander_lab/storage/**
+            tests/conftest.py
 
   conformance:
     needs: [conformance-scope]

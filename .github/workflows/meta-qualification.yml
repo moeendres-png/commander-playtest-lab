@@ -13,6 +13,15 @@ on:
       - "engine-bridge/pom.xml"
       - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameHiddenInformationTest.java"
       - ".github/workflows/meta-qualification.yml"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/semantic_replay/**"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
   push:
     branches: [main]
     paths:
@@ -26,6 +35,15 @@ on:
       - "engine-bridge/pom.xml"
       - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameHiddenInformationTest.java"
       - ".github/workflows/meta-qualification.yml"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/semantic_replay/**"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
   workflow_dispatch:
 
 permissions:
