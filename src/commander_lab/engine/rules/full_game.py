@@ -41,7 +41,7 @@ XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 # Bridge-process shutdown dispositions observed by close(). Only
 # graceful_shutdown may back a clean-shutdown evidence claim; every other
 # outcome must fail closed where such a claim matters.
-FULL_GAME_SHUTDOWN_GRACEFUL = "graceful_shutdown"
+FULL_GAME_SHUTDOWN_GRACEFUL: Literal["graceful_shutdown"] = "graceful_shutdown"
 FULL_GAME_SHUTDOWN_UNACKED_EXIT = "unacked_exit"
 FULL_GAME_SHUTDOWN_FORCED_KILL = "forced_kill"
 FULL_GAME_SHUTDOWN_ALREADY_EXITED = "already_exited"
@@ -85,8 +85,8 @@ class FullGamePilotBinding(_StrictModel):
 
 
 class FullGameConformanceResult(_StrictModel):
-    schema_version: Literal["xmage-full-game-conformance-result-1.0.0"] = (
-        "xmage-full-game-conformance-result-1.0.0"
+    schema_version: Literal["xmage-full-game-conformance-result-1.1.0"] = (
+        "xmage-full-game-conformance-result-1.1.0"
     )
     scenario: FutureXmageScenario
     engine_version: str
@@ -98,6 +98,9 @@ class FullGameConformanceResult(_StrictModel):
     result_payload: dict[str, Any]
     semantic_transcript_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     raw_result_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    # Observed, never defaulted: a game-over result exists only when the bridge
+    # process was shut down gracefully (acked request, exit without kill).
+    shutdown_disposition: Literal["graceful_shutdown"]
     evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
     consumed_gameplay_evidence: Literal[False] = False
     holdout_consumed: Literal[False] = False
@@ -1855,8 +1858,12 @@ class XmageFullGameRunner:
             _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
             assert terminal is True
             result = client.request("get_full_game_result")
-
-        return self._build_result(scenario, provider, result)
+        # The same lifecycle gate as the bounded smoke: a game-over result rests
+        # on an observed graceful shutdown, never on a suppressed kill/timeout.
+        disposition = getattr(client, "shutdown_disposition", None)
+        if disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameConformanceError(f"full game shutdown not graceful: {disposition}")
+        return self._build_result(scenario, provider, result, shutdown_disposition=disposition)
 
     def run_smoke(
         self,
@@ -2186,7 +2193,13 @@ class XmageFullGameRunner:
         scenario: FutureXmageScenario,
         provider: dict[str, Any],
         result: dict[str, Any],
+        *,
+        shutdown_disposition: str | None = None,
     ) -> FullGameConformanceResult:
+        if shutdown_disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameConformanceError(
+                f"full game shutdown not graceful: {shutdown_disposition}"
+            )
         if result.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
             raise FullGameConformanceError("result evidence class is not technical conformance")
         for field in (
@@ -2229,6 +2242,7 @@ class XmageFullGameRunner:
             result_payload=result,
             semantic_transcript_sha256=cls._sha256(semantic),
             raw_result_sha256=cls._sha256(result),
+            shutdown_disposition=FULL_GAME_SHUTDOWN_GRACEFUL,
         )
 
     @staticmethod
