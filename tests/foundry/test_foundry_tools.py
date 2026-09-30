@@ -995,6 +995,8 @@ def test_dual_executor_current_authority_is_canonical() -> None:
 def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
     profile = json.loads((REPO_ROOT / ".foundry" / "repo-profiles" / "cpl.json").read_text())
     canonical = profile["canonical_files"]
+    assert "AGENTS.md" in canonical
+    assert "CLAUDE.md" in canonical
     assert "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md" in canonical
     assert "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md" in canonical
     assert "docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md" not in canonical
@@ -1002,6 +1004,15 @@ def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
     assert "dual-executor" in notes
     assert "space bunny max" in notes
     assert "muse" in notes
+
+
+def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
+    entrypoint = (REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    flat = " ".join(entrypoint.lower().split())
+    assert "agents.md" in flat
+    assert "canonical durable agent policy" in flat
+    assert "not an independent policy source" in flat
+    assert "claude opus 5.5" in flat
 
 
 def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:

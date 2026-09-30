@@ -70,8 +70,9 @@ Rationale, verified against current source truth at Source Lock
    (marker-free), and either verdict fails the check and blocks unattended
    launch. A merged F1/F2 pointer file would therefore permanently trip the
    gate it was meant to satisfy. (These markers are inspected in *fork*
-   roots. This Lab repository has no `CLAUDE.md`, and never has; the
-   `AGENTS.md` name is the one that exists here.)
+   roots. At this disposition's 2026-09-13 source lock the Lab repository had
+   no `CLAUDE.md`; a later canonical root `CLAUDE.md` may exist as a thin
+   pointer to `AGENTS.md` without changing this fork-root prohibition.)
 3. Mirror discipline forbids the landing zone. Both fork `master` branches
    are upstream mirrors (fast-forward-only sync; no project-only commits —
    contract hard gate). Landing a project pointer on mirror `master` would
