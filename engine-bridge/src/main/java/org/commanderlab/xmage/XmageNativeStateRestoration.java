@@ -806,6 +806,16 @@ final class XmageNativeStateRestoration {
                 continue;
             }
             UUID liveId = liveCommanderIds.get(requested.commanderId());
+            UUID placed = injectedObjectIdsBySemanticId.get(requested.semanticId());
+            if (placed != null) {
+                // Completion runs after the causal route already placed it; the
+                // compare, not a second placement, judges where it is now.
+                if (!placed.equals(liveId)) {
+                    throw new RestorationException(
+                            "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
+                }
+                continue;
+            }
             Card card = game.getCard(liveId);
             Player owner = requirePlayer(playersByPid, requested.owner());
             if (card == null || game.getState().getZone(liveId) != Zone.COMMAND) {
