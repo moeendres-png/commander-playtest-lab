@@ -30,6 +30,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import subprocess
 import threading
 import uuid
@@ -52,6 +53,12 @@ MIDGAME_RECEIPT_IDENTITY_FIELDS = (
     "runner_digest",
     "engine_commit",
 )
+
+# The loaded engine artifact identity, provider-reported. The declared engine
+# commit is a constant; the artifact digest proves which bytes actually ran. A
+# receipt that cannot name a file-backed artifact digest is unbound, never
+# fresh.
+_ENGINE_ARTIFACT_DIGEST = re.compile(r"[0-9a-f]{64}")
 
 # Freshness classifications for a persisted mid-game receipt. They mirror the
 # current-boundary receipt vocabulary so one staleness story holds across the
@@ -137,16 +144,18 @@ def receipt_freshness(
     *,
     expected_runner_digest: str,
     expected_engine_commit: str,
+    expected_engine_artifact_sha256: str = "",
 ) -> str:
     """Classify a persisted mid-game receipt against the exact executing head.
 
     ``FRESH_EXACT`` requires the schema, the canonical content digest, the Lab
-    runner digest and the engine commit to all match the executing head. A
-    receipt that carries no runner identity at all is ``MISSING``; a malformed
-    or tampered one is ``INVALID``; a well-formed receipt from another runner or
-    another engine epoch is ``STALE``. Every non-``FRESH_EXACT`` classification
-    is zero credit: the caller may report it as an auditable stale fact but must
-    never promote a row from it.
+    runner digest, the engine commit and the provider-reported loaded engine
+    artifact digest to all match the executing head. A receipt that carries no
+    identity (or whose expected identity is unavailable) is ``MISSING``; a
+    malformed or tampered one is ``INVALID``; a well-formed receipt from another
+    runner, engine epoch or engine artifact is ``STALE``. Every
+    non-``FRESH_EXACT`` classification is zero credit: the caller may report it
+    as an auditable stale fact but must never promote a row from it.
     """
     if not isinstance(receipt, Mapping):
         return MIDGAME_RECEIPT_INVALID
@@ -165,12 +174,29 @@ def receipt_freshness(
     identity = {field: receipt.get(field) for field in MIDGAME_RECEIPT_IDENTITY_FIELDS}
     if not all(isinstance(value, str) and value for value in identity.values()):
         return MIDGAME_RECEIPT_MISSING
-    if not expected_runner_digest or not expected_engine_commit:
+    artifact_kind = receipt.get("engine_artifact_kind")
+    artifact_digest = receipt.get("engine_artifact_sha256")
+    if not isinstance(artifact_kind, str) or not artifact_kind:
+        return MIDGAME_RECEIPT_MISSING
+    if not isinstance(artifact_digest, str) or not artifact_digest:
+        return MIDGAME_RECEIPT_MISSING
+    if artifact_kind != "file":
+        # A reported directory or unavailable artifact is not an identity.
+        return MIDGAME_RECEIPT_INVALID
+    if _ENGINE_ARTIFACT_DIGEST.fullmatch(artifact_digest) is None:
+        # A malformed digest is not an identity this receipt can claim.
+        return MIDGAME_RECEIPT_INVALID
+    if (
+        not expected_runner_digest
+        or not expected_engine_commit
+        or not expected_engine_artifact_sha256
+    ):
         # The executing identity is itself unavailable; nothing can be fresh.
         return MIDGAME_RECEIPT_MISSING
     if (
         identity["runner_digest"] != expected_runner_digest
         or identity["engine_commit"] != expected_engine_commit
+        or artifact_digest != expected_engine_artifact_sha256
     ):
         return MIDGAME_RECEIPT_STALE
     return MIDGAME_RECEIPT_FRESH
@@ -281,6 +307,7 @@ class MidgameLaneClient:
         self._env_overrides = dict(env_overrides or {})
         self._process: subprocess.Popen[str] | None = None
         self._engine_commit: str | None = None
+        self._engine_artifact: dict[str, Any] | None = None
         self._tape: list[dict[str, Any]] = []
         self.manifest: DimensionManifest | None = None
         self._last_timeout_s: float | None = None
@@ -385,6 +412,14 @@ class MidgameLaneClient:
             if isinstance(payload_obj, dict):
                 commit = payload_obj.get("engine_commit")
                 self._engine_commit = commit if isinstance(commit, str) else None
+                # The provider-reported artifact identity is captured verbatim;
+                # it is never derived from the commit constant or a path guess.
+                self._engine_artifact = {
+                    "kind": payload_obj.get("engine_artifact_kind"),
+                    "path": payload_obj.get("engine_artifact_path"),
+                    "sha256": payload_obj.get("engine_artifact_sha256"),
+                    "size": payload_obj.get("engine_artifact_size"),
+                }
         return parsed
 
     def _read_line_with_deadline(self, timeout_s: float, message_type: str, request_id: str) -> str:
@@ -461,6 +496,10 @@ class MidgameLaneClient:
     @property
     def engine_commit(self) -> str | None:
         return self._engine_commit
+
+    @property
+    def engine_artifact(self) -> dict[str, Any] | None:
+        return self._engine_artifact
 
     # -- capability --------------------------------------------------
 

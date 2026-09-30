@@ -2,7 +2,7 @@
  "af01_live_game": {
   "decisions_observed": 4,
   "failure": null,
-  "game_id": "wsr22-forge-2p-6413a15d",
+  "game_id": "wsr22-forge-2p-f88d0fcf",
   "player_count": 2,
   "steps_completed": [
    "handshake",
@@ -12,7 +12,7 @@
    "decision_drive"
   ]
  },
- "af01_verdict": "PASS",
+ "af01_verdict": "FAIL",
  "af03_verdict": "PASS",
  "cardinality": {
   "2P": {
@@ -20,12 +20,12 @@
    "decision_tape": [
     {
      "actor": "p1",
-     "chosen_option_id": "opt-cb19da14-1679-4ca4-950d-dcf130f562c5",
+     "chosen_option_id": "opt-f9ee85b7-d0f3-455e-bfc3-d2815f0b7990",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-cb19da14-1679-4ca4-950d-dcf130f562c5",
-      "opt-ed8b6079-0208-4bf2-8b2f-34a174fc0728"
+      "opt-f9ee85b7-d0f3-455e-bfc3-d2815f0b7990",
+      "opt-137387a5-b686-4226-b87f-b12d7d03d183"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -37,8 +37,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-e066229d-483e-4d82-b551-5801f23ae439",
-      "opt-3cc79199-251c-4203-aa8a-e9a880123377"
+      "opt-3e3fb9a3-34d5-432c-aa5e-abbeed51b35b",
+      "opt-7c18d0fc-32e7-43ff-b451-5344a9909e1d"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -50,8 +50,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-95a5586e-6e6c-4a64-9064-d5d72c21c3bf",
-      "opt-b308632a-6397-4632-8272-954f51f3325e"
+      "opt-894d8e9a-78b9-49ee-aefe-09b373354dc6",
+      "opt-cb4c3ce4-dc0d-4c80-a0ef-ac06bc966e88"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -59,12 +59,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-4c9a9096-7577-43ac-8ea0-667bf63e69bd",
+     "chosen_option_id": "opt-25ca2882-0219-481f-8d01-c074f5bafa91",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-4c9a9096-7577-43ac-8ea0-667bf63e69bd",
-      "opt-d3879bc5-caaf-4a07-ba1b-4a59b744c029"
+      "opt-25ca2882-0219-481f-8d01-c074f5bafa91",
+      "opt-93449f78-7093-41bc-ac4d-414d45389e36"
      ],
      "policy": "pass_when_offered",
      "revision": 4,
@@ -77,7 +77,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-2p-0b6c1730",
+   "game_id": "wsr22-forge-2p-5b5e3f48",
    "observations": [
     {
      "payload": {
@@ -107,12 +107,12 @@
        },
        "revision": 2,
        "session_status": "RUNNING",
-       "state_hash": "5182dd7d68e5806a085c3d3183dfca7dd2906a7aa91d84ec4ae113d6ab123da2"
+       "state_hash": "8c8487e869ab02e7e4840404168d1faeafd8667fd1e307adf6a88e4973d1d0b0"
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "5182dd7d68e5806a085c3d3183dfca7dd2906a7aa91d84ec4ae113d6ab123da2",
-       "pre_state_hash": "68e68d16bb815ee3ed84afbfb074d5c712a0ddac0ee8404a9c743ba025d70472"
+       "post_state_hash": "8c8487e869ab02e7e4840404168d1faeafd8667fd1e307adf6a88e4973d1d0b0",
+       "pre_state_hash": "bb7c43dd823feddc7b509332212a3276573d532384fee8375854c15e0b6f25c1"
       },
       "game_over": false,
       "next_decision": {
@@ -143,7 +143,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 9,
        "event_sequence": 9,
-       "game_id": "wsr22-forge-2p-0b6c1730",
+       "game_id": "wsr22-forge-2p-5b5e3f48",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -286,8 +286,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "5182dd7d68e5806a085c3d3183dfca7dd2906a7aa91d84ec4ae113d6ab123da2",
-       "pre_state_hash": "5182dd7d68e5806a085c3d3183dfca7dd2906a7aa91d84ec4ae113d6ab123da2"
+       "post_state_hash": "8c8487e869ab02e7e4840404168d1faeafd8667fd1e307adf6a88e4973d1d0b0",
+       "pre_state_hash": "8c8487e869ab02e7e4840404168d1faeafd8667fd1e307adf6a88e4973d1d0b0"
       },
       "game_over": false,
       "next_decision": {
@@ -298,7 +298,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 12,
        "event_sequence": 12,
-       "game_id": "wsr22-forge-2p-0b6c1730",
+       "game_id": "wsr22-forge-2p-5b5e3f48",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -441,8 +441,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "5093fd30115adbb542500ca5c0a29515ef33f8838613c36fdc0338e95cbe4313",
-       "pre_state_hash": "5182dd7d68e5806a085c3d3183dfca7dd2906a7aa91d84ec4ae113d6ab123da2"
+       "post_state_hash": "8a3eccaebcc3c298cf650451769dc7343982c81f217f6b456311f4a11c0db01f",
+       "pre_state_hash": "8c8487e869ab02e7e4840404168d1faeafd8667fd1e307adf6a88e4973d1d0b0"
       },
       "game_over": false,
       "next_decision": {
@@ -453,7 +453,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 15,
        "event_sequence": 15,
-       "game_id": "wsr22-forge-2p-0b6c1730",
+       "game_id": "wsr22-forge-2p-5b5e3f48",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -596,8 +596,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "474a97a73bc5d4620df2067467a795bf7f5406812955886e0df0d6d422cd410e",
-       "pre_state_hash": "5093fd30115adbb542500ca5c0a29515ef33f8838613c36fdc0338e95cbe4313"
+       "post_state_hash": "9b4b28b3aae0bcdcb4f5be428220d904c5fe9c032c027d0c5b43af8c528cba37",
+       "pre_state_hash": "8a3eccaebcc3c298cf650451769dc7343982c81f217f6b456311f4a11c0db01f"
       },
       "game_over": false,
       "next_decision": {
@@ -608,7 +608,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 18,
        "event_sequence": 18,
-       "game_id": "wsr22-forge-2p-0b6c1730",
+       "game_id": "wsr22-forge-2p-5b5e3f48",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -793,13 +793,13 @@
    "decision_tape": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-227b49ae-7291-4659-b045-60f6d391cb5d",
+     "chosen_option_id": "opt-4d9cacfc-661c-4fa9-8841-c7c12e67a03e",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-227b49ae-7291-4659-b045-60f6d391cb5d",
-      "opt-ca55cf54-aca5-4ae3-a902-4f041b565fb6",
-      "opt-ddfbb65e-7c2c-4797-9af7-73933f0b4599"
+      "opt-4d9cacfc-661c-4fa9-8841-c7c12e67a03e",
+      "opt-27780531-1211-4816-b2c0-392c0d5f4bf8",
+      "opt-2819e3d8-6c0d-4b57-884f-40dc8a125b42"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -811,8 +811,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-b5df1f03-80c7-4c2e-867e-16e3abe0ced7",
-      "opt-38f53c63-da0c-4484-912f-298f40203177"
+      "opt-6a0f9aaf-8767-4f43-b8c7-c489c56541de",
+      "opt-1943bfcd-07bd-4c36-a7c4-227a7268295f"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -824,8 +824,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-3707dcaa-6bc1-4a20-bf6d-bbda4c167bf5",
-      "opt-226ff4c9-144b-4ce7-870e-28ff66873bd3"
+      "opt-4101a9e6-78fd-4105-8d71-9f61ad5db6ac",
+      "opt-b2a423c8-014f-4713-89e9-6a313861f5e9"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -837,8 +837,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-b83cf9d2-e9bc-4250-99c1-2f5360fdce6b",
-      "opt-84a4d4da-1b8a-4891-918e-4ed761490940"
+      "opt-d685b4c7-1422-450b-9b92-273668032b9d",
+      "opt-f78d3531-7b67-44d5-8e0a-1057c270bfc2"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -846,12 +846,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-7c5146dd-9a4e-4c90-a2c8-3c4f7bf8253c",
+     "chosen_option_id": "opt-3e9f2655-f648-4424-8cc0-a77b654ea1c8",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-7c5146dd-9a4e-4c90-a2c8-3c4f7bf8253c",
-      "opt-aee58d65-4475-49f0-8189-9c550e7cf2d7"
+      "opt-3e9f2655-f648-4424-8cc0-a77b654ea1c8",
+      "opt-e984cb74-3f18-44ce-991b-4b6965ca5e43"
      ],
      "policy": "pass_when_offered",
      "revision": 5,
@@ -865,7 +865,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-3p-77d824c4",
+   "game_id": "wsr22-forge-3p-44d47174",
    "observations": [
     {
      "payload": {
@@ -877,8 +877,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "4945e141128a3398c60790317016f570852006792d64204c648f8ea5372e2142",
-       "pre_state_hash": "de9746ac4d8bd91e55ebc94366e75ef4b1189246ac2d10f312a0c11c343d3633"
+       "post_state_hash": "1d41a70746de907970918911bb3d897001df1e63e19bd5f13a4db23704fd04f7",
+       "pre_state_hash": "8aa2e6c35a2b3fde37b21e007973b4e0bdbb02b7a7a927cf749f98f17fdb2ebf"
       },
       "game_over": false,
       "next_decision": {
@@ -889,7 +889,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 9,
        "event_sequence": 9,
-       "game_id": "wsr22-forge-3p-77d824c4",
+       "game_id": "wsr22-forge-3p-44d47174",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -1083,8 +1083,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "4945e141128a3398c60790317016f570852006792d64204c648f8ea5372e2142",
-       "pre_state_hash": "4945e141128a3398c60790317016f570852006792d64204c648f8ea5372e2142"
+       "post_state_hash": "1d41a70746de907970918911bb3d897001df1e63e19bd5f13a4db23704fd04f7",
+       "pre_state_hash": "1d41a70746de907970918911bb3d897001df1e63e19bd5f13a4db23704fd04f7"
       },
       "game_over": false,
       "next_decision": {
@@ -1095,7 +1095,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 12,
        "event_sequence": 12,
-       "game_id": "wsr22-forge-3p-77d824c4",
+       "game_id": "wsr22-forge-3p-44d47174",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -1289,8 +1289,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "4945e141128a3398c60790317016f570852006792d64204c648f8ea5372e2142",
-       "pre_state_hash": "4945e141128a3398c60790317016f570852006792d64204c648f8ea5372e2142"
+       "post_state_hash": "1d41a70746de907970918911bb3d897001df1e63e19bd5f13a4db23704fd04f7",
+       "pre_state_hash": "1d41a70746de907970918911bb3d897001df1e63e19bd5f13a4db23704fd04f7"
       },
       "game_over": false,
       "next_decision": {
@@ -1301,7 +1301,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 15,
        "event_sequence": 15,
-       "game_id": "wsr22-forge-3p-77d824c4",
+       "game_id": "wsr22-forge-3p-44d47174",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -1495,8 +1495,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "324b818e72e26b5c179eaa5ed31b513728e284534b73d6c38fec9ce77739078a",
-       "pre_state_hash": "4945e141128a3398c60790317016f570852006792d64204c648f8ea5372e2142"
+       "post_state_hash": "3f361fca738b255bf742b5e981bd188c9ea8f03444823c5606328810cbda69dd",
+       "pre_state_hash": "1d41a70746de907970918911bb3d897001df1e63e19bd5f13a4db23704fd04f7"
       },
       "game_over": false,
       "next_decision": {
@@ -1507,7 +1507,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 18,
        "event_sequence": 18,
-       "game_id": "wsr22-forge-3p-77d824c4",
+       "game_id": "wsr22-forge-3p-44d47174",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -1701,8 +1701,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "c6cc66390607b5fdb19c33dbf97beb2bbc7d2055e5ed3787ca0ec3ecb90beef7",
-       "pre_state_hash": "324b818e72e26b5c179eaa5ed31b513728e284534b73d6c38fec9ce77739078a"
+       "post_state_hash": "e35a0ea640ca2e8a3cc67bd36aa21f712d25a5d57b7809ac75d67c4e1c615865",
+       "pre_state_hash": "3f361fca738b255bf742b5e981bd188c9ea8f03444823c5606328810cbda69dd"
       },
       "game_over": false,
       "next_decision": {
@@ -1713,7 +1713,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 21,
        "event_sequence": 21,
-       "game_id": "wsr22-forge-3p-77d824c4",
+       "game_id": "wsr22-forge-3p-44d47174",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -1949,14 +1949,14 @@
    "decision_tape": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-27c4954c-ddef-469a-9cfd-6491b9f30129",
+     "chosen_option_id": "opt-2c5a5190-656a-492e-bbaf-162f1ada368d",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-27c4954c-ddef-469a-9cfd-6491b9f30129",
-      "opt-32960c32-7426-446c-8c02-96f46235f657",
-      "opt-86b2f90a-14f6-4607-8938-256892f0068d",
-      "opt-81fa18e5-fdd7-4153-96fe-e999f2b830b6"
+      "opt-2c5a5190-656a-492e-bbaf-162f1ada368d",
+      "opt-0f509a1f-04bf-4cbe-bdcb-6de16d511131",
+      "opt-a289709c-456f-4e92-8804-d47c7d054a30",
+      "opt-5dacf8c9-12d0-4f13-90e0-6cdc753b1db1"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -1968,8 +1968,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-97b35bf3-7b8b-4088-b21d-19035ce515a7",
-      "opt-2349596f-6944-4247-834b-f7cc3be6fa9c"
+      "opt-b370043e-62d2-4754-92fd-90ca03cc30b5",
+      "opt-5e874b12-8c5a-465f-864e-678e2ed93789"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -1981,8 +1981,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-f23df0ea-9598-4e64-80ab-b28309efce7c",
-      "opt-23fbf884-2648-4a81-bd1a-bb1a9963f7d6"
+      "opt-4653dee9-d924-43fb-8085-c23e9c9f9893",
+      "opt-65da2e6a-af87-4680-a610-7ac32b4e2cf3"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -1994,8 +1994,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-e6dda395-eac0-405c-b496-0996fa86d550",
-      "opt-44260725-0e1b-4a8e-abe4-59fcc0f02a1b"
+      "opt-bc4e60ba-5c51-40d4-a565-e81e11dc2ded",
+      "opt-3b66a27c-7b92-470e-b038-0dc57d7f4f69"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -2007,8 +2007,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-68cfdd61-e585-4d43-8ced-2aed8cc54fd3",
-      "opt-492dcd60-ab07-4e89-a775-c5f1b67e70f8"
+      "opt-0ef9cad5-eee4-48c4-9dfa-b34ed688b3db",
+      "opt-0680c7da-d53f-4dad-bb36-345e318f3f60"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -2016,12 +2016,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-6f6120fe-552b-4708-a334-9a3468c8c16e",
+     "chosen_option_id": "opt-4c3b7239-8e53-46c8-90e0-728318a51e46",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-6f6120fe-552b-4708-a334-9a3468c8c16e",
-      "opt-394aade6-8234-4112-86ee-25d62d81d762"
+      "opt-4c3b7239-8e53-46c8-90e0-728318a51e46",
+      "opt-4191b337-6979-458e-9a7b-c0d2b3e2fd2b"
      ],
      "policy": "pass_when_offered",
      "revision": 6,
@@ -2036,7 +2036,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-4p-c4223730",
+   "game_id": "wsr22-forge-4p-ff2d0fc9",
    "observations": [
     {
      "payload": {
@@ -2048,8 +2048,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd",
-       "pre_state_hash": "95a0fa0f943c4bb8110ad4ab4e07fd671f9b9773bd65a73b705dd4aa89fd693f"
+       "post_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450",
+       "pre_state_hash": "9c5f7baf070e365f89d527ac693b58875382533776b2f09a1d4f4e082b612651"
       },
       "game_over": false,
       "next_decision": {
@@ -2060,7 +2060,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 9,
        "event_sequence": 9,
-       "game_id": "wsr22-forge-4p-c4223730",
+       "game_id": "wsr22-forge-4p-ff2d0fc9",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -2305,8 +2305,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd",
-       "pre_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd"
+       "post_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450",
+       "pre_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450"
       },
       "game_over": false,
       "next_decision": {
@@ -2317,7 +2317,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 12,
        "event_sequence": 12,
-       "game_id": "wsr22-forge-4p-c4223730",
+       "game_id": "wsr22-forge-4p-ff2d0fc9",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -2562,8 +2562,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd",
-       "pre_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd"
+       "post_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450",
+       "pre_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450"
       },
       "game_over": false,
       "next_decision": {
@@ -2574,7 +2574,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 15,
        "event_sequence": 15,
-       "game_id": "wsr22-forge-4p-c4223730",
+       "game_id": "wsr22-forge-4p-ff2d0fc9",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -2819,8 +2819,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd",
-       "pre_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd"
+       "post_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450",
+       "pre_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450"
       },
       "game_over": false,
       "next_decision": {
@@ -2831,7 +2831,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 18,
        "event_sequence": 18,
-       "game_id": "wsr22-forge-4p-c4223730",
+       "game_id": "wsr22-forge-4p-ff2d0fc9",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -3076,8 +3076,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "d8a3af2125860ba9f60aae9943b17b3224b027d66ed8a1f46907d725c5eef87a",
-       "pre_state_hash": "fff195d54923df09b23fea505d43869f6d4343d3d22aa929ec75fcd78314a4bd"
+       "post_state_hash": "1f04c0dd36bab58e956218998492ad227aac86d6e5650416330919645efff97e",
+       "pre_state_hash": "df5e440940a1679f133d76654b1a5d24e9e156d355d3ee473460f11141c2a450"
       },
       "game_over": false,
       "next_decision": {
@@ -3088,7 +3088,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 21,
        "event_sequence": 21,
-       "game_id": "wsr22-forge-4p-c4223730",
+       "game_id": "wsr22-forge-4p-ff2d0fc9",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -3333,8 +3333,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "f0dc11f9505f5de5c8ea4552a1f48978533c2c56650a8e9240c4a914a3585fb1",
-       "pre_state_hash": "d8a3af2125860ba9f60aae9943b17b3224b027d66ed8a1f46907d725c5eef87a"
+       "post_state_hash": "402438fe50e9d13f1c30d2c2fbf381ced0c9daff83e563336c4325bdc9921021",
+       "pre_state_hash": "1f04c0dd36bab58e956218998492ad227aac86d6e5650416330919645efff97e"
       },
       "game_over": false,
       "next_decision": {
@@ -3345,7 +3345,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 24,
        "event_sequence": 24,
-       "game_id": "wsr22-forge-4p-c4223730",
+       "game_id": "wsr22-forge-4p-ff2d0fc9",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -3632,15 +3632,15 @@
    "decision_tape": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-a57b665b-4a3d-4114-a83e-943ed21ce497",
+     "chosen_option_id": "opt-e39ff002-a0b0-4ebb-a2b3-d354c027a9cb",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-a57b665b-4a3d-4114-a83e-943ed21ce497",
-      "opt-87f946be-db6f-4ccf-b36b-687c9b1358d9",
-      "opt-e6e16d52-80e5-46a0-a4f5-004de85fce27",
-      "opt-a846a16d-4c6b-4da0-8153-529a3664ea9d",
-      "opt-8e1827cc-6be4-4185-ac67-b47ab21e1a04"
+      "opt-e39ff002-a0b0-4ebb-a2b3-d354c027a9cb",
+      "opt-5c779846-ad5c-42dc-83bf-22eaf9b16a66",
+      "opt-d63596c2-3b2c-4d51-8777-78bcb779534e",
+      "opt-7e1dfd16-5413-4891-a1f7-71c084dab779",
+      "opt-b495fdd0-5e90-4ca1-af94-e1943ad5e3ad"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -3652,8 +3652,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-57acf22b-612f-4392-8466-563f3baf3c6b",
-      "opt-3cad8723-bf58-4a6b-aa2e-b08d5b9d07d1"
+      "opt-c6979716-064b-4209-bf34-25e4a660990e",
+      "opt-4e32e955-257b-41f8-997a-83b22360df63"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -3665,8 +3665,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-2d8d6960-fca6-452a-822c-86f6636a6087",
-      "opt-f7a0f76c-c552-4fac-8b4d-17d7356bded9"
+      "opt-070d871a-0fd5-4552-b103-3956e56bfa69",
+      "opt-a3dea3f8-58ed-47c5-bc85-26dc3ee982fa"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -3678,8 +3678,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-5c626eec-80ba-4c05-b6ad-a81ee17f8eeb",
-      "opt-ef4965df-94c9-4294-ae7f-bb3b60c5ff0b"
+      "opt-5deec8ab-099f-49cf-a0ca-072144058847",
+      "opt-376881ce-2bb2-4035-8d10-122e972b9a93"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -3691,8 +3691,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-136c3fc7-ae27-44f7-9fb8-fe73d3325936",
-      "opt-ba25ad17-3cd1-4c20-9d8f-36ac0f44ad1a"
+      "opt-1274d30a-fe35-4f87-b341-54a472de3d00",
+      "opt-ed20812e-bce7-4af7-beb0-231fca000402"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -3704,8 +3704,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-c856a2ba-aa20-4995-97a7-27dfe0d948b2",
-      "opt-70a0469b-6775-42b2-bcbc-7c3b24276943"
+      "opt-2063f100-27fc-4dcd-8485-768755f3410d",
+      "opt-adcf4f72-5c17-48b2-8ab4-b8fd4fadc2e3"
      ],
      "policy": "keep_all",
      "revision": 6,
@@ -3713,12 +3713,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-852ae501-c5d6-4ed1-ba0d-c7e2da15bae2",
+     "chosen_option_id": "opt-1f8c9320-5da2-449f-8003-701c72422c40",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-852ae501-c5d6-4ed1-ba0d-c7e2da15bae2",
-      "opt-05c01780-bbb1-41d9-b09f-38483c113eab"
+      "opt-1f8c9320-5da2-449f-8003-701c72422c40",
+      "opt-c6990da1-910c-4b83-adf5-68b254faa589"
      ],
      "policy": "pass_when_offered",
      "revision": 7,
@@ -3734,7 +3734,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-5p-4f63bed5",
+   "game_id": "wsr22-forge-5p-4e49f75f",
    "observations": [
     {
      "payload": {
@@ -3746,8 +3746,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86",
-       "pre_state_hash": "7b9e82a9b1226c144135b927ea1171914b84082bf2b71b49fd3e815502bfb46e"
+       "post_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d",
+       "pre_state_hash": "d1f1db57731eed10201be3e1f34fa25f06822b5e64e1b7da15ea38efe882adbd"
       },
       "game_over": false,
       "next_decision": {
@@ -3758,7 +3758,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 9,
        "event_sequence": 9,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -4054,8 +4054,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86",
-       "pre_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86"
+       "post_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d",
+       "pre_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d"
       },
       "game_over": false,
       "next_decision": {
@@ -4066,7 +4066,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 12,
        "event_sequence": 12,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -4362,8 +4362,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86",
-       "pre_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86"
+       "post_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d",
+       "pre_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d"
       },
       "game_over": false,
       "next_decision": {
@@ -4374,7 +4374,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 15,
        "event_sequence": 15,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -4670,8 +4670,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86",
-       "pre_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86"
+       "post_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d",
+       "pre_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d"
       },
       "game_over": false,
       "next_decision": {
@@ -4682,7 +4682,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 18,
        "event_sequence": 18,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -4978,8 +4978,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86",
-       "pre_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86"
+       "post_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d",
+       "pre_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d"
       },
       "game_over": false,
       "next_decision": {
@@ -4990,7 +4990,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 21,
        "event_sequence": 21,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -5286,8 +5286,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "c61d8210c1a2e91c5e19ad8b9a26797d993137069d4e8fd9d7bdc47eb9708c49",
-       "pre_state_hash": "419a86e56a7154f91ad1e3a2d18b72b1992afb24ed92d09598bdc5327f285e86"
+       "post_state_hash": "0f7eb612792058c7304957e597b0b0afd3bb2228c31bd2509a918488461cd18b",
+       "pre_state_hash": "7ead40bcbf6fdce1f784a033348046164ffe7b5fd5c461752f6811a7b697e93d"
       },
       "game_over": false,
       "next_decision": {
@@ -5298,7 +5298,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 24,
        "event_sequence": 24,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -5594,8 +5594,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "7689ba5774edbb0dfb3cd4a04cbecb4bb02f1d9c9a5a1183f2d124a816cee839",
-       "pre_state_hash": "c61d8210c1a2e91c5e19ad8b9a26797d993137069d4e8fd9d7bdc47eb9708c49"
+       "post_state_hash": "f120380ea8c23b69fb4247b785aef716e50581cf941dc3c36f80b0c9cc7e7396",
+       "pre_state_hash": "0f7eb612792058c7304957e597b0b0afd3bb2228c31bd2509a918488461cd18b"
       },
       "game_over": false,
       "next_decision": {
@@ -5606,7 +5606,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 27,
        "event_sequence": 27,
-       "game_id": "wsr22-forge-5p-4f63bed5",
+       "game_id": "wsr22-forge-5p-4e49f75f",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -5944,16 +5944,16 @@
    "decision_tape": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-13ea461d-178e-4547-9c80-c3459026fc5f",
+     "chosen_option_id": "opt-9836a6da-252a-4943-afc9-2b1b95d44766",
      "kind": "STARTING_PLAYER",
      "note": "fixture-scripted seat p1",
      "offered_option_ids": [
-      "opt-13ea461d-178e-4547-9c80-c3459026fc5f",
-      "opt-bdd1d711-e59f-45bb-9709-65d6428ba5d1",
-      "opt-d5115398-1d32-4c31-bf28-0d3c8a19d143",
-      "opt-c8f2879e-c2bf-43d9-b2cb-351783123819",
-      "opt-546d74cc-ceab-4783-9eca-aa3c291f1f67",
-      "opt-cebbde0e-000d-45f8-be84-bde38407a972"
+      "opt-9836a6da-252a-4943-afc9-2b1b95d44766",
+      "opt-9ef9ed41-37f1-4e10-87f7-ff51f1b6b594",
+      "opt-d0af3d4e-022d-4b15-80f5-c4812eb4e9ae",
+      "opt-4e2f9a10-15af-4255-852a-2eb400ed09fe",
+      "opt-2a2c549c-9e1b-4d50-8762-389c8f574125",
+      "opt-7ff3ff56-45ca-494c-8347-d700774546df"
      ],
      "policy": "fixture_scripted_seat",
      "revision": 1,
@@ -5965,8 +5965,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-7e008fc8-063c-4337-9c67-48e7dedc9b1c",
-      "opt-a5e7c97d-549b-4171-af06-7b06b1b3b778"
+      "opt-2fa9e2d4-8c27-4598-970c-05032cd94a80",
+      "opt-8ff7239e-c0ee-4778-b817-ea8a66facbef"
      ],
      "policy": "keep_all",
      "revision": 2,
@@ -5978,8 +5978,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-f5059daa-3ce3-4970-8339-8792a1d6ff32",
-      "opt-0415ccd9-9e04-4c09-aa2a-f0d25b6b85a7"
+      "opt-eca12846-bcd7-4674-b3a3-84dff7d3f164",
+      "opt-f13b047f-cbc3-48c3-bc8f-b63644cf05d0"
      ],
      "policy": "keep_all",
      "revision": 3,
@@ -5991,8 +5991,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-d896caca-a778-4faa-bf00-b157b0245dd8",
-      "opt-334d9781-bdd8-4999-8665-5179bd5ab8df"
+      "opt-4e494875-9a1d-453d-8f3b-2ee33724357f",
+      "opt-8321da77-6a63-4849-bd2a-839dc30557ac"
      ],
      "policy": "keep_all",
      "revision": 4,
@@ -6004,8 +6004,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-10e35de9-4c87-4d83-a700-5665680531f0",
-      "opt-d2c4d332-f223-4058-934e-4f236243de5f"
+      "opt-bbe69da9-5747-48d4-89d1-4df7a13f7994",
+      "opt-ae189cd6-8e4e-499c-82d4-224d14ce680f"
      ],
      "policy": "keep_all",
      "revision": 5,
@@ -6017,8 +6017,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-a5301417-9eca-40e0-83fc-36e0e40816d6",
-      "opt-df746606-f6e1-44ed-ade2-9a71ffb90d65"
+      "opt-8d432b1b-2a5a-4cb2-84e0-34ec9bb6d521",
+      "opt-4922f9a6-2c9d-499b-8298-8b913d2e05c3"
      ],
      "policy": "keep_all",
      "revision": 6,
@@ -6030,8 +6030,8 @@
      "kind": "MULLIGAN",
      "note": "external keep decision; no bottoming",
      "offered_option_ids": [
-      "opt-39131a37-7b08-440c-af90-61db2fab4996",
-      "opt-66cb403a-e1ef-439b-ad0c-3b791707597c"
+      "opt-63810e3a-e1b7-4cb5-9672-b5d4b10dc576",
+      "opt-ffb1d594-910a-4f1c-b172-ef1078bbaf6a"
      ],
      "policy": "keep_all",
      "revision": 7,
@@ -6039,12 +6039,12 @@
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-f99eeb6e-5e71-4d45-bc49-63df88889e0f",
+     "chosen_option_id": "opt-6f2f46c8-9041-4cbb-9c51-6bdb06515230",
      "kind": "PRIORITY",
      "note": "external priority pass",
      "offered_option_ids": [
-      "opt-f99eeb6e-5e71-4d45-bc49-63df88889e0f",
-      "opt-c612588b-9753-4bc4-bf4d-25867da11bbd"
+      "opt-6f2f46c8-9041-4cbb-9c51-6bdb06515230",
+      "opt-6fba5d02-7d04-4e2d-a074-682dfdf5a9ce"
      ],
      "policy": "pass_when_offered",
      "revision": 8,
@@ -6061,7 +6061,7 @@
    ],
    "failure": null,
    "failure_kind": null,
-   "game_id": "wsr22-forge-6p-3e4d6d4c",
+   "game_id": "wsr22-forge-6p-a6dd0ec2",
    "observations": [
     {
      "payload": {
@@ -6073,8 +6073,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367",
-       "pre_state_hash": "a82850b9d924065dad6a2e42f76e409dd2c56717f9d36951b065beb72450836f"
+       "post_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30",
+       "pre_state_hash": "c14edc0c91774a9011ef0bdd7ffb7701461ea65d2342e4264bfc784f0ffdb68c"
       },
       "game_over": false,
       "next_decision": {
@@ -6085,7 +6085,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 9,
        "event_sequence": 9,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -6432,8 +6432,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367",
-       "pre_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367"
+       "post_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30",
+       "pre_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30"
       },
       "game_over": false,
       "next_decision": {
@@ -6444,7 +6444,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 12,
        "event_sequence": 12,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -6791,8 +6791,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367",
-       "pre_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367"
+       "post_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30",
+       "pre_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30"
       },
       "game_over": false,
       "next_decision": {
@@ -6803,7 +6803,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 15,
        "event_sequence": 15,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -7150,8 +7150,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367",
-       "pre_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367"
+       "post_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30",
+       "pre_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30"
       },
       "game_over": false,
       "next_decision": {
@@ -7162,7 +7162,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 18,
        "event_sequence": 18,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -7509,8 +7509,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367",
-       "pre_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367"
+       "post_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30",
+       "pre_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30"
       },
       "game_over": false,
       "next_decision": {
@@ -7521,7 +7521,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 21,
        "event_sequence": 21,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -7868,8 +7868,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367",
-       "pre_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367"
+       "post_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30",
+       "pre_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30"
       },
       "game_over": false,
       "next_decision": {
@@ -7880,7 +7880,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 24,
        "event_sequence": 24,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -8227,8 +8227,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "dfb37519c79a042c49d9e7ada31bde970c39f8548dba8fd4291edd64370f05b5",
-       "pre_state_hash": "bf1d21a9676003cce35275a1d77bb3794fde62a4e56cbe4080457b833e4a0367"
+       "post_state_hash": "f42391f5dbdfff502149caf92e4d25272533ba769bfbfc554c37b05afefe21d2",
+       "pre_state_hash": "815aa3a820eeacbe1b7cc7b1aebea59e52e892d90e6c9212046f1bb3206f6b30"
       },
       "game_over": false,
       "next_decision": {
@@ -8239,7 +8239,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 27,
        "event_sequence": 27,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -8586,8 +8586,8 @@
       },
       "decision": {
        "executed": true,
-       "post_state_hash": "16c3cf80818044edb792e9ed1e53cb6038fa5784c79ed50b6585f7e032df108b",
-       "pre_state_hash": "dfb37519c79a042c49d9e7ada31bde970c39f8548dba8fd4291edd64370f05b5"
+       "post_state_hash": "f360f713967be30609af255d216dc7c0e08f413ceb30a898f110b8955adb5c3b",
+       "pre_state_hash": "f42391f5dbdfff502149caf92e4d25272533ba769bfbfc554c37b05afefe21d2"
       },
       "game_over": false,
       "next_decision": {
@@ -8598,7 +8598,7 @@
        "decision_protocol_version": "forge-decision-protocol/1.0.0",
        "event_offset": 30,
        "event_sequence": 30,
-       "game_id": "wsr22-forge-6p-3e4d6d4c",
+       "game_id": "wsr22-forge-6p-a6dd0ec2",
        "legal_actions": [],
        "observer_player_id": null,
        "phase": "beginning",
@@ -8989,14 +8989,14 @@
   "decision_tape": [
    {
     "actor": "p3",
-    "chosen_option_id": "opt-9eca15fd-5906-427e-bfb7-815a01bc2207",
+    "chosen_option_id": "opt-251d07c3-9038-44d7-b045-d440defaafbb",
     "kind": "STARTING_PLAYER",
     "note": "fixture-scripted seat p1",
     "offered_option_ids": [
-     "opt-9eca15fd-5906-427e-bfb7-815a01bc2207",
-     "opt-c5d86d75-bd0a-4864-9a3e-bf380e2cc205",
-     "opt-2d0ab547-bd13-4f05-a8af-62ede849ae0e",
-     "opt-a946da9c-5743-4dc8-81e6-451b2c6fef6e"
+     "opt-251d07c3-9038-44d7-b045-d440defaafbb",
+     "opt-7d2f7c2b-1519-4f2d-8d6f-dbebe101f935",
+     "opt-dd8a0f0d-170d-4286-a41a-61cac7a29569",
+     "opt-2a3f774c-0191-48f9-9100-e9c64200fc71"
     ],
     "policy": "fixture_scripted_seat",
     "revision": 1,
@@ -9008,8 +9008,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-8e2b974b-9bb5-45e2-8ce1-453bbd54b9dd",
-     "opt-5a8848bd-594d-474d-9194-f422e88d6b19"
+     "opt-cabfc1bc-aaee-466c-9e3a-3c13d46b8f35",
+     "opt-044387b5-8fdf-4e2b-9a5d-dc0a05b2a07d"
     ],
     "policy": "keep_all",
     "revision": 2,
@@ -9021,8 +9021,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-456e4489-18f8-4d03-8872-bbe5c2f30bcf",
-     "opt-bd9cabfc-7cc7-400a-95ef-5e92b35f6ecb"
+     "opt-0e34f717-ff42-48f4-b4ea-e5825aca46ab",
+     "opt-c148ecd0-90eb-461e-90a6-395cb79a9000"
     ],
     "policy": "keep_all",
     "revision": 3,
@@ -9034,8 +9034,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-b4bd43da-a3d6-45f6-860d-679c52c9f416",
-     "opt-ce73c8b0-943a-42c0-bdf0-d89fd0a8a531"
+     "opt-4018cbcd-493b-447a-8945-4940d26a36cd",
+     "opt-8f89f8c3-95d9-4260-8b4f-5962b5f1d079"
     ],
     "policy": "keep_all",
     "revision": 4,
@@ -9047,8 +9047,8 @@
     "kind": "MULLIGAN",
     "note": "external keep decision; no bottoming",
     "offered_option_ids": [
-     "opt-782791aa-4eec-45cb-8c81-943e9df62872",
-     "opt-0650dca0-29ae-4ded-985e-86c3a8a6de19"
+     "opt-198461e7-bfb3-4ea9-aeb6-be416eeb61ff",
+     "opt-4156748c-9139-4841-ba70-f4f248f8deaa"
     ],
     "policy": "keep_all",
     "revision": 5,
@@ -9056,12 +9056,12 @@
    },
    {
     "actor": "p1",
-    "chosen_option_id": "opt-7989bfe7-7227-4c90-9466-b445b2635a21",
+    "chosen_option_id": "opt-42555a7e-e175-4055-880c-d3ad8b4e57fb",
     "kind": "PRIORITY",
     "note": "external priority pass",
     "offered_option_ids": [
-     "opt-7989bfe7-7227-4c90-9466-b445b2635a21",
-     "opt-c050fe70-0d01-481d-aa1e-2fc5de4cef75"
+     "opt-42555a7e-e175-4055-880c-d3ad8b4e57fb",
+     "opt-f0c77a30-8b5c-4de1-bd7a-0339222fedbc"
     ],
     "policy": "pass_when_offered",
     "revision": 6,
@@ -9076,7 +9076,7 @@
   ],
   "failure": null,
   "failure_kind": null,
-  "game_id": "wsr22-forge-4p-6ab009b5",
+  "game_id": "wsr22-forge-4p-a382ae72",
   "observations": [
    {
     "payload": {
@@ -9088,8 +9088,8 @@
      },
      "decision": {
       "executed": true,
-      "post_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca",
-      "pre_state_hash": "75bfd364b0f7d314cc52936e7f2b949a220ebe7ae5251a900f4775c9c949d462"
+      "post_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7",
+      "pre_state_hash": "55ca341417307e87a75c3bb1626214a0262e263b7bfff7f26645e164a6f53d2c"
      },
      "game_over": false,
      "next_decision": {
@@ -9100,7 +9100,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 9,
       "event_sequence": 9,
-      "game_id": "wsr22-forge-4p-6ab009b5",
+      "game_id": "wsr22-forge-4p-a382ae72",
       "legal_actions": [],
       "observer_player_id": null,
       "phase": "beginning",
@@ -9345,8 +9345,8 @@
      },
      "decision": {
       "executed": true,
-      "post_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca",
-      "pre_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca"
+      "post_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7",
+      "pre_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7"
      },
      "game_over": false,
      "next_decision": {
@@ -9357,7 +9357,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 12,
       "event_sequence": 12,
-      "game_id": "wsr22-forge-4p-6ab009b5",
+      "game_id": "wsr22-forge-4p-a382ae72",
       "legal_actions": [],
       "observer_player_id": null,
       "phase": "beginning",
@@ -9602,8 +9602,8 @@
      },
      "decision": {
       "executed": true,
-      "post_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca",
-      "pre_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca"
+      "post_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7",
+      "pre_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7"
      },
      "game_over": false,
      "next_decision": {
@@ -9614,7 +9614,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 15,
       "event_sequence": 15,
-      "game_id": "wsr22-forge-4p-6ab009b5",
+      "game_id": "wsr22-forge-4p-a382ae72",
       "legal_actions": [],
       "observer_player_id": null,
       "phase": "beginning",
@@ -9859,8 +9859,8 @@
      },
      "decision": {
       "executed": true,
-      "post_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca",
-      "pre_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca"
+      "post_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7",
+      "pre_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7"
      },
      "game_over": false,
      "next_decision": {
@@ -9871,7 +9871,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 18,
       "event_sequence": 18,
-      "game_id": "wsr22-forge-4p-6ab009b5",
+      "game_id": "wsr22-forge-4p-a382ae72",
       "legal_actions": [],
       "observer_player_id": null,
       "phase": "beginning",
@@ -10116,8 +10116,8 @@
      },
      "decision": {
       "executed": true,
-      "post_state_hash": "288c3dbea9dc538137f81667037b8b0fc3e371c8647cb29752cc008e3a6b5a77",
-      "pre_state_hash": "5c8a26a750046114913f3acabb66101e5b591501086db0cbda860e4a9529f2ca"
+      "post_state_hash": "1fb0968f6592275752305669869b7be00106b339f3fd46927cddcb76199c2875",
+      "pre_state_hash": "e90d5e9b7ae7ce23eeb0e19e250f4baef498fa0c238f9b82ddb942ebd6bbf8a7"
      },
      "game_over": false,
      "next_decision": {
@@ -10128,7 +10128,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 21,
       "event_sequence": 21,
-      "game_id": "wsr22-forge-4p-6ab009b5",
+      "game_id": "wsr22-forge-4p-a382ae72",
       "legal_actions": [],
       "observer_player_id": null,
       "phase": "beginning",
@@ -10373,8 +10373,8 @@
      },
      "decision": {
       "executed": true,
-      "post_state_hash": "2d2ef6b973f3ab1aad26037ae0672ed503075d518264f46dbbd9fa4194035fac",
-      "pre_state_hash": "288c3dbea9dc538137f81667037b8b0fc3e371c8647cb29752cc008e3a6b5a77"
+      "post_state_hash": "776a86bae835269b09331c6f8837efb6fc406aca3fe7bf20c4f092c9126a53e5",
+      "pre_state_hash": "1fb0968f6592275752305669869b7be00106b339f3fd46927cddcb76199c2875"
      },
      "game_over": false,
      "next_decision": {
@@ -10385,7 +10385,7 @@
       "decision_protocol_version": "forge-decision-protocol/1.0.0",
       "event_offset": 24,
       "event_sequence": 24,
-      "game_id": "wsr22-forge-4p-6ab009b5",
+      "game_id": "wsr22-forge-4p-a382ae72",
       "legal_actions": [],
       "observer_player_id": null,
       "phase": "beginning",
@@ -10681,7 +10681,7 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 24,
     "event_sequence": 24,
-    "game_id": "wsr22-forge-4p-6ab009b5",
+    "game_id": "wsr22-forge-4p-a382ae72",
     "legal_actions": [],
     "observer_player_id": "p1",
     "phase": "beginning",
@@ -10941,17 +10941,17 @@
     },
     "revision": 7,
     "session_status": "RUNNING",
-    "state_hash": "2d2ef6b973f3ab1aad26037ae0672ed503075d518264f46dbbd9fa4194035fac"
+    "state_hash": "776a86bae835269b09331c6f8837efb6fc406aca3fe7bf20c4f092c9126a53e5"
    },
    "state": {
     "active_player_id": "p1",
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 24,
     "event_sequence": 24,
-    "game_id": "wsr22-forge-4p-6ab009b5",
+    "game_id": "wsr22-forge-4p-a382ae72",
     "legal_actions": [
      {
-      "action_id": "opt-b67eb7ef-36fd-4a0a-b0c4-b6ce847ca7d5",
+      "action_id": "opt-e31828f8-e5d4-42d8-b173-cb3c6d5b8a8c",
       "action_type": "pass_priority",
       "actor_id": "p2",
       "allowed_target_ids": [],
@@ -10970,7 +10970,7 @@
       "target_ids": []
      },
      {
-      "action_id": "opt-00d8c81c-46f6-4b72-8dae-b80cc076df9d",
+      "action_id": "opt-1ef98661-5008-43d5-bf0f-49020d65996c",
       "action_type": "concede",
       "actor_id": "p2",
       "allowed_target_ids": [],
@@ -11232,7 +11232,7 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 24,
     "event_sequence": 24,
-    "game_id": "wsr22-forge-4p-6ab009b5",
+    "game_id": "wsr22-forge-4p-a382ae72",
     "legal_actions": [],
     "observer_player_id": "p3",
     "phase": "beginning",
@@ -11477,7 +11477,7 @@
     "decision_protocol_version": "forge-decision-protocol/1.0.0",
     "event_offset": 24,
     "event_sequence": 24,
-    "game_id": "wsr22-forge-4p-6ab009b5",
+    "game_id": "wsr22-forge-4p-a382ae72",
     "legal_actions": [],
     "observer_player_id": "p4",
     "phase": "beginning",
