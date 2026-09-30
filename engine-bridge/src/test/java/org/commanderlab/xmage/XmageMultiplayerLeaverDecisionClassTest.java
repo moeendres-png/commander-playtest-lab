@@ -199,8 +199,12 @@ class XmageMultiplayerLeaverDecisionClassTest {
                 JsonObject result = s.session.submitConcede(concede);
                 assertFalse(s.seats.get("P1").isInGame(), "P1 left the game");
                 assertTrue(result.get("decision").isJsonNull(), "no frame stays answerable for P1: " + result);
-                assertTrue(result.getAsJsonObject("failure").get("message").getAsString()
-                        .startsWith("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount"), result.toString());
+                // The controller's code is either reported directly or, once the
+                // engine thread has already surfaced it, wrapped as a game failure.
+                String message = result.getAsJsonObject("failure").get("message").getAsString();
+                assertTrue(message.startsWith("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount")
+                        || message.startsWith("XMAGE_FULL_GAME_FAILED: DecisionException: "
+                                + "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount"), result.toString());
                 return;
             }
             switch (cls) {
