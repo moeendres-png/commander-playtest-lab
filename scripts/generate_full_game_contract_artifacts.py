@@ -55,7 +55,11 @@ def invariant_report() -> dict[str, Any]:
     """The lane's invariant report; the player range is the runner's own."""
     minimum, maximum = XmageFullGameRunner.MIN_PLAYERS, XmageFullGameRunner.MAX_PLAYERS
     return {
-        "schema_version": "xmage-full-game-architecture-invariant-report-1.1.0",
+        "schema_version": "xmage-full-game-architecture-invariant-report-1.2.0",
+        # C3: every flag below is the lane's design contract, not a runtime
+        # observation; per-run evidence lives in XMAGE_FULL_GAME_CONFORMANCE.json
+        # ("claim_basis") and HIDDEN_INFORMATION_BOUNDARY_REPORT.json ("observed").
+        "evidence_status": "DECLARED_CONTRACT",
         "lane": FULL_GAME_LANE,
         "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
         "min_players": minimum,

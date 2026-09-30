@@ -47,7 +47,7 @@ jobs:
     outputs:
       relevant: ${{ steps.scope.outputs.relevant }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 2
       - id: scope
@@ -106,9 +106,9 @@ jobs:
             exit 1
           }
       - name: Checkout lab
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - name: Checkout pinned XMage
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: moeendres-png/mage
           ref: ${{ env.XMAGE_COMMIT }}
@@ -120,7 +120,7 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
@@ -239,7 +239,7 @@ jobs:
             | sort -z \
             | xargs -0 sha256sum \
             > artifacts/external-engine/external-engine-checksums.sha256 || true
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: external-engine-b4f-evidence-${{ github.sha }}
@@ -248,7 +248,7 @@ jobs:
             engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
           if-no-files-found: error
       - name: Upload legacy B4-D artifact-name compatibility alias
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: external-engine-b4d-evidence-${{ github.sha }}

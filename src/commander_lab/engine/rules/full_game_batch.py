@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import RulesDeckInput
 
+from .failure_privacy import redacted_exception_message
 from .full_game import (
     FULL_GAME_EVIDENCE_CLASS,
     FullGameConformanceError,
@@ -94,6 +95,10 @@ class FullGameBatchReport(_StrictModel):
     records: tuple[FullGameBatchRecord, ...]
     evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
     one_isolated_jvm_per_executed_game: Literal[True] = True
+    # C3: the three flags above are the runner's design (a fresh bridge process
+    # per executed game, content-addressed reuse, retry only on request),
+    # enforced by this module's code path; they are not measured per batch.
+    claim_basis: Literal["CODE_DERIVED"] = "CODE_DERIVED"
     idempotent_completed_run_reuse: Literal[True] = True
     failed_runs_retry_only_when_requested: Literal[True] = True
     consumed_gameplay_evidence: Literal[False] = False
@@ -227,7 +232,7 @@ class XmageFullGameBatchRunner:
             status="failed",
             elapsed_seconds=time.monotonic() - started,
             failure_class=failure_class,
-            failure_message=str(exc),
+            failure_message=redacted_exception_message(exc),
         )
 
     @staticmethod
