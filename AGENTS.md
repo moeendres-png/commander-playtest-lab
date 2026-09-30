@@ -132,7 +132,7 @@ Technical autonomy within those tiers is defined in §8.
 
 ## 7. Execution effort
 
-Active project execution has exactly two allowed identities:
+Active OpenCode Foundry execution has exactly two allowed launcher identities:
 
 - DeepSeek: native `max` only. This is the default and preferred execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence and
