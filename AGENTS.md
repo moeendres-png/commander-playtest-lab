@@ -119,15 +119,21 @@ requalification.
   mechanical, token-heavy, bulk and background work. Muse and GLM are inactive: they are
   not reachable through the canonical launcher or config. Executor selection is explicit
   per run, recorded, never inferred from quota or failure, and never falls back silently.
+- Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the
+  session prompt declares the campaign objective and writable ownership surface. Claude
+  may execute large autonomous campaigns under the same Rules, evidence, privacy,
+  ownership, Git and merge gates defined here; model identity never grants authority to
+  cross a reserved Coordinator gate.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode Foundry insufficient; genuinely
-  required; smallest necessary scope). Never the normal engineering path.
+  capability identified; Sol High insufficient; OpenCode Foundry and any available
+  authorized Claude campaign insufficient; genuinely required; smallest necessary scope).
+  Never the normal engineering path.
 
 Technical autonomy within those tiers is defined in §8.
 
 ## 7. Execution effort
 
-Active project execution has exactly two allowed identities:
+Active OpenCode Foundry execution has exactly two allowed launcher identities:
 
 - DeepSeek: native `max` only. This is the default and preferred execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence and
@@ -159,6 +165,9 @@ Routing distinction:
 - Space Bunny MAX: explicit secondary execution profile for bounded, mechanical,
   token-heavy, bulk and background work, and for deliberately authorized cross-model
   checks. It never runs below native `max`.
+- Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
+  contract. It may own campaign-sized technical execution and continuous task selection
+  inside declared ownership, but does not inherit Foundry-specific launcher permissions.
 - Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
   cross-workstream authority, Provider Selection, Architecture Freeze.
 
@@ -205,6 +214,125 @@ Only a real Rules, Evidence-Policy, Architecture, Scope, Provider, or Freeze
 authority question becomes an `AUTHORITY_GATE` for Sol High. A technical decision
 is never an authority decision: reaching and persisting a root cause within policy
 is the job, not an escalation.
+
+
+### Autonomous campaign authority
+
+`AUTONOMOUS_CAMPAIGN_AUTHORITY = ENABLED`
+`ASSUMPTIONS_ARE_CHALLENGEABLE = TRUE`
+`SCOPE_EXPANSION_WITHIN_OBJECTIVE = AUTONOMOUS`
+
+An explicitly authorized project executor may own a campaign-sized workstream rather than
+only one ticket or one preselected implementation task. A campaign remains one primary
+workstream when its sequential milestones serve one coherent objective, even when it
+contains multiple investigations, fixes, qualification steps, PRs and integrations.
+
+Within that campaign the worker is expected to:
+
+1. refresh canonical source truth, ownership, CI and evidence;
+2. identify the highest-value currently unowned problem inside the campaign objective;
+3. investigate root cause and actively search for contradictory evidence;
+4. challenge existing technical assumptions rather than preserving them by inertia;
+5. implement or remediate on the correct owned surface when authorized;
+6. validate with discriminating tests and negative controls;
+7. integrate and persist evidence/checkpoints;
+8. reassess the project and choose the next useful unowned milestone;
+9. continue until the campaign is COMPLETE or a genuine stop condition exists.
+
+Finishing one ticket, test, bug fix or PR is not by itself a campaign stop condition.
+
+#### Challenge mandate
+
+No engine candidate, bridge, harness, workflow, test, benchmark, architecture hypothesis,
+historical technical conclusion, documentation statement or project convention is
+technically immune merely because it is old, widely used, previously green, named
+`CURRENT`/`FINAL`, expensive to replace, or authored by another model/worker.
+
+For material assumptions ask, as applicable:
+
+- Is this still true on the current source lock?
+- Would this test fail if the claimed mechanic were actually broken?
+- Can this PASS for the wrong reason?
+- Is there an engine-native or simpler systemic solution?
+- Is this evidence still valid after later code/pin/contract/harness changes?
+- Is this complexity still necessary?
+- Is the current bottleneck artificial or duplicated work?
+- Is a local patch hiding a more general defect?
+
+Fresher higher-authority evidence outranks project inertia. A worker may overturn an older
+technical conclusion when current evidence demonstrates it is wrong, but must preserve
+provenance and record why the prior conclusion is superseded rather than rewriting history.
+
+There are no sacred implementations and no candidate receives incumbent protection.
+Prefer the strongest currently supportable solution under Rules Correctness, evidence
+integrity, simplicity, maintainability and then performance. Sunk cost is not evidence.
+This does not authorize Production Provider selection or Architecture Freeze.
+
+#### Bounded autonomous scope expansion
+
+Adjacent technical work that materially advances the SAME campaign objective is not a
+material scope expansion merely because it was not visible at campaign start. The worker
+may autonomously take such work when it is high-value or necessary and does not:
+
+- cross an active ownership boundary;
+- introduce a genuinely new project objective;
+- alter reserved Rules/evidence/qualification policy;
+- select a provider or claim Architecture Freeze;
+- weaken privacy, Rules authority, fail-closed semantics or evidence standards.
+
+Examples include repairing an adjacent systemic defect, fixing a misleading/flaky test,
+repairing CI needed to qualify the work, adding a missing regression harness, performing
+required impact adjudication, or resolving a newly exposed prerequisite.
+
+A genuinely new project objective, shared-architecture decision, Rules dispute,
+evidence-policy change, ownership conflict, Provider Selection or Architecture Freeze
+remains an authority gate.
+
+#### Project-wide read, bounded write
+
+Authorized campaign workers should inspect the whole relevant project and candidate-engine
+history read-only when that improves technical decisions. Project-wide understanding is
+encouraged; project-wide write authority is not implied. Mutation remains limited to
+declared owned surfaces.
+
+#### Continuous task selection and stop conditions
+
+After each milestone, refresh canonical HEAD/tree, open PRs/issues, current ownership, CI
+and evidence state. If useful unowned work remains inside the campaign objective, select
+the next milestone without asking the user to choose routine technical work.
+
+Stop only when:
+
+- the campaign objective is COMPLETE;
+- every worthwhile remaining task is owned elsewhere;
+- a genuine authority/ownership/source/permission gate blocks all useful continuation;
+- an external dependency makes further progress impossible; or
+- resource/tool limits require a resumable handoff.
+
+A gate on one subproblem does not terminate the campaign when independent useful work
+remains.
+
+#### Claude Opus 5.5 campaign executor
+
+An explicitly launched Claude Opus 5.5 engineering session may receive this same
+autonomous technical campaign authority when its prompt declares the campaign objective,
+repository context and writable ownership surface or surfaces. Claude is not restricted to
+advisory or review work: within its authorized surfaces it may investigate, implement,
+test, debug, commit, push, maintain PRs and integrate its own work under the same project
+Rules, evidence, privacy, Git and merge gates.
+
+A bounded integration campaign may own multiple disjoint repository/worktree mutation
+surfaces when one coherent objective genuinely requires them. Every writable surface must
+be freshly verified, explicitly declared, free of another active writer (or transferred by
+a persisted handoff), and governed by the same campaign ownership. Undeclared, foreign-
+active or unknown-owner surfaces remain read-only. Multi-surface authority never implies
+project-wide write authority.
+
+Claude must still re-read current repository authority and fresh ownership before material
+mutation. Tool/runtime capabilities are not inferred from model identity: unavailable,
+ask-gated or denied operations remain real boundaries. Claude may not use this section to
+bypass Foundry-specific sandboxing, another worker's ownership, protected branches,
+reserved Coordinator decisions or any hard prohibition in this file.
 
 ## 9. Reuse-first gate
 
