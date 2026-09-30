@@ -25,8 +25,8 @@ out_of_scope:
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
   session after the handoff of 2026-09-30 evening (single writer)
 status: ACTIVE
-exact_next_action: 'Merge #423 when exact-head CI is green; open the forge R-3 PR against #11; then C1, C2, D2,
-  F1, F2, G1, E1, R1 and PB-03 row onboarding (R-4). B1 still a Coordinator decision.'
+exact_next_action: 'Next milestones: C1, C2, D2, F1, F2, G1, E1, R1 and PB-03 row onboarding (R-4), each after an
+  ownership check against #425 and the open PRs. B1 still a Coordinator decision.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -36,8 +36,9 @@ technical_decisions:
   Then Wave A (all four live, none owned by an open PR).'
 - 'B2 uses separate positive fixture receipts in receipts/positive/ with their own validated loader (option A);
   the runner/assembler wiring is handed to #408/#395 because that surface is theirs.'
-- 'Owner accepted R-1..R-4 on #255 (2026-09-30); PB-09 closed (#297/#299 DONOR_EVIDENCE); R-3 Forge AF01 unsupported-decision
-  fix goes to forge#11 as a PR from claude/optimistic-bohr-6asye6'
+- 'Owner accepted R-1..R-4 on #255 (2026-09-30); PB-09 closed (#297/#299 DONOR_EVIDENCE); forge#11 admitted; the
+  R-3 Forge AF01 fix is owned and delivered by another lane (forge#13 inside integrated forge#16); this session''s
+  identical local fix was discarded unpushed'
 source_lock:
   repository: moeendres-png/commander-playtest-lab
   audit_start_main: c7f420fb49c704444349c5f24a8570c224f2b63d
@@ -65,8 +66,7 @@ ownership_observed:
   PR#419: MERGED (own)
   PR#422: MERGED b3d29ff9 (B4, B5, A4 closeout, B1 memo)
   PR#420: 'MERGED 3e3cd11a (F-42 follow-up 2; conformance was red at merge, fixed in #423)'
-  PR#423: 'OPEN (this session): red-main fix, Node-24 pins, first-option ratchet, PR classification, Coordinator
-    decision packet'
+  PR#423: MERGED 2026-09-30 20:10
 tasks:
   A1:
     status: FIXED

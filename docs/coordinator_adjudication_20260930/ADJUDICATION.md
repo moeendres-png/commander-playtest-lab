@@ -10,7 +10,8 @@
 
 Follow-ups executed:
 - #297 and #299 are closed as `DONOR_EVIDENCE`.
-- The R-3 Forge bridge repair was opened as a PR against forge#11.
+- forge#11 (including #12) was admitted into the Forge candidate.
+- The R-3 Forge bridge repair is delivered by forge#13, inside the integrated gate forge#16.
 
 R-5 stays a finding, not a ruling. B1, SLOT-04/05/06/08/09, provider selection and Freeze are **not** decided by this record.
 
