@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import mage.constants.Zone;
 import mage.game.Game;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
@@ -29,6 +30,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Before the fix it still offered "Cast Lightning Bolt", which the engine no
  * longer executes, so picking it failed the lane with
  * {@code XMAGE_ACTION_EXECUTION_FAILED}.</p>
+ *
+ * <p>Mid-cast: P2 concedes while its own Bolt's target or payment frame is
+ * open, then answers it. The engine refuses the rest of the cast of a player
+ * who left, so it unwinds like a cancelled payment; before the fix the lane
+ * failed with "priority cast failed" or "mana activation failed".</p>
  */
 class XmageMultiplayerLeaverStackTest {
 
@@ -95,5 +101,51 @@ class XmageMultiplayerLeaverStackTest {
             s.submit(s.action("pass_priority", "Pass"));
         }
         assertEquals(40, s.seats.get("P3").getLife(), "P3 took no damage from the departed Bolt");
+    }
+
+    @ParameterizedTest(name = "{0} players, concede at {1}")
+    @CsvSource({"4,target", "4,mana_payment", "5,target", "5,mana_payment"})
+    void aCastInProgressUnwindsWhenItsCasterLeaves(int playerCount, String concedeAt) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P2", "Lightning Bolt", 0, Zone.HAND));
+        objects.add(XmageMultiplayerScenario.obj("P2", "Mountain", 1, Zone.BATTLEFIELD));
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "midcast-" + concedeAt + "-" + playerCount + "p", playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
+        String p2 = s.seats.get("P2").getId().toString();
+        boolean conceded = false;
+        int afterLeave = 0;
+        for (int i = 0; i < 60 && afterLeave < 2 * playerCount; i++) {
+            String cls = s.decisionClass();
+            String actor = s.actor();
+            if (!conceded && "P2".equals(actor) && concedeAt.equals(cls)) {
+                JsonObject concede = new JsonObject();
+                concede.addProperty("proposal_id", "p2-concede-" + concedeAt);
+                concede.addProperty("actor_id", p2);
+                concede.addProperty("player_id", p2);
+                assertTrue(s.session.submitConcede(concede).get("failure").isJsonNull());
+                assertFalse(s.seats.get("P2").isInGame(), "P2 left the game");
+                conceded = true;
+                // P2 still answers its own open frame (WS213) with an offered option.
+            } else if (conceded && !"P2".equals(actor)) {
+                afterLeave++;
+            }
+            switch (cls) {
+                case "priority" -> s.submit("P2".equals(actor) && !conceded
+                        ? s.action("activate_ability", "Cast Lightning Bolt") : s.action("pass_priority", "Pass"));
+                case "target" -> s.submit(s.action("choose_targets", "Seat 3"));
+                case "mana_payment" -> s.submit(s.action("pay_cost", "Mountain"));
+                default -> fail("unexpected " + cls + " for " + actor + " " + s.labels());
+            }
+            assertTrue(s.session.pendingDecisionPayload().get("failure").isJsonNull(),
+                    "the lane goes on after P2 answers its open frame");
+            if (conceded && afterLeave > 0) {
+                assertFalse(p2.equals(s.session.pendingDecisionPayload().getAsJsonObject("decision")
+                        .get("actor_id").getAsString()), "P2 is never asked again");
+            }
+        }
+        assertTrue(conceded, "control: P2 reached its " + concedeAt + " frame");
+        assertTrue(game.getStack().isEmpty(), "the departed Bolt never reached the stack for good");
+        assertEquals(40, s.seats.get("P3").getLife(), "P3 took no damage from the departed caster");
     }
 }

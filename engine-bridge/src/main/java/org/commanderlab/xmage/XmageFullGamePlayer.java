@@ -372,7 +372,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     (SpellAbility) ability, game, false,
                     new mage.ApprovingObject(ability, game));
             if (!cast) {
-                if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+                if (paymentCancelled || emptyRequiredTarget || noViableMode || leftMidAction()) {
                     // Graceful abort: pilot cancelled funding mid-payment,
                     // or a required target choice had zero legal options
                     // (paper 601.2 rewinds the illegal announcement).
@@ -387,7 +387,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         boolean activated = activateAbility(ability, game);
         if (!activated) {
-            if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+            if (paymentCancelled || emptyRequiredTarget || noViableMode || leftMidAction()) {
                 // Graceful abort: pilot cancelled funding mid-payment, or
                 // a required target choice had zero legal options.
                 // Pass priority; partial payments are real game state
@@ -812,6 +812,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         boolean activated = activateAbility(manaAbility, game);
         if (!activated) {
+            if (leftMidAction()) {
+                // F-39: the payer left the game mid-payment; the engine
+                // refuses the activation, so the cast unwinds as cancelled.
+                paymentCancelled = true;
+                return false;
+            }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "mana activation failed: " + selected);
         }
         return true;
@@ -1356,6 +1362,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void shuffleLibrary(Ability source, Game game) {
         super.shuffleLibrary(source, game);
+    }
+
+    /**
+     * F-39: this player conceded while one of its own casts or activations
+     * was in progress. A player who left takes no actions (CR 800.4a), so
+     * the engine refuses the rest of it; the action unwinds like a cancelled
+     * payment instead of failing the lane. Nothing is chosen for the player.
+     */
+    private boolean leftMidAction() {
+        return !isInGame();
     }
 
     @Override
