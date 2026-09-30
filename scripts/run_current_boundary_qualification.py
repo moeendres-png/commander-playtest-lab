@@ -35,8 +35,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from commander_lab.qualification.current_boundary import (  # noqa: E402
-    FORGE_CANDIDATE_COMMIT,
-    FORGE_WSR20_EVIDENCE_TIP,
     NEGATIVE_ROWS,
     PILOT_ROWS,
     REPLAY_ROWS,
@@ -44,6 +42,8 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     boundary_receipt,
     build_deck,
     build_launch_plan,
+    canonical_forge_authority,
+    canonical_forge_rules_core_pin,
     canonical_xmage_engine_pin,
     cardinality_row,
     drive_commander_game,
@@ -78,11 +78,6 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     run_cardinality,
     summarize,
 )
-from commander_lab.qualification.current_boundary.source_lock import (  # noqa: E402
-    FORGE_BRIDGE_EVIDENCE_COMMIT,
-    FORGE_BRIDGE_EVIDENCE_TREE,
-)
-
 # The evidence epoch this run writes into: an explicitly identified runtime
 # epoch whose identity is the producing source (commit+tree), never the
 # historical WSR22 tree. Both scripts resolve it through the one shared function
@@ -219,9 +214,9 @@ def _bridge_identity_proof(
 def resolve_forge_workspace(
     workspace: Path | str | None = None,
     *,
-    expected_rules_core_commit: str = FORGE_CANDIDATE_COMMIT,
-    expected_bridge_commit: str = FORGE_BRIDGE_EVIDENCE_COMMIT,
-    expected_bridge_tree: str = FORGE_BRIDGE_EVIDENCE_TREE,
+    expected_rules_core_commit: str | None = None,
+    expected_bridge_commit: str | None = None,
+    expected_bridge_tree: str | None = None,
 ) -> dict[str, Any]:
     """Resolve and fully bind the Forge checkout a credited run executes in.
 
@@ -234,6 +229,25 @@ def resolve_forge_workspace(
     equivalent to the recorded candidate, and that its bridge module is the
     bound bridge/evidence identity. Anything unprovable fails closed.
     """
+    authority = canonical_forge_authority()
+    expected_rules_core_commit = expected_rules_core_commit or authority["rules_core_commit"]
+    expected_bridge_commit = expected_bridge_commit or authority["bridge_commit"]
+    expected_bridge_tree = expected_bridge_tree or authority["bridge_tree"]
+    if expected_rules_core_commit != authority["rules_core_commit"]:
+        raise ForgeWorkspaceError(
+            "CURRENT_AUTHORITY_DIVERGENCE: requested Rules-Core identity does not equal "
+            "config/rules_engines.json"
+        )
+    if expected_bridge_commit != authority["bridge_commit"]:
+        raise ForgeWorkspaceError(
+            "CURRENT_AUTHORITY_DIVERGENCE: requested bridge identity does not equal "
+            "config/rules_engines.json"
+        )
+    if expected_bridge_tree != authority["bridge_tree"]:
+        raise ForgeWorkspaceError(
+            "CURRENT_AUTHORITY_DIVERGENCE: requested bridge tree does not equal "
+            "config/rules_engines.json"
+        )
     if workspace is None:
         root = require_forge_workspace().resolve()
     else:
@@ -345,11 +359,10 @@ def resolve_suite_root(candidate: str) -> dict[str, Any]:
 # (require_forge_workspace). Which Forge head is the candidate is PB-09's
 # question, not this runner's.
 #
-# The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
-# evidence head is Forge PR #5 e15f37d6, which changes forge-protocol2-bridge
-# only. engine_tree_equivalence re-proves that separation on every run, and
-# resolve_forge_workspace additionally binds the executing bridge module tree and
-# refuses a dirty checkout.
+# Live R-1/R-3 identities are resolved from config/rules_engines.json on every
+# execution: #11/#12 is the admitted Rules-Core candidate and the bridge-only
+# #13 descendant is the materialization source. The historical WSR22 source-lock
+# constants remain untouched and are never used as live execution authority.
 FORGE_WORKSPACE_ENV = "FORGE_WORKSPACE"
 FORGE_WORKSPACE: Path | None = (
     Path(os.environ[FORGE_WORKSPACE_ENV]) if os.environ.get(FORGE_WORKSPACE_ENV) else None
@@ -401,7 +414,7 @@ def _native_identity(candidate: str) -> dict[str, str]:
         }
     return {
         "repository": "https://github.com/moeendres-png/forge",
-        "expected_engine_commit": FORGE_CANDIDATE_COMMIT,
+        "expected_engine_commit": canonical_forge_rules_core_pin(),
         "build_identity": json.dumps(
             {"bridge": "forge-protocol2-bridge", "lane": "maven-surefire"}
         ),
@@ -632,14 +645,18 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
         )
     else:
         forge = resolve_forge_workspace()
+        authority = canonical_forge_authority()
         base.update(
             {
-                "engine_candidate_commit": FORGE_CANDIDATE_COMMIT,
-                "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
+                "engine_candidate_commit": authority["rules_core_commit"],
+                "engine_candidate_tree": authority["rules_core_tree"],
+                "bridge_source_commit": authority["bridge_commit"],
+                "bridge_source_tree": authority["bridge_tree"],
                 "adapter": "forge-protocol2-bridge (read-only reference checkout)",
                 "adapter_commit": forge["actual_commit"],
                 "adapter_tree": forge["actual_tree"],
                 "forge_workspace": forge["workspace"],
+                "rules_core_identity": forge["rules_core_identity_proof"],
                 "bridge_identity": forge["bridge_identity_proof"],
                 "lane": "protocol2-jsonl",
             }
@@ -715,7 +732,8 @@ def run_native_suite(
         }
         build_identity.update(
             {
-                "bridge_evidence_commit": bridge_proof["expected_bridge_commit"],
+                "bridge_source_commit": bridge_proof["expected_bridge_commit"],
+                "rules_core_candidate_commit": resolved["expected_engine_commit"],
                 "bridge_module_tree": bridge_proof["actual_bridge_module_tree"],
                 "workspace_head": actual_head,
             }
