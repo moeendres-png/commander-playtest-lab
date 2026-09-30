@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -395,6 +396,7 @@ def run_native_suite(
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
     started = receipt_mod._now()
+    started_epoch = time.time()
     completed = subprocess.run(
         argv, cwd=str(spec["root"]), capture_output=True, text=True, check=False, timeout=7200
     )
@@ -415,6 +417,17 @@ def run_native_suite(
         print(f"native suite {candidate}:{group}: {exc}")
         summary = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     receipt_mod.verify_runner_unchanged(REPO_ROOT, runner)
+    # The execution identity of every requested class, from the surefire XML this
+    # run wrote: an aggregate count cannot show that a requested class executed.
+    root = Path(spec["root"])
+    report_dirs = [root / "target" / "surefire-reports", *root.glob("*/target/surefire-reports")]
+    executed_classes, unexecuted_classes = receipt_mod.observed_class_executions(
+        report_dirs, tuple(spec["classes"][group]), not_before=started_epoch - 1.0
+    )
+    if unexecuted_classes:
+        print(
+            f"native suite {candidate}:{group}: requested classes not executed: {unexecuted_classes}"
+        )
     receipt = receipt_mod.NativeSuiteReceipt(
         candidate=candidate,
         group=group,
@@ -438,6 +451,8 @@ def run_native_suite(
         environment=receipt_mod.environment_identity(),
         runner=runner,
         classes=tuple(spec["classes"][group]),
+        executed_classes=executed_classes,
+        unexecuted_classes=unexecuted_classes,
     )
     document = receipt.to_document()
     document["result_lines"] = [line.strip() for line in text.splitlines() if "Tests run:" in line][

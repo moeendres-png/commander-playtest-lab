@@ -40,6 +40,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 RUNNER_IDENTITY_SCHEMA = "commander-lab.runner-identity/1.0.0"
 NATIVE_SUITE_RECEIPT_SCHEMA = "commander-lab.native-suite-receipt/1.0.0"
@@ -306,6 +307,10 @@ class NativeSuiteReceipt:
     # that never ran, which is the defect this pair exists to prevent.
     executed_commit: str = ""
     engine_identity_proof: dict[str, Any] = field(default_factory=dict)
+    # Observed per-class execution identity (surefire XML written during this
+    # run), and every requested class that did not demonstrably execute.
+    executed_classes: dict[str, dict[str, Any]] = field(default_factory=dict)
+    unexecuted_classes: tuple[str, ...] = ()
 
     def to_document(self) -> dict[str, Any]:
         doc = {
@@ -331,6 +336,10 @@ class NativeSuiteReceipt:
             "runner": self.runner.to_document(),
             "runner_digest": self.runner.digest(),
             "classes": list(self.classes),
+            "executed_classes": {
+                name: dict(row) for name, row in sorted(self.executed_classes.items())
+            },
+            "unexecuted_classes": list(self.unexecuted_classes),
             "positive_fixtures": [dict(row) for row in self.positive_fixtures],
         }
         doc["receipt_digest"] = _digest(doc)
@@ -341,7 +350,6 @@ _MVN_SUMMARY = re.compile(
     r"Tests run:\s*(?P<tests>\d+),\s*Failures:\s*(?P<failures>\d+),\s*"
     r"Errors:\s*(?P<errors>\d+),\s*Skipped:\s*(?P<skipped>\d+)"
 )
-_PER_CLASS = re.compile(r"^\[(?:INFO|ERROR)\]\s+(\w+)\s*(?:--.*)?$", re.MULTILINE)
 
 
 def verify_candidate_identity(
@@ -380,6 +388,54 @@ def parse_maven_summary(text: str) -> dict[str, int]:
         "errors": int(last.group("errors")),
         "skipped": int(last.group("skipped")),
     }
+
+
+def observed_class_executions(
+    report_dirs: list[Path], classes: tuple[str, ...], *, not_before: float
+) -> tuple[dict[str, dict[str, Any]], tuple[str, ...]]:
+    """Per requested class, its surefire report written during this run.
+
+    The aggregate ``Tests run:`` total cannot show that a requested class ran:
+    a class that vanished (renamed, excluded, not compiled) leaves the other
+    classes' total green. A class counts as executed only when a surefire
+    report for exactly that class was written after ``not_before`` (so a stale
+    report from an earlier run never counts), with at least one test that was
+    not skipped, and no failure or error.
+    """
+    observed: dict[str, dict[str, Any]] = {}
+    unexecuted: list[str] = []
+    for name in classes:
+        reports = [
+            report
+            for directory in report_dirs
+            if directory.is_dir()
+            for report in directory.glob(f"TEST-*{name}.xml")
+            if report.name.endswith(f".{name}.xml") or report.name == f"TEST-{name}.xml"
+        ]
+        fresh = [report for report in reports if report.stat().st_mtime >= not_before]
+        if len(fresh) != 1:
+            unexecuted.append(name)
+            observed[name] = {"reports_found": len(reports), "fresh_reports": len(fresh)}
+            continue
+        try:
+            root = ElementTree.parse(fresh[0]).getroot()
+            counts: dict[str, Any] = {
+                key: int(root.get(key, "0")) for key in ("tests", "failures", "errors", "skipped")
+            }
+        except (OSError, ElementTree.ParseError, ValueError):
+            unexecuted.append(name)
+            observed[name] = {"unparseable_report": fresh[0].name}
+            continue
+        counts["report"] = fresh[0].name
+        observed[name] = counts
+        if (
+            counts["tests"] == 0
+            or counts["skipped"] >= counts["tests"]
+            or counts["failures"]
+            or counts["errors"]
+        ):
+            unexecuted.append(name)
+    return observed, tuple(unexecuted)
 
 
 def load_native_receipt(path: Path) -> dict[str, Any]:
@@ -426,6 +482,15 @@ def load_native_receipt(path: Path) -> dict[str, Any]:
         raise ReceiptError(
             f"{_NO_CREDIT}: native suite reported {doc['failed']} failures / "
             f"{doc['errors']} errors; no PASS credit"
+        )
+    # Requested classes must equal executed classes; an aggregate count is not
+    # an execution identity.
+    executed = doc.get("executed_classes")
+    if not isinstance(executed, dict) or set(executed) != set(doc.get("classes") or ()):
+        raise ReceiptError(f"{_NO_CREDIT}: native receipt has no per-class execution identity")
+    if doc.get("unexecuted_classes"):
+        raise ReceiptError(
+            f"{_NO_CREDIT}: requested classes did not execute: {doc['unexecuted_classes']}"
         )
     return doc
 
