@@ -119,3 +119,19 @@ The other leave suites stay green:
 - `XmageMultiplayerLeaverDecisionClassTest`: 12/12 red before, 12/12 green after; `trigger_order` was red on damage even with a native-style unwind. The 2 `multi_amount` control cases stay fail-closed.
 - `XmageMultiplayerLeaverMulliganTest`: 2/2 red before, 2/2 green after.
 - The Fact or Fiction pile case in `XmageMultiplayerLeaverMayChoiceTest` now asserts that the game goes on.
+
+## Follow-up 3 — why `multi_amount` stays fail-closed (measured, 2026-09-30)
+
+A local probe (not merged) unwound `multi_amount` the way XMage's own player does once it can no longer respond (`MultiAmountType.prepareDefaultValues`).
+
+**Scenario:** P1's Craw Wurm attacks P2 and is double-blocked by Grizzly Bears and Runeclaw Bear. P1 concedes at its own damage assignment (4P and 5P).
+
+**Result:** the lane went on, but both blockers were in P2's graveyard at combat damage. The departed player's creature dealt combat damage after it had left the game, against CR 800.4a.
+
+The Player seam cannot express "no damage" here:
+- the vector must total the attacker's power;
+- a `null` answer makes `CombatGroup` re-ask five times and then use the same default.
+
+So the fail-closed path is the rules-correct behaviour at pin `9375f35a`. Qualifying this class needs an engine-side fix: `CombatGroup` must not assign damage for a creature whose controller has left. That fix is for the repin lane.
+
+The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-closed code in both of the forms it is reported in. It is either the controller's `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount`, or the same code wrapped as `XMAGE_FULL_GAME_FAILED: DecisionException: …`, once the engine thread has surfaced it first. CI on the #420 head saw the wrapped form at 4P.
