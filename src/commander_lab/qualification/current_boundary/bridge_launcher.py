@@ -410,20 +410,22 @@ def build_launch_plan(
             argv=argv,
             cwd=_candidate_runtime_cwd("forge"),
             env_overrides={
-                # Provider-reported engine identity is the admitted Rules-Core
-                # candidate. The executable bridge bytes are separately bound
-                # to authority["bridge_commit"] by resolve_forge_workspace().
-                "FORGE_ENGINE_SHA": authority["rules_core_commit"],
+                # The provider's version/provenance payload identifies the exact
+                # clean source that was built. Under R-1/R-3 that is the #13
+                # bridge/materialization descendant. Rules-Core identity remains
+                # a separate role, proven against #11/#12 by module-tree
+                # equivalence in resolve_forge_workspace().
+                "FORGE_ENGINE_SHA": authority["bridge_commit"],
                 "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),
             },
-            expected_engine_commit=authority["rules_core_commit"],
+            expected_engine_commit=authority["bridge_commit"],
             build_identity={
                 "module": "forge-protocol2-bridge",
                 "classes": str(module / "target" / "classes"),
                 "classpath_manifest": str(module / "target" / "cp-wsr22.txt"),
                 "rules_core_candidate_commit": authority["rules_core_commit"],
                 "bridge_source_commit": authority["bridge_commit"],
-                "engine_commit_provenance": "env:FORGE_ENGINE_SHA (provider-reported Rules-Core identity; bridge source bound separately)",
+                "engine_commit_provenance": "env:FORGE_ENGINE_SHA (exact built source; Rules-Core candidate bound separately by tree equivalence)",
             },
             workspace=str(forge_workspace),
             mutates_reference_repository=False,
