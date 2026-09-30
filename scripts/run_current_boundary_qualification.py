@@ -212,43 +212,48 @@ def _bridge_identity_proof(
     }
 
 
-def resolve_forge_workspace(
-    workspace: Path | str | None = None,
-    *,
-    expected_rules_core_commit: str | None = None,
-    expected_bridge_commit: str | None = None,
-    expected_bridge_tree: str | None = None,
-) -> dict[str, Any]:
+def resolve_forge_workspace(workspace: Path | str | None = None) -> dict[str, Any]:
     """Resolve and fully bind the Forge checkout a credited run executes in.
 
-    There is deliberately no default. A machine-local path is not a source
-    identity, and "the checkout that happens to exist on this machine" is not
-    the checkout the evidence is about. Without an explicit workspace argument
-    the module-level explicit input (``FORGE_WORKSPACE``) is required through
-    :func:`require_forge_workspace`; the checkout must then prove, from its own
-    Git state, that it is a clean work-tree root, that its Rules Core is
-    equivalent to the recorded candidate, and that its bridge module is the
-    bound bridge/evidence identity. Anything unprovable fails closed.
+    The identities are always the current authority in config/rules_engines.json
+    (R-1 Rules-Core candidate, exact built bridge/materialization source and its
+    tree); a caller cannot substitute others. See :func:`bind_forge_workspace`
+    for the checkout validation itself.
     """
     authority = canonical_forge_authority()
-    expected_rules_core_commit = expected_rules_core_commit or authority["rules_core_commit"]
-    expected_bridge_commit = expected_bridge_commit or authority["bridge_commit"]
-    expected_bridge_tree = expected_bridge_tree or authority["bridge_tree"]
-    if expected_rules_core_commit != authority["rules_core_commit"]:
-        raise ForgeWorkspaceError(
-            "CURRENT_AUTHORITY_DIVERGENCE: requested Rules-Core identity does not equal "
-            "config/rules_engines.json"
-        )
-    if expected_bridge_commit != authority["bridge_commit"]:
-        raise ForgeWorkspaceError(
-            "CURRENT_AUTHORITY_DIVERGENCE: requested bridge identity does not equal "
-            "config/rules_engines.json"
-        )
-    if expected_bridge_tree != authority["bridge_tree"]:
-        raise ForgeWorkspaceError(
-            "CURRENT_AUTHORITY_DIVERGENCE: requested bridge tree does not equal "
-            "config/rules_engines.json"
-        )
+    return bind_forge_workspace(
+        workspace,
+        expected_rules_core_commit=authority["rules_core_commit"],
+        expected_bridge_commit=authority["bridge_commit"],
+        expected_bridge_tree=authority["bridge_tree"],
+    )
+
+
+def bind_forge_workspace(
+    workspace: Path | str | None,
+    *,
+    expected_rules_core_commit: str,
+    expected_bridge_commit: str,
+    expected_bridge_tree: str,
+) -> dict[str, Any]:
+    """Validate a Forge checkout against explicitly named identities.
+
+    There is deliberately no default workspace. A machine-local path is not a
+    source identity, and "the checkout that happens to exist on this machine" is
+    not the checkout the evidence is about. Without an explicit workspace
+    argument the module-level explicit input (``FORGE_WORKSPACE``) is required
+    through :func:`require_forge_workspace`; the checkout must then prove, from
+    its own Git state, that it is a clean work-tree root, that its Rules Core is
+    equivalent to the named candidate, and that its bridge module is the named
+    bridge/evidence identity. Anything unprovable fails closed.
+    """
+    for label, value in (
+        ("Rules-Core commit", expected_rules_core_commit),
+        ("bridge commit", expected_bridge_commit),
+        ("bridge tree", expected_bridge_tree),
+    ):
+        if not value:
+            raise ForgeWorkspaceError(f"no expected Forge {label} was named")
     if workspace is None:
         root = require_forge_workspace().resolve()
     else:

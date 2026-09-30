@@ -115,7 +115,7 @@ def _resolve(module: object, repo: Path, **overrides: object) -> dict:
         "expected_bridge_commit": overrides.pop("expected_bridge_commit", None),
         "expected_bridge_tree": overrides.pop("expected_bridge_tree", None),
     }
-    return module.resolve_forge_workspace(repo, **{k: v for k, v in expected.items() if v})
+    return module.bind_forge_workspace(repo, **expected)
 
 
 def test_runner_source_has_no_ambient_workspace_default() -> None:
@@ -154,7 +154,7 @@ def test_bridge_divergence_fails_closed(tmp_path: Path, monkeypatch: pytest.Monk
     repo = Path(fake["repo"])
     _checkout(repo, fake["bridge"])
     with pytest.raises(forge_error(module), match="BRIDGE_IDENTITY"):
-        module.resolve_forge_workspace(
+        module.bind_forge_workspace(
             repo,
             expected_rules_core_commit=fake["base"],
             expected_bridge_commit=fake["base"],
@@ -170,7 +170,7 @@ def test_rules_core_divergence_fails_closed(
     repo = Path(fake["repo"])
     _checkout(repo, fake["rules"])
     with pytest.raises(forge_error(module)):
-        module.resolve_forge_workspace(
+        module.bind_forge_workspace(
             repo,
             expected_rules_core_commit=fake["base"],
             expected_bridge_commit=fake["base"],
@@ -185,7 +185,7 @@ def test_neutral_descendant_is_accepted_with_full_identity(
     fake = make_forge_repo(tmp_path)
     repo = Path(fake["repo"])
     _checkout(repo, fake["neutral"])
-    proof = module.resolve_forge_workspace(
+    proof = module.bind_forge_workspace(
         repo,
         expected_rules_core_commit=fake["base"],
         expected_bridge_commit=fake["base"],
@@ -207,7 +207,7 @@ def test_exact_bridge_head_is_accepted(tmp_path: Path, monkeypatch: pytest.Monke
     fake = make_forge_repo(tmp_path)
     repo = Path(fake["repo"])
     _checkout(repo, fake["base"])
-    proof = module.resolve_forge_workspace(
+    proof = module.bind_forge_workspace(
         repo,
         expected_rules_core_commit=fake["base"],
         expected_bridge_commit=fake["base"],
@@ -225,7 +225,7 @@ def test_recorded_bridge_tree_must_match_the_recorded_commit(
     repo = Path(fake["repo"])
     _checkout(repo, fake["base"])
     with pytest.raises(forge_error(module), match="BRIDGE_IDENTITY"):
-        module.resolve_forge_workspace(
+        module.bind_forge_workspace(
             repo,
             expected_rules_core_commit=fake["base"],
             expected_bridge_commit=fake["base"],
@@ -241,7 +241,7 @@ def test_dirty_workspace_fails_closed(tmp_path: Path, monkeypatch: pytest.Monkey
     _checkout(repo, fake["base"])
     _write_forge_module(repo, "forge-game", "// uncommitted Rules-Core edit\n")
     with pytest.raises(forge_error(module), match="uncommitted changes"):
-        module.resolve_forge_workspace(
+        module.bind_forge_workspace(
             repo,
             expected_rules_core_commit=fake["base"],
             expected_bridge_commit=fake["base"],
@@ -269,3 +269,39 @@ def test_run_native_suite_refuses_forge_without_a_workspace_and_runs_nothing(
     )
     with pytest.raises(forge_error(module)):
         module.run_native_suite("forge", "direct", runner=identity)
+
+
+def test_a_credited_run_cannot_substitute_forge_identities(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The runner's entry point binds config/rules_engines.json and nothing else."""
+    import inspect
+
+    module = runner_module(monkeypatch)
+    parameters = inspect.signature(module.resolve_forge_workspace).parameters
+    assert list(parameters) == ["workspace"]
+    authority = module.canonical_forge_authority()
+    seen: dict[str, object] = {}
+
+    def _record(workspace: object, **expected: object) -> dict:
+        seen.update(expected)
+        return {}
+
+    monkeypatch.setattr(module, "bind_forge_workspace", _record)
+    module.resolve_forge_workspace(tmp_path)
+    assert seen == {
+        "expected_rules_core_commit": authority["rules_core_commit"],
+        "expected_bridge_commit": authority["bridge_commit"],
+        "expected_bridge_tree": authority["bridge_tree"],
+    }
+
+
+def test_binding_requires_every_identity(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    module = runner_module(monkeypatch)
+    with pytest.raises(forge_error(module), match="no expected Forge"):
+        module.bind_forge_workspace(
+            tmp_path,
+            expected_rules_core_commit="a" * 40,
+            expected_bridge_commit="",
+            expected_bridge_tree="b" * 40,
+        )

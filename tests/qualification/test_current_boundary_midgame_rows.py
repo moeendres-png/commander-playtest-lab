@@ -296,20 +296,57 @@ def test_a_defective_receipt_is_rejected(tmp_path: Path, defect: str) -> None:
     assert len(rejected) == 1
 
 
-def test_execute_and_persist_clears_stale_receipts_first(tmp_path: Path) -> None:
+class _RefusingLane:
+    """A lane that refuses every row at creation; no engine process is started."""
+
+    engine_commit = COMMIT
+
+    def __enter__(self) -> _RefusingLane:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        return None
+
+    def request(self, message_type: str, payload: object) -> dict[str, Any]:
+        return {"success": False, "errors": [{"code": "refused"}]}
+
+    def read_dimension_manifest(self) -> None:
+        return None
+
+
+def test_execute_and_persist_clears_its_own_stale_receipts_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A row that no longer verifies loses its earlier receipt; receipts written by
+    other direct producers into the same directory (R-4) are not this producer's
+    to delete."""
+
+    class _Probe:
+        SEED = 424242
+
+        @staticmethod
+        def open_client(workspace: Path) -> _RefusingLane:
+            return _RefusingLane()
+
+    monkeypatch.setattr(mr, "_PROBE", _Probe())
     directory = tmp_path / R.POSITIVE_RECEIPT_SUBDIR
     directory.mkdir()
-    (directory / "OLD.json").write_text(json.dumps({"schema_version": "stale"}), encoding="utf-8")
+    own = directory / "PILOT_PRIORITY.json"
+    own.write_text(json.dumps({"schema_version": "stale"}), encoding="utf-8")
+    foreign = directory / "direct-lifecycle-PLAYER_COUNT_4P.json"
+    foreign.write_text(json.dumps({"schema_version": "other producer"}), encoding="utf-8")
     summary = mr.execute_and_persist(
         workspace=tmp_path,
-        records={},
+        records={"PILOT_PRIORITY": {"fixture_id": "PILOT_PRIORITY"}},
         candidate_commit=COMMIT,
         runner_digest=RUNNER,
         out_dir=directory,
-        fixtures=(),
+        fixtures=("PILOT_PRIORITY",),
     )
-    assert list(directory.glob("*.json")) == []
+    assert not own.exists()
+    assert foreign.exists()
     assert summary["rows_verified"] == 0
+    assert summary["rows"]["PILOT_PRIORITY"]["verified"] is False
 
 
 def test_decision_families_map_to_the_engine_decision_class() -> None:
