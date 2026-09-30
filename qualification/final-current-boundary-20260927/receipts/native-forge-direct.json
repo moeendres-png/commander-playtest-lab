@@ -22,7 +22,7 @@
     "BridgeEngineTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=WsR20Full107DenominatorTest,WS233CardinalityTest,WS227SemanticReplayTest,WsR15HiddenInfoFamilyTest,WS234S3BridgeTest,WS236F4BridgeTest,WS216GapClosureTest,WS202ExecutableSurfaceTest,WS217DividedAllocationTest,WsR15MulticountCombatTest,WsR15MulticountTriggerTest,WsR15DeterminismTwinTest,WsR15ConcessionFamilyTest,WsR16SixPlayerFamilyTest,BridgeEngineTest",
-  "ended_utc": "2026-09-30T08:56:59+00:00",
+  "ended_utc": "2026-09-30T10:10:26+00:00",
   "engine_identity_proof": {
     "actual_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
     "compared_module_roots": [
@@ -81,16 +81,16 @@
   "group": "direct",
   "passed": 150,
   "positive_fixtures": [],
-  "receipt_digest": "947c6f7a7704a6841124d667f7210abb2995c96adfef3d8746e94b256642702a",
+  "receipt_digest": "e4e2b2aaeca7f6707af3c5aeaa9267dae9653e80e22c970b26a8cd0bbedeac90",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m150\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 713.5 s -- in \u001b[1mTestSuite\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m150\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 712.7 s -- in \u001b[1mTestSuite\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 150, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
     "branch": "foundry/pb03-engine-artifact-identity-20260930",
-    "built_utc": "2026-09-30T08:44:44+00:00",
-    "commit": "314469e081d9ed3a32a9cf5c6d8ebd3541bd91b7",
+    "built_utc": "2026-09-30T09:58:14+00:00",
+    "commit": "f6d7f0e796053ce5d948e2e3d237f3764198c1ad",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -150,7 +150,7 @@
       "src/commander_lab/qualification/current_boundary/game_driver.py": "3a808dff4c94854987b1c3a198fe1cd6fdd1ee974fb38eabea62a0ff9756c069",
       "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
       "src/commander_lab/qualification/current_boundary/materialization.py": "246b016422f5f0302ae4effa215f1968dc25644a47d5fcf88c468315f63f2114",
-      "src/commander_lab/qualification/current_boundary/midgame_lane.py": "07846f340cc2c91c32660e412e63a9daaf6b81e478fc61e37aad95ffa5dd3f6c",
+      "src/commander_lab/qualification/current_boundary/midgame_lane.py": "6b82e4273e2b5be9998f455dc9aa1588bee53b52aa10b44280803ea51419a931",
       "src/commander_lab/qualification/current_boundary/pb03_runtime.py": "e842387d179cb6b10c2d5848c596812ebcbc0d1bfd80239d6afd9d99867fff0d",
       "src/commander_lab/qualification/current_boundary/receipts.py": "1de604426f928d1c6e0d30219eaf122cd74394c7750cba17e85f08d234ffa528",
       "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
@@ -162,11 +162,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "6499f4a9f8f02d62beb35d0d7d0b07b4f422c1ca"
+    "tree": "33a989299b208b60a926daaf751c5810fb0b2f95"
   },
-  "runner_digest": "71602b976f3963a7cfe3e06f6db7ff13823b129e7959effa4a2e515bafd6bc26",
+  "runner_digest": "c15ff6e36f7d0a0c846dd7a3212e693c73483e5474c3892021fe177f63720d95",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-30T08:44:44+00:00",
+  "started_utc": "2026-09-30T09:58:14+00:00",
   "tests": 150
 }
