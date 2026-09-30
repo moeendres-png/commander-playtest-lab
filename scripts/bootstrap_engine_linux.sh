@@ -73,6 +73,12 @@ if [[ -d "$SOURCE_ROOT/.git" ]]; then
   git -C "$SOURCE_ROOT" checkout --detach "$COMMIT"
   OBSERVED="$(git -C "$SOURCE_ROOT" rev-parse HEAD)"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: commit mismatch: $OBSERVED" >&2; exit 4; }
+  DIRTY="$(git -C "$SOURCE_ROOT" status --porcelain)" || {
+    echo "ERROR: unable to inspect source worktree cleanliness" >&2; exit 4;
+  }
+  [[ -z "$DIRTY" ]] || {
+    echo "ERROR: source worktree is dirty; refusing to build unbound engine source" >&2; exit 4;
+  }
 elif [[ -d "$SOURCE_ROOT" && -f "$SOURCE_ROOT/.commander-lab-engine-source.json" ]]; then
   OBSERVED="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$SOURCE_ROOT/.commander-lab-engine-source.json")"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: offline source identity mismatch: $OBSERVED" >&2; exit 4; }
