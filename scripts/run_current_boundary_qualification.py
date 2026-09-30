@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -57,6 +58,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     dimension_admission as pb03_admission_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    midgame_rows as midgame_rows_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     pb03_runtime as pb03_runtime_mod,
@@ -395,6 +399,7 @@ def run_native_suite(
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
     started = receipt_mod._now()
+    started_epoch = time.time()
     completed = subprocess.run(
         argv, cwd=str(spec["root"]), capture_output=True, text=True, check=False, timeout=7200
     )
@@ -415,6 +420,17 @@ def run_native_suite(
         print(f"native suite {candidate}:{group}: {exc}")
         summary = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     receipt_mod.verify_runner_unchanged(REPO_ROOT, runner)
+    # The execution identity of every requested class, from the surefire XML this
+    # run wrote: an aggregate count cannot show that a requested class executed.
+    root = Path(spec["root"])
+    report_dirs = [root / "target" / "surefire-reports", *root.glob("*/target/surefire-reports")]
+    executed_classes, unexecuted_classes = receipt_mod.observed_class_executions(
+        report_dirs, tuple(spec["classes"][group]), not_before=started_epoch - 1.0
+    )
+    if unexecuted_classes:
+        print(
+            f"native suite {candidate}:{group}: requested classes not executed: {unexecuted_classes}"
+        )
     receipt = receipt_mod.NativeSuiteReceipt(
         candidate=candidate,
         group=group,
@@ -438,6 +454,8 @@ def run_native_suite(
         environment=receipt_mod.environment_identity(),
         runner=runner,
         classes=tuple(spec["classes"][group]),
+        executed_classes=executed_classes,
+        unexecuted_classes=unexecuted_classes,
     )
     document = receipt.to_document()
     document["result_lines"] = [line.strip() for line in text.splitlines() if "Tests run:" in line][
@@ -1180,6 +1198,21 @@ def main() -> int:
         # not match the assembling head, so a stale ledger can never be credited.
         pb03_runtime["receipt_digest"] = receipt_mod.document_digest(pb03_runtime)
         write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
+        # The PB-03 chain's last links: exact placement obligations executed on
+        # the production midgame lane, each verified row persisted as a
+        # runner-bound positive fixture receipt the assembler may credit.
+        write(
+            "MIDGAME_ROW_EXECUTIONS.json",
+            midgame_rows_mod.execute_and_persist(
+                workspace=REPO_ROOT / "engine-bridge",
+                records={
+                    record["fixture_id"]: record for record in materialization.denominator_records()
+                },
+                candidate_commit=canonical_xmage_engine_pin(),
+                runner_digest=runner.digest(),
+                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+            ),
+        )
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {

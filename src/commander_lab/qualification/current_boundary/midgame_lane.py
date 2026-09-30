@@ -610,6 +610,15 @@ class MidgameLaneClient:
             raise MidgameLaneError(f"get_midgame_state failed closed: {_error_code(response)}")
         return response.get("payload") or {}
 
+    def events(self, after_offset: int = 0) -> dict[str, Any]:
+        """The engine's public semantic event tape after ``after_offset`` events."""
+        response = self.request("get_midgame_events", {"after_offset": after_offset})
+        if not response.get("success"):
+            raise MidgameLaneError(
+                f"get_midgame_events failed closed: {_error_code(response)}: {_error_message(response)}"
+            )
+        return response.get("payload") or {}
+
 
 def _error_code(response: dict[str, Any]) -> str | None:
     errors = response.get("errors")
