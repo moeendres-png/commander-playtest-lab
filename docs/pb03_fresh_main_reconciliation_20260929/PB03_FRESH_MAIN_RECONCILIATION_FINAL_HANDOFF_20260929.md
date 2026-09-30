@@ -68,9 +68,12 @@ See the PR #381 file list. Core surfaces:
 
 ## Fresh Midgame Partition (engine `9375f35a`)
 
-8 `ENGINE_NATIVE_REACHABLE`, 9 `CAUSAL_ROUTE_REACHABLE`,
-9 `CAUSAL_ROUTE_MEASURED_BLOCKED`, 1 `CONSTRUCTION_MISMATCH`, 2 `ENGINE_REJECTED`,
-0 transport failures, 0 unrecognized verdicts. Construction verdicts:
+38 rows: 8 `ENGINE_NATIVE_REACHABLE`, 25 `CAUSAL_ROUTE_REACHABLE`,
+2 `CAUSAL_ROUTE_MEASURED_BLOCKED` (WS05-MP-TURN-5, PILOT_REPLACEMENT_EFFECT),
+1 `CONSTRUCTION_MISMATCH`, 2 `ENGINE_REJECTED`, 0 transport failures, 0
+unrecognized verdicts. The causal-reachable growth followed main's
+commander-object binding fix and its nine new scripted-decision rows; the
+partition is rederived on every run and never copied from history. Construction verdicts:
 6 `EXACT`, 2 `ALLOWED_VARIANCE`, 1 `MISMATCH`, 20 not-applicable.
 
 ## Dimension Admission Results
@@ -91,10 +94,12 @@ NONE_FROM_PB03_MATRIX`.
 ## Current-Boundary Results
 
 Sealed at the requalified head: XMage 5 PASS / 58 UNKNOWN / 44 BLOCKED (native
-213 tests), Forge 5 / 58 / 44 (native 217 tests). XMage hidden information
+215 tests), Forge 5 / 58 / 44 (native 217 tests). XMage hidden information
 `PRINCIPAL_SCOPED` (4 distinct views, all requesters established), seed
-acknowledged at the creation transaction; AF01 `FAIL`, AF04 `FAIL`, AF11
-`UNKNOWN` for XMage; AF04 `UNKNOWN`, AF11 `UNKNOWN` for Forge.
+acknowledged at the creation transaction; XMage AF01 `PASS` after the F-37
+discriminating probes, AF04 `FAIL`, AF11 `UNKNOWN`; Forge AF01 `FAIL`
+(`fail_closed_unsupported_decision`: accepts an unsupported decision class for a
+live game), AF04 `UNKNOWN`, AF11 `UNKNOWN`.
 
 ## Privacy Evidence
 
@@ -144,8 +149,9 @@ compatibility debt).
 - PASS: dimension admission projection, native runtime execution (30/30),
   runner-identity freshness, privacy controls, midgame transport honesty,
   full repository Python suite, full engine-bridge suite, static gates.
-- FAIL: none introduced by this workstream. Pre-existing boundary failures
-  remain recorded (XMage AF01/AF04; Forge AF04) with no historical transfer.
+- FAIL: none introduced by this workstream. Recorded provider/boundary failures:
+  Forge AF01 (accepts an unsupported decision class for a live game) and XMage
+  AF04; no historical transfer.
 - UNKNOWN: AF05–AF09 and AF11 policy/per-scenario gates; FULL107 row credit;
   loaded-jar cryptographic engine identity.
 
@@ -158,8 +164,10 @@ hidden-information defect. None transferred.
 
 ## Remaining Blockers (grouped by mechanism)
 
-- **Engine artifact identity:** declared constant + runtime fingerprint; no
-  cryptographic jar identity recorded.
+- **Engine artifact identity:** closed for PB-03 — the provider-reported loaded
+  jar digest is bound through admission, the runtime ledger, the midgame probe
+  and the assembled matrix (`artifact_identity_consistent: true`). Maven build
+  reproducibility remains a general, non-blocking question.
 - **Boundary gates:** XMage AF01/AF04, Forge AF04; AF05–AF09/AF11 policy and
   per-scenario gaps.
 - **Forge environment:** native execution requires the `e15f37d6` bridge

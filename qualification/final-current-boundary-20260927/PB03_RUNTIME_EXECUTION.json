@@ -2,9 +2,13 @@
  "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
  "classification": "PASS",
  "credit_boundary": "Runtime execution proves that the bound native harness ran. GENUINE_CAUSAL_DEVIATION and blocker-characterization rows do not become FULL107 PASS from this ledger.",
+ "engine_artifact_kind": "file",
+ "engine_artifact_path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+ "engine_artifact_sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
+ "engine_artifact_size": 7112962,
  "executed_pass": 30,
  "not_run_or_failed": 0,
- "receipt_digest": "d23d240235231572a8565edf91b2f96588329a4fa78439c87b03fb7ce3246249",
+ "receipt_digest": "88f9e398c5329a19bb02a2d5512dba95c2b0f04d3a31b5c4671feb15e91c7c79",
  "rows": [
   {
    "fixture_id": "PILOT_DECLARE_ATTACKER",
@@ -338,8 +342,8 @@
   }
  ],
  "rows_total": 30,
- "runner_commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
- "runner_digest": "370a6276b3f7028be78cf623bcf70f06142d2f486a576d69661eac0df2c5189a",
- "runner_tree": "f1e21ecf2ac30538370a47f7f13d8a93c4a71d76",
+ "runner_commit": "b0a66111cbf9d12d4dc82397e0e16a77f690331b",
+ "runner_digest": "e70c312f0ef8f2d4c6dd5029c27489d3be0b7d712c9e771038193df9c22ea038",
+ "runner_tree": "bf290e95e345c99b818ae637689d093fab02d065",
  "schema_version": "commander-lab.pb03-runtime-execution/2.0.0"
 }

@@ -284,11 +284,12 @@
   "starting_state_injection_supported": false,
   "supported_dimensions": [
    "commanders with prior cast counts (native game-load restore path)",
+   "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
    "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
    "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
    "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
    "owner-equals-controller attribution with 1:1 readback",
-   "life totals (pre-start assembly; state-based actions stay authoritative)",
+   "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
    "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
    "explicit Rules-seed binding with replay determinism",
    "strict native readback with field-level compare and digests",
@@ -310,6 +311,17 @@
   ]
  },
  "manifest_source": "live full-game get_capabilities -> full_game_lane.state_restoration_dimensions",
+ "provider_identity": {
+  "engine": "xmage",
+  "engine_artifact_kind": "file",
+  "engine_artifact_path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+  "engine_artifact_sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
+  "engine_artifact_size": 7112962,
+  "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "engine_version": "1.4.61",
+  "protocol_version": "2.0.0",
+  "xmage_code_source": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar"
+ },
  "rows": [
   {
    "fixture_id": "MICRO_RULES_RANDOMNESS",
