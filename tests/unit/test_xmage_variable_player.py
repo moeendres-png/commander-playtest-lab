@@ -404,13 +404,17 @@ def test_build_result_requires_one_outcome_per_seat(player_count: int) -> None:
         ],
         "transcript": [],
     }
-    built = XmageFullGameRunner._build_result(scenario, provider, result)
+    built = XmageFullGameRunner._build_result(
+        scenario, provider, result, shutdown_disposition="graceful_shutdown"
+    )
     assert built.winner_seats == (1,)
     assert built.terminal is True
     short = dict(result)
     short["outcomes"] = short["outcomes"][:-1]
     with pytest.raises(FullGameConformanceError):
-        XmageFullGameRunner._build_result(scenario, provider, short)
+        XmageFullGameRunner._build_result(
+            scenario, provider, short, shutdown_disposition="graceful_shutdown"
+        )
 
 
 @pytest.mark.parametrize("player_count", [2, 3, 4, 5, 6])

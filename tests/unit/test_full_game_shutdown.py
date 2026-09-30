@@ -177,5 +177,82 @@ def test_run_smoke_fails_closed_on_unacked_exit(monkeypatch: pytest.MonkeyPatch)
         _run_smoke_with_disposition(monkeypatch, FULL_GAME_SHUTDOWN_UNACKED_EXIT)
 
 
+def _run_full_game_with_disposition(monkeypatch: pytest.MonkeyPatch, disposition: str):  # type: ignore[no-untyped-def]
+    import commander_lab.engine.rules.full_game as full_game_module
+
+    runner = XmageFullGameRunner(command=("java", "-jar", "bridge.jar", "full-game"))
+    stub = _StubClient(disposition)
+    stub.request = lambda message_type: {"message": message_type}  # type: ignore[attr-defined]
+    monkeypatch.setattr(full_game_module, "_RawFullGameClient", lambda *a, **k: stub)
+    monkeypatch.setattr(
+        XmageFullGameRunner, "_validated_policy", lambda self, scenario, decks, pilots: object()
+    )
+    monkeypatch.setattr(
+        XmageFullGameRunner,
+        "_open_game",
+        lambda self, client, scenario, decks: {"engine_version": "1.4.61"},
+    )
+    monkeypatch.setattr(
+        XmageFullGameRunner,
+        "_drive",
+        lambda self, client, policy, stop_after=None: (9, ("priority",), True),
+    )
+    built: list[str | None] = []
+
+    def build(cls, scenario, provider, result, *, shutdown_disposition=None):  # type: ignore[no-untyped-def]
+        built.append(shutdown_disposition)
+        return shutdown_disposition
+
+    monkeypatch.setattr(XmageFullGameRunner, "_build_result", classmethod(build))
+    return runner.run(scenario=_scenario(), decks=(), pilots=()), built
+
+
+def test_a_full_game_result_rests_on_an_observed_graceful_shutdown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result, built = _run_full_game_with_disposition(monkeypatch, FULL_GAME_SHUTDOWN_GRACEFUL)
+    assert result == FULL_GAME_SHUTDOWN_GRACEFUL
+    assert built == [FULL_GAME_SHUTDOWN_GRACEFUL]
+
+
+@pytest.mark.parametrize(
+    "disposition",
+    [
+        FULL_GAME_SHUTDOWN_FORCED_KILL,
+        FULL_GAME_SHUTDOWN_UNACKED_EXIT,
+        FULL_GAME_SHUTDOWN_ALREADY_EXITED,
+        None,
+    ],
+)
+def test_a_full_game_fails_closed_without_graceful_shutdown(
+    monkeypatch: pytest.MonkeyPatch, disposition: str | None
+) -> None:
+    with pytest.raises(FullGameConformanceError, match="full game shutdown not graceful"):
+        _run_full_game_with_disposition(monkeypatch, disposition)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "disposition",
+    [
+        FULL_GAME_SHUTDOWN_FORCED_KILL,
+        FULL_GAME_SHUTDOWN_UNACKED_EXIT,
+        FULL_GAME_SHUTDOWN_ALREADY_EXITED,
+        None,
+    ],
+)
+def test_no_result_can_be_built_without_graceful_shutdown(disposition: str | None) -> None:
+    with pytest.raises(FullGameConformanceError, match="not graceful"):
+        XmageFullGameRunner._build_result(_scenario(), {}, {}, shutdown_disposition=disposition)
+
+
+def test_the_result_model_has_no_shutdown_default() -> None:
+    from commander_lab.engine.rules.full_game import FullGameConformanceResult
+
+    field = FullGameConformanceResult.model_fields["shutdown_disposition"]
+    assert field.is_required()
+    schema = FullGameConformanceResult.model_json_schema()["properties"]["shutdown_disposition"]
+    assert schema.get("const") == FULL_GAME_SHUTDOWN_GRACEFUL
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
