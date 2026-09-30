@@ -1,11 +1,11 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/cpl-cb-hardening-wave-b-20260930
-branch: hardening/current-boundary-wave-b-20260930
+worktree: /home/moeen/code/cpl-cb-postmerge-20260930
+branch: hardening/current-boundary-wave-b-postmerge-20260930
 audit_base_sha: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
 audit_base_tree: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
-state_written_against_head: 52668b028ff7265613536886253c7c74dbd8d91a
-validated_head: 52668b028ff7265613536886253c7c74dbd8d91a
+state_written_against_head: 2f37acfc0a844b978faa534c5a8038eac41aecfc
+validated_head: 2f37acfc0a844b978faa534c5a8038eac41aecfc
 objective: >-
   CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930: close the Current-Boundary / PB-03
   hardening residuals that PR #395's ownership previously blocked, without colliding
@@ -112,6 +112,13 @@ evidence:
     binding, the merged A4 trigger globs and the branch epoch workflow changes are both kept, and
     B1 stays the branch design because the workstream contract requires the successor epoch
     (the #422 memo leaves sealed-vs-living to the Coordinator and does not take the decision).'
+  - 'Post-merge window: PR #421 was merged by the Coordinator at 2026-09-30T20:10:22Z as
+    merge commit 1a7a52a3 (parents ec4abe5a + f64074b3) while this session was preparing the
+    final state commit; PR #423 (C4/E2/C3) had merged as ec4abe5a into the same base. The
+    canonical tree now differs from the CI-validated f64074b3 by PR #423 only; full pytest on
+    1a7a52a3 in a detached worktree: 2787 passed, 13 skipped, 0 failed. The two commits not
+    contained in that merge (the epoch timeout fix and the state adjudication) are landed by
+    hardening/current-boundary-wave-b-postmerge-20260930 on top of 1a7a52a3.'
   - 'CI at merge head f64074b3: all workflows green; PB-03 runtime succeeded (run 36768896191,
     job pb03-runtime success). Artifact verified: epoch 30da829773af-83d004bdca70, XMage counts
     14 PASS / 0 FAIL / 53 UNKNOWN / 40 BLOCKED, native_promotions 9 with
@@ -127,16 +134,18 @@ evidence:
     an explicit epoch must now live under the runtime epochs parent.'
 artifacts: []
 remaining_scope:
-  - 'push the final head (52668b02 + state commit), wait for exact-head CI, then run the merge gate'
-  - 'after merge: verify main HEAD/tree, close issue #408 with the verified chain evidence, record
-    the post-merge receipt'
+  - 'push the post-merge follow-up branch, open its PR, wait for exact-head CI including
+    pb03-runtime'
+  - 'verify the pb03 artifact on the follow-up merge candidate (the chain must run on code that
+    includes PR #423, not only on the f64074b3 candidate)'
+  - 'merge the follow-up, verify main HEAD/tree, close issue #408 with the fresh chain evidence,
+    record the post-merge receipt'
 exact_next_action: >-
-  Push the final state commit on top of 52668b02, wait for the exact-head CI round (PB-03
-  re-runs), confirm every required check is green and no open PR owns any changed file, then run
-  the merge gate from AGENTS.md section 10 and merge PR #421 through the normal GitHub path.
-  Immediately after the merge, verify main HEAD/tree, close issue #408 with the verified
-  producer->runner->receipt->assembler->credit evidence (run 36768896191 artifact), and record
-  the post-merge receipt.
+  Push hardening/current-boundary-wave-b-postmerge-20260930 (2f37acfc + state commit) and open a
+  PR against main (1a7a52a3). Wait for exact-head CI, download the pb03-runtime artifact and
+  confirm the GATE 2 chain still credits (native_promotions 9, XMage 14 PASS) on the candidate
+  that includes PR #423; then merge through the normal path, verify main HEAD/tree and close
+  issue #408 with that artifact as the canonical-code chain evidence.
 hypotheses_rejected:
   - 'PR #411 does not wire the runner/assembler: REJECTED at recon, then merged (8e07c9de); the
     chain is now canonical and this branch no longer collides with an active owner'
@@ -184,6 +193,6 @@ drift_checks:
 source_lock:
   origin_main_at_start: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
   origin_main_tree_at_start: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
-  origin_main_latest_observed: b3d29ff9315aa2a320d777ce93cc7d6216891a39
+  origin_main_latest_observed: 1a7a52a3698476a0f7a668bd10f8a0154b2e559d
   local_main_worktree_note: 'main checkout is stale (e91819ae, 591 behind); work happens in the
     isolated worktree only'
