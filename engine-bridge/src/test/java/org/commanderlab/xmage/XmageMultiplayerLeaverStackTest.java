@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +106,8 @@ class XmageMultiplayerLeaverStackTest {
 
     @ParameterizedTest(name = "{0} players, concede at {1}")
     @CsvSource({"4,target", "4,mana_payment", "5,target", "5,mana_payment"})
-    void aCastInProgressUnwindsWhenItsCasterLeaves(int playerCount, String concedeAt) {
+    void aCastInProgressUnwindsWhenItsCasterLeaves(int playerCount, String concedeAt)
+            throws Exception {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P2", "Lightning Bolt", 0, Zone.HAND));
         objects.add(XmageMultiplayerScenario.obj("P2", "Mountain", 1, Zone.BATTLEFIELD));
@@ -121,6 +123,8 @@ class XmageMultiplayerLeaverStackTest {
             if (!conceded && "P2".equals(actor) && concedeAt.equals(cls)) {
                 JsonObject before = s.session.pendingDecisionPayload().getAsJsonObject("decision");
                 String staleDecisionId = before.get("decision_id").getAsString();
+                int p2Seat = s.session.seatOrder().get(p2);
+                int transcriptBefore = controller(s).transcript().size();
 
                 JsonObject concede = new JsonObject();
                 concede.addProperty("proposal_id", "p2-concede-" + concedeAt);
@@ -136,6 +140,39 @@ class XmageMultiplayerLeaverStackTest {
                         "the pre-concession frame was retired, not answered");
                 assertFalse(p2.equals(next.get("actor_id").getAsString()),
                         "P2 receives no decision after leaving");
+
+                // The retirement must be an observable engine cancellation, and it must never be
+                // represented as an accepted pilot response to the retired frame. Checking only
+                // that this test does not submit is not sufficient: a bridge that fabricated or
+                // defaulted an answer would record engine_decision_cancelled-less acceptance and
+                // still leave every assertion above satisfied.
+                int cancellations = 0;
+                JsonArray transcript = controller(s).transcript();
+                for (int index = transcriptBefore; index < transcript.size(); index++) {
+                    JsonObject event = transcript.get(index).getAsJsonObject();
+                    if ("engine_decision_cancelled".equals(text(event, "event_type"))) {
+                        JsonObject payload = event.getAsJsonObject("payload");
+                        if (staleDecisionId.equals(text(payload, "decision_id"))) {
+                            cancellations++;
+                            assertEquals(concedeAt, text(payload, "decision_class"),
+                                    "the retired frame is the one P2 was actually asked for");
+                            assertEquals("native_player_concede_signal", text(payload, "reason"),
+                                    "the retirement came from the engine signal");
+                            assertEquals(p2Seat, payload.get("actor_seat").getAsInt(),
+                                    "the retired frame belonged to the conceding seat");
+                        }
+                    }
+                    if ("decision_accepted".equals(text(event, "kind"))
+                            && event.has("actor_seat")
+                            && event.get("actor_seat").getAsInt() == p2Seat
+                            && concedeAt.equals(text(event, "decision_class"))) {
+                        fail("a decision_accepted must not represent a response to the retired "
+                                + concedeAt + " frame of the departed player");
+                    }
+                }
+                assertEquals(1, cancellations,
+                        "the native concede cancellation is recorded exactly once");
+
                 conceded = true;
                 continue; // critically: no submit() for the stale target/payment frame
             } else if (conceded && !"P2".equals(actor)) {
@@ -158,5 +195,25 @@ class XmageMultiplayerLeaverStackTest {
         assertTrue(conceded, "control: P2 reached its " + concedeAt + " frame");
         assertTrue(game.getStack().isEmpty(), "the departed Bolt never reached the stack for good");
         assertEquals(40, s.seats.get("P3").getLife(), "P3 took no damage from the departed caster");
+    }
+
+    /** String value of a key, or empty when absent/null. Keeps transcript scans readable. */
+    private static String text(JsonObject object, String key) {
+        return object.has(key) && !object.get(key).isJsonNull() ? object.get(key).getAsString() : "";
+    }
+
+    private static XmageFullGameDecisionController controller(XmageMultiplayerScenario scenario)
+            throws Exception {
+        return field(scenario.session, "controller", XmageFullGameDecisionController.class);
+    }
+
+    private static <T> T field(Object target, String name, Class<T> type) throws Exception {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        Object value = field.get(target);
+        if (!type.isInstance(value)) {
+            throw new IllegalStateException("field " + name + " is not a " + type);
+        }
+        return type.cast(value);
     }
 }
