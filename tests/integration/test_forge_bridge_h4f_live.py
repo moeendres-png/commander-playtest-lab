@@ -33,7 +33,6 @@ Skipped (NOT_RUN) when unavailable. Never fabricates runtime evidence.
 from __future__ import annotations
 
 import contextlib
-import json
 import os
 import shutil
 import subprocess
@@ -57,10 +56,7 @@ from commander_lab.models import (
 
 pytestmark = pytest.mark.external
 
-_AUTHORITY = json.loads(
-    (Path(__file__).resolve().parents[2] / "config/rules_engines.json").read_text(encoding="utf-8")
-)
-FORGE_CANDIDATE_COMMIT = _AUTHORITY["secondary_engine"]["commit"]
+FORGE_RULES_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 
 # Bounded H4F-style fixture data (card NAMES only; the bridge resolves them
 # against real Forge card data and rejects unknown names explicitly).
@@ -221,12 +217,11 @@ def live_bridge(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp("forge-live")
     command = _bridge_command(source, tmp_path)
     jvm_tmp = Path((tmp_path / "jvm-tmp-dir.txt").read_text(encoding="utf-8").strip())
-    # The bridge JVM inherits the exact current candidate source identity from
-    # the sole machine-readable authority; no historical Forge literal may
-    # silently override R-1. The assets dir is the same exact source checkout.
+    # The bridge JVM inherits these two operator-supplied bindings; the Rules
+    # SHA is the audited H4F Rules-Core pin, the assets dir is the same source.
     old_sha = os.environ.get("FORGE_ENGINE_SHA")
     old_assets = os.environ.get("FORGE_ASSETS_DIR")
-    os.environ["FORGE_ENGINE_SHA"] = FORGE_CANDIDATE_COMMIT
+    os.environ["FORGE_ENGINE_SHA"] = FORGE_RULES_COMMIT
     os.environ["FORGE_ASSETS_DIR"] = str(source / "forge-gui")
     client = JsonLineBridgeClient(
         command,
@@ -285,7 +280,7 @@ def test_live_forge_h4f_bounded_runtime(live_bridge) -> None:
     provider = client.request("get_provider_version")
     assert provider.get("provider") == "forge"
     assert provider.get("protocol_version") == ENGINE_PROTOCOL_VERSION
-    assert provider.get("engine_commit") == FORGE_CANDIDATE_COMMIT
+    assert provider.get("engine_commit") == FORGE_RULES_COMMIT
     caps_raw = client.request("get_capabilities")
     caps = EngineCapabilityHandshake.model_validate(caps_raw.get("capabilities", caps_raw))
     assert caps.runtime_kind == "external_rules_engine"

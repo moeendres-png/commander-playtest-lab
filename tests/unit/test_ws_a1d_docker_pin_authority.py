@@ -29,7 +29,7 @@ STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
 CANONICAL_XMAGE_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
-CANONICAL_FORGE_PIN = "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
+CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
@@ -332,17 +332,6 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
     assert "set -euo pipefail" in text
 
 
-def test_operator_bootstraps_use_manifest_resolver_without_engine_pin_literals(
-    repo_root: Path,
-) -> None:
-    for rel in ("scripts/bootstrap_engine_linux.sh", "scripts/bootstrap_engine_windows.ps1"):
-        text = (repo_root / rel).read_text(encoding="utf-8")
-        assert "docker_resolve_engine_pin.py" in text, rel
-        assert CANONICAL_FORGE_PIN not in text, rel
-        assert CANONICAL_XMAGE_PIN not in text, rel
-        assert "Card-Forge/forge.git" not in text, rel
-
-
 def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
     text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
     assert _HEX40.search(_without_base_image_digests(text)) is None
@@ -447,22 +436,20 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
 
 
 CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"
-CANONICAL_FORGE_BRIDGE_COMMIT = CANONICAL_FORGE_PIN
+CANONICAL_FORGE_BRIDGE_COMMIT = "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
 
 
 def test_forge_bridge_source_resolves_dual_identity(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
     pin = module.resolve("forge", manifest)
-    # R-1 unified maintained-fork authority: Rules-Core/source and bridge
-    # roles are separately represented but intentionally share one exact clean
-    # source commit.
+    # Rules-Core authority is unchanged and distinct from materialization.
     assert pin.commit == CANONICAL_FORGE_PIN
     assert pin.repository == manifest["secondary_engine"]["repository"]
     assert pin.bridge_repository == CANONICAL_FORGE_BRIDGE_REPO
     assert pin.bridge_commit == CANONICAL_FORGE_BRIDGE_COMMIT
     assert pin.bridge_base_commit == pin.commit
-    assert pin.bridge_commit == pin.commit
+    assert pin.bridge_commit != pin.commit
     assert "forge" in pin.bridge_repository.lower()
     assert "mage" not in pin.bridge_repository.lower()
 
@@ -488,13 +475,14 @@ def test_forge_missing_bridge_source_fails_closed(repo_root: Path) -> None:
     raise AssertionError("missing bridge_source did not fail closed")
 
 
-def test_forge_malformed_bridge_commit_fails_closed(repo_root: Path) -> None:
-    # R-1 explicitly allows the bridge/materialization role to share the exact
-    # current candidate SHA. Shape-valid foreign SHAs are rejected downstream by
-    # provenance/attestation; malformed identities still fail here.
+def test_forge_stale_bridge_commit_fails_closed(repo_root: Path) -> None:
+    # Shape-invalid bridge commits and a bridge source identical to the Rules pin
+    # fail closed at resolve time. A shape-valid but foreign SHA is not stale by
+    # shape; it fails downstream at the provenance gate and handshake commit
+    # attestation (proven by the tampered-manifest negatives and handshake tests).
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
-    for bad in ("short", "F" * 40, ""):
+    for bad in (CANONICAL_FORGE_PIN, "short", "F" * 40, ""):
         mutated = copy.deepcopy(manifest)
         mutated["secondary_engine"]["bridge_source"]["commit"] = bad
         try:

@@ -1,153 +1,381 @@
-"""R-1 / PB-09: current Forge candidate identity after owner adjudication.
+"""PB-09: the Commander-Lab Forge fork must never read as pristine upstream.
 
-R-1 (2026-09-30) admits the Commander-Lab-maintained Forge fork for
-exact-source qualification. Historical source locks and freeze-readiness
-artifacts remain historical and are not rewritten. Current role identity remains
-explicit: candidate/source, Rules-Core lineage base, bridge/materialization
-role, upstream reference baseline and historical evidence tip are not
-interchangeable merely because some roles share a Git commit.
+The Lab's Forge candidate is a fork. Its rules core descends from upstream Forge
+2.0.14, the bound native suites execute at a further WSR20/WSR24 descendant, and
+the bridge carries its own commit. Four distinct commits were previously carried
+across the source lock, the engine config and the freeze-readiness record with
+names that invited conflation, and nothing recorded that the fork is not
+pristine or that upstream behaviour has never been observed.
+
+These tests pin the distinction. They fail if a fork commit is ever labelled
+pristine upstream, if a descendant is claimed to be the candidate head, or if
+upstream behaviour is recorded as observed.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import subprocess
-import tempfile
 from pathlib import Path
 
 import pytest
 
 from commander_lab.qualification.current_boundary import source_lock as sl
-from commander_lab.qualification.current_boundary.receipts import (
-    ReceiptError,
-    verify_candidate_identity,
-    verify_engine_identity,
-)
+from commander_lab.qualification.current_boundary.receipts import verify_candidate_identity
 
 REPO = Path(__file__).resolve().parents[2]
 CONFIG = REPO / "config/rules_engines.json"
-HISTORICAL_READINESS = (
-    REPO / "docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json"
-)
+READINESS = REPO / "docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json"
 
-CANDIDATE = "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
-CANDIDATE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
-LINEAGE_BASE = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
-UPSTREAM_REFERENCE = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
-HISTORICAL_WSR20 = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+# Historical path of the Forge reference checkout this file was written against.
+DEFAULT_FORGE_REFERENCE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 
 
-def _config() -> dict:
-    return json.loads(CONFIG.read_text(encoding="utf-8"))
+def _git_has_commit(repo: Path, sha: str) -> bool:
+    proc = subprocess.run(
+        ["git", "cat-file", "-e", f"{sha}^{{commit}}"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return proc.returncode == 0
 
 
-def test_r1_current_machine_authority_is_the_maintained_fork() -> None:
-    secondary = _config()["secondary_engine"]
+def _require_forge_reference(*commits: str) -> Path:
+    """Locate a Forge checkout that actually contains the pinned commits.
+
+    Resolution follows FORGE_SOURCE_DIR, the convention already documented for
+    the Forge checkout in tests/integration/test_forge_bridge_h4f_live.py:25,
+    with the historical hardcoded path as fallback so behaviour on the machine
+    this file was written against is unchanged.
+
+    The two preconditions are kept separate because they mean different things:
+
+    * no checkout at all -- a property of this machine. Nothing changed, there is
+      nothing to re-adjudicate, and the response is to point FORGE_SOURCE_DIR at
+      a checkout.
+    * a checkout that exists but lacks a pinned commit -- these tests compare
+      *specific* pinned commits, so no other checkout can establish them. An
+      arbitrary Forge source tree is not a substitute, and substituting one would
+      turn a correct skip into a wrong failure.
+    """
+    raw = os.environ.get("FORGE_SOURCE_DIR", "").strip()
+    forge = Path(raw) if raw else DEFAULT_FORGE_REFERENCE
+    if not (forge / ".git").exists():
+        pytest.skip(
+            f"no Forge checkout at {forge}: this test compares pinned commits, so it cannot run "
+            "without one. Set FORGE_SOURCE_DIR to a checkout of moeendres-png/forge to enable it."
+        )
+    missing = [sha for sha in commits if not _git_has_commit(forge, sha)]
+    if missing:
+        pytest.skip(
+            f"the Forge checkout at {forge} does not contain {missing}. These tests compare "
+            "specific pinned commits, so any other checkout cannot establish them -- a different "
+            "condition from having no checkout at all."
+        )
+    return forge
+
+
+FORK = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
+UPSTREAM = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+BRIDGE = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
+BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
+CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
+CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
+CURRENT_BRIDGE = "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
+CURRENT_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
+
+
+def test_the_four_forge_commits_are_all_distinct() -> None:
+    assert len({FORK, UPSTREAM, TIP, BRIDGE}) == 4
+
+
+def test_source_lock_names_all_four_identities() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["executing_engine"]["commit"] == FORK
+    assert identity["upstream_baseline"]["commit"] == UPSTREAM
+    assert identity["wsr20_evidence_tip"]["commit"] == TIP
+    assert identity["bridge_source_commit"]["commit"] == BRIDGE
+
+
+def test_the_fork_is_never_labelled_pristine_upstream() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["executing_engine"]["is_pristine_upstream"] is False
+    assert identity["upstream_baseline"]["verified_pristine"] is False
+    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is False
+
+
+def test_the_descendant_is_never_claimed_to_be_the_candidate_head() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["wsr20_evidence_tip"]["is_candidate_head"] is False
+    assert sl.FORGE_CANDIDATE_COMMIT != sl.FORGE_WSR20_EVIDENCE_TIP
+
+
+def test_upstream_ancestry_is_not_treated_as_identity() -> None:
+    """The divergence guard must reject a descendant and an ancestor alike."""
+    with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+        verify_candidate_identity(recorded_commit=FORK, actual_commit=TIP, recorded_label="forge")
+    with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+        verify_candidate_identity(
+            recorded_commit=FORK, actual_commit=UPSTREAM, recorded_label="forge"
+        )
+
+
+def test_config_records_r1_current_authority_without_rewriting_history() -> None:
+    config = json.loads(CONFIG.read_text(encoding="utf-8"))
+    secondary = config["secondary_engine"]
+    identity = secondary["engine_identity_pb09"]
+
     assert secondary["repository"] == "https://github.com/moeendres-png/forge.git"
-    assert secondary["commit"] == CANDIDATE
-    assert secondary["source_archive"].endswith(f"/{CANDIDATE}.tar.gz")
-    assert "R-1" in secondary["commit_meaning"]
-    assert "Production Provider" in secondary["commit_meaning"]
+    assert secondary["commit"] == CURRENT_CANDIDATE
+    assert secondary["source_archive"].endswith(f"/{CURRENT_CANDIDATE}.tar.gz")
+    assert secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert secondary["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
 
-
-def test_current_candidate_and_bridge_roles_share_exact_source_intentionally() -> None:
-    secondary = _config()["secondary_engine"]
-    bridge = secondary["bridge_source"]
-    assert bridge["repository"] == secondary["repository"]
-    assert bridge["commit"] == secondary["commit"] == CANDIDATE
-    assert bridge["rules_core_base_commit"] == CANDIDATE
-    assert bridge["qualification_lineage_base_commit"] == LINEAGE_BASE
-    assert "Same SHA" in bridge["role"]
-
-
-def test_pb09_is_resolved_for_current_qualification_without_selecting_provider() -> None:
-    config = _config()
-    identity = config["secondary_engine"]["engine_identity_pb09"]
     assert identity["pb09_status"].startswith("RESOLVED_BY_OWNER_R1")
-    assert identity["current_candidate"]["commit"] == CANDIDATE
-    assert identity["current_candidate"]["tree"] == CANDIDATE_TREE
-    assert identity["qualification_lineage_base"]["commit"] == LINEAGE_BASE
-    assert identity["upstream_baseline"]["commit"] == UPSTREAM_REFERENCE
-    assert identity["historical_native_suite_execution_root"]["commit"] == HISTORICAL_WSR20
+    assert identity["current_candidate"]["commit"] == CURRENT_CANDIDATE
+    assert identity["current_candidate"]["tree"] == CURRENT_CANDIDATE_TREE
+    assert identity["qualification_lineage_base"]["commit"] == FORK
+    assert identity["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert identity["bridge_source"]["tree"] == CURRENT_BRIDGE_TREE
+    assert identity["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
+    assert identity["upstream_baseline"]["commit"] == UPSTREAM
+
     assert config["provider_decision"] == "NO_PROVIDER_READY"
     assert config["current_runtime"]["provider_selected"] is False
     assert config["current_runtime"]["production_provider"] is None
 
 
-def test_active_source_lock_matches_current_machine_authority() -> None:
-    receipt = sl.boundary_receipt()["candidates"]["forge"]
-    identity = receipt["engine_identity_pb09"]
-    assert sl.FORGE_CANDIDATE_COMMIT == CANDIDATE
-    assert sl.FORGE_CANDIDATE_TREE == CANDIDATE_TREE
-    assert receipt["candidate_commit"] == CANDIDATE
-    assert identity["executing_engine"]["commit"] == CANDIDATE
-    assert identity["bridge_source_commit"]["commit"] == CANDIDATE
-    assert identity["qualification_lineage_base"]["commit"] == LINEAGE_BASE
-    assert identity["upstream_baseline"]["commit"] == UPSTREAM_REFERENCE
-    assert identity["wsr20_evidence_tip"]["commit"] == HISTORICAL_WSR20
-    assert identity["pb09_status"].startswith("RESOLVED_BY_OWNER_R1")
-
-
-def test_historical_readiness_is_not_rewritten_by_r1() -> None:
-    document = json.loads(HISTORICAL_READINESS.read_text(encoding="utf-8"))
+def test_historical_readiness_remains_source_bound_and_open_after_r1() -> None:
+    document = json.loads(READINESS.read_text(encoding="utf-8"))
     identity = document["engine_identity_pb09"]
-    assert identity["executing_engine"]["commit"] == LINEAGE_BASE
-    assert identity["upstream_baseline"]["commit"] == UPSTREAM_REFERENCE
+
+    assert identity["executing_engine"]["commit"] == FORK
+    assert identity["upstream_baseline"]["commit"] == UPSTREAM
     assert identity["pb09_status"].startswith("OPEN")
-    assert CANDIDATE not in json.dumps(document)
+    assert CURRENT_CANDIDATE not in json.dumps(document)
+    assert CURRENT_BRIDGE not in json.dumps(document)
 
 
-def test_upstream_reference_is_not_current_candidate_identity() -> None:
-    with pytest.raises(ReceiptError, match="CANDIDATE_IDENTITY_DIVERGENCE"):
-        verify_candidate_identity(
-            recorded_commit=CANDIDATE,
-            actual_commit=UPSTREAM_REFERENCE,
-            recorded_label="forge current candidate",
-        )
+def test_readiness_records_pb09_as_a_freeze_blocker() -> None:
+    document = json.loads(READINESS.read_text(encoding="utf-8"))
+    blockers = document["freeze_eligibility"]["prevented_by"]
+    assert any("PB-09" in blocker for blocker in blockers)
+    # And it must not claim freeze eligibility.
+    assert document["freeze_eligibility"]["freeze_eligible"] is False
 
 
-def _commit(repo: Path, message: str) -> str:
-    subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
-    subprocess.run(
-        ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", message],
-        cwd=repo,
-        check=True,
-    )
-    return subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
-    ).stdout.strip()
+# --- the engine-equivalence proof, which is what actually resolves PB-09 ----- #
 
 
-def test_bridge_only_descendant_can_be_rules_core_equivalent() -> None:
+def test_engine_equivalence_accepts_a_harness_only_descendant() -> None:
+    """A descendant that adds only harness and evidence executes the same engine."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import engine_tree_equivalence
+
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp)
         subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
-        (repo / "forge-game/src/main/java").mkdir(parents=True)
-        (repo / "forge-game/src/main/java/Engine.java").write_text("class Engine {}\n")
-        (repo / "forge-protocol2-bridge/src/main/java").mkdir(parents=True)
-        (repo / "forge-protocol2-bridge/src/main/java/Bridge.java").write_text("class Bridge {}\n")
-        base = _commit(repo, "candidate")
-
-        (repo / "forge-protocol2-bridge/src/main/java/Bridge.java").write_text(
-            "class Bridge { int revision; }\n"
+        for module in ("forge-core", "forge-game"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/Engine.java").write_text("class Engine {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "fork head"],
+            cwd=repo,
+            check=True,
         )
-        descendant = _commit(repo, "bridge only")
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        # Harness-only change: a test class and an evidence packet.
+        (repo / "forge-core/src/test/java").mkdir(parents=True)
+        (repo / "forge-core/src/test/java/SuiteTest.java").write_text("class SuiteTest {}\n")
+        (repo / "forge-core/wsr20-full107").mkdir(parents=True)
+        (repo / "forge-core/wsr20-full107/RESULTS.json").write_text("{}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.email=t@t",
+                "-c",
+                "user.name=t",
+                "commit",
+                "-q",
+                "-m",
+                "harness only",
+            ],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
 
-        proof = verify_engine_identity(repo, base, descendant, recorded_label="forge")
-        assert proof["engine_equivalent"] is True
-        assert proof["differing_modules"] == []
+        equivalence = engine_tree_equivalence(repo, head, tip)
+        assert equivalence["engine_equivalent"] is True
+        assert equivalence["differing_modules"] == []
+
+
+def test_engine_equivalence_rejects_an_engine_change() -> None:
+    """A descendant that touches engine code must never be credited."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        for module in ("forge-core", "forge-game"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/Engine.java").write_text("class Engine {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "fork head"],
+            cwd=repo,
+            check=True,
+        )
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        # Engine change: this is a different engine, not a harness addition.
+        (repo / "forge-core/src/main/java/Engine.java").write_text("class Engine { int x; }\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.email=t@t",
+                "-c",
+                "user.name=t",
+                "commit",
+                "-q",
+                "-m",
+                "engine change",
+            ],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+
+        with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+            verify_engine_identity(repo, head, tip, recorded_label="forge")
+
+
+def test_real_forge_descendant_is_engine_equivalent() -> None:
+    """The measured fact PB-09 turns on, re-proven against the real repository.
+
+    Between the Commander-Lab fork head and the WSR20/WSR24 tip the only
+    differences are one added test class and the wsr20-full107 harness/evidence
+    directory. Every engine module's main-source tree is byte-identical, which is
+    why the suite can execute at the descendant and still be evidence about the
+    fork head.
+    """
+    forge = _require_forge_reference(FORK, TIP)
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    proof = verify_engine_identity(forge, FORK, TIP, recorded_label="forge native suite")
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
+    assert proof["differing_modules"] == []
+    # Six Rules-Core modules. forge-protocol2-bridge is excluded and bound
+    # separately, because it is transport/provenance, not Magic legality.
+    assert len(proof["modules"]) == 6
+    assert "forge-game" in proof["modules"]
+    assert "forge-protocol2-bridge" not in proof["modules"]
+    assert set(proof["compared_module_roots"]) == {
+        "forge-game",
+        "forge-core",
+        "forge-ai",
+        "forge-gui",
+        "forge-gui-desktop",
+        "adventure-editor",
+    }
+
+
+# --- the bridge is a separate identity, never collapsed into the Rules Core --- #
+
+
+def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
+    """PB-05 changed the bridge and no Rules-Core source. The check must pass."""
+    from commander_lab.qualification.current_boundary import receipts as R
+
+    assert "forge-protocol2-bridge" not in R.FORGE_RULES_CORE_MODULE_ROOTS
+    assert R.FORGE_BRIDGE_MODULE_ROOTS == ("forge-protocol2-bridge",)
+    assert "forge-game" in R.FORGE_RULES_CORE_MODULE_ROOTS
+
+
+def test_forge_pr5_head_is_rules_core_equivalent_to_the_fork_head() -> None:
+    """The real PB-05/WSR30 fact: the bridge repair changed zero Rules-Core source."""
+    forge = _require_forge_reference(FORK, BRIDGE_HEAD)
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
+    proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR5")
+    assert proof["engine_equivalent"] is True
+    assert proof["differing_modules"] == []
+    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
 
 
 def test_rules_core_drift_still_fails_closed() -> None:
+    """Excluding the bridge must not weaken the drift guard for real engine code."""
+    import subprocess
+    import tempfile
+
+    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
+
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp)
         subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
-        (repo / "forge-game/src/main/java").mkdir(parents=True)
-        (repo / "forge-game/src/main/java/Engine.java").write_text("class Engine {}\n")
-        base = _commit(repo, "candidate")
+        for module in ("forge-game", "forge-protocol2-bridge"):
+            (repo / module / "src/main/java").mkdir(parents=True)
+            (repo / module / "src/main/java/E.java").write_text("class E {}\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "head"],
+            cwd=repo,
+            check=True,
+        )
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+        # A forge-game change is Rules-Core drift and must be refused.
+        (repo / "forge-game/src/main/java/E.java").write_text("class E { int x; }\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "engine"],
+            cwd=repo,
+            check=True,
+        )
+        tip = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True
+        ).stdout.strip()
+        with pytest.raises(Exception, match="CANDIDATE_IDENTITY_DIVERGENCE"):
+            verify_engine_identity(repo, head, tip, recorded_label="forge")
 
-        (repo / "forge-game/src/main/java/Engine.java").write_text("class Engine { int x; }\n")
-        descendant = _commit(repo, "rules drift")
 
-        with pytest.raises(ReceiptError, match="CANDIDATE_IDENTITY_DIVERGENCE"):
-            verify_engine_identity(repo, base, descendant, recorded_label="forge")
+def test_bridge_and_evidence_head_is_bound_separately() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    head = identity["bridge_evidence_head"]
+    assert head["commit"] == BRIDGE_HEAD
+    assert head["tree"] == BRIDGE_TREE
+    assert head["pull_request"] == 5
+    assert head["is_draft"] is True, "Forge PR #5 must stay Draft"
+    assert head["changes_rules_core"] is False
+    # Distinct from the Rules Core and from the historical bridge pin.
+    assert head["commit"] != identity["executing_engine"]["commit"]
+    assert head["commit"] != identity["bridge_source_commit"]["commit"]
+
+
+def test_pb05_credit_rule_is_recorded_with_the_identities() -> None:
+    identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
+    assert identity["pb05_provenance_consumed"] == list(sl.FORGE_PB05_PROVENANCE_FIELDS)
+    assert "no AF00 or PB-05 credit" in identity["pb05_credit_rule"]

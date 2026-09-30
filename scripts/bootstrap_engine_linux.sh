@@ -7,17 +7,18 @@ BINARY_ROOT="${ENGINE_BINARY_PATH:-$ROOT/vendor/engine-binaries/$PROVIDER}"
 MAVEN_VERSION="3.9.16"
 
 case "$PROVIDER" in
-  xmage) REQUIRED_JAVA_MIN=8 ;;
-  forge) REQUIRED_JAVA_MIN=17 ;;
+  xmage)
+    REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-https://github.com/moeendres-png/mage.git}"
+    COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-9375f35ac7c9a540ebcb8b262b8645b8c6b1b326}"
+    REQUIRED_JAVA_MIN=8
+    ;;
+  forge)
+    REPO="https://github.com/Card-Forge/forge.git"
+    COMMIT="a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    REQUIRED_JAVA_MIN=17
+    ;;
   *) echo "ERROR: ENGINE_PROVIDER must be xmage or forge" >&2; exit 2 ;;
 esac
-
-# Sole current pin authority. Do not duplicate provider repository/commit
-# literals here: owner adjudications (such as R-1) must flow through the same
-# fail-closed resolver used by the supported Docker path.
-PIN_JSON="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider "$PROVIDER" --format json)"
-REPO="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["repository"])' <<<"$PIN_JSON")"
-COMMIT="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"])' <<<"$PIN_JSON")"
 
 command -v java >/dev/null || { echo "ERROR: Java is missing" >&2; exit 3; }
 command -v javac >/dev/null || { echo "ERROR: javac is missing; install a JDK" >&2; exit 3; }

@@ -1171,12 +1171,12 @@ def _valid_sha(value: Any) -> bool:
 
 
 def verify_pb05_provenance(
-    identity: dict[str, Any], *, expected_source_commit: str, expected_tree: str | None = None
+    identity: dict[str, Any], *, expected_rules_core: str, expected_tree: str | None = None
 ) -> dict[str, Any]:
     """Fail-closed consumption of the provider's build provenance.
 
     AF00 and PB-05 credit require all of: a build-derived commit equal to the
-    exact current candidate source commit, a well-formed build tree, a clean build source, and
+    expected Rules Core, a well-formed build tree, a clean build source, and
     ``engine_commit_verified`` true. A missing, malformed, unknown or dirty value
     yields no credit; it is never treated as clean by default.
     """
@@ -1192,16 +1192,16 @@ def verify_pb05_provenance(
 
     if not _valid_sha(build_commit):
         findings.append(f"engine_build_commit is absent or malformed: {raw_commit!r}")
-    elif build_commit is None or build_commit != expected_source_commit:
+    elif build_commit is None or build_commit != expected_rules_core:
         findings.append(
-            f"build commit {(build_commit or '<none>')[:12]} is not the expected candidate source "
-            f"{expected_source_commit[:12]}"
+            f"build commit {(build_commit or '<none>')[:12]} is not the expected Rules Core "
+            f"{expected_rules_core[:12]}"
         )
     if not _valid_sha(build_tree):
         findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
     elif expected_tree and (build_tree is None or build_tree != expected_tree):
         findings.append(
-            f"build tree {(build_tree or '<none>')[:12]} is not the expected candidate source tree "
+            f"build tree {(build_tree or '<none>')[:12]} is not the expected Rules Core tree "
             f"{expected_tree[:12]}"
         )
     if build_dirty is None:
@@ -1224,7 +1224,7 @@ def verify_pb05_provenance(
         "build_dirty": build_dirty,
         "build_source": build_source,
         "engine_commit_verified": verified,
-        "expected_source_commit": expected_source_commit,
+        "expected_rules_core": expected_rules_core,
         "expected_tree": expected_tree,
         "findings": findings,
         "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown "
