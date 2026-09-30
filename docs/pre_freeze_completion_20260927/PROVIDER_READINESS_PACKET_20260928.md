@@ -62,8 +62,8 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1a3324f3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 180 | 180 | Lab `1a3324f3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `b0a66111` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 185 | 185 | Lab `b0a66111` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is
@@ -89,7 +89,10 @@ receipt; the repair is in `receipts.py` and is regression-locked.
 XMage's engine identity comes from the provider handshake because `engine-bridge`
 is a module of this repository and has no engine checkout of its own. `AF00`
 verifies the provider-reported commit against the expected candidate and is `PASS`
-on both sides.
+on both sides. Since 2026-09-30 the handshake also reports the loaded engine
+artifact's own SHA-256 (provider-computed from the loaded `Game` code source);
+the PB-03 admission handshake, runtime ledger and midgame probe all bind the same
+digest and the assembler reports `artifact_identity_consistent`.
 
 ---
 
@@ -142,7 +145,7 @@ the Rules can observe preserved.
 | Gate | XMage | Forge |
 |---|---|---|
 | AF00 SOURCE_AND_BUILD_LOCK | **PASS** | **PASS** |
-| AF01 PROTOCOL_HANDSHAKE | **FAIL** | **PASS** |
+| AF01 PROTOCOL_HANDSHAKE | **PASS** | **FAIL** |
 | AF02 PLAYER_CARDINALITY | **PASS** | **PASS** |
 | AF03 RULES_AUTHORITY | **PASS** | **PASS** |
 | AF04 LEGAL_ACTION_AND_DECISION_BOUNDARY | **FAIL** | UNKNOWN |
@@ -162,6 +165,13 @@ at least one candidate, which is why no provider ranking is possible. AF03 is
 successor run: every observable interop/licence fact holds (separate external
 processes, no embedded engine, a shared recorded boundary), so the residual is
 the Coordinator-owned AF11 policy question rather than a measured violation.
+
+AF01 now discriminates and the two columns moved in opposite directions:
+XMage is `PASS` on the live pin (the generic lane genuinely rejects unsupported
+decision classes), while Forge is `FAIL` — the probe records
+`fail_closed_unsupported_decision`: the executed Forge bridge accepted a request
+for an unsupported decision class for a live game. That is a provider finding,
+recorded rather than masked.
 
 ---
 
@@ -337,7 +347,7 @@ Coordinator provider decision.
 
 | Dimension | XMage | Forge |
 |---|---|---|
-| Protocol handshake (AF01) | FAIL | PASS |
+| Protocol handshake (AF01) | **PASS** | **FAIL** — accepts an unsupported decision class for a live game |
 | External discretionary decisions bound to engine-offered options | PASS (4 PASS rows) | PASS (4 PASS rows) |
 | Player cardinality 2P/3P/4P/5P (AF02) | PASS | PASS |
 | Bounded 6P | attempted, not separately credited | attempted, not separately credited |
@@ -412,8 +422,9 @@ is now taken from each candidate's own reported capabilities.
 both candidates, so no capability ranking is admissible.
 
 `DECISION_CRITICAL_UNKNOWN_REMAINS = YES` — PB-09, PB-07, the per-scenario
-hidden rows, the clean-process replay twin rows, the AF11 policy question, and
-AF04–AF09 for at least one candidate on both sides. The requester binding on
+hidden rows, the clean-process replay twin rows, the AF11 policy question, the
+Forge AF01 fail-closed gap, and AF04–AF09 for at least one candidate on both
+sides. The requester binding on
 both candidates, the seed acknowledgement on both candidates, and the PB-03
 starting-state seam on XMage are no longer among them; the PB-03 rows remain
 uncredited until exact semantic-obligation bindings exist.

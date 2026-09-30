@@ -1,13 +1,23 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonObject;
 import mage.game.Game;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.nio.file.Files;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30): the bridge
@@ -54,5 +64,43 @@ class XmageCandidateEngineFingerprintTest {
         Method blockOrder = combat.getDeclaredMethod("getPlayerDefendersInApnapOrder", Game.class);
         assertEquals(List.class, blockOrder.getReturnType(), "F-29: loaded engine is not the successor: "
                 + combat.getProtectionDomain().getCodeSource().getLocation());
+    }
+
+    /**
+     * The declared commit is a constant; this proves the artifact that actually
+     * loaded has a reported, well-formed, independently reproducible SHA-256.
+     *
+     * <p>The expected digest is computed here from the loaded code source, not
+     * hard-coded, so a rebuild at the same commit stays valid while any other
+     * artifact (a stale cache entry, a directory classpath, a different jar)
+     * fails. The provider version payload must carry exactly that digest.</p>
+     */
+    @Test
+    void loadedEngineArtifactIdentityIsReportedAndExact() throws Exception {
+        URI location = Game.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+        File artifact = new File(location);
+        assertTrue(artifact.isFile(), "loaded engine artifact is not a file: " + location);
+
+        String expectedDigest;
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (InputStream stream = Files.newInputStream(artifact.toPath());
+             DigestInputStream digestStream = new DigestInputStream(stream, digest)) {
+            byte[] buffer = new byte[8192];
+            while (digestStream.read(buffer) != -1) {
+                // digest only
+            }
+        }
+        expectedDigest = HexFormat.of().formatHex(digest.digest());
+
+        JsonObject version = XmageProvider.providerVersion();
+        assertEquals("file", version.get("engine_artifact_kind").getAsString());
+        assertEquals(artifact.getAbsolutePath(),
+                new File(URI.create(version.get("engine_artifact_path").getAsString()))
+                        .getAbsolutePath());
+        String reported = version.get("engine_artifact_sha256").getAsString();
+        assertTrue(reported.matches("[0-9a-f]{64}"), reported);
+        assertEquals(expectedDigest, reported);
+        assertEquals(artifact.length(), version.get("engine_artifact_size").getAsLong());
+        assertFalse(XmageProvider.engineArtifactIdentity().sha256().isEmpty());
     }
 }

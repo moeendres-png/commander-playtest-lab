@@ -9,6 +9,7 @@ A green blocker-characterization test is runtime execution, not semantic PASS.
 
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, TypedDict
@@ -18,6 +19,8 @@ from .dimension_admission import PB03_FIXTURE_IDS
 RESTORATION_PLUS_CAUSAL = "RESTORATION_PLUS_CAUSAL"
 GENUINE_CAUSAL_DEVIATION = "GENUINE_CAUSAL_DEVIATION"
 TEMPORAL_PROGRESSION = "TEMPORAL_PROGRESSION"
+
+_ENGINE_ARTIFACT_DIGEST = re.compile(r"[0-9a-f]{64}")
 
 
 class RuntimeCase(TypedDict):
@@ -250,15 +253,17 @@ def runtime_execution_freshness(
     *,
     expected_runner_digest: str,
     expected_candidate_commit: str,
+    expected_engine_artifact_sha256: str = "",
 ) -> str:
     """Classify a PB-03 runtime execution ledger against the assembling head.
 
     ``FRESH_EXACT`` requires the schema, a complete identity block, the exact
-    executing Lab runner digest, the canonical engine candidate commit and an
-    all-green execution ledger. Anything else is zero runtime credit: a
-    well-formed ledger from another runner or engine epoch is ``STALE``, an
-    incomplete one is ``MISSING``, and a malformed, tampered or non-all-green
-    one is ``INVALID``. No classification here promotes a FULL107 row.
+    executing Lab runner digest, the canonical engine candidate commit, the
+    provider-reported loaded engine artifact digest and an all-green execution
+    ledger. Anything else is zero runtime credit: a well-formed ledger from
+    another runner, engine epoch or engine artifact is ``STALE``, an incomplete
+    one is ``MISSING``, and a malformed, tampered or non-all-green one is
+    ``INVALID``. No classification here promotes a FULL107 row.
     """
     if not isinstance(document, dict):
         return PB03_RUNTIME_INVALID
@@ -275,9 +280,29 @@ def runtime_execution_freshness(
     identity = {field: document.get(field) for field in PB03_RUNTIME_IDENTITY_FIELDS}
     if not all(isinstance(value, str) and value for value in identity.values()):
         return PB03_RUNTIME_MISSING
-    if not expected_runner_digest or not expected_candidate_commit:
-        # The assembling head cannot name itself; nothing can be verified fresh.
+    artifact_kind = document.get("engine_artifact_kind")
+    artifact_digest = document.get("engine_artifact_sha256")
+    if not isinstance(artifact_kind, str) or not artifact_kind:
         return PB03_RUNTIME_MISSING
+    if artifact_kind != "file":
+        # A reported directory or unavailable artifact is not an identity.
+        return PB03_RUNTIME_INVALID
+    if not isinstance(artifact_digest, str) or not artifact_digest:
+        return PB03_RUNTIME_MISSING
+    if _ENGINE_ARTIFACT_DIGEST.fullmatch(artifact_digest) is None:
+        return PB03_RUNTIME_INVALID
+    if (
+        not expected_runner_digest
+        or not expected_candidate_commit
+        or not expected_engine_artifact_sha256
+    ):
+        # The assembling head cannot name the identity it is verifying against;
+        # nothing can be verified fresh.
+        return PB03_RUNTIME_MISSING
+    if artifact_digest != expected_engine_artifact_sha256:
+        # A different engine artifact executed than the one the admission
+        # handshake observed.
+        return PB03_RUNTIME_STALE
     if (
         identity["runner_digest"] != expected_runner_digest
         or identity["candidate_commit"] != expected_candidate_commit
