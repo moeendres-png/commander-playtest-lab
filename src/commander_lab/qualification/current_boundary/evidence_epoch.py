@@ -37,6 +37,9 @@ from typing import Any
 
 from .receipts import clean_git_environment
 
+#: Git reads that identify the producing source must complete or fail closed.
+_GIT_TIMEOUT_SECONDS = 60
+
 EPOCH_IDENTITY_SCHEMA = "commander-lab.current-boundary-epoch-identity/1.0.0"
 HISTORICAL_EPOCH_ID = "final-current-boundary-20260927"
 EPOCH_PARENT = "current-boundary-epochs"
@@ -55,15 +58,27 @@ class EvidenceEpochError(RuntimeError):
 
 
 def _git(repo_root: Path, *args: str) -> str:
-    """A Git fact the epoch identity needs; unavailable means fail closed."""
-    completed = subprocess.run(
-        ["git", *args],
-        cwd=str(repo_root),
-        capture_output=True,
-        text=True,
-        check=False,
-        env=clean_git_environment(),
-    )
+    """A Git fact the epoch identity needs; unavailable means fail closed.
+
+    The read uses the canonical sanitized environment and the same completion
+    timeout as receipts so an epoch identity can never be answered by another
+    checkout or by a hung Git process.
+    """
+    try:
+        completed = subprocess.run(
+            ["git", *args],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=_GIT_TIMEOUT_SECONDS,
+            env=clean_git_environment(),
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise EvidenceEpochError(
+            f"git {' '.join(args)} in {repo_root} did not complete: {exc}. An evidence epoch "
+            "cannot be identified without a source identity."
+        ) from exc
     if completed.returncode != 0:
         raise EvidenceEpochError(
             f"git {' '.join(args)} failed in {repo_root} (exit {completed.returncode}): "
