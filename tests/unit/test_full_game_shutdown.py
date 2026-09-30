@@ -199,7 +199,7 @@ def _run_full_game_with_disposition(monkeypatch: pytest.MonkeyPatch, disposition
     )
     built: list[str | None] = []
 
-    def build(cls, scenario, provider, result, *, shutdown_disposition=None):  # type: ignore[no-untyped-def]
+    def build(cls, scenario, provider, result, *, shutdown_disposition=None, hidden_audit=None):  # type: ignore[no-untyped-def]
         built.append(shutdown_disposition)
         return shutdown_disposition
 
