@@ -204,6 +204,7 @@ Until then:
 | F-37 (AF01) | #390 | AF01 fail-closed probes credited malformed-request rejections as PASS, and the generic lane answered an unsupported decision class with the pending options. |
 | F-30 (generic lane) | #393 | The generic Protocol-2 lane had the F-30 dedup and the F-36 ordering too; both lanes now share `XmageStableOrder`. |
 | F-38 | this PR | Native restoration placed a battlefield commander as a setup copy. That is why the 8 `WS05-CMD-ZONE-*` rows never got their zone choice and ELIM-4 never accrued commander damage. All 9 obligations are now executed on the genuine commander. |
+| F-39 | stacked on F-38 | The restoration claimed life totals, but game start overwrote them. A player's recorded starting life is now set once while untouched; every other life value must still be caused. This unblocks CARD_04 and CARD_24. |
 
 ### Whole-game replay harness
 `XmageFullGameReplayTwinTest` plays real 100-card decks (RogShai, Kaervek, Hosts of Mordor, Lorehold Spirits) at 2–6P, up to 3000 decisions per game. Each game is played twice with the same seed by a semantic pilot.
