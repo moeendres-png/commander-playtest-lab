@@ -266,8 +266,7 @@ def run_af01(
     nothing to do with decision-time legality, so crediting that as evidence
     would be a pass for the wrong reason.
     """
-    game_bound = bool(game_id)
-    if not game_bound:
+    if not game_id:
         raise ValueError(
             "run_af01 requires a live game_id. Decision-time invariants must be "
             "observed against a real game or they are UNKNOWN, not PASS."
