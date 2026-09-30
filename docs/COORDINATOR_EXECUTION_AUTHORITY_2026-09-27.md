@@ -89,8 +89,8 @@ DeepSeek. Model choice does not change Rules/Evidence/Privacy semantics.
 ### Claude Opus 5.5 — explicitly authorized direct campaign executor
 
 Claude Opus 5.5 may be used as a direct engineering executor when the session is given an
-explicit campaign objective and writable ownership surface. It is not limited to review or
-advice.
+explicit campaign objective and one or more explicitly owned writable surfaces. It is not
+limited to review or advice.
 
 Inside that declared campaign Claude has autonomous technical authority to inspect current
 source truth, challenge existing technical assumptions, discover adjacent in-objective
@@ -103,6 +103,10 @@ when they serve one coherent objective. Completion of one milestone is not a sto
 condition. Adjacent work required or high-value for the same objective may be taken
 without a Coordinator round-trip unless it crosses ownership or one of the reserved gates
 below.
+
+For a bounded integration objective, the campaign may span multiple disjoint repositories
+or worktrees when every writable surface is explicitly declared, fresh-verified and not
+owned by another active writer. All other project surfaces remain read-only.
 
 Claude receives no special exemption from project boundaries: Rules Core authority,
 evidence semantics, principal-scoped hidden information, Git safety, source locks, active
