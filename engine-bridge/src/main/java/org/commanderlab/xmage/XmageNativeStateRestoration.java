@@ -3,6 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import mage.abilities.Ability;
 import mage.cards.Card;
 import mage.cards.decks.Deck;
 import mage.cards.decks.DeckCardInfo;
@@ -118,13 +119,24 @@ final class XmageNativeStateRestoration {
     ) {
     }
 
-    /** One requested commander binding. */
+    /**
+     * One requested commander binding. {@code zone} is where the genuine commander
+     * is requested (COMMAND or BATTLEFIELD); {@code semanticId} names the frozen
+     * object that is this commander outside the command zone (null in the command
+     * zone).
+     */
     record RequestedCommander(
             String commanderId,
             String cardIdentity,
             String owner,
-            int priorCasts
+            int priorCasts,
+            Zone zone,
+            String semanticId
     ) {
+        /** A commander requested in the command zone. */
+        RequestedCommander(String commanderId, String cardIdentity, String owner, int priorCasts) {
+            this(commanderId, cardIdentity, owner, priorCasts, Zone.COMMAND, null);
+        }
     }
 
     /** One requested accumulated combat-damage edge for an exact Commander identity. */
@@ -246,13 +258,24 @@ final class XmageNativeStateRestoration {
         }
         JsonObject commanderState = record.getAsJsonObject("commander_state");
         List<RequestedCommander> commanders = new ArrayList<>();
+        Map<String, String> commanderZoneById = new HashMap<>();
         for (JsonElement element : commanderState.getAsJsonArray("commanders")) {
             JsonObject commander = element.getAsJsonObject();
+            String zoneName = commander.has("zone") && !commander.get("zone").isJsonNull()
+                    ? commander.get("zone").getAsString() : "command";
+            if (!"command".equals(zoneName) && !"battlefield".equals(zoneName)) {
+                throw new RestorationException(
+                        "UNSUPPORTED_COMMANDER_ZONE",
+                        fixtureId + " " + commander.get("commander_id").getAsString() + " requests " + zoneName);
+            }
+            commanderZoneById.put(commander.get("commander_id").getAsString(), zoneName);
             commanders.add(new RequestedCommander(
                     commander.get("commander_id").getAsString(),
                     commander.get("card_identity").getAsString(),
                     commander.get("owner").getAsString(),
-                    commander.get("prior_command_zone_cast_count").getAsInt()));
+                    commander.get("prior_command_zone_cast_count").getAsInt(),
+                    "battlefield".equals(zoneName) ? Zone.BATTLEFIELD : Zone.COMMAND,
+                    null));
         }
         Set<String> commanderIds = new HashSet<>();
         for (RequestedCommander commander : commanders) {
@@ -309,6 +332,27 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException("UNSUPPORTED_ATTACHMENTS", fixtureId + " " + semanticId);
             }
             String zoneName = object.get("zone").getAsString();
+            String objectCommanderId = object.has("commander_id") && !object.get("commander_id").isJsonNull()
+                    ? object.get("commander_id").getAsString() : null;
+            if (objectCommanderId != null && !"command".equals(zoneName)) {
+                // The genuine commander outside the command zone (F-38): never a generic
+                // setup copy, which the engine would not treat as a commander.
+                if (!zoneName.equals(commanderZoneById.get(objectCommanderId))) {
+                    throw new RestorationException(
+                            "COMMANDER_ZONE_CONFLICT", fixtureId + " " + semanticId + " is in " + zoneName
+                                    + " but " + objectCommanderId + " is requested in "
+                                    + commanderZoneById.get(objectCommanderId));
+                }
+                for (int index = 0; index < commanders.size(); index++) {
+                    RequestedCommander commander = commanders.get(index);
+                    if (commander.commanderId().equals(objectCommanderId)) {
+                        commanders.set(index, new RequestedCommander(commander.commanderId(),
+                                commander.cardIdentity(), commander.owner(), commander.priorCasts(),
+                                commander.zone(), semanticId));
+                    }
+                }
+                continue;
+            }
             if ("command".equals(zoneName)) {
                 String commanderId = object.has("commander_id")
                         && !object.get("commander_id").isJsonNull()
@@ -336,6 +380,12 @@ final class XmageNativeStateRestoration {
                     object.get("controller").getAsString(),
                     zone,
                     tapped));
+        }
+        for (RequestedCommander commander : commanders) {
+            if (commander.zone() != Zone.COMMAND && commander.semanticId() == null) {
+                throw new RestorationException(
+                        "COMMANDER_OBJECT_MISSING", fixtureId + " " + commander.commanderId());
+            }
         }
         JsonObject temporal = record.getAsJsonObject("temporal_state");
         int turnNumber = temporal.get("turn_number").getAsInt();
@@ -737,6 +787,46 @@ final class XmageNativeStateRestoration {
             throw new RestorationException(
                     "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
         }
+
+        placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
+    }
+
+    /**
+     * F-38: a commander requested on the battlefield is the genuine commander, moved
+     * there silently with the same public primitives the rest of the placement uses:
+     * {@code Card.removeFromZone(COMMAND)} (the engine's own command-object removal)
+     * and {@code CardUtil.putCardOntoBattlefieldWithEffects} (no ETB, as for every
+     * restored permanent). A generic setup copy is never used, because the engine
+     * would not treat it as a commander (no commander zone choice, tax or damage).
+     */
+    private void placeCommandersOutsideCommandZone(
+            GameCommanderImpl game, Map<String, Player> playersByPid, Map<String, UUID> liveCommanderIds) {
+        for (RequestedCommander requested : plan.commanders()) {
+            if (requested.zone() != Zone.BATTLEFIELD) {
+                continue;
+            }
+            UUID liveId = liveCommanderIds.get(requested.commanderId());
+            Card card = game.getCard(liveId);
+            Player owner = requirePlayer(playersByPid, requested.owner());
+            if (card == null || game.getState().getZone(liveId) != Zone.COMMAND) {
+                throw new RestorationException(
+                        "COMMANDER_NOT_IN_COMMAND_ZONE", requested.commanderId());
+            }
+            Ability placement = new mage.abilities.common.SimpleStaticAbility(
+                    Zone.OUTSIDE, new mage.abilities.effects.common.InfoEffect("restoration placement"));
+            placement.setControllerId(owner.getId());
+            placement.setSourceId(liveId);
+            if (!card.removeFromZone(game, Zone.COMMAND, placement)) {
+                throw new RestorationException(
+                        "COMMANDER_NOT_IN_COMMAND_ZONE", requested.commanderId());
+            }
+            mage.util.CardUtil.putCardOntoBattlefieldWithEffects(placement, game, card, owner, false);
+            if (game.getPermanent(liveId) == null) {
+                throw new RestorationException(
+                        "COMMANDER_PLACEMENT_FAILED", requested.commanderId());
+            }
+            injectedObjectIdsBySemanticId.put(requested.semanticId(), liveId);
+        }
     }
 
     /**
@@ -824,10 +914,17 @@ final class XmageNativeStateRestoration {
             CommanderPlaysCountWatcher watcher =
                     game.getState().getWatcher(CommanderPlaysCountWatcher.class);
             JsonArray commanders = new JsonArray();
-            for (Card card : game.getCommanderCardsFromCommandZone(
-                    player, CommanderCardType.COMMANDER_OR_OATHBREAKER)) {
+            // Every genuine commander identity with its current zone (F-38), not only
+            // those in the command zone.
+            for (UUID commanderId : game.getCommandersIds(
+                    player, CommanderCardType.COMMANDER_OR_OATHBREAKER, false)) {
+                Card card = game.getCard(commanderId);
+                if (card == null) {
+                    continue;
+                }
                 JsonObject entry = new JsonObject();
                 entry.addProperty("card_identity", card.getName());
+                entry.addProperty("zone", String.valueOf(game.getState().getZone(commanderId)));
                 entry.addProperty("prior_casts",
                         watcher == null ? -1 : watcher.getPlaysCount(card.getId()));
                 commanders.add(entry);
@@ -915,6 +1012,8 @@ final class XmageNativeStateRestoration {
                         expect("casts " + requested.commanderId(),
                                 entry.get("prior_casts").getAsInt(),
                                 requested.priorCasts(), mismatches);
+                        expectText("zone " + requested.commanderId(),
+                                entry.get("zone").getAsString(), requested.zone().name(), mismatches);
                     }
                 }
             }
@@ -926,6 +1025,14 @@ final class XmageNativeStateRestoration {
         Map<String, Integer> requestedCounts = new TreeMap<>();
         for (RequestedObject object : plan.objects()) {
             requestedCounts.merge(multisetKey(object), 1, Integer::sum);
+        }
+        for (RequestedCommander commander : plan.commanders()) {
+            if (commander.zone() == Zone.BATTLEFIELD) {
+                // The genuine commander is a permanent of its owner like any other.
+                requestedCounts.merge(multisetKey(new RequestedObject(commander.semanticId(),
+                        commander.cardIdentity(), commander.owner(), commander.owner(),
+                        Zone.BATTLEFIELD, false)), 1, Integer::sum);
+            }
         }
         Map<String, Integer> observedCounts = new TreeMap<>();
         for (Map.Entry<String, JsonObject> entry : seatsByPid.entrySet()) {
@@ -1043,6 +1150,8 @@ final class XmageNativeStateRestoration {
         payload.addProperty("starting_state_injection_supported", false);
         JsonArray supported = new JsonArray();
         supported.add("commanders with prior cast counts (native game-load restore path)");
+        supported.add("genuine commanders on the battlefield (engine command-zone removal plus the "
+                + "silent battlefield primitive; never a generic setup copy)");
         supported.add("commander damage matrices through exact live CommanderInfoWatcher bindings "
                 + "(native game-load restore; no synthetic damage events)");
         supported.add("battlefield/graveyard/exile placement of real cards (silent setup primitive)");
