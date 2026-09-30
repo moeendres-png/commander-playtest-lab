@@ -504,17 +504,36 @@ def assemble() -> None:
                 f"runtime_only={sorted(set(runtime_rows) - set(admission_rows))}"
             )
         # The runtime ledger earns credit only when it proves the exact audited
-        # test executed under the exact assembling runner and engine candidate.
-        # The raw execution is still reported, but a stale/missing/invalid
-        # identity block zeroes the runtime credit with an auditable reason; it
-        # is never grandfathered from a previous runner or engine epoch.
+        # test executed under the exact assembling runner, engine candidate and
+        # loaded engine artifact. The admission document is produced by a live
+        # provider handshake in the same run and carries the provider-reported
+        # artifact digest; the runtime ledger must name the same artifact. The
+        # raw execution is still reported, but a stale/missing/invalid identity
+        # block zeroes the runtime credit with an auditable reason; it is never
+        # grandfathered from a previous runner, engine epoch or engine artifact.
         xmage_identity = per_candidate["xmage"]["results_runtime_identity"]
+        admission_provider = admission.get("provider_identity")
+        expected_artifact_digest = (
+            str(admission_provider.get("engine_artifact_sha256", ""))
+            if isinstance(admission_provider, dict)
+            else ""
+        )
         runtime_freshness = pb03_runtime_mod.runtime_execution_freshness(
             runtime,
             expected_runner_digest=assembly_runner_digest,
             expected_candidate_commit=str(xmage_identity.get("engine_candidate_commit", "")),
+            expected_engine_artifact_sha256=expected_artifact_digest,
         )
-        runtime_credited = runtime_freshness == pb03_runtime_mod.PB03_RUNTIME_FRESH
+        artifact_identity_consistent = (
+            isinstance(admission_provider, dict)
+            and admission_provider.get("engine_artifact_sha256")
+            == runtime.get("engine_artifact_sha256")
+            and admission_provider.get("engine_artifact_kind") == "file"
+        )
+        runtime_credited = (
+            runtime_freshness == pb03_runtime_mod.PB03_RUNTIME_FRESH
+            and artifact_identity_consistent
+        )
         pb03_matrix_rows = []
         for fixture_id in sorted(admission_rows):
             runtime_row = runtime_rows[fixture_id]
@@ -543,10 +562,18 @@ def assemble() -> None:
                 "native_receipt": runtime_freshness,
                 "runtime_credit": "EXECUTED_PASS" if runtime_credited else "NONE",
                 "runtime_credit_reason": (
-                    "runner digest and engine candidate match the assembling head"
+                    "runner digest, engine candidate and loaded engine artifact match the "
+                    "assembling head and the admission handshake"
                     if runtime_credited
                     else f"receipt identity classified {runtime_freshness}; zero runtime credit"
                 ),
+                "engine_artifact": {
+                    "kind": runtime.get("engine_artifact_kind"),
+                    "path": runtime.get("engine_artifact_path"),
+                    "sha256": runtime.get("engine_artifact_sha256"),
+                    "size": runtime.get("engine_artifact_size"),
+                },
+                "artifact_identity_consistent": artifact_identity_consistent,
                 "rows_total": len(pb03_matrix_rows),
                 "admission_counts": admission.get("counts", {}),
                 "runtime_executed_pass": runtime.get("executed_pass", 0),

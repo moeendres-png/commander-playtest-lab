@@ -1192,6 +1192,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .toList();
 
         for (Permanent blocker : blockers) {
+            if (!isInGame()) {
+                // F-42: a defending player who left the game declares nothing
+                // more; its permanents left with it (CR 800.4a).
+                return;
+            }
             JsonArray options = new JsonArray();
             Map<String, UUID> attackerByOption = new LinkedHashMap<>();
             for (UUID attackerId : attackers) {
@@ -1221,16 +1226,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
             if (maxBlocks <= 0) {
                 continue;
             }
-            XmageFullGameDecisionController.DecisionResponse response = request(
-                    game,
-                    "declare_blocker",
-                    "Choose creatures blocked by " + blocker.getName(),
-                    0,
-                    maxBlocks,
-                    options,
-                    new JsonObject(),
-                    source
-            );
+            XmageFullGameDecisionController.DecisionResponse response;
+            try {
+                response = request(
+                        game,
+                        "declare_blocker",
+                        "Choose creatures blocked by " + blocker.getName(),
+                        0,
+                        maxBlocks,
+                        options,
+                        new JsonObject(),
+                        source
+                );
+            } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+                // F-42: the defending player left while its block frame was
+                // open. Its creatures left the game with it (CR 800.4a), so
+                // "no block" is the only outcome, not a choice made for it.
+                return;
+            }
             for (String selected : response.selectedOptionIds()) {
                 UUID attackerId = attackerByOption.get(selected);
                 if (attackerId == null) {

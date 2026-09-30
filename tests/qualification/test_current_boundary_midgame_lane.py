@@ -10,6 +10,7 @@ consumer refuses to promote anything the engine did not actually report.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -298,6 +299,11 @@ class TestProbeReceipt:
         assert receipt["evidence_class"] == "FRESH_RUNTIME_PROTOCOL2_PROCESS"
         assert receipt["receipt_digest"]
         assert receipt["runner_digest"]
+        # The declared commit constant is not enough: the receipt must carry the
+        # provider-reported loaded artifact's file-backed digest.
+        assert receipt["engine_artifact_kind"] == "file"
+        assert re.fullmatch(r"[0-9a-f]{64}", receipt["engine_artifact_sha256"])
+        assert receipt["engine_artifact_size"] > 0
 
     def test_receipt_content_digest_binds_every_field(self) -> None:
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
@@ -325,6 +331,22 @@ class TestProbeReceipt:
         assert receipt["runner_commit"] == ledger["runner_commit"]
         assert receipt["runner_tree"] == ledger["runner_tree"]
         assert receipt["engine_commit"] == ledger["candidate_commit"]
+        # Both artifacts must name the same loaded engine artifact.
+        assert receipt["engine_artifact_sha256"] == ledger["engine_artifact_sha256"]
+        assert receipt["engine_artifact_kind"] == ledger["engine_artifact_kind"] == "file"
+        # And the admission handshake of the same run must name it too.
+        admission = json.loads(
+            (
+                REPO_ROOT
+                / "qualification"
+                / "final-current-boundary-20260927"
+                / "PB03_DIMENSION_ADMISSION.json"
+            ).read_text(encoding="utf-8")
+        )
+        assert (
+            admission["provider_identity"]["engine_artifact_sha256"]
+            == receipt["engine_artifact_sha256"]
+        )
         assert receipt["engine_commit"] == bridge_launcher.canonical_xmage_engine_pin()
 
     def test_every_row_states_its_construction_verdict_explicitly(self) -> None:
@@ -420,98 +442,77 @@ class TestReceiptFreshness:
             "runner_commit": "b" * 40,
             "runner_tree": "c" * 40,
             "runner_digest": "d" * 64,
+            "engine_artifact_kind": "file",
+            "engine_artifact_sha256": "e" * 64,
         }
         body.update(overrides)
         body["receipt_digest"] = receipt_mod.document_digest(body)
         return body
 
+    @staticmethod
+    def _freshness(receipt: Any, **overrides: Any) -> str:
+        expected: dict[str, Any] = {
+            "expected_runner_digest": "d" * 64,
+            "expected_engine_commit": "a" * 40,
+            "expected_engine_artifact_sha256": "e" * 64,
+        }
+        expected.update(overrides)
+        return ml.receipt_freshness(receipt, **expected)
+
     def test_exact_identities_are_fresh(self) -> None:
-        receipt = self._receipt()
-        assert (
-            ml.receipt_freshness(
-                receipt,
-                expected_runner_digest="d" * 64,
-                expected_engine_commit="a" * 40,
-            )
-            == ml.MIDGAME_RECEIPT_FRESH
-        )
+        assert self._freshness(self._receipt()) == ml.MIDGAME_RECEIPT_FRESH
 
     def test_another_runner_or_engine_epoch_is_stale(self) -> None:
         assert (
-            ml.receipt_freshness(
-                self._receipt(),
-                expected_runner_digest="e" * 64,
-                expected_engine_commit="a" * 40,
-            )
+            self._freshness(self._receipt(), expected_runner_digest="f" * 64)
             == ml.MIDGAME_RECEIPT_STALE
         )
         assert (
-            ml.receipt_freshness(
-                self._receipt(),
-                expected_runner_digest="d" * 64,
-                expected_engine_commit="f" * 40,
-            )
+            self._freshness(self._receipt(), expected_engine_commit="f" * 40)
             == ml.MIDGAME_RECEIPT_STALE
         )
 
-    def test_missing_identity_is_missing_not_fresh(self) -> None:
-        receipt = self._receipt(runner_digest="")
+    def test_a_different_engine_artifact_is_stale(self) -> None:
+        """A well-formed digest of another artifact is not this run's identity."""
         assert (
-            ml.receipt_freshness(
-                receipt,
-                expected_runner_digest="d" * 64,
-                expected_engine_commit="a" * 40,
-            )
-            == ml.MIDGAME_RECEIPT_MISSING
+            self._freshness(self._receipt(), expected_engine_artifact_sha256="f" * 64)
+            == ml.MIDGAME_RECEIPT_STALE
         )
+
+    def test_a_receipt_without_the_loaded_artifact_identity_is_never_fresh(self) -> None:
+        for overrides, expected in (
+            ({"engine_artifact_sha256": ""}, ml.MIDGAME_RECEIPT_MISSING),
+            ({"engine_artifact_kind": ""}, ml.MIDGAME_RECEIPT_MISSING),
+            ({"engine_artifact_kind": "directory"}, ml.MIDGAME_RECEIPT_INVALID),
+            ({"engine_artifact_sha256": "not-a-digest"}, ml.MIDGAME_RECEIPT_INVALID),
+        ):
+            assert self._freshness(self._receipt(**overrides)) == expected, overrides
+
+    def test_missing_identity_is_missing_not_fresh(self) -> None:
+        assert self._freshness(self._receipt(runner_digest="")) == ml.MIDGAME_RECEIPT_MISSING
         without_digest = self._receipt()
         del without_digest["receipt_digest"]
-        assert (
-            ml.receipt_freshness(
-                without_digest,
-                expected_runner_digest="d" * 64,
-                expected_engine_commit="a" * 40,
-            )
-            == ml.MIDGAME_RECEIPT_MISSING
-        )
+        assert self._freshness(without_digest) == ml.MIDGAME_RECEIPT_MISSING
 
     def test_tampered_or_wrong_schema_is_invalid(self) -> None:
         tampered = self._receipt()
         tampered["engine_commit"] = "9" * 40
         assert (
-            ml.receipt_freshness(
-                tampered,
-                expected_runner_digest="d" * 64,
-                expected_engine_commit="9" * 40,
-            )
-            == ml.MIDGAME_RECEIPT_INVALID
+            self._freshness(tampered, expected_engine_commit="9" * 40) == ml.MIDGAME_RECEIPT_INVALID
         )
         assert (
-            ml.receipt_freshness(
-                self._receipt(schema_version="something-else"),
-                expected_runner_digest="d" * 64,
-                expected_engine_commit="a" * 40,
-            )
+            self._freshness(self._receipt(schema_version="something-else"))
             == ml.MIDGAME_RECEIPT_INVALID
         )
-        assert (
-            ml.receipt_freshness(
-                None, expected_runner_digest="d" * 64, expected_engine_commit="a" * 40
-            )
-            == ml.MIDGAME_RECEIPT_INVALID
-        )
+        assert self._freshness(None) == ml.MIDGAME_RECEIPT_INVALID
 
     def test_unavailable_expected_identity_is_never_fresh(self) -> None:
-        receipt = self._receipt()
-        for expected_runner, expected_engine in (("", "a" * 40), ("d" * 64, "")):
-            assert (
-                ml.receipt_freshness(
-                    receipt,
-                    expected_runner_digest=expected_runner,
-                    expected_engine_commit=expected_engine,
-                )
-                == ml.MIDGAME_RECEIPT_MISSING
-            )
+        for overrides in (
+            {"expected_runner_digest": ""},
+            {"expected_engine_commit": ""},
+            {"expected_engine_artifact_sha256": ""},
+        ):
+            assert self._freshness(self._receipt(), **overrides) == ml.MIDGAME_RECEIPT_MISSING
 
 
 class TestFrozenRecords:
