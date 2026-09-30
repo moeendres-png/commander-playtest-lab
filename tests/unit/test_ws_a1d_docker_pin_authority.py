@@ -365,6 +365,10 @@ def test_live_forge_integration_binds_current_rules_and_bridge_roles(repo_root: 
     assert "FORGE_BRIDGE_COMMIT" in text
     assert "FORGE_BRIDGE_BASE_COMMIT" in text
     assert "merge-base" in text and "--is-ancestor" in text
+    assert "diff" in text and "--name-only" in text
+    assert 'path.startswith("forge-protocol2-bridge/")' in text
+    assert 'os.environ["FORGE_ENGINE_SHA"] = FORGE_BRIDGE_COMMIT' in text
+    assert 'provider.get("engine_commit_verified") is True' in text
     assert "status" in text and "--porcelain" in text
     assert "a37a865a53280dd8ad6fad3384d69611e8c5a42f" not in text
     assert CANONICAL_FORGE_PIN not in text
