@@ -86,8 +86,10 @@ class XmagePb03Tier2CmdZoneTest {
         }
         JsonObject commanderState = record.getAsJsonObject("commander_state");
         List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
+        Map<String, Integer> commanderIndex = new java.util.HashMap<>();
         for (JsonElement element : commanderState.getAsJsonArray("commanders")) {
             JsonObject commander = element.getAsJsonObject();
+            commanderIndex.put(commander.get("commander_id").getAsString(), commanders.size());
             commanders.add(new XmageNativeStateRestoration.RequestedCommander(
                     commander.get("commander_id").getAsString(),
                     commander.get("card_identity").getAsString(),
@@ -111,6 +113,18 @@ class XmagePb03Tier2CmdZoneTest {
                         "non-causal stack object has no genuine path: " + semanticId);
             }
             if ("command".equals(zone)) {
+                continue;
+            }
+            String commanderId = object.has("commander_id") && !object.get("commander_id").isJsonNull()
+                    ? object.get("commander_id").getAsString() : null;
+            if (commanderId != null && "battlefield".equals(zone)
+                    && !relocations.containsKey(semanticId)) {
+                // F-38: the genuine commander on the battlefield, never a setup copy.
+                int index = commanderIndex.get(commanderId);
+                XmageNativeStateRestoration.RequestedCommander requested = commanders.get(index);
+                commanders.set(index, new XmageNativeStateRestoration.RequestedCommander(
+                        requested.commanderId(), requested.cardIdentity(), requested.owner(),
+                        requested.priorCasts(), mage.constants.Zone.BATTLEFIELD, semanticId));
                 continue;
             }
             mage.constants.Zone placed;
@@ -167,7 +181,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneGyYesChoosesCommandZone() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-GY-YES",
                 "pb03-gy-yes",
                 "Doom Blade",
@@ -179,7 +193,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneGyNoStaysInGraveyard() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-GY-NO",
                 "pb03-gy-no",
                 "Doom Blade",
@@ -191,7 +205,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneExileYesChoosesCommandZone() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-EXILE-YES",
                 "pb03-exile-yes",
                 "Swords to Plowshares",
@@ -202,7 +216,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneExileNoStaysInExile() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-EXILE-NO",
                 "pb03-exile-no",
                 "Swords to Plowshares",
@@ -213,7 +227,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneHandYesChoosesCommandZone() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-HAND-YES",
                 "pb03-hand-yes",
                 "Unsummon",
@@ -224,7 +238,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneHandNoStaysInHand() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-HAND-NO",
                 "pb03-hand-no",
                 "Unsummon",
@@ -235,7 +249,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneLibYesChoosesCommandZone() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-LIB-YES",
                 "pb03-lib-yes",
                 "Bant Charm",
@@ -248,7 +262,7 @@ class XmagePb03Tier2CmdZoneTest {
 
     @Test
     void cmdZoneLibNoStaysInLibrary() {
-        characterizeZoneChoiceAbsence(
+        executeCommanderZoneChoice(
                 "WS05-CMD-ZONE-LIB-NO",
                 "pb03-lib-no",
                 "Bant Charm",
@@ -260,15 +274,14 @@ class XmagePb03Tier2CmdZoneTest {
     }
 
     /**
-     * Commander-status duality characterization (row stays BLOCKED): the
-     * record's battlefield commander is a setup copy. A genuine Doom Blade
-     * destroys it, but the engine never offers the commander zone choice
-     * because the copy lacks commander status (the ledger lives on the
-     * authoritative identity). Proven by a full decision-class trace with
-     * zero choice classes plus the graveyard terminal plus the identity
-     * mismatch.
+     * Executes the row's commander zone-choice obligation on the genuine
+     * commander (F-38): the record's battlefield commander is the engine's own
+     * commander, the record's cause is cast for real, the engine's zone choice
+     * is answered with the decision_script's boolean among the engine-offered
+     * options only, and the commander's terminal zone is asserted as a game
+     * fact: the command zone for yes, the cause's destination for no.
      */
-    static void characterizeZoneChoiceAbsence(
+    static void executeCommanderZoneChoice(
             String fixtureId,
             String tag,
             String causeCard,
@@ -357,72 +370,94 @@ class XmagePb03Tier2CmdZoneTest {
         }
         assertSpellOnStack(session, causeCard, tag);
 
-        // Resolve fully, recording every decision class. The choice must
-        // never appear; the game must reach cleanup (proves normal progress
-        // without the choice, not a stall).
+        UUID commanderId = restoration.injectedObjectId("obj:cmd-zone-test");
+        mage.game.GameCommanderImpl game = session.restorationGame();
+        assertTrue(game.getCommandersIds(seats.get("P1"), mage.constants.CommanderCardType.ANY, false)
+                .contains(commanderId), fixtureId + ": the target is the genuine commander");
+        JsonObject selection = record.getAsJsonArray("decision_script").get(0).getAsJsonObject()
+                .getAsJsonObject("selection");
+        assertEquals("boolean", selection.get("selector_kind").getAsString());
+        boolean toCommandZone = selection.get("semantic_value").getAsBoolean();
+
+        // Resolve, answering only priority passes, until the engine asks P1.
         List<String> trace = new ArrayList<>();
+        boolean answered = false;
+        for (int step = 0; step < 40 && !answered; step++) {
+            JsonObject payload = session.pendingDecisionPayload();
+            if (payload.get("decision").isJsonNull()) {
+                fail(tag + ": engine terminal before the zone choice; trace=" + trace);
+            }
+            JsonObject decision = payload.getAsJsonObject("decision");
+            String decisionClass = decision.get("decision_class").getAsString();
+            trace.add(decisionClass);
+            if ("priority".equals(decisionClass)) {
+                XmagePb03Tier1RowsTest.passPriority(session, tag + "-pass-" + step);
+                continue;
+            }
+            assertEquals("choose_use", decisionClass, fixtureId + ": trace=" + trace);
+            assertEquals(seats.get("P1").getId().toString(),
+                    decision.get("actor_id").getAsString(), fixtureId + ": the owner decides");
+            List<JsonObject> matches = new ArrayList<>();
+            for (JsonElement element : session.legalActionsPayload().getAsJsonArray("actions")) {
+                JsonObject metadata = element.getAsJsonObject().getAsJsonObject("metadata");
+                JsonObject option = metadata.has("xmage_option_metadata")
+                        ? metadata.getAsJsonObject("xmage_option_metadata") : new JsonObject();
+                if (option.has("value") && option.get("value").getAsBoolean() == toCommandZone) {
+                    matches.add(element.getAsJsonObject());
+                }
+            }
+            assertEquals(1, matches.size(), fixtureId + ": exactly one offered answer");
+            XmagePb03Tier1RowsTest.submit(session, tag + "-zone-choice", matches.get(0));
+            answered = true;
+        }
+        assertTrue(answered, fixtureId + ": the engine must ask for the zone; trace=" + trace);
+        assertEquals(toCommandZone ? mage.constants.Zone.COMMAND : zoneOf(expectedTerminalZone),
+                game.getState().getZone(commanderId),
+                fixtureId + ": terminal zone of the genuine commander");
+        if (!toCommandZone) {
+            assertTerminalCommanderZone(session, seats, expectedTerminalZone, fixtureId, causeCard);
+        }
+
+        // One choice per zone change: the game proceeds to cleanup without asking again.
         boolean reachedCleanupDiscard = false;
-        for (int step = 0; step < 120; step++) {
+        for (int step = 0; step < 120 && !reachedCleanupDiscard; step++) {
             JsonObject payload = session.pendingDecisionPayload();
             if (payload.get("decision").isJsonNull()) {
                 break;
             }
-            String decisionClass = payload.getAsJsonObject("decision")
-                    .get("decision_class").getAsString();
+            JsonObject decision = payload.getAsJsonObject("decision");
+            String decisionClass = decision.get("decision_class").getAsString();
             trace.add(decisionClass);
-            if ("choose_object".equals(decisionClass)) {
-                JsonObject pending = payload.getAsJsonObject("decision");
-                if (pending.has("prompt") && !pending.get("prompt").isJsonNull()
-                        && pending.get("prompt").getAsString().contains("discard")) {
-                    reachedCleanupDiscard = true;
-                    break;
-                }
-                fail(tag + ": unexpected non-discard choose_object: " + pending);
-            }
-            if ("declare_attacker".equals(decisionClass)) {
-                XmagePb03Tier1RowsTest.submit(session, tag + "-hold-" + step,
+            switch (decisionClass) {
+                case "priority" -> XmagePb03Tier1RowsTest.passPriority(session, tag + "-after-" + step);
+                case "declare_attacker" -> XmagePb03Tier1RowsTest.submit(session, tag + "-hold-" + step,
                         XmageNativeStateRestorationTest.singleActionOfType(
-                                session.legalActionsPayload(),
-                                "declare_attackers", "hold_attacker"));
-                continue;
-            }
-            if ("declare_blocker".equals(decisionClass)) {
-                XmagePb03Tier1RowsTest.submitProposal(session, tag + "-noblock-" + step,
-                        XmagePb03Tier1RowsTest.emptyBlockProposal(
+                                session.legalActionsPayload(), "declare_attackers", "hold_attacker"));
+                case "declare_blocker" -> XmagePb03Tier1RowsTest.submitProposal(
+                        session, tag + "-noblock-" + step, XmagePb03Tier1RowsTest.emptyBlockProposal(
                                 tag + "-noblock-" + step, session.legalActionsPayload()));
-                continue;
-            }
-            if (!"priority".equals(decisionClass)) {
-                fail(tag + ": unexpected " + decisionClass + " during resolution");
-            }
-            XmagePb03Tier1RowsTest.passPriority(session, tag + "-pass-" + step);
-        }
-        assertTrue(reachedCleanupDiscard,
-                fixtureId + ": game must progress to cleanup without any zone choice; trace="
+                case "choose_object" -> {
+                    assertTrue(decision.has("prompt") && decision.get("prompt").getAsString().contains("discard"),
+                            fixtureId + ": unexpected choose_object " + decision);
+                    reachedCleanupDiscard = true;
+                }
+                default -> fail(fixtureId + ": unexpected " + decisionClass + " after the zone choice; trace="
                         + trace);
-        assertTrue(
-                trace.stream().noneMatch(c -> "choice".equals(c) || "choose_use".equals(c)
-                        || "replacement_effect".equals(c)),
-                fixtureId + ": no zone-choice decision may appear; trace=" + trace);
-        assertTerminalCommanderZone(
-                session, seats, expectedTerminalZone, fixtureId, causeCard);
-
-        // Identity mechanism: the destroyed copy is not the tracked commander.
-        UUID testCopy = restoration.injectedObjectId("obj:cmd-zone-test");
-        boolean identityLinked = false;
-        StringBuilder identities = new StringBuilder();
-        for (UUID id : session.restorationGame().getCommandersIds(
-                seats.get("P1"), mage.constants.CommanderCardType.ANY, false)) {
-            mage.cards.Card card = session.restorationGame().getCard(id);
-            identities.append(id).append(":")
-                    .append(card == null ? "null" : card.getName()).append(";");
-            if (testCopy.equals(id)) {
-                identityLinked = true;
             }
         }
-        assertTrue(!identityLinked,
-                fixtureId + ": setup copy must not be the tracked commander identity; testcopy="
-                        + testCopy + " identities=" + identities);
+        assertTrue(reachedCleanupDiscard, fixtureId + ": the game must reach cleanup; trace=" + trace);
+        assertEquals(toCommandZone ? mage.constants.Zone.COMMAND : zoneOf(expectedTerminalZone),
+                game.getState().getZone(commanderId), fixtureId + ": the zone is stable");
+    }
+
+    static mage.constants.Zone zoneOf(String name) {
+        return switch (name) {
+            case "graveyard" -> mage.constants.Zone.GRAVEYARD;
+            case "exile" -> mage.constants.Zone.EXILED;
+            case "hand" -> mage.constants.Zone.HAND;
+            case "library" -> mage.constants.Zone.LIBRARY;
+            default -> throw new IllegalArgumentException(name);
+        };
     }
 
     static JsonObject findRecordModeOffer(

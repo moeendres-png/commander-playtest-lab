@@ -298,94 +298,22 @@ class XmageMidgameCausalTest {
 
     // ------------------------------------------------------------------
     // Phase A: WS05-CMD-ZONE-GY-YES — the causal stack is reachable, and the
-    // commander-status duality is measured, not papered over.
+    // genuine commander's zone choice is executed on the production lane.
     // ------------------------------------------------------------------
 
     /**
-     * Commander-status duality, measured on the production lane. The record's
-     * battlefield commander is a setup copy without commander status, so a
-     * genuine Doom Blade destroys it but the engine never offers the zone
-     * choice. This test proves the causal stack reachable and the choice
-     * absent — a measured BLOCKED with a decision-class trace, not a pass.
+     * F-38: the record's battlefield commander is restored as the engine's own
+     * commander, so a genuine Doom Blade puts it into the graveyard and the
+     * engine asks its owner the commander zone choice. Before F-38 the lane
+     * placed a setup copy without commander status and the choice never came.
      */
     @Test
-    void cmdZoneGyYesReachesCausalStackButChoiceStaysAbsent() {
+    void cmdZoneGyYesExecutesZoneChoice() {
         Lane lane = newLane();
-        JsonArray fuel = new JsonArray();
-        fuel.add(fuelCard("obj:fuel-swamp-a", "Swamp", "P2", "battlefield"));
-        fuel.add(fuelCard("obj:fuel-swamp-b", "Swamp", "P2", "battlefield"));
-        JsonObject created = lane.ok("create_midgame_game",
-                causalStackCreate("causal-gy-yes", "WS05-CMD-ZONE-GY-YES", fuel));
-        JsonObject causalPlan = created.getAsJsonObject("causal_plan");
-        JsonObject frame = causalPlan.getAsJsonArray("frames_bottom_to_top")
-                .get(0).getAsJsonObject();
-        assertEquals("obj:cmd-zone-source", frame.get("semantic_id").getAsString());
-        assertEquals("Doom Blade", frame.get("card_identity").getAsString());
-        assertEquals("P2", frame.get("controller").getAsString());
-        JsonObject placed = causalPlan.getAsJsonObject("placed_objects");
-        String sourceId = frame.get("native_source_id").getAsString();
-        String commanderCopyId = placed.get("obj:cmd-zone-test").getAsString();
-        List<String> swampIds = List.of(
-                placed.get("obj:fuel-swamp-a").getAsString(),
-                placed.get("obj:fuel-swamp-b").getAsString());
-        lane.ok("start_midgame_game", null);
-
-        driveArrival(lane, "P1");
-        castFrameSource(lane, "causal-gy-cast", sourceId);
-        answerTarget(lane, "causal-gy-target", commanderCopyId);
-        answerManaFromPool(lane, "causal-gy-mana", swampIds);
-
-        JsonObject verify = new JsonObject();
-        verify.addProperty("mode", "stack");
-        JsonObject arrival = lane.ok("complete_causal_reconstruction", verify);
-        assertEquals(true, arrival.getAsJsonObject("verdict")
-                .get("causal_match").getAsBoolean(),
-                "Doom Blade must be genuinely on the stack: "
-                        + arrival.getAsJsonObject("verdict").getAsJsonArray("mismatches"));
-
-        // Resolve fully, recording every decision class. The zone choice must
-        // never appear for the setup copy; the game must reach cleanup,
-        // proving normal progress without the choice rather than a stall.
-        List<String> trace = new ArrayList<>();
-        boolean reachedCleanupDiscard = false;
-        for (int step = 0; step < 120; step++) {
-            JsonObject pending = pendingDecision(lane, 5);
-            if (pending == null) {
-                break;
-            }
-            String decisionClass = pending.get("decision_class").getAsString();
-            trace.add(decisionClass);
-            if ("choose_object".equals(decisionClass)) {
-                JsonObject decision = pending;
-                if (decision.has("prompt") && !decision.get("prompt").isJsonNull()
-                        && decision.get("prompt").getAsString().contains("discard")) {
-                    reachedCleanupDiscard = true;
-                    break;
-                }
-                fail("unexpected non-discard choose_object: " + pending);
-            }
-            if ("declare_attacker".equals(decisionClass)) {
-                submitAction(lane, "causal-gy-hold-" + step,
-                        singleActionOfType(legalActions(lane),
-                                "declare_attackers", "hold_attacker"));
-                continue;
-            }
-            if ("declare_blocker".equals(decisionClass)) {
-                submitProposal(lane, "causal-gy-noblock-" + step,
-                        emptyBlockProposal("causal-gy-noblock-" + step, legalActions(lane)));
-                continue;
-            }
-            if (!"priority".equals(decisionClass)) {
-                fail("unexpected " + decisionClass + " during resolution; trace=" + trace);
-            }
-            submitOption(lane, pending, optionWithType(pending, "pass_priority"));
-        }
-        assertTrue(reachedCleanupDiscard,
-                "the game must progress to cleanup without any zone choice; trace=" + trace);
-        assertTrue(trace.stream().noneMatch(c ->
-                        "choice".equals(c) || "choose_use".equals(c)
-                                || "replacement_effect".equals(c)),
-                "no zone-choice decision may appear for the setup copy; trace=" + trace);
+        executeZoneChoice(lane, "causal-gy-yes", "WS05-CMD-ZONE-GY-YES", "Doom Blade",
+                List.of(new FuelSpec("obj:fuel-swamp-a", "Swamp", "P2"),
+                        new FuelSpec("obj:fuel-swamp-b", "Swamp", "P2")),
+                List.of("Swamp"));
     }
 
     // ------------------------------------------------------------------
@@ -955,12 +883,12 @@ class XmageMidgameCausalTest {
 
     // ------------------------------------------------------------------
     // Remaining zone rows: GY-NO, EXILE-YES/NO, HAND-YES/NO share the GY-YES
-    // duality shape with different cause cards and fuel. LIB-YES/NO add a
-    // modal choice (Bant Charm) answered from the engine's own offered modes.
-    // Each proves the causal stack reachable and the choice absent.
+    // shape with different cause cards and fuel. LIB-YES/NO add a modal
+    // choice (Bant Charm) answered from the engine's own offered modes. Each
+    // proves the causal stack reachable and executes the owner's zone choice.
     // ------------------------------------------------------------------
 
-    private static void measureZoneDuality(
+    private static void executeZoneChoice(
             Lane lane, String tag, String fixtureId, String causeCard,
             List<FuelSpec> fuelSpecs, List<String> fuelLabels) {
         JsonArray fuel = new JsonArray();
@@ -1001,12 +929,48 @@ class XmageMidgameCausalTest {
                 fixtureId + " causal stack must verify: "
                         + arrival.getAsJsonObject("verdict").getAsJsonArray("mismatches"));
 
+        answerCommanderZoneChoice(lane, tag, fixtureId, placed.get("obj:cmd-zone-test").getAsString());
         List<String> trace = resolveAndRecordClasses(lane, tag);
-        assertTrue(trace.stream().noneMatch(c ->
-                        "choice".equals(c) || "choose_use".equals(c)
-                                || "replacement_effect".equals(c)),
-                fixtureId + ": no zone-choice decision may appear for the setup copy; trace="
-                        + trace);
+        assertTrue(trace.stream().noneMatch("choose_use"::equals),
+                fixtureId + ": one zone choice per zone change; trace=" + trace);
+    }
+
+    /**
+     * F-38: the genuine commander is on the battlefield, so the engine asks its
+     * owner (seat 0, P1) the commander zone choice. Answers the decision_script's
+     * boolean among the engine-offered options only.
+     */
+    private static void answerCommanderZoneChoice(
+            Lane lane, String tag, String fixtureId, String commanderNativeId) {
+        boolean toCommandZone = frozenRecord(fixtureId).getAsJsonArray("decision_script").get(0)
+                .getAsJsonObject().getAsJsonObject("selection").get("semantic_value").getAsBoolean();
+        List<String> trace = new ArrayList<>();
+        for (int step = 0; step < 40; step++) {
+            JsonObject pending = pendingDecision(lane, 5);
+            assertNotNull(pending, tag + ": the engine went terminal before the zone choice");
+            String decisionClass = pending.get("decision_class").getAsString();
+            trace.add(decisionClass);
+            if ("priority".equals(decisionClass)) {
+                submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+                continue;
+            }
+            assertEquals("choose_use", decisionClass, fixtureId + ": trace=" + trace);
+            List<String> matches = new ArrayList<>();
+            for (JsonElement element : legalActions(lane).getAsJsonArray("actions")) {
+                JsonObject metadata = element.getAsJsonObject().getAsJsonObject("metadata");
+                assertEquals(0, metadata.get("seat").getAsInt(), fixtureId + ": the owner decides");
+                assertTrue(metadata.get("prompt").getAsString().contains(commanderNativeId),
+                        fixtureId + ": the choice names the genuine commander");
+                JsonObject option = metadata.getAsJsonObject("xmage_option_metadata");
+                if (option != null && option.get("value").getAsBoolean() == toCommandZone) {
+                    matches.add(metadata.get("option_id").getAsString());
+                }
+            }
+            assertEquals(1, matches.size(), fixtureId + ": exactly one offered answer");
+            submitOption(lane, pending, matches.get(0));
+            return;
+        }
+        fail(fixtureId + ": the engine never asked for the zone; trace=" + trace);
     }
 
     private record FuelSpec(String semanticId, String card, String owner) {
@@ -1115,52 +1079,52 @@ class XmageMidgameCausalTest {
     }
 
     @Test
-    void cmdZoneGyNoMeasuresDuality() {
+    void cmdZoneGyNoExecutesZoneChoice() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-gy-no", "WS05-CMD-ZONE-GY-NO", "Doom Blade",
+        executeZoneChoice(lane, "causal-gy-no", "WS05-CMD-ZONE-GY-NO", "Doom Blade",
                 List.of(new FuelSpec("obj:fuel-swamp-a", "Swamp", "P2"),
                         new FuelSpec("obj:fuel-swamp-b", "Swamp", "P2")),
                 List.of("Swamp"));
     }
 
     @Test
-    void cmdZoneExileYesMeasuresDuality() {
+    void cmdZoneExileYesExecutesZoneChoice() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-exile-yes", "WS05-CMD-ZONE-EXILE-YES",
+        executeZoneChoice(lane, "causal-exile-yes", "WS05-CMD-ZONE-EXILE-YES",
                 "Swords to Plowshares",
                 List.of(new FuelSpec("obj:fuel-plains-a", "Plains", "P2")),
                 List.of("Plains"));
     }
 
     @Test
-    void cmdZoneExileNoMeasuresDuality() {
+    void cmdZoneExileNoExecutesZoneChoice() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-exile-no", "WS05-CMD-ZONE-EXILE-NO",
+        executeZoneChoice(lane, "causal-exile-no", "WS05-CMD-ZONE-EXILE-NO",
                 "Swords to Plowshares",
                 List.of(new FuelSpec("obj:fuel-plains-a", "Plains", "P2")),
                 List.of("Plains"));
     }
 
     @Test
-    void cmdZoneHandYesMeasuresDuality() {
+    void cmdZoneHandYesExecutesZoneChoice() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-hand-yes", "WS05-CMD-ZONE-HAND-YES", "Unsummon",
+        executeZoneChoice(lane, "causal-hand-yes", "WS05-CMD-ZONE-HAND-YES", "Unsummon",
                 List.of(new FuelSpec("obj:fuel-island-a", "Island", "P2")),
                 List.of("Island"));
     }
 
     @Test
-    void cmdZoneHandNoMeasuresDuality() {
+    void cmdZoneHandNoExecutesZoneChoice() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-hand-no", "WS05-CMD-ZONE-HAND-NO", "Unsummon",
+        executeZoneChoice(lane, "causal-hand-no", "WS05-CMD-ZONE-HAND-NO", "Unsummon",
                 List.of(new FuelSpec("obj:fuel-island-a", "Island", "P2")),
                 List.of("Island"));
     }
 
     @Test
-    void cmdZoneLibYesMeasuresDualityWithMode() {
+    void cmdZoneLibYesExecutesZoneChoiceWithMode() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-lib-yes", "WS05-CMD-ZONE-LIB-YES", "Bant Charm",
+        executeZoneChoice(lane, "causal-lib-yes", "WS05-CMD-ZONE-LIB-YES", "Bant Charm",
                 List.of(new FuelSpec("obj:fuel-forest-a", "Forest", "P2"),
                         new FuelSpec("obj:fuel-plains-a", "Plains", "P2"),
                         new FuelSpec("obj:fuel-island-a", "Island", "P2")),
@@ -1168,9 +1132,9 @@ class XmageMidgameCausalTest {
     }
 
     @Test
-    void cmdZoneLibNoMeasuresDualityWithMode() {
+    void cmdZoneLibNoExecutesZoneChoiceWithMode() {
         Lane lane = newLane();
-        measureZoneDuality(lane, "causal-lib-no", "WS05-CMD-ZONE-LIB-NO", "Bant Charm",
+        executeZoneChoice(lane, "causal-lib-no", "WS05-CMD-ZONE-LIB-NO", "Bant Charm",
                 List.of(new FuelSpec("obj:fuel-forest-a", "Forest", "P2"),
                         new FuelSpec("obj:fuel-plains-a", "Plains", "P2"),
                         new FuelSpec("obj:fuel-island-a", "Island", "P2")),
@@ -1693,45 +1657,6 @@ class XmageMidgameCausalTest {
         }
         return null;
     }
-
-    /**
-     * Pays a multi-mana cost from declared fuel lands in order, then spends
-     * each resulting pool mana. Returns only after the engine stops asking.
-     */
-    private static void answerManaFromPool(
-            Lane lane, String tag, List<String> fuelNativeIds) {
-        int fuelCursor = 0;
-        for (int step = 0; step < 40; step++) {
-            JsonObject pending = pendingDecision(lane);
-            assertNotNull(pending, tag + ": the engine must ask for mana");
-            if (!"mana_payment".equals(pending.get("decision_class").getAsString())) {
-                return;
-            }
-            JsonObject legal = legalActions(lane);
-            if (fuelCursor < fuelNativeIds.size()) {
-                JsonObject ability =
-                        findFuelAbility(legal, fuelNativeIds.get(fuelCursor));
-                if (ability != null) {
-                    submitAction(lane, tag + "-tap-" + fuelCursor, ability);
-                    fuelCursor++;
-                    continue;
-                }
-            }
-            List<JsonObject> pool = new ArrayList<>();
-            for (JsonElement element : legal.getAsJsonArray("actions")) {
-                JsonObject action = element.getAsJsonObject();
-                if ("mana_pool".equals(action.getAsJsonObject("metadata")
-                        .get("option_type").getAsString())) {
-                    pool.add(action);
-                }
-            }
-            assertEquals(1, pool.size(),
-                    tag + ": expected exactly one engine-offered pool spend; offered: "
-                            + legal.getAsJsonArray("actions"));
-            submitAction(lane, tag + "-spend-" + step, pool.get(0));
-        }
-    }
-
     /**
      * Resolves one spell by passing priority until the victim's own life total
      * reaches the expected value. The elimination verify is a pure query while

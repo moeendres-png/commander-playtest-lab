@@ -347,6 +347,15 @@ final class XmageNativeStateRestoration {
             if (objectCommanderId != null && !"command".equals(zoneName)) {
                 // The genuine commander outside the command zone (F-38): never a generic
                 // setup copy, which the engine would not treat as a commander.
+                String cardIdentity = object.get("card_identity").getAsString();
+                String owner = object.get("owner").getAsString();
+                if (!owner.equals(object.get("controller").getAsString())
+                        || object.has("tapped") && !object.get("tapped").isJsonNull()
+                        && object.get("tapped").getAsBoolean()) {
+                    // Commander placement restores neither control nor tapped state.
+                    throw new RestorationException(
+                            "UNSUPPORTED_COMMANDER_OBJECT_STATE", fixtureId + " " + semanticId);
+                }
                 if (!zoneName.equals(commanderZoneById.get(objectCommanderId))) {
                     throw new RestorationException(
                             "COMMANDER_ZONE_CONFLICT", fixtureId + " " + semanticId + " is in " + zoneName
@@ -356,6 +365,13 @@ final class XmageNativeStateRestoration {
                 for (int index = 0; index < commanders.size(); index++) {
                     RequestedCommander commander = commanders.get(index);
                     if (commander.commanderId().equals(objectCommanderId)) {
+                        if (commander.semanticId() != null
+                                || !commander.cardIdentity().equals(cardIdentity)
+                                || !commander.owner().equals(owner)) {
+                            throw new RestorationException(
+                                    "COMMANDER_ZONE_CONFLICT", fixtureId + " " + semanticId
+                                            + " does not bind 1:1 to " + objectCommanderId);
+                        }
                         commanders.set(index, new RequestedCommander(commander.commanderId(),
                                 commander.cardIdentity(), commander.owner(), commander.priorCasts(),
                                 commander.zone(), semanticId));
