@@ -17,15 +17,15 @@ import pytest
 
 from commander_lab.qualification.current_boundary.receipts import verify_pb05_provenance
 
-RULES_CORE = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
-RULES_TREE = "fc3387bf37aab19d780b2939a235309ed32b0492"
+CANDIDATE_SOURCE = "201cad9576d004b71fd9af260ab4c981f606eb19"
+CANDIDATE_TREE = "345ff8cddda9888f3414dc3fb91132694aa3cc8a"
 OTHER = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 
 
 def _good() -> dict:
     return {
-        "engine_build_commit": RULES_CORE,
-        "engine_build_tree": RULES_TREE,
+        "engine_build_commit": CANDIDATE_SOURCE,
+        "engine_build_tree": CANDIDATE_TREE,
         "engine_build_dirty": "false",
         "engine_build_source": "native-git",
         "engine_commit_verified": True,
@@ -34,7 +34,7 @@ def _good() -> dict:
 
 def _check(identity: dict) -> dict:
     return verify_pb05_provenance(
-        identity, expected_rules_core=RULES_CORE, expected_tree=RULES_TREE
+        identity, expected_source_commit=CANDIDATE_SOURCE, expected_tree=CANDIDATE_TREE
     )
 
 
@@ -86,7 +86,7 @@ def test_claimed_commit_that_is_not_the_rules_core_is_refused() -> None:
     identity["engine_build_commit"] = OTHER
     result = _check(identity)
     assert result["pb05_credit"] is False
-    assert any("is not the expected Rules Core" in f for f in result["findings"])
+    assert any("is not the expected candidate source" in f for f in result["findings"])
 
 
 def test_wrong_tree_is_refused() -> None:
@@ -94,7 +94,7 @@ def test_wrong_tree_is_refused() -> None:
     identity["engine_build_tree"] = "0" * 40
     result = _check(identity)
     assert result["pb05_credit"] is False
-    assert any("not the expected Rules Core tree" in f for f in result["findings"])
+    assert any("not the expected candidate source tree" in f for f in result["findings"])
 
 
 def test_verified_true_alone_is_not_enough() -> None:
@@ -113,7 +113,7 @@ def test_empty_identity_earns_no_credit() -> None:
 
 def test_legacy_env_variable_claim_is_not_provenance() -> None:
     """The pre-repair shape: a claim with no build-derived fields earns nothing."""
-    result = _check({"engine_commit": RULES_CORE, "engine_commit_source": "env:FORGE_ENGINE_SHA"})
+    result = _check({"engine_commit": CANDIDATE_SOURCE, "engine_commit_source": "env:FORGE_ENGINE_SHA"})
     assert result["pb05_credit"] is False
     assert any("engine_build_commit" in f for f in result["findings"])
 
