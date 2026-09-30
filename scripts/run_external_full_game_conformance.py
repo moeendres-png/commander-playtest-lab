@@ -202,12 +202,20 @@ def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
     )
     hidden = {
         "schema_version": "xmage-full-game-hidden-information-report-1.0.0",
+        # C3: status covers only what this run observed (the transcript scan
+        # above, which aborts the gate on any private key). Per-actor channel
+        # properties are the lane's contract and are not probed here.
         "status": "PASS",
-        "actor_scoped_state": True,
-        "opponent_hand_arrays_exported_to_actor": False,
-        "library_order_exported": False,
-        "private_pilot_state_retained_in_exported_transcript": False,
-        "full_transcript_scan_forbidden_private_keys": "PASS",
+        "status_scope": "exported_transcript_scan",
+        "observed": {
+            "full_transcript_scan_forbidden_private_keys": "PASS",
+            "private_pilot_state_retained_in_exported_transcript": False,
+        },
+        "declared_not_observed": {
+            "actor_scoped_state": True,
+            "opponent_hand_arrays_exported_to_actor": False,
+            "library_order_exported": False,
+        },
         "evidence_class": FULL_GAME_EVIDENCE_CLASS,
         "consumed_gameplay_evidence": False,
         "holdout_consumed": False,

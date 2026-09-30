@@ -111,9 +111,45 @@ class FullGamePilotBinding(_StrictModel):
         return self
 
 
+ClaimEvidenceStatus = Literal[
+    "OBSERVED",
+    "CODE_DERIVED",
+    "DECLARED_NOT_OBSERVED",
+    "NOT_CLAIMED",
+]
+
+
+class FullGameClaimBasis(_StrictModel):
+    """What each boolean claim of a full-game result actually rests on (C3).
+
+    The boolean fields of :class:`FullGameConformanceResult` are fixed by the
+    lane's design, not measured per game. This record keeps the declaration
+    and the observation apart so no consumer reads a design constant as
+    runtime evidence:
+
+    * ``OBSERVED``: measured in this run (decision count, terminal state,
+      graceful shutdown);
+    * ``CODE_DERIVED``: enforced by fail-closed code on every path of this
+      run (rules/decision authority, no discretionary fallback), not
+      separately measured;
+    * ``DECLARED_NOT_OBSERVED``: the lane's contract, with no runtime probe in
+      this run (per-actor hidden-information channels);
+    * ``NOT_CLAIMED``: explicitly not claimed (bit-exact replay).
+    """
+
+    decision_count: Literal["OBSERVED"] = "OBSERVED"
+    terminal: Literal["OBSERVED"] = "OBSERVED"
+    shutdown_disposition: Literal["OBSERVED"] = "OBSERVED"
+    xmage_rules_authority: Literal["CODE_DERIVED"] = "CODE_DERIVED"
+    commander_lab_pilot_decision_authority: Literal["CODE_DERIVED"] = "CODE_DERIVED"
+    fallback_used: Literal["CODE_DERIVED"] = "CODE_DERIVED"
+    hidden_information_actor_scoped: Literal["DECLARED_NOT_OBSERVED"] = "DECLARED_NOT_OBSERVED"
+    bit_exact_replay_validated: Literal["NOT_CLAIMED"] = "NOT_CLAIMED"
+
+
 class FullGameConformanceResult(_StrictModel):
-    schema_version: Literal["xmage-full-game-conformance-result-1.1.0"] = (
-        "xmage-full-game-conformance-result-1.1.0"
+    schema_version: Literal["xmage-full-game-conformance-result-1.2.0"] = (
+        "xmage-full-game-conformance-result-1.2.0"
     )
     scenario: FutureXmageScenario
     engine_version: str
@@ -139,6 +175,7 @@ class FullGameConformanceResult(_StrictModel):
     hidden_information_actor_scoped: Literal[True] = True
     fallback_used: Literal[False] = False
     bit_exact_replay_validated: Literal[False] = False
+    claim_basis: FullGameClaimBasis = Field(default_factory=FullGameClaimBasis)
 
 
 class FullGameSmokeResult(_StrictModel):

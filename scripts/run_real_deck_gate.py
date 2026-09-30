@@ -162,6 +162,8 @@ def summarize_result(result, gate: str) -> dict:
         "hidden_information_actor_scoped": result.hidden_information_actor_scoped,
         "rules_authority": result.xmage_rules_authority,
         "decision_authority": result.commander_lab_pilot_decision_authority,
+        # C3: which of the claims above were observed in this run.
+        "claim_basis": result.claim_basis.model_dump(mode="json"),
     }
 
 
