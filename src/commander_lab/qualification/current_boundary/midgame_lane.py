@@ -58,10 +58,6 @@ MIDGAME_RECEIPT_IDENTITY_FIELDS = (
 # commit is a constant; the artifact digest proves which bytes actually ran. A
 # receipt that cannot name a file-backed artifact digest is unbound, never
 # fresh.
-MIDGAME_RECEIPT_ARTIFACT_FIELDS = (
-    "engine_artifact_kind",
-    "engine_artifact_sha256",
-)
 _ENGINE_ARTIFACT_DIGEST = re.compile(r"[0-9a-f]{64}")
 
 # Freshness classifications for a persisted mid-game receipt. They mirror the
@@ -178,13 +174,16 @@ def receipt_freshness(
     identity = {field: receipt.get(field) for field in MIDGAME_RECEIPT_IDENTITY_FIELDS}
     if not all(isinstance(value, str) and value for value in identity.values()):
         return MIDGAME_RECEIPT_MISSING
-    artifact = {field: receipt.get(field) for field in MIDGAME_RECEIPT_ARTIFACT_FIELDS}
-    if not all(isinstance(value, str) and value for value in artifact.values()):
+    artifact_kind = receipt.get("engine_artifact_kind")
+    artifact_digest = receipt.get("engine_artifact_sha256")
+    if not isinstance(artifact_kind, str) or not artifact_kind:
         return MIDGAME_RECEIPT_MISSING
-    if artifact["engine_artifact_kind"] != "file":
+    if not isinstance(artifact_digest, str) or not artifact_digest:
+        return MIDGAME_RECEIPT_MISSING
+    if artifact_kind != "file":
         # A reported directory or unavailable artifact is not an identity.
         return MIDGAME_RECEIPT_INVALID
-    if _ENGINE_ARTIFACT_DIGEST.fullmatch(artifact["engine_artifact_sha256"]) is None:
+    if _ENGINE_ARTIFACT_DIGEST.fullmatch(artifact_digest) is None:
         # A malformed digest is not an identity this receipt can claim.
         return MIDGAME_RECEIPT_INVALID
     if (
@@ -197,7 +196,7 @@ def receipt_freshness(
     if (
         identity["runner_digest"] != expected_runner_digest
         or identity["engine_commit"] != expected_engine_commit
-        or artifact["engine_artifact_sha256"] != expected_engine_artifact_sha256
+        or artifact_digest != expected_engine_artifact_sha256
     ):
         return MIDGAME_RECEIPT_STALE
     return MIDGAME_RECEIPT_FRESH
