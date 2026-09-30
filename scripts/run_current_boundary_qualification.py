@@ -58,9 +58,6 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     dimension_admission as pb03_admission_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
-    midgame_rows as midgame_rows_mod,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
     pb03_runtime as pb03_runtime_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
@@ -1121,21 +1118,6 @@ def main() -> int:
         # head, so a stale ledger can never be credited.
         pb03_runtime["receipt_digest"] = receipt_mod.document_digest(pb03_runtime)
         write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
-        # The PB-03 chain's last links: exact placement obligations executed on
-        # the production midgame lane, each verified row persisted as a
-        # runner-bound positive fixture receipt the assembler may credit.
-        write(
-            "MIDGAME_ROW_EXECUTIONS.json",
-            midgame_rows_mod.execute_and_persist(
-                workspace=REPO_ROOT / "engine-bridge",
-                records={
-                    record["fixture_id"]: record for record in materialization.denominator_records()
-                },
-                candidate_commit=canonical_xmage_engine_pin(),
-                runner_digest=runner.digest(),
-                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
-            ),
-        )
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {

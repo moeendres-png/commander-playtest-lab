@@ -22,9 +22,6 @@ sys.path.insert(0, str(REPO / "src"))
 
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
-    midgame_rows as midgame_rows_mod,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
     pb03_runtime as pb03_runtime_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
@@ -79,13 +76,6 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
         load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"][i]["fixture_id"] for i in range(107)
     }
     receipts, rejected = receipt_mod.collect_receipts(RECEIPT_DIR)
-    # Positive fixture receipts: the last link of the PB-03 credit chain, one per
-    # exactly verified obligation, bound to this runner and the candidate head.
-    positive, positive_rejected = receipt_mod.collect_positive_fixture_receipts(
-        RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR
-    )
-    receipts = receipts + positive
-    rejected = rejected + positive_rejected
     if rejected:
         for reason in rejected:
             print(f"native receipt rejected: {reason}")
@@ -442,24 +432,14 @@ def assemble() -> None:
             if row["exit_state"] == "PASS":
                 continue
             row["exit_state"] = "PASS"
+            row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
             row["failure_reason"] = None
-            if all(name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX) for name in classes):
-                row["execution_mode"] = midgame_rows_mod.EXECUTION_MODE
-                row["reason"] = (
-                    "exact placement obligation executed on the production midgame lane "
-                    f"({', '.join(classes)}): the engine constructed the record's state, "
-                    "every answer was an engine-offered option from the record's decision "
-                    "script, and every required event and terminal check was verified "
-                    "against the engine's public event tape and observation"
-                )
-            else:
-                row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
-                row["reason"] = (
-                    f"fixture-corresponding native harness executed fresh under the current "
-                    f"boundary ({', '.join(classes)}); the effective v1.0.6 record for this row "
-                    f"is byte-identical to the frozen v1.0.5 record it loads, as proven in "
-                    f"SUCCESSOR_INHERITANCE_PROOF.json"
-                )
+            row["reason"] = (
+                f"fixture-corresponding native harness executed fresh under the current "
+                f"boundary ({', '.join(classes)}); the effective v1.0.6 record for this row "
+                f"is byte-identical to the frozen v1.0.5 record it loads, as proven in "
+                f"SUCCESSOR_INHERITANCE_PROOF.json"
+            )
             row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
             row["native_harness_classes"] = classes
             row.setdefault("terminal_facts", {})
