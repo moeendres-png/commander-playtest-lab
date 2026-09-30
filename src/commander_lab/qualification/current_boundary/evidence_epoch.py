@@ -126,6 +126,11 @@ def _reject_historical(path: Path, repo_root: Path) -> None:
         )
 
 
+def historical_epoch_root(repo_root: Path) -> Path:
+    """The read-only historical WSR22 evidence epoch."""
+    return _qualification_root(repo_root) / HISTORICAL_EPOCH_ID
+
+
 def epoch_root(repo_root: Path | None = None, *, environ: Mapping[str, str] | None = None) -> Path:
     """Resolve the runtime evidence epoch root, fail closed on ambiguity.
 

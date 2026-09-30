@@ -821,6 +821,79 @@ def bootstrap_evidence_epoch() -> dict[str, Any]:
     return epoch_mod.ensure_epoch_identity(OUT_DIR, repo_root=REPO_ROOT)
 
 
+# The per-candidate artifacts the assembler requires for both columns of the
+# comparison. A run that selects one candidate carries the other column forward
+# from the historical epoch; the copied documents are explicitly marked, so the
+# current epoch never claims a fresh execution that did not happen.
+_CARRIED_FORWARD_ARTIFACTS = (
+    "FULL107_{candidate}_RESULTS.json",
+    "AF01_{candidate}.json",
+    "AF03_{candidate}.json",
+    "PLAYER_CARDINALITY_{candidate}.json",
+    "RNG_REPLAY_{candidate}.json",
+)
+
+
+def carry_forward_unselected_candidates(
+    candidates: list[str] | tuple[str, ...],
+    *,
+    source_epoch: Path | None = None,
+    target_epoch: Path | None = None,
+    now: str | None = None,
+) -> list[str]:
+    """Copy a non-selected candidate's historical column into this epoch.
+
+    The assembly compares two candidates, but a run may legitimately select one
+    (the PB-03 CI run executes XMage only). The non-selected column is the
+    historical record, not a fresh execution, so every copied document is marked
+    ``CARRIED_FORWARD_NOT_REEXECUTED`` with its source epoch and the identity of
+    the run that actually produced it. The historical epoch itself is only read.
+    """
+    source_root = source_epoch or epoch_mod.historical_epoch_root(REPO_ROOT)
+    target_root = target_epoch or OUT_DIR
+    carried: list[str] = []
+    for candidate in ("xmage", "forge"):
+        if candidate in candidates:
+            continue
+        copied = 0
+        for template in _CARRIED_FORWARD_ARTIFACTS:
+            name = template.format(candidate=candidate.upper())
+            source = source_root / name
+            target = target_root / name
+            if not source.is_file() or target.exists():
+                continue
+            try:
+                document = json.loads(source.read_text(encoding="utf-8"))
+            except ValueError as exc:
+                raise SystemExit(
+                    f"carried-forward artifact {source} is unreadable ({exc}); the non-selected "
+                    "column cannot be assembled"
+                ) from exc
+            if not isinstance(document, dict):
+                raise SystemExit(f"carried-forward artifact {source} is not an object")
+            document["evidence_class"] = "CARRIED_FORWARD_NOT_REEXECUTED"
+            document["carried_forward"] = {
+                "source_epoch": str(source_root),
+                "source_epoch_id": source_root.name,
+                "reason": (
+                    f"candidate {candidate} was not selected in this run, so this column is the "
+                    "historical record that the current assembly compares against; it is not a "
+                    "fresh execution"
+                ),
+                "copied_utc": now or receipt_mod._now(),
+            }
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(
+                json.dumps(document, indent=1, sort_keys=True, default=str) + "\n",
+                encoding="utf-8",
+            )
+            copied += 1
+        if copied:
+            print(f"carried forward {copied} historical {candidate} artifact(s) from {source_root}")
+            carried.append(candidate)
+    return carried
+
+
 def write(name: str, payload: Any) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     path = OUT_DIR / name
@@ -1416,6 +1489,11 @@ def main() -> int:
         "producing source",
         epoch_identity["producing_source"]["commit"][:12],
     )
+    carried = carry_forward_unselected_candidates(
+        ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
+    )
+    if carried:
+        print("non-selected candidate columns carried forward (historical):", carried)
 
     materialization = load_effective_materialization(REPO_ROOT)
     write(

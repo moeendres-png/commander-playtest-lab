@@ -284,5 +284,6 @@ jobs:
             ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/FULL107_XMAGE_RESULTS.json
             ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/NATIVE_SUITE_RECEIPTS.json
             ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/native-xmage-*.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/positive/*.json
           if-no-files-found: error
           retention-days: 90

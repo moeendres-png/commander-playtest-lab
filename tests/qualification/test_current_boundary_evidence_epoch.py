@@ -185,6 +185,91 @@ def test_pb03_workflow_consumes_the_resolved_epoch() -> None:
     assert "evidence_epoch" in text
 
 
+def _runner_script_module(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("CURRENT_BOUNDARY_EVIDENCE_EPOCH", raising=False)
+    spec = importlib.util.spec_from_file_location("cb_epoch_runner", RUNNER)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _fake_candidate_artifacts(directory: Path, candidate: str) -> dict[Path, bytes]:
+    written: dict[Path, bytes] = {}
+    for template in (
+        "FULL107_{candidate}_RESULTS.json",
+        "AF01_{candidate}.json",
+        "AF03_{candidate}.json",
+        "PLAYER_CARDINALITY_{candidate}.json",
+        "RNG_REPLAY_{candidate}.json",
+    ):
+        path = directory / template.format(candidate=candidate)
+        payload = json.dumps(
+            {
+                "schema_version": "test/1.0.0",
+                "evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+                "runtime_identity": {"engine_candidate_commit": "a" * 40},
+            },
+            indent=1,
+            sort_keys=True,
+        )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(payload + "\n", encoding="utf-8")
+        written[path] = path.read_bytes()
+    return written
+
+
+def test_unselected_candidate_column_is_carried_forward_with_provenance(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    runner = _runner_script_module(monkeypatch)
+    source = tmp_path / "historical"
+    target = tmp_path / "runtime"
+    before = _fake_candidate_artifacts(source, "FORGE")
+    (source / "FULL107_XMAGE_RESULTS.json").write_text("{}", encoding="utf-8")
+
+    carried = runner.carry_forward_unselected_candidates(
+        ["xmage"], source_epoch=source, target_epoch=target
+    )
+    assert carried == ["forge"]
+    for path, original in before.items():
+        copied = target / path.name
+        assert copied.is_file(), path.name
+        document = json.loads(copied.read_text(encoding="utf-8"))
+        assert document["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
+        assert document["carried_forward"]["source_epoch"] == str(source)
+        assert document["carried_forward"]["source_epoch_id"] == source.name
+        # The historical source is read, never rewritten.
+        assert path.read_bytes() == original
+    # The selected candidate is never carried forward, and historical receipts
+    # are never copied into the runtime epoch (that would credit old executions).
+    assert not (target / "FULL107_XMAGE_RESULTS.json").exists()
+    assert not (target / "receipts").exists()
+
+
+def test_existing_target_column_is_not_overwritten(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    runner = _runner_script_module(monkeypatch)
+    source = tmp_path / "historical"
+    target = tmp_path / "runtime"
+    _fake_candidate_artifacts(source, "FORGE")
+    target.mkdir()
+    fresh = target / "FULL107_FORGE_RESULTS.json"
+    fresh.write_text('{"evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION"}\n', encoding="utf-8")
+    runner.carry_forward_unselected_candidates(["xmage"], source_epoch=source, target_epoch=target)
+    assert json.loads(fresh.read_text(encoding="utf-8"))["evidence_class"] == (
+        "FRESH_CURRENT_BOUNDARY_EXECUTION"
+    )
+
+
+def test_assembler_derives_the_boundary_from_column_provenance() -> None:
+    source = ASSEMBLER.read_text(encoding="utf-8")
+    assert 'data["column_provenance"]["class"]' in source
+    assert '"column_provenance": data["column_provenance"]' in source
+
+
 def test_runner_writes_only_the_successor_epoch_and_never_the_historical_tree() -> None:
     """A real runner process writes its output into the resolved successor epoch.
 

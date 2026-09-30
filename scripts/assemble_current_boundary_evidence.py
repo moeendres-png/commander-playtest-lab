@@ -514,6 +514,17 @@ def assemble() -> None:
             # Bound here so the AF matrix can never read another candidate's
             # identity through a leaked loop variable.
             "results_runtime_identity": results["runtime_identity"],
+            # Whether this column executed in this epoch or is the historical
+            # record carried forward for the comparison. A carried-forward
+            # column must never be presented as a fresh execution.
+            "column_provenance": {
+                "class": (
+                    "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH"
+                    if results.get("carried_forward")
+                    else "FRESH_CURRENT_BOUNDARY_EXECUTION"
+                ),
+                **(results.get("carried_forward") or {}),
+            },
         }
 
     # ---- PB-03 admission x runtime ledger ---------------------------------
@@ -928,7 +939,8 @@ def assemble() -> None:
                 "candidate": candidate,
                 "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
                 "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
-                "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+                "boundary": data["column_provenance"]["class"],
+                "column_provenance": data["column_provenance"],
                 "native_runs": native,
                 "full107_counts": counts,
                 "gates": matrix,
@@ -1005,6 +1017,12 @@ def assemble() -> None:
             "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
             "denominator": 107,
             "dispositions": dispositions,
+            # Which columns executed in this epoch and which are the historical
+            # record carried forward; the comparison is only as fresh as its
+            # least fresh column, and that is stated rather than implied.
+            "column_provenance": {
+                candidate: data["column_provenance"] for candidate, data in per_candidate.items()
+            },
             "rows": comparison,
             "no_ranking": "this packet contains no score, no ranking and no preferred provider",
         },
