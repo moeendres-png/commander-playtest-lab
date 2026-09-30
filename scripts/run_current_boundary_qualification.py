@@ -78,17 +78,38 @@ OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
-# The Forge checkout the native suites execute in. Configurable so the bound
-# bridge/evidence head can be a detached worktree at the exact Forge PR head
-# without moving any other lane's checkout. The default remains the historical
-# WSR20 evidence checkout.
+# The Forge checkout the native suites execute in. It must be named explicitly
+# (FORGE_WORKSPACE) so the bound bridge/evidence head can be a detached worktree
+# at the exact Forge PR head without moving any other lane's checkout. There is
+# no default: a machine-specific fallback silently bound whatever happened to sit
+# at that path, so a Forge run without an explicit workspace fails closed
+# (require_forge_workspace). Which Forge head is the candidate is PB-09's
+# question, not this runner's.
 #
 # The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
 # evidence head is Forge PR #5 e15f37d6, which changes forge-protocol2-bridge
 # only. engine_tree_equivalence re-proves that separation on every run.
-FORGE_WORKSPACE = Path(
-    os.environ.get("FORGE_WORKSPACE", "/home/moeen/code/ws-forge-full107-cdq-20260926")
+FORGE_WORKSPACE: Path | None = (
+    Path(os.environ["FORGE_WORKSPACE"]) if os.environ.get("FORGE_WORKSPACE") else None
 )
+
+
+def require_forge_workspace() -> Path:
+    """The explicit Forge checkout, or SystemExit: no workspace means no Forge run."""
+    if FORGE_WORKSPACE is None:
+        raise SystemExit(
+            "FORGE_WORKSPACE is not set; a Forge run needs an explicit, source-locked "
+            "Forge checkout (no default path is assumed)"
+        )
+    if not FORGE_WORKSPACE.is_dir():
+        raise SystemExit(f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not a directory")
+    toplevel = Path(git("rev-parse", "--show-toplevel", cwd=FORGE_WORKSPACE))
+    if toplevel.resolve() != FORGE_WORKSPACE.resolve():
+        raise SystemExit(
+            f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not the top level of its Git "
+            f"checkout ({toplevel}); the engine identity would name another tree"
+        )
+    return FORGE_WORKSPACE
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -287,16 +308,21 @@ def frozen_actual_card_corpus() -> tuple[str, ...]:
 
 
 def git(*args: str, cwd: Path | None = None) -> str:
-    return subprocess.run(
-        ["git", *args], cwd=str(cwd or REPO_ROOT), capture_output=True, text=True, check=False
-    ).stdout.strip()
+    """A Git fact for an identity; fails closed instead of recording an empty string."""
+    sha = len(args) >= 2 and args[0] == "rev-parse" and args[-1] in {"HEAD", "HEAD^{tree}"}
+    try:
+        return receipt_mod.git_fact(cwd or REPO_ROOT, *args, sha=sha)
+    except receipt_mod.ReceiptError as exc:
+        raise SystemExit(f"no identity, no credit: {exc}") from exc
 
 
 for _candidate in NATIVE_SUITE_BINDING:
     NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
-    _suite_root = Path(NATIVE_SUITE_BINDING[_candidate]["root"])
+    _suite_root = NATIVE_SUITE_BINDING[_candidate]["root"]
     NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
-        git("rev-parse", "HEAD^{tree}", cwd=_suite_root) if _suite_root.exists() else "UNCONFIGURED"
+        git("rev-parse", "HEAD^{tree}", cwd=_suite_root)
+        if _suite_root is not None and Path(_suite_root).is_dir()
+        else "UNCONFIGURED"
     )
 
 
@@ -323,7 +349,7 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
                 "engine_candidate_commit": FORGE_CANDIDATE_COMMIT,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
                 "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-                "adapter_commit": git("rev-parse", "HEAD", cwd=FORGE_WORKSPACE),
+                "adapter_commit": git("rev-parse", "HEAD", cwd=require_forge_workspace()),
                 "lane": "protocol2-jsonl",
             }
         )
@@ -346,6 +372,8 @@ def run_native_suite(
     counts, environment identity, the bound runner identity and a content digest.
     """
     receipt_mod.require_clean_runner(runner)
+    if candidate == "forge":
+        require_forge_workspace()
     spec = NATIVE_SUITE_BINDING[candidate]
     # Resolve the executing engine head from the suite's own checkout. A suite
     # must execute at the descendant that actually contains its test classes, so
@@ -606,7 +634,7 @@ def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     """Run AF01, cardinality, START-2 and the dimension probes for one candidate."""
     identity = runtime_identity(candidate)
-    workspace = FORGE_WORKSPACE if candidate == "forge" else None
+    workspace = require_forge_workspace() if candidate == "forge" else None
     lane = "compat" if candidate == "xmage" else "protocol2-jsonl"
     plan = build_launch_plan(candidate, lane=lane, forge_workspace=workspace)
 
@@ -1070,6 +1098,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", default="all", choices=["all", "xmage", "forge"])
     args = parser.parse_args()
+    if args.candidate in {"all", "forge"}:
+        # Fail before anything is written: a Forge run has no default checkout.
+        require_forge_workspace()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     materialization = load_effective_materialization(REPO_ROOT)
