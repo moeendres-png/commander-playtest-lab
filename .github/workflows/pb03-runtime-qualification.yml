@@ -44,19 +44,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Resolve both current candidate pins
+      - name: Resolve current XMage and Forge dual identities
         run: |
           set -euo pipefail
-          # config/rules_engines.json is the sole machine-readable candidate
-          # authority. R-1 forbids a second hard-coded Forge identity here.
+          # config/rules_engines.json is the sole machine-readable authority.
+          # Forge deliberately has two bound roles: #11/#12 Rules Core and the
+          # bridge-only #13 materialization descendant used for execution.
           python3 - <<'PY' >> "$GITHUB_ENV"
           import json
           config = json.load(open("config/rules_engines.json"))
-          for env_name, key in (
-              ("XMAGE_COMMIT", "primary_engine"),
-              ("FORGE_COMMIT", "secondary_engine"),
-          ):
-              commit = config[key]["commit"]
+          xmage = config["primary_engine"]
+          forge = config["secondary_engine"]
+          bridge = forge["bridge_source"]
+          values = {
+              "XMAGE_COMMIT": xmage["commit"],
+              "FORGE_RULES_COMMIT": forge["commit"],
+              "FORGE_BRIDGE_COMMIT": bridge["commit"],
+          }
+          assert bridge["rules_core_base_commit"] == forge["commit"], bridge
+          assert bridge["repository"] == forge["repository"], bridge
+          for env_name, commit in values.items():
               assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
               print(f"{env_name}={commit}")
           PY
@@ -69,11 +76,11 @@ jobs:
           path: vendor/engine-source/xmage
           fetch-depth: 1
 
-      - name: Checkout admitted Forge exact source
+      - name: Checkout admitted Forge bridge/materialization source
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: moeendres-png/forge
-          ref: ${{ env.FORGE_COMMIT }}
+          ref: ${{ env.FORGE_BRIDGE_COMMIT }}
           path: vendor/engine-source/forge
           fetch-depth: 0
 
@@ -104,11 +111,13 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
-      - name: Verify immutable Forge exact-source pin
+      - name: Verify immutable Forge dual-source binding
         working-directory: vendor/engine-source/forge
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git rev-parse HEAD)" = "$FORGE_BRIDGE_COMMIT"
+          git merge-base --is-ancestor "$FORGE_RULES_COMMIT" "$FORGE_BRIDGE_COMMIT"
+          test -z "$(git diff --name-only "$FORGE_RULES_COMMIT" "$FORGE_BRIDGE_COMMIT" --             forge-game forge-core forge-ai forge-gui forge-gui-desktop adventure-editor)"
           test -z "$(git status --porcelain)"
 
       - name: Build pinned XMage
@@ -318,7 +327,7 @@ jobs:
           root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
           expected = {
               "xmage": os.environ["XMAGE_COMMIT"],
-              "forge": os.environ["FORGE_COMMIT"],
+              "forge": os.environ["FORGE_RULES_COMMIT"],
           }
 
           for candidate, commit in expected.items():
