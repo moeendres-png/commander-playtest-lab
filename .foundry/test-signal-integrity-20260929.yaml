@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 1242f79f259a831c2ca1e8b1c77774d87ece50b3
+state_written_against_head: 3fc27b2da35b0178ceb37b01f4e6f90df1379c2e
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -47,7 +47,7 @@ state_written_against_head: 1242f79f259a831c2ca1e8b1c77774d87ece50b3
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
-validated_head: 1242f79f259a831c2ca1e8b1c77774d87ece50b3
+validated_head: 3fc27b2da35b0178ceb37b01f4e6f90df1379c2e
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -348,6 +348,23 @@ validation:
     state_py_validate: STATE_OK
     ruff_check: clean
     ruff_format: 1143 files formatted
+  on_the_sixth_repair_head:
+    whole_suite_no_ignore_flags: 0 failed, 2435 passed, 13 skipped
+    previous_arm: 0 failed, 2432 passed, 13 skipped
+    delta: +3, the fuzz file going from 2 tests to 5
+    falsifiability_proofs:
+      - rejection path exercised with the valid baseline payload; the failure branch fires
+      - mutation check exercised with an injected payload divergence; the assertion fires
+      - the old test's vacuity measured: 0 of 128 seeds ever reached model_validate
+    red_baseline_trap_hit_in_practice: >-
+      the first full-suite run after this edit was red -- 52 failed, 8 errors, 2375 passed --
+      because it ran with the change uncommitted, making service.py treat canonical inputs as
+      stale. Committing restored 2435 passed, 0 failed. Recorded because it is the exact trap the
+      README documents, demonstrated on a change that was otherwise complete and correct: the
+      red was entirely an artefact of working-tree state.
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1143 files formatted
   excluded_modules_and_why: >-
     NO LONGER EXCLUDED. Earlier arms of this file ran with --ignore for
     tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py because
@@ -439,6 +456,24 @@ post_completion_repairs:
     verified: whole suite without any --ignore -> 2432 passed, 13 skipped, 0 failed
     delivered_on: maintenance/test-signal-integrity-20260929
     evidence: validation.on_the_fifth_repair_head
+  - id: R6
+    summary: >-
+      tests/fuzz/test_boundary_fuzz.py::test_protocol_json_fuzz_is_deterministically_rejected was
+      effectively vacuous: of its 128 seeds, zero produced parseable JSON, so the validator it is
+      named after was never called once, and it asserted nothing. Replaced with a near-miss corpus
+      that exercises the validator, asserts every mutant is rejected, and counts what it exercises.
+      The determinism the old name claimed is now checked in a falsifiable form.
+    severity_note: >-
+      this is the most consequential find of the series. A test whose name describes a security
+      property (deterministic rejection of protocol input) while never reaching the validator, and
+      passing, is worse than no test: it reports coverage that does not exist. The decisive
+      evidence was in the test's own output all along -- it passed without touching the code.
+    found_by: >-
+      AST sweep for test functions containing no assertion, then measuring whether the "no
+      assertion" cases were genuine or merely delegating to asserting helpers. 25 of 28 were
+      false positives; 2 were real, of which this one was vacuous.
+    delivered_on: maintenance/test-signal-integrity-20260929
+    evidence: validation.on_the_sixth_repair_head
 
 exact_next_action: >-
   NONE. The objective is complete and merged as PR #371, with #372 and #373 carrying the receipt
