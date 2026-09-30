@@ -1377,17 +1377,14 @@ class XmagePb03Tier1RowsTest {
         return false;
     }
 
-    // ---- ELIM-4: commander-identity duality characterization (BLOCKED) ----
+    // ---- ELIM-4: 19 restored + 2 combat commander damage eliminates P2 ----
     //
-    // Blocker characterization (row stays BLOCKED): the record places P1's
-    // commander on the battlefield as a setup copy while the L2 damage ledger
-    // lives on the authoritative commander identity. The setup copy attacks
-    // genuinely (tapped, grouped, unblocked) and deals 2 PLAIN damage (P2
-    // 40 -> 38) while the commander total stays at the restored 19: setup
-    // copies do not accrue commander damage. Accrual needs the identity card
-    // itself, which sits in the command zone and, cast turn 1, is summoning
-    // sick and cannot attack without leaving the record's turn-1 checkpoint.
-    // No genuine path observes the obligated loss: the row stays BLOCKED.
+    // F-38: the record's battlefield Isamaru is restored as P1's genuine
+    // commander, so its unblocked attack accrues on the same native ledger
+    // that holds the restored 19. At 21 the engine's SBA eliminates P2
+    // (CR 903.10a, 704.5u) and the multiplayer leave-game cleanup removes
+    // P2's objects (CR 800.4a). Before F-38 a setup copy attacked, dealt plain
+    // damage only, and the obligated loss was unobservable.
 
     @Test
     void elim4TwentyOneCommanderDamageEliminatesAndCleansUp() {
@@ -1442,17 +1439,19 @@ class XmagePb03Tier1RowsTest {
         }
         XmageNativeStateRestoration.revalidate(session.restorationGame());
 
-        mage.game.permanent.Permanent copy =
+        mage.game.permanent.Permanent commander =
                 session.restorationGame().getPermanent(isamaruId);
-        assertNotNull(copy, "setup copy must still exist");
-        assertTrue(copy.isTapped(), "setup copy genuinely attacked P2");
-        assertEquals(lifeBefore - 2, p2.getLife(),
-                "setup-copy combat deals plain damage (40 -> 38)");
-        assertEquals(19, commanderDamageTo(
+        assertNotNull(commander, "the genuine commander is still on the battlefield");
+        assertTrue(commander.isTapped(), "the genuine commander attacked P2");
+        assertEquals(21, commanderDamageTo(
                         session, seats, seats.get("P1"), "Isamaru, Hound of Konda", p2),
-                "commander total stays at restored 19: copies do not accrue");
-        assertTrue(!p2.hasLost() && !p2.hasLeft(),
-                "no loss occurs: the obligated 21-loss is unobservable, row BLOCKED");
+                "commander_damage_total:P2:21 on the native ledger (19 restored + 2 dealt)");
+        assertEquals(lifeBefore - 2, p2.getLife(), "the same 2 damage is ordinary damage too");
+        assertTrue(p2.hasLost(), "player_loses:P2 through the engine's own SBA");
+        assertTrue(p2.hasLeft(), "multiplayer_cleanup:CR800.4: P2 leaves the game");
+        assertNull(session.restorationGame().getPermanent(
+                        arrived.restoration().injectedObjectId("obj:p2-owned")),
+                "object_leaves_game:obj:p2-owned");
     }
 
     private static int commanderDamageTo(

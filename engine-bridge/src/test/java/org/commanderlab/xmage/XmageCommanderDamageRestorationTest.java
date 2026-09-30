@@ -17,7 +17,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -126,17 +125,17 @@ class XmageCommanderDamageRestorationTest {
         CommanderInfoWatcher real = watcher(arrived, "P1", "Isamaru, Hound of Konda");
         assertEquals(19, real.getDamageToPlayer().get(arrived.seats().get("P2").getId()));
 
+        // F-38: the record's battlefield Isamaru is the genuine commander itself;
+        // no setup copy exists next to it.
         UUID realCommanderId = commanderId(
                 arrived.game(), arrived.seats().get("P1"), "Isamaru, Hound of Konda");
-        Permanent setupCopy = arrived.game().getBattlefield().getAllPermanents().stream()
+        List<Permanent> onBattlefield = arrived.game().getBattlefield().getAllPermanents().stream()
                 .filter(p -> "Isamaru, Hound of Konda".equals(p.getName()))
                 .filter(p -> arrived.seats().get("P1").getId().equals(p.getOwnerId()))
-                .filter(p -> !p.getId().equals(realCommanderId))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("fixture setup Isamaru copy missing"));
-        assertNull(arrived.game().getState().getWatcher(
-                        CommanderInfoWatcher.class, setupCopy.getId()),
-                "setup-placed non-Commander copy must never receive Commander identity");
+                .toList();
+        assertEquals(1, onBattlefield.size(), "exactly one Isamaru on the battlefield");
+        assertEquals(realCommanderId, onBattlefield.get(0).getId(),
+                "the battlefield Isamaru carries the genuine Commander identity");
     }
 
     @Test
@@ -253,7 +252,6 @@ class XmageCommanderDamageRestorationTest {
     void frozenSplitAndControlFixturesNowParseWithoutFabricatingCommanderIdentity() {
         for (String fixture : List.of(
                 "WS05-CMD-DMG-SPLIT",
-                "WS05-CMD-DMG-CONTROL",
                 "WS05-CMD-PARTNER-DMG",
                 "WS05-CMD-ELIM-4")) {
             XmageNativeStateRestoration.Plan p =
@@ -262,6 +260,15 @@ class XmageCommanderDamageRestorationTest {
                             "rg02b-" + fixture, 424242L);
             assertFalse(p.commanderDamage().isEmpty(), fixture);
         }
+        // The controlled commander is the genuine commander under another
+        // controller; restoring control divergence stays unsupported.
+        XmageNativeStateRestoration.RestorationException control =
+                assertThrows(XmageNativeStateRestoration.RestorationException.class,
+                        () -> XmageNativeStateRestoration.planFromFrozenRecord(
+                                XmageNativeStateRestorationTest.frozenRecord("WS05-CMD-DMG-CONTROL"),
+                                "rg02b-control", 424242L));
+        assertTrue(control.getMessage().startsWith("UNSUPPORTED_CONTROL_DIVERGENCE"),
+                control.getMessage());
     }
 
     private record Arrived(

@@ -349,10 +349,15 @@ final class XmageNativeStateRestoration {
                 // setup copy, which the engine would not treat as a commander.
                 String cardIdentity = object.get("card_identity").getAsString();
                 String owner = object.get("owner").getAsString();
-                if (!owner.equals(object.get("controller").getAsString())
-                        || object.has("tapped") && !object.get("tapped").isJsonNull()
+                if (!owner.equals(object.get("controller").getAsString())) {
+                    throw new RestorationException(
+                            "UNSUPPORTED_CONTROL_DIVERGENCE", semanticId
+                                    + "; control must equal ownership in v1 (engine layers re-derive"
+                                    + " control; divergence needs resolved control-change effects)");
+                }
+                if (object.has("tapped") && !object.get("tapped").isJsonNull()
                         && object.get("tapped").getAsBoolean()) {
-                    // Commander placement restores neither control nor tapped state.
+                    // Commander placement does not restore tapped state.
                     throw new RestorationException(
                             "UNSUPPORTED_COMMANDER_OBJECT_STATE", fixtureId + " " + semanticId);
                 }
