@@ -2,22 +2,22 @@
  "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
  "candidate": "xmage",
  "event_log": {
-  "engine_game_id": "e714a436-2bab-4910-b8d8-dea5581190bc",
+  "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
   "event_log_source": "xmage_bridge_external_control",
-  "game_id": "wsr22-xmage-4p-d592990b",
-  "latest_event_offset": 3,
+  "game_id": "wsr22-xmage-4p-7cae2642",
+  "latest_event_offset": 7,
   "log": {
    "backend": "xmage",
    "events": [
     {
      "actor_id": null,
-     "event_id": "a7947491ac6ff69c04f68b83faf24460c78dc31b8106c251cf8aed82b4c0906e",
+     "event_id": "60f416b8ed7b9db7aebc4a0c394e04d99b7ef43288be9f7fc54cdea8980c2f0e",
      "event_type": "game_created",
-     "game_id": "wsr22-xmage-4p-d592990b",
+     "game_id": "wsr22-xmage-4p-7cae2642",
      "payload": {
       "action_id": null,
       "decision_id": null,
-      "engine_game_id": "e714a436-2bab-4910-b8d8-dea5581190bc",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
       "external_control": true,
       "player_count": 4,
       "seed_controlled": true,
@@ -28,48 +28,121 @@
      "sequence": 1
     },
     {
-     "actor_id": "26fc9c11-1b07-4905-9498-abdea9f3c2ee",
-     "event_id": "1bea91b77a9e301ffcf273df2923e44dd6417b0315374ff6feeff4df7d0d08ca",
+     "actor_id": "ce673e1b-a2ec-4917-93f8-af5908a3b526",
+     "event_id": "d92d611b402f2eadd5b83ee2ebd971600030a5b4460c0adb51fee2fc6aa78798",
      "event_type": "game_started",
-     "game_id": "wsr22-xmage-4p-d592990b",
+     "game_id": "wsr22-xmage-4p-7cae2642",
      "payload": {
       "action_id": null,
-      "decision_id": null,
-      "engine_game_id": "e714a436-2bab-4910-b8d8-dea5581190bc",
+      "decision_id": "22d19a69be765280b0e28852ae832fc509939dd16341d48c37cd025ef0ad2cab",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
       "external_control": true,
+      "initial_decision_kind": "mulligan",
       "seed_controlled": true,
-      "starting_player_id": "26fc9c11-1b07-4905-9498-abdea9f3c2ee",
+      "starting_player_id": "ce673e1b-a2ec-4917-93f8-af5908a3b526",
       "turn_number": 1
      },
-     "post_state_hash": "75db5e2d215c9eaa1ea52a3e088e3d83814a3c738f3108540d4dbbf9332163e3",
+     "post_state_hash": null,
      "pre_state_hash": null,
      "sequence": 2
     },
     {
-     "actor_id": "26fc9c11-1b07-4905-9498-abdea9f3c2ee",
-     "event_id": "0f12500f4d37072df664c6f4dcab042527df51c2e1cdba5f498a37f63e579f11",
-     "event_type": "priority_passed",
-     "game_id": "wsr22-xmage-4p-d592990b",
+     "actor_id": "ce673e1b-a2ec-4917-93f8-af5908a3b526",
+     "event_id": "2a50f3a362ae7fe2d1ad2ba5443dd39f9a6d75a7f49ec3388fd52f7694ac137c",
+     "event_type": "action_submitted",
+     "game_id": "wsr22-xmage-4p-7cae2642",
      "payload": {
-      "action_id": "07e34e59b8a6c53b9227b21cbe8038542539e78f52f14f0a22b7a1f1d0e1046f",
+      "action_id": "6aff6f58065220b242f12dc6a2df6ff4c498e97f6e474a28e26372255b317483",
+      "action_type": "mulligan",
+      "bounded_submission": true,
+      "decision_id": "22d19a69be765280b0e28852ae832fc509939dd16341d48c37cd025ef0ad2cab",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
+      "source_name": "keep",
+      "source_object_id": null
+     },
+     "post_state_hash": null,
+     "pre_state_hash": null,
+     "sequence": 3
+    },
+    {
+     "actor_id": "550caa94-ef33-4d43-9f3a-cc8d478fe0d5",
+     "event_id": "79b75b372679ab27081b08a5e3bc40361456a1caad25246e1f2bfb8c7f684381",
+     "event_type": "action_submitted",
+     "game_id": "wsr22-xmage-4p-7cae2642",
+     "payload": {
+      "action_id": "08edb923667194d234fdae5ad946bb522000c52cf76b3454c21a9d60ca75d77d",
+      "action_type": "mulligan",
+      "bounded_submission": true,
+      "decision_id": "8f99858ac8e597290a5f064bdc99645e9c316333746dab812fe264c53873d1c2",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
+      "source_name": "keep",
+      "source_object_id": null
+     },
+     "post_state_hash": null,
+     "pre_state_hash": null,
+     "sequence": 4
+    },
+    {
+     "actor_id": "d9b28dcf-6c29-4965-914c-5089da416620",
+     "event_id": "4435d2224a0e168ea8209569e6debfdc65380f922cc474f44e53ba4bfffd75ba",
+     "event_type": "action_submitted",
+     "game_id": "wsr22-xmage-4p-7cae2642",
+     "payload": {
+      "action_id": "2ea2db7b4296c67642165d6ed3e052be76ab6a33b6a21c283d87d2e2319225ba",
+      "action_type": "mulligan",
+      "bounded_submission": true,
+      "decision_id": "7917a47731cae9a86ac9e83dcdb80f4b49e01250624e848602b8d7b08e302943",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
+      "source_name": "keep",
+      "source_object_id": null
+     },
+     "post_state_hash": null,
+     "pre_state_hash": null,
+     "sequence": 5
+    },
+    {
+     "actor_id": "5b6d6ff8-068e-4818-b917-291927225503",
+     "event_id": "b9f8b2558f93a7bf8e32f15e649b5a2f651fdb3bf9f2aacd57165ad74293e5ca",
+     "event_type": "action_submitted",
+     "game_id": "wsr22-xmage-4p-7cae2642",
+     "payload": {
+      "action_id": "987f231cef60c5976b218f4ea1329d09a421682e7cf36e5894dec05e683d113e",
+      "action_type": "mulligan",
+      "bounded_submission": true,
+      "decision_id": "b91a45fb01a12b2bdd89e725a61178e330b213ffeba1ef41fc08f680ece8dfd0",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
+      "source_name": "keep",
+      "source_object_id": null
+     },
+     "post_state_hash": "1fd66e25fecf1e586f1bc8b120586cd50eaa8b56346c2d95aa2503b1930ff3a9",
+     "pre_state_hash": null,
+     "sequence": 6
+    },
+    {
+     "actor_id": "ce673e1b-a2ec-4917-93f8-af5908a3b526",
+     "event_id": "9cab878ea7d287b20168be49af95a91c6cffc526543f7cb506b45dcbe1ef7b67",
+     "event_type": "priority_passed",
+     "game_id": "wsr22-xmage-4p-7cae2642",
+     "payload": {
+      "action_id": "eb7be02a57d1d7d47150b453d363b7aebe46bde910fceb2848a65909181b864d",
       "action_type": "pass_priority",
       "bounded_submission": true,
-      "decision_id": "7730c73c4be09d40eb05163e2084a7644f74cbba10837188aeee0f32aec042b1",
-      "engine_game_id": "e714a436-2bab-4910-b8d8-dea5581190bc",
+      "decision_id": "6d6df87b6be83b702f0161955f065c7fde8646a7dc50b53752a1d3ecee4d9155",
+      "engine_game_id": "0c5e8080-6221-4a81-ab57-e5cda5691f5f",
       "source_name": null,
       "source_object_id": null
      },
-     "post_state_hash": "788d63e473f203d6e3ac22ba8e0c33583ec577523117af302411fa6e053f7b80",
-     "pre_state_hash": "75db5e2d215c9eaa1ea52a3e088e3d83814a3c738f3108540d4dbbf9332163e3",
-     "sequence": 3
+     "post_state_hash": "a3c94acae640353585dfd9e44fa7f7ab253c56932132155b5dfcaa794a4395b1",
+     "pre_state_hash": "1fd66e25fecf1e586f1bc8b120586cd50eaa8b56346c2d95aa2503b1930ff3a9",
+     "sequence": 7
     }
    ],
-   "log_sha256": "2403d19e1d0d2e4b5a0f35f6a92aff1f332fabc8b5b987c3dd38e3d06c43a426",
+   "log_sha256": "5592d42da846366a3cef01030f5f9f93bac2d764afee1849f0343269432359a4",
    "raw_lines": [],
-   "session_id": "wsr22-xmage-4p-d592990b"
+   "session_id": "wsr22-xmage-4p-7cae2642"
   },
   "raw_internal_xmage_gameevent_exhaustive": false,
-  "returned_event_count": 3
+  "returned_event_count": 7
  },
  "harness_injected_outcomes": false,
  "rules_rng_binding": {
@@ -83,7 +156,7 @@
  },
  "runtime_identity": {
   "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-  "adapter_commit": "b126249ec20675fde6fc20f49de2ae6f03ad5a06",
+  "adapter_commit": "ee0e5ed9acd0b093a69f27caef76ad08cb441855",
   "capabilities_provider_reported": {
    "action_submission_supported": false,
    "commander_damage_visible": false,
@@ -123,8 +196,8 @@
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
   "lane": "generic protocol-2 compatibility lane",
   "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-  "runner_commit": "b126249ec20675fde6fc20f49de2ae6f03ad5a06",
-  "runner_tree": "c73dd876d3bb38f6741880ac559d9bbb02fe15cc",
+  "runner_commit": "ee0e5ed9acd0b093a69f27caef76ad08cb441855",
+  "runner_tree": "efecef36420998674a82dce075465629862772c1",
   "scenario_injection_supported": false,
   "seed_supported": true,
   "starting_state_injection_supported": false

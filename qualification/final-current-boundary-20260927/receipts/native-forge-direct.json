@@ -22,7 +22,7 @@
     "BridgeEngineTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=WsR20Full107DenominatorTest,WS233CardinalityTest,WS227SemanticReplayTest,WsR15HiddenInfoFamilyTest,WS234S3BridgeTest,WS236F4BridgeTest,WS216GapClosureTest,WS202ExecutableSurfaceTest,WS217DividedAllocationTest,WsR15MulticountCombatTest,WsR15MulticountTriggerTest,WsR15DeterminismTwinTest,WsR15ConcessionFamilyTest,WsR16SixPlayerFamilyTest,BridgeEngineTest",
-  "ended_utc": "2026-09-29T23:09:49+00:00",
+  "ended_utc": "2026-09-29T23:51:54+00:00",
   "engine_identity_proof": {
     "actual_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
     "compared_module_roots": [
@@ -81,16 +81,16 @@
   "group": "direct",
   "passed": 150,
   "positive_fixtures": [],
-  "receipt_digest": "db6fdb21f0d61bd0aefa5b9dc938c94f318dfe7d77ee8ec4e48cb8f86608299d",
+  "receipt_digest": "cbb3db5f3d5048bd5214bfd7faa4ad4aae0be0d77274399b421bb41048c77f52",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m150\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 712.0 s -- in \u001b[1mTestSuite\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m150\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 711.1 s -- in \u001b[1mTestSuite\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 150, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
     "branch": "integration/pb03-fresh-main-reconciliation-20260929",
-    "built_utc": "2026-09-29T22:57:40+00:00",
-    "commit": "b126249ec20675fde6fc20f49de2ae6f03ad5a06",
+    "built_utc": "2026-09-29T23:39:47+00:00",
+    "commit": "ee0e5ed9acd0b093a69f27caef76ad08cb441855",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -110,10 +110,10 @@
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageControlDivergenceReconstruction.java": "1e3d882fa2c3683a3933b8d7cb4f380201d23d7d5afb94ba998fadd6b33f6b72",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java": "afac9c6c308adbd4da8363db63bb8cf1025847e1dde401a90a5e0374ab1f404b",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java": "a60a53ac074afe652efee98d1bf191b0b2e3c33dafa9ae08ef7246f6c7596da0",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "11fa32bcc98615503f2d13d2aab3c2382b397aed073b42abbaf469ea18124c4c",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "27695cdace2703434f3d15b268170a04d7c7e357fd03ac38763cfd0e47da6c6c",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java": "09460dbd2dc85acc675497777c2db54ce09afa28feaf32adb4c7f23d632c5fe7",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "da174bb9599e169c8617026fb09216b11433f71086c45ad7fb5329008f7baad7",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "c41ecee6cb8690ee93b069ae55caed508bdc73bf1b1d51dbf65a3ba172dc21b5",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "61b9358fa497a08ba698f2c6bb9204e945f01dd433f868d9264ed48a23fc228b",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "befa70d8b4a30ef8ae573a13bff248c992a4efdf0fed7612d0527e84218c0652",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "461dba93386f14b7f8308334f8b1a6d877099e96861ac3601fadb571028a5e36",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageHiddenStateRestoration.java": "d1468f54f211878d56cde0fda4cec8ef276d3a01d69842f637c76d3bb1408d9a",
@@ -161,11 +161,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "c73dd876d3bb38f6741880ac559d9bbb02fe15cc"
+    "tree": "efecef36420998674a82dce075465629862772c1"
   },
-  "runner_digest": "1ab1c0dfb27393533c9d47d5b1e1e5868a3c6e53a6864d54bec6420e7122389c",
+  "runner_digest": "9031841d62007aa9672c29a943cfaf96a99b5f10854dd124291a6ce82cbf15a1",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-29T22:57:40+00:00",
+  "started_utc": "2026-09-29T23:39:47+00:00",
   "tests": 150
 }
