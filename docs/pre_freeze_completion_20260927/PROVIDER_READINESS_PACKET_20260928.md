@@ -62,8 +62,8 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1a3324f3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 180 | 180 | Lab `1a3324f3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `bf08ffe0` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 181 | 181 | Lab `bf08ffe0` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is
@@ -89,7 +89,10 @@ receipt; the repair is in `receipts.py` and is regression-locked.
 XMage's engine identity comes from the provider handshake because `engine-bridge`
 is a module of this repository and has no engine checkout of its own. `AF00`
 verifies the provider-reported commit against the expected candidate and is `PASS`
-on both sides.
+on both sides. Since 2026-09-30 the handshake also reports the loaded engine
+artifact's own SHA-256 (provider-computed from the loaded `Game` code source);
+the PB-03 admission handshake, runtime ledger and midgame probe all bind the same
+digest and the assembler reports `artifact_identity_consistent`.
 
 ---
 

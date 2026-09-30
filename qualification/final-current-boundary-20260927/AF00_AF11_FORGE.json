@@ -394,7 +394,7 @@
    "failed": 0,
    "failures": 0,
    "passed": 150,
-   "receipt_digest": "8d480e7cd7ed9719262c233c3cf8eb8705e82cd728ef46088a012005aa557b01",
+   "receipt_digest": "2716b83076e25fab399c29afe3d8efe4fa1afb0dd2bad099c65f49d15a5d1b59",
    "returncode": 0,
    "tests": 150
   },
@@ -407,7 +407,7 @@
    "failed": 0,
    "failures": 0,
    "passed": 67,
-   "receipt_digest": "8ca568242c9008239cf579dd8a38e42ce54fd436de234717a46f7d055b62c62f",
+   "receipt_digest": "a4d93b57a64c1dfa79c2ce8104e25ab59ae4250ee13c14ae7ed7c22c153fcff3",
    "returncode": 0,
    "tests": 67
   }

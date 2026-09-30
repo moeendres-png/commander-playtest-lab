@@ -310,6 +310,17 @@
   ]
  },
  "manifest_source": "live full-game get_capabilities -> full_game_lane.state_restoration_dimensions",
+ "provider_identity": {
+  "engine": "xmage",
+  "engine_artifact_kind": "file",
+  "engine_artifact_path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+  "engine_artifact_sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
+  "engine_artifact_size": 7112962,
+  "engine_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "engine_version": "1.4.61",
+  "protocol_version": "2.0.0",
+  "xmage_code_source": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar"
+ },
  "rows": [
   {
    "fixture_id": "MICRO_RULES_RANDOMNESS",

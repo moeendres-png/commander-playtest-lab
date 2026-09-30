@@ -15,7 +15,7 @@
     "WS202SeparateProcessTest"
   ],
   "command": "mvn -o -Dcheckstyle.skip=true -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=ProtocolTest,BridgeProtocolProcessTest,HeadlessGuiFailClosedTest,WS216SeparateProcessTest,WS217SeparateProcessTest,WS227SeparateProcessTest,WS233CardinalityProcessTest,WS202SeparateProcessTest",
-  "ended_utc": "2026-09-30T02:43:52+00:00",
+  "ended_utc": "2026-09-30T08:06:07+00:00",
   "engine_identity_proof": {
     "actual_commit": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
     "compared_module_roots": [
@@ -74,16 +74,16 @@
   "group": "mechanism",
   "passed": 67,
   "positive_fixtures": [],
-  "receipt_digest": "8ca568242c9008239cf579dd8a38e42ce54fd436de234717a46f7d055b62c62f",
+  "receipt_digest": "a4d93b57a64c1dfa79c2ce8104e25ab59ae4250ee13c14ae7ed7c22c153fcff3",
   "result_lines": [
-    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m67\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 285.1 s -- in \u001b[1mTestSuite\u001b[m",
+    "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: \u001b[0;1;32m67\u001b[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 304.7 s -- in \u001b[1mTestSuite\u001b[m",
     "[\u001b[1;34mINFO\u001b[m] \u001b[1;32mTests run: 67, Failures: 0, Errors: 0, Skipped: 0\u001b[m"
   ],
   "returncode": 0,
   "runner": {
-    "branch": "integration/pb03-fresh-main-reconciliation-20260929",
-    "built_utc": "2026-09-30T02:26:45+00:00",
-    "commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
+    "branch": "foundry/pb03-engine-artifact-identity-20260930",
+    "built_utc": "2026-09-30T07:48:32+00:00",
+    "commit": "bf08ffe08711695cedf8950489834169995a5e0e",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -113,13 +113,13 @@
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameCausalBridge.java": "55608897ff7c04b0293653888f2f2fd6fc4baf26c415334613ccc72e099c84eb",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java": "819881a84c82f601215b49e2364222945b1ebaec0832979ce7d691aacf8684a1",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "a629d83c5de6833c872f3f8df0b0591dd0f49276701fb7b2543093405afabaeb",
-      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java": "da0f8f5850645e4110b0db327a5966109b1a41dcf4d5b609ae982bf86f317d31",
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java": "0391f2dd453f4111e03b34eb649235a880a9b343024592c65f3085470cd2d795",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageRulesSeedBinding.java": "831658759dc3e53b695b5e78fb600085cb504f42114343ed4175ca689aa8de50",
       "engine-bridge/src/main/java/org/commanderlab/xmage/XmageTemporalProgressionDriver.java": "cec9f02875b7450da877edbcc7634e0998186fc55d11df2d5d445d5c28b0133f",
       "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
-      "scripts/assemble_current_boundary_evidence.py": "b3f112108f9ff993e84b5e67673e64ef13f40e7f8df1ea6101a5e5be9615f9c7",
-      "scripts/run_current_boundary_qualification.py": "91a32ff173ba19f3a12e189065861d0fbd817671c59fd69a893dbdd37370e164",
-      "scripts/run_midgame_capability_probe.py": "c44bdbceda35f7282dce4dbefe0d91cc946bb67082019d5775cb82d8eabd7228",
+      "scripts/assemble_current_boundary_evidence.py": "ec2670d536859f5cdc6fdf4c55b70597afb5407c6fbc5a522b71bdd4c63cb1d8",
+      "scripts/run_current_boundary_qualification.py": "8915dd2ebb3b444f8f6a1eec67cc27c038783ded4189bcc9817cb27913332d25",
+      "scripts/run_midgame_capability_probe.py": "e1686a3323664a3e2e372b938624bd481e5c54100c9b61e4f5f282f2958ec6ed",
       "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
       "src/commander_lab/engine/rules/base.py": "14b1248504d8b96cac9d7758ab2e0c9917182c2c5a72b2c56557445400dd0db5",
       "src/commander_lab/engine/rules/bridge.py": "c8419eb217e763d6434a4b4536a3d4fdd7e722a71c482ad6798a7ddef42bd059",
@@ -142,8 +142,8 @@
       "src/commander_lab/qualification/current_boundary/game_driver.py": "3a808dff4c94854987b1c3a198fe1cd6fdd1ee974fb38eabea62a0ff9756c069",
       "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
       "src/commander_lab/qualification/current_boundary/materialization.py": "246b016422f5f0302ae4effa215f1968dc25644a47d5fcf88c468315f63f2114",
-      "src/commander_lab/qualification/current_boundary/midgame_lane.py": "1fb3d8b99c4b4153bf346ebe6aa9af5c02f0065747d692e6a9183dcfdaf89097",
-      "src/commander_lab/qualification/current_boundary/pb03_runtime.py": "182482fad63b5e633554b03a7e2a17f3371f47f3f6de50daece803f746448ad7",
+      "src/commander_lab/qualification/current_boundary/midgame_lane.py": "07846f340cc2c91c32660e412e63a9daaf6b81e478fc61e37aad95ffa5dd3f6c",
+      "src/commander_lab/qualification/current_boundary/pb03_runtime.py": "e842387d179cb6b10c2d5848c596812ebcbc0d1bfd80239d6afd9d99867fff0d",
       "src/commander_lab/qualification/current_boundary/receipts.py": "1de604426f928d1c6e0d30219eaf122cd74394c7750cba17e85f08d234ffa528",
       "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
       "src/commander_lab/qualification/current_boundary/shortcut_campaign.py": "a4f80471aa67cea5a55a7f5ae0d2fa186a63a15bfc5782da0f6b1cbff0f1013f",
@@ -154,11 +154,11 @@
       "qualification/final-current-boundary-20260927/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "f1e21ecf2ac30538370a47f7f13d8a93c4a71d76"
+    "tree": "7195c4e700c72444de05da87f9ab89cbd0382bff"
   },
-  "runner_digest": "370a6276b3f7028be78cf623bcf70f06142d2f486a576d69661eac0df2c5189a",
+  "runner_digest": "7dd56c350fbf5de8559085f1fd8e14df22d9759ce6d47219aee56d2d20be9ad9",
   "schema_version": "commander-lab.native-suite-receipt/1.0.0",
   "skipped": 0,
-  "started_utc": "2026-09-30T02:38:52+00:00",
+  "started_utc": "2026-09-30T08:00:45+00:00",
   "tests": 67
 }

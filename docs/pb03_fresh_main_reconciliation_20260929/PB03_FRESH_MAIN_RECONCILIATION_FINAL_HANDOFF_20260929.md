@@ -158,8 +158,10 @@ hidden-information defect. None transferred.
 
 ## Remaining Blockers (grouped by mechanism)
 
-- **Engine artifact identity:** declared constant + runtime fingerprint; no
-  cryptographic jar identity recorded.
+- **Engine artifact identity:** closed for PB-03 — the provider-reported loaded
+  jar digest is bound through admission, the runtime ledger, the midgame probe
+  and the assembled matrix (`artifact_identity_consistent: true`). Maven build
+  reproducibility remains a general, non-blocking question.
 - **Boundary gates:** XMage AF01/AF04, Forge AF04; AF05–AF09/AF11 policy and
   per-scenario gaps.
 - **Forge environment:** native execution requires the `e15f37d6` bridge

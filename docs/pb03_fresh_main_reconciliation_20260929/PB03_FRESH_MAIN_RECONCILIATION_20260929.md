@@ -76,6 +76,7 @@ rows carry no construction verdict). Elimination rows record the engine's own
 | Native runtime ledger | **30/30 exact audited class+method testcases** green (`PASS`), content digest sealed |
 | Native receipt | **`FRESH_EXACT`** (runner digest + canonical candidate commit match the assembling head) |
 | Runtime credit | `EXECUTED_PASS` |
+| Loaded engine artifact | provider-reported `file`, SHA-256 `e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603`, 7,112,962 bytes (the mage jar the bridge loaded) |
 | FULL107 credit | **`NONE_FROM_PB03_MATRIX`** — reachability never promotes a row |
 | Blocked admission | never overridden by a runtime PASS |
 
@@ -110,6 +111,14 @@ history.
 7. **Probe honesty:** raw engine principal UUIDs removed, causal rejection
    entry-mode fixed, first-option discard fallback removed, and an unrecorded
    causal terminal is `MEASURED_BLOCKED` rather than credit.
+8. **Loaded engine artifact identity (2026-09-30):** `XmageProvider` now reports
+   the loaded engine artifact's kind, path, size and SHA-256, computed from the
+   loaded `Game` code source. The runtime fingerprint test recomputes that digest
+   independently. The PB-03 admission handshake validates a file-backed 64-hex
+   digest and stores it; the runtime ledger and the midgame probe seal the same
+   identity; the assembler cross-checks admission/runtime and reports
+   `artifact_identity_consistent`; missing, malformed, directory or mismatched
+   artifacts earn zero runtime credit.
 
 ## 6. Historical evidence invalidated (not transferred)
 
@@ -135,9 +144,10 @@ history.
 
 ## 8. Unresolved mechanisms
 
-- The XMage "engine commit" is a declared constant plus a runtime fingerprint;
-  cryptographic identity of the loaded jar is not yet recorded (bounded
-  residual).
+- The XMage "engine commit" is a declared constant; the loaded artifact's
+  cryptographic identity is now provider-reported and bound through the PB-03
+  evidence (admission, runtime ledger, probe, matrix). What remains open is only
+  the general question of Maven build reproducibility, not identity binding.
 - XMage AF01 remains `FAIL` on the generic compatibility lane and AF04 `FAIL`;
   AF05–AF09 and AF11 remain `UNKNOWN` for policy/per-scenario reasons.
 - Forge native execution requires the documented `e15f37d6` bridge checkout;
