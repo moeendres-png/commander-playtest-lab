@@ -11,7 +11,7 @@
 
 ## Terminal Main Lock
 
-- Observed `origin/main` at handoff production: `24b355b7f864364f4c7a7e6137c1947d1b231c1b`
+- Terminal `origin/main` after merge: `eecb296391ce6622ed4340d42fce4ca2e2c8be74` (tree `c3bc806cd9790278af4d07ceb75994ab7977b6bf`)
 - Re-fetch before merge; if main advanced, re-adjudicate overlap (engine-bridge,
   `src/commander_lab/qualification/current_boundary/**`, `config/rules_engines.json`
   are runner-digest inputs and require requalification when touched).
@@ -170,17 +170,19 @@ hidden-information defect. None transferred.
 
 ## PR / Commit / Tree
 
-- PR: #381 (Draft)
-- Branch tip at handoff production: `ebb49813ccb7` (final artifact commit adds
-  docs only)
+- PR #381: **MERGED** at 2026-09-30T03:36:39Z as
+  `eecb296391ce6622ed4340d42fce4ca2e2c8be74` (tree
+  `c3bc806cd9790278af4d07ceb75994ab7977b6bf`), exact head `9b0e4d49ccd5`
+- 17/17 required checks green (1 by-design skip) on the exact head
 - Pushed via `tools/foundry/safe_push.py` (sanctioned path)
 
 ## Donor Retirement
 
 - #304: CLOSED (historical predecessor).
 - #333: MERGED to main (`10a43d2c`); PR closed by merge.
-- #316: OPEN — to be closed with a provenance comment after PR #381 merges and
-  the ported value is proven preserved. Branches are never deleted.
+- #316: **CLOSED** 2026-09-30T03:38:18Z with a provenance comment recording the
+  ported units, the repairs made while porting, and the historical value that
+  was not transferred. Branch retained; never deleted.
 
 ## Dependencies Unblocked
 
@@ -194,20 +196,18 @@ hidden-information defect. None transferred.
 
 ## Exact Next Action
 
-1. `git fetch origin --prune`; if main advanced, inspect overlap and merge
-   normally; requalify if any runner-digest input changed.
-2. Confirm all required PR #381 checks are green on the exact head.
-3. Merge PR #381 through the normal GitHub PR merge path if every merge-gate
-   condition holds; otherwise leave open and report the exact blocker.
-4. After merge: close PR #316 with the provenance comment; verify main HEAD/tree
-   and persist the terminal receipt.
+None. The successor is merged, all donors are terminally dispositioned, and the
+evidence is sealed. Future drift in `config/rules_engines.json`, the Lab XMage
+bridge sources or `src/commander_lab/qualification/current_boundary/**`
+invalidates the sealed receipts by design; the PB-03 workflow re-derives them
+on every matching PR.
 
 ---
 
-PB03_FRESH_MAIN_RECONCILIATION = PARTIAL
+PB03_FRESH_MAIN_RECONCILIATION = COMPLETE
 HISTORICAL_PASS_TRANSFERRED = NO
 PR304_DISPOSITION = CLOSED_HISTORICAL_PREDECESSOR_SUPERSEDED_BY_333_AND_FRESH_MAIN_SUCCESSOR
 PR333_DISPOSITION = MERGED_TO_MAIN_AS_10A43D2C_SEMANTIC_DONOR_CONSUMED
-PR316_DISPOSITION = OPEN_SEMANTIC_VALUE_PORTED_TO_PR381_PENDING_RETIREMENT_AFTER_MERGE
+PR316_DISPOSITION = CLOSED_SEMANTIC_DONOR_CONSUMED_BY_FRESH_MAIN_SUCCESSOR
 PRODUCTION_PROVIDER = NOT_SELECTED
 ARCHITECTURE_FREEZE = NOT_CLAIMED
