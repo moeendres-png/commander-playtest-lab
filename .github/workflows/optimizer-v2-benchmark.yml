@@ -7,7 +7,10 @@ permissions:
   contents: read
 
 concurrency:
-  group: optimizer-v2-benchmark-${{ github.head_ref || github.ref }}
+  # A newer push to the same PR supersedes its obsolete run. Every other run
+  # (each push to main, each manual dispatch) has its own group, so every
+  # merged head keeps its own evidence instead of being cancelled by the next.
+  group: optimizer-v2-benchmark-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
 
 env:

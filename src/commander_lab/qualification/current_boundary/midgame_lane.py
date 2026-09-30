@@ -598,7 +598,8 @@ class MidgameLaneClient:
             # The engine answered and refused, so this is an engine rejection of
             # the arrival. It must never be reported as an accepted state.
             raise MidgameLaneArrivalRejected(
-                f"complete_midgame_arrival failed closed: {_error_code(response)}"
+                f"complete_midgame_arrival failed closed: {_error_code(response)}: "
+                f"{_error_message(response)}"
             )
         return response.get("payload") or {}
 

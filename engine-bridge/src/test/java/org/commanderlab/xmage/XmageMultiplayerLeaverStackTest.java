@@ -32,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  * {@code XMAGE_ACTION_EXECUTION_FAILED}.</p>
  *
  * <p>Mid-cast: P2 concedes while its own Bolt's target or payment frame is
- * open, then answers it. The engine refuses the rest of the cast of a player
- * who left, so it unwinds like a cancelled payment; before the fix the lane
- * failed with "priority cast failed" or "mana activation failed".</p>
+ * open. XMage's native concede signal retires that frame immediately; P2
+ * never answers it. The engine then unwinds the cast and the remaining
+ * players continue.</p>
  */
 class XmageMultiplayerLeaverStackTest {
 
@@ -119,14 +119,25 @@ class XmageMultiplayerLeaverStackTest {
             String cls = s.decisionClass();
             String actor = s.actor();
             if (!conceded && "P2".equals(actor) && concedeAt.equals(cls)) {
+                JsonObject before = s.session.pendingDecisionPayload().getAsJsonObject("decision");
+                String staleDecisionId = before.get("decision_id").getAsString();
+
                 JsonObject concede = new JsonObject();
                 concede.addProperty("proposal_id", "p2-concede-" + concedeAt);
                 concede.addProperty("actor_id", p2);
                 concede.addProperty("player_id", p2);
-                assertTrue(s.session.submitConcede(concede).get("failure").isJsonNull());
+                JsonObject result = s.session.submitConcede(concede);
+                assertTrue(result.get("failure").isJsonNull());
                 assertFalse(s.seats.get("P2").isInGame(), "P2 left the game");
+                assertFalse(result.get("decision").isJsonNull(),
+                        "remaining players must receive the next engine decision");
+                JsonObject next = result.getAsJsonObject("decision");
+                assertFalse(staleDecisionId.equals(next.get("decision_id").getAsString()),
+                        "the pre-concession frame was retired, not answered");
+                assertFalse(p2.equals(next.get("actor_id").getAsString()),
+                        "P2 receives no decision after leaving");
                 conceded = true;
-                // P2 still answers its own open frame (WS213) with an offered option.
+                continue; // critically: no submit() for the stale target/payment frame
             } else if (conceded && !"P2".equals(actor)) {
                 afterLeave++;
             }
@@ -138,7 +149,7 @@ class XmageMultiplayerLeaverStackTest {
                 default -> fail("unexpected " + cls + " for " + actor + " " + s.labels());
             }
             assertTrue(s.session.pendingDecisionPayload().get("failure").isJsonNull(),
-                    "the lane goes on after P2 answers its open frame");
+                    "the lane goes on after the native concede cancellation");
             if (conceded && afterLeave > 0) {
                 assertFalse(p2.equals(s.session.pendingDecisionPayload().getAsJsonObject("decision")
                         .get("actor_id").getAsString()), "P2 is never asked again");
