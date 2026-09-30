@@ -1,13 +1,13 @@
 {
  "receipt_count": 2,
  "receipt_digests": {
-  "forge:direct": "7582752d238237e232e7d74ea652b76992f1493eabe6309579f7a20ba41257db",
-  "forge:mechanism": "334a80f59e3a8464ef19325629a200426dd833123aec3c7603304d432dc324e4"
+  "forge:direct": "d0ec779e8c421e66e4cba4d1ad5f5c1b8cb8921621de9d9f62d45c176d862052",
+  "forge:mechanism": "3717455fffc82e2f8ca47f3847972aea5999a7a42268e6daac080a1e57e6c6b9"
  },
  "runner": {
   "branch": "integration/pb03-fresh-main-reconciliation-20260929",
-  "built_utc": "2026-09-30T00:47:03+00:00",
-  "commit": "75816f5fa817efd4d44f4689d71834d24ab769ff",
+  "built_utc": "2026-09-30T01:32:28+00:00",
+  "commit": "1b14af27f007b566c2759092dbb113e9669100b3",
   "dirty": false,
   "dirty_paths": [],
   "input_digests": {
@@ -29,7 +29,7 @@
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java": "a60a53ac074afe652efee98d1bf191b0b2e3c33dafa9ae08ef7246f6c7596da0",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "27695cdace2703434f3d15b268170a04d7c7e357fd03ac38763cfd0e47da6c6c",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java": "09460dbd2dc85acc675497777c2db54ce09afa28feaf32adb4c7f23d632c5fe7",
-   "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "da174bb9599e169c8617026fb09216b11433f71086c45ad7fb5329008f7baad7",
+   "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "796d734ec0b5acb99de5c06f478ec53c8876eaaea8ef84e0e1993bb8cb393e0f",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "61b9358fa497a08ba698f2c6bb9204e945f01dd433f868d9264ed48a23fc228b",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "befa70d8b4a30ef8ae573a13bff248c992a4efdf0fed7612d0527e84218c0652",
    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "461dba93386f14b7f8308334f8b1a6d877099e96861ac3601fadb571028a5e36",
@@ -47,7 +47,7 @@
    "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
    "src/commander_lab/engine/rules/base.py": "14b1248504d8b96cac9d7758ab2e0c9917182c2c5a72b2c56557445400dd0db5",
    "src/commander_lab/engine/rules/bridge.py": "c8419eb217e763d6434a4b4536a3d4fdd7e722a71c482ad6798a7ddef42bd059",
-   "src/commander_lab/engine/rules/full_game.py": "110b0978a1091fc1c2fa785f0c247e519b5ce832ec66a923cf33f1ffd0a1aa00",
+   "src/commander_lab/engine/rules/full_game.py": "6a7e5e92a58ba63dfb034577246a8736e5e6c4c6a76d7bc59fb61967455a1b6a",
    "src/commander_lab/engine/rules/full_game_batch.py": "6664d33d98c2e7fd0a50a2ed70970357d35e82765c9dbcc69723d71408e7626b",
    "src/commander_lab/engine/rules/manager.py": "a3ce16a4f63a047b10fdc4ea312fb4d989712dbdbc4c2a6aa872f33c5cd39a41",
    "src/commander_lab/engine/rules/phase85.py": "7b50a03dc16777c0859fec1f589c046e56b47537f3dfb58fa23f3f457b41d169",
@@ -78,7 +78,7 @@
    "qualification/final-current-boundary-20260927/"
   ],
   "schema_version": "commander-lab.runner-identity/1.0.0",
-  "tree": "85db938e40ff712954a18af1837c37e77501b97d"
+  "tree": "c89fbd9674b19287dcdff768b7bedb55af7d0d5c"
  },
  "schema_version": "wsr22.native-suite-receipt-index/1.0.0"
 }
