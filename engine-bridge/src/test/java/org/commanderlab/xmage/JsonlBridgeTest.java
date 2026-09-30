@@ -565,6 +565,67 @@ class JsonlBridgeTest {
                 .getAsString();
     }
 
+    /**
+     * AF01 v2 fail_closed_invariants.unsupported_production_reachable_decision
+     * (TYPED_UNSUPPORTED_OR_TERMINAL_FAILURE_NO_DEFAULT): a live, externally controlled
+     * game asked for legal actions of a decision class it is not presenting answers
+     * with a typed error, never with the pending decision's options, and the pending
+     * decision is unchanged afterwards (F-37).
+     */
+    @Test
+    void anUnsupportedDecisionClassFailsClosedWithoutADefault() throws Exception {
+        List<String> handles = List.of(
+                importRogShaiHandle("r-af01-import-1"),
+                importRogShaiHandle("r-af01-import-2")
+        );
+        String gameId = "af01/unsupported-decision-class";
+        JsonObject create = JsonParser.parseString(
+                createGameRequest("r-af01-create", gameId, handles, 0, 40)).getAsJsonObject();
+        create.getAsJsonObject("payload").getAsJsonObject("request").addProperty("external_control", true);
+        JsonObject created = JsonParser.parseString(bridge.handle(create.toString()).json()).getAsJsonObject();
+        assertTrue(created.get("success").getAsBoolean(), created.toString());
+        JsonObject started = JsonParser.parseString(
+                bridge.handle(startGameRequest("r-af01-start", gameId)).json()).getAsJsonObject();
+        assertTrue(started.get("success").getAsBoolean(), started.toString());
+
+        JsonObject pending = legalActions("r-af01-pending", gameId, null);
+        assertTrue(pending.get("success").getAsBoolean(), pending.toString());
+        String kind = pending.getAsJsonObject("payload").get("decision_kind").getAsString();
+        String decisionId = pending.getAsJsonObject("payload").get("decision_id").getAsString();
+
+        JsonObject matching = legalActions("r-af01-matching", gameId, kind);
+        assertTrue(matching.get("success").getAsBoolean(), "the pending class is served: " + matching);
+
+        JsonObject unsupported = legalActions("r-af01-unsupported", gameId, "wsr22_unsupported_decision_class");
+        assertFalse(unsupported.get("success").getAsBoolean(), unsupported.toString());
+        assertEquals("unsupported_decision_class",
+                unsupported.getAsJsonArray("errors").get(0).getAsJsonObject().get("code").getAsString());
+        assertTrue(!unsupported.has("payload") || !unsupported.getAsJsonObject("payload").has("actions"),
+                "no default options: " + unsupported);
+
+        JsonObject after = legalActions("r-af01-after", gameId, null);
+        assertEquals(decisionId, after.getAsJsonObject("payload").get("decision_id").getAsString(),
+                "no game mutation");
+    }
+
+    private JsonObject legalActions(String requestId, String gameId, String decisionClass) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", gameId);
+        if (decisionClass != null) {
+            payload.addProperty("decision_class", decisionClass);
+        }
+        JsonObject request = new JsonObject();
+        request.addProperty("protocol_version", "2.0.0");
+        request.addProperty("request_id", requestId);
+        request.addProperty("engine", "xmage");
+        request.addProperty("game_id", gameId);
+        request.addProperty("message_type", "get_legal_actions");
+        request.addProperty("method", "get_legal_actions");
+        request.add("payload", payload);
+        request.add("params", new JsonObject());
+        return JsonParser.parseString(bridge.handle(request.toString()).json()).getAsJsonObject();
+    }
+
     private static String createGameRequest(
             String requestId,
             String gameId,

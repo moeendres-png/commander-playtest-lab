@@ -27,4 +27,6 @@ Both call sites now use `getPlayable(game, false, Zone.ALL, false)`, which offer
 ## Impact and routing
 
 - **Impact:** full-game-lane transcripts whose priority decisions involved duplicate-text abilities lacked legal options, and are not replay-stable on the old lane.
-- **Not changed, routed to the owner:** the generic Protocol-2 lane (`ExternalDecisionController`, `XmageActionExecutor`) calls `getPlayable(game, false)` the same way.
+- **Generic Protocol-2 lane:** fixed as well, in a follow-up PR. `ExternalDecisionController` enumerates and `XmageActionExecutor` resolves through the same complete `getPlayable(..., false)` set. An unexpected player type fails closed.
+  - `ExternalDecisionControllerCompletenessTest`: Prodigal Pyromancer and Prodigal Sorcerer. Red: only the Pyromancer was offered, because the Sorcerer's equal rule text was deduplicated. Green after the fix.
+  - Both lanes now share one twin-stable ordering, `XmageStableOrder` (F-36).

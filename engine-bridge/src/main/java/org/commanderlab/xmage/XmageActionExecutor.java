@@ -132,7 +132,7 @@ final class XmageActionExecutor {
         String abilityOriginalId = requiredText(metadata, "ability_original_id");
 
         ActivatedAbility executable = null;
-        for (ActivatedAbility ability : player.getPlayable(game, false)) {
+        for (ActivatedAbility ability : allPlayable(player, game)) {
             if (sourceObjectId.equals(ability.getSourceId().toString())
                     && abilityOriginalId.equals(ability.getOriginalId().toString())) {
                 if (executable != null) {
@@ -261,5 +261,20 @@ final class XmageActionExecutor {
         return object.has(property)
                 && !object.get(property).isJsonNull()
                 && object.get(property).getAsBoolean();
+    }
+
+    /**
+     * Every playable ability, one per object (F-30). Player.getPlayable(game, false) is
+     * XMage's AI variant: it drops activated abilities of different permanents whose rule
+     * text is equal (hash-keyed), so a second copy of a creature or one of two "{T}: Add
+     * {U}." lands was never offered, and which one survived depended on hash order. The
+     * enumeration and the execution lookup must use the same (complete) set.
+     */
+    static List<ActivatedAbility> allPlayable(Player player, Game game) {
+        if (!(player instanceof mage.players.PlayerImpl impl)) {
+            throw new IllegalStateException(
+                    "PLAYABLE_ENUMERATION_UNSUPPORTED: " + player.getClass().getName());
+        }
+        return impl.getPlayable(game, false, mage.constants.Zone.ALL, false);
     }
 }
