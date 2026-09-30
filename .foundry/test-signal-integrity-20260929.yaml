@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: f6c7a62fde2af6615995f5ca53adf1474a1afc81
+state_written_against_head: 21a4e668092cc893b334fad8072603338bae47d2
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -369,6 +369,16 @@ validation:
     state_py_validate: STATE_OK
     ruff_check: clean
     ruff_format: 1143 files formatted
+  on_the_seventh_repair_head:
+    whole_suite_no_ignore_flags: 0 failed, 2435 passed, 13 skipped
+    change_scope: documentation only; no test or source file touched
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1143 files formatted
+    note: >-
+      The suite number is unchanged from the previous arm, which is the expected result for a
+      documentation-only correction. Recording it rather than skipping the measurement, because
+      "unchanged" is a claim that should be measured rather than assumed.
   excluded_modules_and_why: >-
     NO LONGER EXCLUDED. Earlier arms of this file ran with --ignore for
     tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py because
