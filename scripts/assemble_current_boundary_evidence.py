@@ -236,6 +236,55 @@ def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
     return "PASS" if reported == expected else "FAIL"
 
 
+def af04_gate(candidate: str, af01: dict[str, Any]) -> dict[str, Any]:
+    """AF04 LEGAL_ACTION_AND_DECISION_BOUNDARY, derived from this run.
+
+    Owner ruling R-2 (SLOT-03 option (c)) approves the provider-specific
+    decision-identity shim as protocol translation on one condition: every
+    submitted identity byte-matches a value in the frame the provider just
+    offered. XMage's AF04 FAIL cited only the identity-shape difference, so it
+    becomes PASS exactly when this run's live AF01 frame proves that condition;
+    a violated condition is FAIL and an unmeasured one UNKNOWN. Forge stays
+    UNKNOWN: its lane has not exercised decision classes beyond PRIORITY on the
+    shared surface in this run (R-2), whatever its provenance shows.
+    """
+    provenance = af01.get("decision_identity_provenance") or {}
+    verified = provenance.get("verified")
+    evidence = [
+        "an external PRIORITY decision was reached and answered with an engine-offered "
+        "option on the shared generic lane (AF01 live decision probe game)",
+        f"decision identity provenance on the live frame (R-2): {provenance}",
+    ]
+    if candidate == "xmage":
+        verdict = "PASS" if verified is True else ("FAIL" if verified is False else "UNKNOWN")
+        evidence.append(
+            "XMage binds decisions by decision_id (sha256) and pass by action_id; the "
+            "shape difference from Forge is approved protocol translation under R-2"
+        )
+        limitations: list[str] = []
+    else:
+        verdict = "UNKNOWN"
+        evidence.append(
+            "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions"
+        )
+        limitations = [
+            "no STARTING_PLAYER, MULLIGAN or DRAW decision class beyond PRIORITY was "
+            "reachable for the other candidate on the shared surface (R-2: Forge AF04 "
+            "stays UNKNOWN until such classes are exercised on its lane)"
+        ]
+    if verified is not True:
+        limitations.append("R-2 provenance condition not proven on a live frame in this run")
+    return {
+        "gate": "AF04",
+        "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+        "verdict": verdict,
+        "evidence": evidence,
+        "owner_ruling": "R-2",
+        "blocking_rows": [],
+        "nonblocking_limitations": limitations,
+    }
+
+
 def af00_gate(candidate: str, data: dict[str, Any], af01: dict[str, Any]) -> dict[str, Any]:
     """Derive AF00 from exact current source/build identity.
 
@@ -920,34 +969,7 @@ def assemble() -> None:
                 ],
             },
             af03_gate(candidate),
-            {
-                "gate": "AF04",
-                "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
-                "verdict": "FAIL" if candidate == "xmage" else "UNKNOWN",
-                "evidence": [
-                    "an external PRIORITY decision was reached and answered with an "
-                    "engine-offered option on the shared generic lane",
-                    "XMage requires external_control=true at create_commander_game or "
-                    "get_legal_actions fails closed (LEGAL_ACTIONS_UNAVAILABLE)"
-                    if candidate == "xmage"
-                    else "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions",
-                    "XMage binds decisions by decision_id (sha256) and pass by action_id; "
-                    "Forge binds by revision (long) and pass by actor_id; neither accepts the "
-                    "other's shape",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": (
-                    [
-                        "a single candidate-neutral adapter cannot drive both candidates without "
-                        "a provider-specific decision-identity shim"
-                    ]
-                    if candidate == "xmage"
-                    else [
-                        "no STARTING_PLAYER, MULLIGAN or DRAW decision class beyond PRIORITY was "
-                        "reachable for the other candidate on the shared surface"
-                    ]
-                ),
-            },
+            af04_gate(candidate, af01),
             {
                 "gate": "AF05",
                 "name": "HIDDEN_INFORMATION",

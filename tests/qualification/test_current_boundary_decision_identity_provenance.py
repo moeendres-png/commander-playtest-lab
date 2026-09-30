@@ -114,3 +114,93 @@ def test_a_frame_without_the_native_identity_is_not_given_one() -> None:
     params = decision_identity_params("xmage", frame)
     assert params.get("decision_id") is None
     assert "action_id" not in params
+
+
+# --------------------------------------------------------------------------- #
+# R-2 at runtime: the AF01 live frame carries the provenance, AF04 derives from it
+# --------------------------------------------------------------------------- #
+
+from commander_lab.qualification.current_boundary import af01 as af01_mod  # noqa: E402
+
+
+@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME), ("forge", FORGE_FRAME)])
+def test_live_frame_provenance_is_verified_for_both_shapes(
+    candidate: str, frame: dict[str, Any]
+) -> None:
+    provenance = af01_mod.decision_identity_provenance(candidate, copy.deepcopy(frame))
+    assert provenance["verified"] is True
+    assert all(provenance["byte_matched"].values())
+
+
+def test_an_identity_absent_from_the_frame_is_not_verified() -> None:
+    frame = copy.deepcopy(XMAGE_FRAME)
+    del frame["decision"]["decision_id"]
+    assert af01_mod.decision_identity_provenance("xmage", frame)["verified"] is False
+
+
+def test_a_pass_identity_that_was_not_offered_is_not_verified(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The cast option's id appears in the frame, but it is not the offered pass."""
+
+    def _first_option(candidate: str, frame: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "decision_id": frame["decision"]["decision_id"],
+            "action_id": frame["actions"][0]["action_id"],
+        }
+
+    monkeypatch.setattr(af01_mod, "decision_identity_params", _first_option)
+    provenance = af01_mod.decision_identity_provenance("xmage", copy.deepcopy(XMAGE_FRAME))
+    assert provenance["pass_identity_offered"] is False
+    assert provenance["verified"] is False
+
+
+def test_a_type_changed_identity_does_not_byte_match(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A shim that normalised the Forge revision to a string would be caught."""
+
+    def _stringifying(candidate: str, frame: dict[str, Any]) -> dict[str, Any]:
+        return {"revision": str(frame["decision"]["revision"]), "actor_id": "p2"}
+
+    monkeypatch.setattr(af01_mod, "decision_identity_params", _stringifying)
+    assert (
+        af01_mod.decision_identity_provenance("forge", copy.deepcopy(FORGE_FRAME))["verified"]
+        is False
+    )
+
+
+def test_no_live_frame_is_unmeasured() -> None:
+    assert af01_mod.decision_identity_provenance("xmage", None)["verified"] is None
+
+
+def _assembler() -> Any:
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "scripts/assemble_current_boundary_evidence.py"
+    spec = importlib.util.spec_from_file_location("assembler_r2", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize(
+    ("verified", "expected"), [(True, "PASS"), (False, "FAIL"), (None, "UNKNOWN")]
+)
+def test_xmage_af04_follows_the_r2_provenance_of_this_run(verified: Any, expected: str) -> None:
+    gate = _assembler().af04_gate("xmage", {"decision_identity_provenance": {"verified": verified}})
+    assert gate["gate"] == "AF04" and gate["verdict"] == expected and gate["owner_ruling"] == "R-2"
+
+
+def test_forge_af04_stays_unknown_even_with_verified_provenance() -> None:
+    gate = _assembler().af04_gate("forge", {"decision_identity_provenance": {"verified": True}})
+    assert gate["verdict"] == "UNKNOWN"
+
+
+def test_af04_is_no_longer_a_literal() -> None:
+    from pathlib import Path
+
+    source = (
+        Path(__file__).resolve().parents[2] / "scripts/assemble_current_boundary_evidence.py"
+    ).read_text(encoding="utf-8")
+    assert '"verdict": "FAIL" if candidate == "xmage" else "UNKNOWN"' not in source
