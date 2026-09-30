@@ -5,16 +5,21 @@ PROVIDER="${ENGINE_PROVIDER:-xmage}"
 SOURCE_ROOT="${ENGINE_SOURCE_PATH:-$ROOT/vendor/engine-source/$PROVIDER}"
 BINARY_ROOT="${ENGINE_BINARY_PATH:-$ROOT/vendor/engine-binaries/$PROVIDER}"
 MAVEN_VERSION="3.9.16"
+RULES_COMMIT=""
 
 case "$PROVIDER" in
   xmage)
     REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-https://github.com/moeendres-png/mage.git}"
     COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-9375f35ac7c9a540ebcb8b262b8645b8c6b1b326}"
+    RULES_COMMIT="$COMMIT"
     REQUIRED_JAVA_MIN=8
     ;;
   forge)
-    REPO="https://github.com/Card-Forge/forge.git"
-    COMMIT="a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    command -v python3 >/dev/null || { echo "ERROR: python3 is required to resolve Forge pin authority" >&2; exit 3; }
+    PIN_JSON="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider forge --format json)"
+    REPO="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["bridge_repository"])' <<<"$PIN_JSON")"
+    COMMIT="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["bridge_commit"])' <<<"$PIN_JSON")"
+    RULES_COMMIT="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"])' <<<"$PIN_JSON")"
     REQUIRED_JAVA_MIN=17
     ;;
   *) echo "ERROR: ENGINE_PROVIDER must be xmage or forge" >&2; exit 2 ;;
@@ -81,7 +86,7 @@ else
   (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
 fi
 cat > "$BINARY_ROOT/installation-identity.json" <<EOF
-{"provider":"$PROVIDER","commit":"$COMMIT","source_path":"$SOURCE_ROOT","built_with_java":"$JAVA_MAJOR","build_log":"$LOG","bridge_verified":false}
+{"provider":"$PROVIDER","commit":"$RULES_COMMIT","source_commit":"$COMMIT","source_path":"$SOURCE_ROOT","built_with_java":"$JAVA_MAJOR","build_log":"$LOG","bridge_verified":false}
 EOF
 
 echo "Source build completed. A provider-specific JSONL bridge must now be configured."
