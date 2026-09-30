@@ -75,3 +75,13 @@ def test_every_tree_integrity_run_is_superseded_by_the_same_pull_requests_next_r
     concurrency = workflow.get("concurrency") or {}
     assert concurrency.get("cancel-in-progress") is True
     assert "github.event.pull_request.number" in concurrency.get("group", "")
+
+
+def test_h4_obsolete_pull_request_runs_cancel_but_manual_runs_remain_commit_scoped() -> None:
+    path = ROOT / ".github/workflows/h4-docker-materialization.yml"
+    workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
+    concurrency = workflow.get("concurrency") or {}
+    assert "github.head_ref" in concurrency.get("group", "")
+    assert "github.sha" in concurrency.get("group", "")
+    cancel = str(concurrency.get("cancel-in-progress", ""))
+    assert "github.event_name" in cancel and "pull_request" in cancel

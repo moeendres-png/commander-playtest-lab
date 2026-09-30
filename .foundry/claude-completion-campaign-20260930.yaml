@@ -82,6 +82,7 @@ terminal_integration:
   supporting_pb03_run: 36778300856
   supporting_pb03_conclusion: SUCCESS
   final_gate_pr: '#436'
-  final_gate_source_at_closeout: 8435cb92f34b1099b108835e7dfbe62bd3d74dec
+  final_gate_branch: sol/r5-final-integration-gate-20260930
+  final_gate_source_lock: PR_436_BODY_AND_ISSUE_425
   production_provider: NOT_SELECTED
   architecture_freeze: NOT_CLAIMED
