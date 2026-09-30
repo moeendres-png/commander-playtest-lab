@@ -125,8 +125,9 @@ requalification.
   ownership, Git and merge gates defined here; model identity never grants authority to
   cross a reserved Coordinator gate.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode Foundry insufficient; genuinely
-  required; smallest necessary scope). Never the normal engineering path.
+  capability identified; Sol High insufficient; OpenCode Foundry and any available
+  authorized Claude campaign insufficient; genuinely required; smallest necessary scope).
+  Never the normal engineering path.
 
 Technical autonomy within those tiers is defined in §8.
 
