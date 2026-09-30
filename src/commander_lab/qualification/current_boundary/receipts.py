@@ -673,6 +673,23 @@ def native_suite_credit(
 # --------------------------------------------------------------------------- #
 
 
+def _record_digest(record: dict[str, Any], name: str) -> str | None:
+    """A denominator record's digest under its materialization or manifest name.
+
+    The effective materialization names it ``<name>``; the
+    EFFECTIVE_FULL107_MANIFEST rows the assembler passes as the denominator name
+    it ``effective_<name>``. Reading only the first made every manifest-based
+    comparison None != receipt, so no receipt was ever credited. A record that
+    carries both with different values is ambiguous and yields no digest.
+    """
+    plain = record.get(name)
+    effective = record.get(f"effective_{name}")
+    if plain and effective and plain != effective:
+        return None
+    value = plain or effective
+    return str(value) if value else None
+
+
 def positive_fixture_credit(
     receipts: list[dict[str, Any]],
     *,
@@ -723,9 +740,14 @@ def positive_fixture_credit(
             obligation = doc.get("obligation_exercised")
             if not isinstance(obligation, dict):
                 continue
-            if obligation.get("requested_state_digest") != record.get("requested_state_digest"):
+            expected_state = _record_digest(record, "requested_state_digest")
+            expected_obligation = _record_digest(record, "obligation_digest")
+            if not expected_state or obligation.get("requested_state_digest") != expected_state:
                 continue
-            if obligation.get("obligation_digest") != record.get("obligation_digest"):
+            if (
+                not expected_obligation
+                or obligation.get("obligation_digest") != expected_obligation
+            ):
                 continue
         out.setdefault(fixture, []).append(str(doc.get("test_identity", "")))
     return {fixture: sorted(set(names)) for fixture, names in sorted(out.items())}

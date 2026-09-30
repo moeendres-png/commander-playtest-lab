@@ -723,3 +723,60 @@ def test_every_requested_class_needs_a_fresh_executed_report(tmp_path: Path) -> 
     )
     assert observed["Ran"]["tests"] == 3
     assert set(unexecuted) == {"AllSkipped", "Empty", "Failed", "Stale", "Missing"}
+
+
+def _manifest_row(**digests: str) -> dict[str, dict[str, str]]:
+    return {"MICRO_STACK": {"fixture_id": "MICRO_STACK", **digests}}
+
+
+def _exact_receipt() -> dict:
+    return _fixture_receipt(
+        obligation_exercised={
+            "requested_state_digest": "state-current",
+            "obligation_digest": "obligation-current",
+        }
+    )
+
+
+def _credit(denominator: dict) -> dict:
+    return R.positive_fixture_credit(
+        [_exact_receipt()],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=denominator,
+        expected_runner_digest=_RUNNER_DIGEST,
+    )
+
+
+def test_credit_reads_the_effective_manifest_row_the_assembler_passes() -> None:
+    """The assembler's denominator is EFFECTIVE_FULL107_MANIFEST.json, whose rows
+    name the digests effective_*; reading only the plain names made every
+    comparison None != receipt, so a local two-candidate assembly credited
+    nothing (0 PASS for both candidates)."""
+    manifest = _manifest_row(
+        effective_requested_state_digest="state-current",
+        effective_obligation_digest="obligation-current",
+    )
+    assert _credit(manifest) == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
+    stale = _manifest_row(
+        effective_requested_state_digest="state-current",
+        effective_obligation_digest="obligation-stale",
+    )
+    assert _credit(stale) == {}
+
+
+def test_a_record_with_conflicting_digest_names_or_none_earns_nothing() -> None:
+    ambiguous = _manifest_row(
+        requested_state_digest="state-current",
+        effective_requested_state_digest="state-other",
+        obligation_digest="obligation-current",
+    )
+    assert _credit(ambiguous) == {}
+    assert _credit(_manifest_row()) == {}
+
+
+def test_the_runner_writes_the_manifest_digests_under_the_effective_names() -> None:
+    runner = Path(__file__).resolve().parents[2] / "scripts/run_current_boundary_qualification.py"
+    source = runner.read_text(encoding="utf-8")
+    assert '"effective_requested_state_digest": record.get("requested_state_digest")' in source
+    assert '"effective_obligation_digest": record.get("obligation_digest")' in source
