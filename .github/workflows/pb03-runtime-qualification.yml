@@ -14,6 +14,14 @@ on:
       - "tests/qualification/test_current_boundary_midgame_lane.py"
       - "tests/qualification/test_current_boundary_pb03_runtime.py"
       - "tests/qualification/test_current_boundary_receipts.py"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
   workflow_dispatch:
 
 permissions:
