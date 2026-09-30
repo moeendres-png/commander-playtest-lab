@@ -20,7 +20,11 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
      `opencode-go/space-bunny-free` at native `max`, for bounded, mechanical,
      token-heavy, bulk and background work.
    Muse and GLM are inactive and are not selectable executors.
-3. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
+3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
+   session declares its campaign objective and writable ownership surface(s). It may own
+   long autonomous campaigns and continuous in-objective task selection under the same
+   Rules/Evidence/Privacy/Git gates; it is not a Foundry launcher profile.
+4. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
 quota, credentials, catalog availability, child failure, or retry. A DeepSeek failure is
@@ -35,7 +39,7 @@ provenance. See `EXECUTION_PROVIDER_OVERRIDE.md`.
 
 ## Execution identity policy
 
-Active project work has exactly two supported execution identities:
+Active OpenCode Foundry work has exactly two supported launcher execution identities:
 
 - `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max`.
   This is the default and preferred executor for implementation, debugging,
@@ -64,16 +68,22 @@ Authoritative model:
 - Space Bunny MAX: explicit secondary execution profile for bounded, mechanical,
   token-heavy and background work, and for deliberately authorized cross-model
   technical adjudication within already-defined policy.
+- Claude Opus 5.5: direct campaign executor when explicitly authorized. It may challenge
+  technical assumptions, take adjacent high-value work inside the same objective and
+  continue selecting unowned milestones without routine user round-trips. A bounded
+  integration campaign may span multiple disjoint explicitly owned surfaces; all other
+  surfaces remain read-only.
 - Sol High: final authority only for project-wide evidence-semantics or
   qualification-policy changes, ambiguous MTG Rules interpretation, new shared
   Rules/Decision architecture, cross-workstream authority conflicts, material scope
   expansion, Source-Truth hierarchy changes, Rules-authority-boundary changes,
   Production Provider selection, and Architecture Freeze.
 
-Both OpenCode profiles use the same Rules/Evidence/Privacy/Semantic-Completion policy.
-Neither profile is a lower-authority coding assistant: each must use available tools,
-investigate root causes, repair in-scope defects, test, validate, persist evidence and
-continue autonomously until COMPLETE or a genuine authority/permission/source gate.
+Both OpenCode profiles and an explicitly authorized Claude Opus 5.5 campaign use the
+same Rules/Evidence/Privacy/Semantic-Completion policy. None is a lower-authority coding
+assistant inside its declared surface: each must use available tools, investigate root
+causes, repair in-objective defects, test, validate, persist evidence and continue
+autonomously until COMPLETE or a genuine authority/permission/source gate.
 
 A technical decision is never an authority decision. Only genuine authority-policy
 questions become `AUTHORITY_GATE`. Executor changes are explicit handoffs, not silent escalation.
@@ -82,9 +92,9 @@ questions become `AUTHORITY_GATE`. Executor changes are explicit handoffs, not s
 
 Work is forbidden for ordinary tasks the normal paths can perform. Before any Work
 use, record `WORK_NECESSITY = PASS` or `FAIL`. PASS requires: the exact missing
-capability is identified; normal Sol High cannot perform it; neither supported OpenCode Foundry executor can
-perform it; the capability is genuinely required; the assignment is the smallest
-possible operation. Otherwise `WORK_NECESSITY = FAIL` and Work must not be used.
+capability is identified; normal Sol High cannot perform it; neither supported OpenCode Foundry executor nor
+an available authorized Claude campaign can perform it; the capability is genuinely required; the assignment
+is the smallest possible operation. Otherwise `WORK_NECESSITY = FAIL` and Work must not be used.
 
 ## Parallelism and persistence
 

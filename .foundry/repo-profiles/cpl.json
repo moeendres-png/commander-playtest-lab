@@ -2,6 +2,7 @@
   "build_system": "pytest + ruff (operating layer); engine qualification per owning workstream",
   "canonical_files": [
     "AGENTS.md",
+    "CLAUDE.md",
     "docs/PROJECT_MISSION.md",
     "docs/foundry-execution/ROUTING_AND_EFFORT.md",
     "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
