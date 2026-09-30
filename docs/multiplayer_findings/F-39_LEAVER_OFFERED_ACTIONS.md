@@ -50,14 +50,18 @@ It is 2/2 red before the fix, because "Cast Lightning Bolt" is still offered, an
 
 The first fix left frames in the middle of a cast unchanged. The probe then showed that they failed the lane too:
 
-- P2 concedes while its own Lightning Bolt's target or payment frame is open, then answers that frame (the WS213 contract).
-- The engine refuses the rest of the cast of a player who left, and the cast never reaches the stack.
-- The lane still failed: `XMAGE_ACTION_EXECUTION_FAILED: priority cast failed` for the target frame, `mana activation failed` for the payment frame.
+- P2 concedes while its own Lightning Bolt's target or payment frame is open.
+- Native XMage calls `signalPlayerConcede(true)` to stop that open dialog. `PlayerImpl` leaves the hook empty, so the headless `XmageFullGamePlayer` previously failed to propagate that native cancellation to the external decision controller.
+- Without that signal propagation, the stale pre-concession frame remained externally visible and required a pilot answer even though P2 had already left.
 
-**Fix:** in `XmageFullGamePlayer`, when a cast, activation or mana activation is refused and the player is no longer in the game, it unwinds like a cancelled payment (`leftMidAction()`) instead of failing the lane. Nothing is chosen for the player, and no option is added.
+**Fix:** `XmageFullGamePlayer.signalPlayerConcede(true)` now retires the matching pending `target` or `mana_payment` frame through `XmageFullGameDecisionController.cancelPendingForConcession`. The blocked engine callback resumes via an internal engine-cancellation signal, returns false to XMage, and the cast unwinds. No pilot option is selected, no replacement option is fabricated, and the cancelled frame is recorded separately as `engine_decision_cancelled`.
 
-**Regression:** `aCastInProgressUnwindsWhenItsCasterLeaves` (4P/5P × target/payment) is 4/4 red before the fix and 4/4 green after. Its assertions:
+The existing `leftMidAction()` checks remain defensive guards for failures that happen after a decision has already been consumed; they are not used to legitimize a stale pilot response.
 
-- P2 is never asked again;
+**Regression:** `aCastInProgressUnwindsWhenItsCasterLeaves` (4P/5P × target/payment) proves:
+
+- the pre-concession decision id is retired;
+- after P2 leaves, the next published decision belongs to a remaining player;
+- there is no `submit()` for the stale target/payment frame;
 - the stack ends empty;
 - P3 stays at 40.
