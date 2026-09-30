@@ -78,6 +78,18 @@ jobs:
             scripts/run_external_b4f_capability_closeout.py
             scripts/run_external_b4f_provider_pin_validation.py
             .github/workflows/external-engine-integration.yml
+            src/commander_lab/__init__.py
+            src/commander_lab/agents/**
+            src/commander_lab/cards/**
+            src/commander_lab/engine/**
+            src/commander_lab/evals/**
+            src/commander_lab/models/**
+            src/commander_lab/qualification/**
+            src/commander_lab/storage/**
+            tests/conftest.py
+            tests/unit/test_models.py
+            tests/unit/test_phase8_rules_models.py
+            tests/unit/test_xmage_compatibility_provider.py
 
   build-and-integrate:
     needs: [integration-scope]

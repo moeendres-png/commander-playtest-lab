@@ -19,6 +19,7 @@ on:
       - 'data/pilots/**'
       - 'config/**'
       - '.github/workflows/core-workflow-acceptance.yml'
+      - "tests/conftest.py"
   push:
     branches: [main]
     paths:
@@ -37,6 +38,7 @@ on:
       - 'data/pilots/**'
       - 'config/**'
       - '.github/workflows/core-workflow-acceptance.yml'
+      - "tests/conftest.py"
   workflow_dispatch:
 
 permissions:

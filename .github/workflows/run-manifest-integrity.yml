@@ -9,6 +9,13 @@ on:
       - '.github/workflows/run-manifest-integrity.yml'
       - 'pyproject.toml'
       - 'requirements/lock.txt'
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/models/**"
+      - "tests/conftest.py"
   push:
     branches: [main]
   workflow_dispatch:
