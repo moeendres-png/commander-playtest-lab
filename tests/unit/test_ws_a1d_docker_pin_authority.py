@@ -332,6 +332,17 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
     assert "set -euo pipefail" in text
 
 
+def test_operator_bootstraps_use_manifest_resolver_without_engine_pin_literals(
+    repo_root: Path,
+) -> None:
+    for rel in ("scripts/bootstrap_engine_linux.sh", "scripts/bootstrap_engine_windows.ps1"):
+        text = (repo_root / rel).read_text(encoding="utf-8")
+        assert "docker_resolve_engine_pin.py" in text, rel
+        assert CANONICAL_FORGE_PIN not in text, rel
+        assert CANONICAL_XMAGE_PIN not in text, rel
+        assert "Card-Forge/forge.git" not in text, rel
+
+
 def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
     text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
     assert _HEX40.search(_without_base_image_digests(text)) is None
