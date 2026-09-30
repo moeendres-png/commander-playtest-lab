@@ -224,7 +224,7 @@ final class XmageFullGameDecisionController {
      * addressee and its views are re-bound under a new decision id. A
      * departed controller that the engine still names fails closed.
      *
-     * <p>F-37: a priority frame whose own principal just left keeps only the
+     * <p>F-39: a priority frame whose own principal just left keeps only the
      * engine's pass option. A player who left takes no actions (CR 800.4a),
      * and the engine no longer executes the other options, so offering them
      * would let a pilot pick an action that fails the lane. Options are only
