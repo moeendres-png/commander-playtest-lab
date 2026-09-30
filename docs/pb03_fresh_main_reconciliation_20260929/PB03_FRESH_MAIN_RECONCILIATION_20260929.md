@@ -50,15 +50,17 @@ Machine-readable ledger: `DONOR_SEMANTIC_LEDGER.json` in this directory.
 
 ## 3. Fresh runtime partition (midgame capability probe, engine `9375f35a`)
 
-29 rows rederived on the canonical candidate; counts are runtime facts, not
-historical copies:
+38 rows rederived on the canonical candidate (29 original plus nine
+scripted-decision rows from main's causal-stack workstream), freshly on the
+current main after the F-41 seating and F-42 leaver-choice merges; counts are
+runtime facts, not historical copies:
 
-| Outcome | Count | Rows |
+| Outcome | Count | Rows (2026-09-30, after main's commander-object binding fix) |
 |---|---|---|
-| `ENGINE_NATIVE_REACHABLE` | 8 | COMBAT-4/5, CMD-ELIM-4, CMD-DMG-SPLIT, CMD-PARTNER-ZONE, CMD-TAX-2, MICRO_COMBAT, CARD_02 |
-| `CAUSAL_ROUTE_REACHABLE` | 9 | BLOCK-4, ELIM-PRIO-3, MICRO_REPLACEMENT, PRIO-3/5, MICRO_ZONE_CHANGES, ELIM-OWNED-3, ELIM-TURN-3, ELIM-5 |
-| `CAUSAL_ROUTE_MEASURED_BLOCKED` | 9 | TURN-5, eight `WS05-CMD-ZONE-*` rows |
-| `CONSTRUCTION_MISMATCH` | 1 | ELIM-STACK-3 |
+| `ENGINE_NATIVE_REACHABLE` | 8 | WS05-MP-COMBAT-4, WS05-MP-COMBAT-5, WS05-CMD-ELIM-4, WS05-CMD-DMG-SPLIT, WS05-CMD-PARTNER-ZONE, WS05-CMD-TAX-2, MICRO_COMBAT, CARD_02 |
+| `CAUSAL_ROUTE_REACHABLE` | 25 | WS05-MP-BLOCK-4, WS05-MP-ELIM-PRIO-3, MICRO_REPLACEMENT, WS05-MP-PRIO-3, WS05-CMD-ZONE-GY-YES, MICRO_ZONE_CHANGES, WS05-MP-PRIO-5, WS05-CMD-ZONE-GY-NO, WS05-CMD-ZONE-EXILE-YES, WS05-CMD-ZONE-EXILE-NO, WS05-CMD-ZONE-HAND-YES, WS05-CMD-ZONE-HAND-NO, WS05-CMD-ZONE-LIB-YES, WS05-CMD-ZONE-LIB-NO, WS05-MP-ELIM-OWNED-3, WS05-MP-ELIM-TURN-3, WS05-MP-ELIM-5, PILOT_CHOOSE_OBJECT, PILOT_CHOICE, PILOT_MANA_PAYMENT, MICRO_MANA_PAYMENT, MICRO_PRIORITY, MICRO_STACK, CARD_13, CARD_20 |
+| `CAUSAL_ROUTE_MEASURED_BLOCKED` | 2 | WS05-MP-TURN-5, PILOT_REPLACEMENT_EFFECT |
+| `CONSTRUCTION_MISMATCH` | 1 | WS05-MP-ELIM-STACK-3 |
 | `ENGINE_REJECTED` | 2 | CMD-DMG-CONTROL (`midgame_starting_state_rejected`), ELIM-CONTROL-3 (`midgame_causal_preparation_rejected`) |
 | `TRANSPORT_FAILURE` | 0 | — |
 
@@ -76,11 +78,12 @@ rows carry no construction verdict). Elimination rows record the engine's own
 | Native runtime ledger | **30/30 exact audited class+method testcases** green (`PASS`), content digest sealed |
 | Native receipt | **`FRESH_EXACT`** (runner digest + canonical candidate commit match the assembling head) |
 | Runtime credit | `EXECUTED_PASS` |
+| Loaded engine artifact | provider-reported `file`, SHA-256 `e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603`, 7,112,962 bytes (the mage jar the bridge loaded) |
 | FULL107 credit | **`NONE_FROM_PB03_MATRIX`** — reachability never promotes a row |
 | Blocked admission | never overridden by a runtime PASS |
 
 Current boundary columns (sealed at the requalified head): XMage 5 PASS / 58
-UNKNOWN / 44 BLOCKED (native 214 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
+UNKNOWN / 44 BLOCKED (native 219 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
 (native 217 tests). XMage hidden information is `PRINCIPAL_SCOPED` (four distinct
 views, all requesters established) and the seed is acknowledged at the creation
 transaction; the WSR22 "fully uncontrolled" position is retained only as
@@ -110,6 +113,14 @@ history.
 7. **Probe honesty:** raw engine principal UUIDs removed, causal rejection
    entry-mode fixed, first-option discard fallback removed, and an unrecorded
    causal terminal is `MEASURED_BLOCKED` rather than credit.
+8. **Loaded engine artifact identity (2026-09-30):** `XmageProvider` now reports
+   the loaded engine artifact's kind, path, size and SHA-256, computed from the
+   loaded `Game` code source. The runtime fingerprint test recomputes that digest
+   independently. The PB-03 admission handshake validates a file-backed 64-hex
+   digest and stores it; the runtime ledger and the midgame probe seal the same
+   identity; the assembler cross-checks admission/runtime and reports
+   `artifact_identity_consistent`; missing, malformed, directory or mismatched
+   artifacts earn zero runtime credit.
 
 ## 6. Historical evidence invalidated (not transferred)
 
@@ -135,9 +146,10 @@ history.
 
 ## 8. Unresolved mechanisms
 
-- The XMage "engine commit" is a declared constant plus a runtime fingerprint;
-  cryptographic identity of the loaded jar is not yet recorded (bounded
-  residual).
+- The XMage "engine commit" is a declared constant; the loaded artifact's
+  cryptographic identity is now provider-reported and bound through the PB-03
+  evidence (admission, runtime ledger, probe, matrix). What remains open is only
+  the general question of Maven build reproducibility, not identity binding.
 - XMage AF01 remains `FAIL` on the generic compatibility lane and AF04 `FAIL`;
   AF05–AF09 and AF11 remain `UNKNOWN` for policy/per-scenario reasons.
 - Forge native execution requires the documented `e15f37d6` bridge checkout;

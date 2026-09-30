@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 import uuid
@@ -1864,12 +1865,14 @@ def main() -> int:
 
     manifest_payload: dict[str, Any] | None = None
     engine_commit: str | None = None
+    engine_artifact: dict[str, Any] | None = None
     try:
         with open_client(args.workspace) as client:
             client.request("get_provider_version", None)
             manifest = client.read_dimension_manifest()
             manifest_payload = manifest.as_dict()
             engine_commit = client.engine_commit
+            engine_artifact = client.engine_artifact
     except bridge_launcher.BridgeLaunchError as exc:
         print(f"the mid-game lane could not be launched: {exc}", file=sys.stderr)
         return 2
@@ -1913,6 +1916,10 @@ def main() -> int:
         "evidence_class": "FRESH_RUNTIME_PROTOCOL2_PROCESS",
         "rules_core": "xmage",
         "engine_commit": engine_commit,
+        "engine_artifact_kind": (engine_artifact or {}).get("kind"),
+        "engine_artifact_path": (engine_artifact or {}).get("path"),
+        "engine_artifact_sha256": (engine_artifact or {}).get("sha256"),
+        "engine_artifact_size": (engine_artifact or {}).get("size"),
         "candidate_commit": live_engine_pin(),
         "lane": ml.MIDGAME_LANE,
         "protocol_version": ml.PROTOCOL_VERSION,
@@ -1980,6 +1987,20 @@ def main() -> int:
         print(
             f"engine identity mismatch: provider reported {receipt['engine_commit']!r}, "
             f"canonical candidate is {receipt['candidate_commit']!r}",
+            file=sys.stderr,
+        )
+        return 3
+    if (
+        receipt["engine_artifact_kind"] != "file"
+        or not isinstance(receipt["engine_artifact_sha256"], str)
+        or not re.fullmatch(r"[0-9a-f]{64}", receipt["engine_artifact_sha256"])
+    ):
+        # The declared commit is a constant; without the loaded artifact's
+        # digest this receipt cannot claim which engine bytes produced it.
+        print(
+            "engine artifact identity unavailable: "
+            f"kind={receipt['engine_artifact_kind']!r} "
+            f"sha256={receipt['engine_artifact_sha256']!r}",
             file=sys.stderr,
         )
         return 3
