@@ -184,7 +184,7 @@ class XmageFullGameTaxExecutionTest {
                 fail("arrival bound breached");
             }
         }
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
         XmageNativeStateRestoration.CompareVerdict constructed =
                 restoration.compare(

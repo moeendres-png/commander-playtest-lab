@@ -204,6 +204,7 @@ Until then:
 | F-37 (AF01) | #390 | AF01 fail-closed probes credited malformed-request rejections as PASS, and the generic lane answered an unsupported decision class with the pending options. |
 | F-30 (generic lane) | #393 | The generic Protocol-2 lane had the F-30 dedup and the F-36 ordering too; both lanes now share `XmageStableOrder`. |
 | F-38 | #397 | Native restoration placed a battlefield commander as a setup copy. That is why the 8 `WS05-CMD-ZONE-*` rows never got their zone choice and ELIM-4 never accrued commander damage. All 9 obligations are now executed on the genuine commander. |
+| F-40 | #405 | The restoration claimed life totals, but game start overwrote them. A player's recorded starting life is now set once while untouched; every other life value must still be caused. This unblocks CARD_04 and CARD_24. |
 | F-41 | this PR | The bridge seated players so that turns ran P1 → PN → … → P2, against the contract's seat order ("Priority traverses exactly P1..PN"). XMage's `CircularList.add` reverses the add order. Every lane now seats for P1 → P2 → … → PN. The earlier "counterclockwise, consistent" reading (F-15..F-18) matched the engine, not the contract. |
 
 ### Whole-game replay harness

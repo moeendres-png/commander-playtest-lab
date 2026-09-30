@@ -652,7 +652,7 @@ final class XmageMidgameJsonlBridge {
             }
             String requesterPrincipal = optionalRequesterPrincipal(request);
             Map<String, Player> seats = requireSession().restorationSeats();
-            restoration.restoreCommanderCasts(requireSession().restorationGame(), seats);
+            restoration.restoreAfterArrival(requireSession().restorationGame(), seats);
             XmageNativeStateRestoration.revalidate(requireSession().restorationGame());
             JsonObject observed =
                     XmageNativeStateRestoration.readback(requireSession().restorationGame(), seats);

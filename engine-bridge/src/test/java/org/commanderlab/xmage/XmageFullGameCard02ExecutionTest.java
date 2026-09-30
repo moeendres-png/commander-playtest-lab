@@ -93,7 +93,7 @@ class XmageFullGameCard02ExecutionTest {
                 fail("arrival bound breached");
             }
         }
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
         JsonObject observed =
                 XmageNativeStateRestoration.readback(session.restorationGame(), seats);
