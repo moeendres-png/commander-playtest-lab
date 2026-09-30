@@ -1654,8 +1654,7 @@ def scripted_value_offered(
         matches = [
             a
             for a in actions
-            if ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("value")
-            is value
+            if ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("value") is value
         ]
         return len(matches) == 1, f"boolean {value} matched {len(matches)}"
     return False, f"selector for {family} not evaluated by this probe"
