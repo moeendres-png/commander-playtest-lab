@@ -201,6 +201,9 @@ Until then:
 | F-30 | #382 | Priority hid activated abilities with equal rule text on different permanents (XMage's AI `getPlayable` dedup), in hash order. |
 | F-35 | #382 | Offered options that could only fail aborted real games: modes without legal targets (CR 700.2a), and mana abilities whose own cost can't be paid (Signet, Study Hall). |
 | F-36 | #384 | Decision options were ordered by random object ids. A library search picked a different "first Plains" per replay, and the shuffle then diverged the game. |
+| F-37 (AF01) | #390 | AF01 fail-closed probes credited malformed-request rejections as PASS, and the generic lane answered an unsupported decision class with the pending options. |
+| F-30 (generic lane) | #393 | The generic Protocol-2 lane had the F-30 dedup and the F-36 ordering too; both lanes now share `XmageStableOrder`. |
+| F-38 | this PR | Native restoration placed a battlefield commander as a setup copy. That is why the 8 `WS05-CMD-ZONE-*` rows never got their zone choice and ELIM-4 never accrued commander damage. All 9 obligations are now executed on the genuine commander. |
 
 ### Whole-game replay harness
 `XmageFullGameReplayTwinTest` plays real 100-card decks (RogShai, Kaervek, Hosts of Mordor, Lorehold Spirits) at 2–6P, up to 3000 decisions per game. Each game is played twice with the same seed by a semantic pilot.
@@ -220,4 +223,4 @@ Until then:
 ### Next
 - A successor FULL107 current-boundary run on `9375f35a` (Coordinator gate).
 - The redundant nested WS17 manifest entry (Coordinator).
-- The generic Protocol-2 lane has the F-30 pattern (routed to #300's owner).
+- Note: the F-number 37 was used twice: #390 (AF01) and #392 (leaver actions, parallel lane). Check both lanes before numbering.
