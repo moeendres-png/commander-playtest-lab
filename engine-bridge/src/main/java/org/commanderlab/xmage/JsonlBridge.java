@@ -457,6 +457,24 @@ final class JsonlBridge {
             String gameHandle = requireGameHandle(gameId);
             XmageGameManager.LegalActionsSnapshot snapshot = gameManager.legalActions(gameHandle);
 
+            // AF01 v2 fail_closed_invariants.unsupported_production_reachable_decision
+            // (TYPED_UNSUPPORTED_OR_TERMINAL_FAILURE_NO_DEFAULT): a request for a decision
+            // class this game is not presenting is never answered with the pending
+            // decision's options (that would be a default). It gets a typed error and no
+            // game state changes (the snapshot is read-only).
+            if (payload.has("decision_class") && !payload.get("decision_class").isJsonNull()) {
+                String requested = payload.get("decision_class").getAsString();
+                if (!requested.equals(snapshot.decisionKind())) {
+                    return error(
+                            requestId,
+                            "unsupported_decision_class",
+                            "decision class " + requested + " is not the pending decision ("
+                                    + snapshot.decisionKind() + "); no default options are offered",
+                            false
+                    );
+                }
+            }
+
             JsonObject responsePayload = legalActionsPayload(snapshot);
             responsePayload.addProperty("global_capability_promoted", false);
             return success(
