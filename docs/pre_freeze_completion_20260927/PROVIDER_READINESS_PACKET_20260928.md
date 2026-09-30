@@ -21,7 +21,7 @@ Rules Correctness, for reasons that are recorded per candidate below.
 | Transport protocol | `2.0.0` |
 | Rules authority | `MagicCompRules 20260925.txt`, effective `2026-09-25`, SHA-256 `8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca` |
 | Rules clause in scope | 103.8a |
-| XMage candidate (successor live pin) | `moeendres-png/mage@f79e4168902e65063034b21be6f4585397fd43b3`, bridge `xmage-engine-bridge 0.1.0-SNAPSHOT`, xmage `1.4.61` |
+| XMage candidate (successor live pin) | `moeendres-png/mage@9375f35ac7c9a540ebcb8b262b8645b8c6b1b326`, bridge `xmage-engine-bridge 0.1.0-SNAPSHOT`, xmage `1.4.61` |
 | XMage prior boundary identity (historical, not repinned) | `moeendres-png/mage@b19596980f2734496ea1896504253e1bdd2756dd` — the sealed WSR22 identity; `source_lock.py` is deliberately not repinned |
 | Forge Rules Core (`COMMANDER_LAB_FORGE_FORK`) | `moeendres-png/forge@ef958ee91ac6c9ce0152189f2654bf6e05abf273`, tree `fc3387bf37aab19d780b2939a235309ed32b0492` |
 | Forge bridge / evidence head | `moeendres-png/forge@e15f37d6b2b5c0ad682948f86f037e07b6aaded5`, tree `a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b`, PR #5, Draft, deliberately not merged to Forge master |
@@ -36,7 +36,7 @@ another.
 **Successor current-boundary epoch (2026-09-29).** The XMage column in this
 packet was requalified under the PB-03 fresh-main reconciliation workstream, in a
 successor run of the same authoritative pipeline: the runner binds the canonical
-live pin from `config/rules_engines.json` (`f79e4168`), and the frozen WSR22
+live pin from `config/rules_engines.json` (`9375f35a`), and the frozen WSR22
 `source_lock` identity stays historical. The Forge column was re-executed in the
 documented bridge/evidence checkout at `e15f37d6` (Rules Core trees proven
 identical to `ef958ee9`), because the default Forge workspace had moved to a
@@ -62,8 +62,8 @@ tree, against live engines. Four verified native-suite receipts:
 |---|---|---|---|---|---|---|
 | `native-forge-direct.json` | forge | direct | 150 | 150 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
 | `native-forge-mechanism.json` | forge | mechanism | 67 | 67 | `e15f37d6b2b5` | `RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL` |
-| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1b14af27` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
-| `native-xmage-mechanism.json` | xmage | mechanism | 179 | 179 | Lab `1b14af27` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-direct.json` | xmage | direct | 34 | 34 | Lab `1a3324f3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
+| `native-xmage-mechanism.json` | xmage | mechanism | 180 | 180 | Lab `1a3324f3` | `ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT` |
 
 The XMage rows name the Lab commit that actually executed, which is **not** the
 candidate: `engine-bridge` is a module of this repository, so the executing head is

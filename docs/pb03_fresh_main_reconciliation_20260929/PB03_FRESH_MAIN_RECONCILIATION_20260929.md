@@ -2,8 +2,8 @@
 
 - **Workstream:** `PB03-FRESH-MAIN-RECONCILIATION-20260929`
 - **Branch / PR:** `integration/pb03-fresh-main-reconciliation-20260929` / PR #381 (Draft)
-- **Implementation base:** `origin/main` `174696d15d1a7b33c6fd2cba4d9e4c4f16f4c61c` (merged normally; no rebase)
-- **Canonical engine pin:** `config/rules_engines.json` → `moeendres-png/mage@f79e4168902e65063034b21be6f4585397fd43b3` (tree `18c3e8e7588627b22accc08a644729399d702ee3`)
+- **Implementation base:** `origin/main` `24b355b7f864364f4c7a7e6137c1947d1b231c1b` (merged normally; no rebase)
+- **Canonical engine pin:** `config/rules_engines.json` → `moeendres-png/mage@9375f35ac7c9a540ebcb8b262b8645b8c6b1b326` (tree `0fb7c2f9a038e471de3a6e56419244482a645218`)
 - **Frozen WSR22 boundary identity:** `source_lock.XMAGE_CANDIDATE_COMMIT = b1959698…` remains historical and is **not repinned**
 - `PRODUCTION_PROVIDER = NOT SELECTED`; `ARCHITECTURE_FREEZE = NOT CLAIMED`
 
@@ -48,7 +48,7 @@ Machine-readable ledger: `DONOR_SEMANTIC_LEDGER.json` in this directory.
 | #285 | recovery point `4a56d179` | `NO_UNIQUE_PB03_SEMANTIC_VALUE`; only build plumbing (`cp-wsr22.txt` as a Maven build output) integrated. Current head `b4ea7751` is `REJECT_NEVER_MERGE`; branch kept as provenance |
 | #304 | predecessor | closed, superseded by #333 + this successor |
 
-## 3. Fresh runtime partition (midgame capability probe, engine `f79e4168`)
+## 3. Fresh runtime partition (midgame capability probe, engine `9375f35a`)
 
 29 rows rederived on the canonical candidate; counts are runtime facts, not
 historical copies:
@@ -80,7 +80,7 @@ rows carry no construction verdict). Elimination rows record the engine's own
 | Blocked admission | never overridden by a runtime PASS |
 
 Current boundary columns (sealed at the requalified head): XMage 5 PASS / 58
-UNKNOWN / 44 BLOCKED (native 213 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
+UNKNOWN / 44 BLOCKED (native 214 tests), Forge 5 PASS / 58 UNKNOWN / 44 BLOCKED
 (native 217 tests). XMage hidden information is `PRINCIPAL_SCOPED` (four distinct
 views, all requesters established) and the seed is acknowledged at the creation
 transaction; the WSR22 "fully uncontrolled" position is retained only as

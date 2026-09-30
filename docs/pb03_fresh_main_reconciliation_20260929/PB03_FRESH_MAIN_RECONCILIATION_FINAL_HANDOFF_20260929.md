@@ -2,16 +2,16 @@
 
 ## Source Lock
 
-- Implementation base at merge: `origin/main` `174696d15d1a7b33c6fd2cba4d9e4c4f16f4c61c`
+- Implementation base at merge: `origin/main` `24b355b7f864364f4c7a7e6137c1947d1b231c1b`
 - Worktree: `/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929`
 - Branch: `integration/pb03-fresh-main-reconciliation-20260929`
 - PR: #381 (Draft, base `main`)
-- Source-lock chain: `72665dce` (audit base) → `7cb9e56a` → `12d3e1ac` → `23977253` → `b126249e` → `174696d15` (all merged normally, never rebased)
+- Source-lock chain: `72665dce` (audit base) → `7cb9e56a` → `12d3e1ac` → `23977253` → `b126249e` → `174696d15` → `9afa9538` → `24b355b7` (all merged normally, never rebased)
 - State file: `.foundry/pb03-fresh-main-reconciliation-20260929.yaml`
 
 ## Terminal Main Lock
 
-- Observed `origin/main` at handoff production: `174696d15d1a7b33c6fd2cba4d9e4c4f16f4c61c`
+- Observed `origin/main` at handoff production: `24b355b7f864364f4c7a7e6137c1947d1b231c1b`
 - Re-fetch before merge; if main advanced, re-adjudicate overlap (engine-bridge,
   `src/commander_lab/qualification/current_boundary/**`, `config/rules_engines.json`
   are runner-digest inputs and require requalification when touched).
@@ -33,7 +33,7 @@
 - Extended digest coverage to the PB-03 probe, `engine-bridge/pom.xml` and the
   Lab XMage bridge sources; bound the runtime engine fingerprint into the native
   mechanism suite; cleared surefire reports before the suites.
-- Requalified the current boundary on the canonical engine pin `f79e4168` and on
+- Requalified the current boundary on the canonical engine pin `9375f35a` and on
   the documented Forge bridge checkout `e15f37d6` (Rules Core trees proven
   identical to `ef958ee9`).
 - Repaired all material findings from a fresh-context adversarial review.
@@ -66,7 +66,7 @@ See the PR #381 file list. Core surfaces:
 - `docs/pre_freeze_completion_20260927/PROVIDER_READINESS_PACKET_20260928.md`
 - `engine-bridge/pom.xml` (classpath manifest as a build output)
 
-## Fresh Midgame Partition (engine `f79e4168`)
+## Fresh Midgame Partition (engine `9375f35a`)
 
 8 `ENGINE_NATIVE_REACHABLE`, 9 `CAUSAL_ROUTE_REACHABLE`,
 9 `CAUSAL_ROUTE_MEASURED_BLOCKED`, 1 `CONSTRUCTION_MISMATCH`, 2 `ENGINE_REJECTED`,

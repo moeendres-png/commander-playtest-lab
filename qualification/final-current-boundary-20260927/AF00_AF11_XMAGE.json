@@ -15,8 +15,8 @@
   {
    "blocking_rows": [],
    "evidence": [
-    "candidate commit reported by the provider at handshake: f79e4168902e65063034b21be6f4585397fd43b3",
-    "commit the evidence is required to be about: f79e4168902e65063034b21be6f4585397fd43b3",
+    "candidate commit reported by the provider at handshake: 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+    "commit the evidence is required to be about: 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
     "engine_commit provenance: file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
     "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
    ],
@@ -213,7 +213,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_XMAGE.json",
-    "native hidden/replay suites green: 213 tests"
+    "native hidden/replay suites green: 214 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -360,7 +360,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 213 tests, all green"
+    "native suites: 214 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -388,29 +388,29 @@
  "native_runs": {
   "direct": {
    "candidate": "xmage",
-   "candidate_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+   "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "1b14af27f007b566c2759092dbb113e9669100b3",
+   "executed_commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "e79b6f36ca1b196aed49d4632fec2b50d8b1cc2677381badd5bd1176492db16d",
+   "receipt_digest": "a7c4167aa7b83561cbde12b3ef8ead90a90cf2f278cab816beebb55861f5ae9c",
    "returncode": 0,
    "tests": 34
   },
   "mechanism": {
    "candidate": "xmage",
-   "candidate_commit": "f79e4168902e65063034b21be6f4585397fd43b3",
+   "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "1b14af27f007b566c2759092dbb113e9669100b3",
+   "executed_commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
    "failed": 0,
    "failures": 0,
-   "passed": 179,
-   "receipt_digest": "6a22c4d1c3889e3fe9e9c128a798e982ef253406ba1a9078620f8b4a87ae8ccd",
+   "passed": 180,
+   "receipt_digest": "8a2ae2e1d06420d6162fd357e720d94e3b501efad8df4709df1c99b65f1a5772",
    "returncode": 0,
-   "tests": 179
+   "tests": 180
   }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",

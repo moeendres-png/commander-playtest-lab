@@ -1,10 +1,10 @@
 {
   "schema_version": "commander-lab.pb03-donor-semantic-ledger/1.0.0",
   "workstream": "PB03-FRESH-MAIN-RECONCILIATION-20260929",
-  "generated_against_head": "ebb49813ccb7",
+  "generated_against_head": "1a3324f375a5",
   "source_lock": {
     "implementation_base_main": "174696d15d1a7b33c6fd2cba4d9e4c4f16f4c61c",
-    "canonical_engine_pin": "f79e4168902e65063034b21be6f4585397fd43b3",
+    "canonical_engine_pin": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
     "frozen_wsr22_pin_historical": "b19596980f2734496ea1896504253e1bdd2756dd",
     "forge_rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "forge_bridge_evidence_head": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
