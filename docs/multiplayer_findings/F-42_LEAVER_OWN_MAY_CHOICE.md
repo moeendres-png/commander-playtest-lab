@@ -28,7 +28,7 @@ A conceder whose own choice is pending during another player's spell is not the 
 
 After the native concession, `XmageFullGameSession.submitConcede` calls `XmageFullGameDecisionController.cancelPendingForDepartedPlayer`.
 
-- It retires a pending frame whose own player is no longer in the game, for the observed classes whose callbacks unwind natively: `target`, `choose_object`, `mana_payment` and `choose_use`.
+- It retires a pending frame whose own player is no longer in the game, for the observed classes whose callbacks unwind natively: `target`, `choose_object`, `mana_payment`, `choose_use` and (follow-up below) `declare_blocker`.
 - The retirement is recorded as `engine_decision_cancelled` with reason `player_left_game`.
 - A retired `choose_use` returns `false`, which is what XMage's own player returns once it cannot respond. No pilot response is accepted, and nothing is chosen on the player's behalf beyond that native no-response.
 - Priority keeps its F-39 path.
@@ -73,3 +73,15 @@ The other leave suites stay green:
 - `XmageMultiplayerLeftPlayerDecisionTest`
 - `XmageFullGameConcedeActionTest`
 - `XmageMultiplayerControllerLeavesTest`
+
+## Follow-up: a defender concedes at its own block prompt
+
+- **Found by probe:** `XmageMultiplayerLeaveAtBlockTest`, 3–6P. P1 attacks P2 and P3, and P3 concedes while its `declare_blocker` frame is open.
+- **Before:** the systemic rule above ended the lane fail-closed with `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: declare_blocker`. That was safe, but a concession at a block prompt is an ordinary game event, and CR 800.4a says the game goes on for everyone else.
+- **Fix:** `declare_blocker` is now a qualified class.
+  - In `selectBlockers`, a cancelled frame, or a defender no longer in the game, ends that defender's declaration.
+  - This is not a choice made on the defender's behalf: its creatures left the game with it (800.4a), so "no block" is the only possible outcome.
+- **Test:** 4/4 red before (`PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`), 4/4 green after. After the fix:
+  - combat finishes;
+  - P2 still declares its blocks, takes 1 from Hellrider's trigger and 1 from the Goblin;
+  - nobody else is affected, and the game goes on.
