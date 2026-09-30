@@ -704,6 +704,105 @@ def _gnu_bash() -> str:
     return executable
 
 
+def _forge_bootstrap_env(tmp_path: Path, repo_root: Path) -> tuple[dict, Path]:
+    fakebin = tmp_path / "bootstrap-fakebin"
+    fakebin.mkdir()
+    java = fakebin / "java"
+    javac = fakebin / "javac"
+    java.write_text(
+        '#!/usr/bin/env bash\necho \'openjdk version "17.0.0"\' >&2\n',
+        encoding="utf-8",
+    )
+    javac.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
+    java.chmod(0o755)
+    javac.chmod(0o755)
+
+    binary = tmp_path / "forge-binary"
+    binary.mkdir()
+    env = dict(os.environ)
+    env.update(
+        {
+            "PATH": str(fakebin) + os.pathsep + os.environ.get("PATH", ""),
+            "ENGINE_PROVIDER": "forge",
+            "ENGINE_START_COMMAND": "true",
+            "ENGINE_BINARY_PATH": str(binary),
+            "ENGINE_SOURCE_PATH": str(tmp_path / "unused-forge-source"),
+        }
+    )
+    return env, binary
+
+
+def test_linux_bootstrap_reuses_only_current_forge_dual_identity(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    manifest = _manifest(repo_root)
+    secondary = manifest["secondary_engine"]
+    bridge = secondary["bridge_source"]
+    env, binary = _forge_bootstrap_env(tmp_path, repo_root)
+    identity = binary / "installation-identity.json"
+    identity.write_text(
+        json.dumps(
+            {
+                "provider": "forge",
+                "commit": secondary["commit"],
+                "source_commit": bridge["commit"],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [_gnu_bash(), str(repo_root / "scripts/bootstrap_engine_linux.sh")],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=str(repo_root),
+        env=env,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "matches current authority" in completed.stdout
+
+
+def test_linux_bootstrap_rejects_stale_or_cross_wired_forge_reuse(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    manifest = _manifest(repo_root)
+    secondary = manifest["secondary_engine"]
+    bridge = secondary["bridge_source"]
+    env, binary = _forge_bootstrap_env(tmp_path, repo_root)
+    identity = binary / "installation-identity.json"
+
+    stale_cases = {
+        "rules": {
+            "provider": "forge",
+            "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+            "source_commit": bridge["commit"],
+        },
+        "source": {
+            "provider": "forge",
+            "commit": secondary["commit"],
+            "source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+        },
+        "provider": {
+            "provider": "xmage",
+            "commit": secondary["commit"],
+            "source_commit": bridge["commit"],
+        },
+    }
+    for name, payload in stale_cases.items():
+        identity.write_text(json.dumps(payload), encoding="utf-8")
+        completed = subprocess.run(
+            [_gnu_bash(), str(repo_root / "scripts/bootstrap_engine_linux.sh")],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=str(repo_root),
+            env=env,
+        )
+        assert completed.returncode != 0, name
+        assert "ERROR:" in completed.stderr, name
+
+
 def _run_entrypoint(
     repo_root: Path, tmp_path: Path, extra_env: dict
 ) -> tuple[subprocess.CompletedProcess, bool]:
