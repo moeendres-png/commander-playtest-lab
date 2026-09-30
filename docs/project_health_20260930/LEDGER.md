@@ -44,6 +44,12 @@ This is the single ledger for this campaign. Author: Claude Opus 5.5, under the 
 | H-05 | GITHUB-HYGIENE | medium | Open issues described defects that are already fixed in the live pin and on `main`: #295 (mulligan default, fixed by #300), #327 (F-20 initiative on leave) and #328 (F-21 APNAP), both fixed in every pin since `f79e4168`. | Each closed as completed, with a comment naming the fixing commit(s) and the enabled Lab tests. #192 (needs operator approval for deletion) and #255 (Coordinator tracker) left open deliberately; #389 stays open until the F-39 follow-up merges. The earlier hygiene ledger's `NO_ACTION` on old draft PRs (unique unmerged commits) is kept. | Engine code read at `9375f35a`; tests enabled on `main`; full bridge suite 824/0 on `9375f35a`. | DONE |
 | H-06 | CI-CORRECTNESS / EVIDENCE-INTEGRITY | high | 10 workflows grouped concurrency on `github.ref` with `cancel-in-progress: true`; every push to `main` shared one group, so the next merge cancelled the previous merge's run. 11 of the last 30 `main` CI runs were cancelled, including #392, #365 and #290, and those merged heads had no CI evidence of their own. 5 expensive workflows had no concurrency at all, so obsolete PR runs kept running. | PR runs are grouped by `head_ref` and superseded by newer pushes; push and dispatch runs are grouped by `github.sha`. The 5 ungrouped workflows get the same grouping. H4 keeps `cancel-in-progress: false`, with dispatches grouped by sha. `tests/unit/test_workflow_concurrency.py` pins both rules. | 14 cases fail on the old workflows; all pass after. Runtime before: 37% of main runs cancelled. After: measure on the next merges. | PR |
 
+## Simulator evidence (no defect found)
+
+| ID | What | Result | Class |
+|---|---|---|---|
+| S-01 | `XmageFullGameReplayTwinTest` on 12 previously unplayed real-deck games. Seeds 4P 101/202/303/404, 5P 505, 6P 606, each with the base pilot and the reversed `-Dtwin.variant` pilot. Four real decks rotated through the seats. Repin v2 `9375f35a` plus the F-39 native concede follow-up. | 12/12 replay identically: same seed and same semantic choices give the same decision transcript. 0 lane aborts. Up to 66 turns and 3000 decisions per game; 3 games reached a regular game over. | DIRECTLY_VERIFIED (local) |
+
 ## Deferred
 
 | ID | Reason | Note |
