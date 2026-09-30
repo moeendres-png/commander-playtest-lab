@@ -12,6 +12,7 @@ from commander_lab.engine.rules.full_game import (
     FullGameConformanceResult,
     FullGamePilotBinding,
     FullGameReplayGate,
+    XmageFullGameRunner,
 )
 from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
@@ -21,6 +22,10 @@ from commander_lab.engine.rules.full_game_batch import (
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts/xmage-full-game"
+
+# The primary decision mode (one own deck, three opponents). It is a decision
+# policy, not the lane's range: the range comes from the runner below.
+PRIMARY_DECISION_POD_SIZE = 4
 
 
 def _write(name: str, payload: dict[str, Any]) -> None:
@@ -43,13 +48,21 @@ def main() -> None:
     for name, schema in schemas.items():
         _write(name, schema)
 
-    invariant = {
-        "schema_version": "xmage-full-game-architecture-invariant-report-1.0.0",
+    _write("ARCHITECTURE_INVARIANT_REPORT.json", invariant_report())
+
+
+def invariant_report() -> dict[str, Any]:
+    """The lane's invariant report; the player range is the runner's own."""
+    minimum, maximum = XmageFullGameRunner.MIN_PLAYERS, XmageFullGameRunner.MAX_PLAYERS
+    return {
+        "schema_version": "xmage-full-game-architecture-invariant-report-1.1.0",
         "lane": FULL_GAME_LANE,
         "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
-        "min_players": 2,
-        "max_players": 5,
-        "operational_pod_sizes": [2, 3, 4, 5],
+        "min_players": minimum,
+        "max_players": maximum,
+        "operational_pod_sizes": list(range(minimum, maximum + 1)),
+        "player_range_source": "XmageFullGameRunner.MIN_PLAYERS..MAX_PLAYERS",
+        "primary_decision_pod_size": PRIMARY_DECISION_POD_SIZE,
         "rules_authority": "xmage",
         "decision_authority": "commander_lab_external_pilots",
         "supported_decision_classes": sorted(ExternalPilotDecisionPolicy._SUPPORTED_CLASSES),
@@ -71,7 +84,6 @@ def main() -> None:
         "holdout_consumed": False,
         "canonical_data_mutated": False,
     }
-    _write("ARCHITECTURE_INVARIANT_REPORT.json", invariant)
 
 
 if __name__ == "__main__":
