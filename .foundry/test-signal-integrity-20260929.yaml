@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 683fd4885a6237d0325946cdf9821e464053935d
+state_written_against_head: 1242f79f259a831c2ca1e8b1c77774d87ece50b3
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -47,7 +47,7 @@ state_written_against_head: 683fd4885a6237d0325946cdf9821e464053935d
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
-validated_head: 683fd4885a6237d0325946cdf9821e464053935d
+validated_head: 1242f79f259a831c2ca1e8b1c77774d87ece50b3
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -339,11 +339,25 @@ validation:
       previous arm arrives with that drift, not with this branch. The newly added qualification
       file was checked for the hardcoded-path pattern and is clean, recorded because a new test
       repeating the defect would be exactly what this repair series is about.
+  on_the_fifth_repair_head:
+    whole_suite_no_ignore_flags: 0 failed, 2432 passed, 13 skipped
+    previous_arms_with_two_ignores: 0 failed, 2426 passed, 13 skipped
+    delta: >-
+      +6, exactly the tests in the two modules that used to fail collection. The documented
+      invocation was excluding them, so the +6 was a coverage gap being carried by convention.
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1143 files formatted
   excluded_modules_and_why: >-
-    tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py fail
-    COLLECTION here because their dev dependencies are absent; they are not test failures and
-    they do not run locally in either arm of the comparison, so excluding them is consistent
-    and is not a denominator being hidden.
+    NO LONGER EXCLUDED. Earlier arms of this file ran with --ignore for
+    tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py because
+    those modules failed to COLLECT while httpx2 was absent. Once httpx2 2.13.0 was installed
+    they collect, and the whole suite now runs green with no --ignore at all: 2432 passed, 13
+    skipped, 0 failed. The historical exclusion is recorded rather than deleted because it
+    explains why earlier arms show a smaller denominator, but it must not be reintroduced. Note
+    that ci.yml line 63 has always run plain 'pytest -q' with no exclusions, so the exclusion was
+    ever only a local workaround, and the README has been corrected to document the complete
+    invocation instead.
 
 not_actioned_and_why:
   - the 2 httpx2 failures - environmental; RESOLVED independently after merge, see baseline_after
@@ -410,6 +424,21 @@ post_completion_repairs:
     audit_recommendation: none; same defect class as R2, outside the original audit
     delivered_on: maintenance/test-signal-integrity-20260929
     evidence: validation.on_the_fourth_repair_head
+  - id: R5
+    summary: >-
+      The README documented a supported local invocation that excluded 6 tests, and this file
+      recorded the exclusion as permanent. It stopped being necessary once httpx2 was installed:
+      both modules collect and the full suite is green with no --ignore. README now documents the
+      exact CI invocation, and the exclusion is recorded as historical with an explicit warning
+      not to reintroduce it.
+    why_it_mattered: >-
+      CI has always run plain 'pytest -q' with no exclusions (ci.yml:63), so the exclusion was
+      only ever local, and a reader following the README was running a smaller suite than CI
+      while believing it was the supported one. That is the same class as the rest of this
+      workstream: a documented procedure that quietly does less than it appears to.
+    verified: whole suite without any --ignore -> 2432 passed, 13 skipped, 0 failed
+    delivered_on: maintenance/test-signal-integrity-20260929
+    evidence: validation.on_the_fifth_repair_head
 
 exact_next_action: >-
   NONE. The objective is complete and merged as PR #371, with #372 and #373 carrying the receipt
