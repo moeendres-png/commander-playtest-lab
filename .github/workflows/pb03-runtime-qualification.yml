@@ -97,6 +97,19 @@ jobs:
           python -m pip install --require-hashes -r requirements/lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
 
+      - name: Resolve the runtime evidence epoch
+        run: |
+          set -euo pipefail
+          # The runner and assembler resolve the epoch from the producing source
+          # (commit+tree) under qualification/current-boundary-epochs/. Nothing
+          # here may hard-code the historical WSR22 epoch: CI must consume the
+          # epoch this run produced, so the path is resolved by the same function
+          # the runner and assembler use.
+          epoch="$(PYTHONPATH=src python3 -c 'from pathlib import Path; from commander_lab.qualification.current_boundary import evidence_epoch; print(evidence_epoch.relative_epoch_root(Path(".")))')"
+          test -n "$epoch"
+          echo "CURRENT_BOUNDARY_EVIDENCE_EPOCH=$epoch" >> "$GITHUB_ENV"
+          echo "resolved evidence epoch: $epoch"
+
       - name: Build current XMage bridge and exact classpath
         working-directory: engine-bridge
         run: |
@@ -171,7 +184,7 @@ jobs:
           from commander_lab.qualification.current_boundary import midgame_lane as ml
           from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
-          root = Path("qualification/final-current-boundary-20260927")
+          root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
           admission = json.loads((root / "PB03_DIMENSION_ADMISSION.json").read_text())
           execution = json.loads((root / "PB03_RUNTIME_EXECUTION.json").read_text())
           matrix = json.loads((root / "PB03_RUNTIME_EXECUTION_MATRIX.json").read_text())
@@ -254,7 +267,7 @@ jobs:
       - name: Hash PB-03 runtime evidence
         run: |
           set -euo pipefail
-          root=qualification/final-current-boundary-20260927
+          root="$CURRENT_BOUNDARY_EVIDENCE_EPOCH"
           sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
 
       - name: Upload PB-03 runtime evidence
@@ -263,13 +276,13 @@ jobs:
         with:
           name: pb03-runtime-${{ github.sha }}
           path: |
-            qualification/final-current-boundary-20260927/PB03_ADMISSION_MATRIX.json
-            qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json
-            qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json
-            qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json
-            qualification/final-current-boundary-20260927/PB03_RUNTIME_SHA256SUMS
-            qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json
-            qualification/final-current-boundary-20260927/NATIVE_SUITE_RECEIPTS.json
-            qualification/final-current-boundary-20260927/receipts/native-xmage-*.json
-          if-no-files-found: warn
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_ADMISSION_MATRIX.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_DIMENSION_ADMISSION.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_EXECUTION.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_EXECUTION_MATRIX.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_SHA256SUMS
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/FULL107_XMAGE_RESULTS.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/NATIVE_SUITE_RECEIPTS.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/native-xmage-*.json
+          if-no-files-found: error
           retention-days: 90

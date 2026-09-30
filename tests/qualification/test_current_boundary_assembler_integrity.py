@@ -360,9 +360,17 @@ def test_af09_never_claims_an_executed_export() -> None:
     assert "replay export executed in a live game" not in _source(ASSEMBLER)
 
 
-def test_af09_committed_artifacts_describe_refusals() -> None:
-    """DIRECTLY_VERIFIED against the committed RNG_REPLAY artifacts: both refused."""
+def test_af09_committed_artifacts_describe_refusals(monkeypatch: pytest.MonkeyPatch) -> None:
+    """DIRECTLY_VERIFIED against the committed RNG_REPLAY artifacts: both refused.
+
+    The committed artifacts of record live in the historical WSR22 epoch, which
+    stays readable after the runner moved to a source-bound runtime epoch. The
+    subject is therefore read explicitly instead of whatever epoch was written
+    most recently.
+    """
     asm = _assembler_module()
+    historical = REPO / "qualification" / "final-current-boundary-20260927"
+    monkeypatch.setattr(asm, "OUT", historical)
     for candidate in ("xmage", "forge"):
         document = asm._load_replay_document(candidate)
         assert document is not None, f"missing committed RNG_REPLAY_{candidate.upper()}.json"

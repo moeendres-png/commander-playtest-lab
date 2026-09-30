@@ -20,6 +20,9 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    evidence_epoch as epoch_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     pb03_runtime as pb03_runtime_mod,
@@ -27,8 +30,10 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
-OUT = REPO / "qualification" / "final-current-boundary-20260927"
-FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+# The runtime evidence epoch resolved from the same source identity the runner
+# used. The historical WSR22 tree is a read-only predecessor and is never read
+# here as current evidence.
+OUT = epoch_mod.epoch_root(REPO)
 
 # Execution receipts. The assembler trusts nothing else for native credit: no
 # receipt means no credit, and source text is never a substitute.
@@ -414,6 +419,16 @@ def _load_replay_document(candidate: str) -> dict[str, Any] | None:
 
 
 def assemble() -> None:
+    # Only an epoch whose recorded producing source is the source assembling
+    # right now may be credited. An absent identity means no run produced this
+    # epoch; a foreign identity means the bytes belong to another source.
+    epoch_identity = epoch_mod.require_epoch_identity(OUT, repo_root=REPO)
+    print(
+        "assembling evidence epoch:",
+        epoch_identity["epoch_root"],
+        "producing source",
+        epoch_identity["producing_source"]["commit"][:12],
+    )
     bindings = native_bindings()
     # The Lab-side identity every native credit in this assembly is bound to.
     # Engine-commit equality alone no longer suffices: an adapter/runner change

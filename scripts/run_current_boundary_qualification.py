@@ -4,7 +4,9 @@
 Executes the effective FULL107 provider denominator plus AF00-AF11 evidence
 against the exact pinned candidate builds under
 ``commander-lab.pre-freeze-qualification/2.0.0`` and writes the evidence tree
-under ``qualification/final-current-boundary-20260927/``.
+under the source-bound runtime epoch resolved by
+``commander_lab.qualification.current_boundary.evidence_epoch`` (the historical
+WSR22 epoch is a read-only predecessor, never a write target).
 
 This runner is NOT a Rules engine. It materializes inputs, launches the exact
 engine builds, supplies externally discretionary choices among engine-offered
@@ -60,6 +62,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     dimension_admission as pb03_admission_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    evidence_epoch as epoch_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     pb03_runtime as pb03_runtime_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
@@ -75,7 +80,14 @@ from commander_lab.qualification.current_boundary.source_lock import (  # noqa: 
     FORGE_BRIDGE_EVIDENCE_TREE,
 )
 
-OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
+# The evidence epoch this run writes into: an explicitly identified runtime
+# epoch whose identity is the producing source (commit+tree), never the
+# historical WSR22 tree. Both scripts resolve it through the one shared function
+# so runner and assembler cannot disagree, and nothing here may name the
+# historical epoch directly. See commander_lab.qualification.current_boundary.
+# evidence_epoch for the invariants.
+OUT_DIR = epoch_mod.epoch_root(REPO_ROOT)
+EVIDENCE_EPOCH_RELATIVE = epoch_mod.relative_epoch_root(REPO_ROOT)
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
@@ -566,6 +578,17 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
         "runner_commit": git_sha("rev-parse", "HEAD"),
         "runner_tree": git_sha("rev-parse", "HEAD^{tree}"),
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+        # Which epoch the bytes in this run belong to, and the explicit statement
+        # that the historical WSR22 tree is not a write target. The path itself is
+        # source-bound; this block makes the binding machine-readable inside every
+        # artifact produced under it.
+        "evidence_epoch": {
+            "epoch_id": OUT_DIR.name,
+            "epoch_root": EVIDENCE_EPOCH_RELATIVE,
+            "predecessor_epoch": f"qualification/{epoch_mod.HISTORICAL_EPOCH_ID}",
+            "predecessor_is_read_only": True,
+            "writes_historical_epoch": False,
+        },
     }
     if candidate == "xmage":
         base.update(
@@ -752,6 +775,16 @@ def run_all_native_suites(
         for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
             receipts.append(run_native_suite(candidate, group, runner=runner))
     return receipts
+
+
+def bootstrap_evidence_epoch() -> dict[str, Any]:
+    """Bind this run's evidence-epoch identity before any artifact is written.
+
+    The identity is the producing source; an epoch that another source produced
+    is never overwritten, and the historical WSR22 epoch cannot be selected at
+    all (see evidence_epoch.epoch_root).
+    """
+    return epoch_mod.ensure_epoch_identity(OUT_DIR, repo_root=REPO_ROOT)
 
 
 def write(name: str, payload: Any) -> None:
@@ -1339,7 +1372,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", default="all", choices=["all", "xmage", "forge"])
     args = parser.parse_args()
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Bind the evidence epoch before the first byte is written. The identity is
+    # the producing source; an epoch that another source produced is never
+    # overwritten, and the historical WSR22 epoch cannot be selected at all.
+    epoch_identity = bootstrap_evidence_epoch()
+    print(
+        "evidence epoch:",
+        epoch_identity["epoch_root"],
+        "producing source",
+        epoch_identity["producing_source"]["commit"][:12],
+    )
 
     materialization = load_effective_materialization(REPO_ROOT)
     write(

@@ -198,7 +198,12 @@ class RunnerIdentity:
 
 # Paths this qualification run writes as its own output. They are produced BY the
 # run, so their uncommitted state is the result, not a provenance divergence.
-_RUN_OUTPUT_PREFIXES: tuple[str, ...] = ("qualification/final-current-boundary-20260927/",)
+# The historical WSR22 epoch is retained for the receipts it already holds; new
+# runs write a source-bound runtime epoch under the parent directory below.
+_RUN_OUTPUT_PREFIXES: tuple[str, ...] = (
+    "qualification/final-current-boundary-20260927/",
+    "qualification/current-boundary-epochs/",
+)
 
 
 def _is_run_output(relative: str) -> bool:
