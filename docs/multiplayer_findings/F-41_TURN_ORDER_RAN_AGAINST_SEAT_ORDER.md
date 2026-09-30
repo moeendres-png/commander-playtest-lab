@@ -40,5 +40,6 @@ Earlier work (F-15..F-18) noted the rotation as "counterclockwise, consistent, n
 ## Consequences and what is not done here
 
 - **Earlier evidence.** Every earlier XMage multiplayer run measured the reversed rotation. Rows whose obligation depends on order (priority ring, APNAP, "next player", discards, votes) were measured against the wrong seating. Sealed artifacts are not rewritten; a successor current-boundary run is a Coordinator gate.
-- **Forge.** Whether the Forge lane seats in contract order was not checked here.
+- **Forge already seats in contract order** (`CODE_DERIVED`, Forge fork `ef958ee9`; not runtime-verified here). `forge-protocol2-bridge/.../BridgeEngine` registers `forge-p1..pN` in order. Forge's `Game.getNextPlayerAfter` steps through that list with the default direction's shift of +1 (`Direction.Left`), so turns run P1 → P2 → … → PN.
+  - Until F-41, XMage and Forge therefore ran **opposite rotations** at 3 or more players. Any cross-engine comparison of order-dependent behavior at 3+ players compared two different seatings.
 - **Probe.** The midgame probe's priority-ring terminal should check order, not only count. That is a follow-up once PR #406 (which adds the seat-to-principal helper) is merged.
