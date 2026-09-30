@@ -17,6 +17,7 @@ import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
+import mage.abilities.mana.ManaOptions;
 import mage.cards.Card;
 import mage.cards.Cards;
 import mage.cards.decks.Deck;
@@ -184,7 +185,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return null;
         }
         List<SpellAbility> legal = castable.values().stream()
-                .sorted(Comparator.comparing(this::abilitySortKey))
+                .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
         if (legal.size() == 1) {
             // WS229 F-RULES-03 disposition: no discretion exists with one
@@ -259,7 +260,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return null;
         }
         List<ActivatedAbility> legal = legalById.values().stream()
-                .sorted(Comparator.comparing(this::abilitySortKey))
+                .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
         if (legal.size() == 1) {
             // WS229 F-RULES-03 disposition: single lawful ability, logged
@@ -329,8 +330,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 new JsonObject()
         ));
 
-        List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false));
-        playable.sort(Comparator.comparing(this::abilitySortKey));
+        // All playable abilities, one per object: getPlayable(game, false) is XMage's AI
+        // variant, which drops activated abilities of different permanents whose rule text
+        // is equal (hash-keyed), so e.g. a second copy of a creature or one of two {U}
+        // lands was never offered, and which one survived depended on hash order (F-30).
+        List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false, Zone.ALL, false));
+        ManaOptions available = getManaAvailable(game);
+        playable.removeIf(candidate -> !manaCostAffordable(candidate, available, game));
+        playable.sort(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)));
         for (ActivatedAbility ability : playable) {
             String optionId = abilityOptionId("priority", ability);
             JsonObject metadata = abilityMetadata(ability, game);
@@ -466,7 +473,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         target.prepareAmount(source, game);
         Set<UUID> possible = target.possibleTargets(getId(), source, game);
         List<UUID> sorted = possible.stream()
-                .sorted(Comparator.comparing(UUID::toString))
+                .sorted(stableObjectOrder(game))
                 .toList();
         if (sorted.isEmpty()) {
             return false;
@@ -709,15 +716,17 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // per-object usable mana abilities of the player's permanents, as XMage's human
         // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
         Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
-        getPlayable(game, false).stream()
+        getPlayable(game, false, Zone.ALL, false).stream()
                 .filter(Ability::isManaAbility)
                 .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         for (Permanent permanent : game.getBattlefield().getAllActivePermanents(getId())) {
             getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values()
                     .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         }
+        ManaOptions available = getManaAvailable(game);
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
-                .sorted(Comparator.comparing(this::abilitySortKey))
+                .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
+                .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
 
         JsonArray options = new JsonArray();
@@ -765,7 +774,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         Map<UUID, mage.abilities.SpecialAction> specialManaActions =
                 game.getState().getSpecialActions().getControlledBy(getId(), true);
         specialManaActions.values().stream()
-                .sorted(Comparator.comparing(this::abilitySortKey))
+                .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .forEach(specialAction -> {
                     String optionId = abilityOptionId("mana-special", specialAction);
                     options.add(XmageFullGameDecisionController.option(
@@ -915,21 +924,31 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public Mode chooseMode(Modes modes, Ability source, Game game) {
         List<Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
-        available.sort(Comparator.comparing(mode -> mode.getId().toString()));
+        // Card order (Modes is ordered as printed); mode ids are random per game (F-36).
         if (available.isEmpty()) {
             return null;
         }
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
-        boolean anyModeTargetsAvailable = false;
+        Map<Mode, Boolean> targetsAvailableByMode = new LinkedHashMap<>();
         for (Mode mode : available) {
+            targetsAvailableByMode.put(mode, modeTargetsAvailable(mode, source, game));
+        }
+        boolean anyModeTargetsAvailable = targetsAvailableByMode.containsValue(true);
+        for (Mode mode : available) {
+            boolean targetsAvailable = targetsAvailableByMode.get(mode);
+            // CR 700.2a/b: a mode that would be illegal (no legal targets) can't be
+            // chosen. Offering it made the pilot's choice fail the cast and abort the
+            // game (F-35). Only when no mode is choosable do all modes stay listed, for
+            // the no-viable-mode rewind below.
+            if (anyModeTargetsAvailable && !targetsAvailable) {
+                continue;
+            }
             String optionId = mode.getId().toString();
             JsonObject metadata = new JsonObject();
             metadata.addProperty("mode_id", mode.getId().toString());
             metadata.addProperty("paw_print_value", mode.getPawPrintValue());
-            boolean targetsAvailable = modeTargetsAvailable(mode, source, game);
             metadata.addProperty("mode_targets_available", targetsAvailable);
-            anyModeTargetsAvailable = anyModeTargetsAvailable || targetsAvailable;
             options.add(XmageFullGameDecisionController.option(
                     optionId,
                     mode.toString(),
@@ -1065,7 +1084,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // content (name, entry order, characteristics), never native identity.
         attackers.sort(stablePermanentOrder(game));
         List<UUID> defenders = game.getCombat().getDefenders().stream()
-                .sorted(Comparator.comparing(UUID::toString))
+                .sorted(stableObjectOrder(game))
                 .toList();
 
         for (Permanent attacker : attackers) {
@@ -1135,7 +1154,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // declaration order among co-blockers carries no Rules content itself.
         blockers.sort(stablePermanentOrder(game));
         List<UUID> attackers = game.getCombat().getAttackers().stream()
-                .sorted(Comparator.comparing(UUID::toString))
+                .sorted(stableObjectOrder(game))
                 .toList();
 
         for (Permanent blocker : blockers) {
@@ -1212,6 +1231,60 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * on twin re-execution. No Rules content: co-declaration order is a
      * replay framing choice, never legality.
      */
+    /**
+     * F-36 (WS92-D5 extended to every object a decision offers): targets, cards to choose,
+     * defenders and attackers are ordered by Rules-visible, twin-stable content, never by
+     * native UUIDs (random per game). A library card's position is part of its identity
+     * for the player searching it: with UUID order, "the first Plains" of a search was a
+     * different card in each replay, and the following shuffle then diverged the game.
+     * Only objects indistinguishable by that content fall back to the UUID.
+     */
+    private static Comparator<UUID> stableObjectOrder(Game game) {
+        return Comparator.comparing((UUID id) -> stableObjectKey(id, game)).thenComparing(UUID::toString);
+    }
+
+    private static String stableObjectKey(UUID id, Game game) {
+        Player player = game.getPlayer(id);
+        if (player != null) {
+            return "0|" + player.getName();
+        }
+        Permanent permanent = game.getPermanent(id);
+        if (permanent != null) {
+            Player controller = game.getPlayer(permanent.getControllerId());
+            return "1|" + permanent.getName() + "|" + (controller == null ? "" : controller.getName())
+                    + "|" + padded(permanent.getZoneChangeCounter(game))
+                    + "|" + padded(permanent.getPower().getValue()) + "|" + padded(permanent.getToughness().getValue())
+                    + "|" + (permanent.isTapped() ? 1 : 0) + "|" + padded(permanent.getDamage());
+        }
+        int stackPosition = 0;
+        for (StackObject stackObject : game.getStack()) {
+            if (stackObject.getId().equals(id) || stackObject.getSourceId().equals(id)) {
+                return "2|" + padded(stackPosition) + "|" + stackObject.getName();
+            }
+            stackPosition++;
+        }
+        Card card = game.getCard(id);
+        if (card != null) {
+            Zone zone = game.getState().getZone(id);
+            Player owner = game.getPlayer(card.getOwnerId());
+            int position = -1;
+            if (owner != null && zone == Zone.LIBRARY) {
+                position = owner.getLibrary().getCardList().indexOf(id);
+            } else if (owner != null && zone == Zone.GRAVEYARD) {
+                position = new ArrayList<>(owner.getGraveyard()).indexOf(id);
+            } else if (owner != null && zone == Zone.HAND) {
+                position = new ArrayList<>(owner.getHand()).indexOf(id);
+            }
+            return "3|" + zone + "|" + (owner == null ? "" : owner.getName()) + "|" + padded(position)
+                    + "|" + card.getName() + "|" + padded(card.getZoneChangeCounter(game));
+        }
+        return "9|";
+    }
+
+    private static String padded(int value) {
+        return String.format("%08d", value + 10_000_000);
+    }
+
     private static Comparator<Permanent> stablePermanentOrder(Game game) {
         return Comparator
                 .comparing(
@@ -1415,7 +1488,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             possible = target.possibleTargets(getId(), source, game, cardIds);
         }
         List<UUID> sorted = possible.stream()
-                .sorted(Comparator.comparing(UUID::toString))
+                .sorted(stableObjectOrder(game))
                 .toList();
 
         int alreadySelected = target.getSize();
@@ -1764,9 +1837,39 @@ final class XmageFullGamePlayer extends PlayerImpl {
         );
     }
 
-    private String abilitySortKey(Ability ability) {
-        return (ability.getSourceId() == null ? "" : ability.getSourceId().toString())
-                + ":" + ability.getOriginalId();
+    /**
+     * A mana ability with a mana cost of its own (Signets, filter lands: "{1}, {T}: Add
+     * {B}{R}") is only offered when that cost can be paid. XMage's playable/usable lists
+     * check canActivate only, so an unaffordable one was offered and its activation failed,
+     * which aborted the game (F-35). Uses the engine's own affordability test, the one
+     * canPlay applies to every other ability (available mana includes the pool).
+     * Non-mana abilities are left to the engine's playable calculation.
+     */
+    private boolean manaCostAffordable(ActivatedAbility ability, ManaOptions available, Game game) {
+        if (!ability.isManaAbility() || ability.getManaCostsToPay().isEmpty()) {
+            return true;
+        }
+        if (!ability.hasTapCost() || ability.getSourceId() == null) {
+            return canPayMinimumManaCost(ability, available, game);
+        }
+        // A {T} mana ability can't pay its own mana cost with another {T} ability of the
+        // same permanent (Study Hall: "{T}: Add {C}" can't fund its own "{1}, {T}: Add
+        // one mana of any color"). Ask the engine what is available with that permanent
+        // tapped, in a playable-calculation copy of the game (pure calculation).
+        Game simulation = game.createSimulationForPlayableCalc();
+        Permanent source = simulation.getPermanent(ability.getSourceId());
+        Player self = simulation.getPlayer(getId());
+        if (source == null || self == null) {
+            return canPayMinimumManaCost(ability, available, game);
+        }
+        source.setTapped(true);
+        return canPayMinimumManaCost(ability, self.getManaAvailable(simulation), game);
+    }
+
+    /** Twin-stable ability order (F-36): source object's stable key, then rule text, then ids. */
+    private static String abilitySortKey(Ability ability, Game game) {
+        return (ability.getSourceId() == null ? "" : stableObjectKey(ability.getSourceId(), game))
+                + "#" + ability.getRule() + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
     }
 
     private String objectLabel(UUID id, Game game) {

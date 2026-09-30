@@ -951,11 +951,12 @@ class ExternalPilotDecisionPolicy:
         """Modal choice with native target-availability ranking.
 
         The bridge projects per-mode ``mode_targets_available`` from the
-        engine's own ``Target.canChoose`` verdict. Modes explicitly lacking
-        targets are depreferred (selecting one fails the cast: paper 601.2
-        rewind shape); unknown/absent flags mean no filtering and the
-        engine stays the authority. When every mode lacks targets the
-        pilot still chooses (transcript agency) and the bridge maps the
+        engine's own ``Target.canChoose`` verdict and, per CR 700.2a, offers
+        only choosable modes whenever at least one is (F-35). Modes explicitly
+        lacking targets are still depreferred here, for older transcripts;
+        unknown/absent flags mean no filtering and the engine stays the
+        authority. When every mode lacks targets the bridge lists them all,
+        the pilot still chooses (transcript agency), and the bridge maps the
         doomed cast to pass via its no-viable-mode flag.
         """
         if not options:
