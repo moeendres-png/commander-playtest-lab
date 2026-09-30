@@ -145,17 +145,17 @@ evidence:
   - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json (FRESH_EXACT / EXECUTED_PASS)"
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
-artifacts:
-  - "docs/pre_freeze_completion_20260927/PROVIDER_READINESS_PACKET_20260928.md (successor-run facts)"
-
 remaining_scope:
-  - "Commit the requalified evidence + manifests + state, then full pytest on a clean tree"
-  - "Full engine-bridge mvn verify on the merged tree"
-  - "Push owned branch; open Draft PR; run exact-head CI; evaluate merge gate"
-  - "Donor retirement classification (#304/#333/#316)"
-  - "Terminal handoff + current-main PB-03 record"
+  - "PR #381 exact-head CI and merge-gate evaluation"
+  - "Post-merge donor retirement for PR #316 (branches never deleted)"
+  - "Terminal receipt on main after merge"
 
-exact_next_action: "Commit the 9edea29a requalification artifacts, run the full pytest suite and full engine-bridge mvn verify on the clean tree, then push and open the Draft PR."
+artifacts:
+  - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_20260929.md"
+  - "docs/pb03_fresh_main_reconciliation_20260929/DONOR_SEMANTIC_LEDGER.json"
+  - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_FINAL_HANDOFF_20260929.md"
+
+exact_next_action: "Wait for PR #381 exact-head CI; re-fetch origin/main and adjudicate drift; if every merge-gate condition holds, merge through the normal PR path, then close PR #316 with a provenance comment."
 
 execution_profile: "deepseek"
 executor_model: "opencode-go/deepseek-v4.1-flash"

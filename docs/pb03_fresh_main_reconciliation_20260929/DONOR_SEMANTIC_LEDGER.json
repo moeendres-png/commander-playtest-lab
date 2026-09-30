@@ -1,0 +1,106 @@
+{
+  "schema_version": "commander-lab.pb03-donor-semantic-ledger/1.0.0",
+  "workstream": "PB03-FRESH-MAIN-RECONCILIATION-20260929",
+  "generated_against_head": "ebb49813ccb7",
+  "source_lock": {
+    "implementation_base_main": "174696d15d1a7b33c6fd2cba4d9e4c4f16f4c61c",
+    "canonical_engine_pin": "f79e4168902e65063034b21be6f4585397fd43b3",
+    "frozen_wsr22_pin_historical": "b19596980f2734496ea1896504253e1bdd2756dd",
+    "forge_rules_core": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "forge_bridge_evidence_head": "e15f37d6b2b5c0ad682948f86f037e07b6aaded5",
+    "architecture_freeze": "NOT_CLAIMED",
+    "production_provider": "NOT_SELECTED"
+  },
+  "donors": {
+    "PR333": {
+      "head": "20b52958b43a3b373cdcb5e9e19bf706bcd2feeb",
+      "merge_base_with_main_at_audit": "83a547f739cc1a7072798c55e10829032df8fe88",
+      "now_merged_to_main_as": "10a43d2c",
+      "content_relation_to_main": "byte-identical to the audited donor head",
+      "units": [
+        {"unit": "Main.java midgame dispatch", "disposition": "CONSUMED_ALREADY_ON_MAIN"},
+        {"unit": "XmageMidgameJsonlBridge.java", "disposition": "CONSUMED_ALREADY_ON_MAIN"},
+        {"unit": "XmageMidgameCausalBridge.java", "disposition": "CONSUMED_ALREADY_ON_MAIN"},
+        {"unit": "XmageNativeStateRestoration Wastes colorless-commander fix", "disposition": "CONSUMED_ALREADY_ON_MAIN"},
+        {"unit": "XmageMidgameLaneTest/XmageMidgameCausalTest/XmageMidgamePrivacyTest", "disposition": "CONSUMED_ALREADY_ON_MAIN"},
+        {"unit": "XmageMidgameReviewRemediationTest stale KNOWN-GAP comment", "disposition": "PORT_WITH_ADAPTATION", "note": "comment corrected to the resolved state; honeycard control is executable"},
+        {"unit": "src/commander_lab/qualification/current_boundary/midgame_lane.py", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["canonical launch plan", "runner identity + receipt freshness", "explicit construction_verdict", "terminal obligation required", "entry_mode on rejected causal rows", "no first-option fallback in the probe"]},
+        {"unit": "scripts/run_midgame_capability_probe.py", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["canonical launch plan", "runner identity + content digest", "raw principal UUID removal", "entry_mode fix", "declared-filler discard only", "engine pin equality seal"]},
+        {"unit": "tests/qualification/test_current_boundary_midgame_lane.py", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["successor receipt path", "live-pin identity", "same-run binding to the runtime ledger", "freshness classification controls"]},
+        {"unit": "qualification/midgame-lane-20260929/MIDGAME_CAPABILITY_PROBE.json", "disposition": "REQUALIFY_BEFORE_USE", "note": "bound to b1959698, no runner identity, persisted raw principal UUIDs; not used as credit; fresh successor receipt lives under qualification/pb03-fresh-main-reconciliation-20260929/"},
+        {"unit": "WS17_SHA256SUMS and qualification/SHA256SUMS hunks", "disposition": "REJECT", "note": "manifests regenerated from the current tree"},
+        {"unit": "docs/engine_capability_reuse_delta_20260929/**", "disposition": "PROVENANCE_ONLY"},
+        {"unit": ".foundry/pb03-304-terminal-hardening-20260929.yaml", "disposition": "PROVENANCE_ONLY"}
+      ]
+    },
+    "PR316": {
+      "head": "662db683bd43bab106d61c2b5af9fab6406fdcb0",
+      "merge_base_with_main_at_audit": "2229380bde5809c69cc7169692cfb9b1453eb17a",
+      "state": "OPEN_NOT_MERGED",
+      "units": [
+        {"unit": "XmageFullGameJsonlBridge capability hunk (state_restoration_dimensions)", "disposition": "PORT_REQUIRED", "status": "ported"},
+        {"unit": "src/commander_lab/qualification/current_boundary/dimension_admission.py", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["declared object attributes (owner/controller divergence, tapped, attachments/counters) govern admission", "12 admitted / 18 blocked"], "status": "ported"},
+        {"unit": "src/commander_lab/qualification/current_boundary/pb03_runtime.py", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["content receipt digest", "runtime_execution_freshness binding runner digest + candidate commit + all-green"], "status": "ported"},
+        {"unit": "scripts/run_current_boundary_qualification.py hunks", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["live canonical pin via bridge_launcher.canonical_xmage_engine_pin()", "fingerprint test bound in the mechanism suite", "surefire reset", "digest coverage of probe and bridge sources"], "status": "ported"},
+        {"unit": "scripts/assemble_current_boundary_evidence.py hunks", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["native summary fix", "PB-03 matrix with native_receipt/runtime_credit", "stale auxiliary artifact guard", "derived seed limitation text"], "status": "ported"},
+        {"unit": "XmagePb03CapabilityManifestTest / XmagePb03RuntimeGapClosureTest", "disposition": "PORT_REQUIRED", "status": "ported"},
+        {"unit": "XmageControlDivergenceReconstructionTest / XmagePb03Tier2ControlTurnTest", "disposition": "PORT_REQUIRED", "status": "ported"},
+        {"unit": "tests/qualification/test_current_boundary_dimension_admission.py / test_current_boundary_pb03_runtime.py", "disposition": "PORT_REQUIRED", "status": "ported"},
+        {"unit": ".github/workflows/pb03-runtime-qualification.yml", "disposition": "PORT_WITH_ADAPTATION", "adaptations": ["pin resolved from config/rules_engines.json", "missing paths added", "midgame probe freshness step", "runner-digest equality assertion"], "status": "ported"},
+        {"unit": ".foundry/pb03-current-main-runtime-20260929.json", "disposition": "PROVENANCE_ONLY", "note": "stale drift claims; not imported"}
+      ]
+    },
+    "PR285_RECOVERY_POINT": {
+      "recovery_head": "4a56d17981e72c5afececd4b88d91a7eba67e379",
+      "current_head": "b4ea775137c9d0538ca85f8c8b56383650111745",
+      "current_head_disposition": "REJECT_NEVER_MERGE",
+      "branch_disposition": "KEEP_PROVENANCE",
+      "verdict": "NO_UNIQUE_PB03_SEMANTIC_VALUE",
+      "unique_unit_integrated": {
+        "unit": "engine-bridge/pom.xml maven-dependency-plugin build-classpath execution writing target/cp-wsr22.txt at package",
+        "disposition": "PORT_WITH_ADAPTATION",
+        "status": "integrated"
+      },
+      "rejected_classes": ["old engine pins", "historical FULL107/AF results", "old receipts and seals", "PB-09 material", "old Foundry executor policy", "historical green evidence"]
+    },
+    "PR304": {
+      "head": "08d23aa44c721d0825d8be9f1b9c5d2af58cb91c",
+      "state": "CLOSED",
+      "disposition": "HISTORICAL_PREDECESSOR_SUPERSEDED_BY_333_AND_THIS_SUCCESSOR"
+    }
+  },
+  "integration_rules": {
+    "wholesale_donor_merge": false,
+    "donor_rebase": false,
+    "donor_history_rewrite": false,
+    "donor_branch_mutation": false,
+    "historical_pass_transfer": false,
+    "second_system_created": false
+  },
+  "fresh_results": {
+    "admission": {"classification": "TECHNICALLY_CONFORMANT", "admitted": 12, "blocked": 18},
+    "runtime_execution": {"classification": "PASS", "executed_pass": 30, "rows_total": 30},
+    "native_receipt": "FRESH_EXACT",
+    "runtime_credit": "EXECUTED_PASS",
+    "full107_credit": "NONE_FROM_PB03_MATRIX",
+    "midgame_partition": {
+      "ENGINE_NATIVE_REACHABLE": 8,
+      "CAUSAL_ROUTE_REACHABLE": 9,
+      "CAUSAL_ROUTE_MEASURED_BLOCKED": 9,
+      "CONSTRUCTION_MISMATCH": 1,
+      "ENGINE_REJECTED": 2,
+      "TRANSPORT_FAILURE": 0,
+      "UNRECOGNIZED_CONSTRUCTION_VERDICT": 0
+    }
+  },
+  "evidence_integrity_repairs": [
+    "RunnerIdentity.digest is content-bound; built_utc excluded from the digest",
+    "executed-input coverage extended to the PB-03 probe, engine-bridge pom and Lab bridge sources",
+    "runtime engine fingerprint bound into the native mechanism suite",
+    "surefire reports cleared before native suites",
+    "stale auxiliary full-game-lane artifact excluded from current evidence",
+    "declared control divergence governs admission",
+    "explicit construction_verdict and causal terminal obligation",
+    "probe privacy and first-option removal"
+  ]
+}
