@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class XmageFullGameReplayTwinTest {
 
     private static final int MAX_DECISIONS = 3000;
-    private static final int CASTS_PER_TURN = 2;
+    private static final int CASTS_PER_TURN = System.getProperty("twin.variant") != null ? 4 : 2;
     /** Real Commander decks, rotated through the seats. */
     private static final List<String> DECKS = List.of(
             "data/decks/rogshai_current.json",
@@ -54,11 +54,18 @@ class XmageFullGameReplayTwinTest {
 
     /**
      * One real-deck game per player count by default (about two minutes); the extended
-     * set (nine games) with -Dtwin.extended, e.g. before a repin.
+     * set (nine games) with -Dtwin.extended, e.g. before a repin; any games with
+     * -Dtwin.seeds=players:seed,... ; -Dtwin.variant reverses the pilot's preference order
+     * (largest key first, more casts) to reach other code paths.
      */
     static Stream<Arguments> games() {
         Stream<Arguments> core = Stream.of(
                 Arguments.of(3, 1234L), Arguments.of(4, 1618L), Arguments.of(5, 777L), Arguments.of(6, 31337L));
+        String custom = System.getProperty("twin.seeds");
+        if (custom != null) {
+            return java.util.Arrays.stream(custom.split(",")).map(pair -> pair.split(":"))
+                    .map(pair -> Arguments.of(Integer.parseInt(pair[0]), Long.parseLong(pair[1])));
+        }
         if (System.getProperty("twin.extended") == null) {
             return core;
         }
@@ -199,6 +206,9 @@ class XmageFullGameReplayTwinTest {
         int min = pending.get("minimum_selections").getAsInt();
         List<JsonObject> sorted = new ArrayList<>(options);
         sorted.sort(Comparator.comparing(XmageFullGameReplayTwinTest::label));
+        if (System.getProperty("twin.variant") != null) {
+            java.util.Collections.reverse(sorted);
+        }
         switch (cls) {
             case "priority" -> {
                 for (String fragment : new String[] {" — Play ", casts < CASTS_PER_TURN ? " — Cast " : null}) {
@@ -256,7 +266,11 @@ class XmageFullGameReplayTwinTest {
         return sorted.subList(0, Math.max(1, min));
     }
 
-    /** Public, id-free state: per seat life, hand/library size, battlefield (tapped marked), graveyard. */
+    /**
+     * Id-free state digest per seat: life, hand contents, land drops, top of library,
+     * library size, battlefield (tapped marked), graveyard. Hidden information is included
+     * on purpose: this is a test-side oracle, never an observation given to a pilot.
+     */
     private static String publicState(mage.game.Game game) {
         if (game == null) {
             return "?";
@@ -277,8 +291,14 @@ class XmageFullGameReplayTwinTest {
             List<String> yard = new ArrayList<>();
             player.getGraveyard().getCards(game).forEach(card -> yard.add(card.getName()));
             yard.sort(String::compareTo);
+            List<String> hand = new ArrayList<>();
+            player.getHand().getCards(game).forEach(card -> hand.add(card.getName()));
+            hand.sort(String::compareTo);
+            List<String> top = new ArrayList<>();
+            player.getLibrary().getTopCards(game, 3).forEach(card -> top.add(card.getName()));
             out.append(player.getName()).append(" L").append(player.getLife()).append(" H")
-                    .append(player.getHand().size()).append(" Y").append(player.getLibrary().size())
+                    .append(hand).append(" lands").append(player.getLandsPlayed()).append(" top").append(top)
+                    .append(" Y").append(player.getLibrary().size())
                     .append(" B").append(board).append(" G").append(yard).append("; ");
         }
         return out.toString();
