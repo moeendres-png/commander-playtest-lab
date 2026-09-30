@@ -678,15 +678,18 @@ def positive_fixture_credit(
     *,
     candidate: str,
     expected_commit: str,
-    denominator: set[str],
+    denominator: set[str] | dict[str, dict[str, Any]],
     expected_runner_digest: str,
 ) -> dict[str, list[str]]:
     """Fixture -> test identities, from positive observations only.
 
-    A fixture earns native-test credit only when a positive receipt states the
-    fixture, the test, the candidate head, the obligation exercised, the observed
-    assertion, and PASS. A negative assertion, a bare mention, a stale head or a
-    missing observation yields nothing. The receipt must additionally be bound to
+    A fixture earns direct credit only when a positive receipt states the
+    fixture, the test, the candidate head, the exact obligation exercised, the
+    observed assertion, and PASS. When the denominator is supplied as a mapping,
+    both the requested-state digest and obligation digest must match the current
+    effective record; a stale receipt for the same fixture id earns nothing.
+    A negative assertion, a bare mention, a stale head or a missing observation
+    yields nothing. The receipt must additionally be bound to
     the currently executing Lab-side runner identity: an engine-commit match with
     a mismatched or missing ``runner_digest``, or a missing expected identity,
     yields nothing, so adapter/runner drift cannot inherit credit and pre-guard
@@ -715,6 +718,15 @@ def positive_fixture_credit(
         fixture = str(doc.get("fixture_id", ""))
         if fixture not in denominator:
             continue
+        if isinstance(denominator, dict):
+            record = denominator[fixture]
+            obligation = doc.get("obligation_exercised")
+            if not isinstance(obligation, dict):
+                continue
+            if obligation.get("requested_state_digest") != record.get("requested_state_digest"):
+                continue
+            if obligation.get("obligation_digest") != record.get("obligation_digest"):
+                continue
         out.setdefault(fixture, []).append(str(doc.get("test_identity", "")))
     return {fixture: sorted(set(names)) for fixture, names in sorted(out.items())}
 
