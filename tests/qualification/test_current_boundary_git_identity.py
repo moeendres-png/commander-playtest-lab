@@ -131,3 +131,19 @@ def test_import_records_no_fabricated_suite_tree_from_an_ambient_path(
         "the import-time tree resolution recorded an unmeasured engine tree: "
         f"{forge.get('engine_tree')!r}. Resolve suite roots at execution time."
     )
+
+
+def test_runner_digest_covers_the_native_suite_test_sources() -> None:
+    """A receipt proves what its test bytes assert; those bytes must be bound.
+
+    The runner digest is what stales a receipt when the code that produced it
+    changed. The native suite test classes are execution-semantic inputs: they
+    define the observation a receipt records, so a change to them must change the
+    digest instead of being inherited silently.
+    """
+    from commander_lab.qualification.current_boundary import receipts as R
+
+    assert "engine-bridge/src/test/java/org/commanderlab/xmage/*.java" in R._EXECUTED_INPUT_GLOBS
+    identity = R.capture_runner_identity(REPO)
+    covered = [name for name in identity.input_digests if "/src/test/java/" in name]
+    assert covered, "no native-suite test source is covered by the runner digest"

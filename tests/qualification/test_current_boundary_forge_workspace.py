@@ -233,6 +233,22 @@ def test_recorded_bridge_tree_must_match_the_recorded_commit(
         )
 
 
+def test_dirty_workspace_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Committed identity trees cannot describe uncommitted executing bytes."""
+    module = runner_module(monkeypatch)
+    fake = make_forge_repo(tmp_path)
+    repo = Path(fake["repo"])
+    _checkout(repo, fake["base"])
+    _write_forge_module(repo, "forge-game", "// uncommitted Rules-Core edit\n")
+    with pytest.raises(forge_error(module), match="uncommitted changes"):
+        module.resolve_forge_workspace(
+            repo,
+            expected_rules_core_commit=fake["base"],
+            expected_bridge_commit=fake["base"],
+            expected_bridge_tree=fake["base_tree"],
+        )
+
+
 def test_run_native_suite_refuses_forge_without_a_workspace_and_runs_nothing(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

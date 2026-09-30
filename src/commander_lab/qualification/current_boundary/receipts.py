@@ -62,6 +62,13 @@ _EXECUTED_INPUT_GLOBS = (
     "config/rules_engines.json",
     "engine-bridge/pom.xml",
     "engine-bridge/src/main/java/org/commanderlab/xmage/*.java",
+    # The native suites that produce receipts ARE their test sources: a change to
+    # a bound test class changes what a receipt proves, so it must change the
+    # runner digest and stale every earlier receipt rather than being silently
+    # inherited. (The Forge suites execute in a separately bound workspace; their
+    # test sources live under forge-protocol2-bridge and are covered by the
+    # whole-module bridge/evidence tree comparison.)
+    "engine-bridge/src/test/java/org/commanderlab/xmage/*.java",
 )
 
 _NO_CREDIT = "NO_CREDIT"
