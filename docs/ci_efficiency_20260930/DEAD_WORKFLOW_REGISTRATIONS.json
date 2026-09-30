@@ -1,0 +1,737 @@
+{
+ "schema": "commander-lab.dead-workflow-registrations/1.0.0",
+ "measured_at": "2026-09-30",
+ "criteria": [
+  "workflow file absent from origin/main",
+  "absent from every open PR head",
+  "zero runs since 2026-09-16",
+  "state active"
+ ],
+ "count": 181,
+ "workflows": [
+  {
+   "id": 333454262,
+   "path": ".github/workflows/_temporary-fix-cohort-forwarding.yml"
+  },
+  {
+   "id": 338609279,
+   "path": ".github/workflows/apply-4p-only-policy.yml"
+  },
+  {
+   "id": 330110408,
+   "path": ".github/workflows/apply-audit-d-patch.yml"
+  },
+  {
+   "id": 330108556,
+   "path": ".github/workflows/apply-d-remediation.yml"
+  },
+  {
+   "id": 330031294,
+   "path": ".github/workflows/apply-e501-special.yml"
+  },
+  {
+   "id": 341439534,
+   "path": ".github/workflows/apply-full-game-final-fix.yml"
+  },
+  {
+   "id": 330030567,
+   "path": ".github/workflows/apply-generic-e501-v2.yml"
+  },
+  {
+   "id": 330039029,
+   "path": ".github/workflows/apply-mypy-cluster-a.yml"
+  },
+  {
+   "id": 330034959,
+   "path": ".github/workflows/apply-mypy-foundation.yml"
+  },
+  {
+   "id": 333015499,
+   "path": ".github/workflows/apply-post117-fixes-v2.yml"
+  },
+  {
+   "id": 333014458,
+   "path": ".github/workflows/apply-post117-fixes.yml"
+  },
+  {
+   "id": 330029887,
+   "path": ".github/workflows/apply-strict-e501-generic.yml"
+  },
+  {
+   "id": 330028417,
+   "path": ".github/workflows/apply-strict-e501.yml"
+  },
+  {
+   "id": 330025032,
+   "path": ".github/workflows/apply-strict-non-e501.yml"
+  },
+  {
+   "id": 330118014,
+   "path": ".github/workflows/audit-d-ruff-cleanup.yml"
+  },
+  {
+   "id": 330220464,
+   "path": ".github/workflows/audit-g-bootstrap.yml"
+  },
+  {
+   "id": 330587959,
+   "path": ".github/workflows/audit-i-final-branch-cleanup.yml"
+  },
+  {
+   "id": 338616235,
+   "path": ".github/workflows/complete-4p-only-policy.yml"
+  },
+  {
+   "id": 330115624,
+   "path": ".github/workflows/d-ruff-autofix.yml"
+  },
+  {
+   "id": 330114798,
+   "path": ".github/workflows/d-ruff-diagnostics.yml"
+  },
+  {
+   "id": 330118313,
+   "path": ".github/workflows/d-ruff-finalize-v2.yml"
+  },
+  {
+   "id": 330119322,
+   "path": ".github/workflows/d-ruff-finalize-v3.yml"
+  },
+  {
+   "id": 330119634,
+   "path": ".github/workflows/d-ruff-finalize-v4.yml"
+  },
+  {
+   "id": 330120386,
+   "path": ".github/workflows/d-ruff-finalize-v5.yml"
+  },
+  {
+   "id": 330120922,
+   "path": ".github/workflows/d-ruff-finalize-v6.yml"
+  },
+  {
+   "id": 330117784,
+   "path": ".github/workflows/d-ruff-finalize.yml"
+  },
+  {
+   "id": 333091144,
+   "path": ".github/workflows/decision-quality-materialize.yml"
+  },
+  {
+   "id": 330649302,
+   "path": ".github/workflows/delete-j-p0-safety-ref.yml"
+  },
+  {
+   "id": 342406808,
+   "path": ".github/workflows/dispatch-postfix-balance.yml"
+  },
+  {
+   "id": 330140483,
+   "path": ".github/workflows/e-apply-audit-fix-v2.yml"
+  },
+  {
+   "id": 330141811,
+   "path": ".github/workflows/e-apply-audit-fix-v3.yml"
+  },
+  {
+   "id": 330139330,
+   "path": ".github/workflows/e-apply-audit-fix.yml"
+  },
+  {
+   "id": 330146709,
+   "path": ".github/workflows/e-apply-tested-patch.yml"
+  },
+  {
+   "id": 330138767,
+   "path": ".github/workflows/e-break-even.yml"
+  },
+  {
+   "id": 330154979,
+   "path": ".github/workflows/e-perf-32-postfix.yml"
+  },
+  {
+   "id": 330137979,
+   "path": ".github/workflows/e-perf-deep.yml"
+  },
+  {
+   "id": 330135631,
+   "path": ".github/workflows/e-reproduce.yml"
+  },
+  {
+   "id": 330141644,
+   "path": ".github/workflows/e-verify-audit.yml"
+  },
+  {
+   "id": 342400571,
+   "path": ".github/workflows/equalized-192-materialize-inputs.yml"
+  },
+  {
+   "id": 338729863,
+   "path": ".github/workflows/evidence-safe-optimizer-v3-apply.yml"
+  },
+  {
+   "id": 343082530,
+   "path": ".github/workflows/export-prev-arch-bundle.yml"
+  },
+  {
+   "id": 330182773,
+   "path": ".github/workflows/f-branch-cleanup.yml"
+  },
+  {
+   "id": 330189603,
+   "path": ".github/workflows/f-final-branch-cleanup.yml"
+  },
+  {
+   "id": 347923018,
+   "path": ".github/workflows/finalist-convergence-final-terminal-lock.yml"
+  },
+  {
+   "id": 347900532,
+   "path": ".github/workflows/finalist-convergence-ws05-differential.yml"
+  },
+  {
+   "id": 342589400,
+   "path": ".github/workflows/format-eightopp-campaign.yml"
+  },
+  {
+   "id": 340246482,
+   "path": ".github/workflows/format-probe.yml"
+  },
+  {
+   "id": 340596833,
+   "path": ".github/workflows/formatfix-materialize.yml"
+  },
+  {
+   "id": 341000136,
+   "path": ".github/workflows/full-game-one-shot-final-format.yml"
+  },
+  {
+   "id": 340989876,
+   "path": ".github/workflows/full-game-one-shot-quality-fix.yml"
+  },
+  {
+   "id": 340993144,
+   "path": ".github/workflows/full-game-one-shot-semantics-fix.yml"
+  },
+  {
+   "id": 340996980,
+   "path": ".github/workflows/full-game-one-shot-version.yml"
+  },
+  {
+   "id": 340994555,
+   "path": ".github/workflows/full-game-one-shot-wire-fix.yml"
+  },
+  {
+   "id": 330219752,
+   "path": ".github/workflows/g-bootstrap-apply.yml"
+  },
+  {
+   "id": 330394225,
+   "path": ".github/workflows/g-one-shot-normalize.yml"
+  },
+  {
+   "id": 342001990,
+   "path": ".github/workflows/inspect-structural-real-current-runner.yml"
+  },
+  {
+   "id": 331885468,
+   "path": ".github/workflows/j-final-materialize.yml"
+  },
+  {
+   "id": 331822055,
+   "path": ".github/workflows/j-final-phase10-materializer.yml"
+  },
+  {
+   "id": 331800431,
+   "path": ".github/workflows/j-final-scope-materializer.yml"
+  },
+  {
+   "id": 331597986,
+   "path": ".github/workflows/j-final-scope-repair.yml"
+  },
+  {
+   "id": 331299265,
+   "path": ".github/workflows/j-mvp-r-cleanup.yml"
+  },
+  {
+   "id": 330668005,
+   "path": ".github/workflows/j-p0-branch-cleanup.yml"
+  },
+  {
+   "id": 330648116,
+   "path": ".github/workflows/j-p0-chunked-finalize.yml"
+  },
+  {
+   "id": 330658165,
+   "path": ".github/workflows/j-p0-formatter-transport.yml"
+  },
+  {
+   "id": 330645924,
+   "path": ".github/workflows/j-p0-frozen-patch-exact-recovery.yml"
+  },
+  {
+   "id": 330645513,
+   "path": ".github/workflows/j-p0-frozen-patch-recovery.yml"
+  },
+  {
+   "id": 330644985,
+   "path": ".github/workflows/j-p0-frozen-patch-transport.yml"
+  },
+  {
+   "id": 330654631,
+   "path": ".github/workflows/j-p0-quality-fix-transport.yml"
+  },
+  {
+   "id": 330675682,
+   "path": ".github/workflows/j-p1-bootstrap.yml"
+  },
+  {
+   "id": 330730098,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v2.yml"
+  },
+  {
+   "id": 330730478,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v3.yml"
+  },
+  {
+   "id": 330731215,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v4.yml"
+  },
+  {
+   "id": 330731912,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v5.yml"
+  },
+  {
+   "id": 330732182,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v6.yml"
+  },
+  {
+   "id": 330734826,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v7.yml"
+  },
+  {
+   "id": 330735684,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v8.yml"
+  },
+  {
+   "id": 330736536,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap-v9.yml"
+  },
+  {
+   "id": 330729287,
+   "path": ".github/workflows/j-p1-final-quality-bootstrap.yml"
+  },
+  {
+   "id": 330707453,
+   "path": ".github/workflows/j-p1-tree-bootstrap.yml"
+  },
+  {
+   "id": 330723504,
+   "path": ".github/workflows/j-p1-typed-foundation-bootstrap.yml"
+  },
+  {
+   "id": 330903175,
+   "path": ".github/workflows/j-p2-first-failure.yml"
+  },
+  {
+   "id": 330939226,
+   "path": ".github/workflows/j-p2-holdout-once.yml"
+  },
+  {
+   "id": 330896080,
+   "path": ".github/workflows/j-p2-materialize-frozen-candidate-v2.yml"
+  },
+  {
+   "id": 330904737,
+   "path": ".github/workflows/j-p2-materialize-frozen-candidate-v3.yml"
+  },
+  {
+   "id": 330758228,
+   "path": ".github/workflows/j-p2-materialize-frozen-candidate.yml"
+  },
+  {
+   "id": 330933426,
+   "path": ".github/workflows/j-p2-pytest-diagnostics.yml"
+  },
+  {
+   "id": 330949786,
+   "path": ".github/workflows/j-p2-ruff-format-diagnostic.yml"
+  },
+  {
+   "id": 330901235,
+   "path": ".github/workflows/j-p2-test-diagnostics.yml"
+  },
+  {
+   "id": 331472870,
+   "path": ".github/workflows/jp4-materialize.yml"
+  },
+  {
+   "id": 331475168,
+   "path": ".github/workflows/jp4-ruff-diagnostics.yml"
+  },
+  {
+   "id": 331475611,
+   "path": ".github/workflows/jp4-ruff-hygiene.yml"
+  },
+  {
+   "id": 331478121,
+   "path": ".github/workflows/jp4-windows-diagnostics.yml"
+  },
+  {
+   "id": 331530373,
+   "path": ".github/workflows/jp5-consume-holdout-once.yml"
+  },
+  {
+   "id": 331509742,
+   "path": ".github/workflows/jp5-materialize.yml"
+  },
+  {
+   "id": 331516184,
+   "path": ".github/workflows/jp5-preholdout-fix.yml"
+  },
+  {
+   "id": 331513219,
+   "path": ".github/workflows/jp5-preholdout-hygiene.yml"
+  },
+  {
+   "id": 331527631,
+   "path": ".github/workflows/jp5-refreeze-preholdout.yml"
+  },
+  {
+   "id": 331511778,
+   "path": ".github/workflows/jp5-ruff-diagnose.yml"
+  },
+  {
+   "id": 331559941,
+   "path": ".github/workflows/jp6-cli-lazy-api-fix.yml"
+  },
+  {
+   "id": 331545392,
+   "path": ".github/workflows/jp6-release-truth-fix.yml"
+  },
+  {
+   "id": 331555346,
+   "path": ".github/workflows/jp6-ruff-diagnostics.yml"
+  },
+  {
+   "id": 331556109,
+   "path": ".github/workflows/jp6-ruff-fix.yml"
+  },
+  {
+   "id": 340300283,
+   "path": ".github/workflows/materialize-fidelity-search-hardening.yml"
+  },
+  {
+   "id": 338646493,
+   "path": ".github/workflows/model-resolution-scaling-audit.yml"
+  },
+  {
+   "id": 342363424,
+   "path": ".github/workflows/morcant-campaign-materialize-inputs.yml"
+  },
+  {
+   "id": 338560583,
+   "path": ".github/workflows/one-shot-operational-own-pool-cleanup.yml"
+  },
+  {
+   "id": 338888689,
+   "path": ".github/workflows/optimizer-v2-autofix-temp.yml"
+  },
+  {
+   "id": 334954469,
+   "path": ".github/workflows/optimizer-v2-one-shot-autofix.yml"
+  },
+  {
+   "id": 334996652,
+   "path": ".github/workflows/optimizer-v2-racing-fix.yml"
+  },
+  {
+   "id": 334967006,
+   "path": ".github/workflows/optimizer-v2-windows-lock-fix.yml"
+  },
+  {
+   "id": 329523518,
+   "path": ".github/workflows/patch-windows-handles.yml"
+  },
+  {
+   "id": 332994851,
+   "path": ".github/workflows/post-117-inspect-adaptive-partials.yml"
+  },
+  {
+   "id": 332995905,
+   "path": ".github/workflows/post-117-rogshai-1024-final.yml"
+  },
+  {
+   "id": 332989871,
+   "path": ".github/workflows/post-117-rogshai-adaptive-escalation.yml"
+  },
+  {
+   "id": 332980935,
+   "path": ".github/workflows/post-117-rogshai-curated-first-wave.yml"
+  },
+  {
+   "id": 332988449,
+   "path": ".github/workflows/post-117-rogshai-curated-single-worker.yml"
+  },
+  {
+   "id": 332939319,
+   "path": ".github/workflows/post-117-rogshai-first-wave.yml"
+  },
+  {
+   "id": 332986804,
+   "path": ".github/workflows/post-117-rogshai-runtime-probe.yml"
+  },
+  {
+   "id": 338593255,
+   "path": ".github/workflows/post-holdout-robustness-probe.yml"
+  },
+  {
+   "id": 332086875,
+   "path": ".github/workflows/post-j-gate-a-format.yml"
+  },
+  {
+   "id": 332154319,
+   "path": ".github/workflows/post-j-pr47-pytest-diagnose.yml"
+  },
+  {
+   "id": 332174778,
+   "path": ".github/workflows/post-j-pr47-stale-test-migration.yml"
+  },
+  {
+   "id": 340568869,
+   "path": ".github/workflows/post-official-patch-materialize.yml"
+  },
+  {
+   "id": 340310016,
+   "path": ".github/workflows/post-pr117-fresh-freeze-readiness.yml"
+  },
+  {
+   "id": 340303663,
+   "path": ".github/workflows/pr117-ci-fix-materialize.yml"
+  },
+  {
+   "id": 340263079,
+   "path": ".github/workflows/pre-run-exact-main-freeze-03bad17.yml"
+  },
+  {
+   "id": 340196961,
+   "path": ".github/workflows/pre-run-exact-main-freeze-54f93e.yml"
+  },
+  {
+   "id": 340252871,
+   "path": ".github/workflows/pre-run-exact-main-freeze-670922d.yml"
+  },
+  {
+   "id": 340140810,
+   "path": ".github/workflows/pre-run-exact-main-freeze.yml"
+  },
+  {
+   "id": 331935182,
+   "path": ".github/workflows/project-scope-reconcile-once.yml"
+  },
+  {
+   "id": 330036036,
+   "path": ".github/workflows/rerun-mypy-foundation.yml"
+  },
+  {
+   "id": 341924022,
+   "path": ".github/workflows/rogshai-12opp-block1-repair.yml"
+  },
+  {
+   "id": 341991255,
+   "path": ".github/workflows/rogshai-12opp-block2-repair-v2.yml"
+  },
+  {
+   "id": 341924956,
+   "path": ".github/workflows/rogshai-12opp-block2-repair.yml"
+  },
+  {
+   "id": 341922599,
+   "path": ".github/workflows/rogshai-48-structural-12opp-128.yml"
+  },
+  {
+   "id": 341991390,
+   "path": ".github/workflows/rogshai-48-structural-12opp-replication2.yml"
+  },
+  {
+   "id": 341709023,
+   "path": ".github/workflows/rogshai-48-structural-broad-screen.yml"
+  },
+  {
+   "id": 342006792,
+   "path": ".github/workflows/rogshai-48-structural-real-current-8.yml"
+  },
+  {
+   "id": 342878576,
+   "path": ".github/workflows/rogshai-architecture-frontier-40960.yml"
+  },
+  {
+   "id": 333037247,
+   "path": ".github/workflows/rogshai-broad-1171.yml"
+  },
+  {
+   "id": 333111358,
+   "path": ".github/workflows/rogshai-broad-1180.yml"
+  },
+  {
+   "id": 333478170,
+   "path": ".github/workflows/rogshai-broad-1181-rediagnose.yml"
+  },
+  {
+   "id": 333469511,
+   "path": ".github/workflows/rogshai-broad-1181.yml"
+  },
+  {
+   "id": 333059153,
+   "path": ".github/workflows/rogshai-broad-felidar-retry.yml"
+  },
+  {
+   "id": 338616802,
+   "path": ".github/workflows/rogshai-commander-denial-robustness.yml"
+  },
+  {
+   "id": 338415812,
+   "path": ".github/workflows/rogshai-first-optimizer-v2-campaign.yml"
+  },
+  {
+   "id": 340227849,
+   "path": ".github/workflows/rogshai-fresh-post-pr107-preholdout-20260822.yml"
+  },
+  {
+   "id": 342370035,
+   "path": ".github/workflows/rogshai-morcant-balanced-6912.yml"
+  },
+  {
+   "id": 342439904,
+   "path": ".github/workflows/rogshai-near-neighbor-postfix.yml"
+  },
+  {
+   "id": 340264902,
+   "path": ".github/workflows/rogshai-official-fresh-post-pr113-20260823.yml"
+  },
+  {
+   "id": 340279876,
+   "path": ".github/workflows/rogshai-official-fresh-post-pr113-execute.yml"
+  },
+  {
+   "id": 340270835,
+   "path": ".github/workflows/rogshai-official-fresh-post-pr113-readiness.yml"
+  },
+  {
+   "id": 342586269,
+   "path": ".github/workflows/rogshai-postfix-eightopp-equalize-15360.yml"
+  },
+  {
+   "id": 342409584,
+   "path": ".github/workflows/rogshai-postfix-opponent-balance-7680-v3.yml"
+  },
+  {
+   "id": 342404071,
+   "path": ".github/workflows/rogshai-postfix-opponent-balance-7680.yml"
+  },
+  {
+   "id": 342089438,
+   "path": ".github/workflows/rogshai-seat-stratified-reanalysis.yml"
+  },
+  {
+   "id": 338584185,
+   "path": ".github/workflows/rogshai-whole-deck-comparison.yml"
+  },
+  {
+   "id": 340599092,
+   "path": ".github/workflows/ruff-format-once.yml"
+  },
+  {
+   "id": 340710631,
+   "path": ".github/workflows/rules-evidence-materializer.yml"
+  },
+  {
+   "id": 340716636,
+   "path": ".github/workflows/rules-evidence-ruff-fix.yml"
+  },
+  {
+   "id": 329519916,
+   "path": ".github/workflows/runtime-hygiene-patcher.yml"
+  },
+  {
+   "id": 329524030,
+   "path": ".github/workflows/runtime-portability-patch.yml"
+  },
+  {
+   "id": 342092968,
+   "path": ".github/workflows/seat-stratified-reanalysis-pr.yml"
+  },
+  {
+   "id": 338890650,
+   "path": ".github/workflows/semantic-projection-repair-temp.yml"
+  },
+  {
+   "id": 340578461,
+   "path": ".github/workflows/staticfix-materialize.yml"
+  },
+  {
+   "id": 329986890,
+   "path": ".github/workflows/strict-quality-autofix.yml"
+  },
+  {
+   "id": 340260019,
+   "path": ".github/workflows/temporary-calibration-first-patch.yml"
+  },
+  {
+   "id": 340271448,
+   "path": ".github/workflows/temporary-official-driver-hygiene.yml"
+  },
+  {
+   "id": 338905627,
+   "path": ".github/workflows/temporary-pr99-closeout.yml"
+  },
+  {
+   "id": 342393534,
+   "path": ".github/workflows/tmp-format-seat-fix.yml"
+  },
+  {
+   "id": 345322146,
+   "path": ".github/workflows/ws17-materialize.yml"
+  },
+  {
+   "id": 345385338,
+   "path": ".github/workflows/ws20-phase-rs-qualification.yml"
+  },
+  {
+   "id": 346452594,
+   "path": ".github/workflows/ws31-authority-domain.yml"
+  },
+  {
+   "id": 346452742,
+   "path": ".github/workflows/ws31-final-validation.yml"
+  },
+  {
+   "id": 347941690,
+   "path": ".github/workflows/ws32-inspect.yml"
+  },
+  {
+   "id": 347972202,
+   "path": ".github/workflows/ws33-forge-successor-baseline-preflight.yml"
+  },
+  {
+   "id": 347969234,
+   "path": ".github/workflows/ws33-forge-successor-preflight.yml"
+  },
+  {
+   "id": 348275164,
+   "path": ".github/workflows/ws35-final-terminal.yml"
+  },
+  {
+   "id": 353140813,
+   "path": ".github/workflows/ws47-target-extract.yml"
+  },
+  {
+   "id": 353146054,
+   "path": ".github/workflows/ws47-v105-materialize.yml"
+  },
+  {
+   "id": 353146630,
+   "path": ".github/workflows/ws47-v105-postfreeze.yml"
+  }
+ ]
+}
