@@ -123,7 +123,7 @@ Work/Astra is not a normal engineering tier. It may be used only after
 `WORK_NECESSITY = PASS`, recording:
 1. the required capability;
 2. why normal Sol High is insufficient;
-3. why neither OpenCode executor is sufficient;
+3. why neither OpenCode executor nor an available authorized Claude campaign is sufficient;
 4. why the capability is genuinely necessary;
 5. the smallest required Work scope.
 
