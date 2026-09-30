@@ -37,23 +37,28 @@ env:
 jobs:
   pb03-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 180
     steps:
       - name: Checkout lab
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
 
-      - name: Resolve the canonical XMage pin
+      - name: Resolve both current candidate pins
         run: |
           set -euo pipefail
-          # config/rules_engines.json is the sole machine-readable pin authority;
-          # the workflow must not hard-code a pin that can drift from it.
+          # config/rules_engines.json is the sole machine-readable candidate
+          # authority. R-1 forbids a second hard-coded Forge identity here.
           python3 - <<'PY' >> "$GITHUB_ENV"
           import json
-          commit = json.load(open("config/rules_engines.json"))["primary_engine"]["commit"]
-          assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
-          print(f"XMAGE_COMMIT={commit}")
+          config = json.load(open("config/rules_engines.json"))
+          for env_name, key in (
+              ("XMAGE_COMMIT", "primary_engine"),
+              ("FORGE_COMMIT", "secondary_engine"),
+          ):
+              commit = config[key]["commit"]
+              assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
+              print(f"{env_name}={commit}")
           PY
 
       - name: Checkout pinned XMage
@@ -64,11 +69,20 @@ jobs:
           path: vendor/engine-source/xmage
           fetch-depth: 1
 
-      - name: Exclude external XMage checkout from Lab dirty-state accounting
+      - name: Checkout admitted Forge exact source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 0
+
+      - name: Bind external candidate workspaces without polluting Lab identity
         run: |
           set -euo pipefail
           printf '/vendor/engine-source/\n' >> .git/info/exclude
           test -z "$(git status --porcelain -- vendor/engine-source/)"
+          echo "FORGE_WORKSPACE=$GITHUB_WORKSPACE/vendor/engine-source/forge" >> "$GITHUB_ENV"
 
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
@@ -90,6 +104,13 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
+      - name: Verify immutable Forge exact-source pin
+        working-directory: vendor/engine-source/forge
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FORGE_COMMIT"
+          test -z "$(git status --porcelain)"
+
       - name: Build pinned XMage
         working-directory: vendor/engine-source/xmage
         run: |
@@ -99,6 +120,21 @@ jobs:
           else
             mvn -B -ntp -DskipTests install
           fi
+
+      - name: Build and warm admitted Forge exact source
+        working-directory: vendor/engine-source/forge
+        run: |
+          set -euo pipefail
+          # Forge's own CI validates under a headless X server. Warm the exact
+          # test-phase dependencies online; the credited runner executes the
+          # selected native suites offline afterwards.
+          command -v Xvfb >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y xvfb; }
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 800x600x8 >/tmp/forge-xvfb.log 2>&1 &
+          mvn -U -B -ntp -DskipTests -Dcheckstyle.skip=true install
+          mvn -U -B -ntp -Dcheckstyle.skip=true -DfailIfNoTests=false             -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=BridgeEngineTest
+          mvn -B -ntp -pl forge-protocol2-bridge -DskipTests             dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
+          test -s forge-protocol2-bridge/target/cp-wsr22.txt
 
       - name: Install lab
         run: |
@@ -172,8 +208,8 @@ jobs:
           )
           PY
 
-      - name: Execute authoritative XMage current-boundary runner
-        run: python scripts/run_current_boundary_qualification.py --candidate xmage
+      - name: Execute authoritative two-candidate current-boundary runner
+        run: python scripts/run_current_boundary_qualification.py --candidate all
 
       - name: Assemble source-bound current-boundary evidence
         run: python scripts/assemble_current_boundary_evidence.py
@@ -272,26 +308,18 @@ jobs:
           }, sort_keys=True))
           PY
 
-      - name: Hash PB-03 runtime evidence
+      - name: Hash current-boundary packet
         run: |
           set -euo pipefail
           root="$CURRENT_BOUNDARY_EVIDENCE_EPOCH"
-          sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
+          find "$root" -type f ! -name CURRENT_BOUNDARY_SHA256SUMS -print0             | sort -z             | xargs -0 sha256sum > "$root/CURRENT_BOUNDARY_SHA256SUMS"
 
-      - name: Upload PB-03 runtime evidence
+      - name: Upload complete source-bound current-boundary packet
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
-          name: pb03-runtime-${{ github.sha }}
+          name: current-boundary-two-candidate-${{ github.sha }}
           path: |
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_ADMISSION_MATRIX.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_DIMENSION_ADMISSION.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_EXECUTION.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_EXECUTION_MATRIX.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_SHA256SUMS
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/FULL107_XMAGE_RESULTS.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/NATIVE_SUITE_RECEIPTS.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/native-xmage-*.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/positive/*.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/
           if-no-files-found: error
           retention-days: 90
