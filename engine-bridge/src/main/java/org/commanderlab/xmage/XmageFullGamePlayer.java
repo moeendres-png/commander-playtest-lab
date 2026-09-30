@@ -234,16 +234,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("card_name", card.getName());
         context.addProperty("zone", zone == null ? "unknown" : zone.name().toLowerCase());
         context.addProperty("no_mana", noMana);
-        String selected = requireSingle(request(
-                game,
-                "choice",
-                "Choose how to cast " + card.getName(),
-                1,
-                1,
-                options,
-                context,
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "choice",
+                    "Choose how to cast " + card.getName(),
+                    1,
+                    1,
+                    options,
+                    context,
+                    null
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the caster left; XMage's own player chooses no way to cast.
+            return null;
+        }
         SpellAbility chosen = byOption.get(selected);
         if (chosen == null) {
             fail("ILLEGAL_ACTION", "cast ability option disappeared: " + selected);
@@ -308,16 +314,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("card_name", card.getName());
         context.addProperty("zone", zone == null ? "unknown" : zone.name().toLowerCase());
         context.addProperty("no_mana", noMana);
-        String selected = requireSingle(request(
-                game,
-                "choice",
-                "Choose land or spell ability for " + card.getName(),
-                1,
-                1,
-                options,
-                context,
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "choice",
+                    "Choose land or spell ability for " + card.getName(),
+                    1,
+                    1,
+                    options,
+                    context,
+                    null
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the caster left; XMage's own player chooses no way to cast.
+            return null;
+        }
         ActivatedAbility chosen = byOption.get(selected);
         if (chosen == null) {
             fail("ILLEGAL_ACTION", "land-or-spell option disappeared: " + selected);
@@ -507,16 +519,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("amount_remaining", remaining);
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
 
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                "target_amount",
-                target.getMessage(game),
-                1,
-                1,
-                options,
-                context,
-                source
-        );
+        XmageFullGameDecisionController.DecisionResponse response;
+        try {
+            response = request(
+                    game,
+                    "target_amount",
+                    target.getMessage(game),
+                    1,
+                    1,
+                    options,
+                    context,
+                    source
+            );
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the caster left mid-cast; XMage's own player chooses no
+            // target once it cannot respond, which abandons the cast.
+            return false;
+        }
         String selected = requireSingle(response);
         int amount = requireNumericChoice(response, "target_amount");
         UUID targetId = UUID.fromString(selected);
@@ -535,16 +554,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
         options.add(XmageFullGameDecisionController.option(
                 mulligan, "Take mulligan", "mulligan", new JsonObject()
         ));
-        String selected = requireSingle(request(
-                game,
-                "mulligan",
-                "Keep or mulligan",
-                1,
-                1,
-                options,
-                new JsonObject(),
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "mulligan",
+                    "Keep or mulligan",
+                    1,
+                    1,
+                    options,
+                    new JsonObject(),
+                    null
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the player left before the game began. XMage's own player
+            // keeps once it cannot respond; its hand left the game with it.
+            return false;
+        }
         return mulligan.equals(selected);
     }
 
@@ -609,16 +635,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         optionId, text == null ? key : text, "choice", metadata));
                 byOption.put(optionId, key);
             }
-            String selected = requireSingle(request(
-                    game,
-                    "choice",
-                    choicePrompt(choice),
-                    1,
-                    1,
-                    options,
-                    outcomeContext(outcome),
-                    null
-            ));
+            String selected;
+            try {
+                selected = requireSingle(request(
+                        game,
+                        "choice",
+                        choicePrompt(choice),
+                        1,
+                        1,
+                        options,
+                        outcomeContext(outcome),
+                        null
+                ));
+            } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+                // F-42: the chooser left; XMage's own player returns false.
+                return false;
+            }
             String key = byOption.get(selected);
             if (key == null) {
                 fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
@@ -643,16 +675,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (options.isEmpty()) {
             return false;
         }
-        String selected = requireSingle(request(
-                game,
-                "choice",
-                choicePrompt(choice),
-                1,
-                1,
-                options,
-                outcomeContext(outcome),
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "choice",
+                    choicePrompt(choice),
+                    1,
+                    1,
+                    options,
+                    outcomeContext(outcome),
+                    null
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the chooser left; XMage's own player returns false.
+            return false;
+        }
         String value = choices.get(selected);
         if (value == null) {
             fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
@@ -710,16 +748,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
         options.add(XmageFullGameDecisionController.option(
                 second, "Pile 2", "pile", pileMetadata(pile2)
         ));
-        String selected = requireSingle(request(
-                game,
-                "pile",
-                message,
-                1,
-                1,
-                options,
-                outcomeContext(outcome),
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "pile",
+                    message,
+                    1,
+                    1,
+                    options,
+                    outcomeContext(outcome),
+                    null
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the chooser left; XMage's own player returns false. Both
+            // piles' cards belong to the departed player and left with it.
+            return false;
+        }
         return first.equals(selected);
     }
 
@@ -938,16 +983,28 @@ final class XmageFullGamePlayer extends PlayerImpl {
             ));
             byId.put(optionId, ability);
         }
-        String selected = requireSingle(request(
-                game,
-                "trigger_order",
-                "Choose next triggered ability",
-                1,
-                1,
-                options,
-                new JsonObject(),
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "trigger_order",
+                    "Choose next triggered ability",
+                    1,
+                    1,
+                    options,
+                    new JsonObject(),
+                    null
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the controller left. Answer "none": GameImpl.checkTriggered
+            // plays nothing for null and stops asking a player who cannot
+            // respond, so no ability of the departed player reaches the stack
+            // (CR 800.4a: such objects cease to exist). XMage's own player
+            // would return the first ability here, which puts it on the stack
+            // and lets it resolve for a player who left (measured: 1 damage to
+            // each opponent from Impact Tremors); that is deliberately not copied.
+            return null;
+        }
         TriggeredAbility result = byId.get(selected);
         if (result == null) {
             fail("ILLEGAL_ACTION", "trigger option disappeared: " + selected);
@@ -997,16 +1054,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // whatever the pilot picks (601.2 rewind shape).
             noViableMode = true;
         }
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                "mode",
-                modes.getText(),
-                min,
-                1,
-                options,
-                new JsonObject(),
-                source
-        );
+        XmageFullGameDecisionController.DecisionResponse response;
+        try {
+            response = request(
+                    game,
+                    "mode",
+                    modes.getText(),
+                    min,
+                    1,
+                    options,
+                    new JsonObject(),
+                    source
+            );
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the caster left mid-cast. XMage's own player returns no
+            // mode once it cannot respond, which abandons the cast.
+            return null;
+        }
         if (response.selectedOptionIds().isEmpty()) {
             return null;
         }
@@ -1122,6 +1186,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .toList();
 
         for (Permanent attacker : attackers) {
+            if (!isInGame()) {
+                // F-42: a player who left the game declares nothing more;
+                // its permanents left with it (CR 800.4a).
+                return;
+            }
             JsonArray options = new JsonArray();
             String hold = optionId("attack", attacker.getId().toString(), "hold");
             options.add(XmageFullGameDecisionController.option(
@@ -1156,16 +1225,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ));
                 defenderByOption.put(optionId, defenderId);
             }
-            String selected = requireSingle(request(
-                    game,
-                    "declare_attacker",
-                    "Choose attack for " + attacker.getName(),
-                    1,
-                    1,
-                    options,
-                    new JsonObject(),
-                    null
-            ));
+            String selected;
+            try {
+                selected = requireSingle(request(
+                        game,
+                        "declare_attacker",
+                        "Choose attack for " + attacker.getName(),
+                        1,
+                        1,
+                        options,
+                        new JsonObject(),
+                        null
+                ));
+            } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+                // F-42: the attacking player left while its frame was open. Its
+                // creatures left with it (800.4a); XMage's own player declares no
+                // attackers once it cannot respond.
+                return;
+            }
             if (hold.equals(selected)) {
                 continue;
             }
@@ -1695,16 +1772,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
         JsonObject context = new JsonObject();
         context.addProperty("numeric_min", min);
         context.addProperty("numeric_max", max);
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                decisionClass,
-                message,
-                0,
-                0,
-                new JsonArray(),
-                context,
-                source
-        );
+        XmageFullGameDecisionController.DecisionResponse response;
+        try {
+            response = request(
+                    game,
+                    decisionClass,
+                    message,
+                    0,
+                    0,
+                    new JsonArray(),
+                    context,
+                    source
+            );
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-42: the chooser left the game. XMage's own player answers the
+            // minimum once it cannot respond (announceX / getAmount).
+            return min;
+        }
         return requireNumericChoice(response, decisionClass);
     }
 

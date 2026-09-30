@@ -402,7 +402,10 @@ final class XmageFullGameDecisionController {
         return true;
     }
 
-    private static final Set<String> DEPARTED_CANCELLABLE = Set.of("target", "choose_object", "mana_payment", "choose_use", "declare_blocker");
+    private static final Set<String> DEPARTED_CANCELLABLE = Set.of(
+            "target", "choose_object", "mana_payment", "choose_use", "declare_blocker",
+            "declare_attacker", "mode", "announce_x", "amount", "choice",
+            "target_amount", "pile", "trigger_order", "mulligan");
 
     /** Narrows a priority frame to its pass option; false when there is nothing to remove. */
     private static boolean keepOnlyPass(JsonObject request) {
