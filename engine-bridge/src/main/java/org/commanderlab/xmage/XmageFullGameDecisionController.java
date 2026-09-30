@@ -51,11 +51,23 @@ final class XmageFullGameDecisionController {
         }
     }
 
+    /**
+     * Native XMage cancelled an already-published decision because the
+     * controlled player conceded. This is an engine synchronization signal,
+     * never a pilot response and never a default selection.
+     */
+    static final class DecisionCancelledException extends RuntimeException {
+        DecisionCancelledException(String message) {
+            super(message);
+        }
+    }
+
     private final long timeoutMillis;
     private long decisionOffset;
     private JsonObject pendingRequest;
     private UUID pendingPlayerId;
     private DecisionResponse response;
+    private String cancelledDecisionId;
     private DecisionException terminalFailure;
     private boolean terminal;
     private final JsonArray transcript = new JsonArray();
@@ -131,7 +143,10 @@ final class XmageFullGameDecisionController {
         notifyAll();
 
         long deadlineNanos = System.nanoTime() + timeoutMillis * 1_000_000L;
-        while (response == null && terminalFailure == null && !terminal) {
+        while (response == null
+                && terminalFailure == null
+                && !terminal
+                && !decisionId.equals(cancelledDecisionId)) {
             long remainingNanos = deadlineNanos - System.nanoTime();
             if (remainingNanos <= 0L) {
                 DecisionException failure = new DecisionException(
@@ -162,6 +177,15 @@ final class XmageFullGameDecisionController {
 
         if (terminalFailure != null) {
             throw terminalFailure;
+        }
+        if (decisionId.equals(cancelledDecisionId)) {
+            cancelledDecisionId = null;
+            pendingRequest = null;
+            pendingPlayerId = null;
+            notifyAll();
+            throw new DecisionCancelledException(
+                    "ENGINE_DECISION_CANCELLED: " + decisionId + " class=" + decisionClass
+            );
         }
         if (response == null) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: decision ended without response");
@@ -262,6 +286,43 @@ final class XmageFullGameDecisionController {
         request.add("pilot_state", bindViews(request, game, decider));
         pendingRequest = request;
         recordDecisionRequested(request);
+        notifyAll();
+        return true;
+    }
+
+    /**
+     * Propagates XMage's native {@code signalPlayerConcede(true)} semantics
+     * for the currently observed mid-cast seams. The engine has invalidated
+     * the outstanding target/payment callback, so it is retired without
+     * accepting any pilot response. Priority remains on the existing F-39
+     * re-issue path; other decision classes remain fail-closed until observed
+     * and qualified.
+     */
+    synchronized boolean cancelPendingForConcession(UUID controlledPlayerId) {
+        if (pendingRequest == null
+                || response != null
+                || terminalFailure != null
+                || terminal
+                || controlledPlayerId == null
+                || pendingPlayerId == null
+                || !controlledPlayerId.equals(pendingPlayerId)) {
+            return false;
+        }
+        String decisionClass = pendingRequest.get("decision_class").getAsString();
+        if (!"target".equals(decisionClass) && !"mana_payment".equals(decisionClass)) {
+            return false;
+        }
+
+        String decisionId = pendingRequest.get("decision_id").getAsString();
+        JsonObject event = new JsonObject();
+        event.addProperty("decision_id", decisionId);
+        event.addProperty("decision_class", decisionClass);
+        event.addProperty("actor_seat", pendingRequest.get("seat").getAsInt());
+        event.addProperty("reason", "native_player_concede_signal");
+        recordTranscript("engine_decision_cancelled", event);
+
+        cancelledDecisionId = decisionId;
+        pendingRequest = null;
         notifyAll();
         return true;
     }
