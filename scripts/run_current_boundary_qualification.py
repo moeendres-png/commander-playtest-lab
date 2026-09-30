@@ -316,13 +316,24 @@ def git(*args: str, cwd: Path | None = None) -> str:
         raise SystemExit(f"no identity, no credit: {exc}") from exc
 
 
+def _bound_engine_tree(root: Path | None) -> str:
+    """The suite root's tree for the binding table, or UNCONFIGURED.
+
+    Importing the runner must not require every candidate's checkout; a run that
+    uses one proves it strictly first (require_forge_workspace, git()).
+    """
+    if root is None:
+        return "UNCONFIGURED"
+    try:
+        return receipt_mod.git_fact(root, "rev-parse", "HEAD^{tree}", sha=True)
+    except receipt_mod.ReceiptError:
+        return "UNCONFIGURED"
+
+
 for _candidate in NATIVE_SUITE_BINDING:
     NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
-    _suite_root = NATIVE_SUITE_BINDING[_candidate]["root"]
-    NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
-        git("rev-parse", "HEAD^{tree}", cwd=_suite_root)
-        if _suite_root is not None and Path(_suite_root).is_dir()
-        else "UNCONFIGURED"
+    NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = _bound_engine_tree(
+        NATIVE_SUITE_BINDING[_candidate]["root"]
     )
 
 
