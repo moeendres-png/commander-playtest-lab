@@ -80,7 +80,13 @@ if [[ -d "$SOURCE_ROOT/.git" ]]; then
     echo "ERROR: source worktree is dirty; refusing to build unbound engine source" >&2; exit 4;
   }
 elif [[ -d "$SOURCE_ROOT" && -f "$SOURCE_ROOT/.commander-lab-engine-source.json" ]]; then
-  OBSERVED="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$SOURCE_ROOT/.commander-lab-engine-source.json")"
+  if [[ "$PROVIDER" == "forge" ]]; then
+    echo "ERROR: current Forge dual identity requires a Git checkout so Rules-Core ancestry and bridge-only drift can be proven" >&2
+    exit 4
+  fi
+  PYTHON_BIN="$(command -v python3 || command -v python || true)"
+  [[ -n "$PYTHON_BIN" ]] || { echo "ERROR: Python is required to verify offline source identity" >&2; exit 4; }
+  OBSERVED="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$SOURCE_ROOT/.commander-lab-engine-source.json")"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: offline source identity mismatch: $OBSERVED" >&2; exit 4; }
   echo "Using offline source snapshot with declared pinned commit $OBSERVED"
 elif [[ -e "$SOURCE_ROOT" ]]; then
@@ -92,6 +98,28 @@ else
   git -C "$SOURCE_ROOT" checkout --detach "$COMMIT"
   OBSERVED="$(git -C "$SOURCE_ROOT" rev-parse HEAD)"
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: commit mismatch: $OBSERVED" >&2; exit 4; }
+fi
+
+if [[ "$PROVIDER" == "forge" ]]; then
+  [[ -d "$SOURCE_ROOT/.git" ]] || {
+    echo "ERROR: current Forge qualification requires Git provenance" >&2; exit 4;
+  }
+  git -C "$SOURCE_ROOT" merge-base --is-ancestor "$RULES_COMMIT" "$COMMIT" || {
+    echo "ERROR: Forge bridge/materialization commit does not descend from current Rules-Core authority $RULES_COMMIT" >&2
+    exit 4
+  }
+  FORGE_DRIFT="$(git -C "$SOURCE_ROOT" diff --name-only "$RULES_COMMIT" "$COMMIT")" || {
+    echo "ERROR: unable to compare Forge Rules-Core and bridge/materialization source" >&2; exit 4;
+  }
+  if [[ -z "$FORGE_DRIFT" ]]; then
+    echo "ERROR: Forge bridge/materialization commit carries no explicit bridge delta from Rules-Core authority" >&2
+    exit 4
+  fi
+  if printf '%s\n' "$FORGE_DRIFT" | grep -qEv '^forge-protocol2-bridge/'; then
+    echo "ERROR: Forge bridge/materialization source drifts outside the approved bridge surface:" >&2
+    printf '%s\n' "$FORGE_DRIFT" >&2
+    exit 4
+  fi
 fi
 
 if [[ -x "$SOURCE_ROOT/mvnw" ]]; then
