@@ -50,6 +50,8 @@ This is the single ledger for this campaign. Author: Claude Opus 5.5, under the 
 | ID | What | Result | Class |
 |---|---|---|---|
 | S-01 | `XmageFullGameReplayTwinTest` on 12 previously unplayed real-deck games. Seeds 4P 101/202/303/404, 5P 505, 6P 606, each with the base pilot and the reversed `-Dtwin.variant` pilot. Four real decks rotated through the seats. Repin v2 `9375f35a` plus the F-39 native concede follow-up. | 12/12 replay identically: same seed and same semantic choices give the same decision transcript. 0 lane aborts. Up to 66 turns and 3000 decisions per game; 3 games reached a regular game over. | DIRECTLY_VERIFIED (local) |
+| S-02 | `XmageFullGameReplayTwinTest` on 12 more unplayed games at the least-probed player counts: 2P (`CommanderDuel`) seeds 111/222/333 and 3P seeds 444/555/666, base and reversed pilot. | 12/12 replay identically, 0 lane aborts; up to 65 turns and 3000 decisions per game. | DIRECTLY_VERIFIED (local) |
+| S-03 | The active player concedes in its own precombat main at 4P and 5P. CR 800.4a: the turn continues without an active player, and the next player in turn order takes the next turn. | Correct. P1's turn runs through every remaining step with the other players' priority only; turn 2 belongs to the next seat (P4 at 4P, P5 at 5P). P1's own pending priority frame keeps the F-39 pass-only path, as designed by the owner. | DIRECTLY_VERIFIED (local probe) |
 
 ## Deferred
 
