@@ -154,7 +154,7 @@ final class XmageNativeStateRestoration {
     /**
      * One requested player. {@code startingLife} is the player's own recorded
      * starting life: a life total equal to it carries no history and is set
-     * once after game start; any other total must be caused, never set (F-39).
+     * once after game start; any other total must be caused, never set (F-40).
      */
     record RequestedPlayer(String playerId, int seat, int life, int startingLife) {
         RequestedPlayer(String playerId, int seat, int life) {
@@ -757,7 +757,7 @@ final class XmageNativeStateRestoration {
             game.cheat(player.getId(), List.of(), hand, battlefield, graveyard,
                     List.of(), exile);
             // Life is not set here: game start re-derives it (initLife). See
-            // restoreStartingLife, which runs after arrival (F-39).
+            // restoreStartingLife, which runs after arrival (F-40).
         }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         preStartApplied = true;
@@ -840,7 +840,7 @@ final class XmageNativeStateRestoration {
     }
 
     /**
-     * F-39: a player's recorded starting life other than the table's is set once,
+     * F-40: a player's recorded starting life other than the table's is set once,
      * silently, through the engine's own {@code initLife} (the call game start
      * uses), so no life gain or loss event is fabricated. It is set only while
      * that player's life is untouched since game start: life the engine already

@@ -1,9 +1,9 @@
-# F-39: the restoration claimed life totals, but game start overwrote them
+# F-40: the restoration claimed life totals, but game start overwrote them
 
-Status: FIXED in the XMage native state restoration (this PR, stacked on F-38). Claude Opus 5.5, 2026-09-30.
+Status: FIXED in the XMage native state restoration (this PR; builds on F-38, #397). Claude Opus 5.5, 2026-09-30.
 
 - **Classification:** `BRIDGE_SURFACE_DEFECT` in `engine-bridge/.../XmageNativeStateRestoration`. It was a claimed-but-ineffective dimension; the compare caught it, so there was no false PASS.
-- **Source lock:** Lab main `1242f79f` + F-38, live XMage pin `9375f35a`.
+- **Source lock:** Lab main `4c72da6a` (includes F-38, #397), live XMage pin `9375f35a`.
 - **Affected records:** every frozen record in which a player's `starting_life` differs from the table's 40:
   - `CARD_04`, `CARD_16`, `CARD_24`: P2–P4 or P2 at 20;
   - `CARD_25`: P1 at 20.
@@ -33,7 +33,7 @@ The rule follows the project's causal principle ("a player at zero life must hav
 
 ## Evidence
 
-**Midgame probe, 38 rows** (the F-38 set plus CARD_16/24/25), F-38 branch vs. this branch:
+**Midgame probe, 38 rows** (the F-38 set plus CARD_16/24/25), F-38 head vs. this branch:
 
 | Row | Before | After |
 |---|---|---|

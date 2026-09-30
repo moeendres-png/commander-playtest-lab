@@ -809,7 +809,7 @@ class XmageNativeStateRestorationTest {
 
     @Test
     void aLifeTotalOtherThanTheStartingLifeIsNeverSet() {
-        // F-39: 30 life at a starting life of 40 is history (10 life lost); it
+        // F-40: 30 life at a starting life of 40 is history (10 life lost); it
         // must be caused through the engine, so it is compared and never set.
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
                 "ws2-life-history", 2, 424242L,

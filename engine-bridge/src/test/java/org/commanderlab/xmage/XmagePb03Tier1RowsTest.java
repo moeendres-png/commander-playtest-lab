@@ -1019,7 +1019,7 @@ class XmagePb03Tier1RowsTest {
 
     // ---- CARD_24: the same trigger against P2's recorded starting life of 20 ----
     //
-    // F-39: the record gives P2 a starting life of 20 at a 40-life table. The
+    // F-40: the record gives P2 a starting life of 20 at a 40-life table. The
     // restoration sets it once after game start through the engine's own
     // initLife, so no life loss is fabricated: the engine's lost-life ledger
     // holds exactly the trigger's 2.
