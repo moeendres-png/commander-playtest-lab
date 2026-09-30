@@ -1,8 +1,9 @@
-"""Successor guard for the 2026-09-29 XMage multiplayer-candidate repin.
+"""Successor guard for the 2026-09-30 XMage multiplayer-candidate repin (v2).
 
-The live XMage pin is the integrated candidate (Mage PR #24). The frozen WSR22
-current-boundary identity stays on the prior pin and is historical: this repin
-opens a successor epoch, it does not relabel WSR22 evidence.
+The live XMage pin is the candidate branch advanced by F-22/F-23, F-28/F-29 and
+F-34. The prior pin (f79e4168, successor lock v1) and the frozen WSR22
+current-boundary identity (b19596980f27) stay historical: this repin opens a new
+successor epoch, it does not relabel earlier evidence.
 """
 
 from __future__ import annotations
@@ -10,13 +11,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-CURRENT_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
-CURRENT_TREE = "18c3e8e7588627b22accc08a644729399d702ee3"
-PRIOR_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
-SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
+CURRENT_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+CURRENT_TREE = "0fb7c2f9a038e471de3a6e56419244482a645218"
+PRIOR_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
+WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
+SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
 
 ACTIVE_LITERAL_CONSUMERS = (
     "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
@@ -41,21 +41,6 @@ ACTIVE_LITERAL_CONSUMERS = (
 )
 
 
-def _live_pin() -> str:
-    manifest = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
-    return manifest["primary_engine"]["commit"]
-
-
-# This file proves the 2026-09-29 repin EVENT. Its current-pin assertions hold only while
-# this repin's pin is live; after a later forward repin they are superseded by that repin's
-# successor guard (tests/qualification/test_xmage_mp_candidate_repin_v2_20260930.py) and are
-# skipped, never rewritten. Its historical assertions stay active.
-superseded_by_later_repin = pytest.mark.skipif(
-    _live_pin() != CURRENT_PIN,
-    reason="superseded: live XMage pin moved forward (see test_xmage_mp_candidate_repin_v2_20260930.py)",
-)
-
-
 def _manifest() -> dict:
     return json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
 
@@ -64,8 +49,7 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
 
 
-@superseded_by_later_repin
-def test_live_pin_is_the_integrated_candidate() -> None:
+def test_live_pin_is_the_successor_candidate() -> None:
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
     assert primary["source_archive"].endswith(f"/{CURRENT_PIN}.tar.gz")
@@ -79,30 +63,21 @@ def test_selection_truth_unchanged() -> None:
     assert cfg["current_runtime"]["production_provider"] is None
 
 
-@superseded_by_later_repin
-def test_successor_lock_binds_the_same_candidate_and_the_prior_pin() -> None:
+def test_successor_lock_binds_the_candidate_its_donors_and_the_prior_pin() -> None:
     lock = _lock()
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
     assert lock["new_live_pin"]["tree"] == CURRENT_TREE
     assert lock["new_live_pin"]["source_archive"] == _manifest()["primary_engine"]["source_archive"]
     assert lock["prior_live_pin"]["commit"] == PRIOR_PIN
-    donors = {donor["finding"]: donor for donor in lock["donors"]}
-    assert donors["F-18"]["head"] == "6044132ecde384997d23121a8622ed308f68ae5d"
-    assert donors["F-19"]["head"] == "0962f0b5d5147f606b517501b384a225af9f646a"
-    assert donors["F-20"]["head"] == "9ec76cc6a9833d739fa83675b3b38e780f72dd7c"
-    assert donors["F-21"]["head"] == "0082ad2983fc6d1b26f1d217e749cfc3a58d6c0b"
-    assert "NOT merged" in donors["F-21"]["integration"]
+    findings = {donor["finding"] for donor in lock["donors"]}
+    assert findings == {"F-22", "F-23", "F-28", "F-29", "F-34"}
+    for donor in lock["donors"]:
+        assert len(donor["head"]) == 40, donor
+    assert lock["native_qualification"]["full_mage_tests"]["failures"] == 0
+    assert lock["native_qualification"]["full_mage_tests"]["commit"] == CURRENT_PIN
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "ARCHITECTURE_FREEZE"}
 
 
-@superseded_by_later_repin
-def test_provider_reports_the_candidate() -> None:
-    provider = (REPO_ROOT / ACTIVE_LITERAL_CONSUMERS[0]).read_text()
-    assert CURRENT_PIN in provider
-    assert PRIOR_PIN not in provider
-
-
-@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
@@ -110,10 +85,16 @@ def test_all_active_literal_pin_consumers_migrated() -> None:
         assert PRIOR_PIN not in text, rel
 
 
-def test_wsr22_boundary_stays_explicitly_historical_on_the_prior_pin() -> None:
+def test_prior_lock_and_wsr22_boundary_stay_historical() -> None:
     from commander_lab.qualification.current_boundary import source_lock
 
-    # Answers "what was the WSR22 candidate?" only, never "what is pinned now?".
-    assert source_lock.XMAGE_CANDIDATE_COMMIT == PRIOR_PIN
-    assert _manifest()["primary_engine"]["commit"] != source_lock.XMAGE_CANDIDATE_COMMIT
-    assert "not repinned" in _lock()["prior_live_pin"]["wsr22_source_lock"].lower()
+    assert source_lock.XMAGE_CANDIDATE_COMMIT == WSR22_PIN
+    prior = json.loads(
+        (
+            REPO_ROOT / "qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
+        ).read_text()
+    )
+    assert prior["new_live_pin"]["commit"] == PRIOR_PIN
+    note = _manifest()["authority_note"]["known_stale_pointers"]
+    assert f"Prior canonical xmage pin {PRIOR_PIN}" in note
+    assert f"Canonical xmage pin is now {CURRENT_PIN}" in note

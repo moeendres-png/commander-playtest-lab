@@ -3,7 +3,7 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Provider = if ($env:ENGINE_PROVIDER) { $env:ENGINE_PROVIDER } else { "xmage" }
 if ($Provider -eq "xmage") {
   $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { "https://github.com/moeendres-png/mage.git" }
-  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "f79e4168902e65063034b21be6f4585397fd43b3" }
+  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326" }
 } elseif ($Provider -eq "forge") {
   $Repo = "https://github.com/Card-Forge/forge.git"
   $Commit = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
