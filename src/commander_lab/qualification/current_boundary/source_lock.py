@@ -1,8 +1,10 @@
 """Current-boundary identity constants and receipts (WSR22).
 
-Every identity here is a fixed, contract-bound value. Nothing in this module
-may be repinned inside WSR22: provider repinning belongs to a later
-Architecture Freeze decision.
+Every identity here is current-boundary authority. Sealed historical evidence
+is never rewritten, but current candidate identities may advance only through
+an explicit owner/coordinator adjudication. R-1 (2026-09-30) admits the
+Commander-Lab-maintained Forge fork for exact-source qualification; this does
+not select a Production Provider or claim Architecture Freeze.
 """
 
 from __future__ import annotations
@@ -31,48 +33,32 @@ XMAGE_LAB_RUNTIME_AUTHORITY = "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
 XMAGE_PROVIDER = "xmage"
 XMAGE_LICENSE = "MIT"
 
-FORGE_CANDIDATE_COMMIT = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
-FORGE_CANDIDATE_TREE = "fc3387bf37aab19d780b2939a235309ed32b0492"
+FORGE_CANDIDATE_COMMIT = "201cad9576d004b71fd9af260ab4c981f606eb19"
+FORGE_CANDIDATE_TREE = "345ff8cddda9888f3414dc3fb91132694aa3cc8a"
 FORGE_WSR20_EVIDENCE_TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+FORGE_QUALIFICATION_LINEAGE_BASE_COMMIT = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
 FORGE_PROVIDER = "forge"
 
-# PB-09 identity distinction. These are three different things and must never be
-# conflated, reported under one name, or compared as if one implied another.
-#
-#   FORGE_CANDIDATE_COMMIT        the Commander-Lab fork, and the engine that
-#                                 actually executes. Lab-modified code.
-#   FORGE_UPSTREAM_BASELINE_COMMIT pristine upstream Forge, the fork's ancestor.
-#                                 Ancestry is NOT identity, and this baseline is
-#                                 NOT verified pristine: no exact pristine
-#                                 upstream checkout with proven provenance has
-#                                 been established, so upstream behaviour remains
-#                                 UNKNOWN and must not be described as observed.
-#   FORGE_WSR20_EVIDENCE_TIP      the WSR20/WSR24 descendant of the fork. This is
-#                                 what the bound native suites execute at, and
-#                                 it is neither of the two above. A descendant is
-#                                 a different tree and may carry Rules-Core
-#                                 changes, so a suite executed here cannot be
-#                                 attributed to FORGE_CANDIDATE_COMMIT.
+# R-1 / PB-09 current identity distinction. The current exact-source candidate
+# is the maintained fork successor. ef958ee9 is retained as its admitted
+# Rules-Core lineage base; pristine upstream remains reference-only; the WSR20
+# execution tip remains historical evidence. None of those historical identities
+# receives current credit merely because R-1 changed candidate authority.
 FORGE_FORK_REPOSITORY = "https://github.com/moeendres-png/forge.git"
 FORGE_UPSTREAM_REPOSITORY = "https://github.com/Card-Forge/forge.git"
 FORGE_UPSTREAM_BASELINE_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 FORGE_UPSTREAM_BASELINE_VERIFIED_PRISTINE = False
-FORGE_BRIDGE_SOURCE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+FORGE_BRIDGE_SOURCE_COMMIT = FORGE_CANDIDATE_COMMIT
 
-# The Forge bridge/evidence head is a SEPARATE identity from the Rules Core and is
-# bound separately, never collapsed into one "Forge SHA". Forge PR #5 carries the
-# PB-05 build-provenance repair plus the WSR28/WSR30 Commander-legality,
-# requester-binding and creation-seed acknowledgements, and is Draft; it is not
-# merged to Forge master and must not be merged merely to consume it.
-#
-# PR #5 head e15f37d6 has 26 commits above the Rules-Core head and changes
-# forge-protocol2-bridge only. forge-game, forge-core, forge-ai, forge-gui,
-# forge-gui-desktop and adventure-editor are byte-identical, which engine_tree_
-# equivalence re-verifies on every run over the Rules-Core modules alone.
-FORGE_BRIDGE_EVIDENCE_COMMIT = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
-FORGE_BRIDGE_EVIDENCE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
-FORGE_BRIDGE_EVIDENCE_PR = 5
-FORGE_BRIDGE_EVIDENCE_IS_DRAFT = True
+# The bridge/provider role remains separately named even when it co-resides at
+# the same exact source commit as the maintained-fork candidate. PR #13 is a
+# bridge-only successor of the accepted #11 head and closes the bounded AF01
+# unsupported-decision-class residual. Same-SHA role binding is intentional and
+# does not collapse Rules authority into the bridge.
+FORGE_BRIDGE_EVIDENCE_COMMIT = FORGE_CANDIDATE_COMMIT
+FORGE_BRIDGE_EVIDENCE_TREE = FORGE_CANDIDATE_TREE
+FORGE_BRIDGE_EVIDENCE_PR = 13
+FORGE_BRIDGE_EVIDENCE_IS_DRAFT = False
 
 # PB-05 provenance fields the bridge now emits. They are consumed fail-closed:
 # no verified=true means no AF00/PB-05 credit, and a dirty or unknown build
@@ -156,6 +142,13 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                 # PB-09. The three Forge identities are reported under distinct
                 # names so no consumer can read one as another.
                 "engine_identity_pb09": {
+                    "pb09_status": "RESOLVED_BY_OWNER_R1_2026_09_30_FOR_CURRENT_QUALIFICATION_AUTHORITY",
+                    "qualification_lineage_base": {
+                        "role": "R-1 Rules-Core lineage base; ancestor only, not the current exact-source candidate.",
+                        "repository": FORGE_FORK_REPOSITORY,
+                        "commit": FORGE_QUALIFICATION_LINEAGE_BASE_COMMIT,
+                        "is_current_candidate": False,
+                    },
                     "executing_engine": {
                         "role": "THE ENGINE THAT ACTUALLY RUNS. Lab-modified code.",
                         "repository": FORGE_FORK_REPOSITORY,
@@ -175,20 +168,18 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                         "UNKNOWN and must never be described as observed",
                     },
                     "wsr20_evidence_tip": {
-                        "role": "WHAT THE BOUND NATIVE SUITES EXECUTE AT. Neither the "
-                        "fork head nor the upstream baseline.",
+                        "role": "HISTORICAL WSR20/WSR24 native-suite execution identity. "
+                        "Supporting evidence only; not current Final-Gate credit.",
                         "commit": FORGE_WSR20_EVIDENCE_TIP,
                         "is_candidate_head": False,
-                        "note": "a suite executed at this descendant must not be "
-                        "attributed to candidate_commit; verify_candidate_identity "
-                        "fails closed on the divergence",
+                        "note": "R-4 forbids carried-forward historical execution from "
+                        "standing in for fresh direct current-candidate execution.",
                     },
                     "bridge_evidence_head": {
-                        "role": "THE BRIDGE/PROVIDER/EVIDENCE COMMIT THAT RUNS. Bound "
-                        "separately from the Rules Core and never collapsed into it. "
-                        "Carries the PB-05 build-provenance repair and the WSR28/WSR30 "
-                        "provider-truth repairs. Forge PR #5, Draft, deliberately not "
-                        "merged to master.",
+                        "role": "CURRENT BRIDGE/PROVIDER SOURCE ROLE. Bound explicitly "
+                        "even though it shares the exact source commit with the unified "
+                        "maintained-fork candidate. Forge PR #13 is bridge-only and is "
+                        "not a forge/master merge authorization.",
                         "repository": FORGE_FORK_REPOSITORY,
                         "commit": FORGE_BRIDGE_EVIDENCE_COMMIT,
                         "tree": FORGE_BRIDGE_EVIDENCE_TREE,
@@ -197,8 +188,8 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                         "changes_rules_core": False,
                     },
                     "bridge_source_commit": {
-                        "role": "the historical Lab bridge-source pin of record, distinct "
-                        "from both the Rules Core and the executing bridge head",
+                        "role": "current bridge/materialization source role; same exact "
+                        "source commit as the unified candidate by R-1 design",
                         "commit": FORGE_BRIDGE_SOURCE_COMMIT,
                     },
                     "pb05_provenance_consumed": list(FORGE_PB05_PROVENANCE_FIELDS),
@@ -208,7 +199,7 @@ def boundary_receipt(root: Path | None = None) -> dict[str, Any]:
                 "candidate_tree": FORGE_CANDIDATE_TREE,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
                 "license": FORGE_LICENSE,
-                "substitution_forbidden": "WSR20 is tests/evidence only; not a Rules-Core version",
+                "substitution_forbidden": "historical WSR20/upstream identities are not substitutes for the current exact-source candidate",
             },
         },
         "contract_blobs": blobs,
