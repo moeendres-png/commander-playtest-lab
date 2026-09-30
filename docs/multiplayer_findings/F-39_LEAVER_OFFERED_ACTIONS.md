@@ -1,6 +1,6 @@
-# F-37: a player who leaves while holding priority is still offered actions
+# F-39: a player who leaves while holding priority is still offered actions
 
-- **Issue:** #389
+- **Issue:** #389 (first filed as F-37; renumbered because F-37 and F-38 were taken by parallel lanes the same day)
 - **Surface:** XMage full-game lane, concession (WS213) combined with a pending priority frame (CR 800.4a).
 - **Classification:** bridge defect. The rules engine is correct.
 - **Related:** F-35, same family (offered options that abort the game) with a different cause; F-34, same re-issue step.
@@ -46,6 +46,18 @@ Options are only removed, never added. The pilot still answers the frame, so not
 
 It is 2/2 red before the fix, because "Cast Lightning Bolt" is still offered, and 2/2 green after. `XmageMultiplayerControllerLeavesTest` and `XmageFullGameConcedeActionTest` stay green.
 
-## Known limit
+## Follow-up: a concession in the middle of a cast
 
-A concession in the middle of a cast (a pending target or payment frame of the conceder) keeps its options. That surface is WS213's; native XMage aborts every open dialog there.
+The first fix left frames in the middle of a cast unchanged. The probe then showed that they failed the lane too:
+
+- P2 concedes while its own Lightning Bolt's target or payment frame is open, then answers that frame (the WS213 contract).
+- The engine refuses the rest of the cast of a player who left, and the cast never reaches the stack.
+- The lane still failed: `XMAGE_ACTION_EXECUTION_FAILED: priority cast failed` for the target frame, `mana activation failed` for the payment frame.
+
+**Fix:** in `XmageFullGamePlayer`, when a cast, activation or mana activation is refused and the player is no longer in the game, it unwinds like a cancelled payment (`leftMidAction()`) instead of failing the lane. Nothing is chosen for the player, and no option is added.
+
+**Regression:** `aCastInProgressUnwindsWhenItsCasterLeaves` (4P/5P × target/payment) is 4/4 red before the fix and 4/4 green after. Its assertions:
+
+- P2 is never asked again;
+- the stack ends empty;
+- P3 stays at 40.
