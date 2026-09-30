@@ -198,6 +198,7 @@ final class XmageNativeStateRestoration {
     private final Deck materializationVehicle;
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
+    private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -224,6 +225,15 @@ final class XmageNativeStateRestoration {
 
     Set<UUID> injectedHandIdsForTests(String playerId) {
         return Set.copyOf(injectedHandIdsByPlayer.getOrDefault(playerId, Set.of()));
+    }
+
+    /**
+     * Native ids of the commanders requested outside the command zone, keyed by
+     * their semantic object id. Bound before the game starts, so a pilot can
+     * match the engine's offers before the post-arrival placement moves them.
+     */
+    Map<String, UUID> commanderObjectIds() {
+        return Map.copyOf(commanderObjectIdsBySemanticId);
     }
 
     UUID injectedObjectId(String semanticId) {
@@ -670,6 +680,7 @@ final class XmageNativeStateRestoration {
             throw new RestorationException(
                     "ALREADY_APPLIED", "pre-start restoration runs exactly once");
         }
+        prebindCommanderObjects(game, playersByPid);
         Map<String, List<Card>> vehicleByName = new HashMap<>();
         for (Card card : materializationVehicle.getCards()) {
             vehicleByName.computeIfAbsent(card.getName(), name -> new ArrayList<>()).add(card);
@@ -806,6 +817,12 @@ final class XmageNativeStateRestoration {
                 continue;
             }
             UUID liveId = liveCommanderIds.get(requested.commanderId());
+            if (!liveId.equals(commanderObjectIdsBySemanticId.get(requested.semanticId()))) {
+                // The engine chose a different commander card than the one
+                // published before the game started.
+                throw new RestorationException(
+                        "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
+            }
             UUID placed = injectedObjectIdsBySemanticId.get(requested.semanticId());
             if (placed != null) {
                 // Completion runs after the causal route already placed it; the
@@ -836,6 +853,40 @@ final class XmageNativeStateRestoration {
                         "COMMANDER_PLACEMENT_FAILED", requested.commanderId());
             }
             injectedObjectIdsBySemanticId.put(requested.semanticId(), liveId);
+        }
+    }
+
+    /**
+     * Binds every commander requested outside the command zone to the owner's
+     * one sideboard card of that identity: GameCommanderImpl.init makes exactly
+     * those sideboard cards the commanders. Placement later requires the
+     * engine's genuine commander id to equal this binding.
+     */
+    private void prebindCommanderObjects(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        for (RequestedCommander requested : plan.commanders()) {
+            if (requested.zone() == Zone.COMMAND) {
+                continue;
+            }
+            Player owner = requirePlayer(playersByPid, requested.owner());
+            List<UUID> matches = new ArrayList<>();
+            for (UUID cardId : owner.getSideboard()) {
+                Card card = game.getCard(cardId);
+                if (card != null && requested.cardIdentity().equals(card.getName())) {
+                    matches.add(cardId);
+                }
+            }
+            if (matches.size() != 1) {
+                throw new RestorationException(
+                        "COMMANDER_IDENTITY_AMBIGUOUS",
+                        requested.commanderId() + " matched " + matches.size()
+                                + " sideboard cards for " + requested.owner());
+            }
+            if (commanderObjectIdsBySemanticId.put(requested.semanticId(), matches.get(0)) != null
+                    || injectedObjectIdsBySemanticId.containsKey(requested.semanticId())) {
+                throw new RestorationException(
+                        "DUPLICATE_SEMANTIC_OBJECT", requested.semanticId());
+            }
         }
     }
 
