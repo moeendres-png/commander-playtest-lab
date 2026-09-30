@@ -17,6 +17,7 @@ import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
+import mage.abilities.mana.ManaOptions;
 import mage.cards.Card;
 import mage.cards.Cards;
 import mage.cards.decks.Deck;
@@ -329,7 +330,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 new JsonObject()
         ));
 
-        List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false));
+        // All playable abilities, one per object: getPlayable(game, false) is XMage's AI
+        // variant, which drops activated abilities of different permanents whose rule text
+        // is equal (hash-keyed), so e.g. a second copy of a creature or one of two {U}
+        // lands was never offered, and which one survived depended on hash order (F-30).
+        List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false, Zone.ALL, false));
+        ManaOptions available = getManaAvailable(game);
+        playable.removeIf(candidate -> !manaCostAffordable(candidate, available, game));
         playable.sort(Comparator.comparing(this::abilitySortKey));
         for (ActivatedAbility ability : playable) {
             String optionId = abilityOptionId("priority", ability);
@@ -709,14 +716,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // per-object usable mana abilities of the player's permanents, as XMage's human
         // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
         Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
-        getPlayable(game, false).stream()
+        getPlayable(game, false, Zone.ALL, false).stream()
                 .filter(Ability::isManaAbility)
                 .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         for (Permanent permanent : game.getBattlefield().getAllActivePermanents(getId())) {
             getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values()
                     .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         }
+        ManaOptions available = getManaAvailable(game);
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
+                .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
 
@@ -921,15 +930,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
-        boolean anyModeTargetsAvailable = false;
+        Map<Mode, Boolean> targetsAvailableByMode = new LinkedHashMap<>();
         for (Mode mode : available) {
+            targetsAvailableByMode.put(mode, modeTargetsAvailable(mode, source, game));
+        }
+        boolean anyModeTargetsAvailable = targetsAvailableByMode.containsValue(true);
+        for (Mode mode : available) {
+            boolean targetsAvailable = targetsAvailableByMode.get(mode);
+            // CR 700.2a/b: a mode that would be illegal (no legal targets) can't be
+            // chosen. Offering it made the pilot's choice fail the cast and abort the
+            // game (F-35). Only when no mode is choosable do all modes stay listed, for
+            // the no-viable-mode rewind below.
+            if (anyModeTargetsAvailable && !targetsAvailable) {
+                continue;
+            }
             String optionId = mode.getId().toString();
             JsonObject metadata = new JsonObject();
             metadata.addProperty("mode_id", mode.getId().toString());
             metadata.addProperty("paw_print_value", mode.getPawPrintValue());
-            boolean targetsAvailable = modeTargetsAvailable(mode, source, game);
             metadata.addProperty("mode_targets_available", targetsAvailable);
-            anyModeTargetsAvailable = anyModeTargetsAvailable || targetsAvailable;
             options.add(XmageFullGameDecisionController.option(
                     optionId,
                     mode.toString(),
@@ -1762,6 +1781,21 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ability.getSourceId() == null ? "<none>" : ability.getSourceId().toString(),
                 ability.getOriginalId().toString()
         );
+    }
+
+    /**
+     * A mana ability with a mana cost of its own (Signets, filter lands: "{1}, {T}: Add
+     * {B}{R}") is only offered when that cost can be paid. XMage's playable/usable lists
+     * check canActivate only, so an unaffordable one was offered and its activation failed,
+     * which aborted the game (F-35). Uses the engine's own affordability test, the one
+     * canPlay applies to every other ability (available mana includes the pool).
+     * Non-mana abilities are left to the engine's playable calculation.
+     */
+    private boolean manaCostAffordable(ActivatedAbility ability, ManaOptions available, Game game) {
+        if (!ability.isManaAbility() || ability.getManaCostsToPay().isEmpty()) {
+            return true;
+        }
+        return canPayMinimumManaCost(ability, available, game);
     }
 
     private String abilitySortKey(Ability ability) {
