@@ -42,7 +42,7 @@
  "decision_probe_game": {
   "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
   "decisions_observed": 4,
-  "game_id": "wsr22-forge-2p-6413a15d",
+  "game_id": "wsr22-forge-2p-f88d0fcf",
   "player_count": 2,
   "steps_completed": [
    "handshake",
@@ -116,9 +116,9 @@
    "detail": "every response echoed the exact request_id",
    "evidence": {
     "request_ids": {
-     "get_capabilities": "8d299a22-e382-4d57-9918-461769f53ec5",
-     "get_provider_version": "f558da7c-b1fa-4d73-8d07-44053cda4775",
-     "start_engine": "4c819766-5469-4355-9846-d46f6c1c6c93"
+     "get_capabilities": "3353ec1f-a3b3-44dc-92be-03a6b578ea46",
+     "get_provider_version": "8dfbdbed-089d-446c-a991-34ab628f0dad",
+     "start_engine": "5fdd1b83-fdd5-493b-81c7-e78437d79716"
     }
    },
    "invariant": "request_id_matches",
@@ -246,10 +246,10 @@
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "6db1c52e-90a1-4e57-af16-a5f2fed24c4d",
+     "request_id": "eb9cd298-ac5e-4db9-838f-b7dd564f8b86",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-30T02:26:37.268490355Z",
+     "timestamp": "2026-09-30T13:33:34.780325354Z",
      "warnings": []
     },
     "legacy_alias_in_credit_set": false,
@@ -278,10 +278,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "21630814-393b-4464-a869-c25df4ebac86",
+    "request_id": "0e0a8a07-ccec-4274-94aa-82e4d045420f",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T02:26:37.268868583Z",
+    "timestamp": "2026-09-30T13:33:34.780776460Z",
     "warnings": []
    },
    "invariant": "fail_closed_protocol_mismatch",
@@ -307,10 +307,10 @@
     "ok": false,
     "payload": {},
     "protocol_version": "2.0.0",
-    "request_id": "f1c7a920-be86-45cd-b637-c47a278b7c38",
+    "request_id": "2a6bda6e-2292-4de9-91e1-b647f817c50a",
     "status": "error",
     "success": false,
-    "timestamp": "2026-09-30T02:26:37.269148482Z",
+    "timestamp": "2026-09-30T13:33:34.781162142Z",
     "warnings": []
    },
    "invariant": "fail_closed_unknown_message",
@@ -318,30 +318,31 @@
   },
   {
    "af01_v2_clause": "fail_closed_invariants.illegal_action",
-   "detail": "provider rejected an unrecognised legal_action_id for a live game",
+   "detail": "provider rejected an unrecognised legal_action_id for a live game, no mutation",
    "evidence": {
-    "game_id": "wsr22-forge-2p-6413a15d",
+    "decision_unchanged": true,
+    "game_id": "wsr22-forge-2p-f88d0fcf",
     "response": {
      "engine_event_offset": 18,
      "error": {
-      "code": "malformed_request",
-      "message": "missing proposal object"
+      "code": "unknown_option",
+      "message": "unknown option for revision 5"
      },
      "errors": [
       {
-       "code": "malformed_request",
+       "code": "unknown_option",
        "details": {},
-       "message": "missing proposal object",
+       "message": "unknown option for revision 5",
        "retryable": false
       }
      ],
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "a35d7b03-4b9e-452d-8b9c-adcdac944ba2",
+     "request_id": "1513507f-a163-4998-84f9-426339664a3b",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-30T02:26:37.269482421Z",
+     "timestamp": "2026-09-30T13:33:34.784504431Z",
      "warnings": []
     }
    },
@@ -350,30 +351,31 @@
   },
   {
    "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
-   "detail": "provider rejected an unknown decision identity for a live game",
+   "detail": "provider rejected a real option under an unknown decision identity for a live game, no mutation",
    "evidence": {
-    "game_id": "wsr22-forge-2p-6413a15d",
+    "decision_unchanged": true,
+    "game_id": "wsr22-forge-2p-f88d0fcf",
     "response": {
      "engine_event_offset": 18,
      "error": {
-      "code": "malformed_request",
-      "message": "missing proposal object"
+      "code": "stale_revision",
+      "message": "frame revision 5 expected, got 1000005"
      },
      "errors": [
       {
-       "code": "malformed_request",
+       "code": "stale_revision",
        "details": {},
-       "message": "missing proposal object",
+       "message": "frame revision 5 expected, got 1000005",
        "retryable": false
       }
      ],
      "ok": false,
      "payload": {},
      "protocol_version": "2.0.0",
-     "request_id": "309cc639-e83e-4067-bfb4-bb3965f56716",
+     "request_id": "afbed64e-4154-4568-baa0-a07ee3be6d7b",
      "status": "error",
      "success": false,
-     "timestamp": "2026-09-30T02:26:37.269819140Z",
+     "timestamp": "2026-09-30T13:33:34.789832373Z",
      "warnings": []
     }
    },
@@ -382,35 +384,153 @@
   },
   {
    "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
-   "detail": "an unsupported decision class failed closed for a live game without a default option",
+   "detail": "provider accepted a request for an unsupported decision class for a live game",
    "evidence": {
-    "game_id": "wsr22-forge-2p-6413a15d",
+    "decision_unchanged": true,
+    "game_id": "wsr22-forge-2p-f88d0fcf",
     "response": {
      "engine_event_offset": 18,
-     "error": {
-      "code": "malformed_request",
-      "message": "actor_id is required"
-     },
-     "errors": [
-      {
-       "code": "malformed_request",
-       "details": {},
-       "message": "actor_id is required",
-       "retryable": false
+     "ok": true,
+     "payload": {
+      "actions": [
+       {
+        "action_id": "opt-5829eca0-ac8e-437b-b04d-514f44409097",
+        "action_type": "pass_priority",
+        "actor_id": "p2",
+        "allowed_target_ids": [],
+        "choices_schema": {},
+        "cost": {},
+        "decision_class": "forge:priority/1",
+        "metadata": {
+         "frame_kind": "PRIORITY",
+         "label": "Pass priority",
+         "revision": 5
+        },
+        "modes": [],
+        "semantic_fingerprint": "29f1bb60e3f8ce311c8ba50fd02b66f4f6bb4e09b873bb0fc62f2f58401737da",
+        "semantic_key": "forge:priority/1|p2|pass_priority|Pass priority||29f1bb60e3f8",
+        "source_object_id": null,
+        "target_ids": []
+       },
+       {
+        "action_id": "opt-f965cbd8-22fe-4853-bd8d-dc3816e45e31",
+        "action_type": "concede",
+        "actor_id": "p2",
+        "allowed_target_ids": [],
+        "choices_schema": {},
+        "cost": {},
+        "decision_class": "forge:priority/1",
+        "metadata": {
+         "frame_kind": "PRIORITY",
+         "label": "Concede the game",
+         "revision": 5
+        },
+        "modes": [],
+        "semantic_fingerprint": "616baf09fac379b4e25fba1a767f902ee36e3a20bc9e79196dbc099a4dfe4c01",
+        "semantic_key": "forge:priority/1|p2|concede|Concede the game||616baf09fac3",
+        "source_object_id": null,
+        "target_ids": []
+       }
+      ],
+      "decision": {
+       "actor": "p2",
+       "decision_class": "forge:priority/1",
+       "decision_protocol_version": "forge-decision-protocol/1.0.0",
+       "event_offset": 18,
+       "kind": "PRIORITY",
+       "legal_set_digest": "92495e7f38ecaced9e71d65cde941bd409ab5763cbf4d1f57625c8d09047cfd5",
+       "legal_set_size": 2,
+       "lifecycle": false,
+       "options": 2,
+       "principal_observation_digest": "3b0a1fe0b6c8823eab21beedb9e1a56976ede663a73ab6c1b70fff1fef95d368",
+       "public_state_digest": "c3956be8c49f86f456794c80009131a54fd95b4805d5d19445aef2816c79708b",
+       "revision": 5,
+       "rng_binding": {
+        "explicit_seed": true,
+        "require_explicit_seed": true,
+        "root_seed": 20260927,
+        "rules_calls": 197,
+        "rules_root_seed": 20260927
+       },
+       "semantic_replay_version": "forge-semantic-replay/1.0.0",
+       "status": "SUPPORTED"
       }
-     ],
-     "ok": false,
-     "payload": {},
+     },
      "protocol_version": "2.0.0",
-     "request_id": "78f13ae3-ab2c-4000-b548-96d828978837",
-     "status": "error",
-     "success": false,
-     "timestamp": "2026-09-30T02:26:37.270123964Z",
+     "request_id": "154cde76-750d-48b3-993f-f68421e435a0",
+     "result": {
+      "actions": [
+       {
+        "action_id": "opt-5829eca0-ac8e-437b-b04d-514f44409097",
+        "action_type": "pass_priority",
+        "actor_id": "p2",
+        "allowed_target_ids": [],
+        "choices_schema": {},
+        "cost": {},
+        "decision_class": "forge:priority/1",
+        "metadata": {
+         "frame_kind": "PRIORITY",
+         "label": "Pass priority",
+         "revision": 5
+        },
+        "modes": [],
+        "semantic_fingerprint": "29f1bb60e3f8ce311c8ba50fd02b66f4f6bb4e09b873bb0fc62f2f58401737da",
+        "semantic_key": "forge:priority/1|p2|pass_priority|Pass priority||29f1bb60e3f8",
+        "source_object_id": null,
+        "target_ids": []
+       },
+       {
+        "action_id": "opt-f965cbd8-22fe-4853-bd8d-dc3816e45e31",
+        "action_type": "concede",
+        "actor_id": "p2",
+        "allowed_target_ids": [],
+        "choices_schema": {},
+        "cost": {},
+        "decision_class": "forge:priority/1",
+        "metadata": {
+         "frame_kind": "PRIORITY",
+         "label": "Concede the game",
+         "revision": 5
+        },
+        "modes": [],
+        "semantic_fingerprint": "616baf09fac379b4e25fba1a767f902ee36e3a20bc9e79196dbc099a4dfe4c01",
+        "semantic_key": "forge:priority/1|p2|concede|Concede the game||616baf09fac3",
+        "source_object_id": null,
+        "target_ids": []
+       }
+      ],
+      "decision": {
+       "actor": "p2",
+       "decision_class": "forge:priority/1",
+       "decision_protocol_version": "forge-decision-protocol/1.0.0",
+       "event_offset": 18,
+       "kind": "PRIORITY",
+       "legal_set_digest": "92495e7f38ecaced9e71d65cde941bd409ab5763cbf4d1f57625c8d09047cfd5",
+       "legal_set_size": 2,
+       "lifecycle": false,
+       "options": 2,
+       "principal_observation_digest": "3b0a1fe0b6c8823eab21beedb9e1a56976ede663a73ab6c1b70fff1fef95d368",
+       "public_state_digest": "c3956be8c49f86f456794c80009131a54fd95b4805d5d19445aef2816c79708b",
+       "revision": 5,
+       "rng_binding": {
+        "explicit_seed": true,
+        "require_explicit_seed": true,
+        "root_seed": 20260927,
+        "rules_calls": 197,
+        "rules_root_seed": 20260927
+       },
+       "semantic_replay_version": "forge-semantic-replay/1.0.0",
+       "status": "SUPPORTED"
+      }
+     },
+     "status": "ok",
+     "success": true,
+     "timestamp": "2026-09-30T13:33:34.792776129Z",
      "warnings": []
     }
    },
    "invariant": "fail_closed_unsupported_decision",
-   "verdict": "PASS"
+   "verdict": "FAIL"
   },
   {
    "af01_v2_clause": "rules_authority_invariants.rules_core_sole_legality_authority",
@@ -425,8 +545,8 @@
    "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
    "detail": "a scan of 15 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
    "evidence": {
-    "runner_commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
-    "runner_tree": "f1e21ecf2ac30538370a47f7f13d8a93c4a71d76",
+    "runner_commit": "b0a66111cbf9d12d4dc82397e0e16a77f690331b",
+    "runner_tree": "bf290e95e345c99b818ae637689d093fab02d065",
     "scan": {
      "complete": true,
      "hits": [],
@@ -467,10 +587,10 @@
   "AF01 PASS does not imply provider release eligibility",
   "AF01 PASS does not select a provider or claim Architecture Freeze"
  ],
- "protocol_transcript_digest": "76c45016fe6cb3c76069414f3c6ec7cd7bb720dfebf23e289cf38ca2a22a084a",
+ "protocol_transcript_digest": "b7d42fb2edea8d7a813255ad41058365b9d1b57ed8f0773add6bac539da4d985",
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af01-current-boundary/1.0.0",
  "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
  "transport_protocol": "2.0.0",
- "verdict": "PASS"
+ "verdict": "FAIL"
 }

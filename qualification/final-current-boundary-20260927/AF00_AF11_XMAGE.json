@@ -37,7 +37,7 @@
     "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact",
     "the auxiliary full-game-lane AF01 artifact is bound to a different engine epoch (b19596980f27) than this assembly; its verdict is not cited as current evidence"
    ],
-   "verdict": "FAIL"
+   "verdict": "PASS"
   },
   {
    "all_or_nothing": true,
@@ -213,7 +213,7 @@
    "evidence": [
     "principal-scoped state read for four seats in a live 4P game",
     "HIDDEN_INFO_XMAGE.json",
-    "native hidden/replay suites green: 214 tests"
+    "native hidden/replay suites green: 219 tests"
    ],
    "gate": "AF05",
    "name": "HIDDEN_INFORMATION",
@@ -360,7 +360,7 @@
    "evidence": [
     "denominator accounting complete: 107 explicit outcomes for 107 rows",
     "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
-    "native suites: 214 tests, all green"
+    "native suites: 219 tests, all green"
    ],
    "gate": "AF10",
    "name": "RUNTIME_EVIDENCE_RELIABILITY",
@@ -391,11 +391,11 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
+   "executed_commit": "b0a66111cbf9d12d4dc82397e0e16a77f690331b",
    "failed": 0,
    "failures": 0,
    "passed": 34,
-   "receipt_digest": "a7c4167aa7b83561cbde12b3ef8ead90a90cf2f278cab816beebb55861f5ae9c",
+   "receipt_digest": "5f19c93372ca67f17a9a778e0dcd888b8de73b224fe08ffdb16756519e083d54",
    "returncode": 0,
    "tests": 34
   },
@@ -404,13 +404,13 @@
    "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
    "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
    "errors": 0,
-   "executed_commit": "1a3324f375a5d359979389586aa82dd6c43bc73b",
+   "executed_commit": "b0a66111cbf9d12d4dc82397e0e16a77f690331b",
    "failed": 0,
    "failures": 0,
-   "passed": 180,
-   "receipt_digest": "8a2ae2e1d06420d6162fd357e720d94e3b501efad8df4709df1c99b65f1a5772",
+   "passed": 185,
+   "receipt_digest": "7b089da4ddad650e483709e715878a8a240c02cef537dc043b166bc0a6523ba3",
    "returncode": 0,
-   "tests": 180
+   "tests": 185
   }
  },
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",

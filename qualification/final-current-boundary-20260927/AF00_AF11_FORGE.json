@@ -36,7 +36,7 @@
    "gate": "AF01",
    "name": "PROTOCOL_HANDSHAKE",
    "nonblocking_limitations": [],
-   "verdict": "PASS"
+   "verdict": "FAIL"
   },
   {
    "all_or_nothing": true,
@@ -394,7 +394,7 @@
    "failed": 0,
    "failures": 0,
    "passed": 150,
-   "receipt_digest": "8d480e7cd7ed9719262c233c3cf8eb8705e82cd728ef46088a012005aa557b01",
+   "receipt_digest": "87c9fded75fe918779999d04acfd750911adaef3f6c466cb096bbdd25e53ac33",
    "returncode": 0,
    "tests": 150
   },
@@ -407,7 +407,7 @@
    "failed": 0,
    "failures": 0,
    "passed": 67,
-   "receipt_digest": "8ca568242c9008239cf579dd8a38e42ce54fd436de234717a46f7d055b62c62f",
+   "receipt_digest": "0f8980357ddc9f3a1b77ced45880fb7248cedd0e957d8285db7adf2f5680c5f8",
    "returncode": 0,
    "tests": 67
   }

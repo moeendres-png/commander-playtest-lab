@@ -6,6 +6,13 @@
   "blocked": 18
  },
  "architecture_freeze": "NOT_CLAIMED",
+ "artifact_identity_consistent": true,
+ "engine_artifact": {
+  "kind": "file",
+  "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+  "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
+  "size": 7112962
+ },
  "native_receipt": "FRESH_EXACT",
  "orthogonality": "Admission is frozen-state restorability; runtime execution is exact native-harness execution. Neither axis promotes FULL107 rows.",
  "production_provider": "NOT_SELECTED",
@@ -581,7 +588,7 @@
  ],
  "rows_total": 30,
  "runtime_credit": "EXECUTED_PASS",
- "runtime_credit_reason": "runner digest and engine candidate match the assembling head",
+ "runtime_credit_reason": "runner digest, engine candidate and loaded engine artifact match the assembling head and the admission handshake",
  "runtime_executed_pass": 30,
  "runtime_not_run_or_failed": 0,
  "schema_version": "commander-lab.pb03-admission-runtime-matrix/2.0.0"
