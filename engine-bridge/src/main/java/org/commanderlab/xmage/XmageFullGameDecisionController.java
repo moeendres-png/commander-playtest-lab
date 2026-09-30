@@ -224,7 +224,13 @@ final class XmageFullGameDecisionController {
      * addressee and its views are re-bound under a new decision id. A
      * departed controller that the engine still names fails closed.
      *
-     * @return whether the pending frame was re-addressed
+     * <p>F-37: a priority frame whose own principal just left keeps only the
+     * engine's pass option. A player who left takes no actions (CR 800.4a),
+     * and the engine no longer executes the other options, so offering them
+     * would let a pilot pick an action that fails the lane. Options are only
+     * removed, never added, and the pilot still answers the frame.</p>
+     *
+     * @return whether the pending frame was re-issued
      */
     synchronized boolean followTurnControl(Game game) {
         if (pendingRequest == null || response != null || terminalFailure != null || terminal
@@ -245,15 +251,36 @@ final class XmageFullGameDecisionController {
             notifyAll();
             return false;
         }
-        if (decider.getId().toString().equals(pendingRequest.get("actor_id").getAsString())) {
+        JsonObject request = pendingRequest.deepCopy();
+        boolean narrowed = !decider.isInGame()
+                && "priority".equals(request.get("decision_class").getAsString())
+                && keepOnlyPass(request);
+        if (!narrowed && decider.getId().toString().equals(pendingRequest.get("actor_id").getAsString())) {
             return false;
         }
-        JsonObject request = pendingRequest.deepCopy();
         address(request, game, controlled, decider, request.get("decision_class").getAsString());
         request.add("pilot_state", bindViews(request, game, decider));
         pendingRequest = request;
         recordDecisionRequested(request);
         notifyAll();
+        return true;
+    }
+
+    /** Narrows a priority frame to its pass option; false when there is nothing to remove. */
+    private static boolean keepOnlyPass(JsonObject request) {
+        JsonArray kept = new JsonArray();
+        JsonArray options = request.getAsJsonArray("legal_options");
+        for (JsonElement element : options) {
+            JsonObject option = element.getAsJsonObject();
+            if (option.has("option_type") && "pass_priority".equals(option.get("option_type").getAsString())) {
+                kept.add(option);
+            }
+        }
+        if (kept.isEmpty() || kept.size() == options.size()) {
+            return false;
+        }
+        request.add("legal_options", kept);
+        request.getAsJsonObject("context").addProperty("actor_left_game", true);
         return true;
     }
 
