@@ -692,6 +692,121 @@ class XmageNativeStateRestorationTest {
         }
     }
 
+    /** The CMD-ZONE fixture before its stack spell was cast (the causal route's pre-stack board). */
+    static JsonObject commanderOnBattlefieldRecord() {
+        JsonObject record = frozenRecord("WS05-CMD-ZONE-GY-YES").deepCopy();
+        JsonArray kept = new JsonArray();
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            if (!"stack".equals(element.getAsJsonObject().get("zone").getAsString())) {
+                kept.add(element);
+            }
+        }
+        record.add("semantic_objects", kept);
+        record.remove("stack_state");
+        return record;
+    }
+
+    static JsonObject semanticObject(JsonObject record, String semanticId) {
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            if (semanticId.equals(element.getAsJsonObject().get("semantic_id").getAsString())) {
+                return element.getAsJsonObject();
+            }
+        }
+        throw new AssertionError("semantic object missing: " + semanticId);
+    }
+
+    static void assertPlanRejected(JsonObject record, String code) {
+        try {
+            XmageNativeStateRestoration.planFromFrozenRecord(record, "ws2-neg-cmd", 424242L);
+            fail("must fail closed with " + code);
+        } catch (XmageNativeStateRestoration.RestorationException exc) {
+            assertTrue(exc.getMessage().startsWith(code), exc.getMessage());
+        }
+    }
+
+    @Test
+    void genuineCommanderIsRestoredOnTheBattlefield() {
+        XmageNativeStateRestoration.Plan plan = XmageNativeStateRestoration.planFromFrozenRecord(
+                commanderOnBattlefieldRecord(), "ws2-cmd-bf", 424242L);
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(importer, plan, "ws2-cmd-bf");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws2-cmd-bf", handles, 0, 40, plan.seed(), importer, restoration);
+        UUID prebound = restoration.commanderObjectIds().get("obj:cmd-zone-test");
+        assertTrue(prebound != null, "the commander's native id is published before the game starts");
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        completeArrival(session, restoration, seats);
+        mage.game.GameCommanderImpl game = session.restorationGame();
+        Player p1 = seats.get("P1");
+
+        // F-38: the permanent is the engine's genuine commander, not a generic setup copy.
+        assertTrue(game.getCommandersIds(p1, mage.constants.CommanderCardType.ANY, false)
+                .contains(prebound));
+        Permanent commander = game.getPermanent(prebound);
+        assertTrue(commander != null, "commander is on the battlefield");
+        assertEquals(p1.getId(), commander.getControllerId());
+        assertEquals(1, game.getBattlefield().getAllActivePermanents(p1.getId()).stream()
+                .filter(permanent -> permanent.getName().equals("Rograkh, Son of Rohgahh"))
+                .count(), "exactly one Rograkh, no setup copy next to it");
+        assertEquals(prebound, restoration.injectedObjectId("obj:cmd-zone-test"));
+
+        JsonObject observed = XmageNativeStateRestoration.readback(game, seats);
+        XmageNativeStateRestoration.CompareVerdict verdict = restoration.compare(observed, seats);
+        assertTrue(verdict.mismatches().isEmpty(), "mismatches: " + verdict.mismatches());
+
+        // The causal route completes commanders before the stack; arrival completion
+        // repeats it. The placement happens once and the compare judges the result.
+        restoration.restoreCommanderCasts(game, seats);
+        assertEquals(prebound, game.getPermanent(prebound).getId());
+        assertTrue(restoration.compare(
+                XmageNativeStateRestoration.readback(game, seats), seats).match());
+
+        // A request for the same commander in the command zone must not match this board.
+        List<XmageNativeStateRestoration.RequestedCommander> inCommandZone = new ArrayList<>();
+        for (XmageNativeStateRestoration.RequestedCommander requested : plan.commanders()) {
+            inCommandZone.add(new XmageNativeStateRestoration.RequestedCommander(
+                    requested.commanderId(), requested.cardIdentity(), requested.owner(),
+                    requested.priorCasts()));
+        }
+        XmageNativeStateRestoration.Plan tampered = new XmageNativeStateRestoration.Plan(
+                plan.planId(), plan.playerCount(), plan.seed(), plan.players(),
+                List.copyOf(inCommandZone), plan.objects(), plan.turnNumber(), plan.phase(),
+                plan.step(), plan.activePlayer(), plan.priorityPlayer());
+        assertFalse(new XmageNativeStateRestoration(
+                tampered, restoration.materializationVehicleForTests())
+                .compare(observed, seats).match());
+    }
+
+    @Test
+    void commanderOutsideTheCommandZoneFailsClosedWhenUnbound() {
+        JsonObject graveyard = commanderOnBattlefieldRecord();
+        graveyard.getAsJsonObject("commander_state").getAsJsonArray("commanders")
+                .get(0).getAsJsonObject().addProperty("zone", "graveyard");
+        assertPlanRejected(graveyard, "UNSUPPORTED_COMMANDER_ZONE");
+
+        JsonObject missing = commanderOnBattlefieldRecord();
+        missing.getAsJsonArray("semantic_objects")
+                .remove(semanticObject(missing, "obj:cmd-zone-test"));
+        assertPlanRejected(missing, "COMMANDER_OBJECT_MISSING");
+
+        JsonObject conflict = commanderOnBattlefieldRecord();
+        conflict.getAsJsonObject("commander_state").getAsJsonArray("commanders")
+                .get(0).getAsJsonObject().addProperty("zone", "command");
+        assertPlanRejected(conflict, "COMMANDER_ZONE_CONFLICT");
+
+        JsonObject duplicate = commanderOnBattlefieldRecord();
+        JsonObject copy = semanticObject(duplicate, "obj:cmd-zone-test").deepCopy();
+        copy.addProperty("semantic_id", "obj:cmd-zone-test-2");
+        duplicate.getAsJsonArray("semantic_objects").add(copy);
+        assertPlanRejected(duplicate, "COMMANDER_ZONE_CONFLICT");
+
+        JsonObject tapped = commanderOnBattlefieldRecord();
+        semanticObject(tapped, "obj:cmd-zone-test").addProperty("tapped", true);
+        assertPlanRejected(tapped, "UNSUPPORTED_COMMANDER_OBJECT_STATE");
+    }
+
     @Test
     void tamperedRequestDoesNotMatch() {
         XmageNativeStateRestoration.Plan plan =

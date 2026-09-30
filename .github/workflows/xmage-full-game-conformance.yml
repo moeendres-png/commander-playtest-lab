@@ -23,6 +23,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # A newer push to the same PR supersedes its obsolete run. Every other run
+  # (each push to main, each manual dispatch) has its own group, so every
+  # merged head keeps its own evidence instead of being cancelled by the next.
+  group: xmage-conformance-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 env:
   XMAGE_COMMIT: 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326
   PYTHONHASHSEED: "0"

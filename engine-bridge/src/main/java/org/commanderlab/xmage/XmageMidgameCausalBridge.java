@@ -623,6 +623,8 @@ final class XmageMidgameCausalBridge {
                 throw new CausalException("CAUSAL_OBJECT_UNBOUND", exc.getMessage());
             }
         }
+        restoration.commanderObjectIds().forEach(
+                (semanticId, nativeId) -> map.addProperty(semanticId, nativeId.toString()));
         return map;
     }
 

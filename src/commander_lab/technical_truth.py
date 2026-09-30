@@ -42,7 +42,9 @@ def _is_ancestor(root: Path, ancestor: str) -> bool | None:
     if result.returncode == 0:
         return True
     if result.returncode == 1:
-        return False
+        # In a shallow clone the history between the two commits may simply be
+        # missing, so "not an ancestor" is unproven there: report UNKNOWN.
+        return None if _git(root, "rev-parse", "--is-shallow-repository") == "true" else False
     return None
 
 
