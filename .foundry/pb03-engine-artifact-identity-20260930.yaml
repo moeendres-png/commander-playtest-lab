@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "foundry/pb03-engine-artifact-identity-20260930"
 audit_base_sha: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
 audit_base_tree: "30addb023be1d9bbda3d7deff5f4d2f0df52d9b8"
-state_written_against_head: "d6f15790b36ea0329b253c7d3960fe1f8d4edf74"
-validated_head: "d6f15790b36ea0329b253c7d3960fe1f8d4edf74"
+state_written_against_head: "027ee6d9a9d74a4d3adc1d48b23f34103ff11839"
+validated_head: "027ee6d9a9d74a4d3adc1d48b23f34103ff11839"
 
 objective: "Close the documented PB-03 residual: bind the provider-reported loaded engine artifact identity (SHA-256, size, kind of the mage jar the bridge actually loaded) into the PB-03 dimension-admission document, the native runtime ledger, the midgame probe receipt and the assembled matrix, so engine identity is cryptographically observed instead of only declared."
 
@@ -67,6 +67,7 @@ technical_decisions:
   - "Runtime freshness now requires the artifact digest: missing/empty -> MISSING, directory/malformed -> INVALID, different artifact -> STALE; an unavailable expected digest is never fresh."
   - "The workflow asserts provider_identity, ledger and matrix carry the same file-backed 64-hex digest."
   - "ADVERSARIAL REVIEW (fresh context) of this PR falsified one claim: midgame receipt_freshness validated only well-formedness, so a well-formed digest of a DIFFERENT artifact would have been FRESH_EXACT. Repaired: expected_engine_artifact_sha256 added (empty -> MISSING, mismatch -> STALE), the workflow verifies the live probe receipt against the admission handshake digest, and a mismatch->STALE unit test locks it. Requalified at f6d7f0e7/eab920c2."
+  - "MAIN DRIFT (commander-object binding ffcedd3d/e6410a77, F-39, CI hygiene) merged normally at 78bb8bcc and requalified. The commander binding fix made 8 more causal rows reachable: fresh midgame partition 8/17/1/1/2. Boundary counts/gates unchanged; artifact identity chain consistent."
   - "MAIN DRIFT (F-30/F-37, stable option order) merged normally at 0488259a and requalified. F-37 made AF01 discriminating: XMage AF01 FAIL->PASS on the live pin; Forge AF01 PASS->FAIL (fail_closed_unsupported_decision: the bridge accepted a request for an unsupported decision class for a live game). Boundary counts unchanged 5/58/44; the Forge finding is recorded as a provider gap, not masked."
 
 hypotheses_rejected: []
@@ -88,9 +89,9 @@ files_modified:
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "pytest tests -> 2445 passed, 13 skipped, 0 failed (b71d6cbd)"
-  - "pytest tests/qualification -> 519 passed, 9 skipped (b71d6cbd)"
-  - "mvn -o verify -> 825 tests, 0 failures, 0 errors, 1 skipped (b71d6cbd)"
+  - "pytest tests -> 2582 passed, 13 skipped, 0 failed (78bb8bcc)"
+  - "pytest tests/qualification -> 520 passed, 9 skipped (78bb8bcc)"
+  - "mvn -o verify -> 827 tests, 0 failures, 0 errors, 1 skipped (78bb8bcc)"
   - "focused native PB-03/midgame/fingerprint -> 102 passed"
   - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent; XMage AF01 PASS, Forge AF01 FAIL (F-37)"
 
