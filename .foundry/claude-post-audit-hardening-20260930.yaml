@@ -25,8 +25,8 @@ out_of_scope:
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
   session after the handoff of 2026-09-30 evening (single writer)
 status: ACTIVE
-exact_next_action: 'Owner merges #423. Coordinator decides B1 (memo) and accepts or rejects R-1..R-4 on #255 (docs/coordinator_adjudication_20260930/ADJUDICATION.md).
-  Next milestones in order: C4, C3, E2, C1, C2, D2, F1, F2, G1, E1, R1.'
+exact_next_action: 'Owner merges #423. Coordinator decides B1 and accepts or rejects R-1..R-4 on #255. Next milestones:
+  C1, C2, D2, F1, F2, G1, E1, R1.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -114,9 +114,16 @@ tasks:
   C2:
     status: UNADJUDICATED
   C3:
-    status: UNADJUDICATED
+    status: FIXED
+    pr: '#423'
+    evidence: FullGameClaimBasis (OBSERVED/CODE_DERIVED/DECLARED_NOT_OBSERVED/NOT_CLAIMED), batch report and invariant
+      report labelled, hidden report scoped to its transcript scan; guard test mutation-checked
   C4:
-    status: UNADJUDICATED
+    status: FIXED
+    pr: '#423'
+    evidence: failure_privacy.redacted_summary/redacted_exception_message; FullGameProtocolError code + in-memory
+      diagnostics; honeycard test over fake bridge process, batch record and evidence file; sentinel leaked into
+      exception and batch record before (probe), absent after
   D1:
     status: SUPERSEDED_ALREADY_FIXED
     evidence: 'PR #395 merged 2026-09-30 14:40 (artifact identity)'
@@ -126,8 +133,10 @@ tasks:
   E1:
     status: UNADJUDICATED
   E2:
-    status: UNADJUDICATED
-    note: receipts.environment_identity is not on the PR#395 surface
+    status: FIXED
+    pr: '#423'
+    evidence: environment_identity keeps option names, command shape, validated scalars and sha256/16; sentinel
+      secret + private path test 4/5 red before, 6/6 green; no committed receipt carried raw values
   F1:
     status: UNADJUDICATED
   F2:
