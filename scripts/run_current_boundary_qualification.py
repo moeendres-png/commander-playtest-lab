@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -69,22 +70,289 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     run_cardinality,
     summarize,
 )
+from commander_lab.qualification.current_boundary.source_lock import (  # noqa: E402
+    FORGE_BRIDGE_EVIDENCE_COMMIT,
+    FORGE_BRIDGE_EVIDENCE_TREE,
+)
 
 OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
 # Execution receipts live beside the evidence they justify. The assembler reads
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
-# The Forge checkout the native suites execute in. Configurable so the bound
-# bridge/evidence head can be a detached worktree at the exact Forge PR head
-# without moving any other lane's checkout. The default remains the historical
-# WSR20 evidence checkout.
-#
-# The Rules Core this must be equivalent to is ef958ee9/fc3387b; the bridge and
-# evidence head is Forge PR #5 e15f37d6, which changes forge-protocol2-bridge
-# only. engine_tree_equivalence re-proves that separation on every run.
-FORGE_WORKSPACE = Path(
-    os.environ.get("FORGE_WORKSPACE", "/home/moeen/code/ws-forge-full107-cdq-20260926")
+
+
+class RunnerGitError(RuntimeError):
+    """A Git fact required for evidence could not be established (fail closed)."""
+
+
+class ForgeWorkspaceError(RuntimeError):
+    """The Forge workspace is absent, ambiguous, or not the bound identity."""
+
+
+# Environment variables that redirect Git away from the checkout named by cwd.
+# An inherited GIT_DIR/GIT_WORK_TREE would otherwise let `git rev-parse HEAD`
+# answer with a different repository's identity while the evidence names this
+# one, which is precisely what the identity binding must not permit.
+_GIT_REDIRECTION_ENV = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
 )
+
+
+def _git_environment() -> dict[str, str]:
+    env = dict(os.environ)
+    for name in _GIT_REDIRECTION_ENV:
+        env.pop(name, None)
+    return env
+
+
+def git(*args: str, cwd: Path | None = None) -> str:
+    """Run Git against the intended checkout; a failed call fails closed.
+
+    This previously ran with ``check=False`` and returned whatever stdout held,
+    so a missing repository, an unborn HEAD or a redirecting environment yielded
+    an empty (or other-repository) value that flowed into evidence as measured.
+    """
+    root = Path(cwd or REPO_ROOT)
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+        env=_git_environment(),
+    )
+    if completed.returncode != 0:
+        raise RunnerGitError(
+            f"git {' '.join(args)} failed in {root} (exit {completed.returncode}): "
+            f"{completed.stderr.strip()[:200]}"
+        )
+    return completed.stdout.strip()
+
+
+_SHA = re.compile(r"[0-9a-f]{40}")
+
+
+def git_sha(*args: str, cwd: Path | None = None) -> str:
+    """A Git object id required for evidence. Not a full SHA is not an identity."""
+    value = git(*args, cwd=cwd)
+    if not _SHA.fullmatch(value):
+        raise RunnerGitError(
+            f"git {' '.join(args)} in {cwd or REPO_ROOT} returned {value!r}, not a full SHA"
+        )
+    return value
+
+
+def git_toplevel(root: Path) -> Path:
+    """The work-tree root that owns ``root``; a non-repository fails closed."""
+    return Path(git("rev-parse", "--show-toplevel", cwd=root)).resolve()
+
+
+def _bridge_identity_proof(
+    workspace: Path,
+    *,
+    expected_bridge_commit: str,
+    expected_bridge_tree: str,
+    actual_commit: str,
+) -> dict[str, Any]:
+    """Prove the executing bridge module is the bound bridge/evidence identity.
+
+    The bridge is a separate identity from the Rules Core: transport and
+    provenance, not Magic legality. It is bound separately, and the executable
+    form of "the same bridge ran" is equality of the ``forge-protocol2-bridge``
+    module trees at the recorded bridge/evidence commit and at the executing
+    checkout. A checkout whose bridge differs executes a different provider
+    surface, and a missing object means the claim cannot be verified at all.
+    Either way: no Forge credit.
+    """
+    try:
+        recorded_commit_tree = git_sha(
+            "rev-parse", "--verify", "--quiet", f"{expected_bridge_commit}^{{tree}}", cwd=workspace
+        )
+    except RunnerGitError as exc:
+        raise ForgeWorkspaceError(
+            "BRIDGE_IDENTITY_UNVERIFIABLE: the bound bridge/evidence commit "
+            f"{expected_bridge_commit[:12]} is not present in {workspace}: {exc}"
+        ) from exc
+    if recorded_commit_tree != expected_bridge_tree:
+        raise ForgeWorkspaceError(
+            "BRIDGE_IDENTITY_DIVERGENCE: the bound bridge/evidence commit "
+            f"{expected_bridge_commit[:12]} names tree {recorded_commit_tree[:12]}, not the "
+            f"recorded {expected_bridge_tree[:12]}"
+        )
+    try:
+        expected_module_tree = git_sha(
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"{expected_bridge_commit}:forge-protocol2-bridge",
+            cwd=workspace,
+        )
+        actual_module_tree = git_sha(
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"{actual_commit}:forge-protocol2-bridge",
+            cwd=workspace,
+        )
+    except RunnerGitError as exc:
+        raise ForgeWorkspaceError(f"BRIDGE_IDENTITY_UNVERIFIABLE: {exc}") from exc
+    if expected_module_tree != actual_module_tree:
+        raise ForgeWorkspaceError(
+            "BRIDGE_IDENTITY_DIVERGENCE: the executing checkout's forge-protocol2-bridge tree "
+            f"{actual_module_tree[:12]} is not the bound bridge/evidence tree "
+            f"{expected_module_tree[:12]} (bridge commit {expected_bridge_commit[:12]}, "
+            f"executing {actual_commit[:12]}). No Forge credit is produced."
+        )
+    return {
+        "bridge_module": "forge-protocol2-bridge",
+        "expected_bridge_commit": expected_bridge_commit,
+        "expected_bridge_tree": expected_bridge_tree,
+        "recorded_commit_tree": recorded_commit_tree,
+        "expected_bridge_module_tree": expected_module_tree,
+        "actual_bridge_module_tree": actual_module_tree,
+        "actual_commit": actual_commit,
+        "identical": True,
+        "justification": (
+            "EXACT_BRIDGE_COMMIT"
+            if expected_bridge_commit == actual_commit
+            else "BRIDGE_MODULE_TREE_IDENTICAL"
+        ),
+        "detail": (
+            "the executing checkout's forge-protocol2-bridge module tree is identical to the "
+            "bound bridge/evidence commit's, so the bridge that executes is the bridge the "
+            "evidence is about; the Rules Core is bound separately by tree equivalence"
+        ),
+    }
+
+
+def resolve_forge_workspace(
+    workspace: Path | str | None = None,
+    *,
+    environ: Mapping[str, str] | None = None,
+    expected_rules_core_commit: str = FORGE_CANDIDATE_COMMIT,
+    expected_bridge_commit: str = FORGE_BRIDGE_EVIDENCE_COMMIT,
+    expected_bridge_tree: str = FORGE_BRIDGE_EVIDENCE_TREE,
+) -> dict[str, Any]:
+    """Resolve and fully bind the Forge checkout a credited run executes in.
+
+    There is deliberately no default. A machine-local path is not a source
+    identity, and "the checkout that happens to exist on this machine" is not
+    the checkout the evidence is about. ``FORGE_WORKSPACE`` must name the exact
+    checkout explicitly; the checkout must then prove, from its own Git state,
+    that it is a work-tree root, that its Rules Core is equivalent to the
+    recorded candidate, and that its bridge module is the bound bridge/evidence
+    identity. Anything unprovable fails closed.
+    """
+    source = os.environ if environ is None else environ
+    raw = str(workspace) if workspace is not None else str(source.get(FORGE_WORKSPACE_ENV) or "")
+    if not raw.strip():
+        raise ForgeWorkspaceError(
+            f"{FORGE_WORKSPACE_ENV} is not set: a credited Forge execution must name its exact "
+            "checkout explicitly, and no ambient machine-local default is substituted. Export "
+            "the checkout the evidence is about and re-run."
+        )
+    root = Path(raw).expanduser()
+    if not root.is_dir():
+        raise ForgeWorkspaceError(f"{FORGE_WORKSPACE_ENV}={raw!r} is not an existing directory")
+    root = root.resolve()
+    try:
+        toplevel = git_toplevel(root)
+    except RunnerGitError as exc:
+        raise ForgeWorkspaceError(
+            f"{FORGE_WORKSPACE_ENV}={raw!r} is not a Git work-tree root: {exc}"
+        ) from exc
+    if toplevel != root:
+        raise ForgeWorkspaceError(
+            f"{FORGE_WORKSPACE_ENV}={raw!r} resolves to work tree {toplevel}, not itself; a "
+            "credited execution must name the checkout root, not a directory inside it"
+        )
+    actual_commit = git_sha("rev-parse", "HEAD", cwd=root)
+    actual_tree = git_sha("rev-parse", "HEAD^{tree}", cwd=root)
+    try:
+        rules_core_proof = receipt_mod.verify_engine_identity(
+            root,
+            recorded_commit=expected_rules_core_commit,
+            actual_commit=actual_commit,
+            recorded_label="Forge workspace Rules Core",
+        )
+    except receipt_mod.ReceiptError as exc:
+        raise ForgeWorkspaceError(f"RULES_CORE_IDENTITY_DIVERGENCE: {exc}") from exc
+    bridge_proof = _bridge_identity_proof(
+        root,
+        expected_bridge_commit=expected_bridge_commit,
+        expected_bridge_tree=expected_bridge_tree,
+        actual_commit=actual_commit,
+    )
+    return {
+        "workspace": str(root),
+        "actual_commit": actual_commit,
+        "actual_tree": actual_tree,
+        "expected_rules_core_commit": expected_rules_core_commit,
+        "rules_core_identity_proof": rules_core_proof,
+        "bridge_identity_proof": bridge_proof,
+    }
+
+
+def resolve_suite_root(candidate: str) -> dict[str, Any]:
+    """The execution checkout for one native suite, with its identity proof.
+
+    Suite roots are resolved and validated at execution time, never at import
+    time: an import-time resolution recorded an empty tree for a path that
+    existed but was not a repository, which is an unmeasured identity.
+    """
+    if candidate == "xmage":
+        root = REPO_ROOT / "engine-bridge"
+        if not root.is_dir():
+            raise RunnerGitError(f"XMage bridge module is absent: {root}")
+        try:
+            toplevel = git_toplevel(root)
+        except RunnerGitError as exc:
+            raise RunnerGitError(
+                f"{root} is not inside a Git work tree, so its executing identity cannot be "
+                f"established: {exc}"
+            ) from exc
+        if toplevel != REPO_ROOT:
+            raise RunnerGitError(
+                f"{root} belongs to {toplevel}, not the Lab work tree {REPO_ROOT}; the XMage "
+                "bridge suite must execute in this checkout"
+            )
+        return {
+            "root": root,
+            "expected_engine_commit": canonical_xmage_engine_pin(),
+            "checkout_identity": {
+                "kind": "LAB_MODULE",
+                "suite_root": str(root),
+                "containing_repository": str(toplevel),
+                "actual_commit": git_sha("rev-parse", "HEAD", cwd=root),
+                "actual_tree": git_sha("rev-parse", "HEAD^{tree}", cwd=root),
+            },
+        }
+    if candidate != "forge":
+        raise RunnerGitError(f"unknown native suite candidate: {candidate!r}")
+    forge = resolve_forge_workspace()
+    return {
+        "root": Path(forge["workspace"]),
+        "expected_engine_commit": forge["expected_rules_core_commit"],
+        "checkout_identity": {
+            "kind": "EXPLICIT_WORKSPACE",
+            "actual_commit": forge["actual_commit"],
+            "actual_tree": forge["actual_tree"],
+            "rules_core_identity_proof": forge["rules_core_identity_proof"],
+            "bridge_identity_proof": forge["bridge_identity_proof"],
+        },
+    }
+
+
+# The Forge checkout a credited Forge execution runs in is an explicit input
+# (resolution above). There is no machine-local default, because a default path
+# is not an identity and the historical WSR20 checkout carries a
+# forge-protocol2-bridge tree that differs from the bound bridge/evidence head.
+FORGE_WORKSPACE_ENV = "FORGE_WORKSPACE"
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -175,7 +443,6 @@ NATIVE_SUITE_BINDING = {
         },
     },
     "forge": {
-        "root": FORGE_WORKSPACE,
         "runner": "mvn",
         "argv": [
             "mvn",
@@ -217,6 +484,12 @@ NATIVE_SUITE_BINDING = {
         },
     },
 }
+
+# Bind each suite's declared identity into the table. No Git read happens here:
+# the execution checkout is resolved and validated at run time by
+# resolve_suite_root(), so module import can never record an unmeasured identity.
+for _candidate in NATIVE_SUITE_BINDING:
+    NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
 
 
 # The actual-card names this artifact declares. Named once so the corpus
@@ -282,25 +555,16 @@ def frozen_actual_card_corpus() -> tuple[str, ...]:
     return tuple(str(name) for name in corpus)
 
 
-def git(*args: str, cwd: Path | None = None) -> str:
-    return subprocess.run(
-        ["git", *args], cwd=str(cwd or REPO_ROOT), capture_output=True, text=True, check=False
-    ).stdout.strip()
-
-
-for _candidate in NATIVE_SUITE_BINDING:
-    NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
-    _suite_root = Path(NATIVE_SUITE_BINDING[_candidate]["root"])
-    NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
-        git("rev-parse", "HEAD^{tree}", cwd=_suite_root) if _suite_root.exists() else "UNCONFIGURED"
-    )
-
-
 def runtime_identity(candidate: str) -> dict[str, Any]:
-    """Exact runtime identity for every row produced in this workstream."""
+    """Exact runtime identity for every row produced in this workstream.
+
+    Every Git fact here is read through the fail-closed helpers: an identity
+    that cannot be established raises before any evidence names it.
+    """
+    git_toplevel(REPO_ROOT)
     base = {
-        "runner_commit": git("rev-parse", "HEAD"),
-        "runner_tree": git("rev-parse", "HEAD^{tree}"),
+        "runner_commit": git_sha("rev-parse", "HEAD"),
+        "runner_tree": git_sha("rev-parse", "HEAD^{tree}"),
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     }
     if candidate == "xmage":
@@ -309,17 +573,21 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
                 "engine_candidate_commit": canonical_xmage_engine_pin(),
                 "lab_runtime_authority": XMAGE_LAB_RUNTIME_AUTHORITY,
                 "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-                "adapter_commit": git("rev-parse", "HEAD", cwd=REPO_ROOT),
+                "adapter_commit": git_sha("rev-parse", "HEAD", cwd=REPO_ROOT),
                 "lane": "generic protocol-2 compatibility lane",
             }
         )
     else:
+        forge = resolve_forge_workspace()
         base.update(
             {
                 "engine_candidate_commit": FORGE_CANDIDATE_COMMIT,
                 "wsr20_evidence_tip": FORGE_WSR20_EVIDENCE_TIP,
                 "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-                "adapter_commit": git("rev-parse", "HEAD", cwd=FORGE_WORKSPACE),
+                "adapter_commit": forge["actual_commit"],
+                "adapter_tree": forge["actual_tree"],
+                "forge_workspace": forge["workspace"],
+                "bridge_identity": forge["bridge_identity_proof"],
                 "lane": "protocol2-jsonl",
             }
         )
@@ -343,60 +611,77 @@ def run_native_suite(
     """
     receipt_mod.require_clean_runner(runner)
     spec = NATIVE_SUITE_BINDING[candidate]
-    # Resolve the executing engine head from the suite's own checkout. A suite
-    # must execute at the descendant that actually contains its test classes, so
-    # exact-commit equality is not the requirement; what must hold is that the
-    # engine is the same engine. That is re-proven from the engine's main-source
-    # trees on every run and fails closed if any module differs. Resolving this
-    # live rather than asserting it is what surfaced the divergence originally.
-    # The engine-drift comparison only applies where the engine is its own Git
-    # repository. The Forge suites execute in a Forge checkout, so a Rules-Core
-    # drift check is meaningful there. The XMage bridge is a module of the Lab
-    # repository, so `HEAD` there is the Lab's own commit, not the XMage engine's,
-    # and comparing it against the XMage engine commit compares two unrelated
-    # things. XMage's engine identity is the provider's own reported commit, which
-    # AF00 verifies fail-closed at handshake, so nothing is lost by not
-    # pretending a checkout exists where it does not.
-    actual_head = git("rev-parse", "HEAD", cwd=spec["root"])
-    engine_toplevel = git("rev-parse", "--show-toplevel", cwd=spec["root"])
-    root_is_own_repo = (
-        bool(engine_toplevel) and Path(engine_toplevel).resolve() == spec["root"].resolve()
-    )
-    if root_is_own_repo:
-        engine_equivalence = receipt_mod.verify_engine_identity(
-            spec["root"],
-            recorded_commit=spec["expected_engine_commit"],
-            actual_commit=actual_head,
-            recorded_label=f"native suite {candidate}:{group}",
+    # Resolve the execution checkout and prove its identity before anything runs.
+    # For Forge this is the explicit FORGE_WORKSPACE, validated as a work-tree
+    # root, Rules-Core-equivalent to the recorded candidate and running the bound
+    # bridge/evidence module tree. For XMage it is the Lab's own engine-bridge
+    # module, which must belong to THIS Lab checkout. A suite that cannot prove
+    # where it would execute does not execute.
+    resolved = resolve_suite_root(candidate)
+    suite_root = resolved["root"]
+    checkout_identity = resolved["checkout_identity"]
+    actual_head = str(checkout_identity["actual_commit"])
+    build_identity: dict[str, Any] = dict(spec.get("build_identity", {}))
+    if checkout_identity["kind"] == "EXPLICIT_WORKSPACE":
+        bridge_proof = checkout_identity["bridge_identity_proof"]
+        engine_equivalence = {
+            **checkout_identity["rules_core_identity_proof"],
+            "bridge_identity_proof": bridge_proof,
+            "workspace_identity": {
+                "workspace": str(suite_root),
+                "actual_commit": actual_head,
+                "actual_tree": checkout_identity["actual_tree"],
+                "selection": f"explicit {FORGE_WORKSPACE_ENV}; no ambient default",
+            },
+        }
+        build_identity.update(
+            {
+                "bridge_evidence_commit": bridge_proof["expected_bridge_commit"],
+                "bridge_module_tree": bridge_proof["actual_bridge_module_tree"],
+                "workspace_head": actual_head,
+            }
         )
         print(
             f"engine identity {candidate}:{group}: "
-            f"{engine_equivalence['justification']} "
-            f"(recorded {spec['expected_engine_commit'][:12]}, "
-            f"executing {actual_head[:12]})"
+            f"{engine_equivalence['justification']} + "
+            f"{bridge_proof['justification']} "
+            f"(recorded {resolved['expected_engine_commit'][:12]}, "
+            f"executing {actual_head[:12]}, workspace {suite_root})"
         )
     else:
+        # The XMage bridge is a module of the Lab repository, so `HEAD` there is
+        # the Lab's own commit, not the XMage engine's, and comparing it against
+        # the XMage engine commit compares two unrelated things. XMage's engine
+        # identity is the provider's own reported commit, which AF00 verifies
+        # fail-closed at handshake; the module checkout identity is recorded
+        # instead of pretending a separate engine checkout exists.
         engine_equivalence = {
             "engine_equivalent": None,
             "justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
-            "recorded_commit": spec["expected_engine_commit"],
+            "recorded_commit": resolved["expected_engine_commit"],
             "actual_commit": actual_head,
-            "suite_root": str(spec["root"]),
-            "containing_repository": engine_toplevel or "UNKNOWN",
+            "suite_root": str(suite_root),
+            "containing_repository": str(checkout_identity["containing_repository"]),
             "detail": "the executing suite root is a module of the containing repository, "
             "so its HEAD identifies that repository, not the engine. The engine identity "
             "is the provider's own reported commit, verified fail-closed at handshake by "
             "AF00. No checkout identity is asserted for this candidate.",
         }
+        build_identity.update(
+            {
+                "lab_adapter_head": actual_head,
+                "lab_adapter_tree": checkout_identity["actual_tree"],
+            }
+        )
         print(
             f"engine identity {candidate}:{group}: not a separate checkout; engine identity "
-            f"comes from the provider handshake (expected {spec['expected_engine_commit'][:12]})"
+            f"comes from the provider handshake (expected {resolved['expected_engine_commit'][:12]})"
         )
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
     started = receipt_mod._now()
     completed = subprocess.run(
-        argv, cwd=str(spec["root"]), capture_output=True, text=True, check=False, timeout=7200
+        argv, cwd=str(suite_root), capture_output=True, text=True, check=False, timeout=7200
     )
     text = completed.stdout + completed.stderr
     if completed.returncode != 0:
@@ -420,11 +705,11 @@ def run_native_suite(
         group=group,
         command=" ".join(argv),
         candidate_repository=spec.get("repository", "UNCONFIGURED"),
-        candidate_commit=spec["expected_engine_commit"],
-        candidate_tree=spec.get("engine_tree", "UNCONFIGURED"),
+        candidate_commit=resolved["expected_engine_commit"],
+        candidate_tree=str(checkout_identity["actual_tree"]),
         executed_commit=actual_head,
         engine_identity_proof=engine_equivalence,
-        build_identity=json.dumps(spec.get("build_identity", {}), sort_keys=True),
+        build_identity=json.dumps(build_identity, sort_keys=True),
         started_utc=started,
         ended_utc=receipt_mod._now(),
         returncode=completed.returncode,
@@ -588,7 +873,9 @@ def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     """Run AF01, cardinality, START-2 and the dimension probes for one candidate."""
     identity = runtime_identity(candidate)
-    workspace = FORGE_WORKSPACE if candidate == "forge" else None
+    # The Forge candidate is launched from the same explicitly bound workspace the
+    # native suites execute in; there is no other source for it.
+    workspace = Path(resolve_forge_workspace()["workspace"]) if candidate == "forge" else None
     lane = "compat" if candidate == "xmage" else "protocol2-jsonl"
     plan = build_launch_plan(candidate, lane=lane, forge_workspace=workspace)
 

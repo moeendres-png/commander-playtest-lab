@@ -1,0 +1,109 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/cpl-cb-hardening-wave-b-20260930
+branch: hardening/current-boundary-wave-b-20260930
+audit_base_sha: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
+audit_base_tree: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
+state_written_against_head: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
+validated_head: null
+objective: >-
+  CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930: close the Current-Boundary / PB-03
+  hardening residuals that PR #395's ownership previously blocked, without colliding
+  with Claude's still-open work. Targets B1 (evidence-output epoch), B3 (native-suite
+  execution identity), B4 (Git/source identity), B5 (Forge workspace selection),
+  D1 (re-adjudication) and issue #408 (only if its producer/loader dependencies become
+  canonical and ownership-safe).
+in_scope:
+  - 'B1: stop current runs mutating qualification/final-current-boundary-20260927; write to an
+    explicitly identified, source-bound successor/runtime epoch with a machine-readable identity,
+    runner/assembler agreement, receipts under the same epoch, and CI consuming the resolved epoch'
+  - 'B4: every Git fact used for evidence credit must fail closed when unavailable or ambiguous;
+    no check=False silent-empty defaults; sanitize inherited Git redirection'
+  - 'B5: no ambient Forge workspace default; a credited Forge execution must bind Rules-Core
+    identity, bridge/evidence identity and actual checkout identity, or fail closed'
+  - 'B3: re-derive the defect; if an active PR owns the exact surface, verify its coverage read-only
+    and classify ACTIVE_OWNER_DEFERRED with a requirement-by-requirement mapping'
+  - 'D1: identify from the donor record and current source; terminate with evidence'
+  - 'issue #408: remains DEPENDENCY_WAITING while PR #409/#411 are open; read-only verification of
+    the published producer/loader contract only'
+out_of_scope:
+  - Production Provider selection / Architecture Freeze
+  - Rules-engine implementation work; moeendres-png/mage; moeendres-png/forge mutation
+  - PR #409, #411, #412, #413, #416, #417 owned files, and any later active foreign PR surfaces
+  - issue #255 adjudication; issue #192 destructive cleanup
+  - London mulligan / PB-09 / F-number campaign / multiplayer semantics work
+  - Rewriting, moving or re-sealing historical WSR22 evidence
+ownership: CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930 (DeepSeek V4.1 Flash MAX, OpenCode Foundry)
+status: ACTIVE
+dependencies:
+  - 'PR #409 (midgame event tape) - OPEN at recon; owns midgame_lane.py, test_current_boundary_midgame_lane.py'
+  - 'PR #411 (B2 positive fixture receipts) - OPEN at recon; owns midgame_rows.py, receipts.py additions,
+    and (undeclared-but-actual) runner/assembler wiring; issue #408 dependency'
+  - 'PR #418 (B3 native-suite class identity) - OPEN at recon, created after workstream prompt; owns the
+    B3 defect surface including scripts/run_current_boundary_qualification.py and receipts.py loaders'
+  - 'PR #412/#413/#416/#417 - OPEN at recon; A-wave surfaces, disjoint from this workstream'
+hard_gates:
+  - 'Fail-before evidence exists for every implemented defect item'
+  - 'No edit to any active foreign PR branch or its worktree'
+  - 'Historical epoch qualification/final-current-boundary-20260927 is never a default write target'
+  - 'runner and assembler resolve the same epoch and refuse a foreign-source epoch'
+  - 'Git identity facts fail closed (no silent empty default)'
+  - 'Forge credit fails closed without an explicitly supplied, validated workspace'
+forbidden_shortcuts:
+  - 'default/ambient Forge workspace producing credit'
+  - 'check=False Git calls silently yielding empty evidence identity'
+  - 'hard-coded historical epoch path in runner, assembler, workflow or receipts exclusion'
+  - 'co-writing an active foreign PR surface'
+  - 'weakening any test, denominator, assertion or evidence class to obtain green'
+validated_gates: []
+failed_gates: []
+invalidated_gates: []
+do_not_rerun:
+  - 'full XMage qualification runtime (requires pinned engine build; CI workflow is authoritative)'
+current_failure: null
+failure_class: NONE
+current_hypothesis: null
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: max
+files_modified: []
+tests_run: []
+evidence: []
+artifacts: []
+remaining_scope:
+  - 'B1, B4, B5 implementation and focused tests'
+  - 'B3 read-only coverage verification against PR #418'
+  - 'D1 terminal classification'
+  - 'issue #408 dependency-waiting record'
+  - 'quality gates, push, PR, CI, fresh-context review, merge-gate adjudication'
+exact_next_action: >-
+  Write fail-before tests for B4 (runner Git helper returns silent empty on failure) and B5
+  (FORGE_WORKSPACE ambient default at /home/moeen/code/ws-forge-full107-cdq-20260926, WSR20 tip
+  18bba95a, intended bridge head e15f37d6 not verified), then implement the smallest fail-closed
+  hardening in scripts/run_current_boundary_qualification.py. B1 next (successor source-bound epoch).
+hypotheses_rejected:
+  - 'PR #411 does not wire the runner/assembler: REJECTED - head ef74e0ee adds wiring commits
+    567b914e/16db8d43 modifying both scripts; recorded as drift, no co-write'
+  - 'B3 is free for this workstream: REJECTED - PR #418 implements the exact B3 requirements;
+    ACTIVE_OWNER_DEFERRED unless it merges, then impact-adjudicate'
+technical_decisions:
+  - 'B1 epoch shape: source-bound runtime epoch under qualification/current-boundary-epochs/ resolved
+    by one shared function (runner, assembler, workflow) with explicit override, fail-closed
+    validation, and a foreign-source overwrite refusal; the historical 20260927 tree is a read-only
+    predecessor. Rationale: eliminates silent historical mutation by construction and binds epoch
+    identity to the producing source.'
+  - 'B5 workspace shape: FORGE_WORKSPACE becomes an explicit input with no ambient default; forge
+    candidate fails closed when it is absent or unverifiable. Rationale: contract forbids any ambient
+    machine-local default producing evidence.'
+  - 'B4 shape: reuse the existing receipts fail-closed Git pattern (raise on non-zero exit, validate
+    40-hex SHA, resolve toplevel) instead of a second identity mechanism; sanitize inherited
+    GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE/GIT_OBJECT_DIRECTORY/GIT_ALTERNATE_OBJECT_DIRECTORIES.'
+  - 'D1 meaning derived from the donor record + current source: the Current-Boundary artifact-identity
+    /output defect class addressed by merged PR #395 (engine artifact digest chain, matrix
+    artifact_identity_consistent). Terminal classification with current-source verification.'
+authority_gates:
+  - 'issue #255 provider adjudication (Coordinator)'
+  - 'issue #192 destructive cleanup (operator)'
+drift_checks:
+  - '2026-09-30T17:55Z origin/main=20c3fb36 tree=9b2a52e7; local main worktree stale at e91819ae (591 behind);
+    isolated worktree created at origin/main'
+  - '2026-09-30T~18:00Z PR #418 observed ACTIVE (created 16:24Z, last push 17:52Z); PR #411 CI-green'
