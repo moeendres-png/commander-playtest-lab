@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 60a82d75cb2c5d58c359538d1a31e1b06d944a82
+state_written_against_head: 6ba0c4a2dac8b5f0306921c592776b833deea393
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -47,7 +47,7 @@ state_written_against_head: 60a82d75cb2c5d58c359538d1a31e1b06d944a82
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
-validated_head: 60a82d75cb2c5d58c359538d1a31e1b06d944a82
+validated_head: 6ba0c4a2dac8b5f0306921c592776b833deea393
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -262,6 +262,20 @@ validation:
       local coverage away
     ruff_check: clean
     ruff_format: 1125 files formatted
+  on_the_fourth_repair_head:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
+    branch_point_baseline_6c177f70: 0 failed, 2422 passed, 13 skipped
+    delta: >-
+      0 on both arms, which is the correct signature for a portability change: the two live PB-09
+      tests still RUN here rather than skipping, so no coverage moved. A delta of zero is
+      therefore evidence, not an absence of evidence.
+    forge_source_dir_branches_verified:
+      - no checkout -> skip attributing the cause to the machine
+      - git checkout lacking the pinned commits -> skip naming the exact missing SHAs
+      - default path -> both tests run and pass
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1140 files formatted
   on_the_third_repair_head:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
     branch_point_baseline_5c69b999: 0 failed, 2396 passed, 13 skipped
@@ -360,6 +374,20 @@ post_completion_repairs:
       fixed before commit, recorded because the probe earned its keep
     delivered_on: maintenance/test-signal-integrity-20260929
     evidence: validation.on_the_third_repair_head
+  - id: R4
+    summary: >-
+      tests/qualification/test_current_boundary_pb09_engine_identity.py now resolves the Forge
+      reference checkout from FORGE_SOURCE_DIR, the convention the repository already documents
+      at tests/integration/test_forge_bridge_h4f_live.py:25, with the historical path as
+      fallback. The precondition is now real rather than a proxy: it verifies the pinned commits
+      exist in the checkout, because these tests compare specific pinned commits and an arbitrary
+      Forge tree cannot establish them.
+    found_by: >-
+      sweeping for the hardcoded-path pattern after the drift-test repair, not by a failure --
+      the tests passed here and skipped honestly elsewhere
+    audit_recommendation: none; same defect class as R2, outside the original audit
+    delivered_on: maintenance/test-signal-integrity-20260929
+    evidence: validation.on_the_fourth_repair_head
 
 exact_next_action: >-
   NONE. The objective is complete and merged as PR #371, with #372 and #373 carrying the receipt
