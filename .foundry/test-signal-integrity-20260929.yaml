@@ -38,10 +38,14 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 3fc27b2da35b0178ceb37b01f4e6f90df1379c2e
+state_written_against_head: f6c7a62fde2af6615995f5ca53adf1474a1afc81
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
+#
+# Deliberately NOT re-pointed to the drift-merge head below. That merge left the tree byte
+# identical (94eeb98a), so the recorded validation describes it exactly; re-pointing would
+# claim a measurement that did not happen. Tree equality is checked, not assumed.
 #
 # Drift policy, recorded so this does not churn: main drifts roughly every merge. validated_head
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
