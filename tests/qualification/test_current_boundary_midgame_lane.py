@@ -791,6 +791,38 @@ class TestTransportDeadlineAndClassification:
         with pytest.raises(ml.MidgameLaneTransportError):
             client.request("get_capabilities", None, timeout_s=5.0)
 
+    def test_the_event_tape_is_read_after_an_offset(self, monkeypatch: Any) -> None:
+        client = ml.MidgameLaneClient((sys.executable, "-c", "pass"), Path("."))
+        seen: list[Any] = []
+
+        def request(message_type: str, params: Any, **_: Any) -> dict[str, Any]:
+            seen.append((message_type, params))
+            return {
+                "success": True,
+                "payload": {
+                    "after_offset": 6,
+                    "latest_offset": 7,
+                    "events": [{"type": "SPELL_CAST"}],
+                },
+            }
+
+        monkeypatch.setattr(client, "request", request)
+        tape = client.events(6)
+        assert seen == [("get_midgame_events", {"after_offset": 6})]
+        assert tape["events"] == [{"type": "SPELL_CAST"}]
+
+    def test_an_unreadable_event_tape_fails_closed(self, monkeypatch: Any) -> None:
+        client = ml.MidgameLaneClient((sys.executable, "-c", "pass"), Path("."))
+        refusal = {
+            "success": False,
+            "errors": [
+                {"code": "invalid_event_offset", "message": "after_offset must be between 0 and 7"}
+            ],
+        }
+        monkeypatch.setattr(client, "request", lambda *_args, **_kwargs: refusal)
+        with pytest.raises(ml.MidgameLaneError, match="invalid_event_offset"):
+            client.events(9)
+
     def test_an_arrival_rejection_carries_the_engine_reason(self, monkeypatch: Any) -> None:
         client = ml.MidgameLaneClient((sys.executable, "-c", "pass"), Path("."))
         refusal = {
