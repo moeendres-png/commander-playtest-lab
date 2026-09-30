@@ -237,6 +237,19 @@ final class XmageFullGameSession {
         return statusPayload();
     }
 
+    /**
+     * The class of the decision the engine thread is parked on right now, or
+     * null. A non-blocking read: it never waits for a decision to appear.
+     */
+    String parkedDecisionClass() {
+        JsonObject pending = controller.pendingDecision();
+        if (pending == null || !pending.has("decision_class")
+                || pending.get("decision_class").isJsonNull()) {
+            return null;
+        }
+        return pending.get("decision_class").getAsString();
+    }
+
     JsonObject pendingDecisionPayload() {
         ensureStarted();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));

@@ -499,11 +499,33 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
     )
     active_label = seat_label(str(temporal["active_player"]))
 
+    script = list(record.get("decision_script") or ())
+    first_family = str(script[0].get("decision_family")) if script else None
+
     for _ in range(120):
         decision = client.pending_decision()
         if decision is None:
             break
         decision_class = str(decision.get("decision_class"))
+        if decision_class not in {"priority", "declare_attacker", "declare_blocker"} and (
+            decision_class == first_family
+        ):
+            # The record's own first scripted decision (e.g. ordering the
+            # simultaneous upkeep triggers) is asked before any priority in the
+            # checkpoint step. It is the checkpoint only if the engine is at the
+            # record's temporal point; otherwise it is an unrecognised decision.
+            probe = client.complete_arrival().get("observation") or {}
+            if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
+                return ml.classification_from_arrival(
+                    str(record["fixture_id"]),
+                    ml.MIDGAME_LANE,
+                    client.complete_arrival(),
+                    engine_commit=client.engine_commit,
+                )
+            raise ml.MidgameLaneError(
+                f"the engine asked {decision_class} at {probe.get('phase')}/{probe.get('step')}, "
+                f"not at the record's {target_phase}/{target_step} checkpoint"
+            )
         if decision_class == "mulligan":
             keep = option_of_type(decision, "keep")
             if keep is None:
@@ -636,7 +658,12 @@ def submit_proposal(
     legal: dict[str, Any],
     action: dict[str, Any],
     proposal_id: str,
+    numeric_choice: int | None = None,
 ) -> dict[str, Any]:
+    """Submit one engine-offered action; a numeric answer only where the frame asks one."""
+    choices: dict[str, Any] = {"ordering": []}
+    if numeric_choice is not None:
+        choices["numeric_choice"] = numeric_choice
     proposal = {
         "proposal_id": proposal_id,
         "actor_id": legal["actor_id"],
@@ -644,7 +671,7 @@ def submit_proposal(
         "action_type": action["action_type"],
         "target_ids": [],
         "selected_modes": [],
-        "choices": {"ordering": []},
+        "choices": choices,
         "decision_tier": 1,
         "policy_name": "midgame-causal-external-pilot",
     }

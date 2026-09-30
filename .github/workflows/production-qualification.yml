@@ -16,8 +16,11 @@ env:
   PYTHONHASHSEED: "0"
 
 concurrency:
-  group: production-qualification-${{ github.sha }}
-  cancel-in-progress: false
+  # A newer push to the same PR supersedes its obsolete run: its evidence can
+  # never be the merged head's. Pushes to main and manual dispatches keep one
+  # group per commit, so every merged head keeps its own run.
+  group: production-qualification-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   infrastructure:

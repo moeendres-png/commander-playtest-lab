@@ -53,6 +53,8 @@ def test_non_pull_request_runs_never_share_a_concurrency_group(path: Path) -> No
         "xmage-full-game-conformance.yml",
         "xmage-real-4p-smoke.yml",
         "external-engine-integration.yml",
+        "production-qualification.yml",
+        "pb03-runtime-qualification.yml",
     ],
 )
 def test_expensive_pull_request_runs_are_superseded_by_newer_pushes(name: str) -> None:
@@ -62,3 +64,14 @@ def test_expensive_pull_request_runs_are_superseded_by_newer_pushes(name: str) -
     assert "github.head_ref" in concurrency.get("group", ""), (
         f"{name}: PR runs are not grouped by branch"
     )
+
+
+def test_every_tree_integrity_run_is_superseded_by_the_same_pull_requests_next_run() -> None:
+    """It runs on every push and every PR edit; 20 runs of one branch sat in the
+    queue at once for superseded heads (2026-09-30), ahead of other PRs' runs."""
+    path = ROOT / ".github/workflows/repository-tree-integrity.yml"
+    workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert _events(workflow) == {"pull_request_target"}
+    concurrency = workflow.get("concurrency") or {}
+    assert concurrency.get("cancel-in-progress") is True
+    assert "github.event.pull_request.number" in concurrency.get("group", "")
