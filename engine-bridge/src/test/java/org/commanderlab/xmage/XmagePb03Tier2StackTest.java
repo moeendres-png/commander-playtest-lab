@@ -645,14 +645,14 @@ class XmagePb03Tier2StackTest {
         }
         assertEquals(players - 1, ring.size(),
                 tag + ": partial ring of N-1 priorities must traverse, saw " + ring);
-        // The engine seats counterclockwise: priority traverses descending
-        // seat order, wrapping from P2 to P1 to PN. Every consecutive pair
-        // must follow that live order (documented engine topology, not a
-        // harness assumption).
+        // The frozen contract orders priority by seat ("Priority traverses
+        // exactly P1..PN live ring"), and since F-41 the engine's turn order is
+        // seat order: priority ascends, wrapping from PN to P1. Every
+        // consecutive pair must follow that order.
         for (int index = 0; index + 1 < ring.size(); index++) {
             int current = Integer.parseInt(ring.get(index).substring(1));
             int next = Integer.parseInt(ring.get(index + 1).substring(1));
-            int expected = current == 1 ? players : current - 1;
+            int expected = current == players ? 1 : current + 1;
             assertEquals(expected, next,
                     tag + ": ring must follow live seat order, saw " + ring);
         }

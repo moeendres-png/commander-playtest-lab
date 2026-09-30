@@ -30,10 +30,10 @@ class XmageMultiplayerTurnControlPrivacyTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void controllerGetsControlledPrivateVisibilityWithoutLeakingOtherPrincipals(int playerCount)
             throws Exception {
-        String pn = "P" + playerCount;
-        String unrelated = playerCount > 2 ? "P2" : null;
-        String afterPn = "P" + (playerCount - 1);
-        String pnBearSemantic = "obj:battlefield-" + pn + "-2-GrizzlyBears";
+        String controlledPid = "P2";
+        String unrelated = playerCount > 2 ? "P" + playerCount : null;
+        String afterControlled = playerCount == 2 ? "P1" : "P3";
+        String pnBearSemantic = "obj:battlefield-" + controlledPid + "-2-GrizzlyBears";
         String otherBearSemantic = unrelated == null
                 ? null
                 : "obj:battlefield-" + unrelated + "-9-GrizzlyBears";
@@ -43,9 +43,9 @@ class XmageMultiplayerTurnControlPrivacyTest {
         for (int i = 1; i <= 4; i++) {
             objects.add(XmageMultiplayerScenario.obj("P1", "Island", i, Zone.BATTLEFIELD));
         }
-        objects.add(XmageMultiplayerScenario.obj(pn, "Lightning Bolt", 0, Zone.HAND));
-        objects.add(XmageMultiplayerScenario.obj(pn, "Mountain", 1, Zone.BATTLEFIELD));
-        objects.add(XmageMultiplayerScenario.obj(pn, "Grizzly Bears", 2, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj(controlledPid, "Lightning Bolt", 0, Zone.HAND));
+        objects.add(XmageMultiplayerScenario.obj(controlledPid, "Mountain", 1, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj(controlledPid, "Grizzly Bears", 2, Zone.BATTLEFIELD));
         if (unrelated != null) {
             objects.add(XmageMultiplayerScenario.obj(
                     unrelated, "Grizzly Bears", 9, Zone.BATTLEFIELD));
@@ -60,7 +60,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
         GameCommanderImpl game = s.session.restorationGame();
         XmageNativeStateRestoration restoration = restoration(s.session);
         Player controller = s.seats.get("P1");
-        Player controlled = s.seats.get(pn);
+        Player controlled = s.seats.get(controlledPid);
         Player unrelatedPlayer = unrelated == null ? null : s.seats.get(unrelated);
 
         XmageHiddenStateRestoration.apply(
@@ -122,7 +122,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
             JsonObject decision = s.session.pendingDecisionPayload().getAsJsonObject("decision");
             boolean actingFor = decision.has("acting_for_seat");
 
-            if (afterPn.equals(active) && privacyChecked) {
+            if (afterControlled.equals(active) && privacyChecked) {
                 assertTrue(privacyChecked, "controlled-turn privacy assertions ran");
                 assertEquals(pnLife - 3, controlled.getLife(), "controlled Bolt resolved");
 
@@ -143,7 +143,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
                 return;
             }
 
-            if (pn.equals(active) && actingFor && !privacyChecked) {
+            if (controlledPid.equals(active) && actingFor && !privacyChecked) {
                 assertEquals("P1", actor);
                 assertEquals(pnSeat, decision.get("acting_for_seat").getAsInt());
 
@@ -224,7 +224,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
                     if (!activated && "P1".equals(active)) {
                         s.submit(s.action("activate_ability", "Mindslaver"));
                         activated = true;
-                    } else if (pn.equals(active) && "P1".equals(actor) && !boltCast
+                    } else if (controlledPid.equals(active) && "P1".equals(actor) && !boltCast
                             && game.getStack().isEmpty()
                             && s.action("activate_ability", "Cast Lightning Bolt") != null) {
                         s.submit(s.action("activate_ability", "Cast Lightning Bolt"));
@@ -233,8 +233,8 @@ class XmageMultiplayerTurnControlPrivacyTest {
                         s.submit(s.action("pass_priority", "Pass"));
                     }
                 }
-                case "mana_payment" -> s.payWith(pn.equals(active) ? "Mountain" : "Island");
-                case "target" -> s.submit(s.action("choose_targets", "Seat " + playerCount));
+                case "mana_payment" -> s.payWith(controlledPid.equals(active) ? "Mountain" : "Island");
+                case "target" -> s.submit(s.action("choose_targets", "Seat 2"));
                 case "declare_attacker" -> s.submit(
                         s.action("declare_attackers", "Do not attack with"));
                 case "choose_object" -> XmageActualCardCorpusTest.chooseNamed(
@@ -246,7 +246,7 @@ class XmageMultiplayerTurnControlPrivacyTest {
                 default -> fail("unexpected " + cls + " for " + actor + " " + s.labels());
             }
         }
-        fail("the turn after PN's was not reached");
+        fail("the turn after P2's was not reached");
     }
 
     private static XmageNativeStateRestoration restoration(XmageFullGameSession session)

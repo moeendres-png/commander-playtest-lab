@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Tempting offer ("each opponent may …") at 3–6 players, with an actual card on
  * the full-game lane.
  *
- * <p>PN, active on the turn after P1's (the engine's turn order is
- * counterclockwise), casts Tempt with Discovery. Oracle: "Search your library for
+ * <p>PN, active on the last turn of the first round (turns run in seat
+ * order, F-41), casts Tempt with Discovery. Oracle: "Search your library for
  * a land card and put it onto the battlefield. Each opponent may search their
  * library for a land card and put it onto the battlefield. For each opponent who
  * searches a library this way, search your library for a land card and put it
@@ -65,7 +65,7 @@ class XmageMultiplayerTemptingOfferTest {
     @ValueSource(ints = {3, 4, 5, 6})
     void opponentsAreOfferedInApnapOrder(int playerCount) {
         List<String> apnap = new ArrayList<>();
-        for (int seat = playerCount - 1; seat >= 1; seat--) {
+        for (int seat = 1; seat <= playerCount - 1; seat++) {
             apnap.add("P" + seat);
         }
         assertEquals(apnap, run(playerCount).offered, "CR 101.4 from the active caster");

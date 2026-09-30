@@ -87,15 +87,14 @@ class XmageMultiplayerApnapTriggerTest {
         assertEquals(40 - 2 * playerCount, baseline.get(restoredActive),
                 "F-15: arrival upkeep resolved one Vortex trigger per seat");
 
-        // The engine seats counterclockwise: turns (and priority) pass in
-        // descending seat order, wrapping from P1 to PN (the documented live
-        // topology, see XmagePb03Tier2StackTest). APNAP must follow that same
-        // turn order: new active player first, the restored active player
-        // (the one just before them in turn order) last, hence on top.
-        String nextActive = "P" + (activeSeat == 1 ? playerCount : activeSeat - 1);
+        // Turns (and priority) pass in seat order, wrapping from PN to P1
+        // (F-41). APNAP must follow that same turn order: new active player
+        // first, the restored active player (the one just before them in turn
+        // order) last, hence on top.
+        String nextActive = "P" + (activeSeat == playerCount ? 1 : activeSeat + 1);
         List<String> expectedTopToBottom = new ArrayList<>();
         for (int offset = 0; offset < playerCount; offset++) {
-            expectedTopToBottom.add("P" + ((activeSeat - 1 + offset) % playerCount + 1));
+            expectedTopToBottom.add("P" + ((activeSeat - 1 - offset + playerCount) % playerCount + 1));
         }
         List<String> turnsSeen = new ArrayList<>();
 

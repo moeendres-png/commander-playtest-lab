@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  * on the full-game lane.
  *
  * <p>Mindslaver's Oracle reminder text says the controller sees all cards the
- * player could see and makes all decisions for that player. P1 targets PN, the
- * next player in turn order. During PN's turn every decision goes to P1,
- * marked as made for PN; P1 makes PN cast its own Lightning Bolt at PN. The
+ * player could see and makes all decisions for that player. P1 targets P2, the
+ * next player in turn order. During P2's turn every decision goes to P1,
+ * marked as made for P2; P1 makes P2 cast its own Lightning Bolt at P2. The
  * turn after is decided normally again. This exercises CR 723.</p>
  */
 class XmageMultiplayerTurnControlTest {
@@ -31,20 +31,20 @@ class XmageMultiplayerTurnControlTest {
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {2, 3, 4, 5})
     void theControllerMakesEveryDecisionForTheControlledPlayer(int playerCount) {
-        String pn = "P" + playerCount;
-        String afterPn = "P" + (playerCount - 1);
+        String controlled = "P2";
+        String afterControlled = playerCount == 2 ? "P1" : "P3";
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Mindslaver", 0, Zone.BATTLEFIELD));
         for (int i = 1; i <= 4; i++) {
             objects.add(XmageMultiplayerScenario.obj("P1", "Island", i, Zone.BATTLEFIELD));
         }
-        objects.add(XmageMultiplayerScenario.obj(pn, "Lightning Bolt", 0, Zone.HAND));
-        objects.add(XmageMultiplayerScenario.obj(pn, "Mountain", 1, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj(controlled, "Lightning Bolt", 0, Zone.HAND));
+        objects.add(XmageMultiplayerScenario.obj(controlled, "Mountain", 1, Zone.BATTLEFIELD));
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
                 "turn-control-" + playerCount + "p", playerCount, "P1", objects);
         Game game = s.session.restorationGame();
-        int pnSeat = XmageFullGameStateRedactor.seat(game, s.seats.get(pn).getId());
-        int pnLife = s.seats.get(pn).getLife();
+        int controlledSeat = XmageFullGameStateRedactor.seat(game, s.seats.get(controlled).getId());
+        int controlledLife = s.seats.get(controlled).getLife();
 
         boolean activated = false;
         boolean boltCast = false;
@@ -57,31 +57,31 @@ class XmageMultiplayerTurnControlTest {
             JsonObject decision = s.session.pendingDecisionPayload().getAsJsonObject("decision");
             boolean actingFor = decision.has("acting_for_seat");
 
-            if (afterPn.equals(active) && sawControlledTurn) {
-                assertTrue(sawControlledTurn, "P1 made decisions for PN during its turn");
-                assertEquals(afterPn, actor, "the next turn is decided by its own player");
+            if (afterControlled.equals(active) && sawControlledTurn) {
+                assertTrue(sawControlledTurn, "P1 made decisions for P2 during its turn");
+                assertEquals(afterControlled, actor, "the next turn is decided by its own player");
                 assertFalse(actingFor, "no one acts for another player now");
-                assertEquals(pnLife - 3, s.seats.get(pn).getLife(), "P1 made PN bolt itself");
-                assertControlledSeatInExportedTranscript(s.session, pnSeat);
+                assertEquals(controlledLife - 3, s.seats.get(controlled).getLife(), "P1 made P2 bolt itself");
+                assertControlledSeatInExportedTranscript(s.session, controlledSeat);
                 return;
             }
-            if (pn.equals(active)) {
+            if (controlled.equals(active)) {
                 assertFalse(
-                        pn.equals(actor),
-                        "CR 723: PN is never asked during its controlled turn (" + cls + ")"
+                        controlled.equals(actor),
+                        "CR 723: P2 is never asked during its controlled turn (" + cls + ")"
                 );
                 if (actingFor) {
                     sawControlledTurn = true;
-                    assertEquals("P1", actor, "a decision made for PN goes to P1 (" + cls + ")");
-                    assertEquals(pnSeat, decision.get("acting_for_seat").getAsInt());
+                    assertEquals("P1", actor, "a decision made for P2 goes to P1 (" + cls + ")");
+                    assertEquals(controlledSeat, decision.get("acting_for_seat").getAsInt());
                     assertTrue(
-                            handOf(decision.getAsJsonObject("pilot_state"), pnSeat)
+                            handOf(decision.getAsJsonObject("pilot_state"), controlledSeat)
                                     .contains("Lightning Bolt") || boltCast,
-                            "P1 sees PN's hand"
+                            "P1 sees P2's hand"
                     );
                 }
             } else {
-                assertFalse(actingFor, "before PN's turn, everyone decides for themselves");
+                assertFalse(actingFor, "before P2's turn, everyone decides for themselves");
             }
 
             switch (cls) {
@@ -89,7 +89,7 @@ class XmageMultiplayerTurnControlTest {
                     if (!activated && "P1".equals(active)) {
                         s.submit(s.action("activate_ability", "Mindslaver"));
                         activated = true;
-                    } else if (pn.equals(active) && "P1".equals(actor) && !boltCast
+                    } else if (controlled.equals(active) && "P1".equals(actor) && !boltCast
                             && game.getStack().isEmpty()
                             && s.action("activate_ability", "Cast Lightning Bolt") != null) {
                         s.submit(s.action("activate_ability", "Cast Lightning Bolt"));
@@ -98,8 +98,8 @@ class XmageMultiplayerTurnControlTest {
                         s.submit(s.action("pass_priority", "Pass"));
                     }
                 }
-                case "mana_payment" -> s.payWith(pn.equals(active) ? "Mountain" : "Island");
-                case "target" -> s.submit(s.action("choose_targets", "Seat " + playerCount));
+                case "mana_payment" -> s.payWith(controlled.equals(active) ? "Mountain" : "Island");
+                case "target" -> s.submit(s.action("choose_targets", "Seat 2"));
                 case "choose_object" -> XmageActualCardCorpusTest.chooseNamed(
                         new XmageActualCardCorpusTest.Started(s.session, s.seats, null),
                         "d" + i,
@@ -109,7 +109,7 @@ class XmageMultiplayerTurnControlTest {
                 default -> fail("unexpected " + cls + " for " + actor + " " + s.labels());
             }
         }
-        fail("the turn after PN's was not reached");
+        fail("the turn after P2's was not reached");
     }
 
     private static void assertControlledSeatInExportedTranscript(

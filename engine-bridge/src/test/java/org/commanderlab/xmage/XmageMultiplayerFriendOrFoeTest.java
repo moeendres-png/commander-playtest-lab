@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <ul>
  *   <li>P1 makes the choice for every player, itself included, in APNAP order
- *       (P1, PN, …, P2). P1 picks friend for odd seats and foe for even ones.</li>
+ *       (P1, P2, …, PN). P1 picks friend for odd seats and foe for even ones.</li>
  *   <li>Each friend, and nobody else, searches its own library, in APNAP order. It
  *       puts a Mountain onto the battlefield tapped and keeps its Mind Stone.</li>
  *   <li>Each foe, and nobody else, chooses its own sacrifice, in APNAP order, and
@@ -49,7 +49,7 @@ class XmageMultiplayerFriendOrFoeTest {
                 XmageActualCardCorpusTest.start(tag, playerCount, objects);
         Game game = started.session().restorationGame();
         List<String> apnap = new ArrayList<>(List.of("P1"));
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             apnap.add("P" + seat);
         }
 

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <ul>
  *   <li>Every player votes through the external decision surface, starting
- *       with P1 and proceeding in the engine's turn order: P1, PN, …, P2.</li>
+ *       with P1 and proceeding in the engine's turn order: P1, P2, …, PN.</li>
  *   <li>"You" is P1 for every voter, so no voter is offered P1's Bears.</li>
  *   <li>Every voter except P2 votes for P2's Bears; P2 votes for P3's. So
  *       P2's Bears has N−1 votes, P3's has 1, and only P2's Bears is
@@ -103,7 +103,7 @@ class XmageMultiplayerVotingTest {
 
         List<String> expectedOrder = new ArrayList<>();
         expectedOrder.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expectedOrder.add("P" + seat);
         }
         assertEquals(expectedOrder, voters,

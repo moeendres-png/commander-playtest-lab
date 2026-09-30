@@ -119,14 +119,19 @@ class XmageTemporalProgressionDriverTest {
                 "rg03-blockers", 4, TurnPhase.COMBAT, PhaseStep.DECLARE_BLOCKERS,
                 "P2", true);
         Arrived arrived = sessionFor(p, "rg03-blockers");
+        // P2 declines to block explicitly; P1 then P2 hold priority in the
+        // declare blockers step (seat order, F-41). Before F-41 the target was
+        // met while P2 was still declaring blockers, through the stale priority
+        // slot of the declare attackers step.
         XmageTemporalProgressionDriver.ProgressionResult result =
                 XmageTemporalProgressionDriver.driveToPlanTarget(
                         arrived.session(), arrived.seats(), p,
-                        transport(arrived.seats(), true, false),
+                        transport(arrived.seats(), true, true),
                         120);
         assertEquals("DECLARE_BLOCKERS", result.observed().get("step").getAsString());
         assertEquals("P2", result.observed().get("priority_player").getAsString());
         assertTrue(result.decisionClasses().contains("declare_attacker"));
+        assertTrue(result.decisionClasses().contains("declare_blocker"));
     }
 
     @Test

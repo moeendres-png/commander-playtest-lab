@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Innocent Blood (Oracle: "Each player sacrifices a creature of their
  * choice."). Every seat controls a Walking Corpse and a Gravedigger. P1
  * casts it. CR 101.4: the active player chooses first, then each other player
- * in turn order; the engine's live turn order is counterclockwise
- * (P1, PN, …, P2; see XmagePb03Tier2StackTest). Each player is offered only
+ * in turn order; the engine's live turn order is seat order
+ * (P1, P2, …, PN; F-41). Each player is offered only
  * their own creatures, and odd and even seats choose different ones, so each
  * sacrifice is observably that player's own decision.</p>
  */
@@ -92,7 +92,7 @@ class XmageMultiplayerEachPlayerChoiceTest {
 
         List<String> expectedOrder = new ArrayList<>();
         expectedOrder.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expectedOrder.add("P" + seat);
         }
         assertEquals(expectedOrder, choosers,

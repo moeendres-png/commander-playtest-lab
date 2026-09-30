@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * <p>P1 attacks every opponent with a different creature, and every opponent
  * has a Wall of Stone that could block. The order of the declare_blocker
- * decisions must be APNAP: PN, …, P2. It must also be identical across three
+ * decisions must be APNAP: P2, …, PN. It must also be identical across three
  * games with the same seed and choices (semantic replay).</p>
  *
  * <p>F-29: the pinned engine iterates a hash set of defending players. So the
@@ -43,7 +43,7 @@ class XmageMultiplayerBlockOrderTest {
     @ValueSource(ints = {3, 4, 5, 6})
     void defendingPlayersDeclareBlockersInApnapOrderEveryGame(int playerCount) {
         List<String> apnap = new ArrayList<>();
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             apnap.add("P" + seat);
         }
         for (int run = 0; run < 3; run++) {

@@ -265,9 +265,7 @@ class XmageGameManagerTest {
                 );
 
         List<Player> players =
-                new ArrayList<>(
-                        game.getPlayers().values()
-                );
+                XmageSeating.playersInSeatOrder(game);
 
         String requestedStartingId =
                 players.get(2)

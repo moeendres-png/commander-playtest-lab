@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Goad in 4-player Commander on the XMage full-game lane (CR 701.38): after
  * P1 casts Disrupt Decorum, P2's goaded Grizzly Bears must attack on P2's
- * turn, and must attack a player other than P1. The engine seats
- * counterclockwise, so P2's turn is the fourth; XMage asks for the forced
+ * turn, and must attack a player other than P1. Turns run in seat order
+ * (F-41), so P2's turn is the second; XMage asks for the forced
  * attack as a required single choice among the non-goader opponents.
  */
 class XmageMultiplayerGoadTest {
