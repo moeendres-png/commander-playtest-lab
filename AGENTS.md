@@ -316,10 +316,17 @@ remains.
 
 An explicitly launched Claude Opus 5.5 engineering session may receive this same
 autonomous technical campaign authority when its prompt declares the campaign objective,
-repository context and writable ownership surface. Claude is not restricted to advisory
-or review work: within its authorized surface it may investigate, implement, test, debug,
-commit, push, maintain PRs and integrate its own work under the same project Rules,
-evidence, privacy, Git and merge gates.
+repository context and writable ownership surface or surfaces. Claude is not restricted to
+advisory or review work: within its authorized surfaces it may investigate, implement,
+test, debug, commit, push, maintain PRs and integrate its own work under the same project
+Rules, evidence, privacy, Git and merge gates.
+
+A bounded integration campaign may own multiple disjoint repository/worktree mutation
+surfaces when one coherent objective genuinely requires them. Every writable surface must
+be freshly verified, explicitly declared, free of another active writer (or transferred by
+a persisted handoff), and governed by the same campaign ownership. Undeclared, foreign-
+active or unknown-owner surfaces remain read-only. Multi-surface authority never implies
+project-wide write authority.
 
 Claude must still re-read current repository authority and fresh ownership before material
 mutation. Tool/runtime capabilities are not inferred from model identity: unavailable,
