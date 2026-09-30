@@ -236,6 +236,98 @@ def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
     return "PASS" if reported == expected else "FAIL"
 
 
+def af00_gate(candidate: str, data: dict[str, Any], af01: dict[str, Any]) -> dict[str, Any]:
+    """Derive AF00 from exact current source/build identity.
+
+    XMage currently has a single source role, so the provider-reported commit is
+    compared directly with its current candidate. Forge under R-1/R-3 has two
+    explicit roles: the #13 bridge/materialization source that is actually built
+    and the #11/#12 Rules-Core candidate. Forge AF00 therefore requires both the
+    exact build provenance and the separately measured Rules-Core equivalence.
+    """
+    runtime = data["results_runtime_identity"]
+    if candidate != "forge":
+        expected = runtime.get("engine_candidate_commit", "")
+        return {
+            "gate": "AF00",
+            "name": "SOURCE_AND_BUILD_LOCK",
+            "verdict": source_lock_verdict(af01, expected),
+            "evidence": [
+                f"candidate commit reported by the provider at handshake: "
+                f"{af01.get('engine_commit_reported')}",
+                f"commit the evidence is required to be about: {expected}",
+                f"engine_commit provenance: {af01.get('engine_commit_provenance')}",
+                "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
+            ],
+            "blocking_rows": [],
+            "nonblocking_limitations": [],
+        }
+
+    source_commit = str(runtime.get("bridge_source_commit") or "")
+    source_tree = str(runtime.get("bridge_source_tree") or "")
+    rules_commit = str(runtime.get("engine_candidate_commit") or "")
+    rules_tree = str(runtime.get("engine_candidate_tree") or "")
+    rules_proof = runtime.get("rules_core_identity") or {}
+    bridge_proof = runtime.get("bridge_identity") or {}
+    version_payload = (
+        (af01.get("engine_identity") or {}).get("get_provider_version_payload") or {}
+    )
+    provenance = receipt_mod.verify_pb05_provenance(
+        version_payload,
+        expected_source_commit=source_commit,
+        expected_tree=source_tree,
+    )
+    handshake = source_lock_verdict(af01, source_commit)
+
+    exact = (
+        handshake == "PASS"
+        and provenance.get("af00_credit") is True
+        and rules_proof.get("engine_equivalent") is True
+        and bridge_proof.get("identical") is True
+    )
+    explicit_failure = (
+        handshake == "FAIL"
+        or provenance.get("engine_commit_verified") is False
+        or rules_proof.get("engine_equivalent") is False
+        or bridge_proof.get("identical") is False
+    )
+    verdict = "PASS" if exact else ("FAIL" if explicit_failure else "UNKNOWN")
+
+    limitations: list[str] = []
+    if verdict != "PASS":
+        limitations.extend(str(item) for item in provenance.get("findings", []))
+        if rules_proof.get("engine_equivalent") is not True:
+            limitations.append(
+                "Rules-Core tree equivalence to the admitted R-1 candidate is not established"
+            )
+        if bridge_proof.get("identical") is not True:
+            limitations.append(
+                "executing forge-protocol2-bridge module is not proven identical to the bound source"
+            )
+
+    return {
+        "gate": "AF00",
+        "name": "SOURCE_AND_BUILD_LOCK",
+        "verdict": verdict,
+        "evidence": [
+            f"provider/build source commit: {source_commit}",
+            f"provider/build source tree: {source_tree}",
+            f"provider reported commit: {af01.get('engine_commit_reported')}",
+            f"provider build provenance verified: {provenance.get('af00_credit')}",
+            f"R-1 Rules-Core candidate commit: {rules_commit}",
+            f"R-1 Rules-Core candidate tree: {rules_tree}",
+            f"Rules-Core equivalence: {rules_proof.get('justification')}",
+            f"bridge identity binding: {bridge_proof.get('justification')}",
+            "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
+        ],
+        "build_provenance": provenance,
+        "rules_core_identity_proof": rules_proof,
+        "bridge_identity_proof": bridge_proof,
+        "blocking_rows": [],
+        "nonblocking_limitations": limitations,
+    }
+
+
 def af03_gate(candidate: str) -> dict[str, Any]:
     """AF03 RULES_AUTHORITY, read from this run's negative deck-import probe.
 
@@ -790,40 +882,8 @@ def assemble() -> None:
         # prefixes earned AF02 PASS. A shortfall is UNKNOWN, not FAIL: an
         # unestablished count is an evidence gap, not a refutation.
         cardinality_assessment = lifecycle_mod.cardinality_verdict(cardinality["results"])
-        # The commit THIS candidate's evidence is required to be about, read from
-        # this candidate's own results. It used to be a variable assigned in the
-        # earlier per-candidate loop, so by the time the AF matrix ran it held the
-        # LAST candidate's commit. XMage's AF00 was therefore compared against
-        # Forge's expected commit and reported FAIL for the wrong reason.
-        expected_engine_commit = data["results_runtime_identity"].get("engine_candidate_commit", "")
         matrix = [
-            {
-                # AF00 was a literal PASS. Its evidence merely printed the commit
-                # the provider reported; nothing compared it to the commit the
-                # evidence was supposed to be about, so a provider reporting the
-                # wrong engine still earned PASS. The verdict is now derived from
-                # that comparison.
-                "gate": "AF00",
-                "name": "SOURCE_AND_BUILD_LOCK",
-                "verdict": source_lock_verdict(af01, expected_engine_commit),
-                "evidence": [
-                    f"candidate commit reported by the provider at handshake: "
-                    f"{af01['engine_commit_reported']}",
-                    f"commit the evidence is required to be about: {expected_engine_commit}",
-                    f"engine_commit provenance: {af01['engine_commit_provenance']}",
-                    "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": (
-                    [
-                        "Forge reports its engine commit from the FORGE_ENGINE_SHA environment "
-                        "variable rather than deriving it from the built Forge bytes, so the "
-                        "commit-to-build binding is operator-supplied, not build-proven"
-                    ]
-                    if candidate == "forge"
-                    else []
-                ),
-            },
+            af00_gate(candidate, data, af01),
             {
                 "gate": "AF01",
                 "name": "PROTOCOL_HANDSHAKE",
