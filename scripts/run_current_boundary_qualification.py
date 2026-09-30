@@ -955,6 +955,131 @@ def write(name: str, payload: Any) -> None:
     print(f"wrote {name}")
 
 
+# R-4 direct FULL107 credit: only these runner routes validate an exact
+# denominator obligation directly. Native-suite execution remains supporting
+# evidence and is deliberately excluded from this list.
+DIRECT_RECEIPT_MODES = frozenset(
+    {
+        "PROTOCOL2_LIFECYCLE",
+        "PROTOCOL2_START2_V1_0_6",
+    }
+)
+DIRECT_RECEIPT_IDENTITY_PREFIX = "current-boundary-direct:"
+
+
+def _direct_positive_receipt(
+    row: RowResult,
+    record: dict[str, Any],
+    *,
+    candidate_commit: str,
+    runner_digest: str,
+) -> dict[str, Any]:
+    """Bind one directly observed PASS to its exact FULL107 obligation.
+
+    The receipt stores digests of the already-persisted observation rather than
+    duplicating state/decision payloads. That preserves auditability without
+    widening the hidden-information surface.
+    """
+    if row.outcome != "PASS" or row.execution_mode not in DIRECT_RECEIPT_MODES:
+        raise ValueError(f"{row.fixture_id} is not an R-4 direct PASS")
+    row_document = row.to_document(record)
+    observation_digest = receipt_mod.document_digest(row_document)
+    obligation = {
+        "fixture_family": record.get("fixture_family"),
+        "required_events": list((record.get("expected_events") or {}).get("required_events") or ()),
+        "forbidden_events": list(
+            (record.get("expected_events") or {}).get("forbidden_events") or ()
+        ),
+        "terminal_postconditions": list(record.get("terminal_postconditions") or ()),
+        "requested_state_digest": record.get("requested_state_digest"),
+        "obligation_digest": record.get("obligation_digest"),
+    }
+    document: dict[str, Any] = {
+        "schema_version": receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA,
+        "candidate": row.candidate,
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "fixture_id": row.fixture_id,
+        "test_identity": (
+            f"{DIRECT_RECEIPT_IDENTITY_PREFIX}{row.execution_mode}#{row.fixture_id}"
+        ),
+        "execution_mode": row.execution_mode,
+        "obligation_exercised": obligation,
+        "observed_assertion": {
+            "row_document_sha256": observation_digest,
+            "semantic_events_sha256": receipt_mod.document_digest(
+                {"semantic_events": row.evidence.get("semantic_events", [])}
+            ),
+            "terminal_facts_sha256": receipt_mod.document_digest(
+                {"terminal_facts": row.evidence.get("terminal_facts", {})}
+            ),
+            "principal_observation_scope": row.evidence.get("principal_observation_scope"),
+        },
+        "assertion_kind": "POSITIVE_BEHAVIOUR",
+        "outcome": "PASS",
+        "runtime_receipt_digest": observation_digest,
+    }
+    document["receipt_digest"] = receipt_mod.document_digest(document)
+    return document
+
+
+def persist_direct_positive_receipts(
+    rows_by_candidate: dict[str, list[RowResult]],
+    records: dict[str, dict[str, Any]],
+    *,
+    runner_digest: str,
+) -> dict[str, Any]:
+    """Persist exact receipts for runner-native direct row families.
+
+    Re-runs delete only this producer's own candidate-prefixed receipts. Midgame
+    producer receipts are a separate family and remain untouched.
+    """
+    out_dir = RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR
+    out_dir.mkdir(parents=True, exist_ok=True)
+    summary: dict[str, Any] = {}
+    for candidate, rows in rows_by_candidate.items():
+        for stale in out_dir.glob(f"direct-{candidate}--*.json"):
+            stale.unlink()
+        candidate_commit = ""
+        for row in rows:
+            candidate_commit = str(row.evidence.get("runtime_identity", {}).get(
+                "engine_candidate_commit", ""
+            ))
+            if candidate_commit:
+                break
+        written: list[str] = []
+        for row in rows:
+            if row.outcome != "PASS" or row.execution_mode not in DIRECT_RECEIPT_MODES:
+                continue
+            record = records[row.fixture_id]
+            receipt = _direct_positive_receipt(
+                row,
+                record,
+                candidate_commit=candidate_commit,
+                runner_digest=runner_digest,
+            )
+            receipt_mod.persist(
+                out_dir / f"direct-{candidate}--{row.fixture_id}.json",
+                receipt,
+            )
+            written.append(row.fixture_id)
+        summary[candidate] = {
+            "candidate_commit": candidate_commit,
+            "runner_digest": runner_digest,
+            "eligible_execution_modes": sorted(DIRECT_RECEIPT_MODES),
+            "receipts_written": sorted(written),
+            "receipt_count": len(written),
+        }
+    return {
+        "schema_version": "commander-lab.direct-full107-receipts/1.0.0",
+        "credit_rule": (
+            "R-4: only exact per-fixture direct producer receipts earn FULL107 credit; "
+            "native-suite and adjacent mechanism evidence remain supporting only"
+        ),
+        "candidates": summary,
+    }
+
+
 def _live_xmage_provider_identity() -> tuple[dict[str, Any], dict[str, Any]]:
     """Read the itemised PB-03 manifest and the provider's own identity.
 
@@ -1581,6 +1706,10 @@ def main() -> int:
         admission_document = build_xmage_pb03_admission(materialization)
         xmage_provider_identity = admission_document["provider_identity"]
     summary: dict[str, Any] = {}
+    direct_rows_by_candidate: dict[str, list[RowResult]] = {}
+    denominator_by_id = {
+        record["fixture_id"]: record for record in materialization.denominator_records()
+    }
     for candidate in candidates:
         outcome = execute_candidate(candidate, materialization)
         identity = outcome["identity"]
@@ -1620,6 +1749,7 @@ def main() -> int:
             },
         )
         summary[candidate] = {"counts": counts, "identity": identity}
+        direct_rows_by_candidate[candidate] = list(outcome["rows"])
         probes = outcome["probes"]
         (OUT_DIR / f"_probes_{candidate}.json").write_text(
             json.dumps(probes, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8"
@@ -1642,6 +1772,18 @@ def main() -> int:
             indent=1,
         ),
     )
+    # R-4 receipt seam for candidate-neutral direct row families. This happens
+    # only after the clean committed runner identity has been captured, so the
+    # assembler can reject stale adapter/runner executions.
+    write(
+        "DIRECT_ROW_RECEIPTS.json",
+        persist_direct_positive_receipts(
+            direct_rows_by_candidate,
+            denominator_by_id,
+            runner_digest=runner.digest(),
+        ),
+    )
+
     # The PB-03 runtime ledger is derived from the surefire XML of the suites
     # that just ran. Clear the previous reports first so a class that failed to
     # compile or was not executed in this run cannot be credited from a stale
