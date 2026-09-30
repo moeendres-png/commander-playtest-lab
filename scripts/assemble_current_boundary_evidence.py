@@ -80,9 +80,8 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
     evidence, so the whole scanning path is gone: credit now requires a positive
     receipt, and anything without one simply receives no credit.
     """
-    denominator = {
-        load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"][i]["fixture_id"] for i in range(107)
-    }
+    manifest_rows = load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"]
+    denominator = {row["fixture_id"]: row for row in manifest_rows}
     receipts, rejected = receipt_mod.collect_receipts(RECEIPT_DIR)
     # Positive fixture receipts: the last link of the PB-03 credit chain, one per
     # exactly verified obligation, bound to this runner and the candidate head.
@@ -486,42 +485,80 @@ def assemble() -> None:
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
         promoted = 0
+        demoted_without_receipt = 0
+        receipt_backed_existing_pass = 0
+
+        # R-4 is an all-PASS invariant, not merely a promotion rule. A row that
+        # the runner directly classified PASS still earns zero FULL107 credit
+        # unless the admitted producer persisted an exact, current
+        # candidate/runner/obligation-bound positive receipt.
+        if not carried_forward:
+            for fixture, row in rows.items():
+                if row["exit_state"] != "PASS":
+                    continue
+                receipt_ids = bindings.get(fixture, {}).get(candidate) or []
+                if receipt_ids:
+                    row["positive_receipt_identities"] = receipt_ids
+                    row.setdefault("terminal_facts", {})
+                    row["terminal_facts"]["positive_receipts"] = receipt_ids
+                    receipt_backed_existing_pass += 1
+                    continue
+                row["pre_r4_receipt_exit_state"] = "PASS"
+                row["pre_r4_receipt_reason"] = row.get("reason")
+                row["exit_state"] = "UNKNOWN"
+                row["failure_reason"] = (
+                    "R-4 direct-credit gate: the row executed as PASS but no valid "
+                    "positive fixture receipt matched the current candidate, runner, "
+                    "requested-state digest and obligation digest"
+                )
+                row["reason"] = row["failure_reason"]
+                row["evidence_class"] = "DIRECT_EXECUTION_UNCREDITED_NO_R4_RECEIPT"
+                demoted_without_receipt += 1
+
         for fixture, per in bindings.items():
-            classes = per.get(candidate)
-            if not classes or fixture not in rows:
+            receipt_ids = per.get(candidate)
+            if not receipt_ids or fixture not in rows:
                 continue
             if carried_forward:
                 # A carried-forward column has no executions in this epoch, so a
-                # receipt crediting one of its rows cannot exist. If one ever did,
-                # relabelling a historical row as fresh would be a provenance
-                # lie: refuse the promotion instead.
+                # current receipt may never relabel it as fresh.
                 continue
             row = rows[fixture]
             if row["exit_state"] == "PASS":
                 continue
+            # A contradictory direct failure is adjudication evidence, not
+            # something an alternate positive route may silently overwrite.
+            if row["exit_state"] in {
+                "FAIL",
+                "CRASH",
+                "TIMEOUT",
+                "PROTOCOL_FAILURE",
+            }:
+                row["positive_receipt_conflict"] = receipt_ids
+                continue
             row["exit_state"] = "PASS"
             row["failure_reason"] = None
-            if all(name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX) for name in classes):
+            if all(
+                name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX)
+                for name in receipt_ids
+            ):
                 row["execution_mode"] = midgame_rows_mod.EXECUTION_MODE
                 row["reason"] = (
                     "exact placement obligation executed on the production midgame lane "
-                    f"({', '.join(classes)}): the engine constructed the record's state, "
+                    f"({', '.join(receipt_ids)}): the engine constructed the record's state, "
                     "every answer was an engine-offered option from the record's decision "
                     "script, and every required event and terminal check was verified "
                     "against the engine's public event tape and observation"
                 )
             else:
-                row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
                 row["reason"] = (
-                    f"fixture-corresponding native harness executed fresh under the current "
-                    f"boundary ({', '.join(classes)}); the effective v1.0.6 record for this row "
-                    f"is byte-identical to the frozen v1.0.5 record it loads, as proven in "
-                    f"SUCCESSOR_INHERITANCE_PROOF.json"
+                    "R-4 exact direct producer receipt verified for the current candidate, "
+                    f"runner and obligation ({', '.join(receipt_ids)})"
                 )
             row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
-            row["native_harness_classes"] = classes
+            row["positive_receipt_identities"] = receipt_ids
             row.setdefault("terminal_facts", {})
-            row["terminal_facts"]["native_harness"] = classes
+            row["terminal_facts"]["positive_receipts"] = receipt_ids
             promoted += 1
         counts = {
             "PASS": 0,
@@ -537,7 +574,12 @@ def assemble() -> None:
         assert sum(counts.values()) == 107, counts
         results["rows"] = [rows[row["fixture_id"]] for row in results["rows"]]
         results["counts"] = counts
-        results["native_promotions"] = promoted
+        # Kept as a backwards-compatible field only: R-4 forbids native-suite
+        # execution from promoting FULL107 rows, so it is now always zero.
+        results["native_promotions"] = 0
+        results["positive_receipt_promotions"] = promoted
+        results["positive_receipt_existing_passes"] = receipt_backed_existing_pass
+        results["r4_unreceipted_pass_demotions"] = demoted_without_receipt
         results["native_runs"] = native_credit(
             candidate,
             results["runtime_identity"].get("engine_candidate_commit", ""),
