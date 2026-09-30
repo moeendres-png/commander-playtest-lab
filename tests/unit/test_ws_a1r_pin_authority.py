@@ -23,9 +23,9 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
     assert "NO_PROVIDER_READY" in terminology["selection_truth"]
 
 
-def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
+def test_manifest_records_current_owner_adjudicated_pins(repo_root: Path) -> None:
     config = _manifest(repo_root)
-    assert config["secondary_engine"]["commit"] == "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    assert config["secondary_engine"]["commit"] == "201cad9576d004b71fd9af260ab4c981f606eb19"
     # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
     assert config["primary_engine"]["commit"] == "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
     assert config["provider_decision"] == "NO_PROVIDER_READY"
