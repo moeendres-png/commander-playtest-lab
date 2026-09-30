@@ -76,3 +76,17 @@ Out of reach of this lane by construction:
 - the causal-route rows: their deviation is the Coordinator's decision.
 
 `PRODUCTION_PROVIDER = NOT SELECTED` · `ARCHITECTURE_FREEZE = NOT CLAIMED` · no denominator change.
+
+## Coordinator questions this slice cannot answer (decision-ready)
+
+The first three are technical facts plus one policy question each. None of them changes the denominator.
+
+1. **Scripts that start inside a cast.** The rows MICRO_MODES, PILOT_TARGET_AMOUNT, PILOT_MULTI_AMOUNT, NEGATIVE_FIRST_OPTION, NEGATIVE_GUI_DEFAULT, NEGATIVE_RANDOM_OPTION and NEGATIVE_SILENT_SKIP share one gap:
+   - their `decision_script` begins at the mode/target/amount decision;
+   - only `native_procedure` names the cast that opens it (`NATIVE_BEGIN_PAYABLE_MAGMA_OPUS_CAST`, `…CAST_TO_MODE_DECISION`);
+   - PILOT_CHOOSE_MODE, by contrast, scripts its own cast.
+
+   *Question:* may the executor take the opening cast from `native_procedure` when it names exactly one castable object? Or must the fixtures gain the explicit priority step? The executor does neither on its own today.
+2. **MICRO_COSTS asks for an illegal action.** P2 casts Hex (Sorcery) while P1 is active in precombat main. CR 307.1 allows a sorcery only in its caster's own main phase with an empty stack; the engine correctly offers no cast. *Question:* repair the fixture, for example by making P2 active? Changing the fixture changes its requested-state digest.
+3. **The typed failure of the NEGATIVE_* rows.** The rows require `fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION` when the external handler does not answer. The protocol has no message by which a handler declares a decision unsupported. The engine's own fail-closed on no answer is `DECISION_TIMEOUT` after the frame's timeout. *Question:* does `DECISION_TIMEOUT` satisfy "typed unsupported discretionary-decision failure", or is an explicit protocol response required? The executor does not relabel one as the other.
+4. **Causal-route credit (existing slot).** It covers 11 stack-state rows plus the mid-combat and control-divergence rows.
