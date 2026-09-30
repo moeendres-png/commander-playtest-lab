@@ -327,6 +327,48 @@ final class XmageFullGameDecisionController {
         return true;
     }
 
+    /**
+     * F-40: the native signal above reaches only the priority player (or its
+     * controller), because XMage stops only that player's dialog. A player
+     * who concedes while one of its <em>own</em> choices is pending during
+     * another player's spell (for example the "may" of a tempting offer) is
+     * not signalled, and its stale frame stayed answerable: a player who had
+     * left still decided, and the engine counted the answer (CR 800.4a: a
+     * player who left makes no choices). After the native concession this
+     * retires such a frame of a player no longer in the game, for the
+     * observed classes whose callbacks unwind natively; others are unchanged
+     * until observed and qualified.
+     */
+    synchronized boolean cancelPendingForDepartedPlayer(Game game) {
+        if (pendingRequest == null
+                || response != null
+                || terminalFailure != null
+                || terminal
+                || game == null
+                || pendingPlayerId == null) {
+            return false;
+        }
+        Player player = game.getPlayer(pendingPlayerId);
+        String decisionClass = pendingRequest.get("decision_class").getAsString();
+        if (player == null || player.isInGame() || !DEPARTED_CANCELLABLE.contains(decisionClass)) {
+            return false;
+        }
+        String decisionId = pendingRequest.get("decision_id").getAsString();
+        JsonObject event = new JsonObject();
+        event.addProperty("decision_id", decisionId);
+        event.addProperty("decision_class", decisionClass);
+        event.addProperty("actor_seat", pendingRequest.get("seat").getAsInt());
+        event.addProperty("reason", "player_left_game");
+        recordTranscript("engine_decision_cancelled", event);
+
+        cancelledDecisionId = decisionId;
+        pendingRequest = null;
+        notifyAll();
+        return true;
+    }
+
+    private static final Set<String> DEPARTED_CANCELLABLE = Set.of("target", "mana_payment", "choose_use");
+
     /** Narrows a priority frame to its pass option; false when there is nothing to remove. */
     private static boolean keepOnlyPass(JsonObject request) {
         JsonArray kept = new JsonArray();

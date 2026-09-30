@@ -537,6 +537,8 @@ final class XmageFullGameSession {
         }
         // F-34: a frame the conceder was making for a player whose turn it
         // controlled follows the engine's control state after the leave.
+        // F-40: a stale own frame of the conceder that the native signal did not reach.
+        controller.cancelPendingForDepartedPlayer(game);
         controller.followTurnControl(game);
         JsonObject result = pendingDecisionPayload();
         result.addProperty("conceded_actor_id", principal.toString());

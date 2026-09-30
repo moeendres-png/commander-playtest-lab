@@ -1648,16 +1648,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
         noMeta.addProperty("value", false);
         options.add(XmageFullGameDecisionController.option(yes, trueText, "boolean", yesMeta));
         options.add(XmageFullGameDecisionController.option(no, falseText, "boolean", noMeta));
-        String selected = requireSingle(request(
-                game,
-                decisionClass,
-                message,
-                1,
-                1,
-                options,
-                context,
-                source
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    decisionClass,
+                    message,
+                    1,
+                    1,
+                    options,
+                    context,
+                    source
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-40: the chooser left the game; like XMage's own player, which
+            // cannot respond once it left, it does not choose "yes".
+            return false;
+        }
         return yes.equals(selected);
     }
 
