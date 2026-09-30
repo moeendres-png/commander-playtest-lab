@@ -1657,6 +1657,7 @@ class XmageMidgameCausalTest {
         }
         return null;
     }
+
     /**
      * Resolves one spell by passing priority until the victim's own life total
      * reaches the expected value. The elimination verify is a pure query while
