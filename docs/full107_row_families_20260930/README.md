@@ -23,6 +23,7 @@ The earlier record `docs/positive_fixture_receipts_20260930/README.md` ("4 decla
 | WS05-CMD-TAX-4 | 4 | Rograkh, two prior casts: {4} tax, cast count 3 | COMMAND→STACK; engine charged 4 ({0} printed); cast count 3 |
 | PILOT_ANNOUNCE_X | 4 | X=3 bound into spell and cost | announce_x frame answered 3 and accepted; charged 5 = X+{U}{U}; 3 LIBRARY→HAND for P1 |
 | PILOT_CHOOSE_MODE | 4 | provider-offered Devil-token mode | mode frame; bound offer selected; 3 Devil CREATED_TOKEN; no DAMAGED_PERMANENT |
+| WS05-CMD-START-3 | 3 | in 3P the starting player P1 draws on the first turn | tape from the game start: the engine's first BEGIN_TURN is P1's; exactly one LIBRARY→HAND for P1 in turn 1's DRAW step (the record's checkpoint). Negative control: the same tokens on the 2P record miss the draw (CR 103.8a) |
 | PILOT_TRIGGER_ORDER | 4 | Arena and Remora trigger together at upkeep; Arena ordered first | ordering frame offering exactly 2; both TRIGGERED_ABILITY for P1, put Arena then Remora (the reversed script puts Remora first) |
 
 New lane capability:
@@ -49,7 +50,7 @@ New lane capability:
 - X=2 instead of 3 → charged 4, 2 draws, `x_announced:3` missing → unverified.
 - the reversed trigger order → the engine puts Remora first → `stack_order` false → unverified.
 
-**Local chain (`DIRECTLY_VERIFIED`, pin `9375f35a`, fresh lane process per row):** 13 of 13 registered rows verify, including the 9 already credited.
+**Local chain (`DIRECTLY_VERIFIED`, pin `9375f35a`, fresh lane process per row):** 14 of 14 registered rows verify, including the 9 already credited.
 
 ## Triage: every remaining non-PASS row on the lane
 
@@ -63,7 +64,8 @@ Every row still UNKNOWN or BLOCKED on #421's PB-03 run (36768896191) was driven 
 | Pregame | PILOT_MULLIGAN, WS05-CMD-MULL-2, WS05-CMD-MULL-4 | `UNSUPPORTED_PHASE pregame` | game-start lane, not the midgame lane |
 | Script names no causal step | MICRO_MODES, PILOT_TARGET_AMOUNT, PILOT_MULTI_AMOUNT, NEGATIVE_FIRST_OPTION, NEGATIVE_GUI_DEFAULT, NEGATIVE_RANDOM_OPTION, NEGATIVE_SILENT_SKIP, NEGATIVE_INTERNAL_AI | the `decision_script` begins at a decision inside a cast (or names none) without the cast that opens it; only `native_procedure` prose names it | fixture gap (Coordinator); the producer does not invent the cast |
 | Mid-combat checkpoint | PILOT_DECLARE_BLOCKER, WS05-MP-BLOCK-4, MICRO_REPLACEMENT | arrival passes the requested DECLARE_BLOCKERS / COMBAT_DAMAGE step: a declared combat needs restoration plus a causal step | Coordinator (declared combat state) |
-| State facts, no event | MICRO_LAYERS, MICRO_STATE_BASED_ACTIONS, WS05-CMD-PARTNER-ZONE, WS05-CMD-PARTNER-TAX, WS05-CMD-START-3, WS05-CMD-DMG-SPLIT, WS05-CMD-ELIM-4, MICRO_COMBAT, MICRO_PREVENTION | required tokens are state/SBA facts (P/T layers, cost enumeration, starting player) that the tape does not carry; several also need declared combat | observation-based verifiers per token kind, then per-row onboarding |
+| State facts, no event | MICRO_LAYERS, MICRO_STATE_BASED_ACTIONS, WS05-CMD-PARTNER-ZONE, WS05-CMD-DMG-SPLIT, WS05-CMD-ELIM-4, MICRO_COMBAT, MICRO_PREVENTION | required tokens are state/SBA facts (P/T layers, SBA) that the tape does not carry; several also need declared combat | observation-based verifiers per token kind, then per-row onboarding |
+| Cost enumeration | WS05-CMD-PARTNER-TAX | the record gives P1 no mana source, and XMage offers only affordable casts, so neither partner's taxed cost is observable from offers; the procedure asks for a native cost query | a cost-query surface (bridge) or a fixture with mana |
 | Control divergence | MICRO_CONTROL | `UNSUPPORTED_CONTROL_DIVERGENCE` (control needs a resolved control-change effect) | causal route |
 | Arrival decision | MICRO_CONTINUOUS_EFFECTS | the arrival driver refuses `trigger_order` before the checkpoint | arrival extension |
 | Illegal scripted action | MICRO_COSTS | the record has **P2** cast Hex (a sorcery) while **P1** is the active player in precombat main; CR 307.1 allows a sorcery only in its caster's own main phase with an empty stack, so the engine correctly offers no cast | fixture defect (Coordinator); `EXTERNALLY_RULE_VALIDATED` against CR 307.1 and Hex's Oracle type line |

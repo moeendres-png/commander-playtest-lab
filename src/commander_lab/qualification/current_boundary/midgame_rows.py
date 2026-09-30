@@ -100,6 +100,10 @@ class RowSpec:
     # record's own postcondition prose ("the Devil-token mode"). The bound text
     # must occur in exactly one engine-offered mode label or the row fails closed.
     mode_bindings: tuple[tuple[str, str], ...] = ()
+    # The obligation is the game start itself (who takes the first turn, the
+    # first turn's draw), which happens before the arrival checkpoint: the tape
+    # is read from the engine's first event instead of from the arrival.
+    observe_from_game_start: bool = False
 
 
 # The record's decision family and the engine's decision class name the same
@@ -169,6 +173,10 @@ ROWS: dict[str, RowSpec] = {
             TerminalCheck("draws", principal="P1", value=3),
         ),
     ),
+    # "In 3P multiplayer, starting player P1 draws on first turn" (CR 103.8a
+    # exempts only a two-player game): the engine's first BEGIN_TURN is P1's and
+    # P1 draws exactly one card in that turn's draw step, the record's checkpoint.
+    "WS05-CMD-START-3": RowSpec(observe_from_game_start=True),
     # Phyrexian Arena and Mystic Remora trigger together at P1's upkeep; the
     # record orders Arena onto the stack first. "Both triggers are on stack in the
     # selected relative order" is read from the order the engine put them there.
@@ -354,6 +362,27 @@ def verify_token(
             and frame.selected_label in frame.offered_labels
         ]
         return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"starting_player:(P\d+)", token):
+        first = _first_turn(tape)
+        return (
+            {"events": [first["sequence"]]}
+            if first is not None and first.get("player_player") == match.group(1)
+            else None
+        )
+    if token == "first_turn_draw:true":
+        first = _first_turn(tape)
+        if first is None:
+            return None
+        draws = [
+            e["sequence"]
+            for e in _events(tape, "ZONE_CHANGE")
+            if e.get("turn") == 1
+            and e.get("step") == "DRAW"
+            and e.get("from") == "LIBRARY"
+            and e.get("to") == "HAND"
+            and e.get("player_player") == first.get("player_player")
+        ]
+        return {"events": draws} if len(draws) == 1 else None
     if match := re.fullmatch(r"simultaneous_triggers:(P\d+):(\d+)", token):
         # The engine asks its controller to order triggered abilities only when
         # they are put on the stack together: an ordering frame offering exactly
@@ -416,6 +445,12 @@ def verify_token(
         ]
         return {"decision_frames": frames} if frames else None
     return None
+
+
+def _first_turn(tape: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The engine's BEGIN_TURN for turn 1, if the tape starts at the game start."""
+    turns = _events(tape, "BEGIN_TURN")
+    return turns[0] if turns and turns[0].get("turn") == 1 else None
 
 
 def _mana_taps(trace: list[Frame]) -> list[int]:
@@ -755,7 +790,7 @@ def execute_row(
             construction,
             f"construction {construction}: {list(arrival.mismatches)}",
         )
-    baseline = int(client.events(0)["latest_offset"])
+    baseline = 0 if spec.observe_from_game_start else int(client.events(0)["latest_offset"])
     script = list(record.get("decision_script") or ())
     sources = [placed[s] for s in spec.mana_sources if s in placed]
     if len(sources) != len(spec.mana_sources):

@@ -481,3 +481,41 @@ def test_the_stack_order_is_the_order_the_engine_put_the_abilities() -> None:
     assert mr.check_terminal(check, {}, arena_first, [])
     assert not mr.check_terminal(check, {}, list(reversed(arena_first)), [])
     assert not mr.check_terminal(check, {}, arena_first[:1], [])
+
+
+def _game_start(draw_player: str | None) -> list[dict[str, Any]]:
+    tape: list[dict[str, Any]] = [
+        {"sequence": 1, "type": "LIBRARY_SHUFFLED", "turn": 1, "player_player": "P1"},
+        {"sequence": 2, "type": "BEGIN_TURN", "turn": 1, "player_player": "P1"},
+    ]
+    if draw_player is not None:
+        tape.append(
+            {
+                "sequence": 3,
+                "type": "ZONE_CHANGE",
+                "turn": 1,
+                "step": "DRAW",
+                "from": "LIBRARY",
+                "to": "HAND",
+                "player_player": draw_player,
+            }
+        )
+    return tape
+
+
+def test_the_starting_player_is_the_engines_first_turn() -> None:
+    assert mr.verify_token("starting_player:P1", _game_start("P1"), [], set()) is not None
+    assert mr.verify_token("starting_player:P2", _game_start("P1"), [], set()) is None
+    # A tape that does not start at the game start has no first turn to read.
+    later = [{"sequence": 9, "type": "BEGIN_TURN", "turn": 2, "player_player": "P1"}]
+    assert mr.verify_token("starting_player:P1", later, [], set()) is None
+
+
+def test_the_first_turn_draw_is_the_starting_players_draw_step_draw() -> None:
+    assert mr.verify_token("first_turn_draw:true", _game_start("P1"), [], set()) is not None
+    # CR 103.8a: in a two-player game the starting player skips it.
+    assert mr.verify_token("first_turn_draw:true", _game_start(None), [], set()) is None
+    assert mr.verify_token("first_turn_draw:true", _game_start("P2"), [], set()) is None
+    main_phase_draw = _game_start("P1")
+    main_phase_draw[-1]["step"] = "PRECOMBAT_MAIN"
+    assert mr.verify_token("first_turn_draw:true", main_phase_draw, [], set()) is None
