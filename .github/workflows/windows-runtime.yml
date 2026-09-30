@@ -13,6 +13,7 @@ on:
       - 'tests/integration/test_phase85_validation.py'
       - 'config/**'
       - '.github/workflows/windows-runtime.yml'
+      - "tests/conftest.py"
   workflow_dispatch:
 
 permissions:
