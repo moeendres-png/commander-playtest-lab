@@ -1,13 +1,17 @@
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Provider = if ($env:ENGINE_PROVIDER) { $env:ENGINE_PROVIDER } else { "xmage" }
-if ($Provider -eq "xmage") {
-  $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { "https://github.com/moeendres-png/mage.git" }
-  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326" }
-} elseif ($Provider -eq "forge") {
-  $Repo = "https://github.com/Card-Forge/forge.git"
-  $Commit = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
-} else { throw "ENGINE_PROVIDER must be xmage or forge" }
+if ($Provider -ne "xmage" -and $Provider -ne "forge") { throw "ENGINE_PROVIDER must be xmage or forge" }
+
+# Sole current pin authority. Resolve exactly the same manifest fields as the
+# supported Docker path; no provider repository/commit literals live here.
+$Python = Get-Command python -ErrorAction SilentlyContinue
+if (-not $Python) { throw "python is required to resolve config/rules_engines.json" }
+$Resolved = (& $Python.Source (Join-Path $Root "scripts\docker_resolve_engine_pin.py") --provider $Provider --format json | Out-String)
+if ($LASTEXITCODE -ne 0) { throw "engine pin authority resolution failed for $Provider" }
+$Pin = $Resolved | ConvertFrom-Json
+$Repo = $Pin.repository
+$Commit = $Pin.commit
 $Source = if ($env:ENGINE_SOURCE_PATH) { $env:ENGINE_SOURCE_PATH } else { Join-Path $Root "vendor\engine-source\$Provider" }
 $Binary = if ($env:ENGINE_BINARY_PATH) { $env:ENGINE_BINARY_PATH } else { Join-Path $Root "vendor\engine-binaries\$Provider" }
 Get-Command java -ErrorAction Stop | Out-Null
