@@ -357,6 +357,8 @@ def test_operator_bootstraps_resolve_current_forge_roles_from_manifest(repo_root
     assert '"source_commit":"$COMMIT"' in linux
     assert "commit=$RulesCommit" in windows
     assert "source_commit=$Commit" in windows
+    assert "remote get-url origin" in windows
+    assert "Unexpected source remote" in windows
 
 
 def test_live_forge_integration_binds_current_rules_and_bridge_roles(repo_root: Path) -> None:
