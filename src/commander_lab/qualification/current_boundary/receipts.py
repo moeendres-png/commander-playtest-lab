@@ -495,43 +495,107 @@ def parse_maven_summary(text: str) -> dict[str, int]:
     }
 
 
+_CASE_SEVERITY = {"passed": 0, "skipped": 1, "failure": 2, "error": 3}
+
+
+def _case_outcome(case: ElementTree.Element) -> str:
+    if case.find("error") is not None:
+        return "error"
+    if case.find("failure") is not None:
+        return "failure"
+    if case.find("skipped") is not None:
+        return "skipped"
+    return "passed"
+
+
 def observed_class_executions(
     report_dirs: list[Path], classes: tuple[str, ...], *, not_before: float
 ) -> tuple[dict[str, dict[str, Any]], tuple[str, ...]]:
-    """Per requested class, its surefire report written during this run.
+    """Per requested class, what the surefire reports written during this run show.
 
     The aggregate ``Tests run:`` total cannot show that a requested class ran:
     a class that vanished (renamed, excluded, not compiled) leaves the other
-    classes' total green. A class counts as executed only when a surefire
-    report for exactly that class was written after ``not_before`` (so a stale
-    report from an earlier run never counts), with at least one test that was
-    not skipped, and no failure or error.
+    classes' total green. Only reports written after ``not_before`` count, so a
+    stale report from an earlier run never does.
+
+    A class's test cases are read from the ``<testcase classname=...>`` elements
+    of every fresh report, matched by fully qualified or simple class name. That
+    covers both surefire layouts: JUnit writes one ``TEST-<class>.xml`` per class,
+    TestNG (Forge) one ``TEST-TestSuite.xml`` holding every class. Reading only
+    per-class file names saw no fresh report at all for Forge's TestNG classes,
+    so 217 passing Forge tests were recorded as "0 tests" and AF10 as FAIL. A
+    test case listed twice keeps its worse outcome. A per-class report with suite
+    totals but no test-case elements is read from those totals.
+
+    A class counts as executed with at least one test case that was not skipped
+    and no failure or error.
     """
+    fresh: list[Path] = []
+    for directory in report_dirs:
+        if directory.is_dir():
+            for report in sorted(directory.glob("TEST-*.xml")):
+                if report.stat().st_mtime >= not_before:
+                    fresh.append(report)
+    cases: dict[str, dict[tuple[str, str], str]] = {name: {} for name in classes}
+    reports_of: dict[str, set[str]] = {name: set() for name in classes}
+    suite_totals: dict[str, dict[str, Any]] = {}
+    unparseable: list[str] = []
+    for report in fresh:
+        try:
+            root = ElementTree.parse(report).getroot()
+        except (OSError, ElementTree.ParseError):
+            unparseable.append(report.name)
+            continue
+        has_cases = False
+        for case in root.iter("testcase"):
+            has_cases = True
+            classname = str(case.get("classname") or "")
+            simple = classname.rsplit(".", 1)[-1]
+            for name in classes:
+                if name not in (classname, simple):
+                    continue
+                key = (classname, str(case.get("name") or ""))
+                outcome = _case_outcome(case)
+                previous = cases[name].get(key)
+                if previous is None or _CASE_SEVERITY[outcome] > _CASE_SEVERITY[previous]:
+                    cases[name][key] = outcome
+                reports_of[name].add(report.name)
+        if has_cases:
+            continue
+        for name in classes:
+            if report.name == f"TEST-{name}.xml" or report.name.endswith(f".{name}.xml"):
+                try:
+                    totals: dict[str, Any] = {
+                        key: int(root.get(key, "0"))
+                        for key in ("tests", "failures", "errors", "skipped")
+                    }
+                except ValueError:
+                    unparseable.append(report.name)
+                    continue
+                totals["report"] = report.name
+                suite_totals[name] = totals
+
     observed: dict[str, dict[str, Any]] = {}
     unexecuted: list[str] = []
     for name in classes:
-        reports = [
-            report
-            for directory in report_dirs
-            if directory.is_dir()
-            for report in directory.glob(f"TEST-*{name}.xml")
-            if report.name.endswith(f".{name}.xml") or report.name == f"TEST-{name}.xml"
-        ]
-        fresh = [report for report in reports if report.stat().st_mtime >= not_before]
-        if len(fresh) != 1:
-            unexecuted.append(name)
-            observed[name] = {"reports_found": len(reports), "fresh_reports": len(fresh)}
-            continue
-        try:
-            root = ElementTree.parse(fresh[0]).getroot()
+        if cases[name]:
+            outcomes = list(cases[name].values())
             counts: dict[str, Any] = {
-                key: int(root.get(key, "0")) for key in ("tests", "failures", "errors", "skipped")
+                "tests": len(outcomes),
+                "failures": outcomes.count("failure"),
+                "errors": outcomes.count("error"),
+                "skipped": outcomes.count("skipped"),
+                "reports": sorted(reports_of[name]),
             }
-        except (OSError, ElementTree.ParseError, ValueError):
+        elif name in suite_totals:
+            counts = suite_totals[name]
+        else:
             unexecuted.append(name)
-            observed[name] = {"unparseable_report": fresh[0].name}
+            observed[name] = {
+                "fresh_reports_scanned": len(fresh),
+                "unparseable_reports": sorted(unparseable),
+            }
             continue
-        counts["report"] = fresh[0].name
         observed[name] = counts
         if (
             counts["tests"] == 0
