@@ -25,11 +25,10 @@ A PR that touches `engine-bridge/**` started 7 workflows and used about **48 run
 
 1. **Required checks.** The `CPL - Canonical Main Protection` ruleset requires only `quality`, `security` and `infrastructure`. Auto-merge therefore merges even when the bridge suite (`conformance`), H4 or the real-4P smoke fails. Until this is fixed, bridge PRs must be merged manually, after checking every check.
    - Making `conformance` required directly would block every PR that doesn't touch the bridge. The workflow is path-filtered, and a required check that never reports stays "expected" forever.
-   - Recommendation, planned after #360 lands, because #360 edits these workflow files: merge the four engine workflows into one.
-     - A `scope` job derives the needed parts from the changed paths.
-     - A final `engine-gate` job (`needs:` all, `if: always()`) fails if any needed job failed and passes when nothing engine-related changed.
-     - Then make `engine-gate` required.
-     - This avoids an aggregator that occupies a runner while polling.
+   - **Done (this change):** the four engine workflows now always run on pull requests. A small scope job (`conformance-scope`, `smoke-scope`, `integration-scope`, and H4's `preflight`) decides from the changed paths, via `.github/actions/change-scope`, whether the heavy job is needed.
+     - Irrelevant changes skip the heavy job, and a job skipped by `if:` counts as passed for required checks.
+     - A failing scope job cannot skip them: the heavy jobs run unless the scope explicitly says `false`.
+     - **Owner action:** add these checks as required in the `CPL - Canonical Main Protection` ruleset: `conformance`, `real-4p-smoke`, `build-and-integrate`, `preflight`, `h4-xmage`, `h4-forge`.
 2. **Dead workflow registrations.** GitHub has 289 workflows registered for this repository, and only 20 exist on `main`. `DEAD_WORKFLOW_REGISTRATIONS.json` lists 181 of them. Each is absent from `main` and from every open PR head, and has had no runs for 14 days.
    - Disabling is reversible (`gh workflow enable <id>`). The automated session was not permitted to do it.
    - Command:
