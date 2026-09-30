@@ -17,8 +17,8 @@ import pytest
 
 from commander_lab.qualification.current_boundary.receipts import verify_pb05_provenance
 
-CANDIDATE_SOURCE = "201cad9576d004b71fd9af260ab4c981f606eb19"
-CANDIDATE_TREE = "345ff8cddda9888f3414dc3fb91132694aa3cc8a"
+CANDIDATE_SOURCE = "e22c424adde043e23892e4bb59aaeb4d2fb089d9"
+CANDIDATE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
 OTHER = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 
 
