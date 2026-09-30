@@ -40,7 +40,17 @@ def test_candidate_identity_is_bound_per_candidate() -> None:
 
 
 def test_source_lock_verdict_is_still_the_af00_derivation() -> None:
-    assert "source_lock_verdict(af01, expected_engine_commit)" in SOURCE
+    """AF00 is derived per candidate inside af00_gate (R-1/R-3 dual identity):
+    XMage against its own candidate commit, Forge against the exact built source,
+    both read from that candidate's own results_runtime_identity."""
+    start = SOURCE.index("def af00_gate(")
+    body = SOURCE[start : SOURCE.index("\ndef ", start + 1)]
+    assert 'runtime = data["results_runtime_identity"]' in body
+    assert "source_lock_verdict(af01, expected)" in body
+    assert 'expected = runtime.get("engine_candidate_commit", "")' in body
+    assert "source_lock_verdict(af01, source_commit)" in body
+    assert 'source_commit = str(runtime.get("bridge_source_commit") or "")' in body
+    assert "af00_gate(" in SOURCE[SOURCE.index("for candidate, data in per_candidate.items():") :]
 
 
 def test_af00_compares_reported_against_expected_not_the_reverse() -> None:
