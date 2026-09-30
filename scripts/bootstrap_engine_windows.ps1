@@ -22,8 +22,21 @@ Get-Command java -ErrorAction Stop | Out-Null
 Get-Command javac -ErrorAction Stop | Out-Null
 Get-Command git -ErrorAction Stop | Out-Null
 New-Item -ItemType Directory -Force -Path (Split-Path $Source), $Binary | Out-Null
-if (-not (Test-Path (Join-Path $Source ".git"))) { git clone $Repo $Source }
+if (-not (Test-Path (Join-Path $Source ".git"))) {
+  git clone $Repo $Source
+  if ($LASTEXITCODE -ne 0) { throw "Failed to clone pinned source repository $Repo" }
+} else {
+  $CurrentRemote = (git -C $Source remote get-url origin).Trim()
+  if ($LASTEXITCODE -ne 0) { throw "Unable to read existing source remote" }
+  if ($CurrentRemote -ne $Repo) {
+    throw "Unexpected source remote: $CurrentRemote (expected $Repo)"
+  }
+}
 git -C $Source fetch --tags --prune
+if ($LASTEXITCODE -ne 0) {
+  git -C $Source cat-file -e "$Commit^{commit}"
+  if ($LASTEXITCODE -ne 0) { throw "Pinned commit $Commit is unavailable after fetch failure" }
+}
 git -C $Source checkout --detach $Commit
 $Observed = (git -C $Source rev-parse HEAD).Trim()
 if ($Observed -ne $Commit) { throw "Pinned commit mismatch: $Observed" }
