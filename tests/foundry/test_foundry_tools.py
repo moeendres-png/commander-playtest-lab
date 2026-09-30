@@ -1026,7 +1026,6 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
     assert "muse" in flat
     assert (
         "neither supported opencode foundry executor nor an available authorized claude campaign "
-        "can perform it"
-        in flat
+        "can perform it" in flat
     )
     assert "docs/coordinator_execution_authority_2026-09-27.md" in flat
