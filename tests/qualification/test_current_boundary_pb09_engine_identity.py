@@ -15,6 +15,8 @@ upstream behaviour is recorded as observed.
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -25,6 +27,56 @@ from commander_lab.qualification.current_boundary.receipts import verify_candida
 REPO = Path(__file__).resolve().parents[2]
 CONFIG = REPO / "config/rules_engines.json"
 READINESS = REPO / "docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json"
+
+# Historical path of the Forge reference checkout this file was written against.
+DEFAULT_FORGE_REFERENCE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+
+
+def _git_has_commit(repo: Path, sha: str) -> bool:
+    proc = subprocess.run(
+        ["git", "cat-file", "-e", f"{sha}^{{commit}}"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return proc.returncode == 0
+
+
+def _require_forge_reference(*commits: str) -> Path:
+    """Locate a Forge checkout that actually contains the pinned commits.
+
+    Resolution follows FORGE_SOURCE_DIR, the convention already documented for
+    the Forge checkout in tests/integration/test_forge_bridge_h4f_live.py:25,
+    with the historical hardcoded path as fallback so behaviour on the machine
+    this file was written against is unchanged.
+
+    The two preconditions are kept separate because they mean different things:
+
+    * no checkout at all -- a property of this machine. Nothing changed, there is
+      nothing to re-adjudicate, and the response is to point FORGE_SOURCE_DIR at
+      a checkout.
+    * a checkout that exists but lacks a pinned commit -- these tests compare
+      *specific* pinned commits, so no other checkout can establish them. An
+      arbitrary Forge source tree is not a substitute, and substituting one would
+      turn a correct skip into a wrong failure.
+    """
+    raw = os.environ.get("FORGE_SOURCE_DIR", "").strip()
+    forge = Path(raw) if raw else DEFAULT_FORGE_REFERENCE
+    if not (forge / ".git").exists():
+        pytest.skip(
+            f"no Forge checkout at {forge}: this test compares pinned commits, so it cannot run "
+            "without one. Set FORGE_SOURCE_DIR to a checkout of moeendres-png/forge to enable it."
+        )
+    missing = [sha for sha in commits if not _git_has_commit(forge, sha)]
+    if missing:
+        pytest.skip(
+            f"the Forge checkout at {forge} does not contain {missing}. These tests compare "
+            "specific pinned commits, so any other checkout cannot establish them -- a different "
+            "condition from having no checkout at all."
+        )
+    return forge
+
 
 FORK = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
 UPSTREAM = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
@@ -240,9 +292,7 @@ def test_real_forge_descendant_is_engine_equivalent() -> None:
     why the suite can execute at the descendant and still be evidence about the
     fork head.
     """
-    forge = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
-    if not (forge / ".git").exists():
-        pytest.skip("the Forge reference checkout is not present in this environment")
+    forge = _require_forge_reference(FORK, TIP)
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
 
     proof = verify_engine_identity(forge, FORK, TIP, recorded_label="forge native suite")
@@ -277,9 +327,7 @@ def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
 
 def test_forge_pr5_head_is_rules_core_equivalent_to_the_fork_head() -> None:
     """The real PB-05/WSR30 fact: the bridge repair changed zero Rules-Core source."""
-    forge = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
-    if not (forge / ".git").exists():
-        pytest.skip("the Forge reference checkout is not present in this environment")
+    forge = _require_forge_reference(FORK, BRIDGE_HEAD)
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
 
     proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR5")
