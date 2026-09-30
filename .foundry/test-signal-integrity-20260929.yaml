@@ -38,16 +38,16 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: bc08bc79109063c51f77f45ee28521988994e474
-# Newest commit whose tests/evidence were actually validated. Re-pointed three times as main
-# drifted (57b233fb, 73399357), each time because the earlier value no longer described the
+state_written_against_head: 60a82d75cb2c5d58c359538d1a31e1b06d944a82
+# Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
+# (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
 #
 # Drift policy, recorded so this does not churn: main drifts roughly every merge. validated_head
 # names the newest content validated LOCALLY. Drift arriving after this commit is covered by
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
-validated_head: bc08bc79109063c51f77f45ee28521988994e474
+validated_head: 60a82d75cb2c5d58c359538d1a31e1b06d944a82
 worktree: /home/moeen/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
@@ -262,6 +262,19 @@ validation:
       local coverage away
     ruff_check: clean
     ruff_format: 1125 files formatted
+  on_the_third_repair_head:
+    full_suite_excluding_2_env_bound_modules: 0 failed, 2422 passed, 13 skipped
+    branch_point_baseline_5c69b999: 0 failed, 2396 passed, 13 skipped
+    delta: +26 passed, exactly the 26 tests added by test_state_spec_agreement.py; skips unchanged
+    tests_foundry: 670 passed (baseline 644)
+    mutation_probe: six one-sided schema mutations, six catches, each with an explanatory message
+    state_py_validate: STATE_OK
+    ruff_check: clean
+    ruff_format: 1140 files formatted
+    note: >-
+      The skip count rose from 9 to 13 with main's drift, not with this change: the engine repin
+      lane added superseded-pin tests that skip by design. Measured on both arms rather than
+      inferred, which is why the same 13 appears in the baseline row.
   on_2ea1391a_after_main_drift_merge:
     full_suite_excluding_2_env_bound_modules: 0 failed, 2357 passed, 9 skipped
     tests_foundry: 643 passed, 0 skipped
@@ -331,6 +344,22 @@ post_completion_repairs:
       because the fix is bounded and the false signal is cheap to remove
     delivered_on: maintenance/test-signal-integrity-20260929
     evidence: validation.on_d171bcaa_drift_portability
+  - id: R3
+    summary: >-
+      tests/foundry/test_state_spec_agreement.py asserts, in both directions, every part of the
+      state.py / WORKSTREAM_STATE.schema.json overlap that must agree; pins the premise that
+      safe_push enforces state.py; and records the four known divergences with rot-proof checks.
+    audit_recommendation: >-
+      2 of FOUNDRY_STATE_CONFORMANCE.md. The contract decision -- which specification wins --
+      remains the Coordinator's and is deliberately NOT made here. What changed is that the
+      divergence is now monitored instead of merely documented, and the decision agenda is a
+      mutation-tested table rather than prose.
+    mutation_tested: six one-sided schema mutations, six catches
+    side_effect: >-
+      the mutation probe exposed a missing assertion message in the first draft of the new test;
+      fixed before commit, recorded because the probe earned its keep
+    delivered_on: maintenance/test-signal-integrity-20260929
+    evidence: validation.on_the_third_repair_head
 
 exact_next_action: >-
   NONE. The objective is complete and merged as PR #371, with #372 and #373 carrying the receipt
