@@ -4,8 +4,8 @@ worktree: /home/moeen/code/claude-lab-repin-20260929
 branch: claude/midgame-row-receipts-20260930
 audit_base_sha: 808799915b478ef2e7726ac941a83387cb2f1a3c
 audit_base_tree: 93ceaaa22210fe3f1c82948be255e15d61647068
-state_written_against_head: 236107d9b727cae5d3ea928fa9591aab9417a63a
-validated_head: 1c4e649ece0493aa5e3f84ab9af1bfb559edf9cd
+state_written_against_head: 567b914ed24c14e3e8a9bb63744399236355699d
+validated_head: 567b914ed24c14e3e8a9bb63744399236355699d
 objective: 'CSN-POST-AUDIT-HARDENING-2026-09-30: fix the independently audited defects that are live on current
   main, not owned by an active workstream and need no authority decision.'
 in_scope:
@@ -24,9 +24,9 @@ out_of_scope:
 - 'issue #255 adjudication'
 - 'issue #192 destructive cleanup'
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); one branch/PR per milestone
-status: ACTIVE
-exact_next_action: 'Open the B2 PR after the exact-head bridge suite, post the wiring patch on #408, then A1 on
-  a fresh branch from main.'
+status: WAITING
+exact_next_action: 'Merge #409, #411, #412, #413, #416, #417 and the B3 PR (owner); then B4, B5, C4, C3, E2, C1,
+  C2, D2, F1, F2, G1, H1, R1 per docs in the handoff prompt.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -56,36 +56,42 @@ ownership_observed:
   issue#192: OPERATOR_GATE (destructive cleanup)
 tasks:
   A1:
-    status: LIVE
-    evidence: exact-main-recovery.yml:90 writes cfc36f44 as xmage_pinned_commit; lines 120-123 write unbound True
-      runtime claims
-    next: own branch
+    status: FIXED
+    pr: '#412'
+    evidence: pin from config/rules_engines.json; unchecked claims NOT_BOUND; guard test red on 80879991; real workflow
+      run 36726339095 success
   A2:
-    status: LIVE
-    evidence: generate_full_game_contract_artifacts.py max_players 5 / [2,3,4,5]; XmageFullGameJsonlBridge note
-      says 2..5; FUTURE_XMAGE_SCENARIO_SCHEMA player_count const 4
+    status: FIXED
+    pr: '#413'
+    evidence: architecture schemas generated from models; invariant report and Java note from runner/session constants;
+      drift tests
   A3:
-    status: LIVE
-    evidence: XmageFullGameRunner.run() never checks shutdown_disposition; run_smoke() does (full_game.py:1901)
+    status: FIXED
+    pr: '#416'
+    evidence: run() fails closed without graceful shutdown; result.shutdown_disposition required, no default
   A4:
-    status: LIVE
-    evidence: meta-qualification.yml paths omit src/commander_lab/semantic_replay/**
+    status: FIXED
+    pr: '#417'
+    evidence: audit_workflow_impact.py per-job coverage, --fix, guard test; pb03 workflow reported, not rewritten
   B1:
-    status: OWNERSHIP_BLOCKED
-    evidence: runner/assembler OUT_DIR is the WSR22 tree; surface owned by PR#395
+    status: AUTHORITY_GATE
+    evidence: LEDGER H-08 calls final-current-boundary-20260927 sealed, but the current-boundary lane requalifies
+      into it on main (6 commits on 2026-09-30); which epoch is sealed is an evidence-policy decision
   B2:
-    status: IN_PROGRESS
-    branch: claude/midgame-row-receipts-20260930
-    evidence: 'producer + validated loader + live E2E 9/9 credited; wiring handed to #408/#395 as a patch'
+    status: FIXED
+    pr: '#411'
+    evidence: 'producer + loader + runner/assembler wiring; full scratch run on 567b914e: XMage FULL107 5 -> 14
+      PASS, native_promotions 9, runner and assembler exit 0'
   B3:
-    status: OWNERSHIP_BLOCKED
-    evidence: native suite command lives in the runner (PR#395 surface)
+    status: FIXED
+    pr: see hardening/native-suite-executed-identity-20260930
+    evidence: per-class surefire identity; loader refuses missing/empty/all-skipped/failed/stale classes
   B4:
-    status: OWNERSHIP_BLOCKED
-    evidence: runner git() (PR#395 surface)
+    status: OPEN
+    evidence: 'runner git() still check=False; surface free since #395 merged'
   B5:
-    status: OWNERSHIP_BLOCKED
-    evidence: runner/assembler Forge workspace default (PR#395 surface)
+    status: OPEN
+    evidence: 'Forge workspace default path; surface free since #395 merged'
   C1:
     status: UNADJUDICATED
   C2:
@@ -95,11 +101,11 @@ tasks:
   C4:
     status: UNADJUDICATED
   D1:
-    status: OWNERSHIP_BLOCKED
-    evidence: PR#395 active
+    status: SUPERSEDED_ALREADY_FIXED
+    evidence: 'PR #395 merged 2026-09-30 14:40 (artifact identity)'
   D2:
-    status: DEPENDENCY_BLOCKED
-    evidence: needs D1
+    status: OPEN
+    evidence: D1 done; A3 already forces re-execution of pre-1.1.0 batch records
   E1:
     status: UNADJUDICATED
   E2:
