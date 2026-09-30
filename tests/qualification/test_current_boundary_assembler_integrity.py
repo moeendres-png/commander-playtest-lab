@@ -98,6 +98,29 @@ def test_native_suite_executor_is_on_the_execution_path() -> None:
     assert "executed_commit" in source
 
 
+def test_fullgame_lane_auxiliary_is_optional_in_a_runtime_epoch(tmp_path: Path) -> None:
+    """A runtime epoch does not contain the historical auxiliary artifact.
+
+    The xmage full-game-lane AF01 artifact is produced by an earlier boundary
+    epoch, not by the runner. The assembler loaded it unconditionally, so an
+    assembly from a fresh runtime epoch crashed on the missing file instead of
+    recording that no auxiliary is present.
+    """
+    asm = _assembler_module()
+    assert asm._load_fullgame_lane_auxiliary("forge") is None
+    import json
+
+    original = asm.OUT
+    try:
+        asm.OUT = tmp_path
+        assert asm._load_fullgame_lane_auxiliary("xmage") is None
+        path = tmp_path / "AF01_XMAGE_FULLGAME_LANE.json"
+        path.write_text(json.dumps({"verdict": "PASS"}), encoding="utf-8")
+        assert asm._load_fullgame_lane_auxiliary("xmage") == {"verdict": "PASS"}
+    finally:
+        asm.OUT = original
+
+
 def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> None:
     """A Forge-only run must not regenerate XMage native receipts."""
     import importlib.util

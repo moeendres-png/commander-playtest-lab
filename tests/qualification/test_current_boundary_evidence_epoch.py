@@ -70,8 +70,22 @@ def test_historical_epoch_is_never_a_legal_target() -> None:
         )
 
 
-def test_override_must_stay_inside_qualification() -> None:
-    for outside in ("/etc", "src", "../outside", "docs"):
+def test_override_must_stay_inside_the_epochs_parent() -> None:
+    """An epoch may only be selected under the runtime epochs parent.
+
+    Anything else inside qualification/ would write evidence into a tracked
+    research tree where it is neither attributable as a runtime epoch nor
+    excluded from source dirtiness.
+    """
+    for outside in (
+        "/etc",
+        "src",
+        "../outside",
+        "docs",
+        "qualification/manifests",
+        "qualification/other-tree",
+        f"qualification/{E.HISTORICAL_EPOCH_ID}",
+    ):
         with pytest.raises(E.EvidenceEpochError):
             E.epoch_root(REPO, environ={E.EPOCH_ENV: outside})
 
@@ -152,12 +166,14 @@ def test_runner_records_the_epoch_in_its_runtime_identity() -> None:
     assert epoch["writes_historical_epoch"] is False
 
 
-def test_receipts_exclude_the_runtime_epoch_from_dirty_accounting() -> None:
+def test_receipts_exclude_only_the_runtime_epoch_from_dirty_accounting() -> None:
     assert receipt_mod._is_run_output(
         "qualification/current-boundary-epochs/abc-123/receipts/native-xmage-direct.json"
     )
     assert receipt_mod._is_run_output("qualification/current-boundary-epochs/")
-    assert receipt_mod._is_run_output(
+    # The historical epoch is a read-only predecessor now: a modification under
+    # it must count as dirty source, not be hidden as run output.
+    assert not receipt_mod._is_run_output(
         f"qualification/{E.HISTORICAL_EPOCH_ID}/FULL107_XMAGE_RESULTS.json"
     )
     assert not receipt_mod._is_run_output("scripts/run_current_boundary_qualification.py")
@@ -209,7 +225,14 @@ def _fake_candidate_artifacts(directory: Path, candidate: str) -> dict[Path, byt
             {
                 "schema_version": "test/1.0.0",
                 "evidence_class": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+                "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
                 "runtime_identity": {"engine_candidate_commit": "a" * 40},
+                "rows": [
+                    {
+                        "fixture_id": "WS05-CMD-START-2",
+                        "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+                    }
+                ],
             },
             indent=1,
             sort_keys=True,
@@ -238,6 +261,8 @@ def test_unselected_candidate_column_is_carried_forward_with_provenance(
         assert copied.is_file(), path.name
         document = json.loads(copied.read_text(encoding="utf-8"))
         assert document["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
+        assert document["boundary"] == "CARRIED_FORWARD_NOT_REEXECUTED"
+        assert document["rows"][0]["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
         assert document["carried_forward"]["source_epoch"] == str(source)
         assert document["carried_forward"]["source_epoch_id"] == source.name
         # The historical source is read, never rewritten.

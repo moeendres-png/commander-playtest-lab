@@ -183,6 +183,22 @@ def native_credit_provenance(
     }
 
 
+def _load_fullgame_lane_auxiliary(candidate: str) -> dict[str, Any] | None:
+    """The xmage full-game-lane auxiliary, only when this epoch carries one.
+
+    The artifact is produced by an earlier boundary epoch, not by the runner, so
+    a runtime epoch normally does not contain it. Absence is therefore normal
+    and must not crash the assembly; when it is present it is still epoch-checked
+    before any citation.
+    """
+    if candidate != "xmage":
+        return None
+    path = OUT / "AF01_XMAGE_FULLGAME_LANE.json"
+    if not path.is_file():
+        return None
+    return load(path)
+
+
 def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
     """AF00 derived from the reported engine identity, not asserted.
 
@@ -661,7 +677,7 @@ def assemble() -> None:
     for candidate, data in per_candidate.items():
         counts = data["counts"]
         af01 = load(OUT / f"AF01_{candidate.upper()}.json")
-        extra = load(OUT / "AF01_XMAGE_FULLGAME_LANE.json") if candidate == "xmage" else None
+        extra = _load_fullgame_lane_auxiliary(candidate)
         extra_note: str | None = None
         if extra is not None:
             # An auxiliary artifact produced by an earlier boundary epoch must

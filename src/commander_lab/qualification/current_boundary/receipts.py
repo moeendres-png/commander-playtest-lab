@@ -78,6 +78,27 @@ class ReceiptError(RuntimeError):
     """A receipt is missing, malformed, stale, or not positive. Never credit-worthy."""
 
 
+# Environment variables that redirect Git away from the directory it is run in.
+# Every Git fact this module reads is a source identity, so an inherited
+# GIT_DIR/GIT_WORK_TREE could otherwise bind a receipt to another repository's
+# commit while the evidence names this checkout.
+_GIT_REDIRECTION_ENV = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+)
+
+
+def _clean_git_environment() -> dict[str, str]:
+    env = dict(os.environ)
+    for name in _GIT_REDIRECTION_ENV:
+        env.pop(name, None)
+    return env
+
+
 def _now() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
 
@@ -99,7 +120,12 @@ def document_digest(document: dict[str, Any]) -> str:
 
 def _git(root: Path, args: list[str]) -> str:
     proc = subprocess.run(
-        ["git", *args], cwd=str(root), capture_output=True, text=True, check=False
+        ["git", *args],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+        env=_clean_git_environment(),
     )
     if proc.returncode != 0:
         raise ReceiptError(f"git {' '.join(args)} failed: {proc.stderr.strip()[:200]}")
@@ -124,6 +150,7 @@ def _git_porcelain(root: Path) -> list[str]:
         capture_output=True,
         text=True,
         check=False,
+        env=_clean_git_environment(),
     )
     if proc.returncode != 0:
         raise ReceiptError(f"git status --porcelain failed: {proc.stderr.strip()[:200]}")
@@ -138,7 +165,12 @@ def _git_optional(root: Path, args: list[str], default: str = "UNCONFIGURED") ->
     facts that must exist (HEAD, its tree, the index) are allowed to fail hard.
     """
     proc = subprocess.run(
-        ["git", *args], cwd=str(root), capture_output=True, text=True, check=False
+        ["git", *args],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+        env=_clean_git_environment(),
     )
     if proc.returncode != 0:
         return default
@@ -206,12 +238,10 @@ class RunnerIdentity:
 
 # Paths this qualification run writes as its own output. They are produced BY the
 # run, so their uncommitted state is the result, not a provenance divergence.
-# The historical WSR22 epoch is retained for the receipts it already holds; new
-# runs write a source-bound runtime epoch under the parent directory below.
-_RUN_OUTPUT_PREFIXES: tuple[str, ...] = (
-    "qualification/final-current-boundary-20260927/",
-    "qualification/current-boundary-epochs/",
-)
+# Only the runtime epochs parent qualifies: the historical WSR22 epoch is a
+# read-only predecessor now, so a modification under it must count as dirty
+# source rather than being hidden by this exclusion.
+_RUN_OUTPUT_PREFIXES: tuple[str, ...] = ("qualification/current-boundary-epochs/",)
 
 
 def _is_run_output(relative: str) -> bool:
@@ -243,10 +273,19 @@ def capture_runner_identity(root: Path) -> RunnerIdentity:
                 digests[str(path.relative_to(root))] = _file_digest(path)
     if not digests:
         raise ReceiptError("runner identity captured zero executed inputs; refusing to bind")
+    commit = _git(root, ["rev-parse", "HEAD"])
+    tree = _git(root, ["rev-parse", "HEAD^{tree}"])
+    # A source identity must be a full object id. An abbreviated, empty or
+    # malformed value is not an identity and must never be recorded as one.
+    if not _valid_sha(commit) or not _valid_sha(tree):
+        raise ReceiptError(
+            f"runner identity could not establish a full commit/tree SHA from {root}: "
+            f"commit={commit!r} tree={tree!r}"
+        )
     return RunnerIdentity(
         repository=_git_optional(root, ["config", "--get", "remote.origin.url"]),
-        commit=_git(root, ["rev-parse", "HEAD"]),
-        tree=_git(root, ["rev-parse", "HEAD^{tree}"]),
+        commit=commit,
+        tree=tree,
         branch=_git(root, ["rev-parse", "--abbrev-ref", "HEAD"]),
         dirty=bool(dirty_paths),
         dirty_paths=dirty_paths,
@@ -915,6 +954,7 @@ def engine_tree_equivalence(
             capture_output=True,
             text=True,
             check=False,
+            env=_clean_git_environment(),
         )
         value = completed.stdout.strip()
         return value if len(value) == 40 and all(c in "0123456789abcdef" for c in value) else ""

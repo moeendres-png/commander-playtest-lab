@@ -659,7 +659,16 @@ def run_native_suite(
     suite_root = resolved["root"]
     checkout_identity = resolved["checkout_identity"]
     actual_head = str(checkout_identity["actual_commit"])
-    build_identity: dict[str, Any] = dict(spec.get("build_identity", {}))
+    # The binding declares build identity as a JSON document (a string), while the
+    # receipt carries it as a JSON document as well; normalise here so the two
+    # shapes can never be confused (the pb03-runtime CI job caught exactly that:
+    # dict() over a JSON string raised before any receipt was persisted).
+    declared_build_identity = spec.get("build_identity", {})
+    build_identity: dict[str, Any] = (
+        json.loads(declared_build_identity)
+        if isinstance(declared_build_identity, str)
+        else dict(declared_build_identity)
+    )
     if checkout_identity["kind"] == "EXPLICIT_WORKSPACE":
         bridge_proof = checkout_identity["bridge_identity_proof"]
         engine_equivalence = {
@@ -825,6 +834,7 @@ def bootstrap_evidence_epoch() -> dict[str, Any]:
 # comparison. A run that selects one candidate carries the other column forward
 # from the historical epoch; the copied documents are explicitly marked, so the
 # current epoch never claims a fresh execution that did not happen.
+CARRIED_FORWARD_EVIDENCE_CLASS = "CARRIED_FORWARD_NOT_REEXECUTED"
 _CARRIED_FORWARD_ARTIFACTS = (
     "FULL107_{candidate}_RESULTS.json",
     "AF01_{candidate}.json",
@@ -871,7 +881,17 @@ def carry_forward_unselected_candidates(
                 ) from exc
             if not isinstance(document, dict):
                 raise SystemExit(f"carried-forward artifact {source} is not an object")
-            document["evidence_class"] = "CARRIED_FORWARD_NOT_REEXECUTED"
+            # Mark every freshness claim, including nested ones: a direct
+            # consumer of the copied file must not read FRESH from a row or
+            # boundary field after the top-level marker was rewritten.
+            document["evidence_class"] = CARRIED_FORWARD_EVIDENCE_CLASS
+            if "boundary" in document:
+                document["boundary"] = CARRIED_FORWARD_EVIDENCE_CLASS
+            rows = document.get("rows")
+            if isinstance(rows, list):
+                for row in rows:
+                    if isinstance(row, dict) and "evidence_class" in row:
+                        row["evidence_class"] = CARRIED_FORWARD_EVIDENCE_CLASS
             document["carried_forward"] = {
                 "source_epoch": str(source_root),
                 "source_epoch_id": source_root.name,

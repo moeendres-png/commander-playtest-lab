@@ -150,11 +150,13 @@ def epoch_root(repo_root: Path | None = None, *, environ: Mapping[str, str] | No
             candidate = repo_root / candidate
         candidate = candidate.resolve()
         qualification = _qualification_root(repo_root)
-        if candidate != qualification and qualification not in candidate.parents:
+        epochs_parent = qualification / EPOCH_PARENT
+        if candidate != epochs_parent and epochs_parent not in candidate.parents:
             raise EvidenceEpochError(
-                f"{EPOCH_ENV}={explicit!r} resolves to {candidate}, outside {qualification}; "
-                "an evidence epoch must stay inside this repository so the run output is "
-                "attributable and uploadable"
+                f"{EPOCH_ENV}={explicit!r} resolves to {candidate}, outside {epochs_parent}; a "
+                "runtime evidence epoch must live under the epochs parent, so every run output "
+                "is attributable and excluded from source dirtiness. The historical epoch is "
+                "never a legal target."
             )
         _reject_historical(candidate, repo_root)
         return candidate

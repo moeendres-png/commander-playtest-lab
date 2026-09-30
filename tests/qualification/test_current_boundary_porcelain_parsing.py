@@ -22,10 +22,10 @@ import pytest
 
 from commander_lab.qualification.current_boundary import receipts as R
 
-UNSTAGED = " M qualification/final-current-boundary-20260927/ACTUAL_CARD_FORGE.json"
-STAGED = "M  qualification/final-current-boundary-20260927/AF01_FORGE.json"
-UNTRACKED = "?? qualification/final-current-boundary-20260927/receipts/x.json"
-RENAME = "R  old/path.json -> qualification/final-current-boundary-20260927/new.json"
+UNSTAGED = " M qualification/current-boundary-epochs/test-epoch/ACTUAL_CARD_FORGE.json"
+STAGED = "M  qualification/current-boundary-epochs/test-epoch/AF01_FORGE.json"
+UNTRACKED = "?? qualification/current-boundary-epochs/test-epoch/receipts/x.json"
+RENAME = "R  old/path.json -> qualification/current-boundary-epochs/test-epoch/new.json"
 CODE = " M src/commander_lab/qualification/current_boundary/receipts.py"
 
 
@@ -89,8 +89,8 @@ def test_run_output_exclusion_is_recorded_not_silent() -> None:
 @pytest.mark.parametrize(
     "path",
     [
-        "qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json",
-        "qualification/final-current-boundary-20260927/receipts/native.json",
+        "qualification/current-boundary-epochs/c0ffee-t0ffee/FULL107_XMAGE_RESULTS.json",
+        "qualification/current-boundary-epochs/c0ffee-t0ffee/receipts/native.json",
     ],
 )
 def test_output_paths_are_recognised(path: str) -> None:
@@ -109,3 +109,19 @@ def test_output_paths_are_recognised(path: str) -> None:
 )
 def test_source_paths_are_never_excluded(path: str) -> None:
     assert R._is_run_output(path) is False
+
+
+def test_historical_evidence_is_not_run_output() -> None:
+    """The historical WSR22 epoch is a read-only predecessor.
+
+    New runs write a runtime epoch instead, so a modification under the
+    historical tree must surface as dirty source rather than being silently
+    excluded as "run output".
+    """
+    assert (
+        R._is_run_output("qualification/final-current-boundary-20260927/FULL107_XMAGE_RESULTS.json")
+        is False
+    )
+    assert (
+        R._is_run_output("qualification/final-current-boundary-20260927/receipts/x.json") is False
+    )
