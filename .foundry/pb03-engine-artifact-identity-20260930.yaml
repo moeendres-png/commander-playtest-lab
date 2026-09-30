@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "foundry/pb03-engine-artifact-identity-20260930"
 audit_base_sha: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
 audit_base_tree: "30addb023be1d9bbda3d7deff5f4d2f0df52d9b8"
-state_written_against_head: "eab920c26e0f21276e7d993b35ca4ec2ba4a5da4"
-validated_head: "eab920c26e0f21276e7d993b35ca4ec2ba4a5da4"
+state_written_against_head: "d6f15790b36ea0329b253c7d3960fe1f8d4edf74"
+validated_head: "d6f15790b36ea0329b253c7d3960fe1f8d4edf74"
 
 objective: "Close the documented PB-03 residual: bind the provider-reported loaded engine artifact identity (SHA-256, size, kind of the mage jar the bridge actually loaded) into the PB-03 dimension-admission document, the native runtime ledger, the midgame probe receipt and the assembled matrix, so engine identity is cryptographically observed instead of only declared."
 
@@ -88,9 +88,9 @@ files_modified:
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "pytest tests -> 2442 passed, 13 skipped, 0 failed (eab920c2)"
-  - "pytest tests/qualification -> 519 passed, 9 skipped (eab920c2)"
-  - "mvn -o verify -> 821 tests, 0 failures, 0 errors, 1 skipped (0488259a; Java tree unchanged afterwards)"
+  - "pytest tests -> 2445 passed, 13 skipped, 0 failed (b71d6cbd)"
+  - "pytest tests/qualification -> 519 passed, 9 skipped (b71d6cbd)"
+  - "mvn -o verify -> 825 tests, 0 failures, 0 errors, 1 skipped (b71d6cbd)"
   - "focused native PB-03/midgame/fingerprint -> 102 passed"
   - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent; XMage AF01 PASS, Forge AF01 FAIL (F-37)"
 
