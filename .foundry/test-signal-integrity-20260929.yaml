@@ -385,7 +385,8 @@ not_actioned_and_why:
   - tests/foundry/test_drift.py:26 hardcoded local path - RECLASSIFIED and FIXED as R2; the
     earlier "environment-dependent, not broken" note was wrong
   - migrating wsr24 state file to schema 2.0 - touches a dated record
-  - correcting the ACTIVE status in claude-mp-campaign-20260929.json - would rewrite a recorded state
+  - correcting the ACTIVE status in claude-mp-campaign-20260929.json - WITHDRAWN, the status is
+    correct; the campaign closed as COMPLETE then reopened, and is still being written. See R7
   - the schema execution_profile enum - correct, it must record historical provenance
   - branch deletion, artifact expiry, PR closures - denied by project policy
 
@@ -478,6 +479,27 @@ post_completion_repairs:
       false positives; 2 were real, of which this one was vacuous.
     delivered_on: maintenance/test-signal-integrity-20260929
     evidence: validation.on_the_sixth_repair_head
+  - id: R7
+    summary: >-
+      Corrected this package's own headline staleness finding. FOUNDRY_STATE_CONFORMANCE.md
+      diagnosed claude-mp-campaign-20260929.json as STALE-CONTRADICTORY because it recorded
+      status ACTIVE against a branch that no longer exists, and recommended correcting the status.
+      That diagnosis was wrong and the recommendation is withdrawn.
+    why_wrong: >-
+      two independent reasons. Branch deletion is not evidence of death here, because the
+      repository has delete_branch_on_merge enabled -- a fact this very workstream demonstrated on
+      itself when its own merged branch was deleted. And the status history shows the campaign
+      closed as COMPLETE at 33db54bb and was deliberately reopened as ACTIVE at dedf0562, with
+      checkpoint 3 landing on 2026-09-30 while this correction was being written.
+    severity_note: >-
+      acting on the withdrawn recommendation would have written COMPLETE into a live campaign's
+      state -- a false fact about work in progress, the exact failure this package exists to
+      prevent. It was declined at the time for the right reason but the wrong justification.
+    real_defect: >-
+      narrower: the branch field names an earlier checkpoint's branch. Left to the owning lane,
+      which cannot push without tripping the branch match in safe_push.py gate 4.
+    delivered_on: maintenance/test-signal-integrity-20260929
+    evidence: validation.on_the_seventh_repair_head
 
 exact_next_action: >-
   NONE. The objective is complete and merged as PR #371, with #372 and #373 carrying the receipt
