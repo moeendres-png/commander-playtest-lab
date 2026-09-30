@@ -21,7 +21,7 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
      token-heavy, bulk and background work.
    Muse and GLM are inactive and are not selectable executors.
 3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
-   session declares its campaign objective and writable ownership surface. It may own
+   session declares its campaign objective and writable ownership surface(s). It may own
    long autonomous campaigns and continuous in-objective task selection under the same
    Rules/Evidence/Privacy/Git gates; it is not a Foundry launcher profile.
 4. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
@@ -70,8 +70,9 @@ Authoritative model:
   technical adjudication within already-defined policy.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized. It may challenge
   technical assumptions, take adjacent high-value work inside the same objective and
-  continue selecting unowned milestones without routine user round-trips. Its writable
-  authority remains limited to declared owned surfaces.
+  continue selecting unowned milestones without routine user round-trips. A bounded
+  integration campaign may span multiple disjoint explicitly owned surfaces; all other
+  surfaces remain read-only.
 - Sol High: final authority only for project-wide evidence-semantics or
   qualification-policy changes, ambiguous MTG Rules interpretation, new shared
   Rules/Decision architecture, cross-workstream authority conflicts, material scope
