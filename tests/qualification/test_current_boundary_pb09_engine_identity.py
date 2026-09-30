@@ -27,6 +27,9 @@ from commander_lab.qualification.current_boundary.receipts import verify_candida
 REPO = Path(__file__).resolve().parents[2]
 CONFIG = REPO / "config/rules_engines.json"
 READINESS = REPO / "docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json"
+SUCCESSOR_LOCK = (
+    REPO / "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json"
+)
 
 # Historical path of the Forge reference checkout this file was written against.
 DEFAULT_FORGE_REFERENCE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
@@ -159,6 +162,38 @@ def test_historical_readiness_remains_source_bound_and_open_after_r1() -> None:
     assert identity["pb09_status"].startswith("OPEN")
     assert CURRENT_CANDIDATE not in json.dumps(document)
     assert CURRENT_BRIDGE not in json.dumps(document)
+
+
+def test_r1_successor_source_lock_matches_live_authority_and_preserves_wsr22() -> None:
+    successor = json.loads(SUCCESSOR_LOCK.read_text(encoding="utf-8"))
+    secondary = _config()["secondary_engine"]
+
+    assert successor["authority"]["owner_rulings"] == ["R-1", "R-2", "R-3", "R-4"]
+    assert successor["authority"]["production_provider"] == "NOT_SELECTED"
+    assert successor["authority"]["architecture_freeze"] == "NOT_CLAIMED"
+
+    current = successor["current_forge_authority"]
+    assert current["candidate_commit"] == secondary["commit"] == CURRENT_CANDIDATE
+    assert current["candidate_tree"] == CURRENT_CANDIDATE_TREE
+    assert current["bridge_commit"] == secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert current["bridge_tree"] == CURRENT_BRIDGE_TREE
+    assert (
+        current["bridge_rules_core_base_commit"]
+        == secondary["bridge_source"]["rules_core_base_commit"]
+        == CURRENT_CANDIDATE
+    )
+    assert current["lineage_base_commit"] == FORK
+    assert current["upstream_reference_commit"] == UPSTREAM
+
+    assert successor["evidence_transfer"]["historical_receipts_relabelled"] is False
+    assert successor["frozen_wsr22"]["forge_candidate_commit"] == FORK
+    assert successor["frozen_wsr22"]["source_lock_git_blob"] == (
+        "dd4af484bd6ae33540a130caaa3ecd9edeb1ac70"
+    )
+    # WSR22 remains historical/frozen; current authority lives in this successor
+    # lock plus config/rules_engines.json rather than by rewriting source_lock.py.
+    assert sl.FORGE_CANDIDATE_COMMIT == FORK
+    assert sl.FORGE_CANDIDATE_COMMIT != CURRENT_CANDIDATE
 
 
 def test_readiness_records_pb09_as_a_freeze_blocker() -> None:
