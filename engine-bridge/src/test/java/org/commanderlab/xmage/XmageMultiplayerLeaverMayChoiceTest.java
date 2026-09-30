@@ -156,13 +156,17 @@ class XmageMultiplayerLeaverMayChoiceTest {
         for (int i = 1; i <= 3; i++) {
             objects.add(XmageMultiplayerScenario.obj("P1", "Plains", i, Zone.BATTLEFIELD));
         }
-        objects.add(XmageMultiplayerScenario.obj("P2", "Hill Giant", 21, Zone.BATTLEFIELD));
+        // The vote targets belong to seats that stay: the first opponent asked (P2, since
+        // turn order is seat order, F-41) leaves, and its permanents leave with it (CR 800.4a).
+        String last = "P" + playerCount;
+        objects.add(XmageMultiplayerScenario.obj(last, "Hill Giant", 21, Zone.BATTLEFIELD));
         objects.add(XmageMultiplayerScenario.obj("P3", "Grizzly Bears", 20, Zone.BATTLEFIELD));
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start("judgment-leave-" + playerCount + "p",
                 playerCount, "P1", objects);
-        // Everyone votes for P2's Hill Giant except P3, who votes for its own Grizzly Bears.
-        resolveWithFirstOpponentLeaving(s, "Council's Judgment", "Plains",
+        // Everyone votes for the last seat's Hill Giant except P3, who votes for its own Grizzly Bears.
+        String leaver = resolveWithFirstOpponentLeaving(s, "Council's Judgment", "Plains",
                 actor -> "P3".equals(actor) ? "Grizzly Bears" : "Hill Giant");
+        assertEquals("P2", leaver, "control: the first opponent in turn order is asked first");
         Game game = s.session.restorationGame();
         List<String> remaining = new ArrayList<>();
         game.getBattlefield().getAllActivePermanents().stream()

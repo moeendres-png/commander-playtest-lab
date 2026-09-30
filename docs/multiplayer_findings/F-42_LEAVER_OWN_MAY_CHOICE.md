@@ -65,7 +65,7 @@ Each case runs at 4P and 5P:
 | Innocent Blood | every remaining player sacrificed exactly its chosen creature | 2/2 red | 2/2 green |
 | Council's Judgment | only the most-voted permanent is exiled | 2/2 red | 2/2 green |
 
-In every case the red message is "no choose_use/choose_object frame is exposed to P4/P5 after it left".
+In every case the red message was "no choose_use/choose_object frame is exposed to P4/P5 after it left". That was measured before F-41, when the first opponent asked was the last seat; since F-41 (turn order is seat order) it is P2.
 
 The other leave suites stay green:
 
