@@ -72,7 +72,7 @@ failure_class: "NONE"
 root_cause_class: "NONE"
 current_hypothesis: "NONE"
 
-status: "ACTIVE"
+status: "COMPLETE"
 technical_decision_authority: "AUTONOMOUS_WITHIN_CONTRACT"
 current_reasoning_tier: "max"
 authority_gates: []
@@ -140,22 +140,22 @@ tests_run:
   - "midgame probe at 9edea29a -> 29 rows, 8/9/9/1/2, zero transport failures, runner digest equals the runtime ledger's"
 
 evidence:
+  - "PR #381 merged as eecb296391ce6622ed4340d42fce4ca2e2c8be74, tree c3bc806cd9790278af4d07ceb75994ab7977b6bf; 17/17 checks green on exact head 9b0e4d49ccd5"
+  - "PR #316 closed 2026-09-30T03:38:18Z as consumed; PR #304 closed; PR #333 merged as 10a43d2c"
   - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json (12/18)"
   - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json (30/30 PASS)"
   - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json (FRESH_EXACT / EXECUTED_PASS)"
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 remaining_scope:
-  - "PR #381 exact-head CI and merge-gate evaluation"
-  - "Post-merge donor retirement for PR #316 (branches never deleted)"
-  - "Terminal receipt on main after merge"
+  - "None (complete); monitor unrelated main drift"
 
 artifacts:
   - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_20260929.md"
   - "docs/pb03_fresh_main_reconciliation_20260929/DONOR_SEMANTIC_LEDGER.json"
   - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_FINAL_HANDOFF_20260929.md"
 
-exact_next_action: "Wait for PR #381 exact-head CI; re-fetch origin/main and adjudicate drift; if every merge-gate condition holds, merge through the normal PR path, then close PR #316 with a provenance comment."
+exact_next_action: "None. Successor merged as eecb2963; donors terminally dispositioned. Any future change to the engine pin, Lab bridge sources or current_boundary modules invalidates sealed receipts by design and is re-derived by the PB-03 workflow."
 
 execution_profile: "deepseek"
 executor_model: "opencode-go/deepseek-v4.1-flash"
