@@ -1795,7 +1795,21 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (!ability.isManaAbility() || ability.getManaCostsToPay().isEmpty()) {
             return true;
         }
-        return canPayMinimumManaCost(ability, available, game);
+        if (!ability.hasTapCost() || ability.getSourceId() == null) {
+            return canPayMinimumManaCost(ability, available, game);
+        }
+        // A {T} mana ability can't pay its own mana cost with another {T} ability of the
+        // same permanent (Study Hall: "{T}: Add {C}" can't fund its own "{1}, {T}: Add
+        // one mana of any color"). Ask the engine what is available with that permanent
+        // tapped, in a playable-calculation copy of the game (pure calculation).
+        Game simulation = game.createSimulationForPlayableCalc();
+        Permanent source = simulation.getPermanent(ability.getSourceId());
+        Player self = simulation.getPlayer(getId());
+        if (source == null || self == null) {
+            return canPayMinimumManaCost(ability, available, game);
+        }
+        source.setTapped(true);
+        return canPayMinimumManaCost(ability, self.getManaAvailable(simulation), game);
     }
 
     private String abilitySortKey(Ability ability) {

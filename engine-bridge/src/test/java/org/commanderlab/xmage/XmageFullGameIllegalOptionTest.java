@@ -22,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       artifact") with a creature but no artifact on the battlefield may only offer
  *       the creature mode.</li>
  *   <li>A mana ability with a mana cost of its own (Rakdos Signet: "{1}, {T}: Add
- *       {B}{R}") is offered only while that cost can be paid.</li>
+ *       {B}{R}") is offered only while that cost can be paid, and a {T} ability can't be
+ *       funded by another {T} ability of the same permanent (Study Hall).</li>
  * </ul>
  */
 class XmageFullGameIllegalOptionTest {
@@ -74,6 +75,36 @@ class XmageFullGameIllegalOptionTest {
         assertEquals("mana_payment", XmageActualCardCorpusTest.decisionClass(started));
         assertEquals(List.of("Cancel mana payment"), labels(started),
                 "pool empty and Swamp tapped: the Signet's own {1} can't be paid, so it is not offered");
+    }
+
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {2, 4})
+    void aTapManaAbilityCannotPayItsOwnCostWithTheSamePermanent(int playerCount) {
+        String tag = "f35-study-hall-" + playerCount + "p";
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(obj("hand", "P1", "Mind Stone", 0)); // {2}
+        objects.add(obj("bf", "P1", "Plains", 0));
+        objects.add(obj("bf", "P1", "Study Hall", 0));
+        XmageActualCardCorpusTest.Started started = XmageActualCardCorpusTest.start(tag, playerCount, objects);
+        XmageActualCardCorpusTest.cast(started, tag + "-cast", "Mind Stone");
+        XmageActualCardCorpusTest.submit(started, tag + "-plains",
+                XmageActualCardCorpusTest.labelled(started, "Plains — {T}: Add {W}."));
+        XmageActualCardCorpusTest.submit(started, tag + "-spend",
+                XmageActualCardCorpusTest.labelled(started, "Spend white mana from pool"));
+        assertEquals("mana_payment", XmageActualCardCorpusTest.decisionClass(started));
+        assertEquals(List.of("Cancel mana payment", "Study Hall — {T}: Add {C}."), labels(started),
+                "Study Hall's {1}, {T} ability can't be funded by its own {T} ability");
+        XmageActualCardCorpusTest.submit(started, tag + "-hall",
+                XmageActualCardCorpusTest.labelled(started, "Study Hall — {T}: Add {C}."));
+        XmageActualCardCorpusTest.resolveAll(started, tag, null, (cls, step) -> {
+            if ("mana_payment".equals(cls)) {
+                XmageActualCardCorpusTest.submit(started, tag + "-spend-c-" + step,
+                        XmageActualCardCorpusTest.labelled(started, "Spend colorless mana from pool"));
+                return true;
+            }
+            return false;
+        });
+        assertEquals(1, XmageActualCardCorpusTest.onBattlefield(started, "P1", "Mind Stone"));
     }
 
     private static List<String> labels(XmageActualCardCorpusTest.Started started) {

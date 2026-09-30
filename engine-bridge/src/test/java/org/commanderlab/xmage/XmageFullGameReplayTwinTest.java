@@ -5,7 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -24,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Semantic replay of whole multiplayer games with real Commander decks.
  *
  * <p>Two games are started with the same explicit Rules seed and the same
- * decks (RogShai and Kaervek, alternating seats). A deterministic test pilot
+ * decks (RogShai, Kaervek, Hosts of Mordor, Lorehold Spirits, rotated through the seats). A deterministic test pilot
  * plays both by <em>semantic</em> keys only: it chooses by option label and
  * never by position or engine id. It prefers land drops, then a bounded number
  * of casts per turn, attacks when offered, pays mana from the pool before
@@ -43,9 +45,30 @@ class XmageFullGameReplayTwinTest {
 
     private static final int MAX_DECISIONS = 3000;
     private static final int CASTS_PER_TURN = 2;
+    /** Real Commander decks, rotated through the seats. */
+    private static final List<String> DECKS = List.of(
+            "data/decks/rogshai_current.json",
+            "data/decks/opponents/kaervek/current/deck.json",
+            "data/opponents/hosts_of_mordor_precon.json",
+            "data/opponents/lorehold_spirit_precon.json");
+
+    /**
+     * One real-deck game per player count by default (about two minutes); the extended
+     * set (nine games) with -Dtwin.extended, e.g. before a repin.
+     */
+    static Stream<Arguments> games() {
+        Stream<Arguments> core = Stream.of(
+                Arguments.of(3, 1234L), Arguments.of(4, 1618L), Arguments.of(5, 777L), Arguments.of(6, 31337L));
+        if (System.getProperty("twin.extended") == null) {
+            return core;
+        }
+        return Stream.concat(core, Stream.of(
+                Arguments.of(4, 4242L), Arguments.of(4, 9001L), Arguments.of(4, 2718L),
+                Arguments.of(5, 2024L), Arguments.of(6, 99L)));
+    }
 
     @ParameterizedTest(name = "{0} players, seed {1}")
-    @CsvSource({"4,4242", "4,9001", "5,777", "3,1234", "6,31337", "4,2718"})
+    @MethodSource("games")
     void sameSeedAndChoicesReplayTheSameDecisionSequence(int playerCount, long seed) throws IOException {
         List<String> first = play(playerCount, seed, "a");
         List<String> second = play(playerCount, seed, "b");
@@ -71,8 +94,7 @@ class XmageFullGameReplayTwinTest {
         XmageDeckImporter importer = new XmageDeckImporter();
         List<String> handles = new ArrayList<>();
         for (int seat = 0; seat < playerCount; seat++) {
-            Deck deck = seat % 2 == 0 ? load("data/decks/rogshai_current.json")
-                    : load("data/decks/opponents/kaervek/current/deck.json");
+            Deck deck = load(DECKS.get(seat % DECKS.size()));
             handles.add(importer.importCommanderDeck(deck.id(), deck.hash(), deck.main(), deck.commanders())
                     .deckHandle());
         }
@@ -117,7 +139,21 @@ class XmageFullGameReplayTwinTest {
             String kind = options.isEmpty() ? "none"
                     : options.get(0).getAsJsonObject("choices_schema").get("response_kind").getAsString();
             String chosen;
-            if ("numeric".equals(kind)) {
+            JsonObject schema = options.isEmpty() ? new JsonObject() : options.get(0).getAsJsonObject("choices_schema");
+            if ("numeric".equals(kind) && schema.has("numeric_legs")) {
+                // Joint vector (e.g. mana of several colours): fill the legs in order, each up
+                // to its maximum, until the required total is reached.
+                int remaining = schema.get("numeric_total_min").getAsInt();
+                List<Integer> vector = new ArrayList<>();
+                for (JsonElement leg : schema.getAsJsonArray("numeric_legs")) {
+                    int min = leg.getAsJsonObject().get("min").getAsInt();
+                    int value = Math.max(min, Math.min(leg.getAsJsonObject().get("max").getAsInt(), remaining));
+                    vector.add(value);
+                    remaining -= value;
+                }
+                submitNumericVector(session, "v" + step, vector);
+                chosen = "#" + vector;
+            } else if ("numeric".equals(kind)) {
                 JsonObject context = pending.getAsJsonObject("context");
                 int value = context != null && context.has("numeric_min") ? context.get("numeric_min").getAsInt() : 0;
                 submitNumeric(session, "n" + step, value);
@@ -355,6 +391,29 @@ class XmageFullGameReplayTwinTest {
         session.submitAction(proposal);
     }
 
+    private static void submitNumericVector(XmageFullGameSession session, String tag, List<Integer> values) {
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        JsonObject legal = session.legalActionsPayload();
+        JsonObject numeric = legal.getAsJsonArray("actions").get(0).getAsJsonObject();
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", tag);
+        proposal.addProperty("actor_id", legal.get("actor_id").getAsString());
+        proposal.addProperty("legal_action_id", numeric.get("action_id").getAsString());
+        proposal.addProperty("action_type", "structural_decision");
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.addProperty("decision_id", pending.get("decision_id").getAsString());
+        choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        choices.add("selected_option_ids", new JsonArray());
+        JsonArray vector = new JsonArray();
+        values.forEach(vector::add);
+        choices.add("numeric_choices", vector);
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        session.submitAction(proposal);
+    }
+
     private static void submitNumeric(XmageFullGameSession session, String tag, int value) {
         JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
         JsonObject legal = session.legalActionsPayload();
@@ -383,6 +442,9 @@ class XmageFullGameReplayTwinTest {
         String repoRoot = System.getProperty("commanderlab.repoRoot");
         JsonObject root = JsonParser.parseString(Files.readString(
                 Path.of(repoRoot, relative).normalize(), StandardCharsets.UTF_8)).getAsJsonObject();
+        if (root.has("deck") && root.get("deck").isJsonObject()) {
+            root = root.getAsJsonObject("deck");
+        }
         List<String> main = new ArrayList<>();
         List<String> commanders = new ArrayList<>();
         root.getAsJsonArray("cards").forEach(element -> {
@@ -392,7 +454,8 @@ class XmageFullGameReplayTwinTest {
                 target.add(card.get("oracle_name").getAsString());
             }
         });
-        return new Deck(root.get("deck_id").getAsString(), root.get("deck_hash").getAsString(),
+        String id = root.get("deck_id").getAsString();
+        return new Deck(id, root.has("deck_hash") ? root.get("deck_hash").getAsString() : id,
                 List.copyOf(main), List.copyOf(commanders));
     }
 }
