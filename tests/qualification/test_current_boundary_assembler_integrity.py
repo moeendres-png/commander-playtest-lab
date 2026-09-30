@@ -98,6 +98,63 @@ def test_native_suite_executor_is_on_the_execution_path() -> None:
     assert "executed_commit" in source
 
 
+def test_fullgame_lane_auxiliary_is_optional_in_a_runtime_epoch(tmp_path: Path) -> None:
+    """A runtime epoch does not contain the historical auxiliary artifact.
+
+    The xmage full-game-lane AF01 artifact is produced by an earlier boundary
+    epoch, not by the runner. The assembler loaded it unconditionally, so an
+    assembly from a fresh runtime epoch crashed on the missing file instead of
+    recording that no auxiliary is present.
+    """
+    asm = _assembler_module()
+    assert asm._load_fullgame_lane_auxiliary("forge") is None
+    import json
+
+    original = asm.OUT
+    try:
+        asm.OUT = tmp_path
+        assert asm._load_fullgame_lane_auxiliary("xmage") is None
+        path = tmp_path / "AF01_XMAGE_FULLGAME_LANE.json"
+        path.write_text(json.dumps({"verdict": "PASS"}), encoding="utf-8")
+        assert asm._load_fullgame_lane_auxiliary("xmage") == {"verdict": "PASS"}
+    finally:
+        asm.OUT = original
+
+
+def test_carried_column_gates_are_annotated_as_historical() -> None:
+    """Per-gate verdicts from a carried-forward column are not fresh observations."""
+    asm = _assembler_module()
+    carried = {
+        "class": "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH",
+        "source_epoch": "qualification/final-current-boundary-20260927",
+    }
+    fresh = {"class": "FRESH_CURRENT_BOUNDARY_EXECUTION"}
+    gates = [
+        {"gate": "AF01", "verdict": "PASS", "nonblocking_limitations": []},
+        {"gate": "AF03", "verdict": "PASS"},
+    ]
+    asm._annotate_carried_gates(gates, fresh)
+    assert gates[0]["nonblocking_limitations"] == []
+    asm._annotate_carried_gates(gates, carried)
+    for gate in gates:
+        joined = " ".join(gate["nonblocking_limitations"])
+        assert "historical record carried forward" in joined
+        assert "not a fresh execution" in joined
+        assert carried["source_epoch"] in joined
+
+
+def test_carried_column_rows_are_never_promoted() -> None:
+    """A historical row must not be relabelled FRESH by a promotion.
+
+    The guard is structural because the credited path requires receipts that a
+    carried-forward column cannot have; the assertion pins the refusal so a
+    future change cannot rediscover the contradiction.
+    """
+    source = ASSEMBLER.read_text(encoding="utf-8")
+    assert "carried_forward = bool(results.get" in source
+    assert "if carried_forward:" in source
+
+
 def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> None:
     """A Forge-only run must not regenerate XMage native receipts."""
     import importlib.util
@@ -360,9 +417,17 @@ def test_af09_never_claims_an_executed_export() -> None:
     assert "replay export executed in a live game" not in _source(ASSEMBLER)
 
 
-def test_af09_committed_artifacts_describe_refusals() -> None:
-    """DIRECTLY_VERIFIED against the committed RNG_REPLAY artifacts: both refused."""
+def test_af09_committed_artifacts_describe_refusals(monkeypatch: pytest.MonkeyPatch) -> None:
+    """DIRECTLY_VERIFIED against the committed RNG_REPLAY artifacts: both refused.
+
+    The committed artifacts of record live in the historical WSR22 epoch, which
+    stays readable after the runner moved to a source-bound runtime epoch. The
+    subject is therefore read explicitly instead of whatever epoch was written
+    most recently.
+    """
     asm = _assembler_module()
+    historical = REPO / "qualification" / "final-current-boundary-20260927"
+    monkeypatch.setattr(asm, "OUT", historical)
     for candidate in ("xmage", "forge"):
         document = asm._load_replay_document(candidate)
         assert document is not None, f"missing committed RNG_REPLAY_{candidate.upper()}.json"

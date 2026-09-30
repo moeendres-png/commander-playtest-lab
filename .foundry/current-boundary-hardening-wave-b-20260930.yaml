@@ -1,0 +1,204 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/cpl-cb-closeout-20260930
+branch: hardening/current-boundary-wave-b-closeout-20260930
+audit_base_sha: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
+audit_base_tree: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
+state_written_against_head: 2cabb3ebf0d5cba2f25b2a4e8b1db5a75d7ffca5
+validated_head: 08a9b0df279cd9ed17d9a41c0f32951f724d2ef7
+objective: >-
+  CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930: close the Current-Boundary / PB-03
+  hardening residuals that PR #395's ownership previously blocked, without colliding
+  with Claude's still-open work. Targets B1 (evidence-output epoch), B3 (native-suite
+  execution identity), B4 (Git/source identity), B5 (Forge workspace selection),
+  D1 (re-adjudication) and issue #408 (only if its producer/loader dependencies become
+  canonical and ownership-safe).
+in_scope:
+  - 'B1: runtime evidence epoch separate from the historical WSR22 tree, source-bound, with
+    machine-readable identity, runner/assembler agreement and CI consuming the resolved epoch'
+  - 'B4: every Git fact used for evidence credit fails closed; no check=False silent-empty defaults'
+  - 'B5: no ambient Forge workspace default; credited Forge execution binds checkout, Rules-Core,
+    bridge/evidence identity and cleanliness, or fails closed'
+  - 'B3: re-derive the defect; verify the merged owner fix requirement-by-requirement and close
+    any residual on the canonical bytes'
+  - 'D1: identify and terminate with evidence'
+  - 'issue #408: dependency handling and, now that #409/#411 are merged, verification of the
+    canonical producer -> runner -> receipt -> assembler -> credit chain'
+out_of_scope:
+  - Production Provider selection / Architecture Freeze
+  - Rules-engine implementation work; moeendres-png/mage; moeendres-png/forge mutation
+  - Rewriting, moving or re-sealing historical WSR22 evidence
+  - Surfaces still owned by an open PR (#420 F-42 follow-up; old PB-09/WS PRs)
+ownership: CURRENT-BOUNDARY-HARDENING-WAVE-B-20260930 (DeepSeek V4.1 Flash MAX, OpenCode Foundry)
+status: COMPLETE
+dependencies:
+  - 'PR #409/#411/#412/#413/#416/#417/#418/#419: MERGED by 0fbea2ec (observed). No active
+    ownership collision remains on the current-boundary runner/assembler/receipts surfaces.'
+  - 'PR #422 (B4/B5, A4 closeout, B1 memo) MERGED as b3d29ff9 while this branch was in flight;
+    impact-adjudicated and merged into this branch at f64074b3.'
+  - 'PR #420 MERGED (3e3cd11a); no open PR owns any file changed by this branch at final
+    verification time (see drift check).'
+hard_gates:
+  - 'Fail-before evidence exists for every implemented defect item'
+  - 'No edit to any active foreign PR branch or its worktree'
+  - 'Historical epoch qualification/final-current-boundary-20260927 is never a default write target'
+  - 'runner and assembler resolve the same epoch and refuse a foreign-source epoch'
+  - 'Git identity facts fail closed (no silent empty default)'
+  - 'Forge credit fails closed without an explicitly supplied, validated, clean workspace'
+forbidden_shortcuts:
+  - 'default/ambient Forge workspace producing credit'
+  - 'check=False Git calls silently yielding empty evidence identity'
+  - 'hard-coded historical epoch path in runner, assembler, workflow or receipts exclusion'
+  - 'presenting a carried-forward historical column as a fresh execution'
+  - 'weakening any test, denominator, assertion or evidence class to obtain green'
+validated_gates:
+  - 'B4 fail-closed Git identity (7 tests, fail-before red on prior source)'
+  - 'B5 explicit Forge workspace binding + bridge identity + cleanliness (10 tests)'
+  - 'B1 source-bound runtime epoch + historical protection + carry-forward provenance (17 tests)'
+  - 'B3 merged owner fix verified; residual test-source digest coverage added (1 test)'
+  - 'native-suite receipt path covered end to end with a faked Maven process (4 tests)'
+  - 'full pytest suite 2754 passed / 13 skipped / 0 failed at the merge head f64074b3 and at 52668b02'
+  - 'ruff check . and ruff format --check . clean at fc7b919e'
+  - 'mypy 1.20.2 on src/commander_lab/qualification: zero errors in changed modules
+    (environment lacks lock-installed stubs for unrelated modules)'
+  - 'workflow impact audit: no new uncovered executed sources vs origin/main 0fbea2ec'
+failed_gates: []
+invalidated_gates: []
+do_not_rerun:
+  - 'full XMage qualification runtime locally (pinned engine build absent); the PB-03 workflow is
+    authoritative and will run on the PR'
+current_failure: null
+failure_class: NONE
+current_hypothesis: null
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: max
+files_modified:
+  - scripts/run_current_boundary_qualification.py
+  - scripts/assemble_current_boundary_evidence.py
+  - src/commander_lab/qualification/current_boundary/evidence_epoch.py (new)
+  - src/commander_lab/qualification/current_boundary/receipts.py
+  - .github/workflows/pb03-runtime-qualification.yml
+  - tests/qualification/test_current_boundary_evidence_epoch.py (new)
+  - tests/qualification/test_current_boundary_git_identity.py (new)
+  - tests/qualification/test_current_boundary_forge_workspace.py (new)
+  - tests/qualification/test_current_boundary_assembler_integrity.py
+tests_run:
+  - 'pytest -q (full suite) at 52668b02: 2754 passed, 13 skipped'
+  - 'pytest -q tests/qualification/ at 1de9cd68: 601 passed, 9 skipped'
+  - 'ruff check . / ruff format --check . at fc7b919e: clean'
+  - 'mypy 1.20.2 src/commander_lab/qualification at fc7b919e: clean for changed modules'
+  - 'scripts/audit_workflow_impact.py at fc7b919e: pb03-runtime executed=96 uncovered=73,
+    identical uncovered count to origin/main 0fbea2ec (95/73)'
+evidence:
+  - 'Fail-before B4/B5: 16/16 tests red against pre-fix source (git() check=False; ambient
+    FORGE_WORKSPACE at /home/moeen/code/ws-forge-full107-cdq-20260926)'
+  - 'Fail-before B1: 8/14 epoch tests red before wiring; end-to-end subprocess test proves a real
+    runner process writes only the successor epoch while git status of the historical tree is empty'
+  - 'B5 defect is real, measured read-only: ambient checkout HEAD 18bba95a has
+    forge-protocol2-bridge tree 2571513d, bound bridge/evidence head e15f37d6 has a6be0bde,
+    while Rules-Core modules are byte-identical to ef958ee9 (so the old engine-only check passed)'
+  - 'Historical epoch mutation on main is measured: 30 commits touch
+    qualification/final-current-boundary-20260927, 8+ of them on 2026-09-30 requalification'
+  - 'CI run 36760779369 (pb03-runtime) on the first pushed head: epoch resolved to
+    244926420c8f-525d2a3737f9, 5 historical forge artifacts carried forward, full XMage column
+    executed and a clean 225-input runner digest bound; then crashed with ValueError on
+    build_identity (JSON string treated as a mapping). Reproduced locally in a new test and fixed
+    at 0e72d1de.'
+  - 'Drift: origin/main moved to b3d29ff9 (PR #422, B4/B5 on the same files) while this branch
+    was in flight; the PR went merge-conflicted and pull_request workflows stopped being created.
+    Merged with full adjudication at f64074b3: the merged receipts.git_fact() is the single Git reader
+    with the branch sanitized environment, the merged require_forge_workspace() keeps its exact
+    messages, the branch resolve_forge_workspace() adds clean-checkout/Rules-Core/bridge
+    binding, the merged A4 trigger globs and the branch epoch workflow changes are both kept, and
+    B1 stays the branch design because the workstream contract requires the successor epoch
+    (the #422 memo leaves sealed-vs-living to the Coordinator and does not take the decision).'
+  - 'Closeout: PR #426 merged as 2cabb3eb (tree 47f7622d93f4d7106955dbc53cafe3b3a09c64ee);
+    its merge candidate tree equals the merged main tree, and the pb03-runtime job passed on that
+    exact tree (run 36773445119, artifact pb03-runtime-560a92f3..., native_promotions 9, XMage
+    14 PASS). Issue #408 was already closed at 2026-09-30T18:42:42Z; this workstream added the
+    canonical-code chain verification comment. PR #424 (WS190 docs cleanup) merged into main
+    before this closeout.'
+  - 'Post-merge window: PR #421 was merged by the Coordinator at 2026-09-30T20:10:22Z as
+    merge commit 1a7a52a3 (parents ec4abe5a + f64074b3) while this session was preparing the
+    final state commit; PR #423 (C4/E2/C3) had merged as ec4abe5a into the same base. The
+    canonical tree now differs from the CI-validated f64074b3 by PR #423 only; full pytest on
+    1a7a52a3 in a detached worktree: 2787 passed, 13 skipped, 0 failed. The two commits not
+    contained in that merge (the epoch timeout fix and the state adjudication) are landed by
+    hardening/current-boundary-wave-b-postmerge-20260930 on top of 1a7a52a3.'
+  - 'CI at merge head f64074b3: all workflows green; PB-03 runtime succeeded (run 36768896191,
+    job pb03-runtime success). Artifact verified: epoch 30da829773af-83d004bdca70, XMage counts
+    14 PASS / 0 FAIL / 53 UNKNOWN / 40 BLOCKED, native_promotions 9 with
+    MIDGAME_LANE_PLACEMENT_OBLIGATION, 9 positive receipts POSITIVE_BEHAVIOUR/PASS bound to
+    candidate 9375f35a and the live runner digest 5228f93a, native receipts per-class
+    requested==executed (34+185 tests), PB-03 matrix TECHNICALLY_CONFORMANT/PASS/FRESH_EXACT/
+    EXECUTED_PASS with artifact_identity_consistent. Issue #408 producer->runner->receipt->
+    assembler->credit chain freshly executed on the canonical merge candidate.'
+  - 'Fresh-context review (foundry-reviewer) P1: receipts.capture_runner_identity and
+    engine_tree_equivalence were still redirectable by inherited GIT_DIR/GIT_WORK_TREE; fixed with
+    fail-before tests. P2: carried-forward inner freshness markers were not rewritten; fixed.
+    P2: historical epoch was still excluded from dirty accounting; removed. P3 override scope:
+    an explicit epoch must now live under the runtime epochs parent.'
+artifacts: []
+remaining_scope:
+  - 'none for this workstream; B1/B3/B4/B5/D1 are terminal and issue #408 is closed with fresh
+    canonical-code chain evidence'
+  - 'observed adjacent work (not this workstream): PR #427 and #431 are open and actively touch
+    the runner/assembler/receipts/midgame_rows; they do not touch evidence_epoch.py or this state
+    file, so this workstream is complete without collision'
+exact_next_action: >-
+  None: CURRENT-BOUNDARY-HARDENING-WAVE-B is complete. Canonical main is 2cabb3eb (tree
+  47f7622d93f4d7106955dbc53cafe3b3a09c64ee), whose tree is exactly the tree the pb03-runtime
+  job executed for the issue #408 chain (epoch 560a92f32b29-47f7622d93f4, native_promotions 9,
+  XMage 14 PASS). Issue #408 is closed with that evidence. A fresh session should re-verify live
+  Git/GitHub rather than trusting this index, and should treat any further current-boundary
+  mutation as a new workstream owned by the #427/#431 authors.
+hypotheses_rejected:
+  - 'PR #411 does not wire the runner/assembler: REJECTED at recon, then merged (8e07c9de); the
+    chain is now canonical and this branch no longer collides with an active owner'
+  - 'B3 is free for this workstream: REJECTED; #418 implemented it and merged (730dea6f).
+    Re-adjudicated as canonical-owner fix, with one measured residual (test-source digest
+    coverage) closed here'
+  - 'carry-forward of the non-selected column is unnecessary: REJECTED; the PB-03 CI workflow
+    runs --candidate xmage and the assembler requires both columns, so without carry-forward the
+    job fails once the epoch is no longer the historical tree'
+technical_decisions:
+  - 'B1 epoch shape: source-bound runtime epoch qualification/current-boundary-epochs/<commit12>-
+    <tree12>/ resolved by one shared function; override must stay inside qualification/ and can
+    never be the historical epoch; EPOCH_IDENTITY.json written once and a foreign source refuses
+    to overwrite; assembler requires the recorded producing source to equal the assembling source'
+  - 'B1 carry-forward: a non-selected candidate column is copied from the historical epoch with
+    evidence_class CARRIED_FORWARD_NOT_REEXECUTED and a carried_forward block; the AF matrix and
+    comparison packet derive their boundary from that marker. Receipts are never carried forward'
+  - 'B5 workspace shape: FORGE_WORKSPACE is an explicit input with no ambient default; the
+    checkout must be a clean work-tree root, Rules-Core-equivalent to the recorded candidate and
+    running the bound forge-protocol2-bridge module tree (which also covers its test sources)'
+  - 'B4 shape: reuse the receipts fail-closed Git pattern; sanitize GIT_DIR/GIT_WORK_TREE/
+    GIT_INDEX_FILE/GIT_OBJECT_DIRECTORY/GIT_ALTERNATE_OBJECT_DIRECTORIES/GIT_COMMON_DIR'
+  - 'B3 residual: engine-bridge native-suite test sources join the runner digest; Forge suite
+    sources are already covered by the whole-module bridge identity check'
+  - 'D1: the Current-Boundary artifact-identity/output defect class addressed by merged PR #395
+    is verified present on current main (provider-reported engine artifact kind/sha256 validated
+    fail-closed, ledger and matrix artifact_identity_consistent asserted by the PB-03 workflow)'
+  - 'Reviewer P1 accepted and fixed: the authoritative receipts identity and engine-equivalence
+    paths now use the canonical Git redirection strip list, and the runner identity requires full
+    commit/tree SHAs'
+  - 'Reviewer P2 accepted and fixed: carried-forward documents rewrite nested freshness claims'
+  - 'Reviewer P2 accepted and fixed: the historical epoch is no longer excluded from dirty
+    accounting; an epoch override must live under the runtime epochs parent'
+  - 'Reviewer P3 (import-time epoch resolution) recorded as accepted design: CI sets the epoch
+    before process start and the runner/assembler are short-lived; not changed'
+authority_gates:
+  - 'issue #255 provider adjudication (Coordinator)'
+  - 'issue #192 destructive cleanup (operator)'
+drift_checks:
+  - '2026-09-30T17:55Z origin/main=20c3fb36 tree=9b2a52e7; isolated worktree created'
+  - '2026-09-30T~20:20Z origin/main=761fc6d3; #409/#411/#418/#412/#413/#416 merged (impact
+    adjudicated and merged into this branch; one semantic conflict in run_native_suite resolved)'
+  - '2026-09-30T~20:50Z origin/main=0fbea2ec; #417/#414 merged (no overlap; merged; workflow
+    impact audit shows no new uncovered sources)'
+source_lock:
+  origin_main_at_start: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
+  origin_main_tree_at_start: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
+  origin_main_latest_observed: 1a7a52a3698476a0f7a668bd10f8a0154b2e559d
+  local_main_worktree_note: 'main checkout is stale (e91819ae, 591 behind); work happens in the
+    isolated worktree only'
