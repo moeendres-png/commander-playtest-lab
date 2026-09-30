@@ -1230,8 +1230,8 @@ def verify_pb05_provenance(
         findings.append(f"engine_build_commit is absent or malformed: {raw_commit!r}")
     elif build_commit is None or build_commit != expected_commit:
         findings.append(
-            f"build commit {(build_commit or '<none>')[:12]} is not the expected source "
-            f"{expected_rules_core[:12]}"
+            f"build commit {(build_commit or '<none>')[:12]} is not the expected "
+            f"{expected_label} {expected_commit[:12]}"
         )
     if not _valid_sha(build_tree):
         findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
