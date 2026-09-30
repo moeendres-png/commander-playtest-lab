@@ -147,20 +147,45 @@ files**, never against the 13 real committed files.
 
 | State file | Branch named | On remote? | Merged? | Claimed status | Reality |
 |---|---|---|---|---|---|
-| `claude-mp-campaign-20260929.json` | `claude/mp-campaign-checkpoint-2-20260929` | **no** | base is ancestor | **`ACTIVE`** | **STALE-CONTRADICTORY** |
+| `claude-mp-campaign-20260929.json` | `claude/mp-campaign-checkpoint-2-20260929` | **no** | base is ancestor | **`ACTIVE`** | status **correct**; the *branch* field is stale — see the correction below |
 | `claude-xmage-2p-draw-skip-20260929.json` | `claude/xmage-2p-draw-skip-20260929` | no | base is ancestor | `COMPLETE` | closed; self-declares its successor |
 | `foundry-deepseek-primary-migration-20260929.json` | `foundry/deepseek-primary-migration-20260929` | no | base is ancestor | `COMPLETE` | merged as PR #350 |
 | `wsr24-…-20260927.json` | `wsr24/…-20260927` | **yes** | not merged | *(no status field)* | **open, oldest artifact, pre-schema** |
 | `legacy-donor-salvage-20260929.yaml` | `integration/legacy-donor-salvage-20260929` | no | base is ancestor | *(none)* | unresolved |
 | `conformance-ledger-2026-09-10.json` | `project/opencode-muse-cross-repo-hardening-v2-…` | yes | **merged** | checkpoint `G-FINAL` | closed, 19 days stale |
 
-**Highest-signal staleness finding:** `claude-mp-campaign-20260929.json` is the only file whose
-recorded `status` is `ACTIVE` while its branch no longer exists. `status` is the first field a
-continuation session reads, and it is wrong.
+**CORRECTED — this section's original headline finding was wrong.**
 
-**Deliberately not changed.** Rewriting a recorded `status` is the same category of action as
-altering a historical result, and the honest alternative is this record. Changing it would also
-make the file look as though it had been written under current truth.
+It read `status: ACTIVE` plus a branch that no longer exists and concluded
+STALE-CONTRADICTORY. The inference does not hold, for two independent reasons:
+
+1. **Branch deletion is not evidence of death.** This repository has
+   `delete_branch_on_merge: true`, so a merged branch disappears automatically. A missing branch
+   says nothing about whether the workstream resumed under a new name -- a fact demonstrated in
+   this same workstream when *its own* merged branch was deleted and had to be recreated.
+2. **The `status` history shows the opposite of staleness.** Across the file's revisions:
+
+   | Revision | `status` | `branch` |
+   |---|---|---|
+   | `1d8b905f` | `ACTIVE` | `claude/xmage-mp-voting-20260929` |
+   | `33db54bb` | `COMPLETE` | `claude/mp-campaign-handoff-20260929` |
+   | `dedf0562` | `ACTIVE` | `claude/mp-campaign-checkpoint-2-20260929` |
+   | `92f546a9` | `ACTIVE` | `claude/mp-campaign-checkpoint-2-20260929` |
+
+   The campaign **closed as `COMPLETE` and was then deliberately reopened** for checkpoint 2, and
+   `92f546a9` (2026-09-30) is checkpoint 3. `ACTIVE` is the correct, current value.
+
+**The real defect is narrower:** the `branch` field still names the branch of an earlier
+checkpoint. That is informational, not actionable from outside — the file is being written
+actively (checkpoint 3 landed the day this correction was made), and `safe_push.py` gate 4
+requires the live branch to match the recorded one, so the owning lane surfaces and corrects it
+themselves the next time they push.
+
+**The original recommendation 4 would have introduced an error.** Acting on it would have written
+`COMPLETE` into a live campaign's state, which is a false fact about work in progress -- the exact
+failure mode this package exists to prevent. It was declined at the time on the grounds that
+stating a successor requires the owning lane's knowledge, which was the right call for the wrong
+reason, and the reason is now on record.
 
 ---
 
@@ -217,11 +242,12 @@ The four recorded divergences are the complete, verified agenda for the Coordina
 renames. WSR24 is a foreign workstream (merged as PR #274); the file is registered as an
 exemption with its owner in the guard rather than rewritten here.
 
-**REMAINS OPEN — 4. Correct the `ACTIVE` status** in `claude-mp-campaign-20260929.json`, or add an
-explicit `superseded_by` field — as a new recorded fact, not a rewrite. Still `ACTIVE` against a
-branch, `claude/mp-campaign-checkpoint-2-20260929`, that no longer exists on the remote; only
-`claude/optimistic-bohr-6asye6` remains. Deliberately **not** changed here: stating what superseded
-it requires that lane's knowledge, and inventing it would be a worse defect than the stale field.
+**WITHDRAWN — 4. "Correct the `ACTIVE` status."** This recommendation was wrong and has been
+withdrawn, not deferred. `ACTIVE` is correct: the campaign closed as `COMPLETE` and was
+deliberately reopened, and it is still being written. Following the recommendation would have
+recorded a false fact about live work. See the correction in section 5. The narrower issue -- a
+stale `branch` field -- is left to the owning lane, which cannot push without tripping the branch
+match in `safe_push.py` gate 4 and will correct it then.
 
 **PARTLY ADDRESSED — 5. Filename convention.** The guard detects state files by *content*
 (`objective` or `workstream`) rather than by filename, which is strictly more robust than
