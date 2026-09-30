@@ -177,3 +177,47 @@ Until then:
    - SHA256 manifests;
    - a fingerprint extension: `Combat` declares `canBlockInThisCombat` and `getPlayerDefendersInApnapOrder`.
 4. Enable `XmageMultiplayerForcedBlockTest` and `XmageMultiplayerBlockOrderTest`. Run the bridge suite and impact-adjudicate, adding multi-defender combat evidence to the F-16 scope.
+
+---
+
+## Addendum: phase 5 (2026-09-30), engine integration, replay harness, CI hygiene
+
+### Engine and pin
+- **Candidate `9375f35a`** (moeendres-png/mage#24), assembled from `f79e4168` plus:
+  - F-22/F-23 (mage#26, sol lane);
+  - F-28/F-29 (mage#27/#28);
+  - the F-34 donor `2786665809` (parallel lane).
+- Full `Mage.Tests`: **7020 / 0 / 0 / 125**.
+- **Repin v2 #385 merged (`24b355b7`).** The live pin is `9375f35a`.
+  - Successor lock v2: `qualification/xmage-mp-candidate-repin-v2-20260930/`.
+  - F-22, F-23, F-28 and F-29 regressions are enabled.
+  - Lab bridge suite: 807/0/1. Python suite: 2364 passed.
+  - #385 supersedes the draft #360; its owner has been informed.
+
+### New lane findings (all fixed, red → green)
+
+| Finding | PR | What was wrong |
+|---|---|---|
+| F-30 | #382 | Priority hid activated abilities with equal rule text on different permanents (XMage's AI `getPlayable` dedup), in hash order. |
+| F-35 | #382 | Offered options that could only fail aborted real games: modes without legal targets (CR 700.2a), and mana abilities whose own cost can't be paid (Signet, Study Hall). |
+| F-36 | #384 | Decision options were ordered by random object ids. A library search picked a different "first Plains" per replay, and the shuffle then diverged the game. |
+
+### Whole-game replay harness
+`XmageFullGameReplayTwinTest` plays real 100-card decks (RogShai, Kaervek, Hosts of Mordor, Lorehold Spirits) at 2–6P, up to 3000 decisions per game. Each game is played twice with the same seed by a semantic pilot.
+
+- Options: `-Dtwin.extended`, `-Dtwin.seeds`, `-Dtwin.variant`.
+- After F-30/F-35/F-36, 20+ games are identical in every pair, including combat-spreading and reversed-preference pilot variants, and many reach a regular game over.
+
+### CI and hygiene
+- **#374:** the XMage engine is cached by pin commit, the bridge suite runs once instead of four times, and H4 provider builds are scoped. About 30 of 48 runner-minutes per bridge PR are saved.
+- **#383:** record in `docs/ci_efficiency_20260930/`.
+- **#386:** the engine workflows always report, so their jobs can be required checks.
+- **Owner actions**, listed in `docs/ci_efficiency_20260930/README.md`:
+  - add the required checks;
+  - disable 181 dead workflow registrations (a one-line command);
+  - pause the Codex review bot.
+
+### Next
+- A successor FULL107 current-boundary run on `9375f35a` (Coordinator gate).
+- The redundant nested WS17 manifest entry (Coordinator).
+- The generic Protocol-2 lane has the F-30 pattern (routed to #300's owner).

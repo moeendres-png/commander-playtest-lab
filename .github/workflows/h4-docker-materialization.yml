@@ -26,27 +26,6 @@ name: H4 Docker Materialization
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/h4-docker-materialization.yml"
-      - "config/rules_engines.json"
-      - "docker/**"
-      - "docker-compose.engine.yml"
-      - "engine-bridge/**"
-      - "integrations/xmage/README.md"
-      - "integrations/forge/README.md"
-      - "docs/engine_setup.md"
-      - "scripts/docker_build_engine.sh"
-      - "scripts/docker_resolve_engine_pin.py"
-      - "scripts/verify_container_provenance.py"
-      - "scripts/engine_container_entrypoint.sh"
-      - "scripts/verify_engine.sh"
-      - "scripts/h4_verify_materialization_evidence.py"
-      - "src/commander_lab/engine/rules/bridge.py"
-      - "src/commander_lab/engine/process_manager.py"
-      - "src/commander_lab/models/engine_runtime.py"
-      - "src/commander_lab/cli/app.py"
-      - "tests/unit/test_h4_verify_materialization_evidence.py"
-      - "tests/unit/test_ws_a1d_docker_pin_authority.py"
   workflow_dispatch:
 
 permissions:
@@ -74,11 +53,38 @@ jobs:
         with:
           # The PR merge commit and its base parent, for the provider scope below.
           fetch-depth: 2
+      - name: Is this change relevant to H4 at all?
+        id: relevant
+        uses: ./.github/actions/change-scope
+        with:
+          paths: |
+            .github/workflows/h4-docker-materialization.yml
+            config/rules_engines.json
+            docker/**
+            docker-compose.engine.yml
+            engine-bridge/**
+            integrations/xmage/README.md
+            integrations/forge/README.md
+            docs/engine_setup.md
+            scripts/docker_build_engine.sh
+            scripts/docker_resolve_engine_pin.py
+            scripts/verify_container_provenance.py
+            scripts/engine_container_entrypoint.sh
+            scripts/verify_engine.sh
+            scripts/h4_verify_materialization_evidence.py
+            src/commander_lab/engine/rules/bridge.py
+            src/commander_lab/engine/process_manager.py
+            src/commander_lab/models/engine_runtime.py
+            src/commander_lab/cli/app.py
+            tests/unit/test_h4_verify_materialization_evidence.py
+            tests/unit/test_ws_a1d_docker_pin_authority.py
+            .github/actions/**
       - name: Provider scope of this change
         id: scope
         shell: bash
         env:
           EVENT: ${{ github.event_name }}
+          RELEVANT: ${{ steps.relevant.outputs.relevant }}
         run: |
           set -euo pipefail
           xmage=true
@@ -87,7 +93,12 @@ jobs:
           if [ "$EVENT" = "pull_request" ]; then
             changed="$(git diff --name-only HEAD^1 HEAD)"
           fi
-          if [ -n "$changed" ]; then
+          if [ "$RELEVANT" = "false" ]; then
+            # The workflow always runs on pull requests (its jobs can be required
+            # checks); neither image is built when no H4 input changed.
+            xmage=false
+            forge=false
+          elif [ -n "$changed" ]; then
             printf '%s\n' "$changed"
             # Skip a provider's image build only when every changed file is provably
             # irrelevant to it: XMage-bridge sources or Markdown for Forge, Forge-only
