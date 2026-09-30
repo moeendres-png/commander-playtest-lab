@@ -3,7 +3,7 @@
 - **Issue:** #377
 - **Surface:** XMage full-game lane, turn control (CR 723) combined with leaving the game (CR 800.4a).
 - **Classification:** engine defect plus bridge defect.
-- **Pin:** `f79e4168` (unchanged). The engine fix is a donor for the repin lane.
+- **Pin:** found on `f79e4168`. The engine fix is in candidate repin v2 `9375f35a` (merge of donor `2786665809`).
 
 ## Rules predicate
 
@@ -54,4 +54,4 @@ Results:
 
 ## Known limit
 
-On the pin, a concession by a turn controller during the controlled turn ends the lane fail-closed. The game continues correctly only after the repin carries the engine fix.
+On `f79e4168` a concession by a turn controller during the controlled turn ended the lane fail-closed. Since repin v2 (`9375f35a`) the engine returns the turn and the frame is re-addressed. The fail-closed branch remains the guard for any engine that still names a departed controller.
