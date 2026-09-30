@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "integration/pb03-fresh-main-reconciliation-20260929"
 audit_base_sha: "72665dcea00d3c74b3272586a9b2794bb86fd93c"
 audit_base_tree: "bc16a510b2ff120298035af61372354b9dac422a"
-state_written_against_head: "c36e6eb175ce7ee867416def8e5668dde19cfbec"
-validated_head: "c36e6eb175ce7ee867416def8e5668dde19cfbec"
+state_written_against_head: "d4d1b6718d165bf6ebb4d2e56ba4961c20ecee16"
+validated_head: "d4d1b6718d165bf6ebb4d2e56ba4961c20ecee16"
 
 objective: "Reconcile PR #333 production-reachable PB-03 midgame transport with PR #316 dimension admission/native receipt semantics on fresh current main, preserving post-#344 evidence freshness and fail-closed boundaries."
 
@@ -79,7 +79,7 @@ authority_gates: []
 
 technical_decisions:
   - "MAIN ADVANCE 2026-09-29: origin/main moved 72665dce -> 7cb9e56a -> 12d3e1ac -> 23977253. Drift was merged normally (no rebase) at 9edea29a. PR #333 was merged to main as 10a43d2c with content byte-identical to the donor head; main's Java PB-03 files equal ours, while our Python consumer/probe/tests keep the successor adaptations. Conflicts (5) resolved in favour of the reconciled superset; manifests regenerated."
-  - "ENGINE PIN: canonical live pin f79e4168 (config/rules_engines.json) is bound end-to-end via bridge_launcher.canonical_xmage_engine_pin(); frozen WSR22 source_lock b1959698 stays historical and is not repinned. Local ~/.m2 held the prior pin; the canonical candidate was built from a verified clean clone and the runtime fingerprint now proves it."
+  - "ENGINE PIN v2 (2026-09-30): canonical live pin moved f79e4168 -> 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326 (repin v2, mage#24 F-22/F-23/F-28/F-29/F-34). Built and installed the successor candidate; runtime fingerprint green; every engine-bound artifact requalified on 9375f35a. bridge_launcher.canonical_xmage_engine_pin() reads config/rules_engines.json, so the binding followed the pin automatically. Frozen WSR22 b1959698 stays historical and is not repinned."
   - "RUNNER DIGEST DEFECT REPAIRED: RunnerIdentity.digest() included built_utc, so runner and assembler could never agree and every real post-#344 receipt was stale. built_utc remains recorded; the digest is now content-bound (commit/tree/dirty/executed inputs) and regression-locked."
   - "RUNNER DIGEST COVERAGE: added scripts/run_midgame_capability_probe.py, engine-bridge/pom.xml and engine-bridge main Java sources (61 executed inputs) so adapter/probe drift invalidates receipts even when the engine commit is unchanged."
   - "ADMISSION: declared object attributes now govern admission from the live manifest. WS05-MP-ELIM-CONTROL-3 and WS05-CMD-DMG-CONTROL declare owner != controller, the manifest marks controller/owner divergence unsupported, and the seam rejects both, so admission is 12 admitted / 18 blocked (was 14/16). Attribute tokens: controller/owner divergence, tapped permanents, attachments and counters."
@@ -132,9 +132,9 @@ files_modified:
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "pytest tests -> 2401 passed, 9 skipped, 0 failed (c36e6eb1)"
-  - "mvn -o verify -> 787 tests, 0 failures, 0 errors, 5 skipped (c36e6eb1)"
-  - "pytest tests/qualification -> 505 passed, 5 skipped (c36e6eb1)"
+  - "pytest tests -> 2402 passed, 13 skipped, 0 failed (d4d1b671)"
+  - "mvn -o verify -> 812 tests, 0 failures, 0 errors, 1 skipped (d4d1b671)"
+  - "pytest tests/qualification -> 506 passed, 9 skipped (d4d1b671)"
   - "mvn focused -> 104 passed (PB-03, midgame, control divergence, F-27 privacy, fingerprint)"
   - "runner xmage + forge + assembler at 9edea29a -> PB-03 FRESH_EXACT / EXECUTED_PASS; XMage 213 native tests, Forge 217"
   - "midgame probe at 9edea29a -> 29 rows, 8/9/9/1/2, zero transport failures, runner digest equals the runtime ledger's"
