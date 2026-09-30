@@ -321,6 +321,11 @@ class XmageFullGameTaxExecutionTest {
         assertTrue(resolved, "Rograkh must resolve onto P1's battlefield");
         assertEquals(3, watcher.getPlaysCount(commanderUuid),
                 "terminal postcondition: cast count becomes 3");
+        // Every later arrival readback repeats the completion; it must not
+        // restore the prior count over the real cast.
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
+        assertEquals(3, watcher.getPlaysCount(commanderUuid),
+                "a repeated completion keeps the real cast");
         assertTrue(events.contains("cast_commander:P1"));
         assertTrue(events.contains("commander_cast_from_command:P1"));
         assertTrue(events.contains("mana_paid:4"));

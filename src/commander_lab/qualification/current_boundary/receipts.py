@@ -713,6 +713,69 @@ def collect_receipts(directory: Path) -> tuple[list[dict[str, Any]], list[str]]:
     return valid, rejected
 
 
+#: Positive fixture receipts live in their own subdirectory of the receipt
+#: directory, so the native-suite loader never sees (and never rejects) them.
+POSITIVE_RECEIPT_SUBDIR = "positive"
+
+_POSITIVE_REQUIRED_FIELDS = (
+    "candidate",
+    "candidate_commit",
+    "runner_digest",
+    "fixture_id",
+    "test_identity",
+    "obligation_exercised",
+    "observed_assertion",
+    "assertion_kind",
+    "outcome",
+    "receipt_digest",
+)
+
+
+def load_positive_fixture_receipt(path: Path) -> dict[str, Any]:
+    """Load and validate one positive fixture receipt. Raises on any defect.
+
+    Structure and integrity only; whether it earns credit (candidate head,
+    runner digest, outcome, positive assertion, denominator) is decided by
+    :func:`positive_fixture_credit`.
+    """
+    if not path.is_file():
+        raise ReceiptError(f"{_NO_CREDIT}: no positive receipt at {path}")
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ReceiptError(f"{_NO_CREDIT}: unreadable positive receipt at {path}: {exc}") from exc
+    if not isinstance(doc, dict):
+        raise ReceiptError(f"{_NO_CREDIT}: positive receipt is not an object")
+    if doc.get("schema_version") != POSITIVE_FIXTURE_RECEIPT_SCHEMA:
+        raise ReceiptError(
+            f"{_NO_CREDIT}: positive receipt schema {doc.get('schema_version')!r} "
+            f"!= {POSITIVE_FIXTURE_RECEIPT_SCHEMA!r}"
+        )
+    for field_name in _POSITIVE_REQUIRED_FIELDS:
+        if not doc.get(field_name):
+            raise ReceiptError(f"{_NO_CREDIT}: positive receipt missing {field_name!r}")
+    recomputed = {key: value for key, value in doc.items() if key != "receipt_digest"}
+    if _digest(recomputed) != doc["receipt_digest"]:
+        raise ReceiptError(
+            f"{_NO_CREDIT}: positive receipt digest mismatch (tampered or truncated)"
+        )
+    return doc
+
+
+def collect_positive_fixture_receipts(directory: Path) -> tuple[list[dict[str, Any]], list[str]]:
+    """Return (valid positive receipts, rejection reasons) from ``directory``."""
+    valid: list[dict[str, Any]] = []
+    rejected: list[str] = []
+    if not directory.is_dir():
+        return valid, rejected
+    for path in sorted(directory.glob("*.json")):
+        try:
+            valid.append(load_positive_fixture_receipt(path))
+        except ReceiptError as exc:
+            rejected.append(str(exc))
+    return valid, rejected
+
+
 def environment_identity() -> dict[str, str]:
     """Non-secret environment facts that can change native-suite behaviour."""
     keys = (
@@ -735,6 +798,7 @@ def environment_identity() -> dict[str, str]:
 __all__ = [
     "NATIVE_SUITE_RECEIPT_SCHEMA",
     "POSITIVE_FIXTURE_RECEIPT_SCHEMA",
+    "POSITIVE_RECEIPT_SUBDIR",
     "RUNNER_IDENTITY_SCHEMA",
     "SEED_ACKNOWLEDGED",
     "SEED_BINDING_SCHEMA",
@@ -746,11 +810,13 @@ __all__ = [
     "SeedBinding",
     "capture_runner_identity",
     "classify_seed_binding",
+    "collect_positive_fixture_receipts",
     "collect_receipts",
     "document_digest",
     "engine_tree_equivalence",
     "environment_identity",
     "load_native_receipt",
+    "load_positive_fixture_receipt",
     "native_suite_credit",
     "parse_maven_summary",
     "persist",
