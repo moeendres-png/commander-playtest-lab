@@ -100,10 +100,10 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "1476873e6cd0e507ad5c5bc95a0f0345b57008e3",
+   "commit": "82c53c53b4d7eb4d86a121d5df7d0041ccb9c3ca",
    "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "role": "Exact bridge/materialization source for the current R-1 candidate. Forge #16 is the integrated bridge-only descendant of #11, combining source-frozen #13 and #15; rules_core_base_commit binds it back to the admitted #11/#12 candidate."
+   "role": "Exact bridge/materialization source for the current R-1 candidate. Forge #16 is the integrated bridge-only descendant of #11, combining source-frozen #13 and #15 and reconciled with the #11 head that already contains merged #13, so it is the fast-forward successor of the #11 qualification branch; rules_core_base_commit binds it back to the admitted #11/#12 candidate."
   },
   "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
   "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. Forge #16 is bound separately as the integrated bridge/materialization successor combining #13 and #15 and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
@@ -127,7 +127,7 @@
    "bridge_source": {
     "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. Forge #16 integrates the source-frozen #13 and #15 bridge-only children and remains separately source-bound from the #11 Rules-Core candidate.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "1476873e6cd0e507ad5c5bc95a0f0345b57008e3",
+    "commit": "82c53c53b4d7eb4d86a121d5df7d0041ccb9c3ca",
     "tree": "1dceb8141b3b401c900a2c3ea755914041634099",
     "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
     "pull_request": 16

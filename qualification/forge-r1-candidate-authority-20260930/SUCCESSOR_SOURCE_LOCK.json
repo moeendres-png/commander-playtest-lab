@@ -31,7 +31,7 @@
     "candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
     "candidate_pr": 11,
     "includes_admitted_pr": 12,
-    "bridge_commit": "1476873e6cd0e507ad5c5bc95a0f0345b57008e3",
+    "bridge_commit": "82c53c53b4d7eb4d86a121d5df7d0041ccb9c3ca",
     "bridge_tree": "1dceb8141b3b401c900a2c3ea755914041634099",
     "bridge_pr": 16,
     "bridge_rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
@@ -42,7 +42,7 @@
   },
   "directly_verified_relations": {
     "bridge_vs_candidate": {
-      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..1476873e6cd0e507ad5c5bc95a0f0345b57008e3",
+      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..82c53c53b4d7eb4d86a121d5df7d0041ccb9c3ca",
       "changed_files": [
         "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
         "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
