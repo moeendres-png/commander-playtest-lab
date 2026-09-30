@@ -267,15 +267,36 @@ def live_bridge(tmp_path_factory):
         f"bridge/materialization source {FORGE_BRIDGE_COMMIT} is not descended from "
         f"Rules-Core candidate {FORGE_RULES_COMMIT}"
     )
+    surface = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(source),
+            "diff",
+            "--name-only",
+            FORGE_RULES_COMMIT,
+            FORGE_BRIDGE_COMMIT,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert surface.returncode == 0, f"cannot compare Forge candidate surfaces: {surface.stderr}"
+    changed = [line for line in surface.stdout.splitlines() if line.strip()]
+    assert changed, "bridge/materialization successor must carry an explicit bridge delta"
+    assert all(path.startswith("forge-protocol2-bridge/") for path in changed), (
+        "bridge/materialization source drifts outside the separately governed bridge surface: "
+        + ", ".join(changed)
+    )
     tmp_path = tmp_path_factory.mktemp("forge-live")
     command = _bridge_command(source, tmp_path)
     jvm_tmp = Path((tmp_path / "jvm-tmp-dir.txt").read_text(encoding="utf-8").strip())
-    # The bridge JVM reports the R-1 Rules-Core candidate identity while the
-    # executable bridge/assets come from the separately bound clean descendant
-    # verified above.
+    # The provider's self-reported/build identity must name the exact source
+    # that was compiled. Rules-Core authority is bound separately above by
+    # proving that this clean descendant differs only in the bridge module.
     old_sha = os.environ.get("FORGE_ENGINE_SHA")
     old_assets = os.environ.get("FORGE_ASSETS_DIR")
-    os.environ["FORGE_ENGINE_SHA"] = FORGE_RULES_COMMIT
+    os.environ["FORGE_ENGINE_SHA"] = FORGE_BRIDGE_COMMIT
     os.environ["FORGE_ASSETS_DIR"] = str(source / "forge-gui")
     client = JsonLineBridgeClient(
         command,
@@ -334,7 +355,10 @@ def test_live_forge_h4f_bounded_runtime(live_bridge) -> None:
     provider = client.request("get_provider_version")
     assert provider.get("provider") == "forge"
     assert provider.get("protocol_version") == ENGINE_PROTOCOL_VERSION
-    assert provider.get("engine_commit") == FORGE_RULES_COMMIT
+    assert provider.get("engine_commit") == FORGE_BRIDGE_COMMIT
+    assert provider.get("engine_build_commit") == FORGE_BRIDGE_COMMIT
+    assert provider.get("engine_build_dirty") == "false"
+    assert provider.get("engine_commit_verified") is True
     caps_raw = client.request("get_capabilities")
     caps = EngineCapabilityHandshake.model_validate(caps_raw.get("capabilities", caps_raw))
     assert caps.runtime_kind == "external_rules_engine"
