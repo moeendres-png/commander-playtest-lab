@@ -35,7 +35,7 @@ After the native concession, `XmageFullGameSession.submitConcede` calls `XmageFu
 - **Every other class fails closed.** An external audit of #404 pointed out that a per-class allow-list alone left any unlisted class answerable. The rule is now systemic:
   - a departed player's pending frame of any class without a qualified native unwind ends the lane fail-closed with `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`;
   - the frame is removed and the event is recorded with reason `player_left_game_unsupported_class`;
-  - `request` never publishes a new frame for a player who left.
+  - `request` never publishes a new non-priority frame for a player who left. Priority keeps the F-39 path, because after a self-loss the engine still gives the player one priority round (`XmageCausalEliminationReconstructionTest`).
 
   Test: P1 concedes at its own Fact or Fiction pile choice, which fails closed. It is 2/2 red before, when the pile frame stayed answerable for P1, and 2/2 green after.
 

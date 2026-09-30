@@ -113,9 +113,11 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
-        if (!actor.isInGame()) {
+        if (!actor.isInGame() && !"priority".equals(decisionClass)) {
             // A player who left makes no choices (CR 800.4a): no frame is ever
             // published for it; the lane fails closed instead of guessing.
+            // Priority keeps the owner's F-39 path: the engine still gives a
+            // player who just lost one priority round, answered with pass.
             DecisionException failure = new DecisionException(
                     "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: the engine asked a player who left the game for "
                             + decisionClass
