@@ -38,7 +38,7 @@ source_lock:
 audit_base_sha: 7055740ec2f08d4864bf7e200f7b48ace521fe57
 audit_base_tree: cdc64d7e0a9869c43ebe077f0f676b2e4e1f6512
 # Descriptive HEAD this document was produced against. Never a validation claim.
-state_written_against_head: 21a4e668092cc893b334fad8072603338bae47d2
+state_written_against_head: bff89d9ed7f0a99d06c35f99795cdcf66d11f9ce
 # Newest commit whose tests/evidence were actually validated. Re-pointed as main drifted
 # (57b233fb, 73399357, 5c69b999), each time because the earlier value no longer described the
 # content under test.
@@ -379,6 +379,12 @@ validation:
       The suite number is unchanged from the previous arm, which is the expected result for a
       documentation-only correction. Recording it rather than skipping the measurement, because
       "unchanged" is a claim that should be measured rather than assumed.
+  on_bff89d9e_after_drift_merge:
+    whole_suite_no_ignore_flags: 0 failed, 2435 passed, 13 skipped
+    drift_note: >-
+      main moved to 1fdd6136 (#398: multiplayer findings); it touched no .foundry or tests path
+      and merged without conflict. Re-validated rather than reusing the pre-merge numbers.
+    state_py_validate: STATE_OK
   excluded_modules_and_why: >-
     NO LONGER EXCLUDED. Earlier arms of this file ran with --ignore for
     tests/integration/test_phase5_server.py and tests/unit/test_phase5_openai_adapter.py because
