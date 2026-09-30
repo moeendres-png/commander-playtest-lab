@@ -1199,7 +1199,9 @@ def verify_pb05_provenance(
     must pass the bridge/materialization source here and prove Rules-Core
     equivalence separately.
     """
+    legacy_rules_core_alias = expected_source_commit is None and bool(expected_rules_core)
     expected_commit = expected_source_commit or expected_rules_core
+    expected_label = "Rules Core" if legacy_rules_core_alias else "source"
     if not expected_commit:
         return {
             "pb05_credit": False,
@@ -1235,8 +1237,8 @@ def verify_pb05_provenance(
         findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
     elif expected_tree and (build_tree is None or build_tree != expected_tree):
         findings.append(
-            f"build tree {(build_tree or '<none>')[:12]} is not the expected source tree "
-            f"{expected_tree[:12]}"
+            f"build tree {(build_tree or '<none>')[:12]} is not the expected "
+            f"{expected_label} tree {expected_tree[:12]}"
         )
     if build_dirty is None:
         findings.append("engine_build_dirty is absent")
@@ -1259,6 +1261,7 @@ def verify_pb05_provenance(
         "build_source": build_source,
         "engine_commit_verified": verified,
         "expected_source_commit": expected_commit,
+        "expected_rules_core": expected_commit if legacy_rules_core_alias else None,
         "expected_tree": expected_tree,
         "findings": findings,
         "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown "
