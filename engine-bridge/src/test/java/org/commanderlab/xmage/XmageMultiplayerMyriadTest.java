@@ -107,7 +107,7 @@ class XmageMultiplayerMyriadTest {
         assertTrue(combatEnded, "combat finished");
 
         List<String> expectedOffers = new ArrayList<>();
-        for (int seat = playerCount; seat >= 3; seat--) {
+        for (int seat = 3; seat <= playerCount; seat++) {
             expectedOffers.add("P" + seat);
         }
         assertEquals(expectedOffers, offeredFor,

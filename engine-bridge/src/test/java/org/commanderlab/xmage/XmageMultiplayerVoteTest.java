@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Will of the council (Council's Judgment) on the XMage full-game lane with
  * actual cards: "Starting with you, each player votes for a nonland permanent
  * you don't control. Exile each permanent with the most votes or tied for
- * most votes." Votes follow the engine's turn order (the engine seats
- * counterclockwise: P1 → P4 → P3 → P2 in 4P) starting with the caster,
+ * most votes." Votes follow the engine's turn order (seat order since F-41:
+ * P1 → P2 → P3 → P4 in 4P) starting with the caster,
  * including when the caster is not P1, and a tie exiles every tied permanent.
  */
 class XmageMultiplayerVoteTest {
@@ -104,7 +104,7 @@ class XmageMultiplayerVoteTest {
         List<String> voters = judge(s, "P1", Map.of(
                 "P1", "Craw Wurm", "P4", "Grizzly Bears",
                 "P3", "Craw Wurm", "P2", "Grizzly Bears"));
-        assertEquals(List.of("P1", "P4", "P3", "P2"), voters,
+        assertEquals(List.of("P1", "P2", "P3", "P4"), voters,
                 "starting with the caster, then the engine's turn order");
         assertEquals(false, onBattlefield(s, "Craw Wurm"), "tied 2-2: Craw Wurm left the battlefield");
         assertEquals(false, onBattlefield(s, "Grizzly Bears"), "tied 2-2: Grizzly Bears left the battlefield");
@@ -121,7 +121,7 @@ class XmageMultiplayerVoteTest {
         List<String> voters = judge(s, "P3", Map.of(
                 "P3", "Raging Goblin", "P2", "Raging Goblin", "P1", "Craw Wurm",
                 "P5", "Raging Goblin", "P4", "Craw Wurm"));
-        assertEquals(List.of("P3", "P2", "P1", "P5", "P4"), voters,
+        assertEquals(List.of("P3", "P4", "P5", "P1", "P2"), voters,
                 "starting with the caster P3, then the engine's turn order");
         assertEquals(false, onBattlefield(s, "Raging Goblin"), "3 votes: left the battlefield");
         assertEquals(true, inExile(s, "Raging Goblin"), "3 votes: in exile");
@@ -148,7 +148,7 @@ class XmageMultiplayerVoteTest {
         assertEquals(false, s.seats.get("P3").isInGame(), "P3 left the game");
         List<String> voters = judge(s, "P1", Map.of(
                 "P1", "Grizzly Bears", "P4", "Grizzly Bears", "P2", "Runeclaw Bear"));
-        assertEquals(List.of("P1", "P4", "P2"), voters, "a player who left the game doesn't vote");
+        assertEquals(List.of("P1", "P2", "P4"), voters, "a player who left the game doesn't vote");
         assertEquals(false, onBattlefield(s, "Grizzly Bears"), "2 votes: exiled");
         assertEquals(true, onBattlefield(s, "Runeclaw Bear"), "1 vote: stays");
     }

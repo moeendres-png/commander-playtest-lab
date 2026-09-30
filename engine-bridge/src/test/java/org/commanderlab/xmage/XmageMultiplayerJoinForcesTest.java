@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * <ul>
  *   <li>Every player, the non-active ones included, announces and pays their own
  *       amount through the external surface. The order is P1, then the engine's
- *       turn order: PN, …, P2.</li>
+ *       turn order: P2, …, PN.</li>
  *   <li>P1 pays 1 and PN pays 2. P(N−1) has no lands: it announces 2, can only
  *       cancel the payment, and contributes 0. Every other player pays 1.</li>
  *   <li>Each player draws exactly X, the total mana actually paid. An announced
@@ -108,7 +108,7 @@ class XmageMultiplayerJoinForcesTest {
 
         List<String> expectedOrder = new ArrayList<>();
         expectedOrder.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expectedOrder.add("P" + seat);
         }
         assertEquals(expectedOrder, announcers,

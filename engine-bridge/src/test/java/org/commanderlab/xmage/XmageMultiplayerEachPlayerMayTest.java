@@ -29,8 +29,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * holds Mountains.</p>
  *
  * <ul>
- *   <li>Every player is asked, starting with P1 in turn order (P1, PN, …,
- *       P2); P1 and P3 accept, everyone else declines.</li>
+ *   <li>Every player is asked, starting with P1 in turn order (P1, P2, …,
+ *       PN); P1 and P3 accept, everyone else declines.</li>
  *   <li>Each accepting player is offered only land cards from their own hand:
  *       no card from another player's hidden hand.</li>
  *   <li>Exactly the opponents who declined draw one card; P3 and P1 don't draw
@@ -111,7 +111,7 @@ class XmageMultiplayerEachPlayerMayTest {
         assertTrue(resolved, "the trigger resolved in P1's end step");
         List<String> expected = new ArrayList<>();
         expected.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expected.add("P" + seat);
         }
         assertEquals(expected, asked, "every player may, starting with P1 in turn order");

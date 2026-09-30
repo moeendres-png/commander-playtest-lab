@@ -332,8 +332,13 @@ final class XmageGameManager {
                 player.init(game);
                 game.loadCards(deck.getCards(), player.getId());
                 game.loadCards(deck.getSideboard(), player.getId());
-                game.addPlayer(player, deck);
                 players.add(player);
+            }
+            // F-41: seat order is turn order (see XmageSeating).
+            List<Player> seated = XmageSeating.additionOrder(players);
+            List<Deck> seatedDecks = XmageSeating.additionOrder(decks);
+            for (int index = 0; index < seated.size(); index++) {
+                game.addPlayer(seated.get(index), seatedDecks.get(index));
             }
 
             if (game.getPlayers().size() != deckHandles.size()) {

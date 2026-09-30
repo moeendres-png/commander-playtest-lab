@@ -45,7 +45,7 @@ class XmageMultiplayerLeftPlayerDecisionTest {
             String cls = s.decisionClass();
             if ("priority".equals(cls) && !offered.isEmpty()
                     && s.session.restorationGame().getStack().isEmpty()) {
-                assertEquals(List.of("P4", "P2"), offered,
+                assertEquals(List.of("P2", "P4"), offered,
                         "only opponents still in the game are offered the tempting offer");
                 return;
             }

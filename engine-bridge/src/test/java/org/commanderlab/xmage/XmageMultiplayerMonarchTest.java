@@ -22,9 +22,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * lane.
  *
  * <p>P1 casts Palace Sentinels (Oracle: "When this creature enters, you
- * become the monarch."). Every opponent controls a Grizzly Bears. The
- * engine's turn order is counterclockwise, so after P1 come PN, then
- * P(N−1).</p>
+ * become the monarch."). Every opponent controls a Grizzly Bears. Turns run
+ * in seat order (F-41), so after P1 come P2, then P3.</p>
  *
  * <ul>
  *   <li>725.2: the monarch draws a card at the beginning of their end step.</li>
@@ -42,44 +41,44 @@ class XmageMultiplayerMonarchTest {
     private static final String BEARS = "Grizzly Bears";
     private static final String PLAINS_LABEL = "Plains — {T}: Add {W}.";
 
-    /** Stolen by PN in combat; PN (active) concedes: P(N−1) is next in turn order. */
+    /** Stolen by P2 in combat; P2 (active) concedes: P3 is next in turn order. */
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void combatDamageStealsAndAnActiveLeaverPassesToTheNextPlayer(int playerCount) {
         Fixture f = new Fixture("monarch-steal-" + playerCount + "p", playerCount);
         f.becomeMonarch();
         int libraryBefore = f.library("P1");
-        String pn = "P" + playerCount;
-        String prev = "P" + (playerCount - 1);
+        String next = "P2";
+        String afterNext = "P3";
 
-        f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.POSTCOMBAT_MAIN, pn);
+        f.driveUntil(() -> f.active(next) && f.step() == PhaseStep.POSTCOMBAT_MAIN, next);
         assertEquals(1, libraryBefore - f.library("P1"),
                 "725.2: P1 drew one card at the beginning of their end step");
-        assertEquals(f.id(pn), f.game.getMonarchId(),
-                "725.2: " + pn + "'s Bears dealt combat damage to the monarch");
+        assertEquals(f.id(next), f.game.getMonarchId(),
+                "725.2: " + next + "'s Bears dealt combat damage to the monarch");
         assertEquals(38, f.life("P1"));
 
-        f.concede(pn);
-        assertEquals(f.id(prev), f.game.getMonarchId(),
+        f.concede(next);
+        assertEquals(f.id(afterNext), f.game.getMonarchId(),
                 "725.4: the monarch was the active player, so the next player in turn "
-                        + "order (" + prev + ") becomes the monarch");
+                        + "order (" + afterNext + ") becomes the monarch");
     }
 
-    /** P1 (not active) concedes during P(N−1)'s turn: the active player, not PN. */
+    /** P1 (not active) concedes during P3's turn: the active player, not P2. */
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void aNonActiveLeaverPassesToTheActivePlayer(int playerCount) {
         Fixture f = new Fixture("monarch-leave-" + playerCount + "p", playerCount);
         f.becomeMonarch();
-        String prev = "P" + (playerCount - 1);
+        String afterNext = "P3";
 
-        f.driveUntil(() -> f.active(prev) && f.step() == PhaseStep.PRECOMBAT_MAIN, null);
+        f.driveUntil(() -> f.active(afterNext) && f.step() == PhaseStep.PRECOMBAT_MAIN, null);
         assertEquals(f.id("P1"), f.game.getMonarchId(), "nobody dealt combat damage to P1");
 
         f.concede("P1");
-        assertEquals(f.id(prev), f.game.getMonarchId(),
-                "725.4: the active player (" + prev + ") becomes the monarch, not P"
-                        + playerCount + " (next after P1)");
+        assertEquals(f.id(afterNext), f.game.getMonarchId(),
+                "725.4: the active player (" + afterNext + ") becomes the monarch, not P2"
+                        + " (next after P1)");
     }
 
     private static final class Fixture {

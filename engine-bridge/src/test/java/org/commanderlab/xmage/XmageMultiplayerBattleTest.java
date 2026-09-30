@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * <p>P1 casts Invasion of Zendikar (Battle — Siege, defense 3). As a Siege
  * enters, its controller chooses an opponent to protect it; a battle can be
  * attacked by any player other than its protector. Every opponent controls a
- * Grizzly Bears. The engine's turn order is counterclockwise
- * (P1, PN, P(N−1), …).</p>
+ * Grizzly Bears. The engine's turn order is seat order
+ * (P1, P2, P3, …; F-41).</p>
  *
  * <ul>
  *   <li>Enabled: P1's protector decision offers exactly the opponents

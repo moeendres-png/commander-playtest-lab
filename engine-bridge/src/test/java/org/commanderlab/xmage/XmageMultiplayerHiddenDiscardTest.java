@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <ul>
  *   <li>Delirium Skeins (Oracle: "Each player discards three cards."), 3–6P:
  *       every player chooses their own discards through the external surface,
- *       in APNAP order (101.4), in the engine's turn order P1, PN, …, P2. Each
+ *       in APNAP order (101.4), in the engine's turn order P1, P2, …, PN. Each
  *       discard decision offers only the actor's own hand. No decision's
  *       serialized payload or legal actions carry any card identity from
  *       another player's hand or library (AGENTS.md §5).</li>
@@ -175,7 +175,7 @@ class XmageMultiplayerHiddenDiscardTest {
     private static List<String> apnapFromP1(int playerCount) {
         List<String> order = new ArrayList<>();
         order.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             order.add("P" + seat);
         }
         return order;
