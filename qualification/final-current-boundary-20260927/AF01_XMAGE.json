@@ -39,7 +39,7 @@
  "decision_probe_game": {
   "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
   "decisions_observed": 3,
-  "game_id": "wsr22-xmage-2p-0df167bc",
+  "game_id": "wsr22-xmage-2p-b31377f8",
   "player_count": 2,
   "steps_completed": [
    "handshake",
@@ -104,9 +104,9 @@
    "detail": "every response echoed the exact request_id",
    "evidence": {
     "request_ids": {
-     "get_capabilities": "cde0a811-bb48-49f1-a5b4-f68dda032bc6",
-     "get_provider_version": "4faae09c-5759-4f2d-905e-406402cb25da",
-     "start_engine": "68064930-26c0-48b6-9167-84728cff4111"
+     "get_capabilities": "0dd8eb4b-f057-45e9-9350-4e9277af5a1e",
+     "get_provider_version": "df290978-a858-4035-be71-1d0b27c4afdb",
+     "start_engine": "be8c27ba-793f-444e-960a-3ee12035acb7"
     }
    },
    "invariant": "request_id_matches",
@@ -226,7 +226,7 @@
       }
      ],
      "protocol_version": "2.0.0",
-     "request_id": "c0e18823-720c-4b04-975b-4293eacdbebd",
+     "request_id": "ca2c9ceb-28fe-493f-ba08-013ae585297c",
      "status": "error",
      "success": false
     },
@@ -249,7 +249,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "9382ad1a-fdca-4b31-91c5-b97511a7b62d",
+    "request_id": "bf5d0a2e-c46a-4f8a-94aa-118ead84263e",
     "status": "error",
     "success": false
    },
@@ -269,7 +269,7 @@
      }
     ],
     "protocol_version": "2.0.0",
-    "request_id": "785ced5f-dab6-4cac-b8bd-6989d1d7a1fc",
+    "request_id": "42be9c03-8950-467f-93a4-524e1485515b",
     "status": "error",
     "success": false
    },
@@ -280,7 +280,7 @@
    "af01_v2_clause": "fail_closed_invariants.illegal_action",
    "detail": "provider rejected an unrecognised legal_action_id for a live game",
    "evidence": {
-    "game_id": "wsr22-xmage-2p-0df167bc",
+    "game_id": "wsr22-xmage-2p-b31377f8",
     "response": {
      "engine_event_offset": 0,
      "errors": [
@@ -291,7 +291,7 @@
       }
      ],
      "protocol_version": "2.0.0",
-     "request_id": "dcefb164-bd24-4c99-93f7-49eac551b16c",
+     "request_id": "54004f3f-73ff-40d8-a21d-3f7e8d623e4d",
      "status": "error",
      "success": false
     }
@@ -303,7 +303,7 @@
    "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
    "detail": "provider rejected an unknown decision identity for a live game",
    "evidence": {
-    "game_id": "wsr22-xmage-2p-0df167bc",
+    "game_id": "wsr22-xmage-2p-b31377f8",
     "response": {
      "engine_event_offset": 0,
      "errors": [
@@ -314,7 +314,7 @@
       }
      ],
      "protocol_version": "2.0.0",
-     "request_id": "3ce34742-e15d-4aed-9734-d4be316bf011",
+     "request_id": "a0305b16-d87e-49dd-a76e-7d12083ae720",
      "status": "error",
      "success": false
     }
@@ -326,20 +326,20 @@
    "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
    "detail": "an unsupported decision class did not fail closed for a live game",
    "evidence": {
-    "game_id": "wsr22-xmage-2p-0df167bc",
+    "game_id": "wsr22-xmage-2p-b31377f8",
     "response": {
      "engine_event_offset": 5,
      "payload": {
       "actions": [
        {
-        "action_id": "6714b2b46b15fa4471bcbdfdf5f5d0d6382c764c751dce11f3e1f337504b079e",
+        "action_id": "eec4e561683413ba6d61a44ffd601d86db49dd102a067e9d7f2d3ec401d08661",
         "action_type": "pass_priority",
-        "actor_id": "ff7fb0c5-20a9-4d27-b510-9b0367429d5e",
+        "actor_id": "8a107184-db05-42cb-91ab-26e711d5d8c4",
         "allowed_target_ids": [],
         "choices_schema": {},
         "cost": {},
         "metadata": {
-         "decision_id": "42c6788509303239acd96110b3d818aa8805b28212059372e93ddf3b44213a52",
+         "decision_id": "a5c124fa8c5ea647ae8edbc338ab9da996499898e043e8bbb18591cd2f7e7127",
          "submission_ready": true
         },
         "modes": [],
@@ -347,17 +347,17 @@
         "target_ids": []
        }
       ],
-      "actor_id": "ff7fb0c5-20a9-4d27-b510-9b0367429d5e",
+      "actor_id": "8a107184-db05-42cb-91ab-26e711d5d8c4",
       "complete": true,
-      "decision_id": "42c6788509303239acd96110b3d818aa8805b28212059372e93ddf3b44213a52",
+      "decision_id": "a5c124fa8c5ea647ae8edbc338ab9da996499898e043e8bbb18591cd2f7e7127",
       "decision_kind": "priority",
       "decision_offset": 4,
-      "engine_game_id": "36f9f977-38f8-4755-b8ad-aef4f4de8223",
-      "game_id": "wsr22-xmage-2p-0df167bc",
+      "engine_game_id": "dfebdd8a-ac4f-41e9-9ced-56f575c49681",
+      "game_id": "wsr22-xmage-2p-b31377f8",
       "global_capability_promoted": false
      },
      "protocol_version": "2.0.0",
-     "request_id": "3ef49fe6-bde5-449b-9a3f-926b6655b71c",
+     "request_id": "a7aed0f9-0284-4593-a196-925f1a60c610",
      "status": "ok",
      "success": true
     }
@@ -378,8 +378,8 @@
    "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
    "detail": "a scan of 15 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
    "evidence": {
-    "runner_commit": "ee0e5ed9acd0b093a69f27caef76ad08cb441855",
-    "runner_tree": "efecef36420998674a82dce075465629862772c1",
+    "runner_commit": "75816f5fa817efd4d44f4689d71834d24ab769ff",
+    "runner_tree": "85db938e40ff712954a18af1837c37e77501b97d",
     "scan": {
      "complete": true,
      "hits": [],
@@ -420,7 +420,7 @@
   "AF01 PASS does not imply provider release eligibility",
   "AF01 PASS does not select a provider or claim Architecture Freeze"
  ],
- "protocol_transcript_digest": "2bcff027e4badd8da67dd8652e3a358fe60b3b04713b2fbbed7cdffe6a0f8e01",
+ "protocol_transcript_digest": "7cea363425847dbe8ed95069a241d322771a90867d22d21af1614bd5c02bcf06",
  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
  "schema_version": "wsr22.af01-current-boundary/1.0.0",
  "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
