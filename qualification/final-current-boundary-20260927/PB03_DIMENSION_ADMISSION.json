@@ -284,6 +284,7 @@
   "starting_state_injection_supported": false,
   "supported_dimensions": [
    "commanders with prior cast counts (native game-load restore path)",
+   "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
    "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
    "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
    "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",

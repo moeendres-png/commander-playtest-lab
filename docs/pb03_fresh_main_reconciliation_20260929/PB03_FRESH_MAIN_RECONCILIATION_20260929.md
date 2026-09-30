@@ -53,11 +53,11 @@ Machine-readable ledger: `DONOR_SEMANTIC_LEDGER.json` in this directory.
 29 rows rederived on the canonical candidate; counts are runtime facts, not
 historical copies:
 
-| Outcome | Count | Rows |
+| Outcome | Count | Rows (2026-09-30, after main's commander-object binding fix) |
 |---|---|---|
 | `ENGINE_NATIVE_REACHABLE` | 8 | COMBAT-4/5, CMD-ELIM-4, CMD-DMG-SPLIT, CMD-PARTNER-ZONE, CMD-TAX-2, MICRO_COMBAT, CARD_02 |
-| `CAUSAL_ROUTE_REACHABLE` | 9 | BLOCK-4, ELIM-PRIO-3, MICRO_REPLACEMENT, PRIO-3/5, MICRO_ZONE_CHANGES, ELIM-OWNED-3, ELIM-TURN-3, ELIM-5 |
-| `CAUSAL_ROUTE_MEASURED_BLOCKED` | 9 | TURN-5, eight `WS05-CMD-ZONE-*` rows |
+| `CAUSAL_ROUTE_REACHABLE` | 17 | BLOCK-4, ELIM-PRIO-3, MICRO_REPLACEMENT, PRIO-3/5, all eight `WS05-CMD-ZONE-*` rows, MICRO_ZONE_CHANGES, ELIM-OWNED-3, ELIM-TURN-3, ELIM-5 |
+| `CAUSAL_ROUTE_MEASURED_BLOCKED` | 1 | TURN-5 |
 | `CONSTRUCTION_MISMATCH` | 1 | ELIM-STACK-3 |
 | `ENGINE_REJECTED` | 2 | CMD-DMG-CONTROL (`midgame_starting_state_rejected`), ELIM-CONTROL-3 (`midgame_causal_preparation_rejected`) |
 | `TRANSPORT_FAILURE` | 0 | — |
