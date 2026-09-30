@@ -9,7 +9,7 @@
 Under AGENTS.md §4/§8, Provider Selection, Architecture Freeze and evidence-policy rulings are Coordinator authority. They are not executor authority, so the rulings below are written as **binding texts ready for signature**:
 - every ruling states its evidence;
 - every ruling states its consequence;
-- each one takes effect when the Coordinator/owner accepts it, either by merging this packet or by accepting it on #255.
+- each one takes effect **only when the Coordinator/owner accepts it explicitly on #255**. Merging this file only records the proposal; a merge is not a signature.
 
 Nothing here selects a provider or claims Freeze.
 
