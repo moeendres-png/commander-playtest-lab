@@ -44,9 +44,8 @@ class XmageStateObservationTest {
 
         manager.startGame(created.gameHandle());
 
-        List<String> livePlayerIds = manager.requireGame(created.gameHandle())
-                .getPlayers()
-                .values()
+        List<String> livePlayerIds = XmageSeating.playersInSeatOrder(
+                        manager.requireGame(created.gameHandle()))
                 .stream()
                 .map(player -> player.getId().toString())
                 .toList();

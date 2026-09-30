@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  *   <li>Some players lose (4P/5P/6P). Starting life is 7, and P1 first
  *       Lightning Bolts P2 and Lava Spikes PN, down to 4. P2 and PN then lose simultaneously
  *       to Flame Rift (CR 704.5a). The game goes on for everyone else, who end at
- *       3. PN is next after P1 in the engine's turn order, so the next turn
- *       is P(N−1)'s: a departed player's turn doesn't begin (800.4k).</li>
+ *       3. P2 is next after P1 in the engine's turn order (seat order, F-41), so
+ *       the next turn is P3's: a departed player's turn doesn't begin (800.4k).</li>
  *   <li>Everyone loses (3P/4P/5P). Starting life is 4, every player loses
  *       simultaneously, and the game is a draw (104.4a): every player lost and
  *       nobody won.</li>
@@ -82,7 +82,7 @@ class XmageMultiplayerSimultaneousLossTest {
             }
         }
 
-        String prev = "P" + (playerCount - 1);
+        String prev = "P3";
         for (int step = 0; step < 200; step++) {
             String cls = XmageActualCardCorpusTest.decisionClass(started);
             if ("priority".equals(cls)
@@ -99,7 +99,7 @@ class XmageMultiplayerSimultaneousLossTest {
             }
         }
         assertEquals(started.seats().get(prev).getId(), game.getActivePlayerId(),
-                "800.4k: " + pn + " left, so the next turn is " + prev + "'s");
+                "800.4k: P2 left, so the next turn is " + prev + "'s");
         assertEquals(2, game.getState().getTurnNum(), "one turn later");
     }
 

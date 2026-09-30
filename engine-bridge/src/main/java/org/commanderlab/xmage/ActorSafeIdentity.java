@@ -68,13 +68,6 @@ final class ActorSafeIdentity {
         if (game == null || playerId == null) {
             return -1;
         }
-        int seat = 0;
-        for (UUID id : game.getPlayers().keySet()) {
-            if (playerId.equals(id)) {
-                return seat;
-            }
-            seat++;
-        }
-        return -1;
+        return XmageSeating.seat(game, playerId);
     }
 }

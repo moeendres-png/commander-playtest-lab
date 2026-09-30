@@ -875,7 +875,7 @@ class XmageMidgameCausalTest {
                     "no active player may take two turns in a row without a causal "
                             + "extra turn; sequence=" + activeSequence);
         }
-        assertEquals(List.of("P1", "P5", "P4", "P3", "P2", "P1", "P5"),
+        assertEquals(List.of("P1", "P2", "P3", "P4", "P5", "P1", "P2"),
                 activeSequence.subList(0, Math.min(7, activeSequence.size())),
                 "the rotation must be the engine's normal order with no extra turn inserted; "
                         + "sequence=" + activeSequence);

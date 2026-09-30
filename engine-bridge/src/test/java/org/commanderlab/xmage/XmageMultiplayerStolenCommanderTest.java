@@ -23,19 +23,19 @@ import static org.junit.jupiter.api.Assertions.fail;
  * damage whoever controls it, with actual cards at 4P through 6P on the
  * full-game lane.
  *
- * <p>P1 casts its commander Rograkh, Son of Rohgahh. On turn 2 (PN's turn) PN
+ * <p>P1 casts its commander Rograkh, Son of Rohgahh. On turn 2 (P2's turn) P2
  * casts Act of Treason ("Gain control of target creature until end of turn.
  * Untap that creature. It gains haste until end of turn.") on it, then Brute
  * Force (+3/+3), and attacks P3. P3 takes 3 damage, and every principal and the
  * public view record it as 3 commander damage from P1's commander, not from
- * PN's. Coverage: correct on pin {@code f79e4168}.</p>
+ * P2's. Coverage: correct on pin {@code f79e4168}.</p>
  */
 class XmageMultiplayerStolenCommanderTest {
 
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {4, 5, 6})
     void aStolenCommandersDamageStaysItsOwnersCommanderDamage(int playerCount) {
-        String thief = "P" + playerCount;
+        String thief = "P2";
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj(thief, "Act of Treason", 0, Zone.HAND));
         objects.add(XmageMultiplayerScenario.obj(thief, "Brute Force", 1, Zone.HAND));
@@ -80,10 +80,10 @@ class XmageMultiplayerStolenCommanderTest {
                 default -> fail("unexpected " + cls + " for " + actor + " " + s.labels());
             }
         }
-        assertEquals(PhaseStep.END_COMBAT, game.getStep().getType(), "reached end of PN's combat");
+        assertEquals(PhaseStep.END_COMBAT, game.getStep().getType(), "reached end of P2's combat");
         Permanent rograkh = game.getBattlefield().getAllActivePermanents().stream()
                 .filter(p -> p.getName().startsWith("Rograkh")).findFirst().orElseThrow();
-        assertEquals(s.seats.get(thief).getId(), rograkh.getControllerId(), "control: PN controls it");
+        assertEquals(s.seats.get(thief).getId(), rograkh.getControllerId(), "control: P2 controls it");
         assertEquals(s.seats.get("P1").getId(), rograkh.getOwnerId(), "control: P1 owns it");
 
         Map<String, Integer> life = new TreeMap<>();

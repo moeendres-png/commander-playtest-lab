@@ -55,7 +55,7 @@ class XmageMultiplayerApnapReplayTest {
             }
         }
         List<String> apnap = new ArrayList<>();
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             apnap.add("P" + seat);
         }
         List<String> expected = new ArrayList<>(apnap);

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * their own turn. Then P1 casts Pyroclasm (Oracle: "Pyroclasm deals 2 damage
  * to each creature."), and every Rograkh dies simultaneously. The choices
  * should be made in APNAP order (101.4), which in the engine's turn order is
- * P1, PN, …, P2. P2 declines and everyone else accepts, so each result is
+ * P1, P2, …, PN. P2 declines and everyone else accepts, so each result is
  * observably that owner's own choice.</p>
  *
  * <p><b>F-18 (engine, pinned and upstream):</b>
@@ -65,7 +65,7 @@ class XmageMultiplayerCommanderZoneChoiceTest {
     void commanderZoneChoicesFollowApnapOrder(int playerCount) {
         List<String> expected = new ArrayList<>();
         expected.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expected.add("P" + seat);
         }
         assertEquals(expected, run(playerCount), "CR 101.4: APNAP order in turn order");

@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       its own creatures; P1 keeps both creatures.</li>
  *   <li>CR 101.4: the choices are made in APNAP order: the active player
  *       first (here the caster, who does not choose), then the others in turn
- *       order (P1, PN, …, P2). The pin asks in the order of the engine's
+ *       order (P1, P2, …, PN). The pin asks in the order of the engine's
  *       priority pointer instead. This is F-21
  *       (commander-playtest-lab#328), fixed in the XMage multiplayer candidate f79e4168 (moeendres-png/mage#24) and enabled by the 2026-09-29 successor repin.</li>
  * </ul>
@@ -62,11 +62,11 @@ class XmageMultiplayerEachOpponentChoiceTest {
     void opponentsChooseInApnapOrder(int playerCount) {
         List<String> choosers = run("triumph-order-" + playerCount + "p", playerCount);
         List<String> expectedOrder = new ArrayList<>();
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expectedOrder.add("P" + seat);
         }
         assertEquals(expectedOrder, choosers,
-                "CR 101.4: active player P1 first (does not choose), then turn order PN, ..., P2");
+                "CR 101.4: active player P1 first (does not choose), then turn order P2, ..., PN");
     }
 
     private static List<String> run(String tag, int playerCount) {

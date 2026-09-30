@@ -22,9 +22,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * The initiative with an actual card at 3–6 players on the full-game lane.
  *
  * <p>P1 casts White Plume Adventurer (Oracle: "When this creature enters,
- * you take the initiative."). Every opponent controls a Grizzly Bears. The
- * engine's turn order is counterclockwise, so after P1 come PN, then
- * P(N−1).</p>
+ * you take the initiative."). Every opponent controls a Grizzly Bears. Turns
+ * run in seat order (F-41), so after P1 come P2, then P3.</p>
  *
  * <ul>
  *   <li>Taking the initiative ventures into Undercity. The first room,
@@ -54,75 +53,75 @@ class XmageMultiplayerInitiativeTest {
     private static final String PLAINS_LABEL = "Plains — {T}: Add {W}.";
     private static final String SECRET_ENTRANCE = "Secret Entrance";
 
-    /** PN's Bears deal combat damage to P1, and PN takes the initiative and ventures. */
+    /** P2's Bears deal combat damage to P1, and P2 takes the initiative and ventures. */
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void takingAndStealingTheInitiativeVentures(int playerCount) {
         Fixture f = new Fixture("initiative-steal-" + playerCount + "p", playerCount);
         f.takeInitiative();
-        String pn = "P" + playerCount;
+        String next = "P2";
 
-        // after PN's draw step (the libraries are all Mountains), before combat
-        f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.PRECOMBAT_MAIN
+        // after P2's draw step (the libraries are all Mountains), before combat
+        f.driveUntil(() -> f.active(next) && f.step() == PhaseStep.PRECOMBAT_MAIN
                 && f.game.getStack().isEmpty(), null);
-        long mountainsBefore = f.mountainsInHand(pn);
-        f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.POSTCOMBAT_MAIN
-                && f.game.getStack().isEmpty(), pn);
+        long mountainsBefore = f.mountainsInHand(next);
+        f.driveUntil(() -> f.active(next) && f.step() == PhaseStep.POSTCOMBAT_MAIN
+                && f.game.getStack().isEmpty(), next);
         assertEquals(38, f.life("P1"));
-        assertEquals(f.id(pn), f.game.getInitiativeId(),
-                pn + "'s Bears dealt combat damage to the player with the initiative");
-        assertEquals(SECRET_ENTRANCE, f.room(pn), pn + " ventured when it took the initiative");
-        assertEquals(mountainsBefore + 1, f.mountainsInHand(pn),
-                "Secret Entrance put a basic land from " + pn + "'s library into its hand");
+        assertEquals(f.id(next), f.game.getInitiativeId(),
+                next + "'s Bears dealt combat damage to the player with the initiative");
+        assertEquals(SECRET_ENTRANCE, f.room(next), next + " ventured when it took the initiative");
+        assertEquals(mountainsBefore + 1, f.mountainsInHand(next),
+                "Secret Entrance put a basic land from " + next + "'s library into its hand");
         assertEquals(SECRET_ENTRANCE, f.room("P1"),
                 "the former holder P1 did not venture when it lost the initiative");
     }
 
-    /** PN takes the initiative, then concedes on its own turn: P(N−1) is next in turn order. */
+    /** P2 takes the initiative, then concedes on its own turn: P3 is next in turn order. */
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void anActiveHolderLeavingPassesToTheNextPlayer(int playerCount) {
         Fixture f = new Fixture("initiative-active-leave-" + playerCount + "p", playerCount);
         f.takeInitiative();
-        String pn = "P" + playerCount;
-        String prev = "P" + (playerCount - 1);
-        f.driveUntil(() -> f.active(pn) && f.step() == PhaseStep.POSTCOMBAT_MAIN
-                && f.game.getStack().isEmpty(), pn);
-        assertEquals(f.id(pn), f.game.getInitiativeId());
-        long mountainsBefore = f.mountainsInHand(prev);
+        String next = "P2";
+        String afterNext = "P3";
+        f.driveUntil(() -> f.active(next) && f.step() == PhaseStep.POSTCOMBAT_MAIN
+                && f.game.getStack().isEmpty(), next);
+        assertEquals(f.id(next), f.game.getInitiativeId());
+        long mountainsBefore = f.mountainsInHand(afterNext);
 
-        f.concede(pn);
-        assertEquals(f.id(prev), f.game.getInitiativeId(),
+        f.concede(next);
+        assertEquals(f.id(afterNext), f.game.getInitiativeId(),
                 "726.4: the holder was the active player, so the next player in turn "
-                        + "order (" + prev + ") takes the initiative");
-        f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(prev) != null, null);
-        assertEquals(SECRET_ENTRANCE, f.room(prev), prev + " ventured when it took the initiative");
-        assertEquals(mountainsBefore + 1, f.mountainsInHand(prev),
-                "Secret Entrance put a basic land from " + prev + "'s library into its hand");
+                        + "order (" + afterNext + ") takes the initiative");
+        f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(afterNext) != null, null);
+        assertEquals(SECRET_ENTRANCE, f.room(afterNext), afterNext + " ventured when it took the initiative");
+        assertEquals(mountainsBefore + 1, f.mountainsInHand(afterNext),
+                "Secret Entrance put a basic land from " + afterNext + "'s library into its hand");
     }
 
-    /** P1 (not active) concedes during P(N−1)'s turn: the active player, not PN. */
+    /** P1 (not active) concedes during P3's turn: the active player, not P2. */
     @ParameterizedTest(name = "{0} players")
     @ValueSource(ints = {3, 4, 5, 6})
     void aNonActiveHolderLeavingPassesToTheActivePlayer(int playerCount) {
         Fixture f = new Fixture("initiative-leave-" + playerCount + "p", playerCount);
         f.takeInitiative();
-        String pn = "P" + playerCount;
-        String prev = "P" + (playerCount - 1);
-        f.driveUntil(() -> f.active(prev) && f.step() == PhaseStep.PRECOMBAT_MAIN
+        String next = "P2";
+        String afterNext = "P3";
+        f.driveUntil(() -> f.active(afterNext) && f.step() == PhaseStep.PRECOMBAT_MAIN
                 && f.game.getStack().isEmpty(), null);
         assertEquals(f.id("P1"), f.game.getInitiativeId(), "nobody dealt combat damage to P1");
-        long mountainsBefore = f.mountainsInHand(prev);
+        long mountainsBefore = f.mountainsInHand(afterNext);
 
         f.concede("P1");
-        assertEquals(f.id(prev), f.game.getInitiativeId(),
-                "726.4: the active player (" + prev + ") takes the initiative, not "
-                        + pn + " (next after P1)");
-        f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(prev) != null, null);
-        assertEquals(SECRET_ENTRANCE, f.room(prev), prev + " ventured when it took the initiative");
-        assertEquals(mountainsBefore + 1, f.mountainsInHand(prev),
-                "Secret Entrance put a basic land from " + prev + "'s library into its hand");
-        assertEquals(null, f.room(pn), pn + " did not take the initiative");
+        assertEquals(f.id(afterNext), f.game.getInitiativeId(),
+                "726.4: the active player (" + afterNext + ") takes the initiative, not "
+                        + next + " (next after P1)");
+        f.driveUntil(() -> f.game.getStack().isEmpty() && f.room(afterNext) != null, null);
+        assertEquals(SECRET_ENTRANCE, f.room(afterNext), afterNext + " ventured when it took the initiative");
+        assertEquals(mountainsBefore + 1, f.mountainsInHand(afterNext),
+                "Secret Entrance put a basic land from " + afterNext + "'s library into its hand");
+        assertEquals(null, f.room(next), next + " did not take the initiative");
     }
 
     private static final class Fixture {

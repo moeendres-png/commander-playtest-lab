@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * <ul>
  *   <li>Every player votes once, through the external surface, starting with
- *       P1 in turn order (P1, PN, …, P2), and is offered exactly the two
+ *       P1 in turn order (P1, P2, …, PN), and is offered exactly the two
  *       words.</li>
  *   <li>Time wins only with strictly more votes: then P1 takes the next turn
  *       and draws nothing from the spell; a tie or a knowledge majority draws
@@ -89,7 +89,7 @@ class XmageMultiplayerWordVoteTest {
         }
         List<String> expectedVoters = new ArrayList<>();
         expectedVoters.add("P1");
-        for (int seat = playerCount; seat >= 2; seat--) {
+        for (int seat = 2; seat <= playerCount; seat++) {
             expectedVoters.add("P" + seat);
         }
         assertEquals(expectedVoters, voters, "starting with P1, in turn order, each player votes once");
