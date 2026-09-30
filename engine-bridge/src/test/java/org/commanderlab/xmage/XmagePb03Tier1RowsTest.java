@@ -1382,7 +1382,7 @@ class XmagePb03Tier1RowsTest {
     // F-38: the record's battlefield Isamaru is restored as P1's genuine
     // commander, so its unblocked attack accrues on the same native ledger
     // that holds the restored 19. At 21 the engine's SBA eliminates P2
-    // (CR 903.10a, 704.5u) and the multiplayer leave-game cleanup removes
+    // (CR 903.10a, 704.6c) and the multiplayer leave-game cleanup removes
     // P2's objects (CR 800.4a). Before F-38 a setup copy attacked, dealt plain
     // damage only, and the obligated loss was unobservable.
 
