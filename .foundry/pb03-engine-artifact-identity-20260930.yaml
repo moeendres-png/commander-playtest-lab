@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "foundry/pb03-engine-artifact-identity-20260930"
 audit_base_sha: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
 audit_base_tree: "30addb023be1d9bbda3d7deff5f4d2f0df52d9b8"
-state_written_against_head: "3d4e5b625ccd4a78a09b2bf220c09c0bc358e7c8"
-validated_head: "3d4e5b625ccd4a78a09b2bf220c09c0bc358e7c8"
+state_written_against_head: "820a4642cd6948b2c334bb6cbdac24df782f2fb4"
+validated_head: "820a4642cd6948b2c334bb6cbdac24df782f2fb4"
 
 objective: "Close the documented PB-03 residual: bind the provider-reported loaded engine artifact identity (SHA-256, size, kind of the mage jar the bridge actually loaded) into the PB-03 dimension-admission document, the native runtime ledger, the midgame probe receipt and the assembled matrix, so engine identity is cryptographically observed instead of only declared."
 
@@ -68,6 +68,7 @@ technical_decisions:
   - "The workflow asserts provider_identity, ledger and matrix carry the same file-backed 64-hex digest."
   - "ADVERSARIAL REVIEW (fresh context) of this PR falsified one claim: midgame receipt_freshness validated only well-formedness, so a well-formed digest of a DIFFERENT artifact would have been FRESH_EXACT. Repaired: expected_engine_artifact_sha256 added (empty -> MISSING, mismatch -> STALE), the workflow verifies the live probe receipt against the admission handshake digest, and a mismatch->STALE unit test locks it. Requalified at f6d7f0e7/eab920c2."
   - "MAIN DRIFT (commander-object binding ffcedd3d/e6410a77, F-39, CI hygiene) merged normally at 78bb8bcc and requalified. The commander binding fix made 8 more causal rows reachable: fresh midgame partition 8/17/1/1/2. Boundary counts/gates unchanged; artifact identity chain consistent."
+  - "MAIN DRIFT (F-41 seating #407, F-42 leaver choices #404, ActorSafeIdentity/StateRedactor) merged normally at b0a66111 and requalified. F-41 turn-order alignment moved CARD_20 to reachable: partition 8/25/2/1/2 (blocked: TURN-5, PILOT_REPLACEMENT_EFFECT). Boundary and gates unchanged; artifact identity chain consistent."
   - "MAIN DRIFT (causal-stack scripted decisions #406, F-40 life restoration #405, F-39 native concede #401) merged normally at 52de27d4 and requalified. The probe now runs 38 rows: 8 ENGINE_NATIVE_REACHABLE / 24 CAUSAL_ROUTE_REACHABLE / 3 CAUSAL_ROUTE_MEASURED_BLOCKED (TURN-5, PILOT_REPLACEMENT_EFFECT, CARD_20) / 1 CONSTRUCTION_MISMATCH / 2 ENGINE_REJECTED. Boundary unchanged; artifact identity chain consistent."
   - "MAIN DRIFT (F-30/F-37, stable option order) merged normally at 0488259a and requalified. F-37 made AF01 discriminating: XMage AF01 FAIL->PASS on the live pin; Forge AF01 PASS->FAIL (fail_closed_unsupported_decision: the bridge accepted a request for an unsupported decision class for a live game). Boundary counts unchanged 5/58/44; the Forge finding is recorded as a provider gap, not masked."
 
@@ -90,9 +91,9 @@ files_modified:
   - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
 tests_run:
-  - "pytest tests -> 2587 passed, 13 skipped, 0 failed (52de27d4)"
-  - "pytest tests/qualification -> 525 passed, 9 skipped (52de27d4)"
-  - "mvn -o verify -> 829 tests, 0 failures, 0 errors, 1 skipped (52de27d4)"
+  - "pytest tests -> 2587 passed, 13 skipped, 0 failed (b0a66111)"
+  - "pytest tests/qualification -> 525 passed, 9 skipped (b0a66111)"
+  - "mvn -o verify -> 846 tests, 0 failures, 0 errors, 1 skipped (b0a66111)"
   - "focused native PB-03/midgame/fingerprint -> 102 passed"
   - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent; XMage AF01 PASS, Forge AF01 FAIL (F-37)"
 
