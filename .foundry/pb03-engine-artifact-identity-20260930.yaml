@@ -4,8 +4,8 @@ worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "foundry/pb03-engine-artifact-identity-20260930"
 audit_base_sha: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
 audit_base_tree: "30addb023be1d9bbda3d7deff5f4d2f0df52d9b8"
-state_written_against_head: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
-validated_head: "5c69b999205e467d3c6b99875c45a8d7981e77d6"
+state_written_against_head: "91bb777c40453a5150b8402f30694706517ea66c"
+validated_head: "91bb777c40453a5150b8402f30694706517ea66c"
 
 objective: "Close the documented PB-03 residual: bind the provider-reported loaded engine artifact identity (SHA-256, size, kind of the mage jar the bridge actually loaded) into the PB-03 dimension-admission document, the native runtime ledger, the midgame probe receipt and the assembled matrix, so engine identity is cryptographically observed instead of only declared."
 
@@ -63,23 +63,49 @@ technical_decisions:
   - "Audit base is the merged successor main 5c69b999 (tree 30addb02); PB-03 successor and terminal receipt are canonical on main."
   - "Engine artifact identity is provider-reported (computed by the bridge from the loaded Game code source), not harness-derived, so it proves what actually executed."
   - "A directory or unreadable code source reports kind/sha256 explicitly; consumers fail closed rather than inventing an identity."
+  - "Observed loaded artifact on the canonical pin: kind=file, sha256=e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603, size=7112962, path=file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar. Bound through admission provider_identity, PB03_RUNTIME_EXECUTION, the midgame probe receipt and PB03_RUNTIME_EXECUTION_MATRIX (artifact_identity_consistent=true)."
+  - "Runtime freshness now requires the artifact digest: missing/empty -> MISSING, directory/malformed -> INVALID, different artifact -> STALE; an unavailable expected digest is never fresh."
+  - "The workflow asserts provider_identity, ledger and matrix carry the same file-backed 64-hex digest."
 
 hypotheses_rejected: []
 
-files_modified: []
+files_modified:
+  - "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java"
+  - "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCandidateEngineFingerprintTest.java"
+  - "src/commander_lab/qualification/current_boundary/midgame_lane.py"
+  - "src/commander_lab/qualification/current_boundary/pb03_runtime.py"
+  - "scripts/run_current_boundary_qualification.py"
+  - "scripts/run_midgame_capability_probe.py"
+  - "scripts/assemble_current_boundary_evidence.py"
+  - ".github/workflows/pb03-runtime-qualification.yml"
+  - "tests/qualification/test_current_boundary_midgame_lane.py"
+  - "tests/qualification/test_current_boundary_pb03_runtime.py"
+  - "docs/pb03_fresh_main_reconciliation_20260929/**"
+  - "docs/pre_freeze_completion_20260927/PROVIDER_READINESS_PACKET_20260928.md"
+  - "qualification/final-current-boundary-20260927/**"
+  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
 
-tests_run: []
+tests_run:
+  - "pytest tests -> 2411 passed, 13 skipped, 0 failed (91bb777c)"
+  - "pytest tests/qualification -> 514 passed, 9 skipped (91bb777c)"
+  - "mvn -o verify -> 813 tests, 0 failures, 0 errors, 1 skipped (91bb777c)"
+  - "focused native PB-03/midgame/fingerprint -> 102 passed"
+  - "requalified boundary: admission 12/18, runtime 30/30, FRESH_EXACT, artifact_identity_consistent"
 
-evidence: []
+evidence:
+  - "qualification/final-current-boundary-20260927/PB03_DIMENSION_ADMISSION.json provider_identity.engine_artifact_sha256"
+  - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION.json engine_artifact_sha256"
+  - "qualification/final-current-boundary-20260927/PB03_RUNTIME_EXECUTION_MATRIX.json artifact_identity_consistent"
+  - "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json engine_artifact_sha256"
 
-artifacts: []
+artifacts:
+  - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_20260929.md (artifact identity section)"
+  - "docs/pb03_fresh_main_reconciliation_20260929/PB03_FRESH_MAIN_RECONCILIATION_FINAL_HANDOFF_20260929.md (residual closed)"
 
 remaining_scope:
-  - "Java provider artifact identity + fingerprint test"
-  - "Runner/probe/ledger/assembler/workflow binding"
-  - "Requalification + CI + merge"
+  - "Push branch, open PR, exact-head CI, merge"
 
-exact_next_action: "Implement XmageProvider engine artifact identity (kind/path/sha256/size), extend the runtime fingerprint test, then bind it through the runner, probe, ledger and assembler."
+exact_next_action: "Push foundry/pb03-engine-artifact-identity-20260930 via safe_push, open the PR, wait for exact-head CI, and merge when every gate holds."
 
 execution_profile: "deepseek"
 executor_model: "opencode-go/deepseek-v4.1-flash"
