@@ -26,6 +26,10 @@ The rule follows the project's causal principle ("a player at zero life must hav
 - **Any other requested life is history.** Life 0 in the elimination rows must be caused through the engine (the elimination route's Bolts). It is compared, never set; this is unchanged.
 - **Cleanup.** The ineffective pre-start `setLife` is removed. `restoreCommanderCasts` is renamed `restoreAfterArrival`: it now restores cast counts, commander damage, commanders outside the command zone (F-38) and starting life.
 - **Limit (documented).** The engine keeps one table starting life (`Game.getStartingLife`). A card that reads "starting life" sees the table's value, not the player's.
+- **Relation to the L6 integrity decision.** `docs/residual_closure_campaign_20260926/HANDOFF.md` removed *manufactured mid-game preconditions* (for example, life lowered so that an elimination is cheap) and permits "bounded initial game configuration". A player's own recorded starting life is initial configuration.
+  - It is applied at arrival rather than inside `GameImpl.init`. The engine's `initLife` runs after the starting-player choice, and the bridge does not use the engine's test mode (which would keep pre-start life but skip opening hands).
+  - The "untouched" guard makes the result observationally identical to an init-time setting in every case where it applies, and inapplicable in every other case.
+  - Life 0, or any value other than the starting life, is still never set.
 
 ## Evidence
 
