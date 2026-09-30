@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -289,6 +290,31 @@ class XmageGameManagerTest {
                     35,
                     player.getLife()
             );
+        }
+    }
+
+    /** F-41: the generic lane's engine turn order is seat order too. */
+    @Test
+    void theEngineTurnOrderIsSeatOrder()
+            throws Exception {
+
+        RuntimeDeck deck = loadRogShaiRuntimeDeck();
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageGameManager manager = new XmageGameManager(importer);
+        for (int playerCount : new int[] {3, 4, 5}) {
+            XmageGameManager.CreateResult created = manager.createCommanderGame(
+                    "f41-test/seating-" + playerCount,
+                    importCopies(importer, deck, playerCount),
+                    0,
+                    40
+            );
+            Game game = manager.requireGame(created.gameHandle());
+            List<String> expected = new ArrayList<>();
+            for (int seat = 1; seat <= playerCount; seat++) {
+                expected.add("Bridge Seat " + seat);
+            }
+            UUID first = XmageSeating.playersInSeatOrder(game).get(0).getId();
+            assertEquals(expected, XmageSeatingTest.engineTurnOrder(game, first));
         }
     }
 
