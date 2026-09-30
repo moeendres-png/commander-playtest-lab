@@ -931,6 +931,33 @@ final class XmageNativeStateRestoration {
     }
 
     /**
+     * Every requested commander's card id, keyed by commander id: the owner's one
+     * sideboard card of that identity, which GameCommanderImpl.init makes the
+     * commander. Valid before the game starts; commanders are public objects.
+     */
+    JsonObject commanderCardIds(GameCommanderImpl game, Map<String, Player> playersByPid) {
+        JsonObject ids = new JsonObject();
+        for (RequestedCommander requested : plan.commanders()) {
+            Player owner = requirePlayer(playersByPid, requested.owner());
+            List<UUID> matches = new ArrayList<>();
+            for (UUID cardId : owner.getSideboard()) {
+                Card card = game.getCard(cardId);
+                if (card != null && requested.cardIdentity().equals(card.getName())) {
+                    matches.add(cardId);
+                }
+            }
+            if (matches.size() != 1) {
+                throw new RestorationException(
+                        "COMMANDER_IDENTITY_AMBIGUOUS",
+                        requested.commanderId() + " matched " + matches.size()
+                                + " sideboard cards for " + requested.owner());
+            }
+            ids.addProperty(requested.commanderId(), matches.get(0).toString());
+        }
+        return ids;
+    }
+
+    /**
      * Binds every commander requested outside the command zone to the owner's
      * one sideboard card of that identity: GameCommanderImpl.init makes exactly
      * those sideboard cards the commanders. Placement later requires the

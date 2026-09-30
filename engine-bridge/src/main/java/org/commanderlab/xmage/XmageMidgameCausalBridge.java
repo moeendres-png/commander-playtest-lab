@@ -611,7 +611,7 @@ final class XmageMidgameCausalBridge {
      * against the requested frames; placed-object ids already appear in every
      * offered action's metadata, so publishing the map adds no new exposure.
      */
-    private static JsonObject placedObjectsPayload(
+    static JsonObject placedObjectsPayload(
             XmageNativeStateRestoration restoration,
             List<XmageNativeStateRestoration.RequestedObject> objects) {
         JsonObject map = new JsonObject();

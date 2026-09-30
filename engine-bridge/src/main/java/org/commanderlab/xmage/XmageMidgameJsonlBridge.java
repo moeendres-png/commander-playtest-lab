@@ -412,6 +412,14 @@ final class XmageMidgameJsonlBridge {
         JsonObject response = createdResponse(
                 gameId, planTag, startingPlayerSeat, startingLife, seed);
         response.addProperty("entry_mode", "placement");
+        // The pilot matches the engine's own offers (a cast, a mana ability, a
+        // target) against the record's objects. Placed-object and commander ids
+        // already appear in every offered action's metadata, so publishing the
+        // maps adds no exposure; hand objects are the requesting record's own.
+        response.add("placed_objects",
+                XmageMidgameCausalBridge.placedObjectsPayload(restoration, plan.objects()));
+        response.add("commander_objects",
+                restoration.commanderCardIds(session.restorationGame(), session.restorationSeats()));
         return response;
     }
 
