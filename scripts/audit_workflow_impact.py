@@ -243,9 +243,7 @@ def audit(workflow_path: Path) -> dict[str, Any] | None:
 
 
 # Workflows whose gates this tool must not rewrite, with the owner and reason.
-NOT_REWRITTEN: dict[str, str] = {
-    "pb03-runtime-qualification.yml": "active surface of the current-boundary lane (PR #395)",
-}
+NOT_REWRITTEN: dict[str, str] = {}
 
 
 def cover_glob(path: str) -> str:

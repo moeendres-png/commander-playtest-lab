@@ -31,7 +31,6 @@ from commander_lab.qualification.current_boundary import receipts as receipt_mod
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
-FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 
 # Execution receipts. The assembler trusts nothing else for native credit: no
 # receipt means no credit, and source text is never a substitute.
