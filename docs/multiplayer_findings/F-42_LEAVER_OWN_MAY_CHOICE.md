@@ -1,4 +1,4 @@
-# F-40: a player who concedes during its own "may" choice still decides
+# F-42: a player who concedes during its own "may" choice still decides
 
 - **Issue:** #403
 - **Surface:** XMage full-game lane. A concession (WS213) while the conceder's own non-priority choice is pending (CR 800.4a).

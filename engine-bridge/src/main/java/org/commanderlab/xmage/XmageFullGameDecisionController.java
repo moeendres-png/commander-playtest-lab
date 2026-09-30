@@ -343,7 +343,7 @@ final class XmageFullGameDecisionController {
     }
 
     /**
-     * F-40: the native signal above reaches only the priority player (or its
+     * F-42: the native signal above reaches only the priority player (or its
      * controller), because XMage stops only that player's dialog. A player
      * who concedes while one of its <em>own</em> choices is pending during
      * another player's spell (for example the "may" of a tempting offer) is

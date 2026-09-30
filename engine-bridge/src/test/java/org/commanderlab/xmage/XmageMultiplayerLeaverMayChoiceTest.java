@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * F-40: a player who leaves while its own "may" choice of another player's
+ * F-42: a player who leaves while its own "may" choice of another player's
  * spell is pending makes no choice, with actual cards at 4P and 5P.
  *
  * <p>P1 casts Tempt with Discovery (Oracle: "Tempting offer — Search your

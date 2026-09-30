@@ -1661,7 +1661,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     source
             ));
         } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
-            // F-40: the chooser left the game; like XMage's own player, which
+            // F-42: the chooser left the game; like XMage's own player, which
             // cannot respond once it left, it does not choose "yes".
             return false;
         }
