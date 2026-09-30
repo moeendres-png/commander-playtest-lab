@@ -17,6 +17,12 @@ from pathlib import Path
 from typing import Any
 
 from .bridge_launcher import BridgeProcess
+from .game_driver import (
+    DECISION_IDENTITY_SHAPES,
+    GameDriveError,
+    decision_identity_params,
+    poll_decision,
+)
 from .source_lock import (
     CURRENT_QUALIFICATION_BOUNDARY,
     CURRENT_TRANSPORT_PROTOCOL,
@@ -142,6 +148,26 @@ def _status(response: dict[str, Any]) -> str:
     return str(response.get("status", "")).upper()
 
 
+# Rejection codes that mean "the request itself was malformed". Such a rejection says
+# nothing about decision-time legality, so it is never credited as fail-closed (F-37).
+_MALFORMED_REQUEST_CODES = {
+    "malformed_request",
+    "invalid_request",
+    "invalid_submit_action_payload",
+    "invalid_legal_actions_payload",
+}
+
+
+def _rejected_as_malformed(response: dict[str, Any]) -> bool:
+    codes = {
+        str(error.get("code")) for error in response.get("errors") or [] if isinstance(error, dict)
+    }
+    error = response.get("error")
+    if isinstance(error, dict):
+        codes.add(str(error.get("code")))
+    return bool(codes & _MALFORMED_REQUEST_CODES)
+
+
 def _fails_closed(response: dict[str, Any]) -> bool:
     if response.get("success") is True:
         return False
@@ -230,6 +256,7 @@ def run_af01(
     runner_tree: str,
     game_id: str | None = None,
     runner_root: Path | None = None,
+    seat_count: int = 2,
 ) -> AF01Report:
     """Execute the AF01 v2 invariants against a live candidate bridge.
 
@@ -239,8 +266,7 @@ def run_af01(
     nothing to do with decision-time legality, so crediting that as evidence
     would be a pass for the wrong reason.
     """
-    game_bound = bool(game_id)
-    if not game_bound:
+    if not game_id:
         raise ValueError(
             "run_af01 requires a live game_id. Decision-time invariants must be "
             "observed against a real game or they are UNKNOWN, not PASS."
@@ -471,62 +497,139 @@ def run_af01(
         unknown,
     )
 
-    # Decision-time probes are scoped to the live game. Actor identity is
-    # carried alongside the action so a provider cannot satisfy them by treating
-    # the request as malformed for an unrelated reason.
-    illegal = proc.request(
-        "submit_action",
-        {
-            "game_id": game_id,
-            "actor": "P1",
-            "legal_action_id": "wsr22-not-a-real-option",
-        },
-        game_id=game_id,
-    )
-    add(
-        "fail_closed_illegal_action",
-        "PASS" if _fails_closed(illegal) else "FAIL",
-        "provider rejected an unrecognised legal_action_id for a live game"
-        if _fails_closed(illegal)
-        else "provider accepted an unrecognised legal_action_id for a live game",
-        {"game_id": game_id, "response": illegal},
-    )
+    # Decision-time probes (F-37). They are scoped to the live game and built from
+    # the decision the provider actually published: the envelope, actor and decision
+    # identity are real and well formed, and exactly one field is wrong per probe. A
+    # provider that rejects a probe for an unrelated reason (a malformed envelope)
+    # demonstrates nothing about the invariant, so such a rejection is UNKNOWN, not
+    # PASS. After every probe the pending decision is read again: a changed decision
+    # identity is a game mutation and fails the invariant.
+    probe_frame: dict[str, Any] | None = None
+    probe_error: str | None = None
+    try:
+        probe_frame = poll_decision(proc, game_id, seat_count=seat_count, candidate=candidate)
+    except GameDriveError as exc:
+        probe_error = str(exc)
 
-    stale = proc.request(
-        "submit_action",
-        {
-            "game_id": game_id,
-            "actor": "P1",
-            "legal_action_id": "wsr22-not-a-real-option",
-            "decision_id": "wsr22-stale-decision-id",
-        },
-        game_id=game_id,
-    )
-    add(
-        "fail_closed_stale_or_unknown_decision",
-        "PASS" if _fails_closed(stale) else "FAIL",
-        "provider rejected an unknown decision identity for a live game"
-        if _fails_closed(stale)
-        else "provider accepted an unknown decision identity for a live game",
-        {"game_id": game_id, "response": stale},
-    )
+    def _decision_unchanged(identity: dict[str, Any]) -> bool | None:
+        try:
+            again = poll_decision(proc, game_id, seat_count=seat_count, candidate=candidate)
+        except GameDriveError:
+            return None
+        field_name = DECISION_IDENTITY_SHAPES[candidate]["field"]
+        return decision_identity_params(candidate, again).get(field_name) == identity.get(
+            field_name
+        )
 
-    unsupported = proc.request(
-        "get_legal_actions",
-        {
-            "game_id": game_id,
-            "decision_class": "wsr22_unsupported_decision_class",
-        },
-        game_id=game_id,
-    )
-    add(
-        "fail_closed_unsupported_decision",
-        "PASS" if _fails_closed(unsupported) else "FAIL",
-        "an unsupported decision class failed closed for a live game without a default option"
-        if _fails_closed(unsupported)
-        else "an unsupported decision class did not fail closed for a live game",
-        {"game_id": game_id, "response": unsupported},
-    )
+    def _probe(
+        name: str, response: dict[str, Any], unchanged: bool | None, what: str
+    ) -> dict[str, Any]:
+        evidence = {"game_id": game_id, "response": response, "decision_unchanged": unchanged}
+        if not _fails_closed(response):
+            add(name, "FAIL", f"provider accepted {what} for a live game", evidence)
+        elif _rejected_as_malformed(response):
+            add(
+                name,
+                "UNKNOWN",
+                f"provider rejected {what} as a malformed request, which does not "
+                "demonstrate the invariant",
+                evidence,
+            )
+        elif unchanged is False:
+            add(name, "FAIL", f"{what} changed the pending decision", evidence)
+        elif unchanged is None:
+            add(name, "UNKNOWN", "the pending decision could not be re-read", evidence)
+        else:
+            add(name, "PASS", f"provider rejected {what} for a live game, no mutation", evidence)
+        return response
+
+    illegal: dict[str, Any] = {}
+    if probe_frame is None:
+        for name in (
+            "fail_closed_illegal_action",
+            "fail_closed_stale_or_unknown_decision",
+            "fail_closed_unsupported_decision",
+        ):
+            add(name, "UNKNOWN", f"no pending decision to probe: {probe_error}")
+    else:
+        identity = decision_identity_params(candidate, probe_frame)
+        actor = probe_frame["decision"]["actor"]
+        pass_ids = [
+            action.get("action_id")
+            for action in probe_frame["actions"]
+            if action.get("action_type") == "pass_priority"
+        ]
+
+        illegal = proc.request(
+            "submit_action",
+            {
+                "game_id": game_id,
+                **identity,
+                "proposal": {
+                    "proposal_id": str(uuid.uuid4()),
+                    "actor_id": actor,
+                    "legal_action_id": "wsr22-not-a-real-option",
+                    "action_type": "pass_priority",
+                },
+            },
+            game_id=game_id,
+        )
+        _probe(
+            "fail_closed_illegal_action",
+            illegal,
+            _decision_unchanged(identity),
+            "an unrecognised legal_action_id",
+        )
+
+        stale_identity = dict(identity)
+        field_name = DECISION_IDENTITY_SHAPES[candidate]["field"]
+        if DECISION_IDENTITY_SHAPES[candidate]["type"] == "monotonic_long":
+            stale_identity[field_name] = int(identity[field_name]) + 1_000_000
+        else:
+            stale_identity[field_name] = "0" * 64
+        if pass_ids:
+            stale = proc.request(
+                "submit_action",
+                {
+                    "game_id": game_id,
+                    **stale_identity,
+                    "proposal": {
+                        "proposal_id": str(uuid.uuid4()),
+                        "actor_id": actor,
+                        "legal_action_id": pass_ids[0],
+                        "action_type": "pass_priority",
+                    },
+                },
+                game_id=game_id,
+            )
+            _probe(
+                "fail_closed_stale_or_unknown_decision",
+                stale,
+                _decision_unchanged(identity),
+                "a real option under an unknown decision identity",
+            )
+        else:
+            add(
+                "fail_closed_stale_or_unknown_decision",
+                "UNKNOWN",
+                "the pending decision offered no pass option to pair with a stale identity",
+            )
+
+        unsupported = proc.request(
+            "get_legal_actions",
+            {
+                "game_id": game_id,
+                "actor_id": actor,
+                "decision_class": "wsr22_unsupported_decision_class",
+            },
+            game_id=game_id,
+        )
+        _probe(
+            "fail_closed_unsupported_decision",
+            unsupported,
+            _decision_unchanged(identity),
+            "a request for an unsupported decision class",
+        )
 
     # --- rules-authority invariants ------------------------------------
     illegal_invariants = [
@@ -534,12 +637,28 @@ def run_af01(
         for item in illegal.get("payload", {}).get("legal_options", [])
         if isinstance(item, dict)
     ]
-    add(
-        "rules_core_sole_legality_authority",
-        "PASS" if _fails_closed(illegal) and not illegal_invariants else "FAIL",
-        "an out-of-scope submission produced no fabricated legal option",
-        {"fabricated_options": len(illegal_invariants)},
-    )
+    if illegal_invariants:
+        add(
+            "rules_core_sole_legality_authority",
+            "FAIL",
+            "an out-of-scope submission produced fabricated legal options",
+            {"fabricated_options": len(illegal_invariants)},
+        )
+    elif not illegal or _rejected_as_malformed(illegal) or not _fails_closed(illegal):
+        add(
+            "rules_core_sole_legality_authority",
+            "UNKNOWN",
+            "no well-formed out-of-scope submission was rejected, so the absence of "
+            "fabricated options is not demonstrated",
+            {"fabricated_options": 0},
+        )
+    else:
+        add(
+            "rules_core_sole_legality_authority",
+            "PASS",
+            "an out-of-scope submission produced no fabricated legal option",
+            {"fabricated_options": 0},
+        )
 
     # These two invariants were previously credited as unconditional PASS. They
     # are now derived from an actual scan of the bound source, and the scan

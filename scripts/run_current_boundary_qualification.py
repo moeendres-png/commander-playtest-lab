@@ -635,6 +635,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             runner_tree=identity["runner_tree"],
             game_id=af01_game_id,
             runner_root=REPO_ROOT,
+            seat_count=af01_live.player_count,
         )
         af01_doc = af01.to_document()
         af01_doc["decision_probe_game"] = {

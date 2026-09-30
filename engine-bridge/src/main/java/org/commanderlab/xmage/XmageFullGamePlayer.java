@@ -473,7 +473,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         target.prepareAmount(source, game);
         Set<UUID> possible = target.possibleTargets(getId(), source, game);
         List<UUID> sorted = possible.stream()
-                .sorted(stableObjectOrder(game))
+                .sorted(XmageStableOrder.objects(game))
                 .toList();
         if (sorted.isEmpty()) {
             return false;
@@ -1084,7 +1084,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // content (name, entry order, characteristics), never native identity.
         attackers.sort(stablePermanentOrder(game));
         List<UUID> defenders = game.getCombat().getDefenders().stream()
-                .sorted(stableObjectOrder(game))
+                .sorted(XmageStableOrder.objects(game))
                 .toList();
 
         for (Permanent attacker : attackers) {
@@ -1154,7 +1154,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // declaration order among co-blockers carries no Rules content itself.
         blockers.sort(stablePermanentOrder(game));
         List<UUID> attackers = game.getCombat().getAttackers().stream()
-                .sorted(stableObjectOrder(game))
+                .sorted(XmageStableOrder.objects(game))
                 .toList();
 
         for (Permanent blocker : blockers) {
@@ -1231,60 +1231,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * on twin re-execution. No Rules content: co-declaration order is a
      * replay framing choice, never legality.
      */
-    /**
-     * F-36 (WS92-D5 extended to every object a decision offers): targets, cards to choose,
-     * defenders and attackers are ordered by Rules-visible, twin-stable content, never by
-     * native UUIDs (random per game). A library card's position is part of its identity
-     * for the player searching it: with UUID order, "the first Plains" of a search was a
-     * different card in each replay, and the following shuffle then diverged the game.
-     * Only objects indistinguishable by that content fall back to the UUID.
-     */
-    private static Comparator<UUID> stableObjectOrder(Game game) {
-        return Comparator.comparing((UUID id) -> stableObjectKey(id, game)).thenComparing(UUID::toString);
-    }
-
-    private static String stableObjectKey(UUID id, Game game) {
-        Player player = game.getPlayer(id);
-        if (player != null) {
-            return "0|" + player.getName();
-        }
-        Permanent permanent = game.getPermanent(id);
-        if (permanent != null) {
-            Player controller = game.getPlayer(permanent.getControllerId());
-            return "1|" + permanent.getName() + "|" + (controller == null ? "" : controller.getName())
-                    + "|" + padded(permanent.getZoneChangeCounter(game))
-                    + "|" + padded(permanent.getPower().getValue()) + "|" + padded(permanent.getToughness().getValue())
-                    + "|" + (permanent.isTapped() ? 1 : 0) + "|" + padded(permanent.getDamage());
-        }
-        int stackPosition = 0;
-        for (StackObject stackObject : game.getStack()) {
-            if (stackObject.getId().equals(id) || stackObject.getSourceId().equals(id)) {
-                return "2|" + padded(stackPosition) + "|" + stackObject.getName();
-            }
-            stackPosition++;
-        }
-        Card card = game.getCard(id);
-        if (card != null) {
-            Zone zone = game.getState().getZone(id);
-            Player owner = game.getPlayer(card.getOwnerId());
-            int position = -1;
-            if (owner != null && zone == Zone.LIBRARY) {
-                position = owner.getLibrary().getCardList().indexOf(id);
-            } else if (owner != null && zone == Zone.GRAVEYARD) {
-                position = new ArrayList<>(owner.getGraveyard()).indexOf(id);
-            } else if (owner != null && zone == Zone.HAND) {
-                position = new ArrayList<>(owner.getHand()).indexOf(id);
-            }
-            return "3|" + zone + "|" + (owner == null ? "" : owner.getName()) + "|" + padded(position)
-                    + "|" + card.getName() + "|" + padded(card.getZoneChangeCounter(game));
-        }
-        return "9|";
-    }
-
-    private static String padded(int value) {
-        return String.format("%08d", value + 10_000_000);
-    }
-
     private static Comparator<Permanent> stablePermanentOrder(Game game) {
         return Comparator
                 .comparing(
@@ -1488,7 +1434,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             possible = target.possibleTargets(getId(), source, game, cardIds);
         }
         List<UUID> sorted = possible.stream()
-                .sorted(stableObjectOrder(game))
+                .sorted(XmageStableOrder.objects(game))
                 .toList();
 
         int alreadySelected = target.getSize();
@@ -1868,7 +1814,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     /** Twin-stable ability order (F-36): source object's stable key, then rule text, then ids. */
     private static String abilitySortKey(Ability ability, Game game) {
-        return (ability.getSourceId() == null ? "" : stableObjectKey(ability.getSourceId(), game))
+        return (ability.getSourceId() == null ? "" : XmageStableOrder.objectKey(ability.getSourceId(), game))
                 + "#" + ability.getRule() + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
     }
 
