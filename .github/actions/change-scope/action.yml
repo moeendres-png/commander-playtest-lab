@@ -1,0 +1,40 @@
+name: Change scope
+description: >
+  Decides whether a workflow's heavy jobs are relevant to this change, so the
+  workflow can always run on pull requests (and its jobs can be required checks)
+  while skipping work a change provably cannot affect. For pull requests it
+  compares the PR merge commit with its base parent (needs fetch-depth 2) using
+  git glob pathspecs; every other event is relevant. Callers should skip only on
+  an explicit 'false', so a failure here runs the checks instead of skipping them.
+inputs:
+  paths:
+    description: Newline-separated git glob pathspecs (e.g. engine-bridge/**).
+    required: true
+outputs:
+  relevant:
+    description: "'true' or 'false'."
+    value: ${{ steps.scope.outputs.relevant }}
+runs:
+  using: composite
+  steps:
+    - name: Compare the change with the relevant paths
+      id: scope
+      shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+        PATHS: ${{ inputs.paths }}
+      run: |
+        set -euo pipefail
+        relevant=true
+        if [ "$EVENT" = "pull_request" ]; then
+          specs=()
+          while IFS= read -r spec; do
+            spec="${spec#"${spec%%[![:space:]]*}"}"
+            [ -n "$spec" ] && specs+=(":(glob)$spec")
+          done <<< "$PATHS"
+          if git diff --quiet HEAD^1 HEAD -- "${specs[@]}"; then
+            relevant=false
+          fi
+        fi
+        echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+        echo "change scope: relevant=$relevant ($EVENT)"

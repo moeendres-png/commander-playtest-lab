@@ -622,7 +622,15 @@ def test_cardinality_lane_triggers_variable_player_surfaces(repo_root: Path) -> 
 def test_cardinality_lane_push_and_pr_filters_match(repo_root: Path) -> None:
     workflow = _workflow(repo_root)
     triggers = workflow[True] if True in workflow else workflow.get("on", {})
-    pr_paths = set((triggers.get("pull_request") or {}).get("paths") or [])
+    pull_request = triggers.get("pull_request") or {}
+    # Pull requests always run the workflow (its job can be a required check); the
+    # relevance filter lives in the conformance-scope job, which skips the heavy job
+    # only when none of these paths changed.
+    assert "paths" not in pull_request, "PR runs are scoped by the conformance-scope job"
+    scope_step = next(
+        step for step in workflow["jobs"]["conformance-scope"]["steps"] if step.get("id") == "scope"
+    )
+    pr_paths = {line.strip() for line in scope_step["with"]["paths"].splitlines() if line.strip()}
     push_paths = set((triggers.get("push") or {}).get("paths") or [])
     production = {
         "engine-bridge/**",

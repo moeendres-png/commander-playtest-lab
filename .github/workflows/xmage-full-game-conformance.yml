@@ -2,20 +2,6 @@ name: XMage Full Game Conformance
 
 on:
   pull_request:
-    paths:
-      - "engine-bridge/**"
-      - "config/rules_engines.json"
-      - "src/commander_lab/engine/rules/full_game.py"
-      - "src/commander_lab/engine/rules/full_game_batch.py"
-      - "src/commander_lab/agents/**"
-      - "src/commander_lab/models/pilots.py"
-      - "src/commander_lab/candidates/models.py"
-      - "artifacts/xmage-full-game/**"
-      - "tests/unit/test_xmage_full_game.py"
-      - "tests/unit/test_xmage_variable_player.py"
-      - "scripts/generate_full_game_contract_artifacts.py"
-      - "scripts/run_external_full_game_conformance.py"
-      - ".github/workflows/xmage-full-game-conformance.yml"
   push:
     branches: [main]
     paths:
@@ -44,7 +30,40 @@ env:
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
 
 jobs:
+  conformance-scope:
+    # Always runs on pull requests so the heavy job below can be a required check;
+    # the heavy job is skipped (reported as success) only when this change
+    # provably touches none of its inputs.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      relevant: ${{ steps.scope.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 2
+      - id: scope
+        uses: ./.github/actions/change-scope
+        with:
+          paths: |
+            .github/actions/**
+            engine-bridge/**
+            config/rules_engines.json
+            src/commander_lab/engine/rules/full_game.py
+            src/commander_lab/engine/rules/full_game_batch.py
+            src/commander_lab/agents/**
+            src/commander_lab/models/pilots.py
+            src/commander_lab/candidates/models.py
+            artifacts/xmage-full-game/**
+            tests/unit/test_xmage_full_game.py
+            tests/unit/test_xmage_variable_player.py
+            scripts/generate_full_game_contract_artifacts.py
+            scripts/run_external_full_game_conformance.py
+            .github/workflows/xmage-full-game-conformance.yml
+
   conformance:
+    needs: [conformance-scope]
+    if: ${{ !cancelled() && needs.conformance-scope.outputs.relevant != 'false' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
