@@ -53,6 +53,10 @@ CARD_16 (a stack spell) and CARD_25 (counters) remain rejected for their own dim
 
 ## Not done here
 
-- **CARD_04's obligation** (Kediss + Bruse Tarl commander combat damage, and 17 life each for P2–P4) is now constructible; executing it is next.
+- **CARD_04 constructs but is not executable as frozen (fixture gap, Coordinator).**
+  - Bruse Tarl's attack trigger is mandatory: "target creature you control gains double strike and lifelink" (XMage `EntersBattlefieldOrAttacksSourceTriggeredAbility` with `TargetControlledCreaturePermanent`).
+  - The record's `decision_script` declares only the attack and the empty block, not this target.
+  - The recorded outcome (3 commander damage, P2 = P3 = P4 = 17) holds only if the trigger targets Kediss. Targeting Bruse gives double strike: 6 commander damage, 14 each, and P1 gains 6.
+  - A strict runner must fail closed on the undeclared decision (`first_option` and `silent_skip` are forbidden).
 - **WS05-MP-ELIM-STACK-3** (P2 at 0 with its own Bolt on the stack) needs a combined route: stack first, then the elimination caused in response.
 - **FULL107 re-evaluation** is a Coordinator gate.
