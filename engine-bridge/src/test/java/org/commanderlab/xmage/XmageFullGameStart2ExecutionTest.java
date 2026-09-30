@@ -120,7 +120,7 @@ class XmageFullGameStart2ExecutionTest {
             }
         }
         assertTrue(atDraw, "engine must park priority at the turn-1 draw step");
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
         JsonObject observed =
                 XmageNativeStateRestoration.readback(session.restorationGame(), seats);

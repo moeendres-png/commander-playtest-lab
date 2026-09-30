@@ -113,7 +113,7 @@ class XmageFullGamePartnerExecutionTest {
         session.start();
         Map<String, Player> seats = session.restorationSeats();
         driveArrival(session, seats, gameTag);
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
         JsonObject observed =
                 XmageNativeStateRestoration.readback(session.restorationGame(), seats);
@@ -244,7 +244,7 @@ class XmageFullGamePartnerExecutionTest {
         session.start();
         Map<String, Player> seats = session.restorationSeats();
         driveArrival(session, seats, "exec-neg-swap");
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
         JsonObject observed =
                 XmageNativeStateRestoration.readback(session.restorationGame(), seats);

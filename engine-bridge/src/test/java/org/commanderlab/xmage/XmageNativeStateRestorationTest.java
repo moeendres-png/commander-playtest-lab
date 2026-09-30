@@ -251,7 +251,7 @@ class XmageNativeStateRestorationTest {
             XmageNativeStateRestoration restoration,
             Map<String, Player> seats) {
         driveArrival(session, restoration, seats);
-        restoration.restoreCommanderCasts(session.restorationGame(), seats);
+        restoration.restoreAfterArrival(session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
     }
 
@@ -758,7 +758,7 @@ class XmageNativeStateRestorationTest {
 
         // The causal route completes commanders before the stack; arrival completion
         // repeats it. The placement happens once and the compare judges the result.
-        restoration.restoreCommanderCasts(game, seats);
+        restoration.restoreAfterArrival(game, seats);
         assertEquals(prebound, game.getPermanent(prebound).getId());
         assertTrue(restoration.compare(
                 XmageNativeStateRestoration.readback(game, seats), seats).match());

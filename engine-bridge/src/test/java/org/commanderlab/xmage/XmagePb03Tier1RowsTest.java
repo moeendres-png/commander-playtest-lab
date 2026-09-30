@@ -530,7 +530,7 @@ class XmagePb03Tier1RowsTest {
             }
             submit(session, "pb03-continuous-arrival-" + step, action);
         }
-        restoration.restoreCommanderCasts(
+        restoration.restoreAfterArrival(
                 session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
 

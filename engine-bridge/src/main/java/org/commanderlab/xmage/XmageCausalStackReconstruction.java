@@ -257,7 +257,7 @@ final class XmageCausalStackReconstruction {
                 prepared.preStackPlan(),
                 temporalSource,
                 maxDecisions);
-        prepared.restoration().restoreCommanderCasts(
+        prepared.restoration().restoreAfterArrival(
                 session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
 

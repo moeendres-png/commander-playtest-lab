@@ -51,7 +51,7 @@ import java.util.UUID;
  * with explicit card lists, the mechanism backing the engine's qualified
  * scenario setup) for silent assembly, plus normal game creation (validated
  * Commander scaffolding decks carrying the exact commanders plus
- * deterministic filler), {@code Player.setLife}, game-state turn/active
+ * deterministic filler), {@code Player.initLife}, game-state turn/active
  * setters, and the engine's game-load restoration path for commander cast
  * counts ({@code CommanderPlaysCountWatcher.restoreStateForGameLoad}). No
  * reflection into privates, no fabricated history events, no outcome
@@ -70,8 +70,9 @@ import java.util.UUID;
  * <p>Supported dimensions (v2): zones command/battlefield/graveyard/exile
  * plus hand identity (see privacy contract below);
  * permanents owned and controlled by the same principal (setup attribution),
- * untapped, without counters or attachments; commander cast counts; life
- * totals; turn-1 precombat-main arrival envelope with active/priority
+ * untapped, without counters or attachments; commander cast counts; genuine
+ * commanders on the battlefield; life totals equal to each player's starting
+ * life; turn-1 precombat-main arrival envelope with active/priority
  * binding; explicit Rules-seed binding. Everything else (stack spells,
  * library identity, revealed, facedown, attachments, counters, tapped
  * permanents, controller/owner divergence, commander damage, poison, other
@@ -148,7 +149,15 @@ final class XmageNativeStateRestoration {
     }
 
     /** Requested player fields. */
-    record RequestedPlayer(String playerId, int seat, int life) {
+    /**
+     * One requested player. {@code startingLife} is the player's own recorded
+     * starting life: a life total equal to it carries no history and is set
+     * once after game start; any other total must be caused, never set (F-39).
+     */
+    record RequestedPlayer(String playerId, int seat, int life, int startingLife) {
+        RequestedPlayer(String playerId, int seat, int life) {
+            this(playerId, seat, life, life);
+        }
     }
 
     /** Explicit restoration input. Seats are 1-indexed player ids P1..PN. */
@@ -199,6 +208,7 @@ final class XmageNativeStateRestoration {
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
+    private boolean startingLifeRestored;
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -264,7 +274,9 @@ final class XmageNativeStateRestoration {
             players.add(new RequestedPlayer(
                     player.get("player_id").getAsString(),
                     player.get("seat").getAsInt(),
-                    player.get("life").getAsInt()));
+                    player.get("life").getAsInt(),
+                    player.has("starting_life") && !player.get("starting_life").isJsonNull()
+                            ? player.get("starting_life").getAsInt() : 40));
         }
         JsonObject commanderState = record.getAsJsonObject("commander_state");
         List<RequestedCommander> commanders = new ArrayList<>();
@@ -690,10 +702,10 @@ final class XmageNativeStateRestoration {
     /**
      * Pre-start assembly in the constructing thread (engine not running):
      * silent setup placement via the engine's typed setup primitive (setup
-     * attribution makes owners controllers), life totals, and watcher
-     * registration. Commander cast counts are restored post-arrival
-     * ({@link #restoreCommanderCasts}) once commanders exist in the command
-     * zone.
+     * attribution makes owners controllers) and watcher registration.
+     * Commander cast counts, commanders outside the command zone and starting
+     * life are restored post-arrival ({@link #restoreAfterArrival}), once game
+     * start has created the commanders and derived life.
      */
     synchronized void applyPreStart(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
@@ -742,7 +754,8 @@ final class XmageNativeStateRestoration {
             // silently corrupt the restored state.
             game.cheat(player.getId(), List.of(), hand, battlefield, graveyard,
                     List.of(), exile);
-            player.setLife(requested.life(), game, null);
+            // Life is not set here: game start re-derives it (initLife). See
+            // restoreStartingLife, which runs after arrival (F-39).
         }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         preStartApplied = true;
@@ -754,7 +767,7 @@ final class XmageNativeStateRestoration {
      * via owner plus card identity (fail closed on ambiguity). Runs while the
      * engine thread is parked on an external decision.
      */
-    synchronized void restoreCommanderCasts(
+    synchronized void restoreAfterArrival(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
         requireApplied();
 
@@ -821,6 +834,26 @@ final class XmageNativeStateRestoration {
         }
 
         placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
+        restoreStartingLife(playersByPid);
+    }
+
+    /**
+     * F-39: a player's recorded starting life other than the table's is set once,
+     * silently, through the engine's own {@code initLife} (the call game start
+     * uses), so no life gain or loss event is fabricated. A requested life that
+     * differs from the player's starting life is history: it must be caused
+     * through the engine and is only compared, never set.
+     */
+    private void restoreStartingLife(Map<String, Player> playersByPid) {
+        if (startingLifeRestored) {
+            return;
+        }
+        for (RequestedPlayer requested : plan.players()) {
+            if (requested.life() == requested.startingLife()) {
+                requirePlayer(playersByPid, requested.playerId()).initLife(requested.life());
+            }
+        }
+        startingLifeRestored = true;
     }
 
     /**
@@ -1241,7 +1274,9 @@ final class XmageNativeStateRestoration {
                 + "pilot observation stays counts-only through the redactor; "
                 + "honeycard non-leakage proven per fixture)");
         supported.add("owner-equals-controller attribution with 1:1 readback");
-        supported.add("life totals (pre-start assembly; state-based actions stay authoritative)");
+        supported.add("life totals equal to the player's recorded starting life (set once after"
+                + " game start without a life event; any other total must be caused and is only"
+                + " compared; state-based actions stay authoritative)");
         supported.add("qualified turn-1 temporal targets: upkeep, draw, precombat main, "
                 + "declare attackers, declare blockers, combat damage, postcombat main; "
                 + "arrival requires XmageTemporalProgressionDriver native progression");
