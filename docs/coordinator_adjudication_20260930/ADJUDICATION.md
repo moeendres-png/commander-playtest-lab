@@ -11,7 +11,7 @@
 Follow-ups executed:
 - #297 and #299 are closed as `DONOR_EVIDENCE`.
 - forge#11 (including #12) was admitted into the Forge candidate.
-- The R-3 Forge bridge repair is delivered by forge#13, inside the integrated gate forge#16.
+- The R-3 Forge bridge repair is delivered by forge#13, merged into the #11 qualification branch as `e8b8aec6` (2026-09-30). forge#16 (#13 together with #15) was **not** integrated: its exact-head Test build failed (runs #213 and #220, 16 bridge failures from #15's new cost-order frame); see forge#16.
 
 R-5 stays a finding, not a ruling. B1, SLOT-04/05/06/08/09, provider selection and Freeze are **not** decided by this record.
 
