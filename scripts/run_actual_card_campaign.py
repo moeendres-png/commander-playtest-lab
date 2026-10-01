@@ -128,6 +128,9 @@ def main() -> int:
 
     candidate_commit = bridge_launcher.canonical_xmage_engine_pin()
     probe = midgame_rows_mod.probe_module()
+    # The production probe's own declared causal entries: rows whose position the
+    # lane can reach causally even though the direct native load refuses them.
+    causal_entry_rows = frozenset(getattr(probe, "CAUSAL_ROWS", {}) or {})
 
     args.out.mkdir(parents=True, exist_ok=True)
     measurements_dir = args.out / "measurements"
@@ -146,6 +149,7 @@ def main() -> int:
         "engine_runtime_directory": str(runtime_dir),
         "workspace": _workspace_identity(workspace),
         "selected_rows": selected,
+        "causal_entry_rows": sorted(causal_entry_rows),
         "seed": args.seed,
     }
     (args.out / "CAMPAIGN_IDENTITY.json").write_text(
@@ -170,6 +174,7 @@ def main() -> int:
             measurement,
             expected_engine_commit=candidate_commit,
             foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+            causal_entry_rows=causal_entry_rows,
         )
         if evaluation.get("outcome") == campaign.OUTCOME_DIRECT_PASS:
             receipt = campaign.positive_receipt(

@@ -64,7 +64,8 @@ owner so a newer source lock can re-adjudicate without re-running the campaign.
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+import re
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -125,6 +126,18 @@ SURFACE_MIDGAME_ROWS = "src/commander_lab/qualification/current_boundary/midgame
 SURFACE_MIDGAME_PROBE = "scripts/run_midgame_capability_probe.py"
 SURFACE_NATIVE_RESTORATION = (
     "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java"
+)
+# A missing script step is a fixture-contract gap; the effective successor
+# contract surface is where a correction has to land.
+SURFACE_SUCCESSOR_CONTRACT = "qualification/pre-freeze-successor/"
+
+# Decision classes whose answering machinery belongs to the generic production
+# executor surface: priority passes, mana payment from declared sources, and the
+# two combat declaration classes (attackers are driven by the record's own
+# assignment steps; blockers are not answered by the executor at all). A frame
+# in this set is an executor gap, never a fixture-contract gap.
+EXECUTOR_SURFACE_DECISION_CLASSES = frozenset(
+    {"priority", "mana_payment", "declare_attacker", "declare_blocker"}
 )
 
 STANDARD_OBJECT_ZONES = frozenset(
@@ -392,6 +405,11 @@ def required_state_dimensions(record: Mapping[str, Any]) -> tuple[str, ...]:
         dimensions.append("control_divergence")
     if any(str(obj.get("zone")) not in STANDARD_OBJECT_ZONES for obj in objects):
         dimensions.append("revealed_zone")
+    if any(str(obj.get("zone")) == "library" for obj in objects):
+        # A specific object at a specific library position is frozen partial
+        # library identity: the bridge's own manifest refuses it without a
+        # complete permutation ("legacy/frozen partial library identity").
+        dimensions.append("library_identity_objects")
     commander_state = record.get("commander_state") or {}
     if commander_state.get("multiple_commander_relations"):
         dimensions.append("commander_relations")
@@ -831,12 +849,57 @@ def _first_error_detail(measurement: RowMeasurement) -> str:
     return ""
 
 
+# The restoration's own refusal tokens and the record-side dimension each one
+# corresponds to. The mapping is only consulted together with the record's
+# derived dimensions, so an engine token cannot attribute a blocker the record
+# does not declare.
+_ENGINE_REFUSAL_DIMENSIONS: tuple[tuple[str, str], ...] = (
+    ("COMMANDER_ZONE", "stack_objects"),
+    ("COUNTERS", "counters"),
+    ("ATTACHMENTS", "tapped_permanents"),
+    ("TAPPED", "tapped_permanents"),
+    ("FACE_DOWN", "face_down"),
+    ("CONTROL", "control_divergence"),
+)
+
+_ENGINE_REFUSAL_ZONE_DIMENSIONS: Mapping[str, str] = {
+    "stack": "stack_objects",
+    "library": "library_identity_objects",
+}
+
+
+def engine_named_refusal_dimension(
+    detail: str, derived_dimensions: tuple[str, ...]
+) -> tuple[str | None, str | None]:
+    """The dimension the engine's own refusal message names, if any.
+
+    Returns ``(dimension, engine_token)``. A dimension is returned only when the
+    record actually declares it, so the attribution always has two independent
+    sides: the engine refused it, and the record requires it.
+    """
+    zone_match = re.search(
+        r"UNSUPPORTED_ZONE:\s*\S+\s+\S+\s+requests\s+([a-z_]+)", detail, re.IGNORECASE
+    )
+    if zone_match:
+        zone = zone_match.group(1).lower()
+        token = f"UNSUPPORTED_ZONE:{zone}"
+        dimension = _ENGINE_REFUSAL_ZONE_DIMENSIONS.get(zone)
+        if dimension is not None and dimension in derived_dimensions:
+            return dimension, token
+        return None, token
+    for token_name, dimension in _ENGINE_REFUSAL_DIMENSIONS:
+        if f"UNSUPPORTED_{token_name}" in detail and dimension in derived_dimensions:
+            return dimension, f"UNSUPPORTED_{token_name}"
+    return None, None
+
+
 def classify(
     row: CardRow,
     measurement: RowMeasurement,
     *,
     expected_engine_commit: str | None,
     foreign_owned_surfaces: Mapping[str, str] | None = None,
+    causal_entry_rows: Collection[str] = (),
 ) -> dict[str, Any]:
     """Deterministic classification of one measured row.
 
@@ -867,24 +930,65 @@ def classify(
     if measurement.phase == "CREATION_REFUSED":
         codes = [str(error.get("code") or "") for error in measurement.creation_errors]
         detail = _first_error_detail(measurement)
+        dimensions = required_state_dimensions(row.record)
         unsupported = [
             dimension
-            for dimension in required_state_dimensions(row.record)
+            for dimension in dimensions
             if dimension
-            in {"stack_objects", "counters", "tapped_permanents", "face_down", "control_divergence"}
-        ]
-        if "midgame_starting_state_rejected" in codes and unsupported:
-            return {
-                "outcome": OUTCOME_BLOCKED,
-                "blocker_class": BLOCKER_PROVIDER_ADAPTER_DEFECT,
-                "blocker_surface": SURFACE_NATIVE_RESTORATION,
-                "blocker_owner": None,
-                "blocker_detail": (
-                    "the engine refused to construct the requested starting state; the record "
-                    f"requires dimension(s) {unsupported} that the bridge restoration does not "
-                    f"construct; engine detail: {detail}"
-                ),
+            in {
+                "stack_objects",
+                "counters",
+                "tapped_permanents",
+                "face_down",
+                "control_divergence",
+                "library_identity_objects",
             }
+        ]
+        named_dimension, engine_token = engine_named_refusal_dimension(detail, dimensions)
+        if "midgame_starting_state_rejected" in codes:
+            if named_dimension == "stack_objects" and row.fixture_id in causal_entry_rows:
+                # The direct native load refuses the stack, but the current
+                # production probe declares a causal entry for this row and can
+                # reach the position; the causal driver is where the remaining
+                # work lives.
+                return dependency(
+                    SURFACE_MIDGAME_PROBE,
+                    "the direct native state load refuses the record's stack object "
+                    f"({engine_token}); the current production probe declares a causal-entry "
+                    f"route for this row but its driver is owned by the foreign writer and does "
+                    f"not execute the obligation yet; engine detail: {detail}",
+                )
+            if named_dimension:
+                manifest = measurement.dimension_manifest or {}
+                keyword = named_dimension.split("_")[0]
+                named_text = [
+                    str(item)
+                    for item in manifest.get("unsupported_dimensions") or ()
+                    if keyword in str(item).lower()
+                ]
+                return {
+                    "outcome": OUTCOME_BLOCKED,
+                    "blocker_class": BLOCKER_PROVIDER_ADAPTER_DEFECT,
+                    "blocker_surface": SURFACE_NATIVE_RESTORATION,
+                    "blocker_owner": None,
+                    "blocker_detail": (
+                        f"the engine refused the requested starting state ({engine_token}); its "
+                        f"own manifest names the dimension as unsupported: {named_text[:1]}; "
+                        f"engine detail: {detail}"
+                    ),
+                }
+            if unsupported:
+                return {
+                    "outcome": OUTCOME_BLOCKED,
+                    "blocker_class": BLOCKER_PROVIDER_ADAPTER_DEFECT,
+                    "blocker_surface": SURFACE_NATIVE_RESTORATION,
+                    "blocker_owner": None,
+                    "blocker_detail": (
+                        "the engine refused to construct the requested starting state; the record "
+                        f"requires dimension(s) {unsupported} that the bridge restoration does not "
+                        f"construct; engine detail: {detail}"
+                    ),
+                }
         if "midgame_causal_preparation_rejected" in codes:
             return {
                 "outcome": OUTCOME_BLOCKED,
@@ -947,9 +1051,31 @@ def classify(
             f"the generic production executor cannot express the record's scripted step: {detail}",
         )
     if detail.startswith("unscripted "):
+        # Which surface owns the fix is decided by whether the effective record
+        # declares a step for the offered decision family at all. A scripted
+        # family the executor failed to answer is an executor gap; a family the
+        # record never scripts is a fixture-contract gap.
+        frame_match = re.match(r"unscripted ([a-z_]+) for (P\d+)", detail)
+        scripted_classes = {
+            midgame_rows_mod.engine_decision_class(str(step.get("decision_family") or ""))
+            for step in row.record.get("decision_script") or ()
+        }
+        frame_class = frame_match.group(1) if frame_match else None
+        if (
+            frame_class in scripted_classes
+            or frame_class in EXECUTOR_SURFACE_DECISION_CLASSES
+            or frame_class is None
+        ):
+            return dependency(
+                SURFACE_MIDGAME_ROWS,
+                "the engine offered a decision the generic production executor cannot answer "
+                f"from the record's declared script: {detail}",
+            )
         return dependency(
-            SURFACE_MIDGAME_ROWS,
-            f"the engine asked a decision class the generic executor does not answer: {detail}",
+            SURFACE_SUCCESSOR_CONTRACT,
+            "the engine offered a discretionary decision class the effective record does not "
+            f"script ({frame_class!r}; the record scripts {sorted(scripted_classes)}); recorded "
+            "by the engine as: " + detail,
         )
     if detail.startswith("arrival failed closed"):
         return dependency(
@@ -1026,6 +1152,7 @@ def evaluate_row(
     *,
     expected_engine_commit: str | None,
     foreign_owned_surfaces: Mapping[str, str] | None = None,
+    causal_entry_rows: Collection[str] = (),
 ) -> dict[str, Any]:
     """The row's verdict. ``DIRECT_PASS`` requires complete, bound evidence."""
     plan = plan_for(row.fixture_id)
@@ -1036,6 +1163,7 @@ def evaluate_row(
         measurement,
         expected_engine_commit=expected_engine_commit,
         foreign_owned_surfaces=foreign_owned_surfaces,
+        causal_entry_rows=causal_entry_rows,
     )
     proofs = plan_proof_status(row, execution) if plan is not None else []
     verified = bool(execution.get("verified"))

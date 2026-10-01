@@ -184,6 +184,7 @@ def test_starting_state_dimensions_are_derived_from_the_record() -> None:
             {"zone": "battlefield", "counters": {"+1/+1": 1}, "tapped": True, "controller": "P1"},
             {"zone": "battlefield", "owner": "P1", "controller": "P2"},
             {"zone": "revealed", "owner": "P2", "controller": "P2"},
+            {"zone": "library", "owner": "P2", "controller": "P2"},
         ],
         commander_state={"multiple_commander_relations": [{"a": "P1"}]},
         knowledge_state={
@@ -196,6 +197,7 @@ def test_starting_state_dimensions_are_derived_from_the_record() -> None:
     assert "tapped_permanents" in dimensions
     assert "control_divergence" in dimensions
     assert "revealed_zone" in dimensions
+    assert "library_identity_objects" in dimensions
     assert "commander_relations" in dimensions
     assert "hidden_library_identity" in dimensions
     assert "temporal_checkpoint_unqualified" not in dimensions
@@ -394,6 +396,106 @@ def test_unsupported_dimension_refusal_maps_to_provider_adapter_defect() -> None
     assert evaluation["blocker_surface"] == campaign.SURFACE_NATIVE_RESTORATION
 
 
+def test_engine_named_unsupported_zone_maps_to_the_adapter() -> None:
+    record = _record(
+        "CARD_99",
+        "Some Card",
+        semantic_objects=[{"zone": "library", "semantic_id": "obj:lib"}],
+    )
+    row = _row(record)
+    measurement = _measurement(
+        "CARD_99",
+        phase="CREATION_REFUSED",
+        creation_errors=[
+            {
+                "code": "midgame_starting_state_rejected",
+                "message": (
+                    "RestorationException: UNSUPPORTED_ZONE: CARD_99 obj:lib requests library"
+                ),
+            }
+        ],
+    )
+    measurement.dimension_manifest = {
+        "unsupported_dimensions": [
+            "legacy/frozen partial library identity: no complete permutation, fail closed"
+        ]
+    }
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
+    )
+    assert evaluation["blocker_class"] == campaign.BLOCKER_PROVIDER_ADAPTER_DEFECT
+    assert "partial library identity" in evaluation["blocker_detail"]
+
+
+def test_stack_refusal_with_a_declared_causal_entry_is_a_probe_dependency() -> None:
+    record = _record(
+        "CARD_13",
+        "Flare of Duplication",
+        semantic_objects=[
+            {"zone": "stack", "semantic_id": "obj:card13-bolt"},
+            {"zone": "hand", "semantic_id": "obj:card_13-subject"},
+        ],
+        stack_state=[{"semantic_id": "obj:card13-bolt"}],
+    )
+    row = _row(record)
+    measurement = _measurement(
+        "CARD_13",
+        phase="CREATION_REFUSED",
+        creation_errors=[
+            {
+                "code": "midgame_starting_state_rejected",
+                "message": (
+                    "RestorationException: UNSUPPORTED_ZONE: CARD_13 obj:card13-bolt requests stack"
+                ),
+            }
+        ],
+    )
+    measurement.dimension_manifest = {
+        "unsupported_dimensions": [
+            "stack spells (casting requires real costs/timing: executor scope)"
+        ]
+    }
+    evaluation = campaign.evaluate_row(
+        row,
+        measurement,
+        expected_engine_commit=PIN,
+        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        causal_entry_rows=("CARD_13",),
+    )
+    assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
+    assert evaluation["blocker_surface"] == campaign.SURFACE_MIDGAME_PROBE
+    assert evaluation["blocker_owner"] == "PR #450"
+
+    without_causal = campaign.evaluate_row(
+        row,
+        measurement,
+        expected_engine_commit=PIN,
+        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+    )
+    assert without_causal["blocker_class"] == campaign.BLOCKER_PROVIDER_ADAPTER_DEFECT
+
+
+def test_engine_named_zone_absent_from_the_record_stays_unknown() -> None:
+    row = _row(_record("CARD_99", "Some Card"))
+    measurement = _measurement(
+        "CARD_99",
+        phase="CREATION_REFUSED",
+        creation_errors=[
+            {
+                "code": "midgame_starting_state_rejected",
+                "message": "RestorationException: UNSUPPORTED_ZONE: CARD_99 obj:lib requests library",
+            }
+        ],
+    )
+    measurement.dimension_manifest = {
+        "unsupported_dimensions": ["legacy/frozen partial library identity"]
+    }
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
+    )
+    assert evaluation["blocker_class"] == campaign.BLOCKER_UNKNOWN
+
+
 def test_an_unattributable_refusal_stays_unknown() -> None:
     row = _row(_record("CARD_99", "Some Card"))
     measurement = _measurement(
@@ -405,6 +507,63 @@ def test_an_unattributable_refusal_stays_unknown() -> None:
         row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
     )
     assert evaluation["blocker_class"] == campaign.BLOCKER_UNKNOWN
+
+
+def test_unscripted_decision_family_absent_from_the_record_is_a_contract_dependency() -> None:
+    record = _record(
+        "CARD_99",
+        "Some Card",
+        decision_script=[
+            {
+                "decision_family": "priority",
+                "selection": {
+                    "selector_kind": "semantic_action",
+                    "semantic_value": {"action": "cast"},
+                },
+            }
+        ],
+    )
+    row = _row(record)
+    measurement = _measurement(
+        "CARD_99",
+        detail="unscripted choose_object for P1: the row stops unverified",
+        verified=False,
+    )
+    foreign = dict(campaign.DEFAULT_FOREIGN_OWNED_SURFACES)
+    foreign[campaign.SURFACE_SUCCESSOR_CONTRACT] = "PR #452"
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces=foreign
+    )
+    assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
+    assert evaluation["blocker_surface"] == campaign.SURFACE_SUCCESSOR_CONTRACT
+    assert evaluation["blocker_owner"] == "PR #452"
+
+
+def test_unscripted_decision_family_the_record_scripts_is_an_executor_dependency() -> None:
+    record = _record(
+        "CARD_99",
+        "Some Card",
+        decision_script=[
+            {
+                "decision_family": "declare_blocker",
+                "selection": {"selector_kind": "blocker_assignment", "semantic_value": {}},
+            }
+        ],
+    )
+    row = _row(record)
+    measurement = _measurement(
+        "CARD_99",
+        detail="unscripted declare_blocker for P2: the row stops unverified",
+        verified=False,
+    )
+    evaluation = campaign.evaluate_row(
+        row,
+        measurement,
+        expected_engine_commit=PIN,
+        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+    )
+    assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
+    assert evaluation["blocker_surface"] == campaign.SURFACE_MIDGAME_ROWS
 
 
 def test_executor_gap_is_dependency_waiting_while_the_surface_is_foreign() -> None:
