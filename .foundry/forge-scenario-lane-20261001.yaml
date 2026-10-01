@@ -158,7 +158,7 @@ phase: PHASE1_COMPLETE_PHASE2_GATED
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 failure_class: NONE
-root_cause_class: LAB_EXECUTION_PATH_GAP_IDENTIFIED_AND_REPLACED_WITH_SOURCE_BOUND_LANE
+root_cause_class: EVIDENCE_PIPELINE_DEFECT
 
 decisions:
   - id: DEC-1
