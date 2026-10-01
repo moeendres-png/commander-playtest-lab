@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-af09-replay-twins-20261001
 branch: hardening/af09-replay-twins-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: 05f45bc5
-validated_head: 05f45bc5
+state_written_against_head: 05f45bc5a3493be81222f35ae29067f82a5f9116
+validated_head: 05f45bc5a3493be81222f35ae29067f82a5f9116
 
 objective: >-
   Implement and qualify clean-process semantic replay twins for AF09
@@ -103,7 +103,7 @@ candidate_results:
 
 milestones:
   - id: M1
-    head: 0c63e454
+    head: 0c63e4542a79154ee66e3b772212b5a9fba61a01
     at: '2026-10-01T21:40Z'
     status: COMMITTED_PUSHED
     pr: 461
@@ -117,7 +117,7 @@ milestones:
       - tests/qualification/test_replay_twins.py -> 36 passed
       - python3 -m ruff check (three AF09 files) -> clean
   - id: M2
-    head: 40c7e5e4
+    head: 40c7e5e41f954098e8d8e678a6bdee7f6efa325d
     at: '2026-10-01T22:30Z'
     status: COMMITTED
     content_extra: >-
