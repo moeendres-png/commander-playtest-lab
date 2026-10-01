@@ -1,0 +1,88 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/claude-lab-repin-20260929
+branch: claude/full107-row-families-20260930
+audit_base_sha: ed94cf0ae26cef3bf7ec064ccded675a793f5edd
+audit_base_tree: 1dbd3e694565b69890a0f3cf4741690d7d2ca04a
+state_written_against_head: 964b26341dcb6a169e0b08eec6d3964f90ccecd7
+validated_head: 8ae1cc09deb116259fc56d094556d57785314af6
+objective: 'Autonomous project completion campaign (Claude Opus 5.5): eliminate the remaining technical distance
+  to a Coordinator-adjudicable provider/Freeze decision. First slice: #425 section C, the FULL107 direct producer
+  across more row families on the production midgame lane.'
+in_scope:
+- '#425 section C (reserved 2026-09-30T20:39Z): midgame_rows.py registry, verifiers, selectors; midgame-lane placement
+  and observation code in engine-bridge where a row family needs it'
+- evidence-integrity defects found on that surface
+out_of_scope:
+- Production Provider selection
+- Architecture Freeze
+- denominator change
+- evidence policy
+- '#425 sections A/B (Sol: #427, forge#13) and D/E (Sol: #429)'
+- 'config/rules_engines.json, receipts.py loader rules, source_lock.py'
+- sealed/historical evidence trees
+- 'CSN-POST-AUDIT-HARDENING tasks C1, C2, D2, E1, F1, F2, G1, R1 (single writer: claude/optimistic-bohr-6asye6 session)'
+ownership: Claude Opus 5.5 completion campaign; section-C slice of #425; terminal source integrated into #436
+status: COMPLETE
+exact_next_action: 'None for this section-C workstream. #431 is closed superseded by final R-5 integration gate #436; its exact source remains in #436 ancestry. Residual fixture/typed-failure questions are persisted as explicit Coordinator gates and are not silently promoted.'
+authority_gates:
+- 'causal-route FULL107 credit (stack-state rows): Coordinator decision slot'
+- 'fixture gaps: decision_script omits the cast that opens its decision (MICRO_MODES, PILOT_TARGET_AMOUNT, PILOT_MULTI_AMOUNT,
+  NEGATIVE_*); MICRO_COSTS asks P2 to cast a sorcery in P1''s main phase (CR 307.1)'
+technical_decisions:
+- 'A semantic_mode_key has no machine definition; it is bound per row to text of the engine mode named by the record''s
+  own postcondition prose, and must match exactly one offered mode label.'
+- 'Charged mana is the number of pool spends; the lane spends pool mana before tapping another declared source.'
+- 'A zero-count counter map places no counter.'
+- 'Arrival completion is a pure readback while the engine is parked on trigger_order (asked from inside checkTriggered).'
+source_lock:
+  repository: moeendres-png/commander-playtest-lab
+  audit_base_sha: ed94cf0ae26cef3bf7ec064ccded675a793f5edd
+  xmage_pin: 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326
+  pin_authority: config/rules_engines.json
+  verified_utc: '2026-09-30'
+ownership_observed:
+  PR#426: 'hardening/current-boundary-wave-b-postmerge (other Claude session): evidence_epoch Git bound'
+  PR#427: 'Sol: #425 section A (Forge authority)'
+  PR#429: 'Sol: #425 C-E stacked on #427; touches midgame_rows.py cleanup only (disjoint, merge-tree clean)'
+  forge#13: 'Sol: #425 section B (Forge AF01)'
+  issue#255: AUTHORITY_GATE (provider adjudication)
+tasks:
+  M1-mana-charge:
+    status: FIXED
+    pr: '#431'
+    evidence: 'mana_paid/commander_tax counted taps of every declared source; now pool spends; X=2 live control; TAX-2
+      re-verified at 4'
+  M1-rows:
+    status: FIXED
+    pr: '#431'
+    evidence: 'WS05-CMD-TAX-4, PILOT_ANNOUNCE_X, PILOT_CHOOSE_MODE, PILOT_TRIGGER_ORDER, WS05-CMD-START-3 verified live;
+      14/14 registered rows; negative controls live'
+  M1-vacuous-guard:
+    status: FIXED
+    pr: '#431'
+    evidence: a row with no required event and no terminal check is never verified
+  MICRO_COSTS:
+    status: AUTHORITY_GATE
+    evidence: 'fixture asks P2 to cast Hex (sorcery) during P1''s precombat main; CR 307.1'
+  MICRO_LAYERS:
+    status: INVESTIGATED_NO_DEFECT
+    evidence: 'record declares static_assertion_is_not_execution_credit: a P/T readback earns no credit'
+  WS05-CMD-PARTNER-TAX:
+    status: OPEN
+    evidence: no mana in the record; XMage offers only affordable casts; needs a native cost-query surface
+  PILOT_CHOOSE_ABILITY:
+    status: OPEN
+    evidence: 'loyalty 3 needs exact counter placement after Jeska''s own ETB replacement'
+
+terminal_integration:
+  disposition: SUPERSEDED_BY_INTEGRATION_GATE
+  donor_pr: '#431'
+  donor_head: 8ae1cc09deb116259fc56d094556d57785314af6
+  supporting_pb03_run: 36778300856
+  supporting_pb03_conclusion: SUCCESS
+  final_gate_pr: '#436'
+  final_gate_branch: sol/r5-final-integration-gate-20260930
+  final_gate_source_lock: PR_436_BODY_AND_ISSUE_425
+  production_provider: NOT_SELECTED
+  architecture_freeze: NOT_CLAIMED

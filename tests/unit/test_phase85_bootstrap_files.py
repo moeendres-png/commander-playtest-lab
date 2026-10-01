@@ -73,7 +73,10 @@ def test_engine_config_is_pinned(repo_root: Path) -> None:
     assert len(config["secondary_engine"]["commit"]) == 40
     assert config["current_runtime"]["external_engine_validation_pending"] is True
     assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["secondary_engine"]["release"] == "forge-2.0.14"
-    assert config["secondary_engine"]["status"] == "PARTIAL"
+    # R-1 (owner ruling 2026-09-30): the current Forge candidate is the
+    # Commander-Lab-maintained fork, still PARTIAL and not production-selected.
+    assert config["secondary_engine"]["release"] == "commander-lab-maintained-forge-candidate"
+    assert config["secondary_engine"]["status"].startswith("PARTIAL")
+    assert config["secondary_engine"]["production_ready"] is False
     assert config["current_runtime"]["provider_selected"] is False
     assert config["historical_phase85"]["forge_pin"].startswith("forge-2.0.13")

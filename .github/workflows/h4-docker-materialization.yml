@@ -34,9 +34,10 @@ permissions:
 # Long engine builds must not be cancelled by a newer push while they are
 # producing qualification evidence; each run completes or fails on its own.
 concurrency:
-  # Manual dispatches are keyed on the commit so they never displace each other.
+  # Newer heads of the same PR supersede obsolete H4 work. Manual dispatches
+  # remain commit-keyed and are never cancelled by this PR-only expression.
   group: h4-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   PYTHONHASHSEED: "0"

@@ -21,6 +21,10 @@ LABEL org.commander-lab.engine-provider="forge"
 LABEL org.commander-lab.base-image-digest="sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6"
 LABEL org.commander-lab.base-image-tag="eclipse-temurin:21-jdk"
 WORKDIR /opt
+# The bridge classpath is resolved inside the reactor (-am): the R-1 fork line
+# versions its modules with ${revision} and flattens POMs only at deploy, so the
+# POMs installed into ~/.m2 cannot be read back as dependencies ("forge:forge:pom:
+# ${revision} (absent)"). The reactor resolves the modules to the jars built here.
 RUN set -eu; \
   if [ -z "${ENGINE_REPOSITORY:-}" ]; then echo "ENGINE_REPOSITORY build arg is required (use scripts/docker_build_engine.sh forge)" >&2; exit 1; fi; \
   if [ -z "${ENGINE_COMMIT:-}" ]; then echo "ENGINE_COMMIT build arg is required (use scripts/docker_build_engine.sh forge)" >&2; exit 1; fi; \
@@ -47,7 +51,8 @@ RUN set -eu; \
   cd engine-source && (test ! -x ./mvnw || ./mvnw -DskipTests install) \
   && (test -x ./mvnw || mvn -DskipTests install); \
   mkdir -p /opt/forge-bridge; \
-  cd /opt/engine-source && mvn -q -pl forge-protocol2-bridge dependency:build-classpath -Dmdep.outputFile=/opt/forge-bridge/cp.txt -DincludeScope=runtime
+  cd /opt/engine-source && mvn -q -pl forge-protocol2-bridge -am -DskipTests -Dcheckstyle.skip=true package dependency:build-classpath -Dmdep.outputFile=target/cp.txt -DincludeScope=runtime; \
+  cp /opt/engine-source/forge-protocol2-bridge/target/cp.txt /opt/forge-bridge/cp.txt
 WORKDIR /workspace
 COPY scripts/engine_container_entrypoint.sh /usr/local/bin/engine-entrypoint
 COPY docker/forge/forge-bridge.sh /usr/local/bin/forge-bridge

@@ -80,9 +80,8 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
     evidence, so the whole scanning path is gone: credit now requires a positive
     receipt, and anything without one simply receives no credit.
     """
-    denominator = {
-        load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"][i]["fixture_id"] for i in range(107)
-    }
+    manifest_rows = load(OUT / "EFFECTIVE_FULL107_MANIFEST.json")["rows"]
+    denominator = {row["fixture_id"]: row for row in manifest_rows}
     receipts, rejected = receipt_mod.collect_receipts(RECEIPT_DIR)
     # Positive fixture receipts: the last link of the PB-03 credit chain, one per
     # exactly verified obligation, bound to this runner and the candidate head.
@@ -235,6 +234,145 @@ def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
     if not expected:
         return "UNKNOWN"
     return "PASS" if reported == expected else "FAIL"
+
+
+def af04_gate(candidate: str, af01: dict[str, Any]) -> dict[str, Any]:
+    """AF04 LEGAL_ACTION_AND_DECISION_BOUNDARY, derived from this run.
+
+    Owner ruling R-2 (SLOT-03 option (c)) approves the provider-specific
+    decision-identity shim as protocol translation on one condition: every
+    submitted identity byte-matches a value in the frame the provider just
+    offered. XMage's AF04 FAIL cited only the identity-shape difference, so it
+    becomes PASS exactly when this run's live AF01 frame proves that condition;
+    a violated condition is FAIL and an unmeasured one UNKNOWN. Forge stays
+    UNKNOWN: its lane has not exercised decision classes beyond PRIORITY on the
+    shared surface in this run (R-2), whatever its provenance shows.
+    """
+    provenance = af01.get("decision_identity_provenance") or {}
+    verified = provenance.get("verified")
+    evidence = [
+        "an external PRIORITY decision was reached and answered with an engine-offered "
+        "option on the shared generic lane (AF01 live decision probe game)",
+        f"decision identity provenance on the live frame (R-2): {provenance}",
+    ]
+    if candidate == "xmage":
+        verdict = "PASS" if verified is True else ("FAIL" if verified is False else "UNKNOWN")
+        evidence.append(
+            "XMage binds decisions by decision_id (sha256) and pass by action_id; the "
+            "shape difference from Forge is approved protocol translation under R-2"
+        )
+        limitations: list[str] = []
+    else:
+        verdict = "UNKNOWN"
+        evidence.append(
+            "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions"
+        )
+        limitations = [
+            "no STARTING_PLAYER, MULLIGAN or DRAW decision class beyond PRIORITY was "
+            "reachable for the other candidate on the shared surface (R-2: Forge AF04 "
+            "stays UNKNOWN until such classes are exercised on its lane)"
+        ]
+    if verified is not True:
+        limitations.append("R-2 provenance condition not proven on a live frame in this run")
+    return {
+        "gate": "AF04",
+        "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+        "verdict": verdict,
+        "evidence": evidence,
+        "owner_ruling": "R-2",
+        "blocking_rows": [],
+        "nonblocking_limitations": limitations,
+    }
+
+
+def af00_gate(candidate: str, data: dict[str, Any], af01: dict[str, Any]) -> dict[str, Any]:
+    """Derive AF00 from exact current source/build identity.
+
+    XMage currently has a single source role, so the provider-reported commit is
+    compared directly with its current candidate. Forge under R-1/R-3 has two
+    explicit roles: the #13 bridge/materialization source that is actually built
+    and the #11/#12 Rules-Core candidate. Forge AF00 therefore requires both the
+    exact build provenance and the separately measured Rules-Core equivalence.
+    """
+    runtime = data["results_runtime_identity"]
+    if candidate != "forge":
+        expected = runtime.get("engine_candidate_commit", "")
+        return {
+            "gate": "AF00",
+            "name": "SOURCE_AND_BUILD_LOCK",
+            "verdict": source_lock_verdict(af01, expected),
+            "evidence": [
+                f"candidate commit reported by the provider at handshake: "
+                f"{af01.get('engine_commit_reported')}",
+                f"commit the evidence is required to be about: {expected}",
+                f"engine_commit provenance: {af01.get('engine_commit_provenance')}",
+                "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
+            ],
+            "blocking_rows": [],
+            "nonblocking_limitations": [],
+        }
+
+    source_commit = str(runtime.get("bridge_source_commit") or "")
+    source_tree = str(runtime.get("bridge_source_tree") or "")
+    rules_commit = str(runtime.get("engine_candidate_commit") or "")
+    rules_tree = str(runtime.get("engine_candidate_tree") or "")
+    rules_proof = runtime.get("rules_core_identity") or {}
+    bridge_proof = runtime.get("bridge_identity") or {}
+    version_payload = (af01.get("engine_identity") or {}).get("get_provider_version_payload") or {}
+    provenance = receipt_mod.verify_pb05_provenance(
+        version_payload,
+        expected_source_commit=source_commit,
+        expected_tree=source_tree,
+    )
+    handshake = source_lock_verdict(af01, source_commit)
+
+    exact = (
+        handshake == "PASS"
+        and provenance.get("af00_credit") is True
+        and rules_proof.get("engine_equivalent") is True
+        and bridge_proof.get("identical") is True
+    )
+    explicit_failure = (
+        handshake == "FAIL"
+        or provenance.get("engine_commit_verified") is False
+        or rules_proof.get("engine_equivalent") is False
+        or bridge_proof.get("identical") is False
+    )
+    verdict = "PASS" if exact else ("FAIL" if explicit_failure else "UNKNOWN")
+
+    limitations: list[str] = []
+    if verdict != "PASS":
+        limitations.extend(str(item) for item in provenance.get("findings", []))
+        if rules_proof.get("engine_equivalent") is not True:
+            limitations.append(
+                "Rules-Core tree equivalence to the admitted R-1 candidate is not established"
+            )
+        if bridge_proof.get("identical") is not True:
+            limitations.append(
+                "executing forge-protocol2-bridge module is not proven identical to the bound source"
+            )
+
+    return {
+        "gate": "AF00",
+        "name": "SOURCE_AND_BUILD_LOCK",
+        "verdict": verdict,
+        "evidence": [
+            f"provider/build source commit: {source_commit}",
+            f"provider/build source tree: {source_tree}",
+            f"provider reported commit: {af01.get('engine_commit_reported')}",
+            f"provider build provenance verified: {provenance.get('af00_credit')}",
+            f"R-1 Rules-Core candidate commit: {rules_commit}",
+            f"R-1 Rules-Core candidate tree: {rules_tree}",
+            f"Rules-Core equivalence: {rules_proof.get('justification')}",
+            f"bridge identity binding: {bridge_proof.get('justification')}",
+            "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
+        ],
+        "build_provenance": provenance,
+        "rules_core_identity_proof": rules_proof,
+        "bridge_identity_proof": bridge_proof,
+        "blocking_rows": [],
+        "nonblocking_limitations": limitations,
+    }
 
 
 def af03_gate(candidate: str) -> dict[str, Any]:
@@ -486,42 +624,77 @@ def assemble() -> None:
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
         promoted = 0
+        demoted_without_receipt = 0
+        receipt_backed_existing_pass = 0
+
+        # R-4 is an all-PASS invariant, not merely a promotion rule. A row that
+        # the runner directly classified PASS still earns zero FULL107 credit
+        # unless the admitted producer persisted an exact, current
+        # candidate/runner/obligation-bound positive receipt.
+        if not carried_forward:
+            for fixture, row in rows.items():
+                if row["exit_state"] != "PASS":
+                    continue
+                receipt_ids = bindings.get(fixture, {}).get(candidate) or []
+                if receipt_ids:
+                    row["positive_receipt_identities"] = receipt_ids
+                    row.setdefault("terminal_facts", {})
+                    row["terminal_facts"]["positive_receipts"] = receipt_ids
+                    receipt_backed_existing_pass += 1
+                    continue
+                row["pre_r4_receipt_exit_state"] = "PASS"
+                row["pre_r4_receipt_reason"] = row.get("reason")
+                row["exit_state"] = "UNKNOWN"
+                row["failure_reason"] = (
+                    "R-4 direct-credit gate: the row executed as PASS but no valid "
+                    "positive fixture receipt matched the current candidate, runner, "
+                    "requested-state digest and obligation digest"
+                )
+                row["reason"] = row["failure_reason"]
+                row["evidence_class"] = "DIRECT_EXECUTION_UNCREDITED_NO_R4_RECEIPT"
+                demoted_without_receipt += 1
+
         for fixture, per in bindings.items():
-            classes = per.get(candidate)
-            if not classes or fixture not in rows:
+            receipt_ids = per.get(candidate)
+            if not receipt_ids or fixture not in rows:
                 continue
             if carried_forward:
                 # A carried-forward column has no executions in this epoch, so a
-                # receipt crediting one of its rows cannot exist. If one ever did,
-                # relabelling a historical row as fresh would be a provenance
-                # lie: refuse the promotion instead.
+                # current receipt may never relabel it as fresh.
                 continue
             row = rows[fixture]
             if row["exit_state"] == "PASS":
                 continue
+            # A contradictory direct failure is adjudication evidence, not
+            # something an alternate positive route may silently overwrite.
+            if row["exit_state"] in {
+                "FAIL",
+                "CRASH",
+                "TIMEOUT",
+                "PROTOCOL_FAILURE",
+            }:
+                row["positive_receipt_conflict"] = receipt_ids
+                continue
             row["exit_state"] = "PASS"
             row["failure_reason"] = None
-            if all(name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX) for name in classes):
+            if all(name.startswith(midgame_rows_mod.TEST_IDENTITY_PREFIX) for name in receipt_ids):
                 row["execution_mode"] = midgame_rows_mod.EXECUTION_MODE
                 row["reason"] = (
                     "exact placement obligation executed on the production midgame lane "
-                    f"({', '.join(classes)}): the engine constructed the record's state, "
+                    f"({', '.join(receipt_ids)}): the engine constructed the record's state, "
                     "every answer was an engine-offered option from the record's decision "
                     "script, and every required event and terminal check was verified "
                     "against the engine's public event tape and observation"
                 )
             else:
-                row["execution_mode"] = "NATIVE_CURRENT_BOUNDARY_RUNTIME"
                 row["reason"] = (
-                    f"fixture-corresponding native harness executed fresh under the current "
-                    f"boundary ({', '.join(classes)}); the effective v1.0.6 record for this row "
-                    f"is byte-identical to the frozen v1.0.5 record it loads, as proven in "
-                    f"SUCCESSOR_INHERITANCE_PROOF.json"
+                    "R-4 exact direct producer receipt verified for the current candidate, "
+                    f"runner and obligation ({', '.join(receipt_ids)})"
                 )
             row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
-            row["native_harness_classes"] = classes
+            row["positive_receipt_identities"] = receipt_ids
             row.setdefault("terminal_facts", {})
-            row["terminal_facts"]["native_harness"] = classes
+            row["terminal_facts"]["positive_receipts"] = receipt_ids
             promoted += 1
         counts = {
             "PASS": 0,
@@ -537,7 +710,12 @@ def assemble() -> None:
         assert sum(counts.values()) == 107, counts
         results["rows"] = [rows[row["fixture_id"]] for row in results["rows"]]
         results["counts"] = counts
-        results["native_promotions"] = promoted
+        # Kept as a backwards-compatible field only: R-4 forbids native-suite
+        # execution from promoting FULL107 rows, so it is now always zero.
+        results["native_promotions"] = 0
+        results["positive_receipt_promotions"] = promoted
+        results["positive_receipt_existing_passes"] = receipt_backed_existing_pass
+        results["r4_unreceipted_pass_demotions"] = demoted_without_receipt
         results["native_runs"] = native_credit(
             candidate,
             results["runtime_identity"].get("engine_candidate_commit", ""),
@@ -748,40 +926,8 @@ def assemble() -> None:
         # prefixes earned AF02 PASS. A shortfall is UNKNOWN, not FAIL: an
         # unestablished count is an evidence gap, not a refutation.
         cardinality_assessment = lifecycle_mod.cardinality_verdict(cardinality["results"])
-        # The commit THIS candidate's evidence is required to be about, read from
-        # this candidate's own results. It used to be a variable assigned in the
-        # earlier per-candidate loop, so by the time the AF matrix ran it held the
-        # LAST candidate's commit. XMage's AF00 was therefore compared against
-        # Forge's expected commit and reported FAIL for the wrong reason.
-        expected_engine_commit = data["results_runtime_identity"].get("engine_candidate_commit", "")
         matrix = [
-            {
-                # AF00 was a literal PASS. Its evidence merely printed the commit
-                # the provider reported; nothing compared it to the commit the
-                # evidence was supposed to be about, so a provider reporting the
-                # wrong engine still earned PASS. The verdict is now derived from
-                # that comparison.
-                "gate": "AF00",
-                "name": "SOURCE_AND_BUILD_LOCK",
-                "verdict": source_lock_verdict(af01, expected_engine_commit),
-                "evidence": [
-                    f"candidate commit reported by the provider at handshake: "
-                    f"{af01['engine_commit_reported']}",
-                    f"commit the evidence is required to be about: {expected_engine_commit}",
-                    f"engine_commit provenance: {af01['engine_commit_provenance']}",
-                    "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": (
-                    [
-                        "Forge reports its engine commit from the FORGE_ENGINE_SHA environment "
-                        "variable rather than deriving it from the built Forge bytes, so the "
-                        "commit-to-build binding is operator-supplied, not build-proven"
-                    ]
-                    if candidate == "forge"
-                    else []
-                ),
-            },
+            af00_gate(candidate, data, af01),
             {
                 "gate": "AF01",
                 "name": "PROTOCOL_HANDSHAKE",
@@ -823,34 +969,7 @@ def assemble() -> None:
                 ],
             },
             af03_gate(candidate),
-            {
-                "gate": "AF04",
-                "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
-                "verdict": "FAIL" if candidate == "xmage" else "UNKNOWN",
-                "evidence": [
-                    "an external PRIORITY decision was reached and answered with an "
-                    "engine-offered option on the shared generic lane",
-                    "XMage requires external_control=true at create_commander_game or "
-                    "get_legal_actions fails closed (LEGAL_ACTIONS_UNAVAILABLE)"
-                    if candidate == "xmage"
-                    else "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions",
-                    "XMage binds decisions by decision_id (sha256) and pass by action_id; "
-                    "Forge binds by revision (long) and pass by actor_id; neither accepts the "
-                    "other's shape",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": (
-                    [
-                        "a single candidate-neutral adapter cannot drive both candidates without "
-                        "a provider-specific decision-identity shim"
-                    ]
-                    if candidate == "xmage"
-                    else [
-                        "no STARTING_PLAYER, MULLIGAN or DRAW decision class beyond PRIORITY was "
-                        "reachable for the other candidate on the shared surface"
-                    ]
-                ),
-            },
+            af04_gate(candidate, af01),
             {
                 "gate": "AF05",
                 "name": "HIDDEN_INFORMATION",
@@ -991,6 +1110,57 @@ def assemble() -> None:
                 "gates": matrix,
             },
         )
+
+    # ---- R-5 current provider-readiness packet ---------------------------
+    # This is an evidence handoff, not a selection algorithm. It reports the
+    # current AF00-AF10 and FULL107 residuals for #255 without assigning scores,
+    # ranks or a preferred provider. AF11 is intentionally deferred until after
+    # provider selection by the accepted slot order.
+    readiness_candidates: dict[str, Any] = {}
+    for candidate, data in per_candidate.items():
+        af_document = load(OUT / f"AF00_AF11_{candidate.upper()}.json")
+        af00_af10 = [gate for gate in af_document["gates"] if gate["gate"] != "AF11"]
+        residual_rows = [
+            {
+                "fixture_id": fixture,
+                "exit_state": row["exit_state"],
+                "execution_mode": row.get("execution_mode"),
+                "reason": row.get("reason"),
+            }
+            for fixture, row in sorted(data["rows"].items())
+            if row["exit_state"] != "PASS"
+        ]
+        readiness_candidates[candidate] = {
+            "column_provenance": data["column_provenance"],
+            "runtime_identity": data["results_runtime_identity"],
+            "full107_counts": data["counts"],
+            "full107_residual_count": len(residual_rows),
+            "full107_residual_rows": residual_rows,
+            "af00_af10": af00_af10,
+            "af00_af10_non_pass": [gate for gate in af00_af10 if gate.get("verdict") != "PASS"],
+            "native_suite_role": ("SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT"),
+        }
+    write(
+        "PROVIDER_READINESS_CURRENT.json",
+        {
+            "schema_version": "commander-lab.provider-readiness-current/1.0.0",
+            "issue": 425,
+            "coordinator_tracker": 255,
+            "evidence_epoch": epoch_identity,
+            "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+            "owner_rulings": ["R-1", "R-2", "R-3", "R-4"],
+            "r4_credit_policy": (
+                "FULL107 PASS requires a current exact positive per-fixture receipt "
+                "bound to candidate, runner, requested-state digest and obligation digest"
+            ),
+            "candidates": readiness_candidates,
+            "af11": "DEFERRED_UNTIL_AFTER_PROVIDER_SELECTION",
+            "production_provider": "NOT_SELECTED",
+            "architecture_freeze": "NOT_CLAIMED",
+            "ranking": "NONE",
+            "selection": "COORDINATOR_OWNED_IN_ISSUE_255",
+        },
+    )
 
     # ---- comparison ------------------------------------------------------
     x = per_candidate["xmage"]["rows"]

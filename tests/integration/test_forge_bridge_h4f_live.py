@@ -25,7 +25,7 @@ Requires:
   FORGE_SOURCE_DIR -- checkout of moeendres-png/forge containing the qualified
     forge-protocol2-bridge module (read-only use; the test only runs Maven
     package/classpath derivation and launches the bridge JVM);
-  Java 17+ and Maven on PATH (for the module build + classpath).
+  Java 17+, Maven and Git on PATH (for source binding, build and classpath).
 
 Skipped (NOT_RUN) when unavailable. Never fabricates runtime evidence.
 """
@@ -33,6 +33,7 @@ Skipped (NOT_RUN) when unavailable. Never fabricates runtime evidence.
 from __future__ import annotations
 
 import contextlib
+import json
 import os
 import shutil
 import subprocess
@@ -56,7 +57,11 @@ from commander_lab.models import (
 
 pytestmark = pytest.mark.external
 
-FORGE_RULES_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_AUTHORITY = json.loads((_REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+FORGE_RULES_COMMIT = _AUTHORITY["secondary_engine"]["commit"]
+FORGE_BRIDGE_COMMIT = _AUTHORITY["secondary_engine"]["bridge_source"]["commit"]
+FORGE_BRIDGE_BASE_COMMIT = _AUTHORITY["secondary_engine"]["bridge_source"]["rules_core_base_commit"]
 
 # Bounded H4F-style fixture data (card NAMES only; the bridge resolves them
 # against real Forge card data and rejects unknown names explicitly).
@@ -98,7 +103,7 @@ def _forge_source() -> Path | None:
         return None
     if not (root / "forge-protocol2-bridge" / "pom.xml").is_file():
         return None
-    if shutil.which("java") is None or shutil.which("mvn") is None:
+    if shutil.which("java") is None or shutil.which("mvn") is None or shutil.which("git") is None:
         return None
     return root
 
@@ -213,15 +218,79 @@ def _bridge_command(source: Path, tmp_path: Path) -> tuple[str, ...]:
 def live_bridge(tmp_path_factory):
     source = _forge_source()
     if source is None:
-        pytest.skip("FORGE_SOURCE_DIR with Java+Maven is required for the live Forge test")
+        pytest.skip("FORGE_SOURCE_DIR with Java+Maven+Git is required for the live Forge test")
+    assert FORGE_BRIDGE_BASE_COMMIT == FORGE_RULES_COMMIT, (
+        "Forge bridge materialization base is not the current Rules-Core candidate"
+    )
+    observed = subprocess.run(
+        ["git", "-C", str(source), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert observed.returncode == 0, f"cannot bind Forge source identity: {observed.stderr}"
+    assert observed.stdout.strip() == FORGE_BRIDGE_COMMIT, (
+        f"FORGE_SOURCE_DIR is {observed.stdout.strip()}, expected bridge/materialization "
+        f"source {FORGE_BRIDGE_COMMIT}"
+    )
+    dirty = subprocess.run(
+        ["git", "-C", str(source), "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert dirty.returncode == 0, f"cannot inspect Forge source cleanliness: {dirty.stderr}"
+    assert not dirty.stdout.strip(), (
+        "FORGE_SOURCE_DIR is dirty; current evidence must be source-bound"
+    )
+    ancestry = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(source),
+            "merge-base",
+            "--is-ancestor",
+            FORGE_RULES_COMMIT,
+            FORGE_BRIDGE_COMMIT,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert ancestry.returncode == 0, (
+        f"bridge/materialization source {FORGE_BRIDGE_COMMIT} is not descended from "
+        f"Rules-Core candidate {FORGE_RULES_COMMIT}"
+    )
+    surface = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(source),
+            "diff",
+            "--name-only",
+            FORGE_RULES_COMMIT,
+            FORGE_BRIDGE_COMMIT,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert surface.returncode == 0, f"cannot compare Forge candidate surfaces: {surface.stderr}"
+    changed = [line for line in surface.stdout.splitlines() if line.strip()]
+    assert changed, "bridge/materialization successor must carry an explicit bridge delta"
+    assert all(path.startswith("forge-protocol2-bridge/") for path in changed), (
+        "bridge/materialization source drifts outside the separately governed bridge surface: "
+        + ", ".join(changed)
+    )
     tmp_path = tmp_path_factory.mktemp("forge-live")
     command = _bridge_command(source, tmp_path)
     jvm_tmp = Path((tmp_path / "jvm-tmp-dir.txt").read_text(encoding="utf-8").strip())
-    # The bridge JVM inherits these two operator-supplied bindings; the Rules
-    # SHA is the audited H4F Rules-Core pin, the assets dir is the same source.
+    # The provider's self-reported/build identity must name the exact source
+    # that was compiled. Rules-Core authority is bound separately above by
+    # proving that this clean descendant differs only in the bridge module.
     old_sha = os.environ.get("FORGE_ENGINE_SHA")
     old_assets = os.environ.get("FORGE_ASSETS_DIR")
-    os.environ["FORGE_ENGINE_SHA"] = FORGE_RULES_COMMIT
+    os.environ["FORGE_ENGINE_SHA"] = FORGE_BRIDGE_COMMIT
     os.environ["FORGE_ASSETS_DIR"] = str(source / "forge-gui")
     client = JsonLineBridgeClient(
         command,
@@ -280,7 +349,10 @@ def test_live_forge_h4f_bounded_runtime(live_bridge) -> None:
     provider = client.request("get_provider_version")
     assert provider.get("provider") == "forge"
     assert provider.get("protocol_version") == ENGINE_PROTOCOL_VERSION
-    assert provider.get("engine_commit") == FORGE_RULES_COMMIT
+    assert provider.get("engine_commit") == FORGE_BRIDGE_COMMIT
+    assert provider.get("engine_build_commit") == FORGE_BRIDGE_COMMIT
+    assert provider.get("engine_build_dirty") == "false"
+    assert provider.get("engine_commit_verified") is True
     caps_raw = client.request("get_capabilities")
     caps = EngineCapabilityHandshake.model_validate(caps_raw.get("capabilities", caps_raw))
     assert caps.runtime_kind == "external_rules_engine"

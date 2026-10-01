@@ -29,7 +29,7 @@ STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
 CANONICAL_XMAGE_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
-CANONICAL_FORGE_PIN = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
@@ -332,6 +332,56 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
     assert "set -euo pipefail" in text
 
 
+def test_operator_bootstraps_resolve_current_forge_roles_from_manifest(repo_root: Path) -> None:
+    old_upstream = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")
+    windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
+
+    for rel, text in (
+        ("scripts/bootstrap_engine_linux.sh", linux),
+        ("scripts/bootstrap_engine_windows.ps1", windows),
+    ):
+        assert "docker_resolve_engine_pin.py" in text, rel
+        assert old_upstream not in text, rel
+        assert CANONICAL_FORGE_PIN not in text, rel
+        assert CANONICAL_FORGE_BRIDGE_COMMIT not in text, rel
+        assert "bridge_commit" in text, rel
+        assert "source_commit" in text, rel
+        assert "status" in text and "--porcelain" in text, rel
+        assert "merge-base" in text and "--is-ancestor" in text, rel
+        assert "diff" in text and "--name-only" in text, rel
+        assert "forge-protocol2-bridge/" in text, rel
+        assert "dirty" in text.lower(), rel
+
+    assert '"commit":"$COMMIT"' in linux
+    assert '"source_commit":"$COMMIT"' in linux
+    assert '"rules_core_commit":"$RULES_COMMIT"' in linux
+    assert "commit=$Commit" in windows
+    assert "source_commit=$Commit" in windows
+    assert "rules_core_commit=$RulesCommit" in windows
+    assert "remote get-url origin" in windows
+    assert "Unexpected source remote" in windows
+
+
+def test_live_forge_integration_binds_current_rules_and_bridge_roles(repo_root: Path) -> None:
+    text = (repo_root / "tests/integration/test_forge_bridge_h4f_live.py").read_text(
+        encoding="utf-8"
+    )
+    assert "config/rules_engines.json" in text
+    assert "FORGE_RULES_COMMIT" in text
+    assert "FORGE_BRIDGE_COMMIT" in text
+    assert "FORGE_BRIDGE_BASE_COMMIT" in text
+    assert "merge-base" in text and "--is-ancestor" in text
+    assert "diff" in text and "--name-only" in text
+    assert 'path.startswith("forge-protocol2-bridge/")' in text
+    assert 'os.environ["FORGE_ENGINE_SHA"] = FORGE_BRIDGE_COMMIT' in text
+    assert 'provider.get("engine_commit_verified") is True' in text
+    assert "status" in text and "--porcelain" in text
+    assert "a37a865a53280dd8ad6fad3384d69611e8c5a42f" not in text
+    assert CANONICAL_FORGE_PIN not in text
+    assert CANONICAL_FORGE_BRIDGE_COMMIT not in text
+
+
 def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
     text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
     assert _HEX40.search(_without_base_image_digests(text)) is None
@@ -436,7 +486,7 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
 
 
 CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"
-CANONICAL_FORGE_BRIDGE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+CANONICAL_FORGE_BRIDGE_COMMIT = "e8b8aec60720aee218338754224721597b8c6ec5"
 
 
 def test_forge_bridge_source_resolves_dual_identity(repo_root: Path) -> None:
@@ -665,6 +715,115 @@ def _gnu_bash() -> str:
     if executable is None:
         pytest.skip("bash is unavailable on this runner")
     return executable
+
+
+def _forge_bootstrap_env(tmp_path: Path, repo_root: Path) -> tuple[dict, Path]:
+    fakebin = tmp_path / "bootstrap-fakebin"
+    fakebin.mkdir()
+    java = fakebin / "java"
+    javac = fakebin / "javac"
+    java.write_text(
+        "#!/usr/bin/env bash\necho 'openjdk version \"17.0.0\"' >&2\n",
+        encoding="utf-8",
+    )
+    javac.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
+    java.chmod(0o755)
+    javac.chmod(0o755)
+
+    binary = tmp_path / "forge-binary"
+    binary.mkdir()
+    env = dict(os.environ)
+    env.update(
+        {
+            "PATH": str(fakebin) + os.pathsep + os.environ.get("PATH", ""),
+            "ENGINE_PROVIDER": "forge",
+            "ENGINE_START_COMMAND": "true",
+            "ENGINE_BINARY_PATH": str(binary),
+            "ENGINE_SOURCE_PATH": str(tmp_path / "unused-forge-source"),
+        }
+    )
+    return env, binary
+
+
+def test_linux_bootstrap_reuses_only_current_forge_dual_identity(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    manifest = _manifest(repo_root)
+    secondary = manifest["secondary_engine"]
+    bridge = secondary["bridge_source"]
+    env, binary = _forge_bootstrap_env(tmp_path, repo_root)
+    identity = binary / "installation-identity.json"
+    identity.write_text(
+        json.dumps(
+            {
+                "provider": "forge",
+                "commit": bridge["commit"],
+                "source_commit": bridge["commit"],
+                "rules_core_commit": secondary["commit"],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [_gnu_bash(), str(repo_root / "scripts/bootstrap_engine_linux.sh")],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=str(repo_root),
+        env=env,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "matches current authority" in completed.stdout
+
+
+def test_linux_bootstrap_rejects_stale_or_cross_wired_forge_reuse(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    manifest = _manifest(repo_root)
+    secondary = manifest["secondary_engine"]
+    bridge = secondary["bridge_source"]
+    env, binary = _forge_bootstrap_env(tmp_path, repo_root)
+    identity = binary / "installation-identity.json"
+
+    stale_cases = {
+        "rules": {
+            "provider": "forge",
+            "commit": bridge["commit"],
+            "source_commit": bridge["commit"],
+            "rules_core_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+        },
+        "built-source": {
+            "provider": "forge",
+            "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+            "source_commit": bridge["commit"],
+            "rules_core_commit": secondary["commit"],
+        },
+        "source": {
+            "provider": "forge",
+            "commit": bridge["commit"],
+            "source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+            "rules_core_commit": secondary["commit"],
+        },
+        "provider": {
+            "provider": "xmage",
+            "commit": bridge["commit"],
+            "source_commit": bridge["commit"],
+            "rules_core_commit": secondary["commit"],
+        },
+    }
+    for name, payload in stale_cases.items():
+        identity.write_text(json.dumps(payload), encoding="utf-8")
+        completed = subprocess.run(
+            [_gnu_bash(), str(repo_root / "scripts/bootstrap_engine_linux.sh")],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=str(repo_root),
+            env=env,
+        )
+        assert completed.returncode != 0, name
+        assert "ERROR:" in completed.stderr, name
 
 
 def _run_entrypoint(

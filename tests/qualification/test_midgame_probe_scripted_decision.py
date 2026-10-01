@@ -134,3 +134,56 @@ def test_the_scripted_caster_holding_priority_is_never_passed(probe: Any) -> Non
     )
     assert terminal["observed"] is True
     assert engine.submitted == ["pass-1"]
+
+
+class ParkedEngine:
+    """An engine parked on one decision at a given phase/step; nothing advances."""
+
+    def __init__(self, decision_class: str, phase: str, step: str) -> None:
+        self.decision = {"decision_class": decision_class, "seat": 0, "legal_options": []}
+        self.phase, self.step = phase, step
+        self.engine_commit = "c" * 40
+        self.submitted: list[str] = []
+
+    def pending_decision(self, *, attempts: int = 60) -> dict[str, Any] | None:
+        return self.decision
+
+    def complete_arrival(self) -> dict[str, Any]:
+        return {
+            "construction_match": True,
+            "mismatches": [],
+            "observation": {"phase": self.phase, "step": self.step},
+        }
+
+    def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> dict[str, Any]:
+        self.submitted.extend(option_ids)
+        return {}
+
+
+def _upkeep_record(first_family: str) -> dict[str, Any]:
+    return {
+        "fixture_id": "PILOT_TRIGGER_ORDER",
+        "temporal_state": {"phase": "beginning", "step": "upkeep", "active_player": "P1"},
+        "decision_script": [{"actor": "P1", "decision_family": first_family}],
+    }
+
+
+def test_the_records_first_scripted_decision_at_the_checkpoint_is_the_arrival(probe: Any) -> None:
+    """Simultaneous upkeep triggers are ordered before anyone gets priority: that
+    ordering, at the record's own step, is where the record's obligation begins."""
+    engine = ParkedEngine("trigger_order", "BEGINNING", "UPKEEP")
+    verdict = probe.drive_arrival(engine, _upkeep_record("trigger_order"))
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    assert engine.submitted == []
+
+
+def test_the_first_scripted_decision_elsewhere_is_not_an_arrival(probe: Any) -> None:
+    engine = ParkedEngine("trigger_order", "PRECOMBAT_MAIN", "PRECOMBAT_MAIN")
+    with pytest.raises(probe.ml.MidgameLaneError, match="not at the record's"):
+        probe.drive_arrival(engine, _upkeep_record("trigger_order"))
+
+
+def test_an_ordering_the_record_does_not_script_is_still_refused(probe: Any) -> None:
+    engine = ParkedEngine("trigger_order", "BEGINNING", "UPKEEP")
+    with pytest.raises(probe.ml.MidgameLaneError, match="unrecognised decision class"):
+        probe.drive_arrival(engine, _upkeep_record("choose_use"))

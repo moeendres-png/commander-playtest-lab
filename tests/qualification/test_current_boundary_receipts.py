@@ -290,6 +290,60 @@ def test_positive_fixture_credit_accepted() -> None:
     assert credit == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
 
 
+def test_positive_fixture_credit_requires_exact_current_obligation_digests() -> None:
+    denominator = {
+        "MICRO_STACK": {
+            "fixture_id": "MICRO_STACK",
+            "requested_state_digest": "state-current",
+            "obligation_digest": "obligation-current",
+        }
+    }
+    exact = _fixture_receipt(
+        obligation_exercised={
+            "requested_state_digest": "state-current",
+            "obligation_digest": "obligation-current",
+        }
+    )
+    assert R.positive_fixture_credit(
+        [exact],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=denominator,
+        expected_runner_digest=_RUNNER_DIGEST,
+    ) == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
+
+    for field, stale in (
+        ("requested_state_digest", "state-stale"),
+        ("obligation_digest", "obligation-stale"),
+    ):
+        obligation = dict(exact["obligation_exercised"])
+        obligation[field] = stale
+        receipt = _fixture_receipt(obligation_exercised=obligation)
+        assert (
+            R.positive_fixture_credit(
+                [receipt],
+                candidate="xmage",
+                expected_commit="d" * 40,
+                denominator=denominator,
+                expected_runner_digest=_RUNNER_DIGEST,
+            )
+            == {}
+        )
+
+
+def test_native_suite_receipt_never_earns_full107_fixture_credit() -> None:
+    assert (
+        R.positive_fixture_credit(
+            [_good_receipt()],
+            candidate="xmage",
+            expected_commit="d" * 40,
+            denominator={"MICRO_STACK": {"fixture_id": "MICRO_STACK"}},
+            expected_runner_digest=_RUNNER_DIGEST,
+        )
+        == {}
+    )
+
+
 def test_negative_assertion_cannot_promote() -> None:
     """The exact HIDDEN_02 defect: a test asserting FAILURE must never promote."""
     credit = R.positive_fixture_credit(
@@ -669,3 +723,122 @@ def test_every_requested_class_needs_a_fresh_executed_report(tmp_path: Path) -> 
     )
     assert observed["Ran"]["tests"] == 3
     assert set(unexecuted) == {"AllSkipped", "Empty", "Failed", "Stale", "Missing"}
+
+
+def _manifest_row(**digests: str) -> dict[str, dict[str, str]]:
+    return {"MICRO_STACK": {"fixture_id": "MICRO_STACK", **digests}}
+
+
+def _exact_receipt() -> dict:
+    return _fixture_receipt(
+        obligation_exercised={
+            "requested_state_digest": "state-current",
+            "obligation_digest": "obligation-current",
+        }
+    )
+
+
+def _credit(denominator: dict) -> dict:
+    return R.positive_fixture_credit(
+        [_exact_receipt()],
+        candidate="xmage",
+        expected_commit="d" * 40,
+        denominator=denominator,
+        expected_runner_digest=_RUNNER_DIGEST,
+    )
+
+
+def test_credit_reads_the_effective_manifest_row_the_assembler_passes() -> None:
+    """The assembler's denominator is EFFECTIVE_FULL107_MANIFEST.json, whose rows
+    name the digests effective_*; reading only the plain names made every
+    comparison None != receipt, so a local two-candidate assembly credited
+    nothing (0 PASS for both candidates)."""
+    manifest = _manifest_row(
+        effective_requested_state_digest="state-current",
+        effective_obligation_digest="obligation-current",
+    )
+    assert _credit(manifest) == {"MICRO_STACK": ["XmageFullGameMicroExecutionTest#microStack"]}
+    stale = _manifest_row(
+        effective_requested_state_digest="state-current",
+        effective_obligation_digest="obligation-stale",
+    )
+    assert _credit(stale) == {}
+
+
+def test_a_record_with_conflicting_digest_names_or_none_earns_nothing() -> None:
+    ambiguous = _manifest_row(
+        requested_state_digest="state-current",
+        effective_requested_state_digest="state-other",
+        obligation_digest="obligation-current",
+    )
+    assert _credit(ambiguous) == {}
+    assert _credit(_manifest_row()) == {}
+
+
+def test_the_runner_writes_the_manifest_digests_under_the_effective_names() -> None:
+    runner = Path(__file__).resolve().parents[2] / "scripts/run_current_boundary_qualification.py"
+    source = runner.read_text(encoding="utf-8")
+    assert '"effective_requested_state_digest": record.get("requested_state_digest")' in source
+    assert '"effective_obligation_digest": record.get("obligation_digest")' in source
+
+
+def _testng_suite(directory: Path, cases: list[tuple[str, str, str]]) -> Path:
+    """A TestNG-layout surefire report: one file, every class as testcase elements."""
+    directory.mkdir(parents=True, exist_ok=True)
+    body = []
+    for classname, case, outcome in cases:
+        child = {"failure": "<failure/>", "error": "<error/>", "skipped": "<skipped/>"}.get(
+            outcome, ""
+        )
+        body.append(f'<testcase classname="{classname}" name="{case}">{child}</testcase>')
+    path = directory / "TEST-TestSuite.xml"
+    path.write_text(f'<testsuite name="TestSuite">{"".join(body)}</testsuite>', encoding="utf-8")
+    return path
+
+
+def test_testng_suite_reports_attribute_every_case_to_its_class(tmp_path: Path) -> None:
+    """Forge's surefire runs TestNG: one TEST-TestSuite.xml carries all classes.
+    Matching per-class file names found none of them, so a green Forge suite
+    was recorded as 0 tests and AF10 as FAIL."""
+    import os
+    import time
+
+    start = time.time() - 5
+    reports = tmp_path / "forge-protocol2-bridge" / "surefire-reports"
+    _testng_suite(
+        reports,
+        [
+            ("forge.bridge.BridgeEngineTest", "a", "passed"),
+            ("forge.bridge.BridgeEngineTest", "b", "passed"),
+            ("forge.bridge.OnlySkipped", "c", "skipped"),
+            ("forge.bridge.Broken", "d", "failure"),
+            ("forge.bridge.Broken", "e", "passed"),
+        ],
+    )
+    stale_dir = tmp_path / "forge-gui" / "surefire-reports"
+    stale = _testng_suite(stale_dir, [("forge.bridge.StaleOnly", "f", "passed")])
+    os.utime(stale, (start - 100, start - 100))
+    observed, unexecuted = R.observed_class_executions(
+        [reports, stale_dir],
+        ("BridgeEngineTest", "OnlySkipped", "Broken", "StaleOnly", "Missing"),
+        not_before=start,
+    )
+    assert observed["BridgeEngineTest"]["tests"] == 2
+    assert observed["Broken"]["failures"] == 1
+    assert set(unexecuted) == {"OnlySkipped", "Broken", "StaleOnly", "Missing"}
+
+
+def test_a_case_listed_twice_keeps_its_worse_outcome(tmp_path: Path) -> None:
+    import time
+
+    start = time.time() - 5
+    reports = tmp_path / "surefire-reports"
+    _testng_suite(reports, [("pkg.Twice", "t", "passed")])
+    (reports / "TEST-pkg.Twice.xml").write_text(
+        '<testsuite name="pkg.Twice"><testcase classname="pkg.Twice" name="t"><failure/>'
+        "</testcase></testsuite>",
+        encoding="utf-8",
+    )
+    observed, unexecuted = R.observed_class_executions([reports], ("Twice",), not_before=start)
+    assert observed["Twice"]["tests"] == 1 and observed["Twice"]["failures"] == 1
+    assert unexecuted == ("Twice",)

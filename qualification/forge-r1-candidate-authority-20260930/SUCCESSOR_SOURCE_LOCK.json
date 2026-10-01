@@ -1,0 +1,66 @@
+{
+  "schema_version": "commander-lab.forge-r1-candidate-authority/1.0.0",
+  "workstream": "R-1 Forge candidate authority successor",
+  "authority": {
+    "parent_tracker": 255,
+    "execution_tracker": 425,
+    "owner_rulings": [
+      "R-1",
+      "R-2",
+      "R-3",
+      "R-4"
+    ],
+    "r1_effective": true,
+    "production_provider": "NOT_SELECTED",
+    "architecture_freeze": "NOT_CLAIMED"
+  },
+  "lab_source_lock": {
+    "main_base_commit": "ed94cf0ae26cef3bf7ec064ccded675a793f5edd",
+    "main_base_tree": "1dbd3e694565b69890a0f3cf4741690d7d2ca04a",
+    "branch_parent_commit": "2968c4a11eb25c63bd67fe055eb703b071ec7ef9",
+    "branch_parent_tree": "05edfaff8fc92bc9aaa57b0768d14023eb7883c3"
+  },
+  "previous_machine_authority": {
+    "forge_candidate_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "bridge_source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+    "disposition": "SUPERSEDED_AS_CURRENT_AUTHORITY_BY_OWNER_R1; PRESERVED_AS_HISTORICAL/REFERENCE"
+  },
+  "current_forge_authority": {
+    "repository": "https://github.com/moeendres-png/forge.git",
+    "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+    "candidate_pr": 11,
+    "includes_admitted_pr": 12,
+    "bridge_commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+    "bridge_tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
+    "bridge_pr": 13,
+    "bridge_rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "lineage_base_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
+    "upstream_reference_repository": "https://github.com/Card-Forge/forge.git",
+    "upstream_reference_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+    "bridge_integration": "forge#13 merged into the #11 qualification branch (merge commit e8b8aec6); forge#15/#16 not integrated: their exact-head Test build failed (runs #213, #220: 16 bridge test failures)"
+  },
+  "directly_verified_relations": {
+    "bridge_vs_candidate": {
+      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..e8b8aec60720aee218338754224721597b8c6ec5",
+      "changed_files": [
+        "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/Af01UnsupportedDecisionClassTest.java"
+      ],
+      "rules_core_main_source_changes": 0,
+      "card_data_changes": 0,
+      "disposition": "BRIDGE_ONLY_R3_AF01_SUCCESSOR"
+    }
+  },
+  "frozen_wsr22": {
+    "source_lock_path": "src/commander_lab/qualification/current_boundary/source_lock.py",
+    "source_lock_git_blob": "dd4af484bd6ae33540a130caaa3ecd9edeb1ac70",
+    "forge_candidate_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "disposition": "UNCHANGED_HISTORICAL_CONTRACT"
+  },
+  "evidence_transfer": {
+    "historical_receipts_relabelled": false,
+    "direct_credit_rule": "No historical result is relabelled as current R-1 successor evidence. Current credit requires fresh execution at the bound candidate/bridge identity or explicit impact adjudication permitted by the current evidence policy."
+  }
+}

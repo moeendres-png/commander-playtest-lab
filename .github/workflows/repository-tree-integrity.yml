@@ -7,6 +7,12 @@ on:
 permissions:
   contents: read
 
+# Every push and every PR edit (title, body, base) starts a run; only the
+# newest one per pull request can describe the tree that will merge.
+concurrency:
+  group: repository-tree-integrity-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 env:
   PYTHONHASHSEED: "0"
 

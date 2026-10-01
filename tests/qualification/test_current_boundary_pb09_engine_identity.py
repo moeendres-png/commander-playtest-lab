@@ -27,6 +27,9 @@ from commander_lab.qualification.current_boundary.receipts import verify_candida
 REPO = Path(__file__).resolve().parents[2]
 CONFIG = REPO / "config/rules_engines.json"
 READINESS = REPO / "docs/architecture_freeze_readiness_20260927/FORGE_FREEZE_READINESS.json"
+SUCCESSOR_LOCK = (
+    REPO / "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json"
+)
 
 # Historical path of the Forge reference checkout this file was written against.
 DEFAULT_FORGE_REFERENCE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
@@ -84,6 +87,10 @@ TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
 BRIDGE = "4753bb7c72ea60d653121e0bab989077b4009f9c"
 BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
 BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
+CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
+CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
+CURRENT_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
+CURRENT_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
 
 
 def test_the_four_forge_commits_are_all_distinct() -> None:
@@ -121,55 +128,77 @@ def test_upstream_ancestry_is_not_treated_as_identity() -> None:
         )
 
 
-@pytest.mark.parametrize("path", [CONFIG, READINESS])
-def test_config_and_readiness_carry_the_same_identities(path: Path) -> None:
-    document = json.loads(path.read_text(encoding="utf-8"))
-    identity = (
-        document["secondary_engine"]["engine_identity_pb09"]
-        if "secondary_engine" in document
-        else document["engine_identity_pb09"]
-    )
-    assert identity["executing_engine"]["commit"] == FORK
-    assert identity["executing_engine"]["is_pristine_upstream"] is False
+def _config() -> dict:
+    loaded: dict = json.loads(CONFIG.read_text(encoding="utf-8"))
+    return loaded
+
+
+def test_config_records_r1_current_authority_without_rewriting_history() -> None:
+    config = json.loads(CONFIG.read_text(encoding="utf-8"))
+    secondary = config["secondary_engine"]
+    identity = secondary["engine_identity_pb09"]
+
+    assert secondary["repository"] == "https://github.com/moeendres-png/forge.git"
+    assert secondary["commit"] == CURRENT_CANDIDATE
+    assert secondary["source_archive"].endswith(f"/{CURRENT_CANDIDATE}.tar.gz")
+    assert secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert secondary["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
+
+    assert identity["pb09_status"].startswith("RESOLVED_BY_OWNER_R1")
+    assert identity["current_candidate"]["commit"] == CURRENT_CANDIDATE
+    assert identity["current_candidate"]["tree"] == CURRENT_CANDIDATE_TREE
+    assert identity["qualification_lineage_base"]["commit"] == FORK
+    assert identity["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert identity["bridge_source"]["tree"] == CURRENT_BRIDGE_TREE
+    assert identity["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
     assert identity["upstream_baseline"]["commit"] == UPSTREAM
-    assert identity["upstream_baseline"]["verified_pristine"] is False
-    assert identity["upstream_baseline"]["upstream_behaviour_observed"] is False
-    assert "confusion_forbidden" in identity
+
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert config["current_runtime"]["provider_selected"] is False
+    assert config["current_runtime"]["production_provider"] is None
 
 
-def test_config_does_not_repin_the_candidate_to_the_fork() -> None:
-    """PB-09 forbids repinning the pin to the fork to make evidence consistent.
+def test_historical_readiness_remains_source_bound_and_open_after_r1() -> None:
+    document = json.loads(READINESS.read_text(encoding="utf-8"))
+    identity = document["engine_identity_pb09"]
 
-    The executed fork carries Lab's own Rules engineering, so designating it as the
-    Forge candidate would launder 47 Rules-touching Lab commits into a provider
-    pin. The pin is the Coordinator's to change, not this harness's.
-    """
-    secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
-    assert secondary["commit"] == UPSTREAM, "the Forge candidate pin must not move"
-    assert secondary["bridge_source"]["commit"] == BRIDGE
-
-
-def test_commit_field_is_the_pin_of_record_not_a_verdict_on_pb09() -> None:
-    """The field states what the pin IS, and does not pre-judge the open question."""
-    secondary = json.loads(CONFIG.read_text(encoding="utf-8"))["secondary_engine"]
-    meaning = secondary["commit_meaning"].upper()
-    assert "PINNED CANDIDATE OF RECORD" in meaning
-    assert "OPEN" in meaning and "COORDINATOR" in meaning
-    # It must not assert the fork is not the engine, which would pre-judge PB-09.
-    assert "NOT THE ENGINE THAT EXECUTES" not in meaning
-    assert secondary["engine_identity_pb09"]["pb09_status"].startswith("OPEN")
+    assert identity["executing_engine"]["commit"] == FORK
+    assert identity["upstream_baseline"]["commit"] == UPSTREAM
+    assert identity["pb09_status"].startswith("OPEN")
+    assert CURRENT_CANDIDATE not in json.dumps(document)
+    assert CURRENT_BRIDGE not in json.dumps(document)
 
 
-def test_identity_blocks_declare_pb09_open_rather_than_resolved() -> None:
-    for path in (CONFIG, READINESS):
-        document = json.loads(path.read_text(encoding="utf-8"))
-        identity = (
-            document["secondary_engine"]["engine_identity_pb09"]
-            if "secondary_engine" in document
-            else document["engine_identity_pb09"]
-        )
-        assert identity["pb09_status"].startswith("OPEN"), path.name
-        assert "RESOLVED" not in identity["pb09_status"].upper()
+def test_r1_successor_source_lock_matches_live_authority_and_preserves_wsr22() -> None:
+    successor = json.loads(SUCCESSOR_LOCK.read_text(encoding="utf-8"))
+    secondary = _config()["secondary_engine"]
+
+    assert successor["authority"]["owner_rulings"] == ["R-1", "R-2", "R-3", "R-4"]
+    assert successor["authority"]["production_provider"] == "NOT_SELECTED"
+    assert successor["authority"]["architecture_freeze"] == "NOT_CLAIMED"
+
+    current = successor["current_forge_authority"]
+    assert current["candidate_commit"] == secondary["commit"] == CURRENT_CANDIDATE
+    assert current["candidate_tree"] == CURRENT_CANDIDATE_TREE
+    assert current["bridge_commit"] == secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert current["bridge_tree"] == CURRENT_BRIDGE_TREE
+    assert (
+        current["bridge_rules_core_base_commit"]
+        == secondary["bridge_source"]["rules_core_base_commit"]
+        == CURRENT_CANDIDATE
+    )
+    assert current["lineage_base_commit"] == FORK
+    assert current["upstream_reference_commit"] == UPSTREAM
+
+    assert successor["evidence_transfer"]["historical_receipts_relabelled"] is False
+    assert successor["frozen_wsr22"]["forge_candidate_commit"] == FORK
+    assert successor["frozen_wsr22"]["source_lock_git_blob"] == (
+        "dd4af484bd6ae33540a130caaa3ecd9edeb1ac70"
+    )
+    # WSR22 remains historical/frozen; current authority lives in this successor
+    # lock plus config/rules_engines.json rather than by rewriting source_lock.py.
+    assert sl.FORGE_CANDIDATE_COMMIT == FORK
+    assert sl.FORGE_CANDIDATE_COMMIT != CURRENT_CANDIDATE
 
 
 def test_readiness_records_pb09_as_a_freeze_blocker() -> None:

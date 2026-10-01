@@ -79,6 +79,54 @@ REQUIRED_TRUTHFUL_CAPABILITIES = (
 _FAIL_CLOSED_VERDICT = {"FAILED", "UNSUPPORTED", "ERROR", "REJECTED", "TIMEOUT", "PROTOCOL_FAILURE"}
 
 
+def _frame_leaves(node: Any) -> list[Any]:
+    leaves: list[Any] = []
+    if isinstance(node, dict):
+        for value in node.values():
+            leaves.extend(_frame_leaves(value))
+    elif isinstance(node, list):
+        for value in node:
+            leaves.extend(_frame_leaves(value))
+    else:
+        leaves.append(node)
+    return leaves
+
+
+def decision_identity_provenance(candidate: str, frame: dict[str, Any] | None) -> dict[str, Any]:
+    """R-2 condition on a live frame: the submitted identity comes from the frame.
+
+    Every value ``decision_identity_params`` would submit must byte- and
+    type-match a value in the frame the provider just offered, and a pass
+    identity must be one of the offered ``pass_priority`` options. The shim may
+    translate field names; it may never invent, derive or normalise a value.
+    ``verified`` is None when no live frame was available.
+    """
+    if frame is None:
+        return {"verified": None, "reason": "no live decision frame was available"}
+    identity = decision_identity_params(candidate, frame)
+    leaves = _frame_leaves(frame)
+    byte_matched = {
+        key: value is not None
+        and any(type(leaf) is type(value) and leaf == value for leaf in leaves)
+        for key, value in identity.items()
+    }
+    pass_identity_offered = True
+    if "action_id" in identity:
+        offered = [
+            action.get("action_id")
+            for action in frame.get("actions") or ()
+            if action.get("action_type") == "pass_priority"
+        ]
+        pass_identity_offered = identity["action_id"] in offered
+    return {
+        "verified": bool(identity) and all(byte_matched.values()) and pass_identity_offered,
+        "identity_field": DECISION_IDENTITY_SHAPES[candidate]["field"],
+        "submitted_fields": sorted(identity),
+        "byte_matched": byte_matched,
+        "pass_identity_offered": pass_identity_offered,
+    }
+
+
 @dataclass
 class InvariantResult:
     name: str
@@ -98,6 +146,9 @@ class AF01Report:
     invariants: list[InvariantResult]
     protocol_transcript_digest: str
     engine_identity: dict[str, Any] = field(default_factory=dict)
+    # R-2 (SLOT-03 option (c)): the provenance of the decision identity this run
+    # actually submitted, checked against the live frame the provider offered.
+    decision_identity_provenance: dict[str, Any] = field(default_factory=dict)
 
     @property
     def verdict(self) -> str:
@@ -124,6 +175,7 @@ class AF01Report:
             "engine_commit_provenance": self.engine_commit_provenance,
             "capabilities_provider_reported": self.capabilities,
             "protocol_transcript_digest": self.protocol_transcript_digest,
+            "decision_identity_provenance": self.decision_identity_provenance,
             "verdict": self.verdict,
             "invariant_count": len(self.invariants),
             "invariants": [
@@ -757,4 +809,5 @@ def run_af01(
         invariants=results,
         protocol_transcript_digest=transcript_digest,
         engine_identity=engine_identity,
+        decision_identity_provenance=decision_identity_provenance(candidate, probe_frame),
     )

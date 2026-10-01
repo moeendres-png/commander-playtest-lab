@@ -495,43 +495,107 @@ def parse_maven_summary(text: str) -> dict[str, int]:
     }
 
 
+_CASE_SEVERITY = {"passed": 0, "skipped": 1, "failure": 2, "error": 3}
+
+
+def _case_outcome(case: ElementTree.Element) -> str:
+    if case.find("error") is not None:
+        return "error"
+    if case.find("failure") is not None:
+        return "failure"
+    if case.find("skipped") is not None:
+        return "skipped"
+    return "passed"
+
+
 def observed_class_executions(
     report_dirs: list[Path], classes: tuple[str, ...], *, not_before: float
 ) -> tuple[dict[str, dict[str, Any]], tuple[str, ...]]:
-    """Per requested class, its surefire report written during this run.
+    """Per requested class, what the surefire reports written during this run show.
 
     The aggregate ``Tests run:`` total cannot show that a requested class ran:
     a class that vanished (renamed, excluded, not compiled) leaves the other
-    classes' total green. A class counts as executed only when a surefire
-    report for exactly that class was written after ``not_before`` (so a stale
-    report from an earlier run never counts), with at least one test that was
-    not skipped, and no failure or error.
+    classes' total green. Only reports written after ``not_before`` count, so a
+    stale report from an earlier run never does.
+
+    A class's test cases are read from the ``<testcase classname=...>`` elements
+    of every fresh report, matched by fully qualified or simple class name. That
+    covers both surefire layouts: JUnit writes one ``TEST-<class>.xml`` per class,
+    TestNG (Forge) one ``TEST-TestSuite.xml`` holding every class. Reading only
+    per-class file names saw no fresh report at all for Forge's TestNG classes,
+    so 217 passing Forge tests were recorded as "0 tests" and AF10 as FAIL. A
+    test case listed twice keeps its worse outcome. A per-class report with suite
+    totals but no test-case elements is read from those totals.
+
+    A class counts as executed with at least one test case that was not skipped
+    and no failure or error.
     """
+    fresh: list[Path] = []
+    for directory in report_dirs:
+        if directory.is_dir():
+            for report in sorted(directory.glob("TEST-*.xml")):
+                if report.stat().st_mtime >= not_before:
+                    fresh.append(report)
+    cases: dict[str, dict[tuple[str, str], str]] = {name: {} for name in classes}
+    reports_of: dict[str, set[str]] = {name: set() for name in classes}
+    suite_totals: dict[str, dict[str, Any]] = {}
+    unparseable: list[str] = []
+    for report in fresh:
+        try:
+            root = ElementTree.parse(report).getroot()
+        except (OSError, ElementTree.ParseError):
+            unparseable.append(report.name)
+            continue
+        has_cases = False
+        for case in root.iter("testcase"):
+            has_cases = True
+            classname = str(case.get("classname") or "")
+            simple = classname.rsplit(".", 1)[-1]
+            for name in classes:
+                if name not in (classname, simple):
+                    continue
+                key = (classname, str(case.get("name") or ""))
+                outcome = _case_outcome(case)
+                previous = cases[name].get(key)
+                if previous is None or _CASE_SEVERITY[outcome] > _CASE_SEVERITY[previous]:
+                    cases[name][key] = outcome
+                reports_of[name].add(report.name)
+        if has_cases:
+            continue
+        for name in classes:
+            if report.name == f"TEST-{name}.xml" or report.name.endswith(f".{name}.xml"):
+                try:
+                    totals: dict[str, Any] = {
+                        key: int(root.get(key, "0"))
+                        for key in ("tests", "failures", "errors", "skipped")
+                    }
+                except ValueError:
+                    unparseable.append(report.name)
+                    continue
+                totals["report"] = report.name
+                suite_totals[name] = totals
+
     observed: dict[str, dict[str, Any]] = {}
     unexecuted: list[str] = []
     for name in classes:
-        reports = [
-            report
-            for directory in report_dirs
-            if directory.is_dir()
-            for report in directory.glob(f"TEST-*{name}.xml")
-            if report.name.endswith(f".{name}.xml") or report.name == f"TEST-{name}.xml"
-        ]
-        fresh = [report for report in reports if report.stat().st_mtime >= not_before]
-        if len(fresh) != 1:
-            unexecuted.append(name)
-            observed[name] = {"reports_found": len(reports), "fresh_reports": len(fresh)}
-            continue
-        try:
-            root = ElementTree.parse(fresh[0]).getroot()
+        if cases[name]:
+            outcomes = list(cases[name].values())
             counts: dict[str, Any] = {
-                key: int(root.get(key, "0")) for key in ("tests", "failures", "errors", "skipped")
+                "tests": len(outcomes),
+                "failures": outcomes.count("failure"),
+                "errors": outcomes.count("error"),
+                "skipped": outcomes.count("skipped"),
+                "reports": sorted(reports_of[name]),
             }
-        except (OSError, ElementTree.ParseError, ValueError):
+        elif name in suite_totals:
+            counts = suite_totals[name]
+        else:
             unexecuted.append(name)
-            observed[name] = {"unparseable_report": fresh[0].name}
+            observed[name] = {
+                "fresh_reports_scanned": len(fresh),
+                "unparseable_reports": sorted(unparseable),
+            }
             continue
-        counts["report"] = fresh[0].name
         observed[name] = counts
         if (
             counts["tests"] == 0
@@ -673,20 +737,40 @@ def native_suite_credit(
 # --------------------------------------------------------------------------- #
 
 
+def _record_digest(record: dict[str, Any], name: str) -> str | None:
+    """A denominator record's digest under its materialization or manifest name.
+
+    The effective materialization names it ``<name>``; the
+    EFFECTIVE_FULL107_MANIFEST rows the assembler passes as the denominator name
+    it ``effective_<name>``. Reading only the first made every manifest-based
+    comparison None != receipt, so no receipt was ever credited. A record that
+    carries both with different values is ambiguous and yields no digest.
+    """
+    plain = record.get(name)
+    effective = record.get(f"effective_{name}")
+    if plain and effective and plain != effective:
+        return None
+    value = plain or effective
+    return str(value) if value else None
+
+
 def positive_fixture_credit(
     receipts: list[dict[str, Any]],
     *,
     candidate: str,
     expected_commit: str,
-    denominator: set[str],
+    denominator: set[str] | dict[str, dict[str, Any]],
     expected_runner_digest: str,
 ) -> dict[str, list[str]]:
     """Fixture -> test identities, from positive observations only.
 
-    A fixture earns native-test credit only when a positive receipt states the
-    fixture, the test, the candidate head, the obligation exercised, the observed
-    assertion, and PASS. A negative assertion, a bare mention, a stale head or a
-    missing observation yields nothing. The receipt must additionally be bound to
+    A fixture earns direct credit only when a positive receipt states the
+    fixture, the test, the candidate head, the exact obligation exercised, the
+    observed assertion, and PASS. When the denominator is supplied as a mapping,
+    both the requested-state digest and obligation digest must match the current
+    effective record; a stale receipt for the same fixture id earns nothing.
+    A negative assertion, a bare mention, a stale head or a missing observation
+    yields nothing. The receipt must additionally be bound to
     the currently executing Lab-side runner identity: an engine-commit match with
     a mismatched or missing ``runner_digest``, or a missing expected identity,
     yields nothing, so adapter/runner drift cannot inherit credit and pre-guard
@@ -715,6 +799,20 @@ def positive_fixture_credit(
         fixture = str(doc.get("fixture_id", ""))
         if fixture not in denominator:
             continue
+        if isinstance(denominator, dict):
+            record = denominator[fixture]
+            obligation = doc.get("obligation_exercised")
+            if not isinstance(obligation, dict):
+                continue
+            expected_state = _record_digest(record, "requested_state_digest")
+            expected_obligation = _record_digest(record, "obligation_digest")
+            if not expected_state or obligation.get("requested_state_digest") != expected_state:
+                continue
+            if (
+                not expected_obligation
+                or obligation.get("obligation_digest") != expected_obligation
+            ):
+                continue
         out.setdefault(fixture, []).append(str(doc.get("test_identity", "")))
     return {fixture: sorted(set(names)) for fixture, names in sorted(out.items())}
 
@@ -1171,15 +1269,39 @@ def _valid_sha(value: Any) -> bool:
 
 
 def verify_pb05_provenance(
-    identity: dict[str, Any], *, expected_rules_core: str, expected_tree: str | None = None
+    identity: dict[str, Any],
+    *,
+    expected_source_commit: str | None = None,
+    expected_rules_core: str | None = None,
+    expected_tree: str | None = None,
 ) -> dict[str, Any]:
     """Fail-closed consumption of the provider's build provenance.
 
-    AF00 and PB-05 credit require all of: a build-derived commit equal to the
-    expected Rules Core, a well-formed build tree, a clean build source, and
-    ``engine_commit_verified`` true. A missing, malformed, unknown or dirty value
-    yields no credit; it is never treated as clean by default.
+    AF00 and PB-05 credit require the build-derived commit/tree to equal the
+    exact source that was actually materialized, plus a clean build source and
+    ``engine_commit_verified`` true. For legacy callers,
+    ``expected_rules_core`` is accepted as an alias only when
+    ``expected_source_commit`` is omitted. R-1 dual-identity Forge callers
+    must pass the bridge/materialization source here and prove Rules-Core
+    equivalence separately.
     """
+    legacy_rules_core_alias = expected_source_commit is None and bool(expected_rules_core)
+    expected_commit = expected_source_commit or expected_rules_core
+    expected_label = "Rules Core" if legacy_rules_core_alias else "source"
+    if not expected_commit:
+        return {
+            "pb05_credit": False,
+            "af00_credit": False,
+            "build_commit": None,
+            "build_tree": None,
+            "build_dirty": identity.get("engine_build_dirty"),
+            "build_source": identity.get("engine_build_source"),
+            "engine_commit_verified": identity.get("engine_commit_verified"),
+            "expected_source_commit": expected_commit,
+            "expected_tree": expected_tree,
+            "findings": ["no expected source commit was supplied"],
+            "rule": "no exact expected build source means no AF00 or PB-05 credit",
+        }
     findings: list[str] = []
 
     raw_commit = identity.get("engine_build_commit")
@@ -1192,17 +1314,17 @@ def verify_pb05_provenance(
 
     if not _valid_sha(build_commit):
         findings.append(f"engine_build_commit is absent or malformed: {raw_commit!r}")
-    elif build_commit is None or build_commit != expected_rules_core:
+    elif build_commit is None or build_commit != expected_commit:
         findings.append(
-            f"build commit {(build_commit or '<none>')[:12]} is not the expected Rules Core "
-            f"{expected_rules_core[:12]}"
+            f"build commit {(build_commit or '<none>')[:12]} is not the expected "
+            f"{expected_label} {expected_commit[:12]}"
         )
     if not _valid_sha(build_tree):
         findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
     elif expected_tree and (build_tree is None or build_tree != expected_tree):
         findings.append(
-            f"build tree {(build_tree or '<none>')[:12]} is not the expected Rules Core tree "
-            f"{expected_tree[:12]}"
+            f"build tree {(build_tree or '<none>')[:12]} is not the expected "
+            f"{expected_label} tree {expected_tree[:12]}"
         )
     if build_dirty is None:
         findings.append("engine_build_dirty is absent")
@@ -1224,7 +1346,8 @@ def verify_pb05_provenance(
         "build_dirty": build_dirty,
         "build_source": build_source,
         "engine_commit_verified": verified,
-        "expected_rules_core": expected_rules_core,
+        "expected_source_commit": expected_commit,
+        "expected_rules_core": expected_commit if legacy_rules_core_alias else None,
         "expected_tree": expected_tree,
         "findings": findings,
         "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown "

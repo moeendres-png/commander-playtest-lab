@@ -28,7 +28,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pb03-runtime-${{ github.event.pull_request.head.sha || github.sha }}
+  group: pb03-runtime-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
 
 env:
@@ -37,23 +37,35 @@ env:
 jobs:
   pb03-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 180
     steps:
       - name: Checkout lab
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
 
-      - name: Resolve the canonical XMage pin
+      - name: Resolve current XMage and Forge dual identities
         run: |
           set -euo pipefail
-          # config/rules_engines.json is the sole machine-readable pin authority;
-          # the workflow must not hard-code a pin that can drift from it.
+          # config/rules_engines.json is the sole machine-readable authority.
+          # Forge deliberately has two bound roles: #11/#12 Rules Core and the
+          # bridge-only #13 materialization descendant used for execution.
           python3 - <<'PY' >> "$GITHUB_ENV"
           import json
-          commit = json.load(open("config/rules_engines.json"))["primary_engine"]["commit"]
-          assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
-          print(f"XMAGE_COMMIT={commit}")
+          config = json.load(open("config/rules_engines.json"))
+          xmage = config["primary_engine"]
+          forge = config["secondary_engine"]
+          bridge = forge["bridge_source"]
+          values = {
+              "XMAGE_COMMIT": xmage["commit"],
+              "FORGE_RULES_COMMIT": forge["commit"],
+              "FORGE_BRIDGE_COMMIT": bridge["commit"],
+          }
+          assert bridge["rules_core_base_commit"] == forge["commit"], bridge
+          assert bridge["repository"] == forge["repository"], bridge
+          for env_name, commit in values.items():
+              assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
+              print(f"{env_name}={commit}")
           PY
 
       - name: Checkout pinned XMage
@@ -64,11 +76,20 @@ jobs:
           path: vendor/engine-source/xmage
           fetch-depth: 1
 
-      - name: Exclude external XMage checkout from Lab dirty-state accounting
+      - name: Checkout admitted Forge bridge/materialization source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_BRIDGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 0
+
+      - name: Bind external candidate workspaces without polluting Lab identity
         run: |
           set -euo pipefail
           printf '/vendor/engine-source/\n' >> .git/info/exclude
           test -z "$(git status --porcelain -- vendor/engine-source/)"
+          echo "FORGE_WORKSPACE=$GITHUB_WORKSPACE/vendor/engine-source/forge" >> "$GITHUB_ENV"
 
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
@@ -90,6 +111,15 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
+      - name: Verify immutable Forge dual-source binding
+        working-directory: vendor/engine-source/forge
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FORGE_BRIDGE_COMMIT"
+          git merge-base --is-ancestor "$FORGE_RULES_COMMIT" "$FORGE_BRIDGE_COMMIT"
+          test -z "$(git diff --name-only "$FORGE_RULES_COMMIT" "$FORGE_BRIDGE_COMMIT" --             forge-game forge-core forge-ai forge-gui forge-gui-desktop adventure-editor)"
+          test -z "$(git status --porcelain)"
+
       - name: Build pinned XMage
         working-directory: vendor/engine-source/xmage
         run: |
@@ -99,6 +129,26 @@ jobs:
           else
             mvn -B -ntp -DskipTests install
           fi
+
+      - name: Build and warm admitted Forge exact source
+        working-directory: vendor/engine-source/forge
+        run: |
+          set -euo pipefail
+          # Forge's own CI validates under a headless X server. Warm the exact
+          # test-phase dependencies online; the credited runner executes the
+          # selected native suites offline afterwards.
+          command -v Xvfb >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y xvfb; }
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 800x600x8 >/tmp/forge-xvfb.log 2>&1 &
+          mvn -U -B -ntp -DskipTests -Dcheckstyle.skip=true install
+          mvn -U -B -ntp -Dcheckstyle.skip=true -DfailIfNoTests=false             -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=BridgeEngineTest
+          # Resolve the bridge classpath inside the reactor (-am, packaged in the same
+          # invocation): the sibling modules then resolve to the jars built from this
+          # exact checkout. Without -am Maven reads them from ~/.m2, whose installed
+          # POMs keep the parent version as ${revision} and cannot be resolved.
+          mvn -B -ntp -pl forge-protocol2-bridge -am -DskipTests -Dcheckstyle.skip=true \
+            package dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
+          test -s forge-protocol2-bridge/target/cp-wsr22.txt
 
       - name: Install lab
         run: |
@@ -172,8 +222,8 @@ jobs:
           )
           PY
 
-      - name: Execute authoritative XMage current-boundary runner
-        run: python scripts/run_current_boundary_qualification.py --candidate xmage
+      - name: Execute authoritative two-candidate current-boundary runner
+        run: python scripts/run_current_boundary_qualification.py --candidate all
 
       - name: Assemble source-bound current-boundary evidence
         run: python scripts/assemble_current_boundary_evidence.py
@@ -272,26 +322,81 @@ jobs:
           }, sort_keys=True))
           PY
 
-      - name: Hash PB-03 runtime evidence
+      - name: Assert R-3/R-4 two-candidate current-boundary invariants
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
+          expected = {
+              "xmage": os.environ["XMAGE_COMMIT"],
+              "forge": os.environ["FORGE_RULES_COMMIT"],
+          }
+
+          for candidate, commit in expected.items():
+              upper = candidate.upper()
+              full107 = json.loads((root / f"FULL107_{upper}_RESULTS.json").read_text())
+              assert not full107.get("carried_forward"), (candidate, full107.get("carried_forward"))
+              assert full107["runtime_identity"]["engine_candidate_commit"] == commit
+              assert full107["r4_unreceipted_pass_demotions"] == 0, (
+                  candidate,
+                  full107["r4_unreceipted_pass_demotions"],
+              )
+              pass_rows = [row for row in full107["rows"] if row["exit_state"] == "PASS"]
+              assert len(pass_rows) == full107["counts"]["PASS"]
+              assert all(row.get("positive_receipt_identities") for row in pass_rows), (
+                  candidate,
+                  [row["fixture_id"] for row in pass_rows if not row.get("positive_receipt_identities")],
+              )
+
+              af = json.loads((root / f"AF00_AF11_{upper}.json").read_text())
+              assert af["boundary"] == "FRESH_CURRENT_BOUNDARY_EXECUTION", candidate
+              gates = {gate["gate"]: gate for gate in af["gates"]}
+              assert set(f"AF{i:02d}" for i in range(11)).issubset(gates), sorted(gates)
+
+          forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
+          invariants = forge_af01["invariants"]
+          assert len(invariants) == 20, len(invariants)
+          assert all(item["verdict"] == "PASS" for item in invariants), [
+              item for item in invariants if item["verdict"] != "PASS"
+          ]
+          assert forge_af01["verdict"] == "PASS", forge_af01["verdict"]
+
+          packet = json.loads((root / "PROVIDER_READINESS_CURRENT.json").read_text())
+          assert packet["production_provider"] == "NOT_SELECTED"
+          assert packet["architecture_freeze"] == "NOT_CLAIMED"
+          assert packet["ranking"] == "NONE"
+          assert set(packet["candidates"]) == {"xmage", "forge"}
+          assert all(
+              data["column_provenance"]["class"] == "FRESH_CURRENT_BOUNDARY_EXECUTION"
+              for data in packet["candidates"].values()
+          )
+
+          print(json.dumps({
+              "xmage_full107": packet["candidates"]["xmage"]["full107_counts"],
+              "forge_full107": packet["candidates"]["forge"]["full107_counts"],
+              "forge_af01": forge_af01["verdict"],
+              "provider": packet["production_provider"],
+              "freeze": packet["architecture_freeze"],
+          }, sort_keys=True))
+          PY
+
+      - name: Hash current-boundary packet
         run: |
           set -euo pipefail
           root="$CURRENT_BOUNDARY_EVIDENCE_EPOCH"
-          sha256sum "$root/PB03_ADMISSION_MATRIX.json" "$root/PB03_DIMENSION_ADMISSION.json" "$root/PB03_RUNTIME_EXECUTION.json" "$root/PB03_RUNTIME_EXECUTION_MATRIX.json" "$root/FULL107_XMAGE_RESULTS.json" "$root/NATIVE_SUITE_RECEIPTS.json" > "$root/PB03_RUNTIME_SHA256SUMS"
+          find "$root" -type f ! -name CURRENT_BOUNDARY_SHA256SUMS -print0             | sort -z             | xargs -0 sha256sum > "$root/CURRENT_BOUNDARY_SHA256SUMS"
 
-      - name: Upload PB-03 runtime evidence
+      - name: Upload complete source-bound current-boundary packet
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        if: always()
+        # Never with an unresolved epoch: an empty path expands to "/" (the runner's
+        # whole filesystem), as seen when an earlier step failed.
+        if: always() && env.CURRENT_BOUNDARY_EVIDENCE_EPOCH != ''
         with:
-          name: pb03-runtime-${{ github.sha }}
+          name: current-boundary-two-candidate-${{ github.sha }}
           path: |
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_ADMISSION_MATRIX.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_DIMENSION_ADMISSION.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_EXECUTION.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_EXECUTION_MATRIX.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/PB03_RUNTIME_SHA256SUMS
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/FULL107_XMAGE_RESULTS.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/NATIVE_SUITE_RECEIPTS.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/native-xmage-*.json
-            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/receipts/positive/*.json
+            ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/
           if-no-files-found: error
           retention-days: 90
