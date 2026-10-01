@@ -115,11 +115,14 @@ DEFAULT_FOREIGN_OWNED_SURFACES: Mapping[str, str] = {
     "src/commander_lab/qualification/current_boundary/midgame_rows.py": "PR #450",
     "scripts/run_midgame_capability_probe.py": "PR #450",
     "tests/qualification/test_current_boundary_midgame_rows.py": "PR #450",
-    "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": "PR #452",
-    "qualification/pre-freeze-successor/": "PR #452",
-    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json": "PR #452",
-    "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "PR #452",
-    "src/commander_lab/qualification/current_boundary/source_lock.py": "PR #452",
+    # #452 merged; the successor-contract surfaces are owned by the next active
+    # AF05 writer (#462) until it is terminal.
+    "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": "PR #462",
+    "qualification/pre-freeze-successor/": "PR #462",
+    "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "PR #462",
+    "src/commander_lab/qualification/current_boundary/source_lock.py": "PR #462",
+    "tests/qualification/test_knowledge_projection.py": "PR #462",
+    "tests/qualification/test_pre_freeze_contract_successor.py": "PR #462",
 }
 
 SURFACE_CAMPAIGN = "src/commander_lab/qualification/current_boundary/actual_card_campaign.py"

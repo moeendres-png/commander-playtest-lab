@@ -534,13 +534,13 @@ def test_unscripted_decision_family_absent_from_the_record_is_a_contract_depende
         verified=False,
     )
     foreign = dict(campaign.DEFAULT_FOREIGN_OWNED_SURFACES)
-    foreign[campaign.SURFACE_SUCCESSOR_CONTRACT] = "PR #452"
+    foreign[campaign.SURFACE_SUCCESSOR_CONTRACT] = "PR #462"
     evaluation = campaign.evaluate_row(
         row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces=foreign
     )
     assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
     assert evaluation["blocker_surface"] == campaign.SURFACE_SUCCESSOR_CONTRACT
-    assert evaluation["blocker_owner"] == "PR #452"
+    assert evaluation["blocker_owner"] == "PR #462"
 
 
 def test_unscripted_decision_family_the_record_scripts_is_an_executor_dependency() -> None:
