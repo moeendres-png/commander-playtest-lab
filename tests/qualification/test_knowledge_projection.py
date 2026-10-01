@@ -97,6 +97,46 @@ def _frame(actor: str, decision_id: str) -> dict[str, Any]:
     }
 
 
+def _search_frame(actor: str) -> dict[str, Any]:
+    names = ["Vampiric Tutor"] + ["Mountain"] * (LIBRARY["P2"] - 1)
+    return {
+        "actor_id": NATIVE[actor],
+        "decision_id": f"search-{actor}",
+        "decision_class": "target",
+        "prompt": "Select a card",
+        "context": {"targeted": True},
+        "source_object": None,
+        "legal_options": [
+            {
+                "option_id": f"lib-{index}",
+                "label": name,
+                "metadata": {"name": name, "zone": "library", "zone_index": index},
+            }
+            for index, name in enumerate(names)
+        ],
+        "pilot_state": _view(actor),
+    }
+
+
+def _target_frame(label: str = "") -> dict[str, Any]:
+    return {
+        "actor_id": NATIVE["P1"],
+        "decision_id": "target-p1",
+        "decision_class": "target",
+        "prompt": "Select any target",
+        "context": {"targeted": True},
+        "source_object": None,
+        "legal_options": [
+            {
+                "option_id": "p2-fd",
+                "label": label,
+                "metadata": {"name": label, "zone": "battlefield"},
+            }
+        ],
+        "pilot_state": _view("P1"),
+    }
+
+
 def _ok(payload: dict[str, Any]) -> dict[str, Any]:
     return {"success": True, "payload": payload}
 
@@ -143,7 +183,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
             projections[label]["view"]["revealed"] = [
                 {"title": "Cards in Full Game Seat 2's hand", "cards": [{"name": "Demonic Tutor"}]}
             ]
-    if kind == "look_audience":
+    if kind in ("look_audience", "transcript_privacy"):
         projections["P1"]["view"]["looked_at"] = [
             {"title": "Orcish Spy", "cards": [{"name": "Vampiric Tutor"}, {"name": "Mountain"}]}
         ]
@@ -172,6 +212,18 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         _entry("complete_midgame_arrival", {"actor_id": "P1"}, _ok(copy.deepcopy(scoped))),
     ]
     script_start = len(tape) if record.get("decision_script") else None
+    if kind == "target_metadata":
+        # P2's manifested permanent, as P1's own projection shows it, and P1's
+        # target frame offering it with its public face-down characteristics.
+        for label in LABELS:
+            projections[label]["view"]["players"][1]["battlefield"] = [
+                {"face_down": True, "name": "", "object_id": "p2-fd"}
+            ]
+        tape.append(_entry("get_midgame_decision", None, _ok({"decision": _target_frame()})))
+    if kind == "search_inspection":
+        # The searcher's own frame offers its whole library, as XMage's
+        # library-card choice does.
+        tape.append(_entry("get_midgame_decision", None, _ok({"decision": _search_frame("P2")})))
     for label in LABELS:
         tape.append(_entry("get_midgame_projection", {"actor_id": label}, _ok(projections[label])))
     tape.append(
@@ -641,3 +693,144 @@ def test_an_event_that_never_ran_is_unverified_not_denied(
 
     verdict = _verdict(records, "HIDDEN_07", never)
     assert verdict.classification == kp.UNVERIFIED
+
+
+# --------------------------------------------------------------------------- #
+# Search inspection and transcript privacy
+# --------------------------------------------------------------------------- #
+
+
+def _replace_entry(capture: kp.Capture, find: Callable[[dict[str, Any]], bool], entry: Any) -> None:
+    index = next(i for i, item in enumerate(capture.tape) if find(item))
+    capture.tape[index] = entry
+
+
+def _is_search(item: dict[str, Any]) -> bool:
+    decision = (item.get("response") or {}).get("payload", {}).get("decision") or {}
+    return str(decision.get("decision_id", "")).startswith("search-")
+
+
+def test_a_search_offered_to_another_principal_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def offer_to_p3(capture: kp.Capture) -> None:
+        frame = _search_frame("P3")
+        for option in frame["legal_options"]:
+            option["label"] = option["metadata"]["name"] = "Mountain"
+        capture.tape.append(_entry("get_midgame_decision", None, _ok({"decision": frame})))
+
+    verdict = _verdict(records, "HIDDEN_09", offer_to_p3)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert _failed(verdict) == ["no_search_offer_to:P3"]
+
+
+def test_a_searched_identity_in_the_viewers_channels_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def route_to_p1(capture: kp.Capture) -> None:
+        _replace_entry(
+            capture,
+            _is_search,
+            _entry("get_midgame_decision", None, _ok({"decision": _search_frame("P1")})),
+        )
+
+    verdict = _verdict(records, "HIDDEN_09", route_to_p1)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "no_search_offer_to:P1" in _failed(verdict)
+    assert "no_forbidden_token_in_channels_of:P1" in _failed(verdict)
+
+
+def test_a_search_that_hides_the_library_from_the_searcher_is_denied(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def truncated(capture: kp.Capture) -> None:
+        frame = _search_frame("P2")
+        frame["legal_options"] = frame["legal_options"][1:]
+        _replace_entry(
+            capture, _is_search, _entry("get_midgame_decision", None, _ok({"decision": frame}))
+        )
+
+    verdict = _verdict(records, "HIDDEN_09", truncated)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert _failed(verdict) == ["search_inspects_whole_zone:P2"]
+
+
+def test_a_private_identity_in_the_public_event_tape_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def public_event(capture: kp.Capture) -> None:
+        _replace_entry(
+            capture,
+            lambda item: item.get("message_type") == "get_midgame_events",
+            _entry(
+                "get_midgame_events",
+                {"after_offset": 0},
+                _ok({"events": [{"type": "LOOKED_AT", "card": "Vampiric Tutor"}]}),
+            ),
+        )
+
+    verdict = _verdict(records, "HIDDEN_18", public_event)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    failed = _failed(verdict)
+    assert "public_transcript_omits_private_state" in failed
+    assert {"no_forbidden_token_in_channels_of:P2", "no_forbidden_token_in_channels_of:P3"} <= set(
+        failed
+    )
+
+
+def test_private_knowledge_the_viewer_never_received_is_denied(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def never_looked(capture: kp.Capture) -> None:
+        capture.projections["P1"]["view"]["looked_at"] = []
+
+    verdict = _verdict(records, "HIDDEN_18", never_looked)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert _failed(verdict) == ["private_knowledge_reaches:obj:hidden-lib-0:P1"]
+
+
+def test_known_identities_entitle_the_viewer_only_after_the_event(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    record = records["HIDDEN_18"]
+    assert "Vampiric Tutor" in kp.forbidden_tokens(record, "P1").tokens
+    assert "Vampiric Tutor" not in kp.forbidden_tokens(record, "P1", after_event=True).tokens
+    assert "Vampiric Tutor" in kp.forbidden_tokens(record, "P2", after_event=True).tokens
+
+
+def test_a_hidden_target_named_in_its_option_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def named(capture: kp.Capture) -> None:
+        _replace_entry(
+            capture,
+            lambda item: (
+                (item.get("response") or {})
+                .get("payload", {})
+                .get("decision", {})
+                .get("decision_id")
+                == "target-p1"
+            ),
+            _entry(
+                "get_midgame_decision", None, _ok({"decision": _target_frame("Vampiric Tutor")})
+            ),
+        )
+
+    verdict = _verdict(records, "HIDDEN_14", named)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert set(_failed(verdict)) == {
+        "no_forbidden_token_in_channels_of:P1",
+        "hidden_target_option_carries_no_identity:p2-fd",
+    }
+
+
+def test_a_target_frame_that_never_offers_the_hidden_permanent_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def no_offer(capture: kp.Capture) -> None:
+        for label in LABELS:
+            capture.projections[label]["view"]["players"][1]["battlefield"] = []
+
+    verdict = _verdict(records, "HIDDEN_14", no_offer)
+    assert verdict.classification == kp.UNVERIFIED
+    assert _failed(verdict) == ["hidden_target_offered:P1"]

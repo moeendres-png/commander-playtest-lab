@@ -61,6 +61,9 @@ ROWS: dict[str, str] = {
     "HIDDEN_HONEYCARD_SENTINEL": "honey_sentinel",
     "HIDDEN_07": "reveal_audience",
     "HIDDEN_08": "look_audience",
+    "HIDDEN_09": "search_inspection",
+    "HIDDEN_14": "target_metadata",
+    "HIDDEN_18": "transcript_privacy",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -74,6 +77,9 @@ OBLIGATION_TEXT: dict[str, str] = {
     "no_omniscient_api": "pilot code cannot access omniscient raw engine APIs",
     "reveal_audience": "reveal reaches exactly legal audience",
     "look_audience": "look reaches only specified audience",
+    "search_inspection": "hidden-zone search inspection does not leak",
+    "target_metadata": "target option metadata does not leak",
+    "transcript_privacy": "transcripts omit actor-private state",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -223,7 +229,14 @@ def forbidden_tokens(
     """
     state = _viewer_state(record)
     permissions = state.get("face_down_look_permissions") or ()
-    temporary = (state.get("temporary_permissions") or ()) if after_event else ()
+    temporary = list(state.get("temporary_permissions") or ()) if after_event else []
+    if after_event:
+        # An identity the record says its viewer knows is knowledge the scripted
+        # event gave it; before the event it is the viewer's like any other.
+        temporary += [
+            {"object": known, "permission": "look", "viewer": state.get("viewer")}
+            for known in state.get("known_object_identities") or ()
+        ]
     visible: set[str] = set()
     hidden: dict[str, str] = {}
     for obj in _objects(record):
@@ -419,11 +432,92 @@ def _activation_offer(legal: dict[str, Any], native: str) -> dict[str, Any]:
     return offer
 
 
+def _library_object_offer(
+    legal: dict[str, Any], step: dict[str, Any], record: dict[str, Any]
+) -> dict[str, Any] | None:
+    """The offer naming a requested library object, or None for any other selector.
+
+    The lane places libraries after arrival and reports no hidden object's
+    native id, so a library object is matched by the record's own checkpoint
+    position and identity, both of which the engine's offer to the searching
+    player carries. Zero or several matches fail closed.
+    """
+    selection = step.get("selection") or {}
+    if selection.get("selector_kind") != "semantic_object":
+        return None
+    obj = next(
+        (o for o in _objects(record) if o.get("semantic_id") == selection.get("semantic_value")),
+        None,
+    )
+    if obj is None or obj.get("zone") != "library":
+        return None
+    matches = [
+        action
+        for action in legal.get("actions") or ()
+        if (meta := ((action.get("metadata") or {}).get("xmage_option_metadata") or {})).get("zone")
+        == "library"
+        and meta.get("zone_index") == obj.get("zone_position")
+        and meta.get("name") == obj.get("card_identity")
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the scripted library object {obj['semantic_id']} matched {len(matches)} engine offers"
+        )
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
+def face_down_permanents(projection: dict[str, Any], controller: str) -> list[str]:
+    """The face-down permanents ``controller`` controls, as one principal's own
+    projection shows them (object handles only, never an identity)."""
+    labels = list(projection.get("seat_labels") or ())
+    found: list[str] = []
+    for player in (projection.get("view") or {}).get("players") or ():
+        seat = player.get("seat") if isinstance(player, dict) else None
+        if not isinstance(seat, int) or seat >= len(labels) or labels[seat] != controller:
+            continue
+        for permanent in player.get("battlefield") or ():
+            if isinstance(permanent, dict) and permanent.get("face_down") is True:
+                found.append(str(permanent.get("object_id")))
+    return found
+
+
+def _face_down_target_offer(
+    client: ml.MidgameLaneClient, legal: dict[str, Any], step: dict[str, Any], principal: str
+) -> dict[str, Any] | None:
+    """The offer targeting the one face-down permanent the named player controls,
+    or None for any other selector.
+
+    The permanent is found in the acting principal's own projection, the only
+    knowledge a pilot in that seat holds; zero or several matches fail closed.
+    """
+    selection = step.get("selection") or {}
+    if selection.get("selector_kind") != "semantic_face_down_permanent":
+        return None
+    response = client.request("get_midgame_projection", {"actor_id": principal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError("the acting principal's projection failed closed")
+    handles = face_down_permanents(_payload(response), str(selection.get("semantic_value")))
+    matches = [
+        action
+        for action in legal.get("actions") or ()
+        if len(handles) == 1 and list(action.get("allowed_target_ids") or ()) == handles
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the scripted face-down target matched {len(matches)} engine offers"
+        )
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
 def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dict[str, Any]]:
     """Answer the record's decision script from the engine's own offers only.
 
-    A scripted priority step casts or activates the named object; a scripted
-    target step selects the named player; a mana payment uses only the record's
+    A scripted priority step casts or activates the named object once the
+    stack is empty (a script declares events, never responses); a scripted
+    target step selects the named player, the named library object or the one
+    face-down permanent a named player controls; a mana payment uses only the record's
     explicit payment sources; every other priority is passed. The event is
     complete when every step was answered and the checkpoint's priority player
     holds priority again with an empty stack. Anything else fails closed.
@@ -462,7 +556,14 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
             stack = (decision.get("pilot_state") or {}).get("stack")
             if step is None and principal == holder and stack == []:
                 return trace
-            if scripted and step is not None and step.get("decision_family") == "priority":
+            # A scripted action starts its own event: it waits for the previous
+            # one to resolve, so no step is ever taken as a response.
+            if (
+                scripted
+                and step is not None
+                and step.get("decision_family") == "priority"
+                and stack == []
+            ):
                 value = (step.get("selection") or {}).get("semantic_value") or {}
                 if value.get("action") == "activate":
                     native = placed.get(str(value.get("object")))
@@ -495,10 +596,14 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
             and midgame_rows_mod.engine_decision_class(str(step.get("decision_family")))
             == decision_class
         ):
-            answer = midgame_rows_mod._scripted_answer(
-                legal, step, placed, midgame_rows_mod.RowSpec()
-            )
-            probe.submit_proposal(client, legal, answer.action, f"knowledge-{len(trace)}")
+            chosen = _library_object_offer(legal, step, record)
+            if chosen is None:
+                chosen = _face_down_target_offer(client, legal, step, principal)
+            if chosen is None:
+                chosen = midgame_rows_mod._scripted_answer(
+                    legal, step, placed, midgame_rows_mod.RowSpec()
+                ).action
+            probe.submit_proposal(client, legal, chosen, f"knowledge-{len(trace)}")
             trace.append({"decision_class": decision_class, "step": position})
             position += 1
             continue
@@ -1092,6 +1197,238 @@ def _event_audience(record: dict[str, Any], capture: Capture, kind: str) -> list
     return checks
 
 
+def _event_checks(capture: Capture) -> list[Check]:
+    return [
+        Check(
+            "scripted_event_executed",
+            capture.script_complete and bool(capture.script_trace),
+            f"{len(capture.script_trace)} scripted answers, complete={capture.script_complete}",
+        )
+    ]
+
+
+def _library_options(frame: dict[str, Any]) -> list[dict[str, Any]]:
+    """The frame's offers of a library card (a search or look choice)."""
+    options: list[dict[str, Any]] = []
+    for option in frame.get("legal_options") or ():
+        meta = option.get("metadata") if isinstance(option, dict) else None
+        if isinstance(meta, dict) and meta.get("zone") == "library":
+            options.append(option)
+    return options
+
+
+def _after_event_frames(capture: Capture, principal: str) -> list[dict[str, Any]]:
+    start = len(capture.tape) if capture.script_start is None else capture.script_start
+    documents = [
+        item
+        for item in addressed_documents(capture.tape[start:], capture.natives, start=start)
+        if item.addressee == principal
+    ]
+    return frames_of(documents)
+
+
+def _search_inspection(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """The searcher alone inspects its library; nobody else sees a searched card.
+
+    The searcher and zone are the record's own search permission. The search
+    is evidenced by the searcher's own frame offering every card of that
+    library; every other principal must receive no library offer and no
+    identity it is not entitled to.
+    """
+    checks = _event_checks(capture)
+    searches = [
+        permission
+        for permission in _viewer_state(record).get("temporary_permissions") or ()
+        if isinstance(permission, dict) and permission.get("permission") == "search"
+    ]
+    checks.append(
+        Check("search_permission_declared", len(searches) == 1, f"{len(searches)} declared")
+    )
+    if len(searches) != 1:
+        return checks
+    searcher = str(searches[0].get("viewer"))
+    zone = str(searches[0].get("zone"))
+    owner = zone.removesuffix(".library")
+    expected = expected_library_counts(record).get(owner)
+    identities = sorted(
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "library" and obj.get("owner") == owner
+    )
+    checks.append(
+        Check(
+            "search_zone_is_searcher_library",
+            zone == f"{searcher}.library" and expected is not None,
+            f"searcher {searcher}, zone {zone}, checkpoint size {expected}",
+        )
+    )
+    frames = _after_event_frames(capture, searcher)
+    # Frames without any options measure nothing: unmeasured, never denied.
+    checks.append(
+        Check(
+            f"searcher_frames_observed:{searcher}",
+            any(frame.get("legal_options") for frame in frames),
+            f"{len(frames)} frames after the event",
+        )
+    )
+    offered = [_library_options(frame) for frame in frames]
+    widest = max(offered, key=len, default=[])
+    names = {str((option.get("metadata") or {}).get("name")) for option in widest}
+    checks.append(
+        Check(
+            f"search_inspects_whole_zone:{searcher}",
+            bool(widest) and len(widest) == expected and set(identities) <= names,
+            f"{len(widest)} library offers of {expected}; requested identities offered: "
+            f"{set(identities) <= names}",
+            "ENTITLEMENT" if any(frame.get("legal_options") for frame in frames) else "MEASURED",
+        )
+    )
+    for label in _labels(record):
+        if label == searcher:
+            continue
+        leaked = [
+            len(_library_options(frame))
+            for frame in frames_of(principal_documents(capture.tape, label, capture.natives))
+            if _library_options(frame)
+        ]
+        checks.append(
+            Check(
+                f"no_search_offer_to:{label}",
+                not leaked,
+                f"{sum(leaked)} library offers in {len(leaked)} frames",
+                "LEAK",
+            )
+        )
+        if label == viewer:
+            continue  # the viewer's full scan is the row's general check
+        hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not hits,
+                f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _target_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """A hidden permanent offered as a target carries no hidden identity.
+
+    The hidden target is a face-down permanent the viewer does not control, as
+    the viewer's own projection shows it; the record's script targets it. Each
+    offer of it must name no identity the viewer is denied, and its label and
+    name may carry nothing beyond the public face-down characteristics.
+    """
+    checks = _event_checks(capture)
+    own = capture.projections.get(viewer) or {}
+    hidden = {
+        handle
+        for label in _labels(record)
+        if label != viewer
+        for handle in face_down_permanents(own, label)
+    }
+    denied = forbidden_tokens(record, viewer, after_event=True).tokens
+    offers = [
+        option
+        for frame in _after_event_frames(capture, viewer)
+        if frame.get("decision_class") == "target"
+        for option in frame.get("legal_options") or ()
+        if isinstance(option, dict) and option.get("option_id") in hidden
+    ]
+    checks.append(
+        Check(
+            f"hidden_target_offered:{viewer}",
+            bool(hidden) and bool(offers),
+            f"{len(hidden)} face-down permanents the viewer does not control; "
+            f"{len(offers)} target offers of them",
+        )
+    )
+    for option in offers:
+        metadata = option.get("metadata") or {}
+        named = [str(option.get("label") or ""), str(metadata.get("name") or "")]
+        hits = scan([("option", option)], denied)
+        checks.append(
+            Check(
+                f"hidden_target_option_carries_no_identity:{option.get('option_id')}",
+                not hits and not any(named),
+                f"label/name {named}; {len(hits)} denied tokens",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _transcript_privacy(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """A principal's private knowledge stays out of every shared transcript.
+
+    The private knowledge is the record's own: the viewer's known identities,
+    which its scripted look gives it, and every hand. The public documents (the
+    event tape, status and refusal envelopes) and the process log may carry no
+    identity any principal is denied, and no other principal may receive the
+    viewer's private knowledge in any channel.
+    """
+    checks = _event_checks(capture)
+    state = _viewer_state(record)
+    objects = {str(obj["semantic_id"]): obj for obj in _objects(record)}
+    known = [objects.get(str(known)) for known in state.get("known_object_identities") or ()]
+    private = [
+        obj
+        for obj in known
+        if obj is not None and (obj.get("zone") in ("hand", "library") or obj.get("face_down"))
+    ]
+    checks.append(
+        Check(
+            "private_knowledge_declared",
+            bool(private) and len(private) == len(known),
+            f"{len(private)} private known identities of {len(known)}",
+        )
+    )
+    own = capture.projections.get(viewer) or {}
+    for obj in private:
+        shown = str(obj["card_identity"]) in _logged_names(own, "looked_at")
+        checks.append(
+            Check(
+                f"private_knowledge_reaches:{obj['semantic_id']}:{viewer}",
+                shown,
+                f"{viewer}'s looked_at log names the object: {shown}",
+                "ENTITLEMENT",
+            )
+        )
+    denied: dict[str, str] = {}
+    for label in _labels(record):
+        for after in (False, True):
+            denied.update(forbidden_tokens(record, label, after_event=after).tokens)
+    public = [
+        (item.channel, item.document)
+        for item in addressed_documents(capture.tape, capture.natives)
+        if item.addressee is None
+    ] + [("log", capture.log)]
+    hits = scan(public, denied)
+    checks.append(
+        Check(
+            "public_transcript_omits_private_state",
+            not hits and len(public) > 1,
+            f"{len(public)} public documents; {len(hits)} occurrences of {sorted(denied)}",
+            "LEAK",
+        )
+    )
+    for label in _labels(record):
+        if label == viewer:
+            continue
+        other_hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not other_hits,
+                f"{len(other_hits)} occurrences of {sorted(tokens.tokens)}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
 def _no_omniscient_api(capture: Capture) -> list[Check]:
     capabilities = capture.capabilities.get("capabilities") or {}
     scopes = capabilities.get("observation_scopes") or {}
@@ -1288,6 +1625,12 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _no_omniscient_api(capture)
     elif kind in ("reveal_audience", "look_audience"):
         focus = _event_audience(record, capture, kind)
+    elif kind == "search_inspection":
+        focus = _search_inspection(record, capture, viewer)
+    elif kind == "target_metadata":
+        focus = _target_metadata(record, capture, viewer)
+    elif kind == "transcript_privacy":
+        focus = _transcript_privacy(record, capture, viewer)
     else:
         # The sentinel row's obligation is the scan itself, with its controls.
         focus = []
