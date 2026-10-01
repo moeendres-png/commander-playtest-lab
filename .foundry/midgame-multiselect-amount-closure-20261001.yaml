@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
 branch: hardening/midgame-multiselect-amount-closure-20261001
 audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
 audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
-state_written_against_head: 724764868810be59d325bea415618ee376c6a348
-validated_head: null
+state_written_against_head: c69ffa455476110235b1a1c7e4f2ba8408d84652
+validated_head: c69ffa455476110235b1a1c7e4f2ba8408d84652
 
 objective: >-
   Close the current Lab mid-game decision-lane gaps for MICRO_COSTS,
@@ -98,6 +98,7 @@ files_modified:
 tests_run:
   - 'python3 -m pytest -q tests/qualification/test_current_boundary_midgame_rows.py -> 85 passed'
   - 'python3 -m pytest -q tests/qualification -> 822 passed, 13 skipped'
+  - 'python3 -m pytest tests -m "not external" -q on c69ffa45 -> 3008 passed, 15 skipped, 2 deselected'
   - 'python3 -m ruff check + ruff format --check on modified files -> clean'
   - 'mypy 1.20.2 strict on midgame_rows.py -> no errors in the modified module'
 
