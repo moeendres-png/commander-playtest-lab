@@ -26,6 +26,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
 )
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    gate_derivations as gate_derivations_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     midgame_rows as midgame_rows_mod,
@@ -991,95 +994,36 @@ def assemble() -> None:
             },
             af03_gate(candidate),
             af04_gate(candidate, af01, cardinality, data["results_runtime_identity"]),
-            {
-                "gate": "AF05",
-                "name": "HIDDEN_INFORMATION",
-                "verdict": "UNKNOWN",
-                "evidence": [
-                    "principal-scoped state read for four seats in a live 4P game",
-                    f"HIDDEN_INFO_{candidate.upper()}.json",
-                    f"native hidden/replay suites green: {native_tests} tests",
-                ],
-                "blocking_rows": [
-                    row
-                    for row, data_ in data["rows"].items()
-                    if data_["exit_state"] in ("UNKNOWN", "BLOCKED") and row.startswith("HIDDEN_")
-                ],
-                "nonblocking_limitations": [
-                    "per-scenario hidden channels (face-down exile, "
-                    "look, controlled-player, shuffle invalidation) are "
-                    "not reachable on the generic surface"
-                ],
-            },
-            {
-                "gate": "AF06",
-                "name": "GENERAL_RULES_CORRECTNESS",
-                "verdict": "UNKNOWN",
-                "evidence": [
-                    f"{counts['PASS']} of 107 rows PASS under the effective v1.0.6 "
-                    f"contract; {counts['BLOCKED']} BLOCKED; {counts['UNKNOWN']} UNKNOWN"
-                ],
-                "blocking_rows": sorted(
-                    data["rows"][r]["fixture_id"]
-                    for r in data["rows"]
-                    if data["rows"][r]["exit_state"] == "BLOCKED"
+            # AF05-AF09 are DERIVED, never literals. Each derivation is
+            # conservative: a demonstrated violation is FAIL, an unproven
+            # element is UNKNOWN named by mechanism, PASS needs every mandatory
+            # element of that gate's own contract.
+            gate_derivations_mod.af05_hidden_information(
+                candidate,
+                data["rows"],
+                (
+                    load(OUT / f"HIDDEN_INFO_{candidate.upper()}.json")
+                    if (OUT / f"HIDDEN_INFO_{candidate.upper()}.json").is_file()
+                    else None
                 ),
-                "nonblocking_limitations": [
-                    "micro-rules mechanisms in constructed mid-game "
-                    "states have no current-boundary execution seam"
-                ],
-            },
-            {
-                "gate": "AF07",
-                "name": "ACTUAL_CARD_BEHAVIOR",
-                "verdict": "UNKNOWN",
-                "evidence": [
-                    f"ACTUAL_CARD_{candidate.upper()}.json",
-                    "engine-validated import of a real 100-card Commander deck",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": [
-                    "the effective 29-card actual-card denominator was "
-                    "not individually executed on this boundary"
-                ],
-            },
-            {
-                "gate": "AF08",
-                "name": "MULTIPLAYER_COMMANDER",
-                "verdict": "UNKNOWN",
-                "evidence": [
-                    "cardinality lifecycles at 2P/3P/4P/5P",
-                    "START-2 executed under the v1.0.6 successor",
-                ],
-                "blocking_rows": sorted(
-                    data["rows"][r]["fixture_id"]
-                    for r in data["rows"]
-                    if data["rows"][r]["exit_state"] == "BLOCKED" and r.startswith("WS05-")
+            ),
+            gate_derivations_mod.af06_general_rules(candidate, data["rows"], counts),
+            gate_derivations_mod.af07_actual_card(
+                candidate,
+                data["rows"],
+                (
+                    load(OUT / f"ACTUAL_CARD_{candidate.upper()}.json")
+                    if (OUT / f"ACTUAL_CARD_{candidate.upper()}.json").is_file()
+                    else None
                 ),
-                "nonblocking_limitations": [
-                    "mid-game Commander/elimination fixtures need a "
-                    "starting-state injection seam that is unavailable"
-                ],
-            },
-            {
-                "gate": "AF09",
-                "name": "RNG_REPLAY",
-                "verdict": "UNKNOWN",
-                "evidence": [
-                    # Wording matters here: the live attempt REFUSED the export, so
-                    # claiming it "executed" would assert a capability the run
-                    # itself contradicts.
-                    *replay_by_candidate[candidate]["evidence"],
-                    "native replay/semantic suites green",
-                ],
-                "blocking_rows": sorted(
-                    r
-                    for r, v in data["rows"].items()
-                    if v["exit_state"] in ("UNKNOWN", "BLOCKED")
-                    and (r.startswith("REPLAY_") or r.startswith("RNG_"))
-                ),
-                "nonblocking_limitations": replay_by_candidate[candidate]["limitations"],
-            },
+            ),
+            gate_derivations_mod.af08_multiplayer(candidate, data["rows"], cardinality),
+            gate_derivations_mod.af09_rng_replay(
+                candidate,
+                data["rows"],
+                _load_replay_document(candidate),
+                described=replay_by_candidate[candidate],
+            ),
             {
                 "gate": "AF10",
                 "name": "RUNTIME_EVIDENCE_RELIABILITY",

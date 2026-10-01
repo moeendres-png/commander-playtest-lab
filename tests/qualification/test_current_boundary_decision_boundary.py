@@ -307,6 +307,37 @@ def test_assembler_reads_the_real_forge_epoch_as_pass() -> None:
 # --------------------------------------------------------------------------- #
 
 
+def test_a_cost_order_frame_is_measured_and_an_unanswered_one_fails_closed() -> None:
+    """#443 added ORDER_CHOICE to the shared driver; AF04 must cover it."""
+
+    document, af01, identity = _synthetic()
+    results = document["results"]["2P"]
+    order_option = "order-1"
+    results["decision_tape"].insert(
+        len(results["decision_tape"]) - 1,
+        {
+            "step": "cost_order",
+            "kind": "ORDER_CHOICE",
+            "actor": "p1",
+            "revision": 99,
+            "policy": "native_declared_cost_part_order",
+            "chosen_option_id": order_option,
+            "offered_option_ids": [order_option],
+            "note": "pilot preserves the provider-published native CostPart order",
+        },
+    )
+    results["observations"].insert(
+        len(results["observations"]) - 1,
+        {"step": "cost_order", "payload": {"decision": {"executed": True}}},
+    )
+    assert _derive(document, af01, identity)["verdict"] == "PASS"
+
+    # A cost-order frame answered with an option the engine never offered is a
+    # contradiction, exactly as for every other class.
+    document["results"]["2P"]["decision_tape"][0]["chosen_option_id"] = "order-9"
+    assert _derive(document, af01, identity)["verdict"] == "FAIL"
+
+
 def test_a_chosen_option_outside_the_offered_set_is_fail() -> None:
     document, af01, identity = _synthetic()
     _first_frame(document, "2P", "PRIORITY")["chosen_option_id"] = "opt-not-offered"

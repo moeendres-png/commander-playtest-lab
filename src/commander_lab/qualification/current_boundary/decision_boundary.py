@@ -60,6 +60,10 @@ OBSERVATION_STEP_BY_KIND: dict[str, str] = {
     "MULLIGAN": "mulligan_keep",
     "KEEP_OR_MULLIGAN": "mulligan_keep",
     "PRIORITY": "priority_pass",
+    # The cost-order decision class is option-id addressed: the pilot selects
+    # one provider-published structural option, and the engine's response
+    # records the acceptance exactly as it does for the other classes.
+    "ORDER_CHOICE": "cost_order",
 }
 
 # Decision classes for which the harness boundary is a dedicated engine message
