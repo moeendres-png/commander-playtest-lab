@@ -18,10 +18,24 @@ PRIOR_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
 WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
 SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
 
+# Consumers that cannot read the manifest (workflow YAML env, Java constants)
+# or are the deliberate pin-authority guards. Every other consumer resolves
+# the pin from config/rules_engines.json (G1), so a repin edits only these.
 ACTIVE_LITERAL_CONSUMERS = (
     "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/JsonlBridgeTest.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCandidateEngineFingerprintTest.java",
+    "tests/unit/test_ws_a1r_pin_authority.py",
+    "tests/unit/test_ws_arclose_d1_authority_drift.py",
+    "tests/unit/test_ws_a1d_docker_pin_authority.py",
+    ".github/workflows/external-engine-integration.yml",
+    ".github/workflows/meta-qualification.yml",
+    ".github/workflows/xmage-full-game-conformance.yml",
+    ".github/workflows/xmage-real-4p-smoke.yml",
+)
+
+# G1: these resolve the live pin from the manifest and must not restate it.
+MANIFEST_PIN_READERS = (
     "scripts/bootstrap_engine_linux.sh",
     "scripts/bootstrap_engine_windows.ps1",
     "scripts/run_external_full_game_conformance.py",
@@ -30,14 +44,7 @@ ACTIVE_LITERAL_CONSUMERS = (
     "tests/unit/test_xmage_full_game.py",
     "tests/unit/test_xmage_compatibility_provider.py",
     "tests/unit/test_xmage_variable_player.py",
-    "tests/unit/test_ws_a1r_pin_authority.py",
-    "tests/unit/test_ws_arclose_d1_authority_drift.py",
     "tests/unit/test_ws223_cardinality_regression.py",
-    "tests/unit/test_ws_a1d_docker_pin_authority.py",
-    ".github/workflows/external-engine-integration.yml",
-    ".github/workflows/meta-qualification.yml",
-    ".github/workflows/xmage-full-game-conformance.yml",
-    ".github/workflows/xmage-real-4p-smoke.yml",
 )
 
 
@@ -83,6 +90,14 @@ def test_all_active_literal_pin_consumers_migrated() -> None:
         text = (REPO_ROOT / rel).read_text()
         assert CURRENT_PIN in text, rel
         assert PRIOR_PIN not in text, rel
+
+
+def test_manifest_pin_readers_restate_no_pin() -> None:
+    for rel in MANIFEST_PIN_READERS:
+        text = (REPO_ROOT / rel).read_text()
+        assert CURRENT_PIN not in text, rel
+        assert PRIOR_PIN not in text, rel
+        assert "canonical_xmage_engine_pin" in text or "--provider xmage" in text, rel
 
 
 def test_prior_lock_and_wsr22_boundary_stay_historical() -> None:

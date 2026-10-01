@@ -17,8 +17,10 @@ from commander_lab.engine.rules.full_game import (
 )
 from commander_lab.engine.rules.full_game_batch import FullGameBatchCase
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 
-XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+# G1: the live pin is read from config/rules_engines.json, never restated here.
+XMAGE_COMMIT = canonical_xmage_engine_pin()
 
 
 def _binding(seat: int, deck_id: str) -> FullGamePilotBinding:

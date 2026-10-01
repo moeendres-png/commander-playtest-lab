@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
+
 XMAGE_REPOSITORY = "https://github.com/moeendres-png/mage.git"
 XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
-# Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+# G1: the live pin is read from config/rules_engines.json, never restated here.
+XMAGE_COMMIT = canonical_xmage_engine_pin()
 
 
 def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
@@ -53,9 +55,14 @@ def test_current_bootstraps_use_compatibility_candidate(repo_root: Path) -> None
     windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
     linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")
 
+    # G1: both bootstraps resolve the XMage pin from the manifest; neither may
+    # restate it (an explicit COMMANDER_LAB_XMAGE_* override stays possible).
     for text in (windows, linux):
-        assert XMAGE_REPOSITORY in text
-        assert XMAGE_COMMIT in text
+        assert "docker_resolve_engine_pin.py" in text
+        assert "--provider xmage" in text
+        assert "COMMANDER_LAB_XMAGE_COMMIT" in text
+        assert XMAGE_COMMIT not in text
+        assert XMAGE_REPOSITORY not in text
 
 
 def test_current_external_workflow_uses_compatibility_candidate(repo_root: Path) -> None:
