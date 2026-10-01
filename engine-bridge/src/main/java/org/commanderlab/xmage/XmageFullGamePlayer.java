@@ -1378,6 +1378,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return chooseNumber("amount", message, min, max, source, game);
     }
 
+    /**
+     * The exact dialogue titles XMage's CombatGroup uses for combat damage
+     * assignment (CR 510.1c/d) at the pinned candidate. Only these frames may
+     * unwind for a player who left; every other multi_amount stays fail-closed.
+     */
+    static final Set<String> COMBAT_DAMAGE_DIALOGUES = Set.of(
+            "Assign combat damage",
+            "Assign combat damage (with trample)",
+            "Assign blocker combat damage");
+
     @Override
     public List<Integer> getMultiAmountWithIndividualConstraints(
             Outcome outcome,
@@ -1426,16 +1436,32 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("numeric_total_min", totalMin);
         context.addProperty("numeric_total_max", totalMax);
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                "multi_amount",
-                "Assign amounts (" + messages.size() + " legs)",
-                0,
-                0,
-                new JsonArray(),
-                context,
-                null
-        );
+        boolean combatDamageAssignment = type != null && COMBAT_DAMAGE_DIALOGUES.contains(type.getTitle());
+        XmageFullGameDecisionController.DecisionResponse response;
+        try {
+            response = decisionController.request(
+                    game,
+                    this,
+                    "multi_amount",
+                    "Assign amounts (" + messages.size() + " legs)",
+                    0,
+                    0,
+                    new JsonArray(),
+                    context,
+                    sourceMetadata(null, game),
+                    combatDamageAssignment
+            );
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // F-43 (pin 4e59e8b9): the controller only retires a multi_amount
+            // frame of a departed player when it is a CombatGroup combat
+            // damage assignment. Answer "none": CombatGroup re-resolves the
+            // exact damage source after the callback and, when the source left
+            // with its controller (CR 800.4a), deals no cached damage. If the
+            // source still exists, CombatGroup asks this departed player again
+            // and the controller fails closed (PLAYER_LEFT_GAME_UNSUPPORTED_DECISION).
+            // No default vector is ever chosen for a player who left.
+            return null;
+        }
         List<Integer> chosen = requireJointChoices(response, context, "multi_amount");
         // Native authority gate: the engine's own isGoodValues predicate
         // over the original messages must accept the projected vector.

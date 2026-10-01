@@ -1,0 +1,77 @@
+{
+ "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
+ "workstream": "forge-bridge-r5-integrated-20261001",
+ "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE",
+  "RULES_CORE_AUTHORITY_CHANGE",
+  "FORGE_MASTER_MERGE"
+ ],
+ "rules_core_authority": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "role": "R-1 admitted Rules-Core qualification candidate (#11 incl. #12). UNCHANGED by this lock.",
+  "lock": "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json (Rules-Core fields unchanged; its bridge fields were moved to 20e3e1f7 in place by Lab #446)"
+ },
+ "prior_bridge_source": {
+  "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+  "tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
+  "content": "#11 + AF01 #13",
+  "role": "historical; the bridge source of the R-5 epoch 4cad91897216-a43e80d96595"
+ },
+ "new_bridge_source": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "branch": "claude/forge-unified-successor-20260929",
+  "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "pull_request": 16,
+  "integration": "forge#16 merged into the #11 qualification branch as a fast-forward at 2026-10-01T08:18:43Z; branch head == #16 head == 20e3e1f7",
+  "ancestry": "e8b8aec6 and bb0a740d are ancestors; bb0a740d..20e3e1f7 is 24 commits and changes only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
+  "content": "AF01 #13; no-default hardening #15 (external multi-part cost order, no silent Assist fallback, explicit mana/Delve faults, category continuation, shape-aware cost classification); CR 601.2h cost order projected as Protocol-2 structural_decision with metadata decision_subtype cost_order|cost_order_next and cost_order_indices",
+  "also_bound_by": "Lab #446 (42f19dd1) bound the same bridge source in config/rules_engines.json and the R-1 lock; this lock records its exact-head gate and the local suite"
+ },
+ "exact_head_qualification": {
+  "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "github_test_build": [
+   {
+    "run_id": 36832184994,
+    "event": "push",
+    "java17": "success",
+    "java21": "success"
+   },
+   {
+    "run_id": 36832187844,
+    "event": "pull_request",
+    "java17": "success",
+    "java21": "success"
+   }
+  ],
+  "github_ios_mobivm": [
+   {
+    "run_id": 36832185098,
+    "conclusion": "success"
+   },
+   {
+    "run_id": 36832187847,
+    "conclusion": "success"
+   }
+  ],
+  "local_forge_bridge_suite": {
+   "command": "mvn -o -pl forge-protocol2-bridge -am test",
+   "run": 356,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  }
+ },
+ "lab_consumer": {
+  "pilot_policy": "src/commander_lab/qualification/current_boundary/game_driver.py COST_ORDER_POLICY = native_declared_cost_part_order (#443): selects only an engine-offered structural_decision by its native indices; malformed or ambiguous metadata fails closed",
+  "current_boundary": "REQUALIFICATION_REQUIRED: the successor PB-03 epoch on the Lab main merge commit binds this bridge source; no historical Forge receipt is relabelled"
+ },
+ "evidence_transfer": {
+  "historical_receipts_relabelled": false
+ }
+}
