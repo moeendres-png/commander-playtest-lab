@@ -93,7 +93,10 @@ def load_effective_materialization() -> dict[str, Any]:
     historical_bundle_digest = effective.pop("canonical_bundle_digest", None)
     historical_supersedes = copy.deepcopy(effective.get("supersedes"))
 
-    effective["schema_version"] = "commander-lab.semantic-fixture-materialization/1.0.7-successor"
+    # The successor contract names the materialization identity it produces, so a
+    # new successor version cannot silently reuse its predecessor's name.
+    effective_version = successor["effective_materialization_version"]
+    effective["schema_version"] = effective_version
     effective["contract_id"] = successor["contract_id"]
     effective["qualification_boundary"] = "commander-lab.pre-freeze-qualification/2.0.0"
     effective["qualification_protocol_version"] = "2.0.0"
@@ -146,9 +149,7 @@ def load_effective_materialization() -> dict[str, Any]:
         provenance.update(overlay)
 
         record["materialization_status"] = "AUTHORITY_CORRECTED_SUCCESSOR"
-        record["materialization_version"] = (
-            "commander-lab.semantic-fixture-materialization/1.0.7-successor"
-        )
+        record["materialization_version"] = effective_version
         record["repair_provenance"] = {
             "predecessor_version": bundle.get("schema_version"),
             "predecessor_requested_state_digest": patch["predecessor_requested_state_digest"],

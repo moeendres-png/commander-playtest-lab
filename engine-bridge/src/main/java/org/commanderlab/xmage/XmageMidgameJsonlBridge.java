@@ -111,6 +111,7 @@ final class XmageMidgameJsonlBridge {
             case "complete_causal_reconstruction" ->
                     completeCausalReconstruction(requestId, request);
             case "get_midgame_state" -> getState(requestId, request);
+            case "get_midgame_projection" -> getProjection(requestId, request);
             case "get_midgame_events" -> getEvents(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId);
             case "submit_action" -> submitAction(requestId, request);
@@ -134,6 +135,11 @@ final class XmageMidgameJsonlBridge {
      */
     private static XmageNativeStateRestoration restorationFor(
             XmageNativeStateRestoration.Plan plan) {
+        return restorationFor(plan, XmageLosslessHiddenPlan.EMPTY);
+    }
+
+    private static XmageNativeStateRestoration restorationFor(
+            XmageNativeStateRestoration.Plan plan, XmageLosslessHiddenPlan lossless) {
         List<String> identities = new ArrayList<>();
         for (XmageNativeStateRestoration.RequestedObject object : plan.objects()) {
             identities.add(object.cardIdentity());
@@ -141,9 +147,12 @@ final class XmageMidgameJsonlBridge {
         for (XmageNativeStateRestoration.RequestedCommander commander : plan.commanders()) {
             identities.add(commander.cardIdentity());
         }
+        // SLOT-04 library objects are placed after arrival from the same vehicle.
+        identities.addAll(lossless.vehicleIdentities());
         return new XmageNativeStateRestoration(
                 plan,
-                XmageNativeStateRestoration.materializeCards(identities)
+                XmageNativeStateRestoration.materializeCards(identities),
+                lossless
         );
     }
 
@@ -190,6 +199,11 @@ final class XmageMidgameJsonlBridge {
 
     private List<String> importScaffolding(
             XmageNativeStateRestoration.Plan plan, String deckTag) {
+        return importScaffolding(plan, deckTag, XmageLosslessHiddenPlan.EMPTY);
+    }
+
+    private List<String> importScaffolding(
+            XmageNativeStateRestoration.Plan plan, String deckTag, XmageLosslessHiddenPlan lossless) {
         // Commander colours come from the engine's own card registry, so the
         // repository must be in the same ready state every other resolution
         // path observes.
@@ -214,6 +228,8 @@ final class XmageMidgameJsonlBridge {
             }
             List<String> mainboard = XmageNativeStateRestoration.scaffoldingFiller(
                     100 - commanders.size(), colors);
+            // A declared lossless deck template must be exactly this scaffolding.
+            lossless.validateScaffolding(player.playerId(), mainboard);
             handles.add(deckImporter.importCommanderDeck(
                     deckTag + "-" + player.playerId(),
                     deckTag + "-hash",
@@ -394,9 +410,15 @@ final class XmageMidgameJsonlBridge {
         // Fail closed before any game mutation: the plan validator rejects
         // every unsupported dimension with a coded reason.
         XmageNativeStateRestoration.validatePlan(plan);
+        XmageLosslessHiddenPlan lossless = XmageLosslessHiddenPlan.fromRecord(requestedState);
+        Set<String> requestedPlayers = new HashSet<>();
+        for (XmageNativeStateRestoration.RequestedPlayer player : plan.players()) {
+            requestedPlayers.add(player.playerId());
+        }
+        lossless.validatePlayers(requestedPlayers);
 
-        List<String> handles = importScaffolding(plan, planTag);
-        this.restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(plan, planTag, lossless);
+        this.restoration = restorationFor(plan, lossless);
         this.planId = planTag;
         this.entryMode = "placement";
         this.session = new XmageFullGameSession(
@@ -674,11 +696,19 @@ final class XmageMidgameJsonlBridge {
             JsonObject observed =
                     XmageNativeStateRestoration.readback(requireSession().restorationGame(), seats);
             XmageNativeStateRestoration.CompareVerdict verdict = restoration.compare(observed, seats);
+            // SLOT-04 lossless dimensions are verified engine-direct with coded
+            // mismatches only; they never enter the readback the observation
+            // below is projected from.
+            XmageLosslessHiddenPlan.Verification lossless = restoration.losslessHiddenVerification(
+                    requireSession().restorationGame(), seats);
+            List<String> allMismatches = new ArrayList<>(verdict.mismatches());
+            allMismatches.addAll(lossless.mismatches());
+            boolean constructionMatch = allMismatches.isEmpty();
 
             JsonObject observation = principalScopedObservation(observed, requesterPrincipal);
             JsonObject response = new JsonObject();
             response.addProperty("plan_id", planId);
-            response.addProperty("construction_match", verdict.match());
+            response.addProperty("construction_match", constructionMatch);
             response.addProperty("requested_state_digest", verdict.requestedDigest());
             response.addProperty(
                     "constructed_state_digest",
@@ -686,10 +716,22 @@ final class XmageMidgameJsonlBridge {
             response.addProperty(
                     "constructed_state_digest_scope", "principal_scoped_observation");
             JsonArray mismatches = new JsonArray();
-            for (String mismatch : verdict.mismatches()) {
+            for (String mismatch : allMismatches) {
                 mismatches.add(redactNativeIds(redactMismatch(mismatch, requesterPrincipal)));
             }
             response.add("mismatches", mismatches);
+            // How many SLOT-04 lossless checks of each kind ran, so a consumer
+            // can tell a passed check from one that never ran. Counts only: a
+            // check names the player or object whose library order or face-down
+            // state it verified, and this observation goes to a requester who
+            // may not be entitled to know that such a state was requested.
+            JsonObject losslessChecks = new JsonObject();
+            for (String check : lossless.checks()) {
+                String kind = check.substring(0, check.indexOf(':'));
+                int ran = losslessChecks.has(kind) ? losslessChecks.get(kind).getAsInt() : 0;
+                losslessChecks.addProperty(kind, ran + 1);
+            }
+            response.add("lossless_hidden_checks", losslessChecks);
             response.add("observation", observation);
             response.addProperty(
                     "observation_scope",
@@ -930,6 +972,69 @@ final class XmageMidgameJsonlBridge {
     }
 
     /**
+     * The actor-entitled knowledge projection of the live game (AF05).
+     *
+     * <p>This is the qualified principal-scoped view of the full-game lane,
+     * {@link XmageFullGameStateRedactor#actorView}, exposed on this lane for one
+     * named principal: its own hand and mana, every other player's hand and
+     * library as counts only, face-up exile and the battlefield publicly, a
+     * face-down object's identity only where the engine entitles the viewer
+     * (CR 708.5, LOOK_AT_FACE_DOWN, CR 723.4), and the engine's own look and
+     * reveal log for that viewer. No principal-neutral or omniscient variant
+     * exists: an absent or unknown requester fails closed.</p>
+     */
+    private Result getProjection(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(request, "GET_MIDGAME_PROJECTION requires payload");
+            String requested = requiredText(payload, "actor_id");
+            XmageFullGameSession current = requireSession();
+            String label = null;
+            UUID nativeId = null;
+            for (int seat = 0; seat < current.playerCount(); seat++) {
+                String planLabel = "P" + (seat + 1);
+                String principal = current.principalIdAtSeat(seat);
+                if (planLabel.equals(requested) || requested.equals(principal)) {
+                    label = planLabel;
+                    nativeId = UUID.fromString(principal);
+                }
+            }
+            if (label == null) {
+                throw new IllegalArgumentException("unknown requester principal");
+            }
+            mage.game.Game game = current.restorationGame();
+            Player actor = game.getPlayer(nativeId);
+            if (actor == null) {
+                throw new IllegalArgumentException("requester principal has no live player");
+            }
+            // The view names other principals by opaque token and seat only. The
+            // seat-to-label map lets a verifier bind each projected seat to its
+            // requested-state principal without guessing. It is read from the
+            // engine's own turn-order ring and must be a bijection.
+            String[] labelBySeat = new String[current.playerCount()];
+            for (Map.Entry<String, Player> entry : current.restorationSeats().entrySet()) {
+                int engineSeat = XmageSeating.seat(game, entry.getValue().getId());
+                if (engineSeat < 0 || engineSeat >= labelBySeat.length || labelBySeat[engineSeat] != null) {
+                    throw new IllegalStateException("projected seats are not a bijection over the table");
+                }
+                labelBySeat[engineSeat] = entry.getKey();
+            }
+            JsonArray seatLabels = new JsonArray();
+            for (String seatLabel : labelBySeat) {
+                seatLabels.add(seatLabel);
+            }
+            JsonObject response = new JsonObject();
+            response.addProperty("actor_id", label);
+            response.addProperty("observation_scope", "principal_scoped");
+            response.addProperty("projection_kind", "actor_entitled_knowledge_projection");
+            response.add("seat_labels", seatLabels);
+            response.add("view", XmageFullGameStateRedactor.actorView(game, actor));
+            return success(requestId, response, false);
+        } catch (Exception exc) {
+            return error(requestId, "midgame_projection_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    /**
      * The public semantic event tape after {@code after_offset} events.
      *
      * <p>Every event is the engine's own {@link mage.game.events.GameEvent},
@@ -1160,6 +1265,21 @@ final class XmageMidgameJsonlBridge {
                 "starting_state_dimensions",
                 XmageNativeStateRestoration.dimensionsPayload()
         );
+        // AF05: every observation this lane answers, with its scope. There is no
+        // principal-neutral full state and no omniscient or raw-object message:
+        // the principal-scoped ones require a known requester and fail closed.
+        capabilities.addProperty("knowledge_projection_supported", true);
+        JsonObject observationScopes = new JsonObject();
+        observationScopes.addProperty("get_midgame_projection", "principal_scoped_required_requester");
+        observationScopes.addProperty("get_midgame_state", "principal_scoped_required_requester_counts_only");
+        observationScopes.addProperty("get_midgame_decision", "acting_principal_frame");
+        observationScopes.addProperty("get_legal_actions", "acting_principal_frame");
+        observationScopes.addProperty("get_midgame_events", "public_semantic_event_tape");
+        observationScopes.addProperty("complete_midgame_arrival",
+                "principal_scoped_or_principal_neutral_opponent_hands_counts_only");
+        capabilities.add("observation_scopes", observationScopes);
+        capabilities.addProperty("omniscient_state_api", false);
+        capabilities.addProperty("raw_engine_object_graph_api", false);
 
         JsonArray notes = new JsonArray();
         notes.add("Explicit requested starting state is materialised by the engine-native "

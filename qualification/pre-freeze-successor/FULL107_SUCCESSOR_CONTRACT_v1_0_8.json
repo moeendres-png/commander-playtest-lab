@@ -1,0 +1,2526 @@
+{
+ "change_accounting": {
+  "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
+  "changed_fixture_count": 15,
+  "changed_fixture_ids": [
+   "WS05-CMD-START-2",
+   "MICRO_MODES",
+   "NEGATIVE_FIRST_OPTION",
+   "NEGATIVE_GUI_DEFAULT",
+   "NEGATIVE_RANDOM_OPTION",
+   "NEGATIVE_SILENT_SKIP",
+   "PILOT_TARGET_AMOUNT",
+   "PILOT_MULTI_AMOUNT",
+   "MICRO_COSTS",
+   "HIDDEN_01",
+   "HIDDEN_02",
+   "HIDDEN_03",
+   "HIDDEN_04",
+   "HIDDEN_19",
+   "HIDDEN_HONEYCARD_SENTINEL"
+  ],
+  "historical_predecessor_preserved": true,
+  "per_fixture_correction_class": {
+   "HIDDEN_01": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "HIDDEN_02": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "HIDDEN_03": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "HIDDEN_04": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "HIDDEN_19": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "HIDDEN_HONEYCARD_SENTINEL": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "MICRO_COSTS": "FIXTURE_DEFECT_CORRECTION_CR307_1",
+   "MICRO_MODES": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "NEGATIVE_FIRST_OPTION": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "NEGATIVE_GUI_DEFAULT": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "NEGATIVE_RANDOM_OPTION": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "NEGATIVE_SILENT_SKIP": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "PILOT_MULTI_AMOUNT": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "PILOT_TARGET_AMOUNT": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "WS05-CMD-START-2": "OFFICIAL_RULES_AUTHORITY_CORRECTION"
+  },
+  "provider_semantics_used_to_define_successor": false,
+  "unchanged_provider_denominator_rows": 92
+ },
+ "contract_id": "commander-lab.full107/1.0.8-successor",
+ "effective_materialization_version": "commander-lab.semantic-fixture-materialization/1.0.8-successor",
+ "evidence_policy": {
+  "common_comparison_requires_fresh_current_boundary_execution_all_107": true,
+  "forge_wsr20_reported_start2_direct_requires_requalification": true,
+  "hidden_information_lossless_erratum_is_runtime_credit": false,
+  "historical_full107_runtime_credit_for_current_boundary": "PROVENANCE_ONLY",
+  "predecessor_start2_runtime_credit_survives": false,
+  "protocol_impact_adjudication_required": true,
+  "source_identity_alone_allows_carry_forward": false,
+  "successor_contract_creation_is_runtime_credit": false,
+  "xmage_predecessor_start2_blocker_is_historical_provenance": true
+ },
+ "materialization_schema_version_note": "the 1.0.8 successor schema adds the typed face_down_type object property and the deck_state entry shape (checkpoint_library, checkpoint_hand) that SLOT-04 lossless construction requires; the materialization identity moved to commander-lab.semantic-fixture-materialization/1.0.8-successor, named explicitly by effective_materialization_version; the 1.0.6 and 1.0.7 contracts and schemas remain byte-for-byte historical provenance",
+ "predecessor": {
+  "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json",
+  "record_count": 9,
+  "role": "historical successor overlays are preserved byte-for-byte; this contract re-applies every current overlay to the same 1.0.5 historical base so the patches remain independent of one another; the nine 1.0.7 overlays are carried unchanged",
+  "schema_version": "commander-lab.full107-successor-contract/1.0.0",
+  "sha256": "24ac6843cccdaa5d950db6b05e76e7744e3380b14c4ed193b5e2e0a997082b84"
+ },
+ "record_successors": [
+  {
+   "append_native_procedure": [
+    {
+     "details": {
+      "forbidden_checkpoint": "beginning/draw",
+      "hand_and_library_must_not_change_due_to_draw_step": true,
+      "next_observable_checkpoint": "precombat_main/main",
+      "priority_inside_skipped_draw_step_forbidden": true,
+      "starting_player": "P1",
+      "turn_number": 1
+     },
+     "operation": "NATIVE_ADVANCE_THROUGH_FIRST_BEGINNING_AND_VERIFY_DRAW_STEP_SKIPPED",
+     "step_id": "start2-cr1038a-skip-proof"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "103.8a",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "OFFICIAL_RULES_AUTHORITY_CORRECTION",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "WS05-CMD-START-2",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "reason": "The predecessor simultaneously required the first draw step to be skipped and priority to exist inside that draw step. CR 103.8a skips the entire step, so that temporal checkpoint is unsatisfiable for a conforming provider.",
+    "temporal_state": {
+     "active_player": "P1",
+     "phase": "beginning",
+     "priority_player": "P1",
+     "step": "draw",
+     "turn_number": 1
+    }
+   },
+   "predecessor_requested_state_digest": "2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312",
+   "replace": {
+    "expected_events": {
+     "forbidden_events": [
+      "draw_step_started:P1:turn1",
+      "draw_step_draw:P1:turn1"
+     ],
+     "ordering_constraints": [],
+     "partial_order_constraints": [],
+     "required_events": [
+      "starting_player:P1",
+      "first_turn_draw_step_skipped:true"
+     ]
+    },
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
+    "terminal_postconditions": [
+     "In 2P, starting player P1 skips the entire draw step on the first turn; no draw-step priority occurs and P1 hand/library counts remain unchanged from the post-mulligan opening state through entry to precombat main."
+    ]
+   },
+   "successor_requested_state_digest": "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand",
+      "mode_count": 1
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:micro-burn",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began inside the cast at the mode decision while only native_procedure prose named the opening cast; the successor reaches the cast through the engine-authored legal-action domain before the decision"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-micro_modes"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "MICRO_MODES",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "choose_mode",
+    "reason": "the predecessor's decision_script named no action that opens the decision; the harness would have had to derive the opening cast from native_procedure prose, which is a forbidden hidden legality source"
+   },
+   "predecessor_requested_state_digest": "3fbfd0829ef12616664d8aa796d8ae94a18439d2f54294beb38ccc10fdf40b9a",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Burn Down the House",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:micro-modes-mana-0",
+       "obj:micro-modes-mana-1",
+       "obj:micro-modes-mana-2",
+       "obj:micro-modes-mana-3",
+       "obj:micro-modes-mana-4"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:micro-burn"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:micro-burn"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "choose_mode",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_mode_key",
+       "semantic_value": "create_devils"
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "27617c9207eadaf4e826a03029692c6f3cf562dd148e817c40178cc7feb2ff61"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand",
+      "mode_count": 1
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:neg-burn",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began inside the cast at the mode decision while only native_procedure prose named the opening cast; the successor reaches the cast through the engine-authored legal-action domain before the decision"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-negative_first_option"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "choose_mode",
+    "reason": "the predecessor's decision_script named no action that opens the decision; the harness would have had to derive the opening cast from native_procedure prose, which is a forbidden hidden legality source"
+   },
+   "predecessor_requested_state_digest": "2a113a9a791b12c7fd7242cde589c2904ec44080c5675ce82c32defa3782ed7d",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Burn Down the House",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:negative_first_option-mana-0",
+       "obj:negative_first_option-mana-1",
+       "obj:negative_first_option-mana-2",
+       "obj:negative_first_option-mana-3",
+       "obj:negative_first_option-mana-4"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:neg-burn"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:neg-burn"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "choose_mode",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Do not answer the decision. This fixture passes only if the unsupported path terminates instead of using the named fallback.",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "fail_closed_probe",
+       "semantic_value": null
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "0f94e22b6e738e05764c4f2ede81f15bea438a60d00b220955a1d413a718c1a8"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand",
+      "mode_count": 1
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:neg-burn",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began inside the cast at the mode decision while only native_procedure prose named the opening cast; the successor reaches the cast through the engine-authored legal-action domain before the decision"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-negative_gui_default"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "choose_mode",
+    "reason": "the predecessor's decision_script named no action that opens the decision; the harness would have had to derive the opening cast from native_procedure prose, which is a forbidden hidden legality source"
+   },
+   "predecessor_requested_state_digest": "8fb40cf8fcd2e8cfbd38c5d452af3de4af072df3c8cdb13bab74c2414d44c667",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Burn Down the House",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:negative_gui_default-mana-0",
+       "obj:negative_gui_default-mana-1",
+       "obj:negative_gui_default-mana-2",
+       "obj:negative_gui_default-mana-3",
+       "obj:negative_gui_default-mana-4"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:neg-burn"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:neg-burn"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "choose_mode",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Do not answer the decision. This fixture passes only if the unsupported path terminates instead of using the named fallback.",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "fail_closed_probe",
+       "semantic_value": null
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "413186d259a0c8dc0daf594a383b2e4467a2e9c68cc56db88f25c2c07debf719"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand",
+      "target_count": 1
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:neg-bolt",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began at the target decision while only native_procedure prose named the opening cast"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-negative_random_option"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "target",
+    "reason": "the predecessor's decision_script named no action that opens the target decision; deriving it from native_procedure prose is forbidden"
+   },
+   "predecessor_requested_state_digest": "27e48a2a3629e8028cf6d0bd4b1d938dc2804bc59a405a9099bef2088737f6d5",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Lightning Bolt",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:negative_random_option-mana-0"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:neg-bolt"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:neg-bolt"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Do not answer the decision. This fixture passes only if the unsupported path terminates instead of using the named fallback.",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "fail_closed_probe",
+       "semantic_value": null
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "12182b3f18f0744a72bee410365e57936660063d329d1c31cfb204155d172b2c"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand",
+      "target_count": 1
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:neg-bolt",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began at the target decision while only native_procedure prose named the opening cast"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-negative_silent_skip"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "target",
+    "reason": "the predecessor's decision_script named no action that opens the target decision; deriving it from native_procedure prose is forbidden"
+   },
+   "predecessor_requested_state_digest": "dfdcea34210edb28510f4075fce51db9f378406abbbe0c65aac655559562221a",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Lightning Bolt",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:negative_silent_skip-mana-0"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:neg-bolt"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:neg-bolt"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Do not answer the decision. This fixture passes only if the unsupported path terminates instead of using the named fallback.",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "fail_closed_probe",
+       "semantic_value": null
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "f4364ca2a9abb99f82bafe5f860ecb405cab6e9763dcdab0cb4d89e0c84c3543"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand"
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:pilot-opus",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began at the divided-damage assignment while only native_procedure prose named the opening cast of Magma Opus"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-pilot_target_amount"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "target_amount",
+    "reason": "the predecessor's decision_script named no action that opens the divided-damage decision; deriving it from native_procedure prose is forbidden"
+   },
+   "predecessor_requested_state_digest": "ad1a4eafe5052dd937de7e76406f3007f6abcf110b4eb8c7c50d05974828389b",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Magma Opus",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:pilot_target_amount-mountain-0",
+       "obj:pilot_target_amount-mountain-1",
+       "obj:pilot_target_amount-mountain-2",
+       "obj:pilot_target_amount-mountain-3",
+       "obj:pilot_target_amount-mountain-4",
+       "obj:pilot_target_amount-mountain-5",
+       "obj:pilot_target_amount-mountain-6",
+       "obj:pilot_target_amount-island-0"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:pilot-opus"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:pilot-opus"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "target_amount",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "amount_assignment",
+       "semantic_value": {
+        "P2": 2,
+        "obj:pilot-p3-target": 2
+       }
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "90b5374a56a04c19780401c33aa6db95c1db62d2687709018e4796c2d59ddc4d"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": "P1",
+     "details": {
+      "from_zone": "hand"
+     },
+     "operation": "NATIVE_CAST_SPELL",
+     "source_object": "obj:pilot-opus",
+     "step_id": "open-cast"
+    },
+    {
+     "actor": null,
+     "details": {
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_OPENING_CAST",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor decision_script began at the divided-damage assignment while only native_procedure prose named the opening cast of Magma Opus"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-open-cast-pilot_multi_amount"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255/441 fixture errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script_first_family": "multi_amount",
+    "reason": "the predecessor's decision_script named no action that opens the divided-damage decision; deriving it from native_procedure prose is forbidden"
+   },
+   "predecessor_requested_state_digest": "8d8d91ab33660f80a7c3a94e07a16673c3bf21296ce76e2ddd512a983b6f30bb",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Magma Opus",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:pilot_multi_amount-mountain-0",
+       "obj:pilot_multi_amount-mountain-1",
+       "obj:pilot_multi_amount-mountain-2",
+       "obj:pilot_multi_amount-mountain-3",
+       "obj:pilot_multi_amount-mountain-4",
+       "obj:pilot_multi_amount-mountain-5",
+       "obj:pilot_multi_amount-mountain-6",
+       "obj:pilot_multi_amount-island-0"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:pilot-opus"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "open-cast",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:pilot-opus"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "multi_amount",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "amount_assignment",
+       "semantic_value": {
+        "P2": 2,
+        "obj:pilot-p3-target": 2
+       }
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "7e583235871ac9454aeeec1eeeebb6f3bbf7259d3843ddfbf23bf40f87029d24"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "comprehensive_rules": "307.1",
+      "erratum_class": "FIXTURE_DEFECT_CR_307_1",
+      "predecessor_active_player": "P1",
+      "provider_semantics_used": false,
+      "reason": "the predecessor asked P2 to cast the sorcery Hex while P1 was the active player in P1's precombat main; CR 307.1 permits a sorcery only during its controller's own main phase with an empty stack, so the engine correctly offered no cast. The successor makes P2 the active player at the same checkpoint, preserving the intended cost/interaction obligation",
+      "successor_active_player": "P2"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-micro-costs-active-player"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "307.1",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1",
+   "digest_migration": {
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "MICRO_COSTS",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "reason": "the predecessor temporal checkpoint (P1 active in precombat main) makes the scripted P2 sorcery cast illegal under CR 307.1; the observed engine refusal is consistent with the request, not a provider failure",
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    }
+   },
+   "predecessor_requested_state_digest": "d90d525a43d4c1c09a5b81d327ad8cd50d9f3f85f5ee366bfbc08b8a1f3844aa",
+   "replace": {
+    "temporal_state": {
+     "active_player": "P2",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P2",
+     "step": "main",
+     "turn_number": 1
+    }
+   },
+   "successor_requested_state_digest": "500d01f149295012a72df0216651a5e1461958ab550cc310a5a9fd4dceeec731"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless hidden-state construction is binding; a partial library request and an untyped face_down=true fail closed; the old HIDDEN fixtures are corrected and versioned",
+      "complete_checkpoint_hands": {
+       "P1": "8 template cards: the opening hand of 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "P2": "obj:hidden-hand plus 7 template cards",
+       "P3": "7 template cards",
+       "P4": "7 template cards"
+      },
+      "complete_checkpoint_libraries": {
+       "P2": "obj:hidden-lib-0 on top, then the 92 remaining template cards; template cards are identical, so their relative order carries no information"
+      },
+      "erratum_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+      "face_down_type": {
+       "object": "obj:facedown",
+       "reason": "Grizzly Bears has no morph, megamorph or disguise ability, so the only routes by which it is a face-down permanent are the keyword actions manifest and cloak; cloak adds ward {2}, which the frozen obligation does not describe, while manifest yields exactly the characteristic-less face-down 2/2 creature it does describe",
+       "type": "MANIFESTED"
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "rule_number_note": "only rule 103.8a is quoted from the byte-locked official capture (CURRENT_RULES_AUTHORITY.json); face-down and keyword-action rules are cited by name, not number, because the official text could not be re-fetched in this session",
+      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention (PLAYER_COUNT_*, PILOT_MULLIGAN, WS05-CMD-MULL-*): the basic land type of Rograkh, Son of Rohgahh's red color identity"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-lossless-hidden-state-hidden_01"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless hidden-state construction",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a typed face-down state and complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_01",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ],
+    "reason": "the predecessor names one P2 library card at position 0 and nothing else, and an untyped face-down object; under SLOT-04 L7 both requests fail closed, so no lossless construction of the predecessor exists; its hands were undeclared, so the permitted hand-count metadata had no requested value to compare against",
+    "undeclared_checkpoint_hands": true,
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ]
+   },
+   "predecessor_requested_state_digest": "c0960492e7fc89b8476cf9f7e3b288f844a9e572a881eb0dabe83c0f4bd31c53",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "e7952c7ebe74294bf190dc3873c6fb26d352ffa40fcba2bdd23fefb0703810ca"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless hidden-state construction is binding; a partial library request and an untyped face_down=true fail closed; the old HIDDEN fixtures are corrected and versioned",
+      "complete_checkpoint_hands": {
+       "P1": "8 template cards: the opening hand of 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "P2": "obj:hidden-hand plus 7 template cards",
+       "P3": "7 template cards",
+       "P4": "7 template cards"
+      },
+      "complete_checkpoint_libraries": {
+       "P2": "obj:hidden-lib-0 on top, then the 92 remaining template cards; template cards are identical, so their relative order carries no information"
+      },
+      "erratum_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+      "face_down_type": {
+       "object": "obj:facedown",
+       "reason": "Grizzly Bears has no morph, megamorph or disguise ability, so the only routes by which it is a face-down permanent are the keyword actions manifest and cloak; cloak adds ward {2}, which the frozen obligation does not describe, while manifest yields exactly the characteristic-less face-down 2/2 creature it does describe",
+       "type": "MANIFESTED"
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "rule_number_note": "only rule 103.8a is quoted from the byte-locked official capture (CURRENT_RULES_AUTHORITY.json); face-down and keyword-action rules are cited by name, not number, because the official text could not be re-fetched in this session",
+      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention (PLAYER_COUNT_*, PILOT_MULLIGAN, WS05-CMD-MULL-*): the basic land type of Rograkh, Son of Rohgahh's red color identity"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-lossless-hidden-state-hidden_02"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless hidden-state construction",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a typed face-down state and complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_02",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ],
+    "reason": "the predecessor names one P2 library card at position 0 and nothing else, and an untyped face-down object; under SLOT-04 L7 both requests fail closed, so no lossless construction of the predecessor exists; its hands were undeclared, so the permitted hand-count metadata had no requested value to compare against",
+    "undeclared_checkpoint_hands": true,
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ]
+   },
+   "predecessor_requested_state_digest": "3ee2b2bb14452bc31b69a713ab8247c2db331182b36355959723ffb02b18caf4",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "4f189f72a920c08d6ca212cf9c3fa7050796a8d04f33b47494e6d2f95aa603ce"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless hidden-state construction is binding; a partial library request and an untyped face_down=true fail closed; the old HIDDEN fixtures are corrected and versioned",
+      "complete_checkpoint_hands": {
+       "P1": "8 template cards: the opening hand of 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "P2": "obj:hidden-hand plus 7 template cards",
+       "P3": "7 template cards",
+       "P4": "7 template cards"
+      },
+      "complete_checkpoint_libraries": {
+       "P2": "obj:hidden-lib-0 on top, then the 92 remaining template cards; template cards are identical, so their relative order carries no information"
+      },
+      "erratum_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+      "face_down_type": {
+       "object": "obj:facedown",
+       "reason": "Grizzly Bears has no morph, megamorph or disguise ability, so the only routes by which it is a face-down permanent are the keyword actions manifest and cloak; cloak adds ward {2}, which the frozen obligation does not describe, while manifest yields exactly the characteristic-less face-down 2/2 creature it does describe",
+       "type": "MANIFESTED"
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "rule_number_note": "only rule 103.8a is quoted from the byte-locked official capture (CURRENT_RULES_AUTHORITY.json); face-down and keyword-action rules are cited by name, not number, because the official text could not be re-fetched in this session",
+      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention (PLAYER_COUNT_*, PILOT_MULLIGAN, WS05-CMD-MULL-*): the basic land type of Rograkh, Son of Rohgahh's red color identity"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-lossless-hidden-state-hidden_03"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless hidden-state construction",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a typed face-down state and complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_03",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ],
+    "reason": "the predecessor names one P2 library card at position 0 and nothing else, and an untyped face-down object; under SLOT-04 L7 both requests fail closed, so no lossless construction of the predecessor exists; its hands were undeclared, so the permitted hand-count metadata had no requested value to compare against",
+    "undeclared_checkpoint_hands": true,
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ]
+   },
+   "predecessor_requested_state_digest": "20a781e65cc3e71ed5fc0820abf3e2e5f9d005b6fb15a47ee216aa40ef555595",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "36f766fedfd04cffa4f9596816f77712e00300a17644e2eec664a73e0d298710"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless hidden-state construction is binding; a partial library request and an untyped face_down=true fail closed; the old HIDDEN fixtures are corrected and versioned",
+      "complete_checkpoint_hands": {
+       "P1": "8 template cards: the opening hand of 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "P2": "obj:hidden-hand plus 7 template cards",
+       "P3": "7 template cards",
+       "P4": "7 template cards"
+      },
+      "complete_checkpoint_libraries": {
+       "P2": "obj:hidden-lib-0 on top, then the 92 remaining template cards; template cards are identical, so their relative order carries no information"
+      },
+      "erratum_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+      "face_down_type": {
+       "object": "obj:facedown",
+       "reason": "Grizzly Bears has no morph, megamorph or disguise ability, so the only routes by which it is a face-down permanent are the keyword actions manifest and cloak; cloak adds ward {2}, which the frozen obligation does not describe, while manifest yields exactly the characteristic-less face-down 2/2 creature it does describe",
+       "type": "MANIFESTED"
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "rule_number_note": "only rule 103.8a is quoted from the byte-locked official capture (CURRENT_RULES_AUTHORITY.json); face-down and keyword-action rules are cited by name, not number, because the official text could not be re-fetched in this session",
+      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention (PLAYER_COUNT_*, PILOT_MULLIGAN, WS05-CMD-MULL-*): the basic land type of Rograkh, Son of Rohgahh's red color identity"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-lossless-hidden-state-hidden_04"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless hidden-state construction",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a typed face-down state and complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_04",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ],
+    "reason": "the predecessor names one P2 library card at position 0 and nothing else, and an untyped face-down object; under SLOT-04 L7 both requests fail closed, so no lossless construction of the predecessor exists; its hands were undeclared, so the permitted hand-count metadata had no requested value to compare against",
+    "undeclared_checkpoint_hands": true,
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ]
+   },
+   "predecessor_requested_state_digest": "e05a98354ca56beb7ad8f4d661918a9784ffdd4bb2f8a4a679611080d044c086",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "f0d954a3c005f6ec64549c7e0f85c799631af8244b4eaded0d57652c9b6e2ec7"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless hidden-state construction is binding; a partial library request and an untyped face_down=true fail closed; the old HIDDEN fixtures are corrected and versioned",
+      "complete_checkpoint_hands": {
+       "P1": "8 template cards: the opening hand of 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "P2": "obj:hidden-hand plus 7 template cards",
+       "P3": "7 template cards",
+       "P4": "7 template cards"
+      },
+      "complete_checkpoint_libraries": {
+       "P2": "obj:hidden-lib-0 on top, then the 92 remaining template cards; template cards are identical, so their relative order carries no information"
+      },
+      "erratum_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+      "face_down_type": {
+       "object": "obj:facedown",
+       "reason": "Grizzly Bears has no morph, megamorph or disguise ability, so the only routes by which it is a face-down permanent are the keyword actions manifest and cloak; cloak adds ward {2}, which the frozen obligation does not describe, while manifest yields exactly the characteristic-less face-down 2/2 creature it does describe",
+       "type": "MANIFESTED"
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "rule_number_note": "only rule 103.8a is quoted from the byte-locked official capture (CURRENT_RULES_AUTHORITY.json); face-down and keyword-action rules are cited by name, not number, because the official text could not be re-fetched in this session",
+      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention (PLAYER_COUNT_*, PILOT_MULLIGAN, WS05-CMD-MULL-*): the basic land type of Rograkh, Son of Rohgahh's red color identity"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-lossless-hidden-state-hidden_19"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless hidden-state construction",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a typed face-down state and complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_19",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ],
+    "reason": "the predecessor names one P2 library card at position 0 and nothing else, and an untyped face-down object; under SLOT-04 L7 both requests fail closed, so no lossless construction of the predecessor exists; its hands were undeclared, so the permitted hand-count metadata had no requested value to compare against",
+    "undeclared_checkpoint_hands": true,
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ]
+   },
+   "predecessor_requested_state_digest": "502052b3b5038e466e968334806cd4b74c12e10c4913bc922a6400eadcba0382",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "defc3acfc46c6860d4732c05c3c1f09ab54ed19dfab84a91128d8abfc1a58f4f"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless hidden-state construction is binding; a partial library request and an untyped face_down=true fail closed; the old HIDDEN fixtures are corrected and versioned",
+      "complete_checkpoint_hands": {
+       "P1": "8 template cards: the opening hand of 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "P2": "obj:hidden-hand plus 7 template cards",
+       "P3": "7 template cards",
+       "P4": "7 template cards"
+      },
+      "complete_checkpoint_libraries": {
+       "P2": "obj:hidden-lib-0 on top, then the 92 remaining template cards; template cards are identical, so their relative order carries no information"
+      },
+      "erratum_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+      "face_down_type": {
+       "object": "obj:facedown",
+       "reason": "Grizzly Bears has no morph, megamorph or disguise ability, so the only routes by which it is a face-down permanent are the keyword actions manifest and cloak; cloak adds ward {2}, which the frozen obligation does not describe, while manifest yields exactly the characteristic-less face-down 2/2 creature it does describe",
+       "type": "MANIFESTED"
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "rule_number_note": "only rule 103.8a is quoted from the byte-locked official capture (CURRENT_RULES_AUTHORITY.json); face-down and keyword-action rules are cited by name, not number, because the official text could not be re-fetched in this session",
+      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention (PLAYER_COUNT_*, PILOT_MULLIGAN, WS05-CMD-MULL-*): the basic land type of Rograkh, Son of Rohgahh's red color identity"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-lossless-hidden-state-hidden_honeycard_sentinel"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless hidden-state construction",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a typed face-down state and complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ],
+    "reason": "the predecessor names one P2 library card at position 0 and nothing else, and an untyped face-down object; under SLOT-04 L7 both requests fail closed, so no lossless construction of the predecessor exists; its hands were undeclared, so the permitted hand-count metadata had no requested value to compare against",
+    "undeclared_checkpoint_hands": true,
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ]
+   },
+   "predecessor_requested_state_digest": "903bca9e743df5b158121936e992362618d588ca4a835c49ae1dcaaacc907d7c",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "4e62eace44ca69b764d8c45ab3dd3c7f0c9bbb17a11ce7e46d5faaa65e06945e"
+  }
+ ],
+ "rules_authority": {
+  "byte_exact_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "byte_exact_status": "DIRECT_CAPTURE_AND_HASHED",
+  "byte_identity_claim": true,
+  "current_authority_receipt_required": true,
+  "current_authority_status": "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED",
+  "current_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+  "effective_date": "2026-09-25",
+  "freshness_conflict_resolved": "2026-09-27",
+  "historical_repository_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+  "requirement": "In a two-player game, the starting player skips the entire draw step of the first turn; the successor fixture must not require priority or any observation inside that skipped step.",
+  "rule": "103.8a",
+  "rules_semantic_impact": {
+   "FULL107_BLANKET_RERUN_REQUIRED": "NO",
+   "FULL107_RUNTIME_EVIDENCE_INVALIDATED": "NO",
+   "reason": "The qualification-relevant rule set is semantically unchanged between 2026-08-19 and 2026-09-25 (103.8a/b/c, 504.1, 800.4a/j, 508.8 all semantic_delta NONE), so the effective date correction changes provenance, not obligations."
+  },
+  "semantic_basis_effective_date": "2026-09-25"
+ },
+ "schema_version": "commander-lab.full107-successor-contract/1.0.0"
+}

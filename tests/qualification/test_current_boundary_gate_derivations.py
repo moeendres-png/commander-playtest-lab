@@ -153,6 +153,18 @@ def test_af05_residual_rows_keep_it_unknown() -> None:
     assert gate["blocking_rows"] == ["HIDDEN_02"]
 
 
+def test_af05_a_failed_hidden_row_fails_the_gate_rather_than_staying_unknown() -> None:
+    """A demonstrated row failure is a violated boundary, not an unproven one."""
+    rows = _rows({"HIDDEN_01": "FAIL", "HIDDEN_02": "UNKNOWN", "HIDDEN_03": "PASS"})
+    gate = g.af05_hidden_information("xmage", rows, {"principal_scoping": CREDIBLE_SCOPING})
+    assert gate["verdict"] == "FAIL"
+    assert gate["blocking_rows"] == ["HIDDEN_01"]
+    # Fail-before: the same rows without the failure are only UNKNOWN.
+    rows["HIDDEN_01"] = _row("UNKNOWN")
+    gate = g.af05_hidden_information("xmage", rows, {"principal_scoping": CREDIBLE_SCOPING})
+    assert gate["verdict"] == "UNKNOWN"
+
+
 # --------------------------------------------------------------------------- #
 # AF06
 # --------------------------------------------------------------------------- #

@@ -311,6 +311,13 @@ class MidgameLaneClient:
         self._tape: list[dict[str, Any]] = []
         self.manifest: DimensionManifest | None = None
         self._last_timeout_s: float | None = None
+        # The child's stderr, drained continuously: an undrained pipe would block
+        # a child that writes more than the pipe buffer, and the knowledge
+        # boundary scans the process log as a channel of its own.
+        self._stderr_chunks: list[str] = []
+        self._stderr_size = 0
+        self._stderr_lock = threading.Lock()
+        self._stderr_thread: threading.Thread | None = None
 
     # -- transport ---------------------------------------------------
 
@@ -334,7 +341,43 @@ class MidgameLaneClient:
             )
         except OSError as exc:
             raise MidgameLaneError(f"cannot launch the mid-game lane: {exc}") from exc
+        if self._process.stderr is not None:
+            self._stderr_thread = threading.Thread(
+                target=self._drain_stderr,
+                args=(self._process.stderr,),
+                name="midgame-lane-stderr",
+                daemon=True,
+            )
+            self._stderr_thread.start()
         return self
+
+    #: Retained bytes of the child's stderr; the oldest text is dropped beyond it.
+    STDERR_RETENTION_CHARS = 4_000_000
+
+    def _drain_stderr(self, stream: Any) -> None:
+        try:
+            for line in iter(stream.readline, ""):
+                with self._stderr_lock:
+                    self._stderr_chunks.append(line)
+                    self._stderr_size += len(line)
+                    while (
+                        self._stderr_size > self.STDERR_RETENTION_CHARS
+                        and len(self._stderr_chunks) > 1
+                    ):
+                        self._stderr_size -= len(self._stderr_chunks.pop(0))
+        except (OSError, ValueError):
+            return
+
+    def _join_stderr(self, timeout_s: float) -> None:
+        thread = self._stderr_thread
+        if thread is not None:
+            thread.join(timeout=timeout_s)
+
+    @property
+    def stderr_log(self) -> str:
+        """The child's stderr as drained so far (complete once the child exited)."""
+        with self._stderr_lock:
+            return "".join(self._stderr_chunks)
 
     def __exit__(self, *_exc: object) -> None:
         self.close()
@@ -353,6 +396,7 @@ class MidgameLaneClient:
             process.wait(timeout=20)
         except subprocess.TimeoutExpired:
             process.kill()
+        self._join_stderr(10)
 
     def request(
         self,
@@ -391,9 +435,9 @@ class MidgameLaneClient:
         request_id = envelope["request_id"]
         raw = self._read_line_with_deadline(timeout_s, message_type, request_id)
         if not raw:
-            stderr = ""
-            if self._process.stderr is not None:
-                stderr = self._process.stderr.read()[-2000:]
+            # The drain thread owns the stream; give it a moment to reach EOF.
+            self._join_stderr(2)
+            stderr = self.stderr_log[-2000:]
             raise MidgameLaneTransportError(
                 f"mid-game lane closed stdout for {message_type} (stderr tail: {stderr})"
             )

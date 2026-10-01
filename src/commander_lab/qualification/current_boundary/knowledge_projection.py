@@ -1,0 +1,1255 @@
+"""AF05 actor-entitled knowledge projection on the production mid-game lane.
+
+For the HIDDEN_* rows whose obligation is a knowledge boundary at a constructed
+checkpoint, the record is executed on the XMage mid-game lane and the boundary
+is verified against the engine's own actor-entitled projection and against
+every channel a principal receives::
+
+    SLOT-04 lossless successor record -> native construction with the engine's
+    field-level and lossless readback (EXACT, and every lossless check the
+    record declares reported as performed) -> the actor-entitled projection of
+    every principal, read from the live rules state -> the record's own viewer
+    obligation, compared against values the record itself requests ->
+    forbidden-identity and honey-sentinel scan over every channel the viewer
+    receives, with positive controls -> runner-bound positive receipt
+
+The module computes no Rules semantics and chooses nothing. What a principal
+may know is read from the record (semantic objects, deck state, look
+permissions, honey sentinels); what the principal was shown is read from the
+engine. A row is verified only if every check holds and no scan is vacuous.
+
+A demonstrated defect is never reported as UNKNOWN: an identity a principal is
+not entitled to found in a channel that principal receives, or entitled
+information missing although the engine verified the state it comes from, is
+classified as a FAIL with the exact findings. Anything this module could not
+measure leaves the row unverified, which earns nothing.
+"""
+
+from __future__ import annotations
+
+import json
+from collections.abc import Iterable, Iterator
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+from . import midgame_lane as ml
+from . import midgame_rows as midgame_rows_mod
+from . import receipts as receipt_mod
+
+EXECUTION_MODE = "MIDGAME_LANE_KNOWLEDGE_PROJECTION"
+TEST_IDENTITY_PREFIX = "midgame-lane:knowledge-projection#"
+RECEIPT_FILE_PREFIX = "knowledge-projection-xmage--"
+EXECUTIONS_SCHEMA = "commander-lab.knowledge-projection-executions/1.0.0"
+POSITIVE_FIXTURE_RECEIPT_SCHEMA = receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA
+
+VERIFIED = "VERIFIED"
+UNVERIFIED = "UNVERIFIED"
+FAIL_DEMONSTRATED_LEAK = "FAIL_DEMONSTRATED_LEAK"
+FAIL_ENTITLEMENT_DENIED = "FAIL_ENTITLEMENT_DENIED"
+FAIL_CLASSIFICATIONS = (FAIL_DEMONSTRATED_LEAK, FAIL_ENTITLEMENT_DENIED)
+
+# The construct-and-project rows and the knowledge obligation each one names.
+# The obligation kind selects which of the record's own requests is the row's
+# focus; every check reads its expected values from the record itself.
+ROWS: dict[str, str] = {
+    "HIDDEN_01": "opponent_hand",
+    "HIDDEN_02": "opponent_library",
+    "HIDDEN_03": "public_exile",
+    "HIDDEN_04": "face_down_controller",
+    "HIDDEN_19": "no_omniscient_api",
+    "HIDDEN_HONEYCARD_SENTINEL": "honey_sentinel",
+}
+
+# The record's own obligation sentence for each kind. A record whose viewer
+# obligation names something else is not the row this module knows how to
+# verify, so it fails closed before any execution.
+OBLIGATION_TEXT: dict[str, str] = {
+    "opponent_hand": "opponent hand identities absent while count remains visible",
+    "opponent_library": "library identities/order absent while count remains visible",
+    "public_exile": "face-up exile identities public",
+    "face_down_controller": ("face-down permanent controller sees identity while opponents do not"),
+    "no_omniscient_api": "pilot code cannot access omniscient raw engine APIs",
+    "honey_sentinel": (
+        "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
+        "metadata/source/state/transcript/logs"
+    ),
+}
+
+# Requests a pilot could send in an attempt to read state it is not entitled
+# to. Each must be refused by the engine lane with a typed error.
+OMNISCIENCE_ATTEMPTS: tuple[tuple[str, dict[str, Any]], ...] = (
+    ("get_midgame_projection", {}),
+    ("get_midgame_projection", {"actor_id": "*"}),
+    ("get_midgame_projection", {"actor_id": "ALL"}),
+    ("get_midgame_projection", {"actor_id": "P9"}),
+    ("get_midgame_state", {}),
+    ("complete_midgame_arrival", {"actor_id": "P9"}),
+    ("get_full_game_state", {}),
+    ("get_omniscient_state", {}),
+    ("dump_engine_state", {}),
+    ("get_raw_engine_object_graph", {}),
+)
+
+# Observation messages whose scope the lane must declare.
+SCOPED_OBSERVATIONS = (
+    "get_midgame_projection",
+    "get_midgame_state",
+    "get_midgame_decision",
+    "get_legal_actions",
+    "get_midgame_events",
+    "complete_midgame_arrival",
+)
+
+# Channels of the frozen knowledge contract that the lane carries in a frame.
+FRAME_CHANNEL_FIELDS = (
+    ("prompt", "prompt"),
+    ("context", "context"),
+    ("source_metadata", "source_object"),
+)
+
+# Harness control-plane messages. They carry the requested state (the harness
+# is the constructor), so they are no principal's channel.
+CONTROL_PLANE = {"create_midgame_game", "start_midgame_game"}
+
+
+# --------------------------------------------------------------------------- #
+# What the record entitles each principal to know
+# --------------------------------------------------------------------------- #
+
+
+def _objects(record: dict[str, Any]) -> list[dict[str, Any]]:
+    return [dict(item) for item in record.get("semantic_objects") or ()]
+
+
+def _labels(record: dict[str, Any]) -> list[str]:
+    players = sorted(record.get("players") or (), key=lambda player: int(player["seat"]))
+    return [str(player["player_id"]) for player in players]
+
+
+def _viewer_state(record: dict[str, Any]) -> dict[str, Any]:
+    states = list((record.get("knowledge_state") or {}).get("viewer_states") or ())
+    if len(states) != 1:
+        raise ValueError("the record must declare exactly one viewer state")
+    return dict(states[0])
+
+
+def _look_permitted(obj: dict[str, Any], viewer: str, permissions: Iterable[Any]) -> bool:
+    for permission in permissions:
+        if (
+            isinstance(permission, dict)
+            and permission.get("object") == obj.get("semantic_id")
+            and permission.get("viewer") == viewer
+            and permission.get("scope") == "identity"
+        ):
+            return True
+    return False
+
+
+def entitled(obj: dict[str, Any], viewer: str, permissions: Iterable[Any] = ()) -> bool:
+    """Whether the record entitles ``viewer`` to the object's identity.
+
+    Hand cards are their owner's; library cards are nobody's; a face-down
+    permanent is its controller's and any principal's the record grants a look;
+    every other requested zone here is public.
+    """
+    zone = obj.get("zone")
+    if zone == "library":
+        return False
+    if zone == "hand":
+        return obj.get("owner") == viewer
+    if obj.get("face_down"):
+        return obj.get("controller") == viewer or _look_permitted(obj, viewer, permissions)
+    return True
+
+
+def honey_bindings(record: dict[str, Any]) -> dict[str, str]:
+    """Sentinel -> identity of the object the record attaches it to."""
+    bindings: dict[str, str] = {}
+    for obj in _objects(record):
+        for note in obj.get("construction_notes") or ():
+            if isinstance(note, str) and note.startswith("honey_sentinel:"):
+                bindings[note.removeprefix("honey_sentinel:")] = str(obj["card_identity"])
+    return bindings
+
+
+@dataclass(frozen=True)
+class ForbiddenTokens:
+    """Strings a principal must never receive, and the tokens that cannot decide."""
+
+    tokens: dict[str, str]
+    ambiguous: dict[str, str]
+
+
+def forbidden_tokens(record: dict[str, Any], viewer: str) -> ForbiddenTokens:
+    """The identities, semantic ids and sentinels ``viewer`` is not entitled to.
+
+    A card identity the viewer may also legitimately see through another object
+    (or through its scaffolding template) cannot decide anything and is set
+    aside as ambiguous rather than scanned.
+    """
+    permissions = _viewer_state(record).get("face_down_look_permissions") or ()
+    visible: set[str] = set()
+    hidden: dict[str, str] = {}
+    for obj in _objects(record):
+        identity = str(obj["card_identity"])
+        if entitled(obj, viewer, permissions):
+            visible.add(identity)
+        else:
+            hidden[identity] = f"identity of {obj['semantic_id']}"
+            hidden[str(obj["semantic_id"])] = "semantic id of a hidden object"
+    for deck in record.get("deck_state") or ():
+        template = (deck.get("library_template") or {}).get("card_identity")
+        if template:
+            visible.add(str(template))
+    tokens: dict[str, str] = {}
+    ambiguous: dict[str, str] = {}
+    for token, why in hidden.items():
+        (ambiguous if token in visible else tokens)[token] = why
+    for state in (record.get("knowledge_state") or {}).get("viewer_states") or ():
+        for sentinel in state.get("honey_sentinels") or ():
+            tokens[str(sentinel)] = "honey sentinel"
+    return ForbiddenTokens(tokens, ambiguous)
+
+
+def expected_hand_counts(record: dict[str, Any]) -> dict[str, int]:
+    """Requested checkpoint hand sizes for every principal whose hand is declared."""
+    counts: dict[str, int] = {}
+    objects = _objects(record)
+    for deck in record.get("deck_state") or ():
+        hand = deck.get("checkpoint_hand")
+        if not isinstance(hand, dict) or hand.get("completeness") != "COMPLETE":
+            continue
+        player = str(deck["player_id"])
+        requested = sum(1 for o in objects if o.get("zone") == "hand" and o["owner"] == player)
+        counts[player] = requested + int(hand["template_count"])
+    return counts
+
+
+def expected_library_counts(record: dict[str, Any]) -> dict[str, int]:
+    """Requested checkpoint library sizes for every principal whose library is declared."""
+    counts: dict[str, int] = {}
+    for deck in record.get("deck_state") or ():
+        library = deck.get("checkpoint_library")
+        if not isinstance(library, dict) or library.get("completeness") != (
+            "COMPLETE_TOP_TO_BOTTOM"
+        ):
+            continue
+        total = 0
+        for run in library.get("runs") or ():
+            total += 1 if "semantic_id" in run else int(run["count"])
+        counts[str(deck["player_id"])] = total
+    return counts
+
+
+def expected_lossless_checks(record: dict[str, Any]) -> dict[str, int]:
+    """How many engine-direct lossless checks of each kind the record requires.
+
+    The lane reports counts per kind only: a check names the player or object
+    it verified, and its observation goes to requesters who may not be entitled
+    to know that such a state was requested.
+    """
+    counts: dict[str, int] = {}
+
+    def add(kind: str) -> None:
+        counts[kind] = counts.get(kind, 0) + 1
+
+    for deck in record.get("deck_state") or ():
+        if isinstance(deck.get("checkpoint_library"), dict):
+            add("library_order")
+            for run in deck["checkpoint_library"].get("runs") or ():
+                if "semantic_id" in run:
+                    add("library_object")
+        if isinstance(deck.get("checkpoint_hand"), dict):
+            add("hand_composition")
+    for obj in _objects(record):
+        if obj.get("face_down_type"):
+            add("face_down")
+    return counts
+
+
+# --------------------------------------------------------------------------- #
+# Execution on the lane
+# --------------------------------------------------------------------------- #
+
+
+@dataclass
+class Capture:
+    """Everything the lane returned for one row, verbatim."""
+
+    arrival_verdict: str | None = None
+    arrival_mismatches: list[str] = field(default_factory=list)
+    checkpoint_decision: dict[str, Any] | None = None
+    scoped_arrival: dict[str, Any] = field(default_factory=dict)
+    projections: dict[str, dict[str, Any]] = field(default_factory=dict)
+    natives: dict[str, str] = field(default_factory=dict)
+    viewer_state: dict[str, Any] = field(default_factory=dict)
+    events: dict[str, Any] = field(default_factory=dict)
+    capabilities: dict[str, Any] = field(default_factory=dict)
+    attempts: list[dict[str, Any]] = field(default_factory=list)
+    tape: list[dict[str, Any]] = field(default_factory=list)
+    log: str = ""
+    failure: str | None = None
+
+
+def _payload(response: dict[str, Any]) -> dict[str, Any]:
+    payload = response.get("payload")
+    return payload if isinstance(payload, dict) else {}
+
+
+def _error_code(response: dict[str, Any]) -> str | None:
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors and isinstance(errors[0], dict):
+        code = errors[0].get("code")
+        return str(code) if code else None
+    return None
+
+
+def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer: str) -> Capture:
+    """Arrive at the record's checkpoint and read every channel. Never raises
+    for a lane-level refusal: the capture records where it stopped."""
+    probe = midgame_rows_mod.probe_module()
+    capture = Capture()
+    capture.capabilities = _payload(client.request("get_capabilities", None))
+    try:
+        arrival = probe.drive_arrival(client, record)
+    except ml.MidgameLaneError as exc:
+        capture.failure = f"arrival failed closed: {exc}"
+        return capture
+    if arrival is None:
+        capture.failure = "the engine did not reach the record's checkpoint"
+        return capture
+    capture.arrival_verdict = arrival.construction_verdict
+    capture.arrival_mismatches = list(arrival.mismatches)
+    capture.checkpoint_decision = client.pending_decision(attempts=4, interval_s=0.25)
+    client.request("get_legal_actions", None)
+    capture.scoped_arrival = _payload(
+        client.request("complete_midgame_arrival", {"actor_id": viewer})
+    )
+    for label in _labels(record):
+        response = client.request("get_midgame_projection", {"actor_id": label})
+        if not response.get("success"):
+            capture.failure = f"projection for {label} failed closed: {_error_code(response)}"
+            return capture
+        capture.projections[label] = _payload(response)
+        actor = (_payload(response).get("view") or {}).get("actor_id")
+        if isinstance(actor, str):
+            capture.natives[label] = actor
+    if viewer not in capture.natives:
+        capture.failure = "the viewer's projection named no principal"
+        return capture
+    capture.viewer_state = _payload(
+        client.request("get_midgame_state", {"actor_id": capture.natives[viewer]})
+    )
+    capture.events = _payload(client.request("get_midgame_events", {"after_offset": 0}))
+    for message_type, payload in OMNISCIENCE_ATTEMPTS:
+        response = client.request(message_type, payload)
+        capture.attempts.append(
+            {
+                "message_type": message_type,
+                "payload": payload,
+                "success": bool(response.get("success")),
+                "error_code": _error_code(response),
+            }
+        )
+    return capture
+
+
+# --------------------------------------------------------------------------- #
+# Channels a principal receives
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(frozen=True)
+class AddressedDocument:
+    """One piece of a lane response or request, and the principal it belongs to.
+
+    ``addressee`` is a principal label, or None for a public document.
+    """
+
+    addressee: str | None
+    channel: str
+    document: Any
+
+
+def addressed_documents(
+    tape: list[dict[str, Any]], natives: dict[str, str]
+) -> list[AddressedDocument]:
+    """Every piece of the tape, addressed to the principal it names.
+
+    A decision frame belongs to the actor it names, whichever protocol response
+    carries it: a submission's response carries the next actor's frame for the
+    harness to route, and the production full-game driver hands each frame to
+    the pilot of the seat the frame names. A scoped observation belongs to its
+    requester; everything else is public. The harness control plane (create and
+    start, which carry the requested state itself) is nobody's channel.
+    """
+    labels_by_native = {native: label for label, native in natives.items()}
+
+    def label_of(principal: Any) -> str | None:
+        if not isinstance(principal, str) or not principal:
+            return None
+        return labels_by_native.get(principal, principal)
+
+    out: list[AddressedDocument] = []
+    for index, entry in enumerate(tape):
+        if "response" not in entry:
+            continue
+        message_type = str(entry.get("message_type"))
+        if message_type in CONTROL_PLANE:
+            continue
+        name = f"tape[{index}]:{message_type}"
+        request = entry.get("request") or {}
+        raw_payload = request.get("payload")
+        payload: dict[str, Any] = raw_payload if isinstance(raw_payload, dict) else {}
+        response = entry.get("response") or {}
+        body = _payload(response)
+        if not response.get("success"):
+            out.append(AddressedDocument(None, f"{name}.request", request))
+            out.append(AddressedDocument(None, f"{name}.response", response))
+            continue
+        if message_type in {"get_midgame_decision", "submit_midgame_decision"}:
+            if message_type == "submit_midgame_decision":
+                answer = payload.get("response")
+                submitter = label_of(answer.get("actor_id")) if isinstance(answer, dict) else None
+                out.append(AddressedDocument(submitter, f"{name}.request", request))
+            else:
+                out.append(AddressedDocument(None, f"{name}.request", request))
+            decision = body.get("decision")
+            if isinstance(decision, dict) and decision:
+                out.append(
+                    AddressedDocument(label_of(decision.get("actor_id")), f"{name}.frame", decision)
+                )
+            status = {key: value for key, value in response.items() if key != "payload"}
+            status["payload"] = {key: value for key, value in body.items() if key != "decision"}
+            out.append(AddressedDocument(None, f"{name}.status", status))
+            continue
+        if message_type == "get_legal_actions":
+            out.append(AddressedDocument(None, f"{name}.request", request))
+            out.append(AddressedDocument(label_of(body.get("actor_id")), f"{name}.frame", response))
+            continue
+        if message_type in {
+            "get_midgame_projection",
+            "get_midgame_state",
+            "complete_midgame_arrival",
+        }:
+            requester = label_of(payload.get("actor_id"))
+            out.append(AddressedDocument(requester, f"{name}.request", request))
+            out.append(AddressedDocument(requester, f"{name}.response", response))
+            continue
+        out.append(AddressedDocument(None, f"{name}.request", request))
+        out.append(AddressedDocument(None, f"{name}.response", response))
+    return out
+
+
+def principal_documents(
+    tape: list[dict[str, Any]], principal: str, natives: dict[str, str]
+) -> list[AddressedDocument]:
+    """Every document the principal receives: its own and the public ones."""
+    return [
+        item
+        for item in addressed_documents(tape, natives)
+        if item.addressee is None or item.addressee == principal
+    ]
+
+
+def frames_of(documents: Iterable[AddressedDocument]) -> list[dict[str, Any]]:
+    """The decision frames among the documents (a legal-action answer carries one)."""
+    frames: list[dict[str, Any]] = []
+    for item in documents:
+        if not item.channel.endswith(".frame") or not isinstance(item.document, dict):
+            continue
+        if "decision_id" in item.document:
+            frames.append(item.document)
+        else:
+            nested = _payload(item.document).get("decision")
+            if isinstance(nested, dict) and nested:
+                frames.append(nested)
+    return frames
+
+
+def _walk(value: Any, path: str) -> Iterator[tuple[str, str]]:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            yield f"{path}.{key}", str(key)
+            yield from _walk(item, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            yield from _walk(item, f"{path}[{index}]")
+    elif isinstance(value, str):
+        yield path, value
+
+
+def scan(documents: Iterable[tuple[str, Any]], tokens: Iterable[str]) -> list[dict[str, str]]:
+    """Every occurrence of a token in any key or string value of the documents."""
+    wanted = [token for token in tokens if token]
+    hits: list[dict[str, str]] = []
+    for name, document in documents:
+        for path, text in _walk(document, name):
+            for token in wanted:
+                if token in text:
+                    hits.append({"channel_path": path, "token": token})
+    return hits
+
+
+def channel_documents(
+    documents: list[AddressedDocument], log: str
+) -> tuple[list[tuple[str, Any]], dict[str, int]]:
+    """The principal's documents as scan input, and how much each channel held."""
+    coverage: dict[str, int] = {
+        "prompt": 0,
+        "context": 0,
+        "option_id": 0,
+        "option_label": 0,
+        "option_metadata": 0,
+        "source_metadata": 0,
+        "ability_metadata": 0,
+        "pile_metadata": 0,
+        "state": 0,
+        "event": 0,
+        "transcript": len(documents),
+        "log": len(log),
+    }
+    for frame in frames_of(documents):
+        for channel, key in FRAME_CHANNEL_FIELDS:
+            if key in frame:
+                coverage[channel] += 1
+        for option in frame.get("legal_options") or ():
+            if not isinstance(option, dict):
+                continue
+            coverage["option_id"] += 1 if option.get("option_id") else 0
+            coverage["option_label"] += 1 if "label" in option else 0
+            metadata = option.get("metadata")
+            if isinstance(metadata, dict):
+                coverage["option_metadata"] += 1
+                coverage["ability_metadata"] += sum(
+                    1 for key in metadata if str(key).startswith("ability_")
+                )
+                coverage["pile_metadata"] += sum(1 for key in metadata if "pile" in str(key))
+        if isinstance(frame.get("pilot_state"), dict):
+            coverage["state"] += 1
+    for item in documents:
+        if not item.channel.endswith(".response") or not isinstance(item.document, dict):
+            continue
+        body = _payload(item.document)
+        if not body:
+            continue
+        if any(
+            f":{name}." in item.channel
+            for name in ("get_midgame_projection", "get_midgame_state", "complete_midgame_arrival")
+        ):
+            coverage["state"] += 1
+        if ":get_midgame_events." in item.channel:
+            coverage["event"] += 1 + len(body.get("events") or ())
+    scanned: list[tuple[str, Any]] = [(item.channel, item.document) for item in documents]
+    scanned.append(("log", log))
+    return scanned, coverage
+
+
+#: Channels that must have carried content for a scan to mean anything. The log
+#: may be empty (nothing was written); pile and ability metadata exist only on
+#: frames that offer them, and the whole frame is scanned either way.
+REQUIRED_COVERAGE = (
+    "prompt",
+    "context",
+    "option_id",
+    "option_label",
+    "option_metadata",
+    "source_metadata",
+    "state",
+    "event",
+    "transcript",
+)
+
+
+# --------------------------------------------------------------------------- #
+# Verification
+# --------------------------------------------------------------------------- #
+
+
+@dataclass
+class Check:
+    name: str
+    holds: bool
+    detail: str
+    kind: str = "MEASURED"  # MEASURED | LEAK | ENTITLEMENT
+
+
+@dataclass
+class RowVerdict:
+    fixture_id: str
+    viewer: str
+    classification: str
+    checks: list[Check]
+    token_evidence: dict[str, Any] = field(default_factory=dict)
+    forbidden_evidence: dict[str, Any] = field(default_factory=dict)
+    channel_coverage: dict[str, int] = field(default_factory=dict)
+    detail: str = ""
+
+    @property
+    def verified(self) -> bool:
+        return self.classification == VERIFIED
+
+    def document(self) -> dict[str, Any]:
+        return {
+            "fixture_id": self.fixture_id,
+            "viewer": self.viewer,
+            "classification": self.classification,
+            "verified": self.verified,
+            "detail": self.detail,
+            "checks": [check.__dict__ for check in self.checks],
+            "token_evidence": self.token_evidence,
+            "forbidden_evidence": self.forbidden_evidence,
+            "channel_coverage": self.channel_coverage,
+        }
+
+
+def _player_entry(projection: dict[str, Any], label: str) -> dict[str, Any] | None:
+    seat_labels = projection.get("seat_labels")
+    view = projection.get("view") or {}
+    if not isinstance(seat_labels, list) or label not in seat_labels:
+        return None
+    seat = seat_labels.index(label)
+    for player in view.get("players") or ():
+        if isinstance(player, dict) and player.get("seat") == seat:
+            return player
+    return None
+
+
+def _names(cards: Any) -> list[str]:
+    return [str(card.get("name")) for card in cards or () if isinstance(card, dict)]
+
+
+def _viewer_binding(capture: Capture, labels: list[str], viewer: str) -> list[Check]:
+    checks: list[Check] = []
+    for label in labels:
+        projection = capture.projections.get(label) or {}
+        view = projection.get("view") or {}
+        seat_labels = projection.get("seat_labels")
+        bound = (
+            projection.get("actor_id") == label
+            and projection.get("observation_scope") == "principal_scoped"
+            and isinstance(seat_labels, list)
+            and sorted(seat_labels) == sorted(labels)
+            and view.get("actor_id") == capture.natives.get(label)
+        )
+        actors = [
+            player.get("seat")
+            for player in view.get("players") or ()
+            if isinstance(player, dict) and player.get("is_actor") is True
+        ]
+        own = _player_entry(projection, label)
+        bound = bound and own is not None and actors == [own.get("seat")]
+        checks.append(
+            Check(
+                f"projection_bound_to:{label}",
+                bound,
+                "the projection names the requested principal, a seat-label bijection and "
+                "exactly one actor seat, which is the requester's own",
+            )
+        )
+    natives = list(capture.natives.values())
+    checks.append(
+        Check(
+            "distinct_principals",
+            len(set(natives)) == len(labels),
+            f"{len(set(natives))} distinct principal ids for {len(labels)} seats",
+        )
+    )
+    return checks
+
+
+def _construction(record: dict[str, Any], capture: Capture) -> list[Check]:
+    expected = expected_lossless_checks(record)
+    raw = capture.scoped_arrival.get("lossless_hidden_checks")
+    reported = dict(raw) if isinstance(raw, dict) else {}
+    return [
+        Check(
+            "construction_exact",
+            capture.arrival_verdict == "EXACT"
+            and capture.scoped_arrival.get("construction_match") is True
+            and capture.scoped_arrival.get("mismatches") == [],
+            f"arrival {capture.arrival_verdict}, construction_match "
+            f"{capture.scoped_arrival.get('construction_match')}, mismatches "
+            f"{capture.scoped_arrival.get('mismatches')}",
+        ),
+        Check(
+            "lossless_checks_performed",
+            bool(expected) and reported == expected,
+            f"required {expected}; the engine reported {reported}",
+        ),
+    ]
+
+
+def _opponent_hand(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    checks: list[Check] = []
+    counts = expected_hand_counts(record)
+    view = capture.projections[viewer]
+    for label in _labels(record):
+        if label == viewer:
+            continue
+        entry = _player_entry(view, label)
+        if entry is None or "private_state_visible" not in entry:
+            checks.append(Check(f"opponent_entry_present:{label}", False, "no measurable entry"))
+            continue
+        checks.append(
+            Check(
+                f"opponent_hand_hidden:{label}",
+                "hand" not in entry and entry["private_state_visible"] is False,
+                f"{viewer}'s view of {label} carries no hand array and no private state",
+                "LEAK",
+            )
+        )
+        if label in counts:
+            checks.append(
+                Check(
+                    f"opponent_hand_count_visible:{label}",
+                    entry.get("hand_count") == counts[label],
+                    f"requested {counts[label]}, {viewer} sees {entry.get('hand_count')}",
+                    "ENTITLEMENT",
+                )
+            )
+    # Positive control: each requested hand object is shown to its owner, so its
+    # absence from the viewer's channels is not an absence from the game.
+    for obj in _objects(record):
+        if obj.get("zone") != "hand" or obj["owner"] == viewer:
+            continue
+        own = _player_entry(capture.projections[obj["owner"]], obj["owner"]) or {}
+        checks.append(
+            Check(
+                f"owner_sees_own_hand_object:{obj['semantic_id']}",
+                obj["card_identity"] in _names(own.get("hand")),
+                f"{obj['owner']}'s own projection lists the requested hand object",
+                "ENTITLEMENT",
+            )
+        )
+    return checks
+
+
+def _opponent_library(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    checks: list[Check] = []
+    counts = expected_library_counts(record)
+    library_objects = [o for o in _objects(record) if o.get("zone") == "library"]
+    owners = sorted({str(o["owner"]) for o in library_objects})
+    view = capture.projections[viewer]
+    for owner in owners:
+        entry = _player_entry(view, owner)
+        if (
+            entry is None
+            or owner not in counts
+            or "granted_library" not in entry
+            or "library_top_revealed" not in entry
+        ):
+            checks.append(Check(f"library_entry_measurable:{owner}", False, "not measurable"))
+            continue
+        checks.append(
+            Check(
+                f"library_count_visible:{owner}",
+                entry.get("library_count") == counts[owner],
+                f"requested {counts[owner]}, {viewer} sees {entry.get('library_count')}",
+                "ENTITLEMENT",
+            )
+        )
+        checks.append(
+            Check(
+                f"library_identities_and_order_absent:{owner}",
+                not entry["granted_library"] and entry["library_top_revealed"] is None,
+                f"{viewer}'s view of {owner} carries no granted library and no revealed top",
+                "LEAK",
+            )
+        )
+    # No principal, the owner included, is entitled to a library card's identity.
+    identities = [(str(o["card_identity"]), str(o["semantic_id"])) for o in library_objects]
+    for label, projection in capture.projections.items():
+        hits = scan(
+            [(f"projection:{label}", projection)],
+            [token for pair in identities for token in pair],
+        )
+        checks.append(
+            Check(
+                f"library_object_unseen_by:{label}",
+                not hits,
+                f"{len(hits)} library identity occurrences in {label}'s projection",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _public_exile(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    checks: list[Check] = []
+    known = set(_viewer_state(record).get("known_object_identities") or ())
+    objects = [o for o in _objects(record) if o["semantic_id"] in known]
+    if not objects:
+        return [Check("public_exile_declared", False, "the record names no known object")]
+    for obj in objects:
+        if obj.get("zone") != "exile" or obj.get("face_down"):
+            checks.append(
+                Check(f"public_exile_declared:{obj['semantic_id']}", False, "not face-up exile")
+            )
+            continue
+        requested = sum(
+            1 for o in _objects(record) if o.get("zone") == "exile" and o["owner"] == obj["owner"]
+        )
+        for label, projection in capture.projections.items():
+            entry = _player_entry(projection, str(obj["owner"]))
+            if entry is None:
+                checks.append(
+                    Check(f"exile_entry_present:{obj['owner']}:{label}", False, "no entry")
+                )
+                continue
+            checks.append(
+                Check(
+                    f"public_exile_visible:{obj['semantic_id']}:{label}",
+                    obj["card_identity"] in _names(entry.get("exile"))
+                    and entry.get("exile_count") == requested,
+                    f"{label} sees {obj['owner']}'s exile {_names(entry.get('exile'))} "
+                    f"(count {entry.get('exile_count')}, requested {requested})",
+                    "ENTITLEMENT",
+                )
+            )
+    return checks
+
+
+def _face_down(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    checks: list[Check] = []
+    permissions = _viewer_state(record).get("face_down_look_permissions") or ()
+    objects = [o for o in _objects(record) if o.get("face_down")]
+    if not objects:
+        return [Check("face_down_declared", False, "the record names no face-down object")]
+    for obj in objects:
+        controller = str(obj["controller"])
+        for label, projection in capture.projections.items():
+            entry = _player_entry(projection, controller)
+            if entry is None:
+                checks.append(Check(f"controller_entry_present:{label}", False, "no entry"))
+                continue
+            face_down = [
+                permanent
+                for permanent in entry.get("battlefield") or ()
+                if isinstance(permanent, dict) and permanent.get("face_down") is True
+            ]
+            if len(face_down) != 1:
+                checks.append(
+                    Check(
+                        f"face_down_present:{obj['semantic_id']}:{label}",
+                        False,
+                        f"{label} sees {len(face_down)} face-down permanents of {controller}",
+                        "ENTITLEMENT",
+                    )
+                )
+                continue
+            permanent = face_down[0]
+            public_name_hidden = permanent.get("name") in ("", None)
+            if entitled(obj, label, permissions):
+                checks.append(
+                    Check(
+                        f"face_down_identity_entitled:{obj['semantic_id']}:{label}",
+                        permanent.get("private_identity") == obj["card_identity"]
+                        and public_name_hidden,
+                        f"{label} is entitled; private identity shown: "
+                        f"{permanent.get('private_identity') == obj['card_identity']}",
+                        "ENTITLEMENT",
+                    )
+                )
+            else:
+                checks.append(
+                    Check(
+                        f"face_down_identity_withheld:{obj['semantic_id']}:{label}",
+                        not permanent.get("private_identity") and public_name_hidden,
+                        f"{label} is not entitled; the permanent shows no identity",
+                        "LEAK",
+                    )
+                )
+    return checks
+
+
+def _no_omniscient_api(capture: Capture) -> list[Check]:
+    capabilities = capture.capabilities.get("capabilities") or {}
+    scopes = capabilities.get("observation_scopes") or {}
+    checks = [
+        Check(
+            "declared_no_omniscient_surface",
+            capabilities.get("omniscient_state_api") is False
+            and capabilities.get("raw_engine_object_graph_api") is False
+            and capabilities.get("knowledge_projection_supported") is True,
+            "static declaration, recorded but never sufficient on its own",
+        ),
+        Check(
+            "every_observation_scoped",
+            all(
+                isinstance(scopes.get(name), str)
+                and scopes[name]
+                and "omniscient" not in scopes[name]
+                for name in SCOPED_OBSERVATIONS
+            ),
+            f"declared scopes: {scopes}",
+        ),
+    ]
+    for attempt in capture.attempts:
+        name = f"{attempt['message_type']}:{json.dumps(attempt['payload'], sort_keys=True)}"
+        checks.append(
+            Check(
+                f"omniscience_not_served:{name}",
+                attempt["success"] is False,
+                "the lane served the request" if attempt["success"] else "the lane refused",
+                "LEAK",
+            )
+        )
+        checks.append(
+            Check(
+                f"omniscience_refusal_typed:{name}",
+                bool(attempt["error_code"]),
+                f"refusal code {attempt['error_code']}",
+            )
+        )
+    checks.append(
+        Check(
+            "omniscience_attempts_made",
+            len(capture.attempts) == len(OMNISCIENCE_ATTEMPTS),
+            f"{len(capture.attempts)} of {len(OMNISCIENCE_ATTEMPTS)} attempts made",
+        )
+    )
+    # A frame is polled more than once; every occurrence must agree.
+    consistent: dict[str, bool] = {}
+    for decision in frames_of(addressed_documents(capture.tape, capture.natives)):
+        state = decision.get("pilot_state")
+        decision_id = str(decision.get("decision_id"))
+        if not isinstance(state, dict) or not state.get("actor_id"):
+            checks.append(Check(f"frame_state_present:{decision_id}", False, "no state"))
+            continue
+        holds = state.get("actor_id") == decision.get("actor_id")
+        consistent[decision_id] = consistent.get(decision_id, True) and holds
+    for decision_id, holds in consistent.items():
+        checks.append(
+            Check(
+                f"frame_carries_only_its_actor:{decision_id}",
+                holds,
+                "every occurrence embeds the acting principal's own view",
+                "LEAK",
+            )
+        )
+    frames = len(consistent)
+    checks.append(Check("frames_observed", frames > 0, f"{frames} decision frames observed"))
+    return checks
+
+
+def _scan_principal(
+    record: dict[str, Any], capture: Capture, principal: str
+) -> tuple[list[dict[str, str]], dict[str, int], ForbiddenTokens]:
+    tokens = forbidden_tokens(record, principal)
+    documents = principal_documents(capture.tape, principal, capture.natives)
+    scanned, coverage = channel_documents(documents, capture.log)
+    return scan(scanned, tokens.tokens), coverage, tokens
+
+
+def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> RowVerdict:
+    """The row's knowledge verdict against the record's own requests."""
+    fixture_id = str(record["fixture_id"])
+    kind = ROWS.get(fixture_id)
+    if kind is None:
+        return RowVerdict(fixture_id, viewer, UNVERIFIED, [], detail="not a declared row")
+    state = _viewer_state(record)
+    if state.get("viewer") != viewer or state.get("obligation") != OBLIGATION_TEXT[kind]:
+        return RowVerdict(
+            fixture_id, viewer, UNVERIFIED, [], detail="the record's viewer obligation differs"
+        )
+    if capture.failure is not None:
+        return RowVerdict(fixture_id, viewer, UNVERIFIED, [], detail=capture.failure)
+    labels = _labels(record)
+    if sorted(capture.projections) != sorted(labels):
+        return RowVerdict(fixture_id, viewer, UNVERIFIED, [], detail="a projection is missing")
+
+    checks = _construction(record, capture) + _viewer_binding(capture, labels, viewer)
+    construction_holds = all(check.holds for check in checks)
+
+    # Forbidden-identity and sentinel scan over every channel the viewer receives.
+    hits, coverage, tokens = _scan_principal(record, capture, viewer)
+    scan_checks: list[Check] = []
+    scan_checks.append(
+        Check(
+            f"no_forbidden_token_in_channels_of:{viewer}",
+            not hits,
+            f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+            "LEAK",
+        )
+    )
+    uncovered = [name for name in REQUIRED_COVERAGE if coverage.get(name, 0) <= 0]
+    scan_checks.append(
+        Check(
+            "scan_coverage",
+            not uncovered,
+            f"channels without content: {uncovered}"
+            if uncovered
+            else "every channel carried content",
+        )
+    )
+    # Positive controls: the scanner finds what it scans for where it may be.
+    bindings = honey_bindings(record)
+    sentinel_seen = all(scan([("tape", capture.tape)], [sentinel]) for sentinel in bindings)
+    scan_checks.append(
+        Check(
+            "scanner_detects_sentinel_in_request",
+            bool(bindings) and sentinel_seen,
+            "each honey sentinel is found in the harness's own create request",
+        )
+    )
+    owner_controls: list[bool] = []
+    for obj in _objects(record):
+        if obj.get("zone") == "hand" and obj["card_identity"] in bindings.values():
+            owner_controls.append(
+                bool(
+                    scan(
+                        [("projection", capture.projections.get(str(obj["owner"])) or {})],
+                        [str(obj["card_identity"])],
+                    )
+                )
+            )
+    scan_checks.append(
+        Check(
+            "scanner_detects_honey_identity_where_entitled",
+            bool(owner_controls) and all(owner_controls),
+            "the honey-bound identity is found in its owner's own projection",
+        )
+    )
+    checks.extend(scan_checks)
+
+    focus: list[Check]
+    if kind == "opponent_hand":
+        focus = _opponent_hand(record, capture, viewer)
+    elif kind == "opponent_library":
+        focus = _opponent_library(record, capture, viewer)
+    elif kind == "public_exile":
+        focus = _public_exile(record, capture, viewer)
+    elif kind == "face_down_controller":
+        focus = _face_down(record, capture, viewer)
+        # The obligation is also every non-entitled principal's: scan theirs.
+        permissions = state.get("face_down_look_permissions") or ()
+        for label in labels:
+            for obj in _objects(record):
+                if not obj.get("face_down") or entitled(obj, label, permissions):
+                    continue
+                other_hits, _, other_tokens = _scan_principal(record, capture, label)
+                focus.append(
+                    Check(
+                        f"no_forbidden_token_in_channels_of:{label}",
+                        not other_hits,
+                        f"{len(other_hits)} occurrences of {sorted(other_tokens.tokens)}",
+                        "LEAK",
+                    )
+                )
+    elif kind == "no_omniscient_api":
+        focus = _no_omniscient_api(capture)
+    else:
+        # The sentinel row's obligation is the scan itself, with its controls.
+        focus = []
+    checks.extend(focus)
+    if kind == "honey_sentinel":
+        focus = list(scan_checks)
+
+    required = list((record.get("expected_events") or {}).get("required_events") or ())
+    forbidden = list((record.get("expected_events") or {}).get("forbidden_events") or ())
+    token_evidence = {token: [check.__dict__ for check in focus] for token in required}
+    forbidden_evidence = {
+        token: {
+            "occurrences": hits,
+            "tokens_scanned": sorted(tokens.tokens),
+            "ambiguous_tokens_not_scanned": tokens.ambiguous,
+        }
+        for token in forbidden
+    }
+
+    leaks = [check for check in checks if not check.holds and check.kind == "LEAK"]
+    denied = [check for check in checks if not check.holds and check.kind == "ENTITLEMENT"]
+    if construction_holds and leaks:
+        classification = FAIL_DEMONSTRATED_LEAK
+    elif construction_holds and denied:
+        classification = FAIL_ENTITLEMENT_DENIED
+    elif all(check.holds for check in checks) and focus and required:
+        classification = VERIFIED
+    else:
+        classification = UNVERIFIED
+    failed = [check.name for check in checks if not check.holds]
+    return RowVerdict(
+        fixture_id,
+        viewer,
+        classification,
+        checks,
+        token_evidence=token_evidence,
+        forbidden_evidence=forbidden_evidence,
+        channel_coverage=coverage,
+        detail="every check holds" if not failed else f"failed: {failed}",
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Receipts
+# --------------------------------------------------------------------------- #
+
+
+def positive_receipt(
+    verdict: RowVerdict,
+    record: dict[str, Any],
+    *,
+    candidate_commit: str,
+    runner_digest: str,
+    execution_document: dict[str, Any],
+) -> dict[str, Any]:
+    """The runner-bound positive fixture receipt for a verified row."""
+    if not verdict.verified:
+        raise ValueError(f"{verdict.fixture_id} is not verified; no positive receipt")
+    document: dict[str, Any] = {
+        "schema_version": POSITIVE_FIXTURE_RECEIPT_SCHEMA,
+        "candidate": "xmage",
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "fixture_id": verdict.fixture_id,
+        "test_identity": TEST_IDENTITY_PREFIX + verdict.fixture_id,
+        "execution_mode": EXECUTION_MODE,
+        "construction_verdict": "EXACT",
+        "obligation_exercised": {
+            "required_events": list(
+                (record.get("expected_events") or {}).get("required_events") or ()
+            ),
+            "forbidden_events": list(
+                (record.get("expected_events") or {}).get("forbidden_events") or ()
+            ),
+            "terminal_postconditions": list(record.get("terminal_postconditions") or ()),
+            "viewer_obligation": _viewer_state(record).get("obligation"),
+            "requested_state_digest": record.get("requested_state_digest"),
+            "obligation_digest": record.get("obligation_digest"),
+        },
+        "observed_assertion": {
+            "viewer": verdict.viewer,
+            "token_evidence": verdict.token_evidence,
+            "forbidden_evidence": verdict.forbidden_evidence,
+            "channel_coverage": verdict.channel_coverage,
+            "checks": [check.__dict__ for check in verdict.checks],
+        },
+        "assertion_kind": "POSITIVE_BEHAVIOUR",
+        "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+        "outcome": "PASS",
+        "runtime_receipt_digest": receipt_mod.document_digest(execution_document),
+    }
+    document["receipt_digest"] = receipt_mod.document_digest(document)
+    return document
+
+
+def execute_and_persist(
+    *,
+    workspace: Path,
+    records: dict[str, dict[str, Any]],
+    candidate_commit: str,
+    runner_digest: str,
+    out_dir: Path,
+    fixtures: tuple[str, ...] | None = None,
+    viewer: str = "P1",
+) -> dict[str, Any]:
+    """Execute every declared row on a fresh lane process and persist receipts.
+
+    This producer owns only its own prefixed receipts and deletes them first, so
+    a row that no longer verifies cannot keep credit from an earlier run.
+    """
+    probe = midgame_rows_mod.probe_module()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for stale in out_dir.glob(f"{RECEIPT_FILE_PREFIX}*.json"):
+        stale.unlink()
+    selected = tuple(ROWS) if fixtures is None else fixtures
+    executions: dict[str, Any] = {}
+    for fixture_id in selected:
+        record = records[fixture_id]
+        request = {
+            "game_id": f"knowledge-{fixture_id}",
+            "plan_id": f"knowledge-{fixture_id}",
+            "seed": probe.SEED,
+            "requested_starting_state": record,
+        }
+        capture = Capture()
+        engine_commit: str | None = None
+        try:
+            with probe.open_client(workspace) as client:
+                client.request("get_provider_version", None)
+                client.read_dimension_manifest()
+                created = client.request("create_midgame_game", request)
+                if created.get("success"):
+                    client.request("start_midgame_game", None)
+                    capture = capture_row(client, record, viewer=viewer)
+                else:
+                    capture.failure = f"creation refused: {_error_code(created)}"
+                engine_commit = client.engine_commit
+            capture.tape = list(client.tape)
+            capture.log = client.stderr_log
+        except ml.MidgameLaneError as exc:
+            capture.failure = f"lane failed closed: {exc}"
+        verdict = verify(record, capture, viewer=viewer)
+        document = verdict.document()
+        document["engine_commit"] = engine_commit
+        document["requested_state_digest"] = record.get("requested_state_digest")
+        document["obligation_digest"] = record.get("obligation_digest")
+        document["log_chars"] = len(capture.log)
+        if engine_commit != candidate_commit:
+            document["classification"] = UNVERIFIED
+            document["verified"] = False
+            document["detail"] = (
+                f"engine reported {engine_commit}, not the candidate {candidate_commit}"
+            )
+        elif verdict.verified:
+            receipt = positive_receipt(
+                verdict,
+                record,
+                candidate_commit=candidate_commit,
+                runner_digest=runner_digest,
+                execution_document=document,
+            )
+            receipt_mod.persist(out_dir / f"{RECEIPT_FILE_PREFIX}{fixture_id}.json", receipt)
+            document["receipt_digest"] = receipt["receipt_digest"]
+        executions[fixture_id] = document
+    return {
+        "schema_version": EXECUTIONS_SCHEMA,
+        "execution_mode": EXECUTION_MODE,
+        "candidate": "xmage",
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "viewer": viewer,
+        "rows_declared": len(executions),
+        "rows_verified": sum(1 for doc in executions.values() if doc.get("verified")),
+        "rows_failed": sorted(
+            fixture
+            for fixture, doc in executions.items()
+            if doc.get("classification") in FAIL_CLASSIFICATIONS
+        ),
+        "rows": executions,
+    }
+
+
+def demonstrated_failures(
+    document: dict[str, Any] | None, *, candidate_commit: str, runner_digest: str
+) -> dict[str, dict[str, Any]]:
+    """Rows a bound executions document shows failing, with their findings.
+
+    Only a document bound to the assembling candidate and runner counts; any
+    other document is somebody else's evidence and demonstrates nothing here.
+    """
+    if not isinstance(document, dict) or document.get("schema_version") != EXECUTIONS_SCHEMA:
+        return {}
+    if (
+        document.get("candidate_commit") != candidate_commit
+        or not runner_digest
+        or document.get("runner_digest") != runner_digest
+    ):
+        return {}
+    failures: dict[str, dict[str, Any]] = {}
+    for fixture_id, row in (document.get("rows") or {}).items():
+        if not isinstance(row, dict) or row.get("classification") not in FAIL_CLASSIFICATIONS:
+            continue
+        if row.get("engine_commit") != candidate_commit:
+            continue
+        failures[str(fixture_id)] = {
+            "classification": row["classification"],
+            "failed_checks": [
+                check
+                for check in row.get("checks") or ()
+                if isinstance(check, dict) and not check.get("holds")
+            ],
+        }
+    return failures
