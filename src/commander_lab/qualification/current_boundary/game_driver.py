@@ -32,6 +32,7 @@ POLL_INTERVAL_S = 1.0
 MULLIGAN_POLICY = "keep_all"  # Commander: keep the opening hand.
 PRIORITY_POLICY = "pass_when_offered"  # Decline the optional priority action.
 STARTING_PLAYER_POLICY = "fixture_scripted_seat"
+COST_ORDER_POLICY = "native_declared_cost_part_order"
 
 _SEATS = ("p1", "p2", "p3", "p4", "p5", "p6")
 
@@ -381,6 +382,88 @@ def _action_kind(action: dict[str, Any]) -> str:
     return str(action.get("action_type", ""))
 
 
+def _cost_order_indices(action: dict[str, Any]) -> list[int]:
+    """Read provider-published native CostPart indices, rejecting ambiguity.
+
+    These are transport metadata emitted by the Rules Core bridge for options
+    it already declared legal. The pilot never derives cost legality or
+    invents an ordering from card text.
+    """
+    metadata = action.get("metadata")
+    if not isinstance(metadata, dict):
+        raise DecisionUnsatisfied("cost-order action has no metadata object")
+    raw = metadata.get("cost_order_indices")
+    if not isinstance(raw, list) or not raw:
+        raise DecisionUnsatisfied("cost-order action has no cost_order_indices")
+    indices: list[int] = []
+    for value in raw:
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise DecisionUnsatisfied("cost_order_indices must be non-negative integers")
+        indices.append(value)
+    if len(set(indices)) != len(indices):
+        raise DecisionUnsatisfied("cost_order_indices contains duplicate native indices")
+    return indices
+
+
+def select_cost_order_action(actions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Apply the declared pilot preference to authoritative cost-order options.
+
+    Policy: preserve the Rules Core native CostPart declaration order. For
+    complete-order options this means [0, 1, ..., N-1]. For iterative
+    cost_order_next frames it means the lowest remaining native index.
+
+    The function selects only an engine-offered action. Missing, mixed,
+    malformed or ambiguous metadata fails closed.
+    """
+    if not actions:
+        raise DecisionUnsatisfied("ORDER_CHOICE exposed no legal actions")
+    action_types = {_action_kind(action) for action in actions}
+    if action_types != {"structural_decision"}:
+        raise DecisionUnsatisfied(
+            f"ORDER_CHOICE must use shared structural_decision ActionType: {sorted(action_types)!r}"
+        )
+    subtypes: set[str] = set()
+    for action in actions:
+        metadata = action.get("metadata")
+        if not isinstance(metadata, dict):
+            raise DecisionUnsatisfied("cost-order action has no metadata object")
+        subtype = metadata.get("decision_subtype")
+        if not isinstance(subtype, str) or not subtype:
+            raise DecisionUnsatisfied("cost-order action has no decision_subtype")
+        subtypes.add(subtype)
+    if subtypes == {"cost_order"}:
+        parsed = [(action, _cost_order_indices(action)) for action in actions]
+        width = len(parsed[0][1])
+        if width < 2:
+            raise DecisionUnsatisfied("complete cost order must contain at least two parts")
+        expected = list(range(width))
+        for _, indices in parsed:
+            if len(indices) != width or sorted(indices) != expected:
+                raise DecisionUnsatisfied(
+                    "cost_order options do not describe one complete native index domain"
+                )
+        matches = [action for action, indices in parsed if indices == expected]
+    elif subtypes == {"cost_order_next"}:
+        parsed = [(action, _cost_order_indices(action)) for action in actions]
+        if any(len(indices) != 1 for _, indices in parsed):
+            raise DecisionUnsatisfied("cost_order_next must identify exactly one native part")
+        next_indices = [indices[0] for _, indices in parsed]
+        if len(set(next_indices)) != len(next_indices):
+            raise DecisionUnsatisfied("cost_order_next contains ambiguous duplicate indices")
+        wanted = min(next_indices)
+        matches = [action for action, indices in parsed if indices[0] == wanted]
+    else:
+        raise DecisionUnsatisfied(
+            f"unsupported or mixed ORDER_CHOICE decision_subtype: {sorted(subtypes)!r}"
+        )
+    if len(matches) != 1:
+        raise DecisionUnsatisfied("declared cost-order policy did not identify one legal option")
+    chosen = matches[0]
+    if not chosen.get("action_id"):
+        raise DecisionUnsatisfied("chosen cost-order action has no action_id")
+    return chosen
+
+
 def _zone_count_record(
     *,
     seat: int,
@@ -715,6 +798,42 @@ def drive_commander_game(
                     )
                 )
                 result.observations.append(GameObservation("starting_player", answer))
+                continue
+
+            if kind == "ORDER_CHOICE":
+                chosen_action = select_cost_order_action(actions)
+                chosen = str(chosen_action["action_id"])
+                identity = decision_identity_params(candidate, frame)
+                answer = _require_ok(
+                    proc.request(
+                        "submit_action",
+                        {
+                            **identity,
+                            "proposal": {
+                                "proposal_id": str(uuid.uuid4()),
+                                "actor_id": actor,
+                                "legal_action_id": chosen,
+                                "action_type": _action_kind(chosen_action),
+                            },
+                        },
+                        game_id=game_id,
+                        timeout_s=120.0,
+                    ),
+                    "submit_action(COST_ORDER)",
+                )
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "cost_order",
+                        kind,
+                        actor,
+                        revision,
+                        COST_ORDER_POLICY,
+                        chosen,
+                        offered,
+                        "pilot preserves the provider-published native CostPart order",
+                    )
+                )
+                result.observations.append(GameObservation("cost_order", answer))
                 continue
 
             if kind == "PRIORITY":
