@@ -1,0 +1,492 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "capabilities_provider_reported": {
+  "action_submission_supported": false,
+  "commander_damage_visible": true,
+  "commander_supported": true,
+  "commander_tax_visible": true,
+  "concede_supported": true,
+  "deck_import_supported": true,
+  "engine_shutdown_supported": true,
+  "event_log_supported": false,
+  "game_shutdown_supported": true,
+  "headless_supported": true,
+  "healthcheck_supported": true,
+  "legal_actions_supported": false,
+  "max_players": 6,
+  "min_players": 2,
+  "mode_selection_supported": true,
+  "mulligan_supported": false,
+  "multiplayer_supported": true,
+  "notes": [
+   "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms, priority concession, and complete attack/block declarations (each whole declaration validated by CombatUtil.validateAttackers/validateBlocks, including multi-block; more than four candidate attackers or blockers fail closed); multi-target/divided, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+   "partner commanders import but pod-level partner lifecycle is not yet qualified",
+   "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+   "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+   "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+   "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+   "replay is not offered: deterministic replay is not claimed"
+  ],
+  "partner_supported": false,
+  "priority_visible": true,
+  "replay_supported": false,
+  "runtime_kind": "external_rules_engine",
+  "scenario_injection_supported": true,
+  "seed_supported": true,
+  "stack_visible": true,
+  "starting_state_injection_supported": true,
+  "target_selection_supported": true,
+  "trigger_order_supported": true
+ },
+ "decision_identity_provenance": {
+  "byte_matched": {
+   "actor_id": true,
+   "revision": true
+  },
+  "identity_field": "revision",
+  "pass_identity_offered": true,
+  "submitted_fields": [
+   "actor_id",
+   "revision"
+  ],
+  "verified": true
+ },
+ "decision_probe_game": {
+  "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+  "decisions_observed": 4,
+  "game_id": "wsr22-forge-2p-50339359",
+  "player_count": 2,
+  "steps_completed": [
+   "handshake",
+   "import_deck",
+   "create_commander_game",
+   "start_game",
+   "decision_drive"
+  ]
+ },
+ "engine_commit_provenance": "env:FORGE_ENGINE_SHA",
+ "engine_commit_reported": "e8b8aec60720aee218338754224721597b8c6ec5",
+ "engine_identity": {
+  "engine_commit_source": "env:FORGE_ENGINE_SHA",
+  "get_provider_version_payload": {
+   "bridge_name": "forge-protocol2-bridge",
+   "bridge_version": "2.0.14-ws-a1d-h4f",
+   "engine_build_commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+   "engine_build_dirty": "false",
+   "engine_build_source": "build:bridge.properties:git",
+   "engine_build_tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
+   "engine_commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+   "engine_commit_source": "env:FORGE_ENGINE_SHA",
+   "engine_commit_verified": true,
+   "java_version": "17.0.20.1",
+   "protocol_version": "2.0.0",
+   "provider": "forge",
+   "release": "2.0.14"
+  },
+  "reported_engine_commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+  "reported_engine_version": "2.0.14",
+  "reported_protocol_version": "2.0.0",
+  "reported_provider": "forge",
+  "start_engine_payload": {
+   "already_started": true,
+   "engine": "forge",
+   "protocol_version": "2.0.0",
+   "status": "started"
+  }
+ },
+ "invariant_count": 20,
+ "invariants": [
+  {
+   "af01_v2_clause": "required_handshake.messages[0]=start_engine",
+   "detail": "start_engine succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_start_engine",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.messages[1]=get_provider_version",
+   "detail": "get_provider_version succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_get_provider_version",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.messages[2]=get_capabilities",
+   "detail": "get_capabilities succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_get_capabilities",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.matching_request_id",
+   "detail": "every response echoed the exact request_id",
+   "evidence": {
+    "request_ids": {
+     "get_capabilities": "9a55e060-0b61-40cf-8fd7-ddf486a22590",
+     "get_provider_version": "8e27e2c2-22fa-42c9-b451-829b7699f4e9",
+     "start_engine": "83635a96-7596-47f6-b985-a6ed2ab3e8e7"
+    }
+   },
+   "invariant": "request_id_matches",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_request_response_protocol_version",
+   "detail": "every response reported protocol_version=2.0.0",
+   "evidence": {
+    "observed": {
+     "get_capabilities": "2.0.0",
+     "get_provider_version": "2.0.0",
+     "start_engine": "2.0.0"
+    }
+   },
+   "invariant": "protocol_version_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_provider_identity",
+   "detail": "provider reported as 'forge'",
+   "evidence": {
+    "reported": "forge"
+   },
+   "invariant": "provider_identity_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_engine_version_or_commit_identity",
+   "detail": "provider reported the exact candidate commit e8b8aec60720aee218338754224721597b8c6ec5",
+   "evidence": {
+    "reported": "e8b8aec60720aee218338754224721597b8c6ec5"
+   },
+   "invariant": "engine_version_or_commit_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.explicit_capability_payload",
+   "detail": "provider reported 28 capability fields",
+   "evidence": {
+    "capability_keys": [
+     "action_submission_supported",
+     "commander_damage_visible",
+     "commander_supported",
+     "commander_tax_visible",
+     "concede_supported",
+     "deck_import_supported",
+     "engine_shutdown_supported",
+     "event_log_supported",
+     "game_shutdown_supported",
+     "headless_supported",
+     "healthcheck_supported",
+     "legal_actions_supported",
+     "max_players",
+     "min_players",
+     "mode_selection_supported",
+     "mulligan_supported",
+     "multiplayer_supported",
+     "notes",
+     "partner_supported",
+     "priority_visible",
+     "replay_supported",
+     "runtime_kind",
+     "scenario_injection_supported",
+     "seed_supported",
+     "stack_visible",
+     "starting_state_injection_supported",
+     "target_selection_supported",
+     "trigger_order_supported"
+    ]
+   },
+   "invariant": "capabilities_explicitly_reported",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "truthful_capability_requirements.capability_values_must_be_provider_reported",
+   "detail": "every capability value was read from the provider get_capabilities payload; no value was derived from the provider name",
+   "evidence": {
+    "sampled": {
+     "action_submission_supported": false,
+     "commander_supported": true,
+     "deck_import_supported": true,
+     "event_log_supported": false,
+     "headless_supported": true,
+     "legal_actions_supported": false,
+     "multiplayer_supported": true,
+     "seed_supported": true
+    }
+   },
+   "invariant": "capabilities_provider_reported_not_inferred",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.runtime_kind_external_rules_engine",
+   "detail": "provider reported runtime_kind",
+   "evidence": {
+    "runtime_kind": "external_rules_engine"
+   },
+   "invariant": "runtime_kind_external_rules_engine",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "transport.legacy_alias_only_handshake_satisfies_af01=false",
+   "detail": "the legacy alias handshake was probed and its response recorded, and the credit-bearing payload set contains only the canonical protocol-2 responses",
+   "evidence": {
+    "credit_bearing_messages": [
+     "get_capabilities",
+     "get_provider_version",
+     "start_engine"
+    ],
+    "engine_hello": {
+     "engine_event_offset": 0,
+     "error": {
+      "code": "unknown_message",
+      "message": "unknown message type: engine_hello"
+     },
+     "errors": [
+      {
+       "code": "unknown_message",
+       "details": {},
+       "message": "unknown message type: engine_hello",
+       "retryable": false
+      }
+     ],
+     "ok": false,
+     "payload": {},
+     "protocol_version": "2.0.0",
+     "request_id": "fab42e5a-3323-4ab1-aa16-20342eabb98f",
+     "status": "error",
+     "success": false,
+     "timestamp": "2026-10-01T07:30:00.871633878Z",
+     "warnings": []
+    },
+    "legacy_alias_in_credit_set": false,
+    "legacy_alias_responded": false
+   },
+   "invariant": "legacy_alias_handshake_not_accepted",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.protocol_mismatch",
+   "detail": "provider rejected a wrong protocol_version without success",
+   "evidence": {
+    "engine_event_offset": 0,
+    "error": {
+     "code": "protocol_version_mismatch",
+     "message": "protocol_version is required and must equal 2.0.0"
+    },
+    "errors": [
+     {
+      "code": "protocol_version_mismatch",
+      "details": {},
+      "message": "protocol_version is required and must equal 2.0.0",
+      "retryable": false
+     }
+    ],
+    "ok": false,
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "85052038-b7de-4607-9f97-c34726df7dcd",
+    "status": "error",
+    "success": false,
+    "timestamp": "2026-10-01T07:30:00.873127909Z",
+    "warnings": []
+   },
+   "invariant": "fail_closed_protocol_mismatch",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.unknown_message",
+   "detail": "provider rejected an unknown message type",
+   "evidence": {
+    "engine_event_offset": 0,
+    "error": {
+     "code": "unknown_message",
+     "message": "unknown message type: wsr22_definitely_not_a_message"
+    },
+    "errors": [
+     {
+      "code": "unknown_message",
+      "details": {},
+      "message": "unknown message type: wsr22_definitely_not_a_message",
+      "retryable": false
+     }
+    ],
+    "ok": false,
+    "payload": {},
+    "protocol_version": "2.0.0",
+    "request_id": "7d8166a5-edb7-4e08-8c22-e56e5ec6c35c",
+    "status": "error",
+    "success": false,
+    "timestamp": "2026-10-01T07:30:00.873503764Z",
+    "warnings": []
+   },
+   "invariant": "fail_closed_unknown_message",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.illegal_action",
+   "detail": "provider rejected an unrecognised legal_action_id for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "wsr22-forge-2p-50339359",
+    "response": {
+     "engine_event_offset": 18,
+     "error": {
+      "code": "unknown_option",
+      "message": "unknown option for revision 5"
+     },
+     "errors": [
+      {
+       "code": "unknown_option",
+       "details": {},
+       "message": "unknown option for revision 5",
+       "retryable": false
+      }
+     ],
+     "ok": false,
+     "payload": {},
+     "protocol_version": "2.0.0",
+     "request_id": "8c4a7de3-d47d-4bff-8de2-28da1fb96df3",
+     "status": "error",
+     "success": false,
+     "timestamp": "2026-10-01T07:30:00.876949925Z",
+     "warnings": []
+    }
+   },
+   "invariant": "fail_closed_illegal_action",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
+   "detail": "provider rejected a real option under an unknown decision identity for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "wsr22-forge-2p-50339359",
+    "response": {
+     "engine_event_offset": 18,
+     "error": {
+      "code": "stale_revision",
+      "message": "frame revision 5 expected, got 1000005"
+     },
+     "errors": [
+      {
+       "code": "stale_revision",
+       "details": {},
+       "message": "frame revision 5 expected, got 1000005",
+       "retryable": false
+      }
+     ],
+     "ok": false,
+     "payload": {},
+     "protocol_version": "2.0.0",
+     "request_id": "ea6edb5f-257b-42e7-b1a2-8a83b8b53336",
+     "status": "error",
+     "success": false,
+     "timestamp": "2026-10-01T07:30:00.881389112Z",
+     "warnings": []
+    }
+   },
+   "invariant": "fail_closed_stale_or_unknown_decision",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
+   "detail": "provider rejected a request for an unsupported decision class for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "wsr22-forge-2p-50339359",
+    "response": {
+     "engine_event_offset": 18,
+     "error": {
+      "code": "unsupported_decision",
+      "message": "requested decision_class is not the pending decision"
+     },
+     "errors": [
+      {
+       "code": "unsupported_decision",
+       "details": {},
+       "message": "requested decision_class is not the pending decision",
+       "retryable": false
+      }
+     ],
+     "ok": false,
+     "payload": {},
+     "protocol_version": "2.0.0",
+     "request_id": "1576bf21-4d4d-496c-a6ac-e8871852fd43",
+     "status": "error",
+     "success": false,
+     "timestamp": "2026-10-01T07:30:00.884312896Z",
+     "warnings": []
+    }
+   },
+   "invariant": "fail_closed_unsupported_decision",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.rules_core_sole_legality_authority",
+   "detail": "an out-of-scope submission produced no fabricated legal option",
+   "evidence": {
+    "fabricated_options": 0
+   },
+   "invariant": "rules_core_sole_legality_authority",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
+   "detail": "a scan of 20 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
+   "evidence": {
+    "runner_commit": "fac12a9b73b13c235ea1aa7f97e2696c5376d59d",
+    "runner_tree": "3234e300d6990c9c7a570fab12bfd9ed927b3d27",
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 20
+    }
+   },
+   "invariant": "no_adapter_legality_reconstruction",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.fabricated_legal_options_forbidden",
+   "detail": "the same bound-source scan is the evidence; option sets are only ever read from provider payloads, and the live illegal-action probe returned no options",
+   "evidence": {
+    "fabricated_options": 0,
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 20
+    }
+   },
+   "invariant": "no_fabricated_legal_options",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.rules_randomness_core_owned",
+   "detail": "provider reports seed_supported and any RNG binding stays inside the engine",
+   "evidence": {
+    "rules_seed_binding": null,
+    "seed_supported": true
+   },
+   "invariant": "rules_randomness_core_owned",
+   "verdict": "PASS"
+  }
+ ],
+ "lane": "protocol2-jsonl",
+ "nonclaims": [
+  "AF01 PASS does not imply AF04 decision completeness",
+  "AF01 PASS does not imply provider release eligibility",
+  "AF01 PASS does not select a provider or claim Architecture Freeze"
+ ],
+ "protocol_transcript_digest": "0c54ac398ae8f1bb22f54cfcf43bcd83cef97529ae725969e07f14d02875e525",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af01-current-boundary/1.0.0",
+ "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
+ "transport_protocol": "2.0.0",
+ "verdict": "PASS"
+}

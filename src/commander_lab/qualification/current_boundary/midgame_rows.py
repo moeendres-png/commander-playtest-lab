@@ -109,7 +109,11 @@ class RowSpec:
 
 # The record's decision family and the engine's decision class name the same
 # decision differently for these families; every other family is spelled alike.
-ENGINE_DECISION_CLASS = {"choose_mode": "mode"}
+# The multi_amount record and the target_amount record both reach XMage's single
+# divided-damage `choose_targets` frame (observed on the production mid-game
+# lane); the record distinguishes the number of damage legs in its semantic
+# value, not in the engine's class name.
+ENGINE_DECISION_CLASS = {"choose_mode": "mode", "multi_amount": "target_amount"}
 
 
 def engine_decision_class(family: str) -> str:

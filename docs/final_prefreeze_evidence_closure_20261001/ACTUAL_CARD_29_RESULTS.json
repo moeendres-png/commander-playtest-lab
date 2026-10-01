@@ -1,0 +1,86 @@
+{
+ "forge": {
+  "behaviorally_executed_count": 0,
+  "complete": false,
+  "missing_identities": [
+   "Basilisk Collar",
+   "Bolt Bend",
+   "Boseiju Reaches Skyward // Branch of Boseiju",
+   "Burn Down the House",
+   "Butcher of Malakir",
+   "Dig Through Time",
+   "Esior, Wardwing Familiar",
+   "Finale of Revelation",
+   "Find // Finality",
+   "Flare of Duplication",
+   "Gratuitous Violence",
+   "Harmonic Prodigy",
+   "Ishai, Ojutai Dragonspeaker",
+   "Jeska, Thrice Reborn",
+   "Kaervek the Merciless",
+   "Kediss, Emberclaw Familiar",
+   "Magma Opus",
+   "Makeshift Mannequin",
+   "Narset, Parter of Veils",
+   "Path of Ancestry",
+   "Psychosis Crawler",
+   "Rograkh, Son of Rohgahh",
+   "Shriekmaw",
+   "Syphon Mind",
+   "Vandalblast",
+   "Veyran, Voice of Duality",
+   "Warstorm Surge",
+   "Wash Away",
+   "Wear // Tear"
+  ],
+  "required_count": 29,
+  "rows": {
+   "CARD_02": {
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  }
+ },
+ "xmage": {
+  "behaviorally_executed_count": 0,
+  "complete": false,
+  "missing_identities": [
+   "Basilisk Collar",
+   "Bolt Bend",
+   "Boseiju Reaches Skyward // Branch of Boseiju",
+   "Burn Down the House",
+   "Butcher of Malakir",
+   "Dig Through Time",
+   "Esior, Wardwing Familiar",
+   "Finale of Revelation",
+   "Find // Finality",
+   "Flare of Duplication",
+   "Gratuitous Violence",
+   "Harmonic Prodigy",
+   "Ishai, Ojutai Dragonspeaker",
+   "Jeska, Thrice Reborn",
+   "Kaervek the Merciless",
+   "Kediss, Emberclaw Familiar",
+   "Magma Opus",
+   "Makeshift Mannequin",
+   "Narset, Parter of Veils",
+   "Path of Ancestry",
+   "Psychosis Crawler",
+   "Rograkh, Son of Rohgahh",
+   "Shriekmaw",
+   "Syphon Mind",
+   "Vandalblast",
+   "Veyran, Voice of Duality",
+   "Warstorm Surge",
+   "Wash Away",
+   "Wear // Tear"
+  ],
+  "required_count": 29,
+  "rows": {
+   "CARD_02": {
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#CARD_02): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  }
+ }
+}

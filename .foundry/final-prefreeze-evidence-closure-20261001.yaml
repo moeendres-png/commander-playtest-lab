@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
 branch: hardening/final-prefreeze-evidence-closure-20261001
 audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
 audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d
-state_written_against_head: 7f634a0bec82080944edc6c844fe240429d28bcd
-validated_head: 7f634a0bec82080944edc6c844fe240429d28bcd
+state_written_against_head: fac12a9b73b13c235ea1aa7f97e2696c5376d59d
+validated_head: fac12a9b73b13c235ea1aa7f97e2696c5376d59d
 objective: 'Close the Coordinator-adjudicated pre-Freeze evidence and qualification
   gaps tracked by issue #441 and produce a fresh source-bound provider-readiness packet
   for subsequent Coordinator adjudication under #255.'
@@ -52,27 +52,36 @@ forbidden_shortcuts:
 - fabricated legal action
 - manual outcome injection
 validated_gates:
-- 'AF04_MERGE_SAFE_2026-10-01: Forge AF04 is evidence-derived from the same epoch;
-  real-epoch regression and 27 wrong-reason controls pass'
+- 'AF04_MERGE_SAFE_2026-10-01: both candidates PASS from measured external decision
+  frames (Forge 30, XMage 25)'
+- 'SUCCESSOR_EPOCH_FAC12A9B_VERIFIED: 65/65 digests; PB-03 workflow 36829423872 green'
+- 'TYPED_REFUSAL_LIVE: 4 NEGATIVE_* rows PASS with well-formed no-mutation refusals'
+- 'C1_C2_ERRATA: successor contract 1.0.7 in effect; MICRO_MODES + 4 NEGATIVE rows
+  now PASS; MICRO_COSTS cast now offered'
 failed_gates: []
 invalidated_gates: []
 tests_run:
-- python3 -m pytest tests/qualification -q => 710 passed, 9 skipped
-- python3 -m pytest tests/qualification/test_current_boundary_decision_boundary.py
-  -q => 28 passed
-evidence: []
-artifacts: []
+- python3 -m pytest tests -m "not external" => 2953 passed, 11 skipped
+- PB-03 workflow run 36829423872 on fac12a9b => success
+- python3 scripts/regenerate_hash_manifests.py (304/309 entries)
+evidence:
+- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/ (65 files, digests
+  verified)
+- docs/final_prefreeze_evidence_closure_20261001/ (12 packet files)
+artifacts:
+- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/FULL107_XMAGE_RESULTS.json
+- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/FULL107_FORGE_RESULTS.json
+- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/PROVIDER_READINESS_CURRENT.json
+- docs/final_prefreeze_evidence_closure_20261001/FINAL_HANDOFF.md
 remaining_scope:
-- Gate 0 source and ownership census (done)
-- Forge AF04 reassembly (implementation complete; successor-epoch artifact regeneration
-  pending)
-- causal direct execution
-- fixture errata
-- typed unsupported-decision refusal
-- AF05
-- AF07
-- AF09
-- evidence reassembly
+- AF05 mandatory HIDDEN_* channels (needs principal-scoped knowledge-projection observation
+  channel)
+- AF07 29-card corpus (28 identities still need per-card causal execution)
+- AF09 clean-process semantic replay twins (needs twin executor + checkpoint state
+  hash channel)
+- MICRO_COSTS / PILOT_TARGET_AMOUNT / PILOT_MULTI_AMOUNT lane selectors (semantic_objects
+  + amount_assignment)
+- AF11 post-selection
 status: ACTIVE
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
@@ -83,9 +92,10 @@ execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 variant_resolution: native_max
-exact_next_action: 'Fixture errata C1/C2: versioned successor records for scripts
-  beginning inside a cast and the MICRO_COSTS CR 307.1 defect, then the typed unsupported-discretionary-decision
-  refusal path.'
+exact_next_action: 'Open the #441 PR, run the full CI gate set on the PR head, obtain
+  an independent fresh-context review, then integrate if merge-gate conditions hold.
+  Then continue with the lane multi-select/amount selector and the AF05 knowledge-projection
+  channel.'
 files_modified:
 - src/commander_lab/qualification/current_boundary/decision_boundary.py
 - scripts/assemble_current_boundary_evidence.py
@@ -105,3 +115,16 @@ technical_decisions:
   The derivation therefore requires the engine executed option (XMage) or the engine
   executed flag plus the keep-all actor progression (Forge) instead of a raw chosen
   option id.'
+- Successor contract 1.0.7 re-applies all overlays to the same 1.0.5 base; the record
+  shape is unchanged so the materialization schema version moved with it but the predecessor
+  contract is preserved byte-for-byte.
+- 'The typed unsupported-decision refusal is a control-plane mechanism (not a new
+  Protocol-2 message): Protocol 2.0.0 has no refusal message, adding one would change
+  the shared transport for both candidates, and the obligation is about handler behaviour.
+  No-mutation is proven from the transport window and the unchanged event offset/pending
+  decision.'
+- 'Three corrected rows (MICRO_COSTS, PILOT_TARGET_AMOUNT, PILOT_MULTI_AMOUNT) are
+  not registered in the lane: the engine frame is a multi-select choose_targets offer
+  followed by the assignment leg, and implementing a divided-damage selector without
+  a negative control risks a wrong-reason PASS. Left UNKNOWN with the exact mechanism
+  observed on the production lane.'

@@ -1,0 +1,93 @@
+{
+ "distinct_from_timeout": true,
+ "mechanism": "commander_lab.qualification.current_boundary.refusal",
+ "no_mutation_proof": "the refusal sends no state-mutating request; the record carries the transport window, the unchanged public event offset and the unchanged pending decision id",
+ "rows": {
+  "NEGATIVE_DEFAULT_YES_NO": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  "NEGATIVE_FIRST_OPTION": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 2a113a9a791b); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_FIRST_OPTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  "NEGATIVE_GUI_DEFAULT": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8fb40cf8fcd2); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_GUI_DEFAULT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  "NEGATIVE_INTERNAL_AI": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  "NEGATIVE_PARENT_CLASS_FALLBACK": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  "NEGATIVE_RANDOM_OPTION": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 27e48a2a3629); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_RANDOM_OPTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  "NEGATIVE_SILENT_SKIP": {
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes dfdcea34210e); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_SILENT_SKIP): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  }
+ },
+ "rule": "#255: DECISION_TIMEOUT does not satisfy an obligation requiring UNSUPPORTED_DISCRETIONARY_DECISION; the protocol/control plane must provide an explicit fail-closed refusal that selects nothing, mutates nothing and is auditable",
+ "typed_kind": "UNSUPPORTED_DISCRETIONARY_DECISION"
+}

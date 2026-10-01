@@ -1,0 +1,623 @@
+{
+ "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+ "mechanism_equivalent_native_evidence": "SUPPORTING_ONLY_NO_FULL107_CREDIT",
+ "rows": [
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "CARD_02",
+   "refusals": [],
+   "terminal_facts": {
+    "P1's commander cast count is 1": true,
+    "Rograkh, Son of Rohgahh is on P1's battlefield": true,
+    "no mana payment was asked": true
+   },
+   "token_evidence": {
+    "commander_cast": {
+     "events": [
+      7
+     ]
+    },
+    "creature_entered": {
+     "events": [
+      9
+     ]
+    },
+    "spell_resolved": {
+     "events": [
+      9
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "MICRO_MODES",
+   "refusals": [],
+   "terminal_facts": {
+    "exactly 3 Devil token(s) were created": true,
+    "no permanent was dealt damage": true
+   },
+   "token_evidence": {
+    "create_Devil_token:3": {
+     "events": [
+      10,
+      12,
+      14
+     ]
+    },
+    "mode_selected:create_devils": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "MICRO_TARGETS",
+   "refusals": [],
+   "terminal_facts": {},
+   "token_evidence": {
+    "legal_targets_exposed": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "target_selected:P2": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "MICRO_TRIGGERS",
+   "refusals": [],
+   "terminal_facts": {
+    "P2 is at 38 life": true,
+    "Warstorm Surge triggered exactly 1 time(s)": true
+   },
+   "token_evidence": {
+    "creature_enters:obj:micro-enter": {
+     "events": [
+      9
+     ]
+    },
+    "damage:P2:2": {
+     "events": [
+      12
+     ]
+    },
+    "trigger:Warstorm_Surge": {
+     "events": [
+      10
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "refusals": [
+    {
+     "actor_id": "d18e906b-fec2-48cf-a8dd-52f34caba7a7",
+     "decision_class": "mode",
+     "decision_id": "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b",
+     "decision_id_after": "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor d18e906b-fec2-48cf-a8dd-52f34caba7a7, revision/decision 5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "5271e03b3450fdb4e494e4538c550714032714a00266a7a5d963cb363b75b242",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b:cc42c157-199c-44f4-baf3-6eb4113e4778",
+      "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b:c1eede81-e15b-4710-80f5-f90b47323bcd"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:choose_mode": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "5271e03b3450fdb4e494e4538c550714032714a00266a7a5d963cb363b75b242"
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "refusals": [
+    {
+     "actor_id": "aa23dab1-218d-477e-ab48-c703d99a8d00",
+     "decision_class": "mode",
+     "decision_id": "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d",
+     "decision_id_after": "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor aa23dab1-218d-477e-ab48-c703d99a8d00, revision/decision 679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "846c04c29f492f4fc481dbb073112077069a15475a8d1674e37382a4fceb0cef",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d:366ed1b2-d901-41ed-85a5-cfb82a32492b",
+      "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d:a2699df8-f00a-41d0-81c6-f7ff672f11f7"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:choose_mode": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "846c04c29f492f4fc481dbb073112077069a15475a8d1674e37382a4fceb0cef"
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "refusals": [
+    {
+     "actor_id": "9c4f0d79-a353-4ca5-8465-bc350c162009",
+     "decision_class": "target",
+     "decision_id": "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43",
+     "decision_id_after": "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 9c4f0d79-a353-4ca5-8465-bc350c162009, revision/decision 555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "42f95912fd10409f9239d086945a74718d2ac99df9a17f0dcec474419ff70214",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:9c4f0d79-a353-4ca5-8465-bc350c162009",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:593d6dc4-42b5-4643-b0c8-1316355a9971",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:13d34221-fdf2-4f99-92fb-9d43fdfe1bb2",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:113ed1ed-dced-4308-ab54-d0f90aee30c6",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:fa256c9f-6d30-442d-8db2-cce07b15cef3",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:39f770d4-eb1e-4a00-8ab7-8a492e6786fe",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:b4bcd89f-df85-4880-9ddc-d54896de0991"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:target": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "42f95912fd10409f9239d086945a74718d2ac99df9a17f0dcec474419ff70214"
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "refusals": [
+    {
+     "actor_id": "59e0b4ac-e758-4f38-aed3-152968b3a561",
+     "decision_class": "target",
+     "decision_id": "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1",
+     "decision_id_after": "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 59e0b4ac-e758-4f38-aed3-152968b3a561, revision/decision 70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "be1156d858cd3fb1c75af05e484de1dda7ac7eeaeacc826539fabce79761cf83",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:59e0b4ac-e758-4f38-aed3-152968b3a561",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:f89c0855-4fbe-4f6d-8855-0cf8be0263b4",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:44de03a1-ac91-4163-a5e0-4e5c772e4371",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:4114e158-ee8c-409d-9770-30870651cc4c",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:ccaa5b73-9388-40fc-a665-3a515347c54f",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:e315a431-319f-452e-adad-3fee5f079236",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:779eb594-5d52-4606-9833-515ad9447d78"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:target": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "be1156d858cd3fb1c75af05e484de1dda7ac7eeaeacc826539fabce79761cf83"
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "refusals": [],
+   "terminal_facts": {
+    "P1 moved exactly 3 card(s) from library to hand": true,
+    "the engine charged exactly 5 mana": true
+   },
+   "token_evidence": {
+    "announce_x_frame:P1": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "x_announced:3": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "refusals": [],
+   "terminal_facts": {
+    "exactly 3 Devil token(s) were created": true,
+    "no permanent was dealt damage": true
+   },
+   "token_evidence": {
+    "choose_mode_frame:P1": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "mode_selected:create_devils": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": null,
+   "construction_is_exact": false,
+   "construction_verdict": "ALLOWED_VARIANCE",
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "refusals": [],
+   "terminal_facts": {
+    "Grizzly Bears on P1's battlefield is tapped=True": true
+   },
+   "token_evidence": {
+    "attacker_declared:obj:p1-bears->P2": {
+     "events": [
+      7
+     ]
+    },
+    "declare_attacker_frame:P1": {
+     "decision_frames": [
+      0
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_PRIORITY",
+   "refusals": [],
+   "terminal_facts": {},
+   "token_evidence": {
+    "priority_decision_frame:P1": {
+     "decision_frames": [
+      0
+     ]
+    },
+    "spell_cast:obj:pilot-bolt": {
+     "events": [
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_TARGET",
+   "refusals": [],
+   "terminal_facts": {},
+   "token_evidence": {
+    "target_decision_frame:P1": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "target_selected:P2": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "refusals": [],
+   "terminal_facts": {
+    "P1's triggered abilities went on the stack in the order ('Phyrexian Arena', 'Mystic Remora')": true
+   },
+   "token_evidence": {
+    "simultaneous_triggers:P1:2": {
+     "decision_frames": [
+      0
+     ],
+     "events": [
+      6,
+      7
+     ]
+    },
+    "trigger_order_frame:P1": {
+     "decision_frames": [
+      0
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "WS05-CMD-START-3",
+   "refusals": [],
+   "terminal_facts": {},
+   "token_evidence": {
+    "first_turn_draw:true": {
+     "events": [
+      5
+     ]
+    },
+    "starting_player:P1": {
+     "events": [
+      4
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "WS05-CMD-TAX-2",
+   "refusals": [],
+   "terminal_facts": {
+    "P1's commander cast count is 3": true
+   },
+   "token_evidence": {
+    "commander_cast_from_command": {
+     "events": [
+      4
+     ]
+    },
+    "commander_tax:+4_generic": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ],
+     "paid_minus_printed": 4
+    },
+    "mana_paid:4": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": "requested_state_digest == constructed_state_digest (construction_verdict EXACT from the engine's own readback)",
+   "construction_is_exact": true,
+   "construction_verdict": "EXACT",
+   "detail": "obligation observed",
+   "fixture_id": "WS05-CMD-TAX-4",
+   "refusals": [],
+   "terminal_facts": {
+    "P1's commander cast count is 3": true
+   },
+   "token_evidence": {
+    "commander_cast_from_command": {
+     "events": [
+      7
+     ]
+    },
+    "commander_tax:+4_generic": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ],
+     "paid_minus_printed": 4
+    },
+    "mana_paid:4": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": null,
+   "construction_is_exact": false,
+   "construction_verdict": "ALLOWED_VARIANCE",
+   "detail": "obligation observed",
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "refusals": [],
+   "terminal_facts": {},
+   "token_evidence": {
+    "attacker_declared:obj:mp-attacker-0->P2": {
+     "events": [
+      7
+     ]
+    },
+    "attacker_declared:obj:mp-attacker-1->P3": {
+     "events": [
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  {
+   "checkpoint_equivalence": null,
+   "construction_is_exact": false,
+   "construction_verdict": "ALLOWED_VARIANCE",
+   "detail": "obligation observed",
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "refusals": [],
+   "terminal_facts": {},
+   "token_evidence": {
+    "attacker_declared:obj:mp-attacker-0->P2": {
+     "events": [
+      8
+     ]
+    },
+    "attacker_declared:obj:mp-attacker-1->P3": {
+     "events": [
+      9
+     ]
+    },
+    "attacker_declared:obj:mp-attacker-2->P4": {
+     "events": [
+      10
+     ]
+    }
+   },
+   "verified": true
+  }
+ ],
+ "rows_declared": 19,
+ "rows_verified": 19,
+ "rule": "#255 R-4 clarification: a causal route counts as direct execution of the same fixture obligation only with Rules-Core construction, engine readback checkpoint equivalence, engine-offered options only, the exact obligation observed from engine facts, and a receipt bound to candidate/runner/fixture/requested-state/obligation",
+ "runner": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+ "zero_credit_conditions": [
+  "mismatch",
+  "approximation",
+  "timeout",
+  "protocol failure",
+  "unsupported route",
+  "unrecorded terminal"
+ ]
+}

@@ -1,0 +1,89 @@
+{
+ "af00_af10": {
+  "forge": {
+   "AF00": "PASS",
+   "AF01": "PASS",
+   "AF02": "PASS",
+   "AF03": "PASS",
+   "AF04": "PASS",
+   "AF05": "UNKNOWN",
+   "AF06": "UNKNOWN",
+   "AF07": "UNKNOWN",
+   "AF08": "UNKNOWN",
+   "AF09": "UNKNOWN",
+   "AF10": "PASS"
+  },
+  "xmage": {
+   "AF00": "PASS",
+   "AF01": "PASS",
+   "AF02": "PASS",
+   "AF03": "PASS",
+   "AF04": "PASS",
+   "AF05": "UNKNOWN",
+   "AF06": "UNKNOWN",
+   "AF07": "UNKNOWN",
+   "AF08": "UNKNOWN",
+   "AF09": "UNKNOWN",
+   "AF10": "PASS"
+  }
+ },
+ "af11": "POST_SELECTION",
+ "architecture_freeze": "NOT_CLAIMED",
+ "direct_positive_receipt_rows": {
+  "forge": [
+   "PLAYER_COUNT_2P",
+   "PLAYER_COUNT_3P",
+   "PLAYER_COUNT_4P",
+   "PLAYER_COUNT_5P",
+   "WS05-CMD-START-2"
+  ],
+  "xmage": [
+   "CARD_02",
+   "MICRO_MODES",
+   "MICRO_TARGETS",
+   "MICRO_TRIGGERS",
+   "NEGATIVE_FIRST_OPTION",
+   "NEGATIVE_GUI_DEFAULT",
+   "NEGATIVE_RANDOM_OPTION",
+   "NEGATIVE_SILENT_SKIP",
+   "PILOT_ANNOUNCE_X",
+   "PILOT_CHOOSE_MODE",
+   "PILOT_DECLARE_ATTACKER",
+   "PILOT_PRIORITY",
+   "PILOT_TARGET",
+   "PILOT_TRIGGER_ORDER",
+   "PLAYER_COUNT_2P",
+   "PLAYER_COUNT_3P",
+   "PLAYER_COUNT_4P",
+   "PLAYER_COUNT_5P",
+   "WS05-CMD-START-2",
+   "WS05-CMD-START-3",
+   "WS05-CMD-TAX-2",
+   "WS05-CMD-TAX-4",
+   "WS05-MP-COMBAT-4",
+   "WS05-MP-COMBAT-5"
+  ]
+ },
+ "epoch": "qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699",
+ "full107_counts": {
+  "forge": {
+   "BLOCKED": 44,
+   "CRASH": 0,
+   "FAIL": 0,
+   "PASS": 5,
+   "PROTOCOL_FAILURE": 0,
+   "TIMEOUT": 0,
+   "UNKNOWN": 58
+  },
+  "xmage": {
+   "BLOCKED": 39,
+   "CRASH": 0,
+   "FAIL": 0,
+   "PASS": 24,
+   "PROTOCOL_FAILURE": 0,
+   "TIMEOUT": 0,
+   "UNKNOWN": 44
+  }
+ },
+ "production_provider": "NOT_SELECTED"
+}

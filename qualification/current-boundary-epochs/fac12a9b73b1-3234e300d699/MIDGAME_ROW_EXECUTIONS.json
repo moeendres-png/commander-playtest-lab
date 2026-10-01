@@ -1,0 +1,3456 @@
+{
+ "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+ "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+ "rows": {
+  "CARD_02": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P2",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P3",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P4",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "CARD_02",
+   "missing_tokens": [],
+   "receipt_digest": "e3b37136cdef5c7b2e6d23fa19c6c29ec77412b094d8cff05a7533660381b784",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "COMMAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "STACK",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 9,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {
+    "P1's commander cast count is 1": true,
+    "Rograkh, Son of Rohgahh is on P1's battlefield": true,
+    "no mana payment was asked": true
+   },
+   "token_evidence": {
+    "commander_cast": {
+     "events": [
+      7
+     ]
+    },
+    "creature_entered": {
+     "events": [
+      9
+     ]
+    },
+    "spell_resolved": {
+     "events": [
+      9
+     ]
+    }
+   },
+   "verified": true
+  },
+  "MICRO_MODES": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Burn Down the House \u2014 Cast Burn Down the House",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Burn Down the House \u2014 Cast Burn Down the House",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mode",
+     "numeric": null,
+     "offered_labels": [
+      "{this} deals 5 damage to each creature and each planeswalker.",
+      "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": "create_devils",
+     "selected_label": "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn.",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P2",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P3",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P4",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "MICRO_MODES",
+   "missing_tokens": [],
+   "receipt_digest": "b3e4bc2971d1ca61ac525dd0a9ac2c44e0f4202906e02d8c75114699bde8bf71",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "target_object": "obj:micro-burn",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "OUTSIDE",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 9,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 10,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "turn": 1,
+     "type": "CREATED_TOKEN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "OUTSIDE",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 11,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 12,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "turn": 1,
+     "type": "CREATED_TOKEN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "OUTSIDE",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 13,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 14,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "turn": 1,
+     "type": "CREATED_TOKEN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "STACK",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 15,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:micro-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "target_object": "obj:micro-burn",
+     "to": "GRAVEYARD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {
+    "exactly 3 Devil token(s) were created": true,
+    "no permanent was dealt damage": true
+   },
+   "token_evidence": {
+    "create_Devil_token:3": {
+     "events": [
+      10,
+      12,
+      14
+     ]
+    },
+    "mode_selected:create_devils": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  "MICRO_TARGETS": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Lightning Bolt \u2014 Cast Lightning Bolt",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "target",
+     "numeric": null,
+     "offered_labels": [
+      "Full Game Seat 1",
+      "Full Game Seat 2",
+      "Full Game Seat 3",
+      "Full Game Seat 4",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Full Game Seat 2",
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "MICRO_TARGETS",
+   "missing_tokens": [],
+   "receipt_digest": "1ea4772731240df14cf0f4fd90614fd512dbdb9d6c0e05719f81c636acd884a7",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Lightning Bolt",
+     "source_object": "obj:micro-bolt",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Lightning Bolt",
+     "target_object": "obj:micro-bolt",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "legal_targets_exposed": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "target_selected:P2": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  "MICRO_TRIGGERS": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Forest \u2014 {T}: Add {G}.",
+      "Forest \u2014 {T}: Add {G}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Grizzly Bears \u2014 Cast Grizzly Bears",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears \u2014 Cast Grizzly Bears",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Forest \u2014 {T}: Add {G}.",
+      "Forest \u2014 {T}: Add {G}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Forest \u2014 {T}: Add {G}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend green mana from pool",
+      "Forest \u2014 {T}: Add {G}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend green mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Forest \u2014 {T}: Add {G}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Forest \u2014 {T}: Add {G}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend green mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend green mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P2",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P3",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P4",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "target",
+     "numeric": null,
+     "offered_labels": [
+      "Full Game Seat 1",
+      "Full Game Seat 2",
+      "Full Game Seat 3",
+      "Full Game Seat 4",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Full Game Seat 2",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P2",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P3",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P4",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "MICRO_TRIGGERS",
+   "missing_tokens": [],
+   "receipt_digest": "0e6b8eabf7b9cbef32ca23c7182ea61a0400e2223b001a5f89a9ff87f2134321",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:micro-enter",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Grizzly Bears",
+     "target_object": "obj:micro-enter",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:micro-enter",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Grizzly Bears",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "STACK",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 9,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:micro-enter",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Grizzly Bears",
+     "target_object": "obj:micro-enter",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 10,
+     "source_name": "Warstorm Surge",
+     "source_object": "obj:micro-warstorm",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "stack ability (Whenever a creature you control enters, it deals damage equal to its power to any target.)",
+     "turn": 1,
+     "type": "TRIGGERED_ABILITY"
+    },
+    {
+     "amount": 2,
+     "flag": false,
+     "player_player": "P2",
+     "public_identity": true,
+     "sequence": 11,
+     "source_name": "Warstorm Surge",
+     "source_object": "obj:micro-warstorm",
+     "step": "PRECOMBAT_MAIN",
+     "target_player": "P2",
+     "turn": 1,
+     "type": "LOST_LIFE"
+    },
+    {
+     "amount": 2,
+     "combat": false,
+     "flag": false,
+     "player_player": "P2",
+     "public_identity": true,
+     "sequence": 12,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:micro-enter",
+     "step": "PRECOMBAT_MAIN",
+     "target_player": "P2",
+     "turn": 1,
+     "type": "DAMAGED_PLAYER"
+    }
+   ],
+   "terminal_facts": {
+    "P2 is at 38 life": true,
+    "Warstorm Surge triggered exactly 1 time(s)": true
+   },
+   "token_evidence": {
+    "creature_enters:obj:micro-enter": {
+     "events": [
+      9
+     ]
+    },
+    "damage:P2:2": {
+     "events": [
+      12
+     ]
+    },
+    "trigger:Warstorm_Surge": {
+     "events": [
+      10
+     ]
+    }
+   },
+   "verified": true
+  },
+  "NEGATIVE_FIRST_OPTION": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Burn Down the House \u2014 Cast Burn Down the House",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Burn Down the House \u2014 Cast Burn Down the House",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mode",
+     "numeric": null,
+     "offered_labels": [
+      "{this} deals 5 damage to each creature and each planeswalker.",
+      "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn."
+     ],
+     "principal": "P1",
+     "refusal_kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "refused": true,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "missing_tokens": [],
+   "receipt_digest": "2d413715f95e14e929cad0794b3e50fa2f029bfa2f10ab542836fa6b2bcb141f",
+   "refusals": [
+    {
+     "actor_id": "d18e906b-fec2-48cf-a8dd-52f34caba7a7",
+     "decision_class": "mode",
+     "decision_id": "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b",
+     "decision_id_after": "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor d18e906b-fec2-48cf-a8dd-52f34caba7a7, revision/decision 5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "5271e03b3450fdb4e494e4538c550714032714a00266a7a5d963cb363b75b242",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b:cc42c157-199c-44f4-baf3-6eb4113e4778",
+      "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b:c1eede81-e15b-4710-80f5-f90b47323bcd"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:neg-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "target_object": "obj:neg-burn",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:choose_mode": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "5271e03b3450fdb4e494e4538c550714032714a00266a7a5d963cb363b75b242"
+     ]
+    }
+   },
+   "verified": true
+  },
+  "NEGATIVE_GUI_DEFAULT": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Burn Down the House \u2014 Cast Burn Down the House",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Burn Down the House \u2014 Cast Burn Down the House",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mode",
+     "numeric": null,
+     "offered_labels": [
+      "{this} deals 5 damage to each creature and each planeswalker.",
+      "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn."
+     ],
+     "principal": "P1",
+     "refusal_kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "refused": true,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "missing_tokens": [],
+   "receipt_digest": "3fd533020c46368b41f6058def4b9fcc87c9735bb82bb3fb3c68932e1804a971",
+   "refusals": [
+    {
+     "actor_id": "aa23dab1-218d-477e-ab48-c703d99a8d00",
+     "decision_class": "mode",
+     "decision_id": "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d",
+     "decision_id_after": "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor aa23dab1-218d-477e-ab48-c703d99a8d00, revision/decision 679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "846c04c29f492f4fc481dbb073112077069a15475a8d1674e37382a4fceb0cef",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d:366ed1b2-d901-41ed-85a5-cfb82a32492b",
+      "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d:a2699df8-f00a-41d0-81c6-f7ff672f11f7"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:neg-burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "target_object": "obj:neg-burn",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:choose_mode": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "846c04c29f492f4fc481dbb073112077069a15475a8d1674e37382a4fceb0cef"
+     ]
+    }
+   },
+   "verified": true
+  },
+  "NEGATIVE_RANDOM_OPTION": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Lightning Bolt \u2014 Cast Lightning Bolt",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "target",
+     "numeric": null,
+     "offered_labels": [
+      "Full Game Seat 1",
+      "Full Game Seat 2",
+      "Full Game Seat 3",
+      "Full Game Seat 4",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears"
+     ],
+     "principal": "P1",
+     "refusal_kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "refused": true,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "missing_tokens": [],
+   "receipt_digest": "5e270915fcea9428366e03683b6c583045fbdeb5460bbef2023419ffa08a00c4",
+   "refusals": [
+    {
+     "actor_id": "9c4f0d79-a353-4ca5-8465-bc350c162009",
+     "decision_class": "target",
+     "decision_id": "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43",
+     "decision_id_after": "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 9c4f0d79-a353-4ca5-8465-bc350c162009, revision/decision 555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "42f95912fd10409f9239d086945a74718d2ac99df9a17f0dcec474419ff70214",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:9c4f0d79-a353-4ca5-8465-bc350c162009",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:593d6dc4-42b5-4643-b0c8-1316355a9971",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:13d34221-fdf2-4f99-92fb-9d43fdfe1bb2",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:113ed1ed-dced-4308-ab54-d0f90aee30c6",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:fa256c9f-6d30-442d-8db2-cce07b15cef3",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:39f770d4-eb1e-4a00-8ab7-8a492e6786fe",
+      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:b4bcd89f-df85-4880-9ddc-d54896de0991"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Lightning Bolt",
+     "source_object": "obj:neg-bolt",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Lightning Bolt",
+     "target_object": "obj:neg-bolt",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:target": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "42f95912fd10409f9239d086945a74718d2ac99df9a17f0dcec474419ff70214"
+     ]
+    }
+   },
+   "verified": true
+  },
+  "NEGATIVE_SILENT_SKIP": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Lightning Bolt \u2014 Cast Lightning Bolt",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "target",
+     "numeric": null,
+     "offered_labels": [
+      "Full Game Seat 1",
+      "Full Game Seat 2",
+      "Full Game Seat 3",
+      "Full Game Seat 4",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears"
+     ],
+     "principal": "P1",
+     "refusal_kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "refused": true,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "missing_tokens": [],
+   "receipt_digest": "1467a5fecbdeddbece3eab4411710a71eaf2504fb4d339cca3dc217e63670b14",
+   "refusals": [
+    {
+     "actor_id": "59e0b4ac-e758-4f38-aed3-152968b3a561",
+     "decision_class": "target",
+     "decision_id": "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1",
+     "decision_id_after": "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 59e0b4ac-e758-4f38-aed3-152968b3a561, revision/decision 70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "event_offset_after": 7,
+     "event_offset_before": 7,
+     "frame_digest": "be1156d858cd3fb1c75af05e484de1dda7ac7eeaeacc826539fabce79761cf83",
+     "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+     "offered_option_ids": [
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:59e0b4ac-e758-4f38-aed3-152968b3a561",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:f89c0855-4fbe-4f6d-8855-0cf8be0263b4",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:44de03a1-ac91-4163-a5e0-4e5c772e4371",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:4114e158-ee8c-409d-9770-30870651cc4c",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:ccaa5b73-9388-40fc-a665-3a515347c54f",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:e315a431-319f-452e-adad-3fee5f079236",
+      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:779eb594-5d52-4606-9833-515ad9447d78"
+     ],
+     "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+     "state_mutated": false,
+     "submissions_in_window": [],
+     "transport_window": [
+      "get_midgame_decision",
+      "get_midgame_events"
+     ],
+     "well_formed": true
+    }
+   ],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Lightning Bolt",
+     "source_object": "obj:neg-bolt",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Lightning Bolt",
+     "target_object": "obj:neg-bolt",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "decision_frame:target": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+     "decision_frames": [
+      1
+     ],
+     "refusal_frame_digests": [
+      "be1156d858cd3fb1c75af05e484de1dda7ac7eeaeacc826539fabce79761cf83"
+     ]
+    }
+   },
+   "verified": true
+  },
+  "PILOT_ANNOUNCE_X": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Finale of Revelation \u2014 Cast Finale of Revelation",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Finale of Revelation \u2014 Cast Finale of Revelation",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "announce_x",
+     "numeric": 3,
+     "offered_labels": [
+      "Provide numeric choice"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Provide numeric choice",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Island \u2014 {T}: Add {U}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend blue mana from pool",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend blue mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Island \u2014 {T}: Add {U}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend blue mana from pool",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend blue mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Island \u2014 {T}: Add {U}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend blue mana from pool",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend blue mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Island \u2014 {T}: Add {U}.",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Island \u2014 {T}: Add {U}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend blue mana from pool",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend blue mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Island \u2014 {T}: Add {U}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Island \u2014 {T}: Add {U}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend blue mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend blue mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P2",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P3",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P4",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "missing_tokens": [],
+   "receipt_digest": "6f6ca5883bc85a705c25e9f2e4f356a4bf57f7693faa979644c5b719fa6a3cc0",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Finale of Revelation",
+     "source_object": "obj:finale",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Finale of Revelation",
+     "target_object": "obj:finale",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Finale of Revelation",
+     "source_object": "obj:finale",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Finale of Revelation",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "LIBRARY",
+     "player_player": "P1",
+     "public_identity": false,
+     "sequence": 9,
+     "step": "PRECOMBAT_MAIN",
+     "to": "HAND",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "LIBRARY",
+     "player_player": "P1",
+     "public_identity": false,
+     "sequence": 10,
+     "step": "PRECOMBAT_MAIN",
+     "to": "HAND",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "LIBRARY",
+     "player_player": "P1",
+     "public_identity": false,
+     "sequence": 11,
+     "step": "PRECOMBAT_MAIN",
+     "to": "HAND",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "STACK",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 12,
+     "source_name": "Finale of Revelation",
+     "source_object": "obj:finale",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Finale of Revelation",
+     "target_object": "obj:finale",
+     "to": "EXILED",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {
+    "P1 moved exactly 3 card(s) from library to hand": true,
+    "the engine charged exactly 5 mana": true
+   },
+   "token_evidence": {
+    "announce_x_frame:P1": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "x_announced:3": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  "PILOT_CHOOSE_MODE": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Burn Down the House \u2014 Cast Burn Down the House",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Burn Down the House \u2014 Cast Burn Down the House",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mode",
+     "numeric": null,
+     "offered_labels": [
+      "{this} deals 5 damage to each creature and each planeswalker.",
+      "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": "create_devils",
+     "selected_label": "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn.",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P2",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P3",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P4",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "missing_tokens": [],
+   "receipt_digest": "7bcdbf6564346b2a5b3a756220d14db11ec020d57a606215af665bc0a1e8d2dc",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "target_object": "obj:burn",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "OUTSIDE",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 9,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 10,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "turn": 1,
+     "type": "CREATED_TOKEN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "OUTSIDE",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 11,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 12,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "turn": 1,
+     "type": "CREATED_TOKEN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "OUTSIDE",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 13,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "to": "BATTLEFIELD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 14,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Devil Token",
+     "turn": 1,
+     "type": "CREATED_TOKEN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "STACK",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 15,
+     "source_name": "Burn Down the House",
+     "source_object": "obj:burn",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Burn Down the House",
+     "target_object": "obj:burn",
+     "to": "GRAVEYARD",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {
+    "exactly 3 Devil token(s) were created": true,
+    "no permanent was dealt damage": true
+   },
+   "token_evidence": {
+    "choose_mode_frame:P1": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "mode_selected:create_devils": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  "PILOT_DECLARE_ATTACKER": {
+   "construction_verdict": "ALLOWED_VARIANCE",
+   "decision_trace": [
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears attacks Full Game Seat 2",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "missing_tokens": [],
+   "receipt_digest": "c90a0ede5680f6b6e4c4e68ae2a81f08ed9f17a1b41857d75517f5cd1c45c684",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:p1-bears",
+     "step": "DECLARE_ATTACKERS",
+     "target_player": "P2",
+     "turn": 1,
+     "type": "ATTACKER_DECLARED"
+    }
+   ],
+   "terminal_facts": {
+    "Grizzly Bears on P1's battlefield is tapped=True": true
+   },
+   "token_evidence": {
+    "attacker_declared:obj:p1-bears->P2": {
+     "events": [
+      7
+     ]
+    },
+    "declare_attacker_frame:P1": {
+     "decision_frames": [
+      0
+     ]
+    }
+   },
+   "verified": true
+  },
+  "PILOT_PRIORITY": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Lightning Bolt \u2014 Cast Lightning Bolt",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "target",
+     "numeric": null,
+     "offered_labels": [
+      "Full Game Seat 1",
+      "Full Game Seat 2",
+      "Full Game Seat 3",
+      "Full Game Seat 4",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Full Game Seat 2",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_PRIORITY",
+   "missing_tokens": [],
+   "receipt_digest": "babfe0f9e2bb3ea613bcde6417d0aafd58ede68189c26a3f9386a739592506be",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Lightning Bolt",
+     "source_object": "obj:pilot-bolt",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Lightning Bolt",
+     "target_object": "obj:pilot-bolt",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Lightning Bolt",
+     "source_object": "obj:pilot-bolt",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Lightning Bolt",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "priority_decision_frame:P1": {
+     "decision_frames": [
+      0
+     ]
+    },
+    "spell_cast:obj:pilot-bolt": {
+     "events": [
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  "PILOT_TARGET": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Lightning Bolt \u2014 Cast Lightning Bolt",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "target",
+     "numeric": null,
+     "offered_labels": [
+      "Full Game Seat 1",
+      "Full Game Seat 2",
+      "Full Game Seat 3",
+      "Full Game Seat 4",
+      "Grizzly Bears",
+      "Grizzly Bears",
+      "Grizzly Bears"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Full Game Seat 2",
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_TARGET",
+   "missing_tokens": [],
+   "receipt_digest": "b1340ffeb30df3c08595f9e40981c63b92bdfeb5f991c98c6953eb277194b4f8",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "HAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Lightning Bolt",
+     "source_object": "obj:pilot-bolt",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Lightning Bolt",
+     "target_object": "obj:pilot-bolt",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "target_decision_frame:P1": {
+     "decision_frames": [
+      1
+     ]
+    },
+    "target_selected:P2": {
+     "decision_frames": [
+      1
+     ]
+    }
+   },
+   "verified": true
+  },
+  "PILOT_TRIGGER_ORDER": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "trigger_order",
+     "numeric": null,
+     "offered_labels": [
+      "Mystic Remora \u2014 Cumulative upkeep {1}",
+      "Phyrexian Arena \u2014 At the beginning of your upkeep, you draw a card and you lose 1 life."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": "trigger:Phyrexian_Arena",
+     "selected_label": "Phyrexian Arena \u2014 At the beginning of your upkeep, you draw a card and you lose 1 life.",
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "missing_tokens": [],
+   "receipt_digest": "e7e89426340efb3e635d4eb2318ffa01e051be8da70c8a14810e616cd67a7097",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 6,
+     "source_name": "Phyrexian Arena",
+     "source_object": "obj:arena",
+     "step": "UPKEEP",
+     "target_name": "stack ability (At the beginning of your upkeep, you draw a card and you lose 1 life.)",
+     "turn": 1,
+     "type": "TRIGGERED_ABILITY"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Mystic Remora",
+     "source_object": "obj:remora",
+     "step": "UPKEEP",
+     "target_name": "stack ability (Cumulative upkeep {1})",
+     "turn": 1,
+     "type": "TRIGGERED_ABILITY"
+    }
+   ],
+   "terminal_facts": {
+    "P1's triggered abilities went on the stack in the order ('Phyrexian Arena', 'Mystic Remora')": true
+   },
+   "token_evidence": {
+    "simultaneous_triggers:P1:2": {
+     "decision_frames": [
+      0
+     ],
+     "events": [
+      6,
+      7
+     ]
+    },
+    "trigger_order_frame:P1": {
+     "decision_frames": [
+      0
+     ]
+    }
+   },
+   "verified": true
+  },
+  "WS05-CMD-START-3": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [],
+   "detail": "obligation observed",
+   "fixture_id": "WS05-CMD-START-3",
+   "missing_tokens": [],
+   "receipt_digest": "101c3155cb3ecbef7be3cbb546fbe7f1db4c9bccad83f2292f060442d675951a",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 1,
+     "step": null,
+     "target_player": "P1",
+     "turn": 1,
+     "type": "LIBRARY_SHUFFLED"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P3",
+     "public_identity": true,
+     "sequence": 2,
+     "step": null,
+     "target_player": "P3",
+     "turn": 1,
+     "type": "LIBRARY_SHUFFLED"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P2",
+     "public_identity": true,
+     "sequence": 3,
+     "step": null,
+     "target_player": "P2",
+     "turn": 1,
+     "type": "LIBRARY_SHUFFLED"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 4,
+     "step": null,
+     "turn": 1,
+     "type": "BEGIN_TURN"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "LIBRARY",
+     "player_player": "P1",
+     "public_identity": false,
+     "sequence": 5,
+     "step": "DRAW",
+     "to": "HAND",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "first_turn_draw:true": {
+     "events": [
+      5
+     ]
+    },
+    "starting_player:P1": {
+     "events": [
+      4
+     ]
+    }
+   },
+   "verified": true
+  },
+  "WS05-CMD-TAX-2": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "WS05-CMD-TAX-2",
+   "missing_tokens": [],
+   "receipt_digest": "c1366a258c1e917a624362f10a254ba6e7c7d3cd2d1a1e6de1f27ca3cd95cdf5",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "COMMAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 4,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 5,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    }
+   ],
+   "terminal_facts": {
+    "P1's commander cast count is 3": true
+   },
+   "token_evidence": {
+    "commander_cast_from_command": {
+     "events": [
+      4
+     ]
+    },
+    "commander_tax:+4_generic": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ],
+     "paid_minus_printed": 4
+    },
+    "mana_paid:4": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  "WS05-CMD-TAX-4": {
+   "construction_verdict": "EXACT",
+   "decision_trace": [
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain",
+      "Mountain \u2014 Play Mountain"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}.",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Mountain \u2014 {T}: Add {R}."
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Mountain \u2014 {T}: Add {R}.",
+     "selected_option_type": "mana_ability"
+    },
+    {
+     "decision_class": "mana_payment",
+     "numeric": null,
+     "offered_labels": [
+      "Cancel mana payment",
+      "Spend red mana from pool"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": "Spend red mana from pool",
+     "selected_option_type": "mana_pool"
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "WS05-CMD-TAX-4",
+   "missing_tokens": [],
+   "receipt_digest": "0dc81e2a267283f8e6c5c8761ba5d85a50a0c7c8b9c1a4262b31f3d8bf66734c",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "from": "COMMAND",
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "to": "STACK",
+     "turn": 1,
+     "type": "ZONE_CHANGE"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Rograkh, Son of Rohgahh",
+     "step": "PRECOMBAT_MAIN",
+     "target_name": "Rograkh, Son of Rohgahh",
+     "turn": 1,
+     "type": "SPELL_CAST"
+    }
+   ],
+   "terminal_facts": {
+    "P1's commander cast count is 3": true
+   },
+   "token_evidence": {
+    "commander_cast_from_command": {
+     "events": [
+      7
+     ]
+    },
+    "commander_tax:+4_generic": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ],
+     "paid_minus_printed": 4
+    },
+    "mana_paid:4": {
+     "decision_frames": [
+      2,
+      4,
+      6,
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  "WS05-MP-COMBAT-4": {
+   "construction_verdict": "ALLOWED_VARIANCE",
+   "decision_trace": [
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Do not attack with Grizzly Bears",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears attacks Full Game Seat 2",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears attacks Full Game Seat 3",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "missing_tokens": [],
+   "receipt_digest": "e75a9424cf24392dcd7a3791b437377d5f47ea90f548d37d5acf74163ac41f4f",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 7,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:mp-attacker-0",
+     "step": "DECLARE_ATTACKERS",
+     "target_player": "P2",
+     "turn": 1,
+     "type": "ATTACKER_DECLARED"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:mp-attacker-1",
+     "step": "DECLARE_ATTACKERS",
+     "target_player": "P3",
+     "turn": 1,
+     "type": "ATTACKER_DECLARED"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "attacker_declared:obj:mp-attacker-0->P2": {
+     "events": [
+      7
+     ]
+    },
+    "attacker_declared:obj:mp-attacker-1->P3": {
+     "events": [
+      8
+     ]
+    }
+   },
+   "verified": true
+  },
+  "WS05-MP-COMBAT-5": {
+   "construction_verdict": "ALLOWED_VARIANCE",
+   "decision_trace": [
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4",
+      "Grizzly Bears attacks Full Game Seat 5"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Do not attack with Grizzly Bears",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4",
+      "Grizzly Bears attacks Full Game Seat 5"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears attacks Full Game Seat 2",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4",
+      "Grizzly Bears attacks Full Game Seat 5"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears attacks Full Game Seat 3",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "declare_attacker",
+     "numeric": null,
+     "offered_labels": [
+      "Do not attack with Grizzly Bears",
+      "Grizzly Bears attacks Full Game Seat 2",
+      "Grizzly Bears attacks Full Game Seat 3",
+      "Grizzly Bears attacks Full Game Seat 4",
+      "Grizzly Bears attacks Full Game Seat 5"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": true,
+     "selected_key": null,
+     "selected_label": "Grizzly Bears attacks Full Game Seat 4",
+     "selected_option_type": null
+    },
+    {
+     "decision_class": "priority",
+     "numeric": null,
+     "offered_labels": [
+      "Pass priority"
+     ],
+     "principal": "P1",
+     "refusal_kind": null,
+     "refused": false,
+     "scripted": false,
+     "selected_key": null,
+     "selected_label": null,
+     "selected_option_type": null
+    }
+   ],
+   "detail": "obligation observed",
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "missing_tokens": [],
+   "receipt_digest": "08fc1306c469e8a68b5a6780ea2462b197c9e015697c092a62e507c2a1762f90",
+   "refusals": [],
+   "tape": [
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 8,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:mp-attacker-0",
+     "step": "DECLARE_ATTACKERS",
+     "target_player": "P2",
+     "turn": 1,
+     "type": "ATTACKER_DECLARED"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 9,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:mp-attacker-1",
+     "step": "DECLARE_ATTACKERS",
+     "target_player": "P3",
+     "turn": 1,
+     "type": "ATTACKER_DECLARED"
+    },
+    {
+     "amount": 0,
+     "flag": false,
+     "player_player": "P1",
+     "public_identity": true,
+     "sequence": 10,
+     "source_name": "Grizzly Bears",
+     "source_object": "obj:mp-attacker-2",
+     "step": "DECLARE_ATTACKERS",
+     "target_player": "P4",
+     "turn": 1,
+     "type": "ATTACKER_DECLARED"
+    }
+   ],
+   "terminal_facts": {},
+   "token_evidence": {
+    "attacker_declared:obj:mp-attacker-0->P2": {
+     "events": [
+      8
+     ]
+    },
+    "attacker_declared:obj:mp-attacker-1->P3": {
+     "events": [
+      9
+     ]
+    },
+    "attacker_declared:obj:mp-attacker-2->P4": {
+     "events": [
+      10
+     ]
+    }
+   },
+   "verified": true
+  }
+ },
+ "rows_declared": 19,
+ "rows_verified": 19,
+ "runner_digest": "c7416410c154f4db2734cd2314854c448d5e85a74d3c431c2608abb5efd8c1db",
+ "schema_version": "commander-lab.midgame-row-executions/1.0.0"
+}
