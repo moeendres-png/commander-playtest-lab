@@ -1,0 +1,413 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "xmage",
+ "column_provenance": {
+  "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+ },
+ "full107_counts": {
+  "BLOCKED": 40,
+  "CRASH": 0,
+  "FAIL": 0,
+  "PASS": 19,
+  "PROTOCOL_FAILURE": 0,
+  "TIMEOUT": 0,
+  "UNKNOWN": 48
+ },
+ "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
+ "gates": [
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "candidate commit reported by the provider at handshake: 37e4df6c914f1e189e24f0ef59fa91734c922436",
+    "commit the evidence is required to be about: 37e4df6c914f1e189e24f0ef59fa91734c922436",
+    "engine_commit provenance: file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+   ],
+   "gate": "AF00",
+   "name": "SOURCE_AND_BUILD_LOCK",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "20 AF01 v2 invariants executed under Protocol 2.0.0 on the compatibility lane",
+    "AF01_*_XMAGE.json"
+   ],
+   "gate": "AF01",
+   "name": "PROTOCOL_HANDSHAKE",
+   "nonblocking_limitations": [
+    "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "all_or_nothing": true,
+   "blocking_rows": [],
+   "evidence": [
+    "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "counts with a complete lifecycle: [2, 3, 4, 5]",
+    "counts without one: []",
+    "bounded 6P lifecycle recorded: True"
+   ],
+   "gate": "AF02",
+   "lifecycle_assessment": {
+    "all_or_nothing": true,
+    "complete_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "detail": {
+     "2P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "3P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "4P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "5P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     }
+    },
+    "incomplete_counts": [],
+    "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "required_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "verdict": "PASS"
+   },
+   "name": "PLAYER_CARDINALITY",
+   "nonblocking_limitations": [
+    "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "authority": "ENGINE_ONLY",
+   "blocking_rows": [],
+   "evidence": [
+    "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+   ],
+   "gate": "AF03",
+   "name": "RULES_AUTHORITY",
+   "nonblocking_limitations": [
+    "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+   ],
+   "observed_probe_count": 5,
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "an external PRIORITY decision was reached and answered with an engine-offered option on the shared generic lane (AF01 live decision probe game)",
+    "decision identity provenance on the live frame (R-2): {'byte_matched': {'action_id': True, 'actor_id': True, 'decision_id': True}, 'identity_field': 'decision_id', 'pass_identity_offered': True, 'submitted_fields': ['action_id', 'actor_id', 'decision_id'], 'verified': True}",
+    "XMage binds decisions by decision_id (sha256) and pass by action_id; the shape difference from Forge is approved protocol translation under R-2"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [],
+   "owner_ruling": "R-2",
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
+    "HIDDEN_05",
+    "HIDDEN_06",
+    "HIDDEN_07",
+    "HIDDEN_08",
+    "HIDDEN_09",
+    "HIDDEN_10",
+    "HIDDEN_11",
+    "HIDDEN_12",
+    "HIDDEN_13",
+    "HIDDEN_14",
+    "HIDDEN_15",
+    "HIDDEN_16",
+    "HIDDEN_17",
+    "HIDDEN_18",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL"
+   ],
+   "evidence": [
+    "principal-scoped state read for four seats in a live 4P game",
+    "HIDDEN_INFO_XMAGE.json",
+    "native hidden/replay suites green: 219 tests"
+   ],
+   "gate": "AF05",
+   "name": "HIDDEN_INFORMATION",
+   "nonblocking_limitations": [
+    "per-scenario hidden channels (face-down exile, look, controlled-player, shuffle invalidation) are not reachable on the generic surface"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "MICRO_COMBAT",
+    "MICRO_CONTINUOUS_EFFECTS",
+    "MICRO_CONTROL",
+    "MICRO_COPY",
+    "MICRO_COSTS",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_MODES",
+    "MICRO_PREVENTION",
+    "MICRO_PRIORITY",
+    "MICRO_REPLACEMENT",
+    "MICRO_RULES_RANDOMNESS",
+    "MICRO_STACK",
+    "MICRO_STATE_BASED_ACTIONS",
+    "MICRO_ZONE_CHANGES",
+    "PILOT_DECLARE_BLOCKER",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
+   ],
+   "evidence": [
+    "19 of 107 rows PASS under the effective v1.0.6 contract; 40 BLOCKED; 48 UNKNOWN"
+   ],
+   "gate": "AF06",
+   "name": "GENERAL_RULES_CORRECTNESS",
+   "nonblocking_limitations": [
+    "micro-rules mechanisms in constructed mid-game states have no current-boundary execution seam"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "ACTUAL_CARD_XMAGE.json",
+    "engine-validated import of a real 100-card Commander deck"
+   ],
+   "gate": "AF07",
+   "name": "ACTUAL_CARD_BEHAVIOR",
+   "nonblocking_limitations": [
+    "the effective 29-card actual-card denominator was not individually executed on this boundary"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
+   ],
+   "evidence": [
+    "cardinality lifecycles at 2P/3P/4P/5P",
+    "START-2 executed under the v1.0.6 successor"
+   ],
+   "gate": "AF08",
+   "name": "MULTIPLAYER_COMMANDER",
+   "nonblocking_limitations": [
+    "mid-game Commander/elimination fixtures need a starting-state injection seam that is unavailable"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_STATE_HASHES",
+    "RNG_RULES_TAPE"
+   ],
+   "evidence": [
+    "replay export attempted in a live game and refused by the engine (RNG_REPLAY_XMAGE.json; refusal codes: unsupported_message)",
+    "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape",
+    "native replay/semantic suites green"
+   ],
+   "gate": "AF09",
+   "name": "RNG_REPLAY",
+   "nonblocking_limitations": [
+    "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+    "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+    "the clean-process twin half of each replay obligation is not proven per fixture"
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "denominator accounting complete: 107 explicit outcomes for 107 rows",
+    "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+    "native suites: 219 tests, all green"
+   ],
+   "gate": "AF10",
+   "name": "RUNTIME_EVIDENCE_RELIABILITY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "each candidate was driven through its own distinct external adapter (forge=forge-protocol2-bridge (read-only reference checkout), xmage=engine-bridge/src/main/java/org/commanderlab/xmage) by one and the same Lab driver column, so no single engine is reached in-process",
+    "no adapter identity resolves to the Lab's in-tree engine package, so no engine code is embedded in the Lab process",
+    "qualification boundary recorded for this run: commander-lab.pre-freeze-qualification/2.0.0",
+    "recorded licence topology: forge forge GPL-3.0, xmage xmage MIT (recorded metadata; no legal conclusion is drawn here)",
+    "the candidates publish different request-body and decision-identity conventions (recorded in the AF04 evidence); whether a candidate-scoped mapping satisfies AF11/WS-09 under existing policy is not measured here",
+    "every observable AF11 technical fact holds (separate external processes, no embedded engine, shared recorded boundary); the only residual is the Coordinator-owned policy question, hence UNKNOWN rather than an invented PASS"
+   ],
+   "gate": "AF11",
+   "name": "INTEROP_LICENSE_TOPOLOGY",
+   "nonblocking_limitations": [
+    "NOT MEASURED BY THE LAB: whether the observed separate-process topology satisfies AF11/WS-09 under existing policy, and any licence/redistribution consequence. That adjudication is reserved to the Coordinator, so the Lab records it as UNKNOWN rather than deciding it in either direction"
+   ],
+   "verdict": "UNKNOWN"
+  }
+ ],
+ "native_runs": {
+  "direct": {
+   "candidate": "xmage",
+   "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "77f99951cf04c66a405ff1a3470d5d0da19ad81d",
+   "failed": 0,
+   "failures": 0,
+   "passed": 34,
+   "receipt_digest": "9d53c2712153b210f4686cbbbd43a2778d4132986656a841d1a8da2fb0ef9112",
+   "returncode": 0,
+   "tests": 34
+  },
+  "mechanism": {
+   "candidate": "xmage",
+   "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "77f99951cf04c66a405ff1a3470d5d0da19ad81d",
+   "failed": 0,
+   "failures": 0,
+   "passed": 185,
+   "receipt_digest": "8fc0e263f3ed5a972d060b4c44b21cc6c3f8c6af7728ca318fd00395d6e8774d",
+   "returncode": 0,
+   "tests": 185
+  }
+ },
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af-matrix/1.0.0"
+}
