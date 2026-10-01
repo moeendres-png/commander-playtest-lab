@@ -21,6 +21,9 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    decision_boundary as decision_boundary_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
 )
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
@@ -236,51 +239,69 @@ def source_lock_verdict(af01: dict[str, Any], expected_commit: str) -> str:
     return "PASS" if reported == expected else "FAIL"
 
 
-def af04_gate(candidate: str, af01: dict[str, Any]) -> dict[str, Any]:
+def af04_gate(
+    candidate: str,
+    af01: dict[str, Any],
+    cardinality: dict[str, Any],
+    expected_runtime_identity: dict[str, Any],
+) -> dict[str, Any]:
     """AF04 LEGAL_ACTION_AND_DECISION_BOUNDARY, derived from this run.
 
     Owner ruling R-2 (SLOT-03 option (c)) approves the provider-specific
     decision-identity shim as protocol translation on one condition: every
     submitted identity byte-matches a value in the frame the provider just
-    offered. XMage's AF04 FAIL cited only the identity-shape difference, so it
-    becomes PASS exactly when this run's live AF01 frame proves that condition;
-    a violated condition is FAIL and an unmeasured one UNKNOWN. Forge stays
-    UNKNOWN: its lane has not exercised decision classes beyond PRIORITY on the
-    shared surface in this run (R-2), whatever its provenance shows.
+    offered. The gate is now *measured* rather than asserted for either
+    candidate: `decision_boundary.derive_decision_boundary` consumes this
+    epoch's own external decision frames and the engine's own responses, and
+    reports every contradiction and every unproven element explicitly.
+
+    The previous version hard-coded Forge to UNKNOWN on the premise that no
+    class beyond PRIORITY had been exercised. #255/441 classified that as
+    `EVIDENCE_ASSEMBLY_GAP_PENDING_BOUNDED_REVALIDATION`, and the same-epoch
+    Forge cardinality evidence does record externally answered STARTING_PLAYER,
+    MULLIGAN and PRIORITY frames at 2P-6P. The gate therefore reports what the
+    evidence proves: PASS when every recorded subset of the AF04 contract is
+    proven, FAIL when a recorded submission contradicts the engine-offered
+    domain, and UNKNOWN when an element is unmeasured. No outcome is
+    pre-decided by candidate identity.
     """
+    boundary = decision_boundary_mod.derive_decision_boundary(
+        candidate, cardinality, af01, expected_runtime_identity
+    )
     provenance = af01.get("decision_identity_provenance") or {}
-    verified = provenance.get("verified")
     evidence = [
-        "an external PRIORITY decision was reached and answered with an engine-offered "
-        "option on the shared generic lane (AF01 live decision probe game)",
-        f"decision identity provenance on the live frame (R-2): {provenance}",
+        "AF04 derived from this epoch's external decision frames "
+        f"({boundary['frame_count']} frame(s) across "
+        f"{', '.join(boundary['required_cardinalities'])}); externally answered classes: "
+        f"{', '.join(boundary['externally_answered_decision_classes']) or 'none'}",
+        f"decision identity provenance on the live AF01 frame (R-2): {provenance}",
+        boundary["statement"],
     ]
-    if candidate == "xmage":
-        verdict = "PASS" if verified is True else ("FAIL" if verified is False else "UNKNOWN")
-        evidence.append(
-            "XMage binds decisions by decision_id (sha256) and pass by action_id; the "
-            "shape difference from Forge is approved protocol translation under R-2"
-        )
-        limitations: list[str] = []
-    else:
-        verdict = "UNKNOWN"
-        evidence.append(
-            "Forge exposes STARTING_PLAYER, MULLIGAN and PRIORITY as external decisions"
-        )
+    failures = boundary["contradictions"]
+    gaps = boundary["gaps"]
+    limitations = [
+        f"{item['severity']} {item['cardinality']}/{item['kind']}: {item['detail']}"
+        for item in (*failures, *gaps)
+    ]
+    if not failures and not gaps:
         limitations = [
-            "no STARTING_PLAYER, MULLIGAN or DRAW decision class beyond PRIORITY was "
-            "reachable for the other candidate on the shared surface (R-2: Forge AF04 "
-            "stays UNKNOWN until such classes are exercised on its lane)"
+            "every frame in this epoch's decision tape was answered from the engine-offered "
+            "domain with a recorded engine acceptance; a decision class absent from the tape "
+            "is not claimed as exercised"
         ]
-    if verified is not True:
-        limitations.append("R-2 provenance condition not proven on a live frame in this run")
+    blocking_rows = [
+        f"PLAYER_COUNT_{count}"
+        for count in boundary["required_cardinalities"]
+        if boundary["verdict"] != "PASS"
+    ]
     return {
         "gate": "AF04",
         "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
-        "verdict": verdict,
+        "verdict": boundary["verdict"],
         "evidence": evidence,
         "owner_ruling": "R-2",
-        "blocking_rows": [],
+        "decision_boundary": boundary,
+        "blocking_rows": blocking_rows,
         "nonblocking_limitations": limitations,
     }
 
@@ -969,7 +990,7 @@ def assemble() -> None:
                 ],
             },
             af03_gate(candidate),
-            af04_gate(candidate, af01),
+            af04_gate(candidate, af01, cardinality, data["results_runtime_identity"]),
             {
                 "gate": "AF05",
                 "name": "HIDDEN_INFORMATION",

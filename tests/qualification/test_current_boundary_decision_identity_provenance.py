@@ -184,23 +184,33 @@ def _assembler() -> Any:
     return module
 
 
-@pytest.mark.parametrize(
-    ("verified", "expected"), [(True, "PASS"), (False, "FAIL"), (None, "UNKNOWN")]
-)
-def test_xmage_af04_follows_the_r2_provenance_of_this_run(verified: Any, expected: str) -> None:
-    gate = _assembler().af04_gate("xmage", {"decision_identity_provenance": {"verified": verified}})
+@pytest.mark.parametrize(("verified", "expected"), [(False, "FAIL"), (None, "UNKNOWN")])
+def test_af04_cannot_pass_without_the_r2_provenance_of_this_run(
+    verified: Any, expected: str
+) -> None:
+    """R-2 remains a necessary condition: a violated/unmeasured frame never PASSes."""
+
+    gate = _assembler().af04_gate(
+        "xmage", {"decision_identity_provenance": {"verified": verified}}, {}, {}
+    )
     assert gate["gate"] == "AF04" and gate["verdict"] == expected and gate["owner_ruling"] == "R-2"
 
 
-def test_forge_af04_stays_unknown_even_with_verified_provenance() -> None:
-    gate = _assembler().af04_gate("forge", {"decision_identity_provenance": {"verified": True}})
+def test_af04_requires_measured_decision_evidence_not_provenance_alone() -> None:
+    """Verified provenance alone is not AF04: the frames themselves must be measured."""
+
+    gate = _assembler().af04_gate(
+        "forge", {"decision_identity_provenance": {"verified": True}}, {}, {}
+    )
     assert gate["verdict"] == "UNKNOWN"
+    assert gate["decision_boundary"]["gaps"], gate
+    assert not gate["decision_boundary"]["frames"]
 
 
-def test_af04_is_no_longer_a_literal() -> None:
-    from pathlib import Path
+def test_af04_is_derived_from_a_measured_decision_boundary() -> None:
+    import inspect
 
-    source = (
-        Path(__file__).resolve().parents[2] / "scripts/assemble_current_boundary_evidence.py"
-    ).read_text(encoding="utf-8")
+    source = inspect.getsource(_assembler().af04_gate)
+    assert "derive_decision_boundary" in source
+    assert 'if candidate == "xmage"' not in source
     assert '"verdict": "FAIL" if candidate == "xmage" else "UNKNOWN"' not in source
