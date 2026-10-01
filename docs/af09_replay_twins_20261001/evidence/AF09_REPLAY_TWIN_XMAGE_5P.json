@@ -287,9 +287,9 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515331,
+        "pid": 2522831,
         "role": "PROVIDER_PROBE",
-        "start_ticks": 48261473
+        "start_ticks": 48312813
       }
     },
     "checkpoint_state_hashes": {
@@ -2553,10 +2553,10 @@
     },
     "lab_source": {
       "clean": true,
-      "commit": "299b1e8adcbe83c9c2b87bc3314e4a15845d8bff",
+      "commit": "40c7e5e41f954098e8d8e678a6bdee7f6efa325d",
       "dirty_paths": [],
       "repository": "moeendres-png/commander-playtest-lab",
-      "tree": "75de69b85b982bf37f82aa83aa1c98bb4a88281e"
+      "tree": "3bcd540e3b47137e812b1b39d1670b271e5f33db"
     },
     "limitations": [],
     "process_identity": [
@@ -2574,9 +2574,9 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515366,
+        "pid": 2522866,
         "role": "RECORD_FIRST",
-        "start_ticks": 48261491
+        "start_ticks": 48312830
       },
       {
         "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
@@ -2592,9 +2592,9 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515455,
+        "pid": 2522954,
         "role": "RECORD_SECOND",
-        "start_ticks": 48262137
+        "start_ticks": 48313491
       },
       {
         "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
@@ -2610,9 +2610,9 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515584,
+        "pid": 2523067,
         "role": "REPLAY_CONSUMER",
-        "start_ticks": 48262797
+        "start_ticks": 48314119
       }
     ],
     "rules_rng": {
@@ -4407,12 +4407,12 @@
     "player_count": 5,
     "seed": 424242
   },
-  "generated_at": "2026-10-01T20:28:58Z",
+  "generated_at": "2026-10-01T20:37:32Z",
   "lab_source": {
     "clean": true,
-    "commit": "299b1e8adcbe83c9c2b87bc3314e4a15845d8bff",
+    "commit": "40c7e5e41f954098e8d8e678a6bdee7f6efa325d",
     "dirty_paths": [],
-    "tree": "75de69b85b982bf37f82aa83aa1c98bb4a88281e"
+    "tree": "3bcd540e3b47137e812b1b39d1670b271e5f33db"
   },
   "missing_capability": null,
   "schema_version": "commander-lab.af09-replay-twin-campaign/1.0.0",

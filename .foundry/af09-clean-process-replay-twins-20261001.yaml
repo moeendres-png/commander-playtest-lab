@@ -117,7 +117,7 @@ milestones:
       - tests/qualification/test_replay_twins.py -> 36 passed
       - python3 -m ruff check (three AF09 files) -> clean
   - id: M2
-    head: 299b1e8a
+    head: 40c7e5e4
     at: '2026-10-01T22:30Z'
     status: COMMITTED
     content_extra: >-

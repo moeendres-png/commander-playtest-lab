@@ -7,7 +7,7 @@ Evidence documents:
 - `evidence/AF09_REPLAY_TWIN_XMAGE.json` and `…_XMAGE_{2,3,5}P.json`
 - `evidence/AF09_REPLAY_TWIN_FORGE.json` and `…_FORGE_{2,3,5}P.json`
 
-All were produced from a clean worktree at Lab `299b1e8a` (tree recorded
+All were produced from a clean worktree at Lab `40c7e5e4` (tree recorded
 inside each document) with `lab_source.clean = true`. Heavy engine execution
 was serialized per candidate and used isolated runtime directories outside
 every foreign worktree.

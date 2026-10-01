@@ -4006,10 +4006,10 @@
     "fresh_process_engine_check": null,
     "lab_source": {
       "clean": true,
-      "commit": "299b1e8adcbe83c9c2b87bc3314e4a15845d8bff",
+      "commit": "40c7e5e41f954098e8d8e678a6bdee7f6efa325d",
       "dirty_paths": [],
       "repository": "moeendres-png/commander-playtest-lab",
-      "tree": "75de69b85b982bf37f82aa83aa1c98bb4a88281e"
+      "tree": "3bcd540e3b47137e812b1b39d1670b271e5f33db"
     },
     "limitations": [],
     "process_identity": [
@@ -4025,9 +4025,9 @@
         "command_sha256": "69a126487649de99a01fb83b2d97ac20bafacdcb03eb444cfe82346ca4dedb43",
         "observation": "/proc live observation",
         "observed": true,
-        "pid": 2511953,
+        "pid": 2519186,
         "role": "RECORD",
-        "start_ticks": 48249611
+        "start_ticks": 48302129
       },
       {
         "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
@@ -4041,9 +4041,9 @@
         "command_sha256": "69a126487649de99a01fb83b2d97ac20bafacdcb03eb444cfe82346ca4dedb43",
         "observation": "/proc live observation",
         "observed": true,
-        "pid": 2512501,
+        "pid": 2519778,
         "role": "REPLAY",
-        "start_ticks": 48250716
+        "start_ticks": 48303303
       }
     ],
     "rules_rng": {
@@ -6090,12 +6090,12 @@
   "forge_concede_after": 120,
   "forge_deck_profile": "real",
   "forge_workspace": "/home/moeen/code/claude-forge-r5-integration-20260930",
-  "generated_at": "2026-10-01T20:27:00Z",
+  "generated_at": "2026-10-01T20:35:45Z",
   "lab_source": {
     "clean": true,
-    "commit": "299b1e8adcbe83c9c2b87bc3314e4a15845d8bff",
+    "commit": "40c7e5e41f954098e8d8e678a6bdee7f6efa325d",
     "dirty_paths": [],
-    "tree": "75de69b85b982bf37f82aa83aa1c98bb4a88281e"
+    "tree": "3bcd540e3b47137e812b1b39d1670b271e5f33db"
   },
   "missing_capability": null,
   "schema_version": "commander-lab.af09-replay-twin-campaign/1.0.0",
