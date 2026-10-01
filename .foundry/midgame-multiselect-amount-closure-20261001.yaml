@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
 branch: hardening/midgame-multiselect-amount-closure-20261001
 audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
 audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
-state_written_against_head: d77d5ecae284c8e4f54f25f966b8ed5eecc1650d
-validated_head: d77d5ecae284c8e4f54f25f966b8ed5eecc1650d
+state_written_against_head: 9778d87ea4e2fe1388cc22bb0e291bc2e9eb3572
+validated_head: 9778d87ea4e2fe1388cc22bb0e291bc2e9eb3572
 
 objective: >-
   Close the current Lab mid-game decision-lane gaps for MICRO_COSTS,
@@ -118,6 +118,8 @@ evidence:
   - 'main drift 2: #452 (AF05 M2) merged as a9159084; merge 9ca93860 clean, no file overlap; contract 1.0.9 adds only HIDDEN_07/08; the three fixtures replace payloads, successor digests, correction classes and effective requested/obligation digests are unchanged; source_lock.py and knowledge_projection.py changed, which are runner-digest inputs, so REQUALIFICATION_REQUIRED for current-source credit'
   - 'post-1.0.9 requalification on d77d5eca: full suite 3047 passed / 15 skipped; focused 138 passed; ruff/mypy clean; the three rows verify again locally (MODELED)'
   - 'pre-drift PB-03 epoch 00cad32010ca-1e5764089ab5 was green (22/22 midgame rows, xmage 33 PASS) but is superseded by drift 2; preserved outside the worktree, not committed'
+  - 'main drift 3: #460 (AF05 M2 batch 2) merged as 6ae06efc; contract 1.0.10 adds HIDDEN_09/14/18 and a face-down event-tape Java fix; merge 9778d87e clean; the three fixtures again byte-identical (replace payloads and successor digests); focused suite 146 passed and the three rows verify locally (MODELED) on the merged head'
+  - 'multi-writer convergence note: AF05 batches and AF09 are landing concurrently; this workstream requalifies at each contract-relevant drift and merges at the first green epoch whose merge ref is current'
 
 artifacts:
   - docs/midgame_multiselect_amount_closure_20261001/SELECTOR_DESIGN.md
