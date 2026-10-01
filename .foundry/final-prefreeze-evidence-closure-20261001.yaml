@@ -1,0 +1,93 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
+branch: hardening/final-prefreeze-evidence-closure-20261001
+audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
+audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d
+state_written_against_head: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
+validated_head: null
+
+objective: >-
+  Close the Coordinator-adjudicated pre-Freeze evidence and qualification gaps
+  tracked by issue #441 and produce a fresh source-bound provider-readiness
+  packet for subsequent Coordinator adjudication under #255.
+
+in_scope:
+  - Forge AF04 evidence reassembly
+  - R-4-compliant causal direct execution where exact fixture obligations are proven
+  - versioned fixture errata including inside-cast fixtures and MICRO_COSTS
+  - explicit UNSUPPORTED_DISCRETIONARY_DECISION refusal semantics
+  - AF05 mandatory hidden-information campaign
+  - AF07 effective 29-card actual-card boundary campaign
+  - AF09 clean-process semantic replay twins
+  - fresh FULL107 and AF00-AF10 evidence reassembly
+
+out_of_scope:
+  - Production Provider selection
+  - Architecture Freeze
+  - AF11 before provider selection
+  - unrelated cleanup
+  - broad engine survey
+  - mutation of active foreign-writer PR surfaces
+
+ownership: FINAL-PREFREEZE-EVIDENCE-CLOSURE-20261001
+
+dependencies:
+  - '#255 Coordinator adjudication comment 5925956587'
+  - '#441 workstream contract'
+  - '#441 ownership reservation comment 5926003035'
+  - 'PR #440 remains FOREIGN_ACTIVE until terminal'
+
+hard_gates:
+  - UNKNOWN is not PASS
+  - no historical PASS transfer without impact adjudication
+  - Rules Core remains sole legality authority
+  - no hidden-information leakage
+  - no forbidden fallback or fabricated legal action
+  - no denominator shrink
+  - no provider selection
+  - no Architecture Freeze
+
+forbidden_shortcuts:
+  - first option
+  - random option
+  - default yes/no
+  - internal engine AI fallback
+  - GUI default
+  - silent skip
+  - parent-class fallback
+  - requested-option legality reconstruction
+  - fabricated legal action
+  - manual outcome injection
+
+validated_gates: []
+failed_gates: []
+invalidated_gates: []
+tests_run: []
+evidence: []
+artifacts: []
+remaining_scope:
+  - Gate 0 source and ownership census
+  - Forge AF04
+  - causal direct execution
+  - fixture errata
+  - typed unsupported-decision refusal
+  - AF05
+  - AF07
+  - AF09
+  - evidence reassembly
+
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+authority_gates: []
+failure_class: NONE
+root_cause_class: NONE
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+
+exact_next_action: >-
+  Fresh-fetch GitHub and origin/main, reread #441/#255/#440, perform the
+  ownership/drift census, then autonomously execute the complete #441 contract.
