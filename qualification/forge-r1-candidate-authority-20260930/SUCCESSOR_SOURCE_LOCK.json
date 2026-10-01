@@ -31,19 +31,19 @@
     "candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
     "candidate_pr": 11,
     "includes_admitted_pr": 12,
-    "bridge_commit": "5f702f847263980233741fb634d588d2c2134d2d",
-    "bridge_tree": "7806a236d22ea55c900f9489f3d21c63e68b6fb8",
+    "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
     "bridge_pr": 16,
     "bridge_rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
     "lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lineage_base_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
     "upstream_reference_repository": "https://github.com/Card-Forge/forge.git",
     "upstream_reference_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
-    "bridge_integration": "forge#13 merged into #11 (e8b8aec6); forge#16 (#13 + #15 no-default hardening + structured cost-order projection) fast-forwards #11 to 5f702f84 after its exact-head Test build and iOS gates"
+    "bridge_integration": "forge#13 merged into #11 (e8b8aec6); forge#16 (#13 + #15 no-default hardening + structured cost-order projection) fast-forwards #11 to 20e3e1f7 after its exact-head Test build and iOS gates"
   },
   "directly_verified_relations": {
     "bridge_vs_candidate": {
-      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..5f702f847263980233741fb634d588d2c2134d2d",
+      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
       "changed_files": [
         "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
         "forge-protocol2-bridge/src/main/java/forge/bridge/DecisionFrame.java",
