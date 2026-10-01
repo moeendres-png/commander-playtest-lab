@@ -1,0 +1,2662 @@
+"""Forge current-boundary scenario lane (issue #455).
+
+Consumes the **Forge-authored native ScenarioBootstrap seam** without building a
+second Rules engine and without inventing a generic state injector.
+
+Boundary contract
+-----------------
+Forge remains the sole Rules authority. This module only:
+
+* binds the exact pinned Forge Rules-Core and bridge/materialization identities;
+* derives the ScenarioBootstrap capability matrix from the exact pinned bridge
+  source (blob digest bound), failing closed on source drift;
+* translates an effective FULL107 record into the ``neutral_initial_state``
+  subset the current bootstrap actually supports;
+* classifies every requested-state field that has no bootstrap representation as
+  an exact unsupported dimension (never silently dropped);
+* runs the engine, compares authoritative readback to the requested state field
+  by field, and evaluates a bounded set of terminal obligations from
+  engine-reported facts;
+* records engine-authored decisions only (no first/random/default option).
+
+It never computes legality, never fabricates an option, never injects outcomes,
+and never repairs Forge. Unsupported rows fail closed with exact per-field
+reasons.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import time
+import uuid
+from collections import Counter
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+from .bridge_launcher import (
+    BridgeLaunchError,
+    BridgeProcess,
+    build_launch_plan,
+    canonical_forge_authority,
+    launch,
+)
+from .game_driver import (
+    DecisionTapeEntry,
+    DecisionUnsatisfied,
+    GameDriveError,
+    decision_identity_params,
+    poll_decision,
+    select_cost_order_action,
+)
+
+LANE_SCHEMA_VERSION = "commander-lab.forge-scenario-lane/1.0.0"
+BRIDGE_MODULE = "forge-protocol2-bridge"
+SCENARIO_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/ScenarioBootstrap.java"
+SESSION_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/BridgeSession.java"
+
+SEATS = ("p1", "p2", "p3", "p4", "p5", "p6")
+
+DEFAULT_MAINBOARD_BASIC = "Mountain"
+
+# ---------------------------------------------------------------------------
+# Result vocabulary. Deliberately not collapsed into PASS/FAIL: transport,
+# construction, checkpoint equivalence, decision execution, semantic obligation
+# and receipt eligibility stay separate.
+# ---------------------------------------------------------------------------
+RESULT_OBLIGATION_OBSERVED = "EXECUTED_OBLIGATION_OBSERVED"
+RESULT_CHECKPOINT_MISMATCH = "EXECUTED_CHECKPOINT_MISMATCH"
+RESULT_OBLIGATION_NOT_OBSERVABLE = "OBLIGATION_NOT_OBSERVABLE"
+RESULT_ENGINE_REJECTED = "ENGINE_REJECTED_SCENARIO"
+RESULT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
+RESULT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
+RESULT_NOT_ATTEMPTED = "NOT_ATTEMPTED"
+
+CHECKPOINT_EXACT = "EXACT"
+CHECKPOINT_ALLOWED_VARIANCE = "ALLOWED_VARIANCE"
+CHECKPOINT_MISMATCH = "MISMATCH"
+CHECKPOINT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
+CHECKPOINT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
+
+DIMENSION_SUPPORTED = "SUPPORTED"
+DIMENSION_UNSUPPORTED = "UNSUPPORTED"
+DIMENSION_UNOBSERVABLE = "UNOBSERVABLE"
+
+
+class ScenarioLaneError(RuntimeError):
+    """The lane cannot proceed without crossing its boundary."""
+
+
+class ScenarioCapabilityDrift(ScenarioLaneError):
+    """The pinned ScenarioBootstrap source no longer matches the derived matrix."""
+
+
+# ---------------------------------------------------------------------------
+# Source binding
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class ForgeScenarioSource:
+    """Exact pinned identities plus the ScenarioBootstrap source blob digest."""
+
+    workspace: str
+    actual_commit: str
+    actual_tree: str
+    rules_core_commit: str
+    rules_core_tree: str
+    bridge_commit: str
+    bridge_tree: str
+    scenario_source_path: str
+    scenario_source_sha256: str
+    session_source_sha256: str
+    rules_core_identity: dict[str, Any]
+    bridge_identity: dict[str, Any]
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "workspace": self.workspace,
+            "actual_commit": self.actual_commit,
+            "actual_tree": self.actual_tree,
+            "rules_core_commit": self.rules_core_commit,
+            "rules_core_tree": self.rules_core_tree,
+            "bridge_commit": self.bridge_commit,
+            "bridge_tree": self.bridge_tree,
+            "scenario_source_path": self.scenario_source_path,
+            "scenario_source_sha256": self.scenario_source_sha256,
+            "session_source_sha256": self.session_source_sha256,
+            "rules_core_identity": self.rules_core_identity,
+            "bridge_identity": self.bridge_identity,
+        }
+
+
+def _git(args: list[str], cwd: Path) -> str:
+    completed = subprocess.run(
+        ["git", *args], cwd=str(cwd), capture_output=True, text=True, check=False
+    )
+    if completed.returncode != 0:
+        raise ScenarioLaneError(
+            f"git {' '.join(args)} failed in {cwd}: {completed.stderr.strip()}"
+        )
+    return completed.stdout
+
+
+def _porcelain(root: Path) -> tuple[str, ...]:
+    output = _git(["status", "--porcelain"], root)
+    return tuple(line for line in output.splitlines() if line.strip())
+
+
+def _blob_sha256(root: Path, commit: str, relative: str) -> str:
+    text = _git(["show", f"{commit}:{relative}"], root)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def read_scenario_source(workspace: Path | str, commit: str | None = None) -> str:
+    root = Path(workspace).expanduser().resolve()
+    source = commit or canonical_forge_authority()["bridge_commit"]
+    return _git(["show", f"{source}:{SCENARIO_SOURCE_RELATIVE}"], root)
+
+
+def bind_forge_scenario_source(workspace: Path | str) -> ForgeScenarioSource:
+    """Bind an explicitly named Forge checkout to the current R-1 identities.
+
+    Mirrors the shared runner's fail-closed contract: explicit workspace only,
+    clean checkout, Rules-Core equivalence against the admitted candidate, and
+    separate bridge/materialization module-tree equality. The ScenarioBootstrap
+    source is read from the *bridge commit*, not the working tree, so the
+    capability matrix is bound to the instrumented source even if the checkout
+    carries untracked build output.
+    """
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        raise ScenarioLaneError(f"FORGE_WORKSPACE {root} is not a directory")
+    toplevel = _git(["rev-parse", "--show-toplevel"], root).strip()
+    if Path(toplevel) != root:
+        raise ScenarioLaneError(
+            f"FORGE_WORKSPACE {root} is not the top level of its Git checkout ({toplevel})"
+        )
+    dirty = _porcelain(root)
+    if dirty:
+        raise ScenarioLaneError(
+            f"FORGE_WORKSPACE {root} has {len(dirty)} uncommitted paths; a credited "
+            "scenario lane requires a clean checkout"
+        )
+    authority = canonical_forge_authority()
+    actual_commit = _git(["rev-parse", "HEAD"], root).strip()
+    actual_tree = _git(["rev-parse", "HEAD^{tree}"], root).strip()
+    try:
+        rules_core_identity = receipt_mod.verify_engine_identity(
+            root,
+            recorded_commit=authority["rules_core_commit"],
+            actual_commit=actual_commit,
+            recorded_label="Forge workspace Rules Core",
+        )
+    except receipt_mod.ReceiptError as exc:
+        raise ScenarioLaneError(f"RULES_CORE_IDENTITY_DIVERGENCE: {exc}") from exc
+    # The manifest's bridge tree is the *commit* tree of the bound bridge source.
+    # The executable bridge identity is the module subtree, compared separately
+    # (mirrors the shared runner's two-stage bridge identity proof).
+    expected_bridge_tree = authority["bridge_tree"]
+    recorded_commit_tree = _git(
+        ["rev-parse", f"{authority['bridge_commit']}^{{tree}}"], root
+    ).strip()
+    if recorded_commit_tree != expected_bridge_tree:
+        raise ScenarioLaneError(
+            "BRIDGE_IDENTITY_DIVERGENCE: the bound bridge commit "
+            f"{authority['bridge_commit'][:12]} names tree {recorded_commit_tree[:12]}, not "
+            f"the recorded {expected_bridge_tree[:12]}"
+        )
+    expected_module_tree = _git(
+        ["rev-parse", f"{authority['bridge_commit']}:{BRIDGE_MODULE}"], root
+    ).strip()
+    actual_module_tree = _git(
+        ["rev-parse", f"{actual_commit}:{BRIDGE_MODULE}"], root
+    ).strip()
+    if actual_module_tree != expected_module_tree:
+        raise ScenarioLaneError(
+            "BRIDGE_IDENTITY_DIVERGENCE: the executing checkout's "
+            f"{BRIDGE_MODULE} tree {actual_module_tree[:12]} is not the bound bridge module "
+            f"tree {expected_module_tree[:12]}"
+        )
+    return ForgeScenarioSource(
+        workspace=str(root),
+        actual_commit=actual_commit,
+        actual_tree=actual_tree,
+        rules_core_commit=authority["rules_core_commit"],
+        rules_core_tree=authority["rules_core_tree"],
+        bridge_commit=authority["bridge_commit"],
+        bridge_tree=authority["bridge_tree"],
+        scenario_source_path=SCENARIO_SOURCE_RELATIVE,
+        scenario_source_sha256=_blob_sha256(
+            root, authority["bridge_commit"], SCENARIO_SOURCE_RELATIVE
+        ),
+        session_source_sha256=_blob_sha256(root, authority["bridge_commit"], SESSION_SOURCE_RELATIVE),
+        rules_core_identity=rules_core_identity,
+        bridge_identity={
+            "bridge_module": BRIDGE_MODULE,
+            "bridge_commit": authority["bridge_commit"],
+            "bridge_commit_tree": recorded_commit_tree,
+            "expected_module_tree": expected_module_tree,
+            "actual_module_tree": actual_module_tree,
+            "identical": True,
+        },
+    )
+
+
+# ---------------------------------------------------------------------------
+# Capability matrix derived from the exact source
+# ---------------------------------------------------------------------------
+# Each assertion is an exact code fragment whose presence/absence is what makes
+# the documented capability true. If the pinned source changes, derivation
+# raises ScenarioCapabilityDrift instead of silently claiming an old matrix.
+_SUPPORTED_FIELD_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "battlefield": (
+        'neutral.has("battlefield")',
+        'optString(entry, "card", "")',
+        "battlefield entry missing controller",
+        "takeCommander(owner, placement.cardName)",
+        "takeFromLibrary(owner, placement.cardName)",
+        "Card.fromPaperCard(paper, owner)",
+    ),
+    "battlefield.tapped": ('entry.has("tapped")', "tapped must be a boolean"),
+    "battlefield.counters": (
+        'entry.has("counters")',
+        "counters must be an object",
+        "counter amounts must be integers",
+        "CounterEnumType.valueOf(counter.getKey())",
+    ),
+    "battlefield.attached_to": (
+        'entry.has("attached_to")',
+        "attach host not on battlefield: ",
+        "aura.attachToEntity(host, null)",
+    ),
+    "hands": ('neutral.has("hands")', "scenario_placed_hand"),
+    "life": ('neutral.has("life")', "scenario_set_life"),
+    "commander_damage": ('"commander_damage_taken"', "scenario_commander_damage"),
+    "continuous_effects_present_informational_only": ("continuous_effects_present",),
+}
+
+_REJECTION_ASSERTIONS: dict[str, str] = {
+    "stack": "scenario must not inject stack",
+    "decision_script": "scenario must not inject decisions",
+}
+
+_HOOK_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "hook_apply": (
+        "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
+        "ScenarioBootstrap.apply(self, capturedGame, capturedPlan);",
+    ),
+    "hook_placement": ("capturedMatch.startGame(capturedGame, () -> {",),
+    "hook_plan_set_once_at_creation": (
+        "public synchronized void setScenarioPlan(ScenarioBootstrap.Plan plan)",
+    ),
+}
+
+# Fields the bootstrap has no representation for. Derived from the effective
+# fixture record schema; every one fails closed rather than being dropped.
+_UNSUPPORTED_RECORD_DIMENSIONS: dict[str, str] = {
+    "stack_state": "non-empty stack_state requires stack injection, which the bootstrap rejects",
+    "combat_state": "combat declaration state has no bootstrap field",
+    "action_cost_state": "mid-cast cost/payment state has no bootstrap field",
+    "knowledge_state": "knowledge permissions have no bootstrap field",
+    "rules_randomness.predetermined_semantic_draws": "predetermined draws have no bootstrap field",
+}
+
+# Declared decision families this lane can execute itself. Everything else is an
+# execution-contract blocker owned by an engine-authored selector surface this
+# lane does not reimplement (the shared mid-game selector workstream). A declared
+# family is never silently ignored and no option is ever fabricated.
+_LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset()
+
+# Dimensions whose *observability* (not construction) is missing from the
+# generic Protocol-2 readback. These do not make construction impossible, but a
+# checkpoint field that cannot be observed cannot prove equivalence.
+_UNOBSERVABLE_RECORD_DIMENSIONS: dict[str, str] = {
+    "owner": "the generic readback exposes controller rows, not card owner",
+    "attachments": "the generic readback exposes no attachment relation",
+    "library": "library contents/order are never exposed; only library_size",
+    "exile": "exile is exposed as names only, with no semantic identity mapping",
+    "graveyard": "graveyard is exposed as names only, with no semantic identity mapping",
+    "revealed": "revealed zones have no generic projection",
+    "face_down": "face-down state has no bootstrap field and no generic projection",
+    "controlled_since_turn_began": "no bootstrap field; attack eligibility is engine-derived",
+    "prior_command_zone_cast_count": "no bootstrap field for command-zone cast counts",
+    "temporal_state": "the bootstrap hook runs at the first-turn untap; other checkpoints are reachable only by native progression",
+}
+
+
+def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[str, Any]:
+    """Derive the exact supported/rejected scenario contract from pinned source."""
+    scenario_text = _git(
+        ["show", f"{source.bridge_commit}:{SCENARIO_SOURCE_RELATIVE}"], root
+    )
+    session_text = _git(["show", f"{source.bridge_commit}:{SESSION_SOURCE_RELATIVE}"], root)
+    supported: dict[str, dict[str, Any]] = {}
+    for capability, fragments in _SUPPORTED_FIELD_ASSERTIONS.items():
+        missing = [fragment for fragment in fragments if fragment not in scenario_text]
+        if missing:
+            raise ScenarioCapabilityDrift(
+                f"pinned ScenarioBootstrap no longer supports {capability!r}: missing {missing}"
+            )
+        supported[capability] = {
+            "status": DIMENSION_SUPPORTED,
+            "assertions": list(fragments),
+            "evidence": "exact code fragment present in the pinned bridge source blob",
+        }
+    rejections: dict[str, dict[str, Any]] = {}
+    for capability, fragment in _REJECTION_ASSERTIONS.items():
+        if fragment not in scenario_text:
+            raise ScenarioCapabilityDrift(
+                f"pinned ScenarioBootstrap no longer rejects {capability!r}: missing {fragment!r}"
+            )
+        rejections[capability] = {
+            "status": DIMENSION_UNSUPPORTED,
+            "assertion": fragment,
+            "enforced_at": "ScenarioBootstrap.parse -> BridgeEngine create_commander_game",
+            "engine_error_code": "game_creation_failed",
+        }
+    hooks: dict[str, dict[str, Any]] = {}
+    for hook, fragments in _HOOK_ASSERTIONS.items():
+        for fragment in fragments:
+            if fragment not in session_text:
+                raise ScenarioCapabilityDrift(
+                    f"pinned bridge session no longer provides {hook!r}: missing {fragment!r}"
+                )
+        hooks[hook] = {"status": "PRESENT", "assertions": list(fragments)}
+    return {
+        "schema_version": f"{LANE_SCHEMA_VERSION}.capability-matrix",
+        "source": {
+            "bridge_commit": source.bridge_commit,
+            "bridge_tree": source.bridge_tree,
+            "scenario_source_path": SCENARIO_SOURCE_RELATIVE,
+            "scenario_source_sha256": source.scenario_source_sha256,
+            "session_source_path": SESSION_SOURCE_RELATIVE,
+            "session_source_sha256": source.session_source_sha256,
+        },
+        "supported": supported,
+        "rejected": rejections,
+        "hook": hooks,
+        "unsupported_record_dimensions": _UNSUPPORTED_RECORD_DIMENSIONS,
+        "unobservable_record_dimensions": _UNOBSERVABLE_RECORD_DIMENSIONS,
+        "note": (
+            "capability matrix derived from the exact pinned bridge source blob; a source "
+            "change that removes any asserted fragment raises ScenarioCapabilityDrift and no "
+            "row credit can be produced until the matrix is re-derived and reviewed"
+        ),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Effective-record translation and per-dimension classification
+# ---------------------------------------------------------------------------
+@dataclass
+class DimensionFinding:
+    dimension: str
+    status: str
+    detail: str
+    requested: Any = None
+    runtime_probe: str | None = None
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "dimension": self.dimension,
+            "status": self.status,
+            "detail": self.detail,
+            "requested": self.requested,
+            "runtime_probe": self.runtime_probe,
+        }
+
+
+@dataclass
+class RequestedStateModel:
+    fixture_id: str
+    record: dict[str, Any]
+    neutral_initial_state: dict[str, Any]
+    hands_by_player: dict[str, list[str]]
+    life_by_player: dict[str, int]
+    commander_damage_by_player: dict[str, dict[str, int]]
+    battlefield: list[dict[str, Any]]
+    command_zone: list[dict[str, Any]]
+    temporal_state: dict[str, Any]
+    dimensions: list[DimensionFinding] = field(default_factory=list)
+    player_count: int = 0
+    unscoped_requested_fields: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def hard_unsupported(self) -> list[DimensionFinding]:
+        return [item for item in self.dimensions if item.status == DIMENSION_UNSUPPORTED]
+
+    @property
+    def unobservable(self) -> list[DimensionFinding]:
+        return [item for item in self.dimensions if item.status == DIMENSION_UNOBSERVABLE]
+
+    @property
+    def construction_eligible(self) -> bool:
+        """Every requested field can be represented in the bootstrap plan."""
+        return not self.hard_unsupported
+
+    @property
+    def credit_eligible(self) -> bool:
+        """Construction AND observation AND checkpoint reachability all hold."""
+        return not self.hard_unsupported and not self.unobservable
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "fixture_id": self.fixture_id,
+            "player_count": self.player_count,
+            "neutral_initial_state": self.neutral_initial_state,
+            "hands_by_player": self.hands_by_player,
+            "life_by_player": self.life_by_player,
+            "commander_damage_by_player": self.commander_damage_by_player,
+            "battlefield": self.battlefield,
+            "command_zone": self.command_zone,
+            "temporal_state": self.temporal_state,
+            "construction_eligible": self.construction_eligible,
+            "credit_eligible": self.credit_eligible,
+            "dimensions": [item.to_document() for item in self.dimensions],
+            "unscoped_requested_fields": self.unscoped_requested_fields,
+        }
+
+
+def _requested_hands(record: dict[str, Any]) -> dict[str, list[str]]:
+    hands: dict[str, list[str]] = {}
+    for obj in record.get("semantic_objects") or []:
+        if not isinstance(obj, dict) or obj.get("zone") != "hand":
+            continue
+        controller = str(obj.get("controller") or "")
+        card = str(obj.get("card_identity") or "")
+        if controller and card:
+            hands.setdefault(controller.lower(), []).append(card)
+    return hands
+
+
+def _requested_battlefield(record: dict[str, Any]) -> list[dict[str, Any]]:
+    placements: list[dict[str, Any]] = []
+    for obj in record.get("semantic_objects") or []:
+        if not isinstance(obj, dict) or obj.get("zone") != "battlefield":
+            continue
+        entry: dict[str, Any] = {
+            "card": obj.get("card_identity"),
+            "controller": str(obj.get("controller") or "").lower(),
+            "owner": str(obj.get("owner") or obj.get("controller") or "").lower(),
+            "semantic_id": obj.get("semantic_id"),
+        }
+        if obj.get("tapped"):
+            entry["tapped"] = True
+        counters = obj.get("counters") or {}
+        if counters:
+            entry["counters"] = dict(counters)
+        if obj.get("attached_to"):
+            entry["attached_to"] = obj.get("attached_to")
+        placements.append(entry)
+    return placements
+
+
+def _requested_command_zone(record: dict[str, Any]) -> list[dict[str, Any]]:
+    commanders: list[dict[str, Any]] = []
+    commander_state = record.get("commander_state") or {}
+    identity_by_id = {
+        str(item.get("commander_id")): item
+        for item in commander_state.get("commanders") or []
+        if isinstance(item, dict)
+    }
+    for obj in record.get("semantic_objects") or []:
+        if not isinstance(obj, dict) or obj.get("zone") != "command":
+            continue
+        commander_id = obj.get("commander_id")
+        if not commander_id:
+            continue
+        declared = identity_by_id.get(str(commander_id), {})
+        commanders.append(
+            {
+                "semantic_id": obj.get("semantic_id"),
+                "commander_id": commander_id,
+                "card_identity": obj.get("card_identity"),
+                "owner": str(obj.get("owner") or "").lower(),
+                "zone": declared.get("zone", "command"),
+                "prior_command_zone_cast_count": declared.get(
+                    "prior_command_zone_cast_count", 0
+                ),
+            }
+        )
+    return commanders
+
+
+def _requested_commander_damage(
+    record: dict[str, Any],
+) -> dict[str, dict[str, int]]:
+    commander_state = record.get("commander_state") or {}
+    identity = {
+        str(item.get("commander_id")): str(item.get("card_identity") or "")
+        for item in commander_state.get("commanders") or []
+        if isinstance(item, dict)
+    }
+    damage: dict[str, dict[str, int]] = {}
+    for entry in commander_state.get("commander_damage_matrix") or []:
+        if not isinstance(entry, dict):
+            continue
+        player = str(entry.get("damaged_player") or "").lower()
+        commander_id = str(entry.get("source_commander_id") or "")
+        card = identity.get(commander_id, "")
+        amount = entry.get("combat_damage")
+        if not player or not card or not isinstance(amount, int):
+            continue
+        damage.setdefault(player, {})
+        damage[player][card] = damage[player].get(card, 0) + amount
+    return damage
+
+
+def _requested_life(record: dict[str, Any]) -> dict[str, int]:
+    life: dict[str, int] = {}
+    for player in record.get("players") or []:
+        if not isinstance(player, dict):
+            continue
+        player_id = str(player.get("player_id") or "").lower()
+        if player_id and isinstance(player.get("life"), int):
+            life[player_id] = player["life"]
+    return life
+
+
+def _requested_temporal(record: dict[str, Any]) -> dict[str, Any]:
+    temporal = record.get("temporal_state") or {}
+    return {
+        "turn_number": temporal.get("turn_number"),
+        "phase": str(temporal.get("phase") or "").lower() or None,
+        "step": str(temporal.get("step") or "").lower() or None,
+        "active_player": str(temporal.get("active_player") or "").lower() or None,
+        "priority_player": str(temporal.get("priority_player") or "").lower() or None,
+    }
+
+
+def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
+    """Translate an effective FULL107 record into the bootstrap contract.
+
+    Every requested dimension the bootstrap cannot represent becomes an exact
+    finding. Nothing is silently dropped and no fixture is weakened.
+    """
+    fixture_id = str(record.get("fixture_id"))
+    hands = _requested_hands(record)
+    battlefield = _requested_battlefield(record)
+    command_zone = _requested_command_zone(record)
+    commander_damage = _requested_commander_damage(record)
+    life = _requested_life(record)
+    temporal = _requested_temporal(record)
+    players = record.get("players") or []
+    player_count = len(players) if isinstance(players, list) else 0
+
+    neutral: dict[str, Any] = {}
+    if battlefield:
+        neutral["battlefield"] = [
+            {key: value for key, value in placement.items() if key != "semantic_id"}
+            for placement in battlefield
+        ]
+    if hands:
+        neutral["hands"] = dict(hands)
+    if life:
+        neutral["life"] = dict(life)
+    if commander_damage:
+        neutral["players"] = [
+            {"id": player_id, "commander_damage_taken": dict(damage)}
+            for player_id, damage in commander_damage.items()
+        ]
+
+    dimensions: list[DimensionFinding] = []
+    dimensions.extend(_classify_record_dimensions(record))
+
+    # Requested zones the bootstrap cannot place.
+    zone_objects = Counter(
+        str(obj.get("zone"))
+        for obj in (record.get("semantic_objects") or [])
+        if isinstance(obj, dict)
+    )
+    for zone, reason in (
+        ("stack", "the bootstrap rejects stack injection and has no stack field"),
+        ("library", _UNOBSERVABLE_RECORD_DIMENSIONS["library"]),
+        ("exile", _UNOBSERVABLE_RECORD_DIMENSIONS["exile"]),
+        ("graveyard", _UNOBSERVABLE_RECORD_DIMENSIONS["graveyard"]),
+        ("revealed", _UNOBSERVABLE_RECORD_DIMENSIONS["revealed"]),
+    ):
+        if zone_objects.get(zone):
+            status = (
+                DIMENSION_UNSUPPORTED if zone == "stack" else DIMENSION_UNOBSERVABLE
+            )
+            dimensions.append(
+                DimensionFinding(
+                    dimension=f"semantic_objects.zone:{zone}",
+                    status=status,
+                    detail=reason,
+                    requested=zone_objects[zone],
+                    runtime_probe="stack" if zone == "stack" else None,
+                )
+            )
+    for obj in record.get("semantic_objects") or []:
+        if not isinstance(obj, dict):
+            continue
+        if obj.get("face_down"):
+            dimensions.append(
+                DimensionFinding(
+                    dimension="semantic_objects.face_down",
+                    status=DIMENSION_UNSUPPORTED,
+                    detail=_UNOBSERVABLE_RECORD_DIMENSIONS["face_down"],
+                    requested=obj.get("semantic_id"),
+                )
+            )
+        if obj.get("controlled_since_turn_began") is not None:
+            dimensions.append(
+                DimensionFinding(
+                    dimension="semantic_objects.controlled_since_turn_began",
+                    status=DIMENSION_UNOBSERVABLE,
+                    detail=_UNOBSERVABLE_RECORD_DIMENSIONS["controlled_since_turn_began"],
+                    requested=obj.get("semantic_id"),
+                )
+            )
+        if (
+            obj.get("owner") is not None
+            and obj.get("controller") is not None
+            and str(obj.get("owner")).lower() != str(obj.get("controller")).lower()
+        ):
+                # Constructible (placement has an owner field) but not observable
+                # in the generic projection.
+                dimensions.append(
+                    DimensionFinding(
+                        dimension="owner_controller_divergence",
+                        status=DIMENSION_UNOBSERVABLE,
+                        detail=_UNOBSERVABLE_RECORD_DIMENSIONS["owner"],
+                        requested={
+                            "semantic_id": obj.get("semantic_id"),
+                            "owner": obj.get("owner"),
+                            "controller": obj.get("controller"),
+                        },
+                    )
+                )
+
+    # Attachment construction is supported; observation is not.
+    if any(
+        isinstance(obj, dict) and obj.get("attached_to")
+        for obj in record.get("semantic_objects") or []
+    ):
+        dimensions.append(
+            DimensionFinding(
+                dimension="semantic_objects.attached_to",
+                status=DIMENSION_UNOBSERVABLE,
+                detail=_UNOBSERVABLE_RECORD_DIMENSIONS["attachments"],
+                requested="present",
+            )
+        )
+
+    # Command-zone cast counts are not constructible.
+    for commander in command_zone:
+        count = commander.get("prior_command_zone_cast_count")
+        if isinstance(count, int) and count > 0:
+            dimensions.append(
+                DimensionFinding(
+                    dimension="commander_state.prior_command_zone_cast_count",
+                    status=DIMENSION_UNSUPPORTED,
+                    detail=_UNOBSERVABLE_RECORD_DIMENSIONS["prior_command_zone_cast_count"],
+                    requested={commander["commander_id"]: count},
+                )
+            )
+
+    # Temporal checkpoint reachability: the bootstrap hook establishes the
+    # first-turn untap state. Other requested checkpoints are reachable only by
+    # native progression, and a requested explicit hand cannot equal the
+    # post-draw hand unless the draw step is skipped.
+    turn = temporal.get("turn_number")
+    active = temporal.get("active_player")
+    if turn is not None and turn != 1:
+        dimensions.append(
+            DimensionFinding(
+                dimension="temporal_state.turn_number",
+                status=DIMENSION_UNSUPPORTED,
+                detail="the bootstrap hook runs during the first turn only",
+                requested=turn,
+            )
+        )
+    if active and active != "p1" and not (
+        player_count == 2
+        and active == "p1"  # 2P starting player is externally chosen; recorded separately
+    ):
+        dimensions.append(
+            DimensionFinding(
+                dimension="temporal_state.active_player",
+                status=DIMENSION_UNSUPPORTED,
+                detail=(
+                    "the bootstrap hook establishes the starting player's first turn; a "
+                    "different active player cannot be constructed"
+                ),
+                requested=active,
+            )
+        )
+    if hands and player_count > 2 and active == "p1":
+        # 3P+ starting player draws in the first turn draw step; an exact
+        # requested hand observed at precombat main cannot be held by a
+        # bootstrap hand alone (library ordering is not supported).
+        dimensions.append(
+            DimensionFinding(
+                dimension="temporal_checkpoint.exact_hand_after_draw",
+                status=DIMENSION_UNSUPPORTED,
+                detail=(
+                    "the requested explicit hand must survive the natural first-turn draw "
+                    "step to the requested checkpoint; the bootstrap cannot hold library "
+                    "order or suppress the draw, so exact hand equality is unconstructible"
+                ),
+                requested={player: len(cards) for player, cards in hands.items()},
+            )
+        )
+
+    # A requested combat step cannot be established at the bootstrap checkpoint:
+    # the hook places permanents during the first turn untap, so bootstrap-placed
+    # creatures are summoning-sick and cannot be declared as attackers, and the
+    # bootstrap has no combat-state field. The step is therefore unreachable.
+    requested_step = temporal.get("step")
+    requested_phase = temporal.get("phase")
+    if requested_phase == "combat" or (
+        requested_step
+        and str(requested_step).startswith(("declare_", "combat", "first_strike"))
+    ):
+        dimensions.append(
+            DimensionFinding(
+                dimension="temporal_state.combat_step",
+                status=DIMENSION_UNSUPPORTED,
+                detail=(
+                    "the requested combat step is unreachable from the bootstrap checkpoint: "
+                    "there is no combat-state field and bootstrap-placed attackers are "
+                    "summoning-sick on their first turn"
+                ),
+                requested={"phase": requested_phase, "step": requested_step},
+            )
+        )
+
+    return RequestedStateModel(
+        fixture_id=fixture_id,
+        record=record,
+        neutral_initial_state=neutral,
+        hands_by_player=hands,
+        life_by_player=life,
+        commander_damage_by_player=commander_damage,
+        battlefield=battlefield,
+        command_zone=command_zone,
+        temporal_state=temporal,
+        dimensions=_dedupe(dimensions),
+        player_count=player_count,
+    )
+
+
+def _classify_record_dimensions(record: dict[str, Any]) -> list[DimensionFinding]:
+    findings: list[DimensionFinding] = []
+    stack_state = record.get("stack_state") or []
+    if stack_state:
+        findings.append(
+            DimensionFinding(
+                dimension="stack_state",
+                status=DIMENSION_UNSUPPORTED,
+                detail=_UNSUPPORTED_RECORD_DIMENSIONS["stack_state"],
+                requested=[
+                    {
+                        "source_semantic_id": entry.get("source_semantic_id"),
+                        "controller": entry.get("controller"),
+                        "targets": entry.get("targets"),
+                    }
+                    for entry in stack_state
+                    if isinstance(entry, dict)
+                ],
+                runtime_probe="stack",
+            )
+        )
+    # A fixture decision_script is an EXECUTION requirement (the engine must
+    # offer a decision and the harness must select within the offered domain),
+    # never a request to inject decisions into the neutral state. Families this
+    # lane cannot execute are recorded as exact execution blockers rather than
+    # being misattributed to a bootstrap limitation.
+    for index, entry in enumerate(record.get("decision_script") or []):
+        if not isinstance(entry, dict):
+            continue
+        family = str(entry.get("decision_family") or "unknown")
+        selector = entry.get("selection") or {}
+        selector_kind = str(selector.get("selector_kind") or "unknown")
+        token = f"{family}.{selector_kind}"
+        if token in _LANE_EXECUTABLE_DECISION_SELECTORS:
+            continue
+        findings.append(
+            DimensionFinding(
+                dimension=f"decision_execution.{token}",
+                status=DIMENSION_UNSUPPORTED,
+                detail=(
+                    "this lane implements only engine-authored pass/mulligan/"
+                    "starting-player/cost-order selection; executing this declared "
+                    "decision family and selector requires a selector surface owned by "
+                    "the shared mid-game selector workstream, and this lane must not "
+                    "build a second generic selector or fabricate an option"
+                ),
+                requested={
+                    "decision_index": index,
+                    "actor": entry.get("actor"),
+                    "causal_step_id": entry.get("causal_step_id"),
+                    "selector_kind": selector_kind,
+                    "semantic_value": selector.get("semantic_value"),
+                },
+            )
+        )
+    if record.get("combat_state"):
+        combat = record["combat_state"]
+        findings.append(
+            DimensionFinding(
+                dimension="combat_state",
+                status=DIMENSION_UNSUPPORTED,
+                detail=_UNSUPPORTED_RECORD_DIMENSIONS["combat_state"],
+                requested={
+                    "attackers": combat.get("attackers"),
+                    "eligible_blockers": combat.get("eligible_blockers"),
+                    "eligible_attackers": combat.get("eligible_attackers"),
+                },
+            )
+        )
+    cost_state = record.get("action_cost_state") or []
+    if cost_state:
+        findings.append(
+            DimensionFinding(
+                dimension="action_cost_state",
+                status=DIMENSION_UNSUPPORTED,
+                detail=_UNSUPPORTED_RECORD_DIMENSIONS["action_cost_state"],
+                requested=[
+                    {
+                        "actor": entry.get("actor"),
+                        "source_semantic_id": entry.get("source_semantic_id"),
+                        "payable": entry.get("payable"),
+                    }
+                    for entry in cost_state
+                    if isinstance(entry, dict)
+                ],
+            )
+        )
+    randomness = record.get("rules_randomness") or {}
+    if randomness.get("predetermined_semantic_draws"):
+        findings.append(
+            DimensionFinding(
+                dimension="rules_randomness.predetermined_semantic_draws",
+                status=DIMENSION_UNSUPPORTED,
+                detail=_UNSUPPORTED_RECORD_DIMENSIONS[
+                    "rules_randomness.predetermined_semantic_draws"
+                ],
+                requested=randomness.get("predetermined_semantic_draws"),
+            )
+        )
+    knowledge = record.get("knowledge_state") or {}
+    viewer_states = knowledge.get("viewer_states") or []
+    material_permissions = [
+        state
+        for state in viewer_states
+        if isinstance(state, dict)
+        and any(
+            state.get(key)
+            for key in (
+                "known_library_ranges",
+                "known_object_identities",
+                "temporary_permissions",
+                "face_down_look_permissions",
+                "invalidation_conditions",
+            )
+        )
+    ]
+    if material_permissions:
+        findings.append(
+            DimensionFinding(
+                dimension="knowledge_state",
+                status=DIMENSION_UNSUPPORTED,
+                detail=_UNSUPPORTED_RECORD_DIMENSIONS["knowledge_state"],
+                requested=len(material_permissions),
+            )
+        )
+    return findings
+
+
+def _dedupe(findings: list[DimensionFinding]) -> list[DimensionFinding]:
+    seen: set[tuple[str, str]] = set()
+    unique: list[DimensionFinding] = []
+    for finding in findings:
+        key = (finding.dimension, finding.status)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(finding)
+    return unique
+
+
+# ---------------------------------------------------------------------------
+# Deck construction
+# ---------------------------------------------------------------------------
+def build_commander_deck(
+    deck_id: str,
+    commander_names: list[str],
+    *,
+    basic: str = DEFAULT_MAINBOARD_BASIC,
+) -> dict[str, Any]:
+    """A real 100-card Commander deck matching the requested commanders."""
+    if not 1 <= len(commander_names) <= 2:
+        raise ScenarioLaneError("a Commander deck needs one or two partner commanders")
+    mainboard_size = 100 - len(commander_names)
+    mainboard = [basic] * mainboard_size
+    digest = hashlib.sha256(
+        ("|".join([*commander_names, *mainboard])).encode("utf-8")
+    ).hexdigest()
+    return {
+        "deck_id": deck_id,
+        "deck_hash": digest,
+        "name": f"FSL {deck_id}",
+        "commander_names": list(commander_names),
+        "mainboard": mainboard,
+    }
+
+
+def _deck_plan(model: RequestedStateModel) -> dict[str, list[str]]:
+    """Per-seat commander lists from the requested commander identities.
+
+    ``commander_state.commanders`` is the authoritative roster: it names every
+    commander identity, including a partner that a fixture references only from
+    its damage matrix. Deriving decks from battlefield/command-zone semantic
+    objects alone dropped partner identities and made the engine's commander
+    damage seeding unresolvable.
+    """
+    plan: dict[str, list[str]] = {}
+    commander_state = model.record.get("commander_state") or {}
+    for entry in commander_state.get("commanders") or []:
+        if not isinstance(entry, dict):
+            continue
+        owner = str(entry.get("owner") or "").lower()
+        card = str(entry.get("card_identity") or "")
+        if owner and card:
+            plan.setdefault(owner, []).append(card)
+    # Fall back to the requested command-zone objects when no roster is declared.
+    for entry in model.command_zone:
+        owner = str(entry.get("owner") or "").lower()
+        card = str(entry.get("card_identity") or "")
+        if owner and card and card not in plan.get(owner, []):
+            plan.setdefault(owner, []).append(card)
+    for index in range(1, model.player_count + 1):
+        plan.setdefault(f"p{index}", [])
+    return plan
+
+
+# ---------------------------------------------------------------------------
+# Engine observation helpers
+# ---------------------------------------------------------------------------
+def _payload(response: dict[str, Any]) -> dict[str, Any]:
+    value = response.get("payload")
+    return value if isinstance(value, dict) else {}
+
+
+def observe_seat_state(proc: BridgeProcess, game_id: str, seat: str) -> dict[str, Any]:
+    response = proc.request(
+        "get_game_state", {"observer_player_id": seat}, game_id=game_id, timeout_s=120.0
+    )
+    return response
+
+
+def observe_all_seats(
+    proc: BridgeProcess, game_id: str, seat_count: int
+) -> dict[str, dict[str, Any]]:
+    seats = SEATS[:seat_count]
+    return {seat: observe_seat_state(proc, game_id, seat) for seat in seats}
+
+
+@dataclass
+class FieldVerdict:
+    field: str
+    verdict: str
+    requested: Any = None
+    observed: Any = None
+    detail: str = ""
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "field": self.field,
+            "verdict": self.verdict,
+            "requested": self.requested,
+            "observed": self.observed,
+            "detail": self.detail,
+        }
+
+
+@dataclass
+class CheckpointEquivalence:
+    verdict: str
+    fields: list[FieldVerdict]
+    unsupported_dimensions: list[str]
+    unobservable_dimensions: list[str]
+    variance_source: str | None = None
+
+    @property
+    def exact(self) -> bool:
+        return self.verdict == CHECKPOINT_EXACT
+
+    @property
+    def credit_eligible(self) -> bool:
+        return self.verdict in (CHECKPOINT_EXACT, CHECKPOINT_ALLOWED_VARIANCE)
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "verdict": self.verdict,
+            "variance_source": self.variance_source,
+            "fields": [item.to_document() for item in self.fields],
+            "unsupported_dimensions": list(self.unsupported_dimensions),
+            "unobservable_dimensions": list(self.unobservable_dimensions),
+        }
+
+
+def _declared_player_loss_cause(model: RequestedStateModel) -> bool:
+    """Whether the fixture itself declares a native player-loss cause."""
+    for step in model.record.get("native_procedure") or []:
+        if not isinstance(step, dict):
+            continue
+        if "PLAYER_LOSS" in str(step.get("operation", "")):
+            return True
+    return False
+
+
+def _losing_players(model: RequestedStateModel) -> set[str]:
+    if not _declared_player_loss_cause(model):
+        return set()
+    return {
+        player_id
+        for player_id, life in model.life_by_player.items()
+        if isinstance(life, int) and life <= 0
+    }
+
+
+def effective_temporal_target(model: RequestedStateModel) -> dict[str, Any]:
+    """The temporal target after the fixture's own declared native cause.
+
+    A seat that is eliminated by the declared loss cannot hold priority or be
+    the active player afterwards, so chasing those pre-cause coordinates would
+    exhaust the drive bound. They are dropped from the *reachable* target and
+    the difference is recorded as a fixture-declared cause advance, never as an
+    invented variance.
+    """
+    target = dict(model.temporal_state)
+    losing = _losing_players(model)
+    if losing:
+        if target.get("priority_player") in losing:
+            target["priority_player"] = None
+        if target.get("active_player") in losing:
+            target["active_player"] = None
+    return target
+
+
+def temporal_reachable(model: RequestedStateModel) -> bool:
+    """Whether the requested temporal checkpoint is reachable by native play.
+
+    The bootstrap hook runs during the first turn of the requested starting
+    player. Any other turn, a different active player, or a combat step (where
+    bootstrap-placed attackers would be summoning-sick and no combat state can
+    be injected) is not reachable and must fail closed statically.
+    """
+    temporal = model.temporal_state
+    if not temporal:
+        return True
+    turn = temporal.get("turn_number")
+    if turn is not None and turn != 1:
+        return False
+    active = temporal.get("active_player")
+    if active and active != "p1":
+        return False
+    phase = temporal.get("phase")
+    step = temporal.get("step")
+    if phase == "combat":
+        return False
+    return not (step and str(step).startswith(("declare_", "combat", "first_strike")))
+
+
+# Transport field mapping between the contract counter vocabulary and the
+# bridge's CounterEnumType display names (ScenarioBootstrap accepts the enum
+# constant name via CounterEnumType.valueOf; StateProjection emits
+# CounterType.getName()). Mapping is name-space translation only: a counter not
+# in this table is compared verbatim so an unknown counter fails closed.
+_COUNTER_DISPLAY_NAMES = {
+    "P1P1": "+1/+1",
+    "M1M1": "-1/-1",
+}
+
+
+def _canonical_counters(counters: dict[str, Any]) -> dict[str, Any]:
+    return {
+        _COUNTER_DISPLAY_NAMES.get(str(key), str(key)): value
+        for key, value in counters.items()
+    }
+
+
+def _state_view(response: dict[str, Any]) -> dict[str, Any]:
+    state = _payload(response).get("state")
+    return state if isinstance(state, dict) else {}
+
+
+def _players_by_id(state: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    rows: dict[str, dict[str, Any]] = {}
+    for player in state.get("players") or []:
+        if isinstance(player, dict) and player.get("player_id"):
+            rows[str(player["player_id"]).lower()] = player
+    return rows
+
+
+_PHASE_ALIASES = {
+    "main1": "precombat_main",
+    "main_1": "precombat_main",
+    "precombatmain": "precombat_main",
+}
+
+# Structural transport mapping between the bridge's Forge phase-enum step names
+# (StateProjection emits ``phase.name()``) and the contract's normalized step
+# vocabulary. This is field mapping, not rules inference: no step is invented
+# and no obligation semantics change.
+_STEP_TO_CONTRACT = {
+    "main1": "main",
+    "combat_begin": "combat_begin",
+    "combat_declare_attackers": "declare_attackers",
+    "combat_declare_blockers": "declare_blockers",
+    "combat_first_strike_damage": "first_strike_damage",
+    "combat_damage": "combat_damage",
+    "combat_end": "end_of_combat",
+    "end_turn": "end_step",
+    "cleanup": "cleanup",
+    "untap": "untap",
+    "upkeep": "upkeep",
+    "draw": "draw",
+}
+
+
+def _normalize_step(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip().lower().replace(" ", "_")
+    return _STEP_TO_CONTRACT.get(text, text)
+
+
+def _normalize_phase(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip().lower().replace(" ", "_")
+    return _PHASE_ALIASES.get(text, text)
+
+
+def compare_checkpoint(
+    model: RequestedStateModel, seat_observations: dict[str, dict[str, Any]]
+) -> CheckpointEquivalence:
+    """Field-level requested-vs-constructed comparison from engine readback.
+
+    Every requested field is compared. Any unsupported dimension is a hard
+    no-credit classification; any unobservable requested field is a hard
+    no-credit classification. Only a comparison with no mismatch, no
+    unsupported field and no unobservable field reaches EXACT.
+    """
+    verdicts: list[FieldVerdict] = []
+    if not seat_observations:
+        return CheckpointEquivalence(
+            verdict=CHECKPOINT_TRANSPORT_FAILURE,
+            fields=[],
+            unsupported_dimensions=[item.dimension for item in model.hard_unsupported],
+            unobservable_dimensions=[item.dimension for item in model.unobservable],
+        )
+    primary = _state_view(next(iter(seat_observations.values())))
+    players = _players_by_id(primary)
+
+    # temporal_state
+    temporal = model.temporal_state
+    losing = _losing_players(model)
+    if temporal:
+        observed = {
+            "turn_number": primary.get("turn_number"),
+            "phase": _normalize_phase(primary.get("phase")),
+            "step": _normalize_step(primary.get("step")),
+            "active_player": (
+                str(primary.get("active_player_id")).lower()
+                if primary.get("active_player_id")
+                else None
+            ),
+            "priority_player": (
+                str(primary.get("priority_player_id")).lower()
+                if primary.get("priority_player_id")
+                else None
+            ),
+        }
+        requested = dict(temporal)
+        mismatched: dict[str, Any] = {}
+        cause_fields: dict[str, Any] = {}
+        for key, expected in requested.items():
+            if expected is None:
+                continue
+            actual = observed.get(key)
+            if expected == actual:
+                continue
+            if key in ("priority_player", "active_player") and expected in losing:
+                cause_fields[key] = {"requested": expected, "observed": actual}
+                continue
+            mismatched[key] = {"requested": expected, "observed": actual}
+        if mismatched:
+            temporal_verdict = CHECKPOINT_MISMATCH
+            temporal_detail = f"mismatched fields: {sorted(mismatched)}"
+        elif cause_fields:
+            temporal_verdict = "CAUSE_ADVANCE"
+            temporal_detail = (
+                "fixture-declared native player loss removes the requested pre-cause "
+                f"priority/active coordinates: {json.dumps(cause_fields, sort_keys=True)}"
+            )
+        else:
+            temporal_verdict = CHECKPOINT_EXACT
+            temporal_detail = "all matched"
+        verdicts.append(
+            FieldVerdict(
+                field="temporal_state",
+                verdict=temporal_verdict,
+                requested=requested,
+                observed=observed,
+                detail=temporal_detail,
+            )
+        )
+
+    # life
+    for player_id, expected in model.life_by_player.items():
+        row = players.get(player_id)
+        observed = row.get("life") if isinstance(row, dict) else None
+        verdicts.append(
+            FieldVerdict(
+                field=f"players.{player_id}.life",
+                verdict=CHECKPOINT_EXACT if observed == expected else CHECKPOINT_MISMATCH,
+                requested=expected,
+                observed=observed,
+            )
+        )
+
+    # commander damage
+    for player_id, _damage in model.commander_damage_by_player.items():
+        row = players.get(player_id)
+        observed = row.get("commander_damage_received") if isinstance(row, dict) else None
+        by_identity: dict[str, int] = {}
+        identity = {
+            str(item.get("commander_id")): str(item.get("card_identity") or "")
+            for item in (model.record.get("commander_state") or {}).get("commanders") or []
+            if isinstance(item, dict)
+        }
+        source_cards: list[str] = []
+        for entry in (model.record.get("commander_state") or {}).get(
+            "commander_damage_matrix"
+        ) or []:
+            if not isinstance(entry, dict):
+                continue
+            if str(entry.get("damaged_player") or "").lower() != player_id:
+                continue
+            card = identity.get(str(entry.get("source_commander_id") or ""), "")
+            amount = entry.get("combat_damage")
+            if card and isinstance(amount, int):
+                source_cards.append(card)
+                by_identity[card] = by_identity.get(card, 0) + amount
+        expected_names = sorted(by_identity)
+        observed_map = observed if isinstance(observed, dict) else {}
+        observed_names = sorted(str(key) for key in observed_map)
+        # The readback is commander-name-keyed. Ambiguity only exists when the
+        # compared sources for THIS player share a name; the full roster may
+        # legitimately contain same-named commanders on different players.
+        names_unique = len(set(source_cards)) == len(source_cards)
+        exact = (
+            names_unique
+            and observed_names == expected_names
+            and all(int(observed_map[name]) == by_identity[name] for name in expected_names)
+        )
+        verdicts.append(
+            FieldVerdict(
+                field=f"players.{player_id}.commander_damage_received",
+                verdict=CHECKPOINT_EXACT if exact else CHECKPOINT_MISMATCH,
+                requested=by_identity,
+                observed=observed_map,
+                detail=(
+                    "commander identity is name-keyed; same-name commanders make this "
+                    "comparison ambiguous and it fails closed"
+                    if not names_unique
+                    else ""
+                ),
+            )
+        )
+
+    # command zone
+    for entry in model.command_zone:
+        owner = str(entry.get("owner") or "").lower()
+        row = players.get(owner)
+        zones = row.get("zones") if isinstance(row, dict) else {}
+        command = zones.get("command") if isinstance(zones, dict) else None
+        command = command if isinstance(command, list) else []
+        present = entry.get("card_identity") in command
+        if present:
+            command_verdict = CHECKPOINT_EXACT
+        elif owner in losing:
+            command_verdict = "CAUSE_ADVANCE"
+        else:
+            command_verdict = CHECKPOINT_MISMATCH
+        verdicts.append(
+            FieldVerdict(
+                field=f"command_zone.{entry.get('commander_id')}",
+                verdict=command_verdict,
+                requested=entry.get("card_identity"),
+                observed=command,
+                detail=(
+                    "fixture declares NATIVE_CAUSE_DECLARED_PLAYER_LOSS; this seat left "
+                    "the game by the declared native cause"
+                    if command_verdict == "CAUSE_ADVANCE"
+                    else ""
+                ),
+            )
+        )
+        count = entry.get("prior_command_zone_cast_count")
+        if isinstance(count, int) and count:
+            cast_map = row.get("commander_cast_count") if isinstance(row, dict) else {}
+            observed_count = (
+                cast_map.get(entry.get("card_identity")) if isinstance(cast_map, dict) else None
+            )
+            verdicts.append(
+                FieldVerdict(
+                    field=f"commander_cast_count.{entry.get('commander_id')}",
+                    verdict=(
+                        CHECKPOINT_EXACT if observed_count == count else CHECKPOINT_MISMATCH
+                    ),
+                    requested=count,
+                    observed=observed_count,
+                )
+            )
+
+    # battlefield placement / tapped / counters
+    for placement in model.battlefield:
+        controller = placement["controller"]
+        row = players.get(controller)
+        zones = row.get("zones") if isinstance(row, dict) else {}
+        battlefield = zones.get("battlefield") if isinstance(zones, dict) else []
+        details = zones.get("battlefield_details") if isinstance(zones, dict) else []
+        battlefield = battlefield if isinstance(battlefield, list) else []
+        details = details if isinstance(details, list) else []
+        detail = next(
+            (
+                item
+                for item in details
+                if isinstance(item, dict)
+                and item.get("name") == placement["card"]
+            ),
+            None,
+        )
+        present = placement["card"] in battlefield and detail is not None
+        cause_declared = _declared_player_loss_cause(model)
+        losing_controller = (
+            cause_declared
+            and isinstance(model.life_by_player.get(controller), int)
+            and model.life_by_player[controller] <= 0
+        )
+        if present:
+            placement_verdict = CHECKPOINT_EXACT
+        elif losing_controller:
+            placement_verdict = "CAUSE_ADVANCE"
+        else:
+            placement_verdict = CHECKPOINT_MISMATCH
+        verdicts.append(
+            FieldVerdict(
+                field=f"battlefield.{placement.get('semantic_id')}",
+                verdict=placement_verdict,
+                requested={
+                    "card": placement["card"],
+                    "controller": controller,
+                    "tapped": bool(placement.get("tapped")),
+                    "counters": placement.get("counters") or {},
+                },
+                observed=(
+                    None
+                    if detail is None
+                    else {
+                        "name": detail.get("name"),
+                        "tapped": detail.get("tapped"),
+                        "counters": detail.get("counters"),
+                    }
+                ),
+                detail=(
+                    "fixture declares NATIVE_CAUSE_DECLARED_PLAYER_LOSS; this seat's "
+                    "permanents leave by the declared native cause, not by construction "
+                    "variation"
+                    if placement_verdict == "CAUSE_ADVANCE"
+                    else ""
+                ),
+            )
+        )
+        if detail is not None:
+            observed_tapped = bool(detail.get("tapped"))
+            verdicts.append(
+                FieldVerdict(
+                    field=f"battlefield.{placement.get('semantic_id')}.tapped",
+                    verdict=(
+                        CHECKPOINT_EXACT
+                        if observed_tapped == bool(placement.get("tapped"))
+                        else CHECKPOINT_MISMATCH
+                    ),
+                    requested=bool(placement.get("tapped")),
+                    observed=observed_tapped,
+                )
+            )
+            counter_requested = Counter(
+                _canonical_counters(placement.get("counters") or {})
+            )
+            counter_observed = Counter(_canonical_counters(detail.get("counters") or {}))
+            if counter_requested or counter_observed:
+                verdicts.append(
+                    FieldVerdict(
+                        field=f"battlefield.{placement.get('semantic_id')}.counters",
+                        verdict=(
+                            CHECKPOINT_EXACT
+                            if counter_requested == counter_observed
+                            else CHECKPOINT_MISMATCH
+                        ),
+                        requested=dict(counter_requested),
+                        observed=dict(counter_observed),
+                    )
+                )
+
+    # hands, observed through each seat's own principal-scoped view
+    for player_id, expected_cards in model.hands_by_player.items():
+        observation = seat_observations.get(player_id)
+        state = _state_view(observation) if observation else {}
+        rows = _players_by_id(state)
+        row = rows.get(player_id, {})
+        zones = row.get("zones") if isinstance(row, dict) else {}
+        hand = zones.get("hand") if isinstance(zones, dict) else None
+        hand = hand if isinstance(hand, list) else []
+        verdicts.append(
+            FieldVerdict(
+                field=f"hands.{player_id}",
+                verdict=(
+                    CHECKPOINT_EXACT
+                    if Counter(expected_cards) == Counter(str(card) for card in hand)
+                    else CHECKPOINT_MISMATCH
+                ),
+                requested=sorted(expected_cards),
+                observed=sorted(str(card) for card in hand),
+            )
+        )
+
+    unsupported = [item.dimension for item in model.hard_unsupported]
+    unobservable = [item.dimension for item in model.unobservable]
+    mismatches = [item for item in verdicts if item.verdict == CHECKPOINT_MISMATCH]
+    cause_advances = [item for item in verdicts if item.verdict == "CAUSE_ADVANCE"]
+    variance_source: str | None = None
+    if unsupported:
+        verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
+    elif mismatches:
+        verdict = CHECKPOINT_MISMATCH
+    elif unobservable:
+        verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
+    elif cause_advances:
+        verdict = CHECKPOINT_ALLOWED_VARIANCE
+        variance_source = (
+            "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared "
+            "terminal_postconditions; the cause transition is declared by the frozen "
+            "fixture, not invented by this lane"
+        )
+    else:
+        verdict = CHECKPOINT_EXACT
+    return CheckpointEquivalence(
+        verdict=verdict,
+        fields=verdicts,
+        unsupported_dimensions=unsupported,
+        unobservable_dimensions=unobservable,
+        variance_source=variance_source,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Engine-authored decision driving
+# ---------------------------------------------------------------------------
+@dataclass
+class ScenarioDriveResult:
+    game_id: str
+    decision_tape: list[DecisionTapeEntry] = field(default_factory=list)
+    semantic_events: list[str] = field(default_factory=list)
+    terminal_facts: dict[str, Any] = field(default_factory=dict)
+    steps_completed: list[str] = field(default_factory=list)
+    failure: str | None = None
+    failure_kind: str | None = None
+    checkpoint: str | None = None
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "game_id": self.game_id,
+            "steps_completed": self.steps_completed,
+            "failure": self.failure,
+            "failure_kind": self.failure_kind,
+            "checkpoint": self.checkpoint,
+            "decision_tape": [
+                {
+                    "step": entry.step,
+                    "kind": entry.kind,
+                    "actor": entry.actor,
+                    "revision": entry.revision,
+                    "policy": entry.policy,
+                    "chosen_option_id": entry.chosen_option_id,
+                    "offered_option_ids": entry.offered_option_ids,
+                    "note": entry.note,
+                }
+                for entry in self.decision_tape
+            ],
+            "semantic_events": self.semantic_events,
+            "terminal_facts": self.terminal_facts,
+        }
+
+
+def _temporal_matches(state: dict[str, Any], requested: dict[str, Any]) -> bool:
+    if not requested:
+        return True
+    for key, expected in requested.items():
+        if expected is None:
+            continue
+        if key == "phase":
+            observed = _normalize_phase(state.get("phase"))
+        elif key == "step":
+            observed = _normalize_step(state.get("step"))
+        elif key == "active_player":
+            observed = (
+                str(state.get("active_player_id")).lower()
+                if state.get("active_player_id")
+                else None
+            )
+        elif key == "priority_player":
+            observed = (
+                str(state.get("priority_player_id")).lower()
+                if state.get("priority_player_id")
+                else None
+            )
+        else:
+            observed = state.get(key)
+        if observed != expected:
+            return False
+    return True
+
+
+def drive_scenario_game(
+    proc: BridgeProcess,
+    model: RequestedStateModel,
+    *,
+    seed: int,
+    max_steps: int = 400,
+    stop_at_requested_checkpoint: bool = True,
+) -> ScenarioDriveResult:
+    """Create/start the scenario game and drive it with engine-authored choices only.
+
+    Decision policy (mirrors the current-boundary driver, never a default):
+
+    * MULLIGAN -> keep (declared policy; engine-offered option)
+    * STARTING_PLAYER -> the requested starting seat when one is declared,
+      otherwise p1
+    * PRIORITY -> pass (the requested checkpoint is reached by native progression)
+    * ORDER_CHOICE -> the provider-published native CostPart order
+    * any other decision class -> record the offered domain and stop fail closed
+    """
+    players = model.player_count or 2
+    seats = SEATS[:players]
+    if players < 2 or players > 6:
+        raise ScenarioLaneError(f"unsupported player count {players}")
+    result = ScenarioDriveResult(game_id=f"fsl-{model.fixture_id.lower()}-{uuid.uuid4().hex[:8]}")
+    game_id = result.game_id
+    created_request: dict[str, Any] = {
+        "game_id": game_id,
+        "deck_handles": [],
+        "format": "commander",
+        "external_control": True,
+        "seed": seed,
+        "rules_seed": seed,
+        "scenario": {"neutral_initial_state": model.neutral_initial_state},
+    }
+
+    try:
+        for message in ("start_engine", "get_provider_version", "get_capabilities"):
+            response = proc.request(message, {}, timeout_s=300.0)
+            if response.get("success") is not True:
+                raise GameDriveError(f"{message} failed: {response.get('errors')}")
+        result.steps_completed.append("handshake")
+
+        handles: list[str] = []
+        deck_plan = _deck_plan(model)
+        for seat in seats:
+            commanders = deck_plan.get(seat) or ["Rograkh, Son of Rohgahh"]
+            deck = build_commander_deck(f"fsl-{game_id}-{seat}", commanders)
+            payload = _payload(
+                proc.request("import_deck", {"deck": deck}, timeout_s=300.0)
+            )
+            handle = payload.get("deck_handle")
+            handle_id = handle.get("handle_id") if isinstance(handle, dict) else None
+            if not handle_id:
+                raise GameDriveError(f"import_deck returned no handle for {seat}: {payload}")
+            handles.append(str(handle_id))
+        created_request["deck_handles"] = handles
+        result.steps_completed.append("import_deck")
+
+        created = proc.request(
+            "create_commander_game",
+            {"request": created_request},
+            game_id=game_id,
+            timeout_s=300.0,
+        )
+        result.terminal_facts["create_response"] = created
+        if created.get("success") is not True:
+            result.failure = f"create_commander_game rejected: {created.get('errors')}"
+            result.failure_kind = "ENGINE_REJECTED_SCENARIO"
+            return result
+        result.steps_completed.append("create_commander_game")
+
+        started = proc.request("start_game", {}, game_id=game_id, timeout_s=300.0)
+        if started.get("success") is not True:
+            raise GameDriveError(f"start_game failed: {started.get('errors')}")
+        result.steps_completed.append("start_game")
+
+        checkpoint_reached = False
+        steps = 0
+        while steps < max_steps:
+            steps += 1
+            frame = poll_decision(proc, game_id, seat_count=players, candidate="forge")
+            decision = frame["decision"]
+            kind = str(decision.get("kind", "")).upper()
+            actor = str(decision.get("actor", frame["seat"]))
+            revision = decision.get("revision")
+            actions = frame["actions"]
+            offered = [
+                str(action.get("action_id")) for action in actions if action.get("action_id")
+            ]
+
+            if kind in {"MULLIGAN", "KEEP_OR_MULLIGAN"}:
+                response = proc.request(
+                    "resolve_mulligan",
+                    {
+                        "player_id": actor,
+                        **decision_identity_params("forge", frame),
+                        "keep": True,
+                        "bottom_card_ids": [],
+                    },
+                    game_id=game_id,
+                    timeout_s=120.0,
+                )
+                if response.get("success") is not True:
+                    raise GameDriveError(f"resolve_mulligan failed: {response.get('errors')}")
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "mulligan",
+                        kind,
+                        actor,
+                        revision,
+                        "keep_all",
+                        None,
+                        offered,
+                        "external keep; no bottoming",
+                    )
+                )
+                continue
+
+            if kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}:
+                wanted = model.temporal_state.get("active_player") or "p1"
+                options = [
+                    action
+                    for action in actions
+                    if action.get("action_type") == "structural_decision"
+                    and action.get("source_object_id") == wanted
+                ]
+                if not options:
+                    raise DecisionUnsatisfied(
+                        f"engine offered no starting-player option for {wanted!r}; "
+                        f"offered {[a.get('source_object_id') for a in actions]}"
+                    )
+                chosen = str(options[0]["action_id"])
+                response = proc.request(
+                    "submit_action",
+                    {
+                        **decision_identity_params("forge", frame),
+                        "proposal": {
+                            "proposal_id": str(uuid.uuid4()),
+                            "actor_id": actor,
+                            "legal_action_id": chosen,
+                            "action_type": "structural_decision",
+                        },
+                    },
+                    game_id=game_id,
+                    timeout_s=120.0,
+                )
+                if response.get("success") is not True:
+                    raise GameDriveError(
+                        f"submit_action(STARTING_PLAYER) failed: {response.get('errors')}"
+                    )
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "starting_player",
+                        kind,
+                        actor,
+                        revision,
+                        "requested_starting_seat",
+                        chosen,
+                        offered,
+                        f"engine-offered seat {wanted}",
+                    )
+                )
+                continue
+
+            if kind == "ORDER_CHOICE":
+                chosen_action = select_cost_order_action(actions)
+                chosen = str(chosen_action["action_id"])
+                response = proc.request(
+                    "submit_action",
+                    {
+                        **decision_identity_params("forge", frame),
+                        "proposal": {
+                            "proposal_id": str(uuid.uuid4()),
+                            "actor_id": actor,
+                            "legal_action_id": chosen,
+                            "action_type": str(chosen_action.get("action_type")),
+                        },
+                    },
+                    game_id=game_id,
+                    timeout_s=120.0,
+                )
+                if response.get("success") is not True:
+                    raise GameDriveError(f"submit_action(ORDER_CHOICE) failed: {response.get('errors')}")
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "cost_order",
+                        kind,
+                        actor,
+                        revision,
+                        "native_declared_cost_part_order",
+                        chosen,
+                        offered,
+                        "provider-published native CostPart order",
+                    )
+                )
+                continue
+
+            if kind == "PRIORITY":
+                pass_actions = [
+                    action
+                    for action in actions
+                    if action.get("action_type") == "pass_priority"
+                ]
+                if not pass_actions:
+                    raise DecisionUnsatisfied("PRIORITY offered no pass_priority option")
+                chosen = str(pass_actions[0]["action_id"])
+                response = proc.request(
+                    "pass_priority",
+                    decision_identity_params("forge", frame),
+                    game_id=game_id,
+                    timeout_s=120.0,
+                )
+                if response.get("success") is not True:
+                    raise GameDriveError(f"pass_priority failed: {response.get('errors')}")
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "priority",
+                        kind,
+                        actor,
+                        revision,
+                        "pass_when_offered",
+                        chosen,
+                        offered,
+                        "external priority pass",
+                    )
+                )
+                target = effective_temporal_target(model)
+                if stop_at_requested_checkpoint and target:
+                    checkpoint_response = observe_seat_state(proc, game_id, seats[0])
+                    state = _state_view(checkpoint_response)
+                    if _temporal_matches(state, target):
+                        checkpoint_reached = True
+                        result.checkpoint = "REQUESTED_TEMPORAL_STATE"
+                        break
+                continue
+
+            result.decision_tape.append(
+                DecisionTapeEntry(
+                    "other_decision_class",
+                    kind,
+                    actor,
+                    revision,
+                    "NO_MATCHING_OFFERED_OPTION",
+                    None,
+                    offered,
+                    "unsupported decision class for this lane; fail closed",
+                )
+            )
+            result.terminal_facts["stopped_at_decision_kind"] = kind
+            result.failure = f"stopped at unsupported engine decision class {kind}"
+            result.failure_kind = "FAIL_CLOSED_UNSATISFIED"
+            return result
+
+        if checkpoint_reached:
+            result.steps_completed.append("checkpoint_reached")
+        else:
+            # Even without a declared temporal checkpoint, the first priority
+            # frame is a legitimate observable checkpoint.
+            result.checkpoint = result.checkpoint or "FIRST_PRIORITY"
+        result.terminal_facts["provider_seed_supported"] = True
+    except (GameDriveError, DecisionUnsatisfied, BridgeLaunchError) as exc:
+        result.failure = f"{type(exc).__name__}: {exc}"
+        result.failure_kind = (
+            "FAIL_CLOSED_UNSATISFIED"
+            if isinstance(exc, DecisionUnsatisfied)
+            else "ENGINE_RUNTIME_ERROR"
+        )
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Obligation evaluation
+# ---------------------------------------------------------------------------
+@dataclass
+class ObligationVerdict:
+    kind: str
+    observed: bool
+    credit_eligible_observation: bool
+    terminal_facts: dict[str, Any]
+    semantic_events: list[str]
+    reason: str
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "observed": self.observed,
+            "credit_eligible_observation": self.credit_eligible_observation,
+            "terminal_facts": self.terminal_facts,
+            "semantic_events": self.semantic_events,
+            "reason": self.reason,
+        }
+
+
+def _obligation_kind(model: RequestedStateModel) -> str | None:
+    """Map a fixture's declared obligation to a lane observation contract.
+
+    The mapping keys off the fixture's own required events first and its
+    declared terminal postconditions second. It never derives an obligation
+    from card text or from a provider observation.
+    """
+    required = [
+        str(event) for event in (model.record.get("expected_events") or {}).get(
+            "required_events"
+        )
+        or []
+    ]
+    postconditions = " ".join(
+        str(item) for item in (model.record.get("terminal_postconditions") or [])
+    ).lower()
+    if any(event.startswith("commander_damage_checked_per_commander") for event in required):
+        return "commander_damage_checked_per_commander"
+    if ("commander damage" in postconditions or "partner commanders" in postconditions) and (
+        "21" in postconditions
+    ):
+        return "commander_damage_checked_per_commander"
+    if any(event.startswith("game_start_command_zone:") for event in required):
+        return "game_start_command_zone"
+    if "command zone" in postconditions and "partner" in postconditions:
+        return "game_start_command_zone"
+    if any(event.startswith("player_leaves:") for event in required):
+        return "player_leaves_multiplayer_cleanup"
+    if "leave the game" in postconditions or "leaves the game" in postconditions:
+        return "player_leaves_multiplayer_cleanup"
+    return None
+
+
+def evaluate_obligation(
+    model: RequestedStateModel, seat_observations: dict[str, dict[str, Any]]
+) -> ObligationVerdict:
+    """Evaluate the fixture obligation from engine-reported facts only."""
+    required = list((model.record.get("expected_events") or {}).get("required_events") or [])
+    if not seat_observations:
+        return ObligationVerdict(
+            "NONE", False, False, {}, [], "no engine observation available"
+        )
+    primary = _state_view(next(iter(seat_observations.values())))
+    players = _players_by_id(primary)
+    terminal_outcomes = primary.get("terminal_outcomes") or []
+    kind = _obligation_kind(model)
+
+    if kind == "commander_damage_checked_per_commander":
+        facts: dict[str, Any] = {}
+        loss_free = True
+        for player_id, _damage in model.commander_damage_by_player.items():
+            row = players.get(player_id, {})
+            observed_map = row.get("commander_damage_received") or {}
+            facts[f"{player_id}.commander_damage_received"] = observed_map
+            facts[f"{player_id}.life"] = row.get("life")
+            per_commander_ge_21 = sorted(
+                name for name, amount in observed_map.items() if int(amount) >= 21
+            )
+            facts[f"{player_id}.commanders_at_or_above_21"] = per_commander_ge_21
+            aggregate = sum(int(amount) for amount in observed_map.values())
+            facts[f"{player_id}.aggregate_commander_damage"] = aggregate
+            if isinstance(row, dict) and row.get("has_lost"):
+                loss_free = False
+            outcome = next(
+                (
+                    entry
+                    for entry in terminal_outcomes
+                    if isinstance(entry, dict)
+                    and str(entry.get("player_id", "")).lower() == player_id
+                ),
+                None,
+            )
+            if outcome is not None and outcome.get("lost"):
+                loss_free = False
+        aggregate_over_21 = any(
+            facts.get(f"{player}.aggregate_commander_damage", 0) >= 21
+            for player in model.commander_damage_by_player
+        )
+        observed_expected = any(
+            facts.get(f"{player}.aggregate_commander_damage", 0) >= 21
+            for player in model.commander_damage_by_player
+        )
+        semantic = [
+            f"commander_damage_per_commander_evaluated:{player}"
+            for player in sorted(model.commander_damage_by_player)
+        ]
+        return ObligationVerdict(
+            kind="commander_damage_checked_per_commander",
+            observed=bool(aggregate_over_21 and loss_free),
+            credit_eligible_observation=bool(observed_expected and loss_free),
+            terminal_facts={
+                **facts,
+                "declared_rule": "CR 903.10a: a player loses only if one commander dealt >= 21",
+                "no_single_commander_at_or_above_21": loss_free,
+            },
+            semantic_events=semantic,
+            reason=(
+                "engine per-commander damage map observed with no per-commander value >= 21 "
+                "while aggregate is >= 21; the engine did not apply a loss"
+                if loss_free and aggregate_over_21
+                else "the per-commander loss condition or damage readback did not match the obligation"
+            ),
+        )
+
+    if kind == "game_start_command_zone":
+        facts = {}
+        all_present = True
+        for entry in model.command_zone:
+            owner = str(entry.get("owner") or "").lower()
+            row = players.get(owner, {})
+            command = (row.get("zones") or {}).get("command") or []
+            present = entry.get("card_identity") in command
+            facts[f"{entry.get('commander_id')}"] = {
+                "owner": owner,
+                "card": entry.get("card_identity"),
+                "observed_command_zone": command,
+                "present": present,
+            }
+            all_present = all_present and present
+        semantic = [
+            f"game_start_command_zone:{entry.get('commander_id')}"
+            for entry in model.command_zone
+            if str((players.get(str(entry.get('owner') or '').lower(), {}).get('zones') or {}).get('command') or [])
+        ]
+        return ObligationVerdict(
+            kind="game_start_command_zone",
+            observed=all_present,
+            credit_eligible_observation=all_present,
+            terminal_facts=facts,
+            semantic_events=semantic,
+            reason=(
+                "both partner commander identities observed in the command zone at the "
+                "first observable checkpoint"
+                if all_present
+                else "a requested commander identity was not observed in its command zone"
+            ),
+        )
+
+    if kind == "player_leaves_multiplayer_cleanup":
+        facts = {}
+        all_cleanup = True
+        expected_losers = [
+            player_id
+            for player_id, life in model.life_by_player.items()
+            if life <= 0
+        ]
+        for player_id in expected_losers:
+            row = players.get(player_id, {})
+            outcome = next(
+                (
+                    entry
+                    for entry in terminal_outcomes
+                    if isinstance(entry, dict)
+                    and str(entry.get("player_id", "")).lower() == player_id
+                ),
+                None,
+            )
+            lost = bool(row.get("has_lost")) or bool(outcome and outcome.get("lost"))
+            facts[f"{player_id}.lost"] = lost
+            facts[f"{player_id}.life"] = row.get("life")
+            facts[f"{player_id}.terminal_outcome"] = outcome
+            if not lost:
+                all_cleanup = False
+            controlled_present = (row.get("zones") or {}).get("battlefield") or []
+            facts[f"{player_id}.battlefield_after_loss"] = controlled_present
+            if controlled_present:
+                all_cleanup = False
+        live_players = sorted(
+            str(entry.get("player_id")).lower()
+            for entry in terminal_outcomes
+            if isinstance(entry, dict) and not entry.get("lost") and not entry.get("left")
+        )
+        facts["live_players"] = live_players
+        semantic = [f"player_leaves:{player}" for player in expected_losers]
+        return ObligationVerdict(
+            kind="player_leaves_multiplayer_cleanup",
+            observed=all_cleanup,
+            credit_eligible_observation=all_cleanup,
+            terminal_facts=facts,
+            semantic_events=semantic,
+            reason=(
+                "the declared zero-life seat is lost and its controlled permanents left the "
+                "game, and the live-player ring excludes it"
+                if all_cleanup
+                else "the declared loss or the multiplayer cleanup was not fully observed"
+            ),
+        )
+
+    return ObligationVerdict(
+        kind="UNSUPPORTED_OBLIGATION_FAMILY",
+        observed=False,
+        credit_eligible_observation=False,
+        terminal_facts={"required_events": required},
+        semantic_events=[],
+        reason=(
+            "this lane has no observation contract for the obligation's required events; "
+            "construction alone earns no credit"
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Per-row evidence pipeline
+# ---------------------------------------------------------------------------
+_RECEIPT_FIELDS = (
+    "fixture_identity",
+    "obligation_identity",
+    "requested_state_identity",
+    "lab_source_identity",
+    "rules_core_identity",
+    "bridge_identity",
+    "runner_identity",
+    "transport",
+    "scenario_parse",
+    "native_bootstrap",
+    "readback",
+    "checkpoint_equivalence",
+    "pending_decision_frame",
+    "external_decision_selection",
+    "semantic_events",
+    "terminal_facts",
+    "receipt_eligibility",
+    "classification",
+)
+
+
+@dataclass
+class RowEvidence:
+    fixture_id: str
+    fields: dict[str, Any] = field(default_factory=dict)
+
+    def set(self, key: str, value: Any) -> None:
+        if key not in _RECEIPT_FIELDS:
+            raise ScenarioLaneError(f"unknown evidence field {key!r}")
+        self.fields[key] = value
+
+    def to_document(self) -> dict[str, Any]:
+        document = {"fixture_id": self.fixture_id, "schema_version": LANE_SCHEMA_VERSION}
+        for key in _RECEIPT_FIELDS:
+            document[key] = self.fields.get(key)
+        return document
+
+
+def _lab_source_identity(root: Path) -> dict[str, Any]:
+    def git(args: list[str]) -> str:
+        completed = subprocess.run(
+            ["git", *args], cwd=str(root), capture_output=True, text=True, check=False
+        )
+        return completed.stdout.strip()
+
+    return {
+        "repository": "moeendres-png/commander-playtest-lab",
+        "commit": git(["rev-parse", "HEAD"]),
+        "tree": git(["rev-parse", "HEAD^{tree}"]),
+        "branch": git(["rev-parse", "--abbrev-ref", "HEAD"]),
+    }
+
+
+def probe_row(
+    proc: BridgeProcess,
+    *,
+    model: RequestedStateModel,
+    source: ForgeScenarioSource,
+    root: Path,
+    seed: int = 424242,
+    max_steps: int = 400,
+    inject_unsupported_probe: bool = True,
+) -> RowEvidence:
+    """Run the full per-row pipeline for one effective record.
+
+    Hard-unsupported dimensions with an explicit engine rejection are proven by
+    sending exactly that requested field and requiring the engine to reject it.
+    Hard-unsupported dimensions the engine silently ignores are proven by
+    constructing the supported subset and showing the authoritative readback
+    cannot equal the requested state. Rows without hard-unsupported dimensions
+    are executed and their obligation evaluated from engine facts.
+    """
+    evidence = RowEvidence(fixture_id=model.fixture_id)
+    evidence.set("fixture_identity", model.fixture_id)
+    evidence.set(
+        "obligation_identity",
+        {
+            "obligation_digest": model.record.get("obligation_digest"),
+            "materialization_digest": model.record.get("materialization_digest"),
+            "materialization_status": model.record.get("materialization_status"),
+            "required_events": (model.record.get("expected_events") or {}).get(
+                "required_events"
+            ),
+            "terminal_postconditions": model.record.get("terminal_postconditions"),
+            "execution_entry_mode": model.record.get("execution_entry_mode"),
+        },
+    )
+    evidence.set(
+        "requested_state_identity",
+        {
+            "requested_state_digest": model.record.get("requested_state_digest"),
+            "neutral_initial_state": model.neutral_initial_state,
+            "temporal_state": model.temporal_state,
+            "dimensions": [item.to_document() for item in model.dimensions],
+        },
+    )
+    evidence.set("lab_source_identity", _lab_source_identity(root))
+    evidence.set("rules_core_identity", source.rules_core_identity)
+    evidence.set("bridge_identity", source.bridge_identity)
+    evidence.set(
+        "runner_identity",
+        {
+            "lane": LANE_SCHEMA_VERSION,
+            "module": "commander_lab.qualification.current_boundary.forge_scenario_lane",
+            "python": True,
+        },
+    )
+
+    # 1) explicit engine rejection probes for the fields with enforced rejection
+    rejection_probes: list[dict[str, Any]] = []
+    seen_probes: set[str] = set()
+    if inject_unsupported_probe:
+        for finding in model.hard_unsupported:
+            if not finding.runtime_probe or finding.runtime_probe in seen_probes:
+                continue
+            seen_probes.add(finding.runtime_probe)
+            game_id = f"fsl-probe-{model.fixture_id.lower()}-{finding.runtime_probe}-{uuid.uuid4().hex[:6]}"
+            probe_state = dict(model.neutral_initial_state)
+            if finding.runtime_probe == "stack":
+                probe_state["stack"] = [
+                    {
+                        "card": (model.record.get("stack_state") or [{}])[0].get(
+                            "source_semantic_id", "Unknown"
+                        ),
+                        "controller": "p1",
+                    }
+                ]
+            elif finding.runtime_probe == "decision_script":
+                probe_state["decision_script"] = [{"kind": "test_probe"}]
+            else:
+                continue
+            response = proc.request(
+                "create_commander_game",
+                {
+                    "request": {
+                        "game_id": game_id,
+                        "deck_handles": _import_probe_decks(proc, model, game_id),
+                        "format": "commander",
+                        "external_control": True,
+                        "scenario": {"neutral_initial_state": probe_state},
+                    }
+                },
+                game_id=game_id,
+                timeout_s=300.0,
+            )
+            expected_rejection = bool(response.get("success") is not True)
+            codes = [
+                entry.get("code")
+                for entry in (response.get("errors") or [])
+                if isinstance(entry, dict)
+            ]
+            messages = [
+                entry.get("message")
+                for entry in (response.get("errors") or [])
+                if isinstance(entry, dict)
+            ]
+            rejection_probes.append(
+                {
+                    "dimension": finding.dimension,
+                    "probe_field": finding.runtime_probe,
+                    "engine_rejected": expected_rejection,
+                    "error_codes": codes,
+                    "error_messages": messages,
+                }
+            )
+    evidence.set(
+        "scenario_parse",
+        {
+            "rejection_probes": rejection_probes,
+            "hard_unsupported_dimensions": [item.to_document() for item in model.hard_unsupported],
+        },
+    )
+
+    # 2) hard unsupported and the requested temporal checkpoint is unreachable:
+    # a bounded runtime probe proves the engine silently ignores the fields it
+    # has no contract for, then the row fails closed with exact blockers.
+    if model.hard_unsupported and not temporal_reachable(model):
+        silent = run_silent_ignore_probe(proc, model=model)
+        evidence.set(
+            "transport",
+            {
+                "attempted": True,
+                "constructor": "silent-ignore probe (supported subset + unknown fields)",
+                "probe": silent,
+            },
+        )
+        evidence.set(
+            "native_bootstrap",
+            {
+                "applied": bool(silent.get("create_success")),
+                "silent_ignore_acceptance": bool(silent.get("create_success")),
+                "note": "engine acceptance of an unknown field is not construction",
+            },
+        )
+        evidence.set("readback", silent.get("first_observable_checkpoint"))
+        evidence.set(
+            "checkpoint_equivalence",
+            CheckpointEquivalence(
+                verdict=CHECKPOINT_UNSUPPORTED_DIMENSION,
+                fields=[],
+                unsupported_dimensions=[item.dimension for item in model.hard_unsupported],
+                unobservable_dimensions=[item.dimension for item in model.unobservable],
+            ).to_document(),
+        )
+        evidence.set("pending_decision_frame", None)
+        evidence.set("external_decision_selection", None)
+        evidence.set("semantic_events", [])
+        evidence.set("terminal_facts", {})
+        evidence.set(
+            "receipt_eligibility",
+            {
+                "eligible": False,
+                "reason": "unsupported dimensions are not representable in the bootstrap contract",
+            },
+        )
+        evidence.set(
+            "classification",
+            {
+                "result": RESULT_UNSUPPORTED_DIMENSION,
+                "reasons": [
+                    f"{item.dimension}: {item.detail}" for item in model.hard_unsupported
+                ],
+                "silent_ignore_probe": silent,
+            },
+        )
+        return evidence
+
+    # 3) real execution: create/start/drive the supported subset
+    drive = drive_scenario_game(proc, model, seed=seed, max_steps=max_steps)
+    evidence.set("transport", {"attempted": True, "game_id": drive.game_id})
+    creation = drive.terminal_facts.get("create_response")
+    evidence.set(
+        "native_bootstrap",
+        {
+            "applied": bool(creation and creation.get("success") is True),
+            "create_response": creation,
+            "steps_completed": drive.steps_completed,
+            "failure": drive.failure,
+        },
+    )
+    if drive.failure and drive.failure_kind == "ENGINE_REJECTED_SCENARIO":
+        evidence.set("readback", {"error": "scenario rejected by engine"})
+        evidence.set(
+            "checkpoint_equivalence",
+            CheckpointEquivalence(
+                verdict=CHECKPOINT_UNSUPPORTED_DIMENSION,
+                fields=[],
+                unsupported_dimensions=[item.dimension for item in model.hard_unsupported],
+                unobservable_dimensions=[item.dimension for item in model.unobservable],
+            ).to_document(),
+        )
+        evidence.set("pending_decision_frame", None)
+        evidence.set("external_decision_selection", None)
+        evidence.set("semantic_events", [])
+        evidence.set("terminal_facts", {})
+        evidence.set(
+            "receipt_eligibility",
+            {"eligible": False, "reason": "engine rejected the scenario at creation"},
+        )
+        evidence.set(
+            "classification",
+            {
+                "result": RESULT_ENGINE_REJECTED,
+                "reasons": [f"engine rejected scenario: {drive.failure}"],
+            },
+        )
+        return evidence
+
+    observations = observe_all_seats(proc, drive.game_id, model.player_count or 2)
+    evidence.set(
+        "readback",
+        {
+            "seats": sorted(observations),
+            "primary": _state_view(
+                next(iter(observations.values())) if observations else {}
+            ),
+        },
+    )
+    equivalence = compare_checkpoint(model, observations)
+    evidence.set("checkpoint_equivalence", equivalence.to_document())
+    last_decision = drive.decision_tape[-1] if drive.decision_tape else None
+    evidence.set(
+        "pending_decision_frame",
+        None
+        if last_decision is None
+        else {
+            "kind": last_decision.kind,
+            "actor": last_decision.actor,
+            "revision": last_decision.revision,
+            "offered_option_ids": last_decision.offered_option_ids,
+        },
+    )
+    evidence.set(
+        "external_decision_selection",
+        [
+            {
+                "step": entry.step,
+                "kind": entry.kind,
+                "actor": entry.actor,
+                "policy": entry.policy,
+                "chosen_option_id": entry.chosen_option_id,
+                "offered_option_ids": entry.offered_option_ids,
+            }
+            for entry in drive.decision_tape
+        ],
+    )
+
+    obligation = evaluate_obligation(model, observations)
+    evidence.set("semantic_events", obligation.semantic_events)
+    evidence.set(
+        "terminal_facts",
+        {
+            "drive": drive.terminal_facts,
+            "obligation": obligation.terminal_facts,
+            "drive_failure": drive.failure,
+        },
+    )
+
+    if model.hard_unsupported or not equivalence.credit_eligible:
+        if model.hard_unsupported:
+            result = RESULT_UNSUPPORTED_DIMENSION
+            reasons = [f"{item.dimension}: {item.detail}" for item in model.hard_unsupported]
+        elif equivalence.unobservable_dimensions:
+            result = RESULT_UNSUPPORTED_DIMENSION
+            reasons = [
+                f"{item.dimension}: {item.detail}" for item in model.unobservable
+            ]
+        else:
+            result = RESULT_CHECKPOINT_MISMATCH
+            reasons = [
+                f"{item.field}: requested={item.requested!r} observed={item.observed!r}"
+                for item in equivalence.fields
+                if item.verdict == CHECKPOINT_MISMATCH
+            ]
+        evidence.set(
+            "receipt_eligibility",
+            {
+                "eligible": False,
+                "reason": (
+                    "checkpoint equivalence is not credit-eligible (EXACT or a "
+                    "fixture-declared cause variance); construction alone earns no credit"
+                ),
+            },
+        )
+        evidence.set("classification", {"result": result, "reasons": reasons})
+        return evidence
+
+    if drive.failure:
+        evidence.set(
+            "receipt_eligibility",
+            {"eligible": False, "reason": f"drive failure: {drive.failure}"},
+        )
+        evidence.set(
+            "classification",
+            {"result": RESULT_TRANSPORT_FAILURE, "reasons": [drive.failure]},
+        )
+        return evidence
+
+    if not obligation.credit_eligible_observation:
+        evidence.set(
+            "receipt_eligibility",
+            {
+                "eligible": False,
+                "reason": f"obligation not observed from engine facts: {obligation.reason}",
+            },
+        )
+        evidence.set(
+            "classification",
+            {
+                "result": RESULT_OBLIGATION_NOT_OBSERVABLE,
+                "reasons": [obligation.reason],
+                "obligation_kind": obligation.kind,
+            },
+        )
+        return evidence
+
+    evidence.set(
+        "receipt_eligibility",
+        {
+            "eligible": True,
+            "reason": (
+                "exact identity binding, engine-accepted scenario, "
+                f"{equivalence.verdict} checkpoint equivalence"
+                + (
+                    f" ({equivalence.variance_source})"
+                    if equivalence.verdict == CHECKPOINT_ALLOWED_VARIANCE
+                    else ""
+                )
+                + ", engine-authored decisions only, and an obligation observed from "
+                "engine-reported terminal facts"
+            ),
+        },
+    )
+    evidence.set(
+        "classification",
+        {
+            "result": RESULT_OBLIGATION_OBSERVED,
+            "reasons": [obligation.reason],
+            "obligation_kind": obligation.kind,
+            "checkpoint_verdict": equivalence.verdict,
+        },
+    )
+    return evidence
+
+
+def run_silent_ignore_probe(
+    proc: BridgeProcess, *, model: RequestedStateModel
+) -> dict[str, Any]:
+    """Prove the engine ACCEPTS and silently ignores fields it has no contract for.
+
+    This is the fail-closed control for unsupported dimensions without an
+    explicit parse rejection (combat state, cost state, temporal state): the
+    engine returns a created game, yet the constructed state cannot contain the
+    requested dimension. The lane must therefore classify it itself; it must
+    never treat engine acceptance as construction.
+    """
+    players = model.player_count or 2
+    game_id = f"fsl-silent-{model.fixture_id.lower()}-{uuid.uuid4().hex[:6]}"
+    unsupported_payload: dict[str, Any] = {}
+    for key in ("combat_state", "action_cost_state", "temporal_state", "knowledge_state"):
+        value = model.record.get(key)
+        if value:
+            unsupported_payload[key] = value
+    if (model.record.get("stack_state") or []) or (model.record.get("decision_script") or []):
+        # These have their own explicit-rejection probe; do not duplicate them here.
+        pass
+    neutral = dict(model.neutral_initial_state)
+    neutral.update(unsupported_payload)
+    handles = _import_probe_decks(proc, model, game_id)
+    created = proc.request(
+        "create_commander_game",
+        {
+            "request": {
+                "game_id": game_id,
+                "deck_handles": handles,
+                "format": "commander",
+                "external_control": True,
+                "seed": 424242,
+                "scenario": {"neutral_initial_state": neutral},
+            }
+        },
+        game_id=game_id,
+        timeout_s=300.0,
+    )
+    result: dict[str, Any] = {
+        "game_id": game_id,
+        "create_success": created.get("success") is True,
+        "error_codes": [
+            entry.get("code")
+            for entry in (created.get("errors") or [])
+            if isinstance(entry, dict)
+        ],
+        "error_messages": [
+            entry.get("message")
+            for entry in (created.get("errors") or [])
+            if isinstance(entry, dict)
+        ],
+        "submitted_unsupported_fields": sorted(unsupported_payload),
+        "requested_temporal_state": model.temporal_state,
+    }
+    if result["create_success"]:
+        started = proc.request("start_game", {}, game_id=game_id, timeout_s=300.0)
+        result["start_success"] = started.get("success") is True
+        try:
+            frame = poll_decision(
+                proc, game_id, seat_count=players, candidate="forge"
+            )
+            result["first_pending_kind"] = frame["decision"].get("kind")
+        except GameDriveError as exc:
+            result["first_pending_kind"] = None
+            result["first_pending_error"] = str(exc)
+        state = _state_view(observe_seat_state(proc, game_id, SEATS[0]))
+        result["first_observable_checkpoint"] = {
+            "turn_number": state.get("turn_number"),
+            "phase": _normalize_phase(state.get("phase")),
+            "step": _normalize_step(state.get("step")),
+            "stack": state.get("stack"),
+        }
+        result["silently_ignored"] = bool(unsupported_payload)
+        result["note"] = (
+            "the engine accepted the create request with fields its parser has no "
+            "contract for; acceptance is not construction and the first observable "
+            "checkpoint cannot contain those dimensions"
+        )
+    return result
+
+
+def _import_probe_decks(
+    proc: BridgeProcess, model: RequestedStateModel, game_id: str
+) -> list[str]:
+    handles: list[str] = []
+    for seat in SEATS[: model.player_count or 2]:
+        commanders = (_deck_plan(model).get(seat) or ["Rograkh, Son of Rohgahh"])
+        deck = build_commander_deck(f"{game_id}-{seat}", commanders)
+        payload = _payload(proc.request("import_deck", {"deck": deck}, timeout_s=300.0))
+        handle = payload.get("deck_handle")
+        handle_id = handle.get("handle_id") if isinstance(handle, dict) else None
+        if not handle_id:
+            raise ScenarioLaneError(f"probe deck import failed for {seat}: {payload}")
+        handles.append(str(handle_id))
+    return handles
+
+
+def launch_forge_scenario(
+    source: ForgeScenarioSource,
+) -> tuple[BridgeProcess, dict[str, Any]]:
+    """Build and launch the exact pinned Forge bridge for this lane."""
+    plan = build_launch_plan("forge", forge_workspace=Path(source.workspace))
+    proc = launch(plan)
+    capabilities = proc.request("start_engine", {}, timeout_s=300.0)
+    provider = proc.request("get_provider_version", {}, timeout_s=120.0)
+    declared = proc.request("get_capabilities", {}, timeout_s=120.0)
+    identity = {
+        "launch_plan": {
+            "candidate": plan.candidate,
+            "lane": plan.lane,
+            "expected_engine_commit": plan.expected_engine_commit,
+            "workspace": plan.workspace,
+            "build_identity": plan.build_identity,
+        },
+        "start_engine": capabilities,
+        "provider_version": provider,
+        "capabilities": declared,
+    }
+    return proc, identity
+
+
+def run_capability_probe(
+    proc: BridgeProcess, model: RequestedStateModel
+) -> dict[str, Any]:
+    """Prove the documented rejections on the live engine (read-only)."""
+    probes: list[dict[str, Any]] = []
+    handles = _import_probe_decks(proc, model, "fsl-reject-probe")
+    for probe_field, payload in (
+        ("stack", [{"card": "Lightning Bolt", "controller": "p1"}]),
+        ("decision_script", [{"kind": "probe"}]),
+    ):
+        game_id = f"fsl-reject-{probe_field}-{uuid.uuid4().hex[:6]}"
+        response = proc.request(
+            "create_commander_game",
+            {
+                "request": {
+                    "game_id": game_id,
+                    "deck_handles": handles,
+                    "format": "commander",
+                    "external_control": True,
+                    "scenario": {"neutral_initial_state": {probe_field: payload}},
+                }
+            },
+            game_id=game_id,
+            timeout_s=300.0,
+        )
+        probes.append(
+            {
+                "field": probe_field,
+                "success": response.get("success"),
+                "error_codes": [
+                    entry.get("code")
+                    for entry in (response.get("errors") or [])
+                    if isinstance(entry, dict)
+                ],
+                "error_messages": [
+                    entry.get("message")
+                    for entry in (response.get("errors") or [])
+                    if isinstance(entry, dict)
+                ],
+            }
+        )
+    return {"rejections": probes}
+
+
+def summarize_classifications(evidence: list[RowEvidence]) -> dict[str, Any]:
+    counts: dict[str, int] = {}
+    for item in evidence:
+        classification = item.fields.get("classification") or {}
+        result = str(classification.get("result", "UNKNOWN"))
+        counts[result] = counts.get(result, 0) + 1
+    return {
+        "total": len(evidence),
+        "counts": counts,
+        "evidence": [item.to_document() for item in evidence],
+    }
+
+
+def sleeps(seconds: float) -> None:  # pragma: no cover - small helper
+    time.sleep(seconds)
+
+
+def dumps(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, default=str)

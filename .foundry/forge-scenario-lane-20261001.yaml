@@ -4,8 +4,19 @@ worktree: /home/moeen/code/lab-forge-scenario-lane-20261001
 branch: hardening/forge-scenario-lane-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
-validated_head: null
+main_merged_at_start: a91590842b3a3c96336bf3e6296eb80db606926b
+merge_commit_at_start: a60ee60048ebed27be49bd81af444ef67c9b2014
+state_written_against_head: cc18d84aeba4f6edaf16f8aff2cd67cf53f1c5d1
+validated_head: a60ee60048ebed27be49bd81af444ef67c9b2014
+observed_origin_main_drift:
+  origin_main_at_final_check: 6ae06efcdd2a894596d4c48d14b32632a6950c60
+  content: >-
+    PR 460 (AF05 M2 batch 2, contract 1.0.10) merged after this lane's evidence
+    epoch; it touches qualification/source_lock.py, the successor contract and
+    SHA manifests. The lane loads the effective materialization at runtime, so a
+    Phase 2 run re-derives automatically; Phase 1 receipts stay bound to
+    a60ee600 / contract 1.0.9 and are not relabelled.
+  foreign_writer_450: OPEN at f76c6cefebe65952d654424c4e59152252cdf2fa (still active)
 
 objective: >-
   Build and qualify the smallest Lab-side Forge current-boundary scenario
@@ -70,29 +81,101 @@ forbidden_shortcuts:
   - card-name hacks in generic selection logic
   - blanket native-suite promotion
 
-validated_gates: []
+validated_gates:
+  - id: SOURCE_BINDING
+    state: PASS
+    evidence: >-
+      clean checkout at bridge 20e3e1f7 with Rules-Core tree equivalence and
+      forge-protocol2-bridge module-tree equality (b1dbfc3dec); provider echo
+      engine_commit_verified=true
+  - id: CAPABILITY_MATRIX
+    state: PASS
+    evidence: >-
+      derived from pinned bridge source blob sha256 9ae04d53dba4; live rejection
+      probes for stack/decision injection (game_creation_failed)
+  - id: STRUCTURAL_CENSUS
+    state: PASS
+    evidence: 107 rows classified; 94 unsupported / 4 constructible-not-observable / 9 credit-eligible
+  - id: WAVE_FAIL_CLOSED
+    state: PASS
+    evidence: all 7 wave rows classified UNSUPPORTED_DIMENSION with per-field blockers and runtime probes
+  - id: ELIGIBLE_ROW_EXECUTION
+    state: PASS
+    evidence: 6 rows EXECUTED_OBLIGATION_OBSERVED (3 EXACT, 3 fixture-declared cause variance)
+  - id: FAIL_BEFORE
+    state: PASS
+    evidence: shared runner classifies the wave BLOCKED with no scenario seam; tests assert it
 failed_gates: []
 invalidated_gates: []
 do_not_rerun: []
 
-files_modified: []
-tests_run: []
-evidence: []
-artifacts: []
+files_modified:
+  - src/commander_lab/qualification/current_boundary/forge_scenario_lane.py
+  - scripts/run_forge_scenario_lane.py
+  - tests/qualification/test_forge_scenario_lane.py
+  - docs/forge_scenario_lane_20261001/README.md
+  - docs/forge_scenario_lane_20261001/SCENARIO_CAPABILITY_MATRIX.md
+  - docs/forge_scenario_lane_20261001/PER_ROW_EXECUTION_MATRIX.md
+  - docs/forge_scenario_lane_20261001/UNSUPPORTED_DIMENSION_MATRIX.md
+  - docs/forge_scenario_lane_20261001/FAIL_BEFORE_AND_CONTROLS.md
+  - docs/forge_scenario_lane_20261001/VALIDATION.md
+  - docs/forge_scenario_lane_20261001/receipts/STRUCTURAL_CENSUS.json
+  - docs/forge_scenario_lane_20261001/receipts/SCENARIO_CAPABILITY_MATRIX.json
+  - docs/forge_scenario_lane_20261001/receipts/LIVE_REJECTION_PROBE.json
+  - docs/forge_scenario_lane_20261001/receipts/EXECUTION_RECEIPT.json
+  - .foundry/forge-scenario-lane-20261001.yaml
+tests_run:
+  - pytest tests/qualification/test_forge_scenario_lane.py -q -> 25 passed
+evidence:
+  - classification: FRESH_CURRENT_BOUNDARY_EXECUTION
+    summary: >-
+      16 rows attempted on bridge 20e3e1f7 / rules core bb0a740d; 6 obligation
+      observed, 3 executed-not-observable, 7 unsupported with exact blockers
+  - classification: DIRECTLY_VERIFIED
+    summary: live engine rejection of stack and decision injection; exact readback equality for supported fields
+  - classification: CODE_DERIVED
+    summary: capability matrix and 107-row structural census
+artifacts:
+  - docs/forge_scenario_lane_20261001/receipts/EXECUTION_RECEIPT.json
+  - docs/forge_scenario_lane_20261001/receipts/STRUCTURAL_CENSUS.json
+  - docs/forge_scenario_lane_20261001/receipts/SCENARIO_CAPABILITY_MATRIX.json
+  - docs/forge_scenario_lane_20261001/receipts/LIVE_REJECTION_PROBE.json
 
 remaining_scope:
-  - fresh source and ownership census
-  - Phase 1 dedicated producer
-  - fail-before controls
-  - supported-row execution
-  - Phase 2 integration after foreign writers become terminal
+  - Phase 2 integration into the shared current-boundary evidence chain, gated on #450 terminal
+  - re-derive against current main (contract 1.0.10) and impact-adjudicate before re-running
+  - optional: observation contracts for MICRO_LAYERS layer events and START-3 draw evidence
+  - optional: execute remaining constructible-not-observable rows once owner/attachment/graveyard projection exists
 
-status: ACTIVE
+status: PHASE1_COMPLETE
 
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 failure_class: NONE
-root_cause_class: NONE
+root_cause_class: LAB_EXECUTION_PATH_GAP_IDENTIFIED_AND_REPLACED_WITH_SOURCE_BOUND_LANE
+
+decisions:
+  - id: DEC-1
+    decision: >-
+      A fixture decision_script is an execution requirement, not a neutral-state
+      injection request. Families this lane does not implement are recorded as
+      decision_execution.* blockers owned by the shared mid-game selector
+      surface; the lane does not build a second selector.
+  - id: DEC-2
+    decision: >-
+      ALLOWED_VARIANCE is permitted only where the fixture declares the native
+      cause (NATIVE_CAUSE_DECLARED_PLAYER_LOSS) and the exact cause transition is
+      observed; variance source is recorded per field and never labelled EXACT.
+  - id: DEC-3
+    decision: >-
+      Counter keys map between the contract vocabulary and the bridge display
+      names (P1P1 <-> +1/+1, M1M1 <-> -1/-1); unknown counters compare verbatim
+      and fail closed.
+  - id: DEC-4
+    decision: >-
+      Phase 2 not entered: PR 450 is still open and origin/main advanced to
+      contract 1.0.10 after this epoch's evidence; integration requires a fresh
+      rebind and impact adjudication.
 
 execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
@@ -100,6 +183,8 @@ native_variant: max
 variant_resolution: native_max
 
 exact_next_action: >-
-  Fetch fresh GitHub source truth, read issue 455 and latest issue 255
-  coordination, verify current Forge identities and active writer ownership,
-  then implement only the dedicated Phase 1 Forge scenario-lane producer.
+  Phase 2 gate check: confirm PR 450 terminal, fetch origin/main, merge normally
+  into hardening/forge-scenario-lane-20261001, re-derive the capability matrix
+  and structural census against contract 1.0.10 (the lane loads the effective
+  materialization at runtime), impact-adjudicate this epoch's receipts, and only
+  then integrate the producer into the shared current-boundary evidence chain.
