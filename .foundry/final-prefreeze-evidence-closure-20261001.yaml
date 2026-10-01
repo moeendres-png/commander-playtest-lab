@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
 branch: hardening/final-prefreeze-evidence-closure-20261001
 audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
 audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d
-state_written_against_head: 92f0a7ee600f7ab1c8b3a5a0f7f6c4c1b5a3d2e1
-validated_head: 92f0a7ee600f7ab1c8b3a5a0f7f6c4c1b5a3d2e1
+state_written_against_head: 2cca3de09b7e9355350753f3af78db41dd18de10
+validated_head: 2cca3de09b7e9355350753f3af78db41dd18de10
 objective: 'Close the Coordinator-adjudicated pre-Freeze evidence and qualification
   gaps tracked by issue #441 and produce a fresh source-bound provider-readiness packet
   for subsequent Coordinator adjudication under #255.'
