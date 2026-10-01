@@ -219,6 +219,62 @@ class XmageMidgameKnowledgeProjectionTest {
         return lane;
     }
 
+    /**
+     * Fail-before for the public event tape: an event that is not a zone change
+     * (here damage dealt to the face-down permanent) used to count as public, so
+     * the tape resolved its face-down target to the semantic object the record
+     * requested, which the record binds to the hidden identity.
+     */
+    @Test
+    void thePublicEventTapeNeverResolvesAFaceDownPermanentToItsRequestedObject() {
+        JsonObject record = successorRecord("HIDDEN_04");
+        JsonObject pyromancer = new JsonObject();
+        pyromancer.addProperty("semantic_id", "obj:test-pyromancer");
+        pyromancer.addProperty("card_identity", "Prodigal Pyromancer");
+        pyromancer.addProperty("card_lineage_id", "line:obj:test-pyromancer");
+        pyromancer.addProperty("owner", "P1");
+        pyromancer.addProperty("controller", "P1");
+        pyromancer.addProperty("zone", "battlefield");
+        pyromancer.addProperty("tapped", false);
+        pyromancer.addProperty("face_down", false);
+        pyromancer.add("counters", new JsonObject());
+        record.getAsJsonArray("semantic_objects").add(pyromancer);
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject created = lane.ok("create_midgame_game", createRequest("kp-event-face-down", record));
+        String faceDown = created.getAsJsonObject("placed_objects").get("obj:facedown").getAsString();
+        lane.ok("start_midgame_game", null);
+        arrive(lane, frame -> { });
+
+        JsonObject priority = pendingDecision(lane);
+        String activation = null;
+        for (JsonElement element : priority.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            if (option.get("label").getAsString().startsWith("Prodigal Pyromancer")) {
+                activation = option.get("option_id").getAsString();
+            }
+        }
+        submit(lane, priority, activation);
+        JsonObject target = pendingDecision(lane);
+        assertEquals("target", target.get("decision_class").getAsString());
+        submit(lane, target, faceDown);
+
+        String events = "";
+        for (int step = 0; step < 12 && !events.contains("DAMAGED_PERMANENT"); step++) {
+            JsonObject decision = pendingDecision(lane);
+            assertNotNull(decision);
+            submit(lane, decision, option(decision, "pass_priority", null));
+            JsonObject query = new JsonObject();
+            query.addProperty("after_offset", 0);
+            events = lane.raw("get_midgame_events", query);
+        }
+        assertTrue(events.contains("DAMAGED_PERMANENT"), "the damage event must be recorded");
+        for (String forbidden : List.of("obj:facedown", FACE_DOWN_SECRET)) {
+            assertFalse(events.contains(forbidden), "the public event tape names " + forbidden);
+        }
+        // Positive control: a public source is still resolved to its object.
+        assertTrue(events.contains("obj:test-pyromancer"), "the public source must stay named");
+    }
+
     @Test
     void theLosslessSuccessorConstructsExactlyAndCountsEveryCheckWithoutNamingIt() {
         Lane lane = arrivedLane("kp-exact", frame -> { });

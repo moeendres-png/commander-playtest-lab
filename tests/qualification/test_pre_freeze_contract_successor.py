@@ -12,10 +12,10 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_10.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_8.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json"
 )
 V106_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
@@ -31,7 +31,7 @@ HIDDEN_ERRATA_IDS = [
     "HIDDEN_HONEYCARD_SENTINEL",
 ]
 # The SLOT-04 event-scenario errata: a real reveal and a real look.
-HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_07", "HIDDEN_08"]
+HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_07", "HIDDEN_08", "HIDDEN_09", "HIDDEN_14", "HIDDEN_18"]
 # The successor contract carries the adjudicated fixture errata from #255/441
 # section C (the rows whose script began inside a cast, plus the MICRO_COSTS
 # CR 307.1 fixture-defect correction), the CR 103.8a START-2 successor, and the
@@ -57,7 +57,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_9_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_10_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -90,7 +90,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_10.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -158,7 +158,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_8.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_9.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -316,7 +316,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.9-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.10-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -328,9 +328,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.9-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.10-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.9-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.10-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -760,8 +760,8 @@ def test_the_successor_schema_types_the_face_down_state_and_the_deck_state() -> 
 
 
 def test_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
-    """HIDDEN_07 and HIDDEN_08 name a reveal and a look but no event that
-    causes one. The successor adds the causing objects and a decision script
+    """HIDDEN_07, 08, 09 and 18 name a reveal, a look, a search and a private
+    look but no event that causes one. The successor adds the causing objects and a decision script
     that only selects engine offers; the obligation and the lossless base state
     are unchanged."""
     contract = _json(SUCCESSOR_PATH)
@@ -782,6 +782,20 @@ def test_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
     added = {
         "HIDDEN_07": {"obj:hidden07-telepathy": "Telepathy", "obj:hidden07-island": "Island"},
         "HIDDEN_08": {"obj:hidden08-spy": "Orcish Spy"},
+        "HIDDEN_09": {
+            "obj:hidden09-portal": "Planar Portal",
+            **{f"obj:hidden09-island-{i}": "Island" for i in range(1, 7)},
+        },
+        "HIDDEN_14": {
+            "obj:hidden14-mastery": "Mastery of the Unseen",
+            **{f"obj:hidden14-plains-{i}": "Plains" for i in range(1, 5)},
+            "obj:hidden14-pyromancer": "Prodigal Pyromancer",
+        },
+        "HIDDEN_18": {"obj:hidden18-spy": "Orcish Spy"},
+    }
+    p2_owned = {
+        *added["HIDDEN_09"],
+        *(semantic_id for semantic_id in added["HIDDEN_14"] if "pyromancer" not in semantic_id),
     }
     for fixture_id in HIDDEN_EVENT_ERRATA_IDS:
         record = resolver.effective_record(fixture_id)
@@ -797,7 +811,7 @@ def test_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
         objects = {o["semantic_id"]: o for o in record["semantic_objects"]}
         for semantic_id, card in added[fixture_id].items():
             assert objects[semantic_id]["card_identity"] == card
-            assert objects[semantic_id]["owner"] == "P1"
+            assert objects[semantic_id]["owner"] == ("P2" if semantic_id in p2_owned else "P1")
         assert len(objects) == len(lossless["semantic_objects"]) + len(added[fixture_id])
         for step in record["decision_script"]:
             selection = step["selection"]
