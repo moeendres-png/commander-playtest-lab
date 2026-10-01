@@ -556,3 +556,398 @@ def test_the_first_turn_draw_is_the_starting_players_draw_step_draw() -> None:
     main_phase_draw = _game_start("P1")
     main_phase_draw[-1]["step"] = "PRECOMBAT_MAIN"
     assert mr.verify_token("first_turn_draw:true", main_phase_draw, [], set()) is None
+
+
+# --------------------------------------------------------------------------- #
+# Multi-select targets and divided-damage amount assignment
+# --------------------------------------------------------------------------- #
+
+
+def _target_offer(native: str, label: str) -> dict[str, Any]:
+    return {
+        "metadata": {
+            "option_type": "target",
+            "option_id": native,
+            "label": label,
+            "xmage_option_metadata": {"object_id": native, "name": label},
+        }
+    }
+
+
+def _multi_select_legal(minimum: int, maximum: int, offers: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "decision": {"minimum_selections": minimum, "maximum_selections": maximum},
+        "actions": offers,
+    }
+
+
+def _multi_step(value: Any) -> dict[str, Any]:
+    return {
+        "decision_family": "target",
+        "selection": {"selector_kind": "semantic_objects", "semantic_value": value},
+    }
+
+
+def _amount_offer(native: str, label: str, option_type: str = "target_amount") -> dict[str, Any]:
+    return {
+        "metadata": {
+            "option_type": option_type,
+            "option_id": native,
+            "label": label,
+            "xmage_option_metadata": {"object_id": native, "name": label},
+        }
+    }
+
+
+def _amount_legal(
+    numeric_min: int, numeric_max: int, *, amount_remaining: int = 4, **offers: str
+) -> dict[str, Any]:
+    actions = [_amount_offer(native, label) for native, label in offers.items()]
+    return {
+        "decision": {
+            "minimum_selections": 1,
+            "maximum_selections": 1,
+            "context": {
+                "numeric_min": numeric_min,
+                "numeric_max": numeric_max,
+                "amount_remaining": amount_remaining,
+            },
+        },
+        "actions": actions,
+    }
+
+
+def _amount_step(value: Any, family: str = "target_amount") -> dict[str, Any]:
+    return {
+        "decision_family": family,
+        "selection": {"selector_kind": "amount_assignment", "semantic_value": value},
+    }
+
+
+def test_the_semantic_objects_selector_submits_exactly_the_requested_engine_offers() -> None:
+    legal = _multi_select_legal(
+        2,
+        2,
+        [
+            _target_offer("native-a", "Grizzly Bears"),
+            _target_offer("native-b", "Rograkh, Son of Rohgahh"),
+            _target_offer("native-c", "Kediss, Emberclaw Familiar"),
+        ],
+    )
+    placed = {"obj:a": "native-a", "obj:c": "native-c"}
+    answer = mr._scripted_answer(legal, _multi_step(["obj:a", "obj:c"]), placed, mr.RowSpec())
+    assert answer.option_ids == ("native-a", "native-c")
+    assert answer.action is legal["actions"][0]
+
+
+def test_a_semantic_object_the_engine_does_not_offer_fails_closed() -> None:
+    legal = _multi_select_legal(1, 1, [_target_offer("native-a", "Grizzly Bears")])
+    for bad in (["obj:missing"], ["P9"]):
+        with pytest.raises(mr.ml.MidgameLaneError):
+            mr._scripted_answer(legal, _multi_step(bad), {"obj:a": "native-a"}, mr.RowSpec())
+
+
+def test_a_repeated_requested_object_fails_closed() -> None:
+    legal = _multi_select_legal(
+        2, 2, [_target_offer("native-a", "Grizzly Bears"), _target_offer("native-c", "Rograkh")]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(
+            legal, _multi_step(["obj:a", "obj:a"]), {"obj:a": "native-a"}, mr.RowSpec()
+        )
+
+
+def test_two_requests_mapping_to_one_offer_fails_closed() -> None:
+    """Two semantic identities that resolve to the same engine offer are an
+    ambiguous mapping: submitting the frame would silently drop one request."""
+    legal = _multi_select_legal(
+        2, 2, [_target_offer("native-a", "Grizzly Bears"), _target_offer("native-c", "Rograkh")]
+    )
+    placed = {"obj:a": "native-a", "obj:a-alias": "native-a"}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _multi_step(["obj:a", "obj:a-alias"]), placed, mr.RowSpec())
+
+
+def test_two_offers_for_one_semantic_object_fails_closed() -> None:
+    legal = _multi_select_legal(
+        1,
+        1,
+        [_target_offer("native-a", "Grizzly Bears"), _target_offer("native-a", "Grizzly Bears")],
+    )
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _multi_step(["obj:a"]), {"obj:a": "native-a"}, mr.RowSpec())
+
+
+@pytest.mark.parametrize(("minimum", "maximum"), [(2, 2), (3, 3), (6, 6)])
+def test_a_requested_cardinality_the_engine_did_not_authorize_fails_closed(
+    minimum: int, maximum: int
+) -> None:
+    legal = _multi_select_legal(minimum, maximum, [_target_offer("native-a", "Grizzly Bears")])
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _multi_step(["obj:a"]), {"obj:a": "native-a"}, mr.RowSpec())
+
+
+def test_a_multi_select_without_engine_selection_bounds_fails_closed() -> None:
+    legal = {"actions": [_target_offer("native-a", "Grizzly Bears")]}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _multi_step(["obj:a"]), {"obj:a": "native-a"}, mr.RowSpec())
+
+
+def test_a_malformed_multi_select_value_fails_closed() -> None:
+    legal = _multi_select_legal(1, 1, [_target_offer("native-a", "Grizzly Bears")])
+    for bad in ([], "obj:a", {"obj:a": 1}, ["obj:a", 1]):
+        with pytest.raises(mr.ml.MidgameLaneError):
+            mr._scripted_answer(legal, _multi_step(bad), {"obj:a": "native-a"}, mr.RowSpec())
+
+
+def test_the_amount_assignment_selects_the_declared_leg_within_engine_bounds() -> None:
+    legal = _amount_legal(1, 4, **{"seat-2": "Full Game Seat 2", "native-x": "Grizzly Bears"})
+    placed = {"obj:x": "native-x"}
+    first = mr._scripted_answer(legal, _amount_step({"P2": 2, "obj:x": 2}), placed, mr.RowSpec(), 0)
+    assert first.key == "P2" and first.numeric == 2 and first.option_ids == ("seat-2",)
+    second = mr._scripted_answer(
+        legal, _amount_step({"P2": 2, "obj:x": 2}), placed, mr.RowSpec(), 1
+    )
+    assert second.key == "obj:x" and second.numeric == 2 and second.option_ids == ("native-x",)
+
+
+def test_an_amount_outside_the_engine_frames_bounds_fails_closed() -> None:
+    legal = _amount_legal(1, 1, **{"seat-2": "Full Game Seat 2"})
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _amount_step({"P2": 2}), {}, mr.RowSpec(), 0)
+    # The declaration itself must be a positive integer.
+    for bad in ({"P2": 0}, {"P2": True}, {"P2": "2"}, {"P2": None}, [], {}):
+        with pytest.raises(mr.ml.MidgameLaneError):
+            mr._scripted_answer(legal, _amount_step(bad), {}, mr.RowSpec(), 0)
+
+
+def test_an_assignment_frame_beyond_the_declared_legs_fails_closed() -> None:
+    """An extra assignment the record did not declare is not answered with a
+    default or a repeat of an earlier leg."""
+    legal = _amount_legal(1, 4, **{"seat-2": "Full Game Seat 2"})
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _amount_step({"P2": 2}), {}, mr.RowSpec(), 1)
+
+
+def test_an_assignment_target_the_engine_does_not_offer_fails_closed() -> None:
+    legal = _amount_legal(1, 4, **{"seat-2": "Full Game Seat 2"})
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _amount_step({"obj:missing": 2}), {}, mr.RowSpec(), 0)
+
+
+def _assigned(
+    key: str,
+    amount: int,
+    decision_id: str,
+    *,
+    context: dict[str, Any] | None = None,
+    scripted: bool = True,
+) -> mr.Frame:
+    return mr.Frame(
+        "target_amount",
+        "P1",
+        ["Full Game Seat 2", "Grizzly Bears"],
+        selected_label="Full Game Seat 2",
+        scripted=scripted,
+        selected_key=key,
+        numeric=amount,
+        decision_id=decision_id,
+        context=context if context is not None else {"amount_remaining": 4},
+    )
+
+
+def test_an_engine_accepted_assignment_is_bound_to_its_decision_frames() -> None:
+    trace = [
+        _assigned("P2", 2, "decision-1", context={"amount_remaining": 4}),
+        _assigned("obj:x", 2, "decision-2", context={"amount_remaining": 2}),
+    ]
+    evidence = mr.verify_token("amount_assignment:2+2", [], trace, set())
+    assert evidence is not None
+    assert evidence["total"] == 4
+    assert evidence["decision_ids"] == ["decision-1", "decision-2"]
+    assert evidence["assignments"] == [
+        {"target": "P2", "amount": 2},
+        {"target": "obj:x", "amount": 2},
+    ]
+
+
+def test_an_assignment_that_was_only_reached_is_not_assignment_evidence() -> None:
+    """The wrong-reason control: a target frame that was reached but never
+    answered cannot satisfy the assignment token, and neither can a final board
+    that happens to look right."""
+    reached_only = [_assigned("P2", 2, "decision-1", scripted=False)]
+    assert mr.verify_token("amount_assignment:2+2", [], reached_only, set()) is None
+    no_decision_identity = [_assigned("P2", 2, "", context={"amount_remaining": 4})]
+    assert mr.verify_token("amount_assignment:2+2", [], no_decision_identity, set()) is None
+    final_state_only = [{"type": "DAMAGED_PLAYER", "target_player": "P2", "amount": 2}]
+    assert mr.verify_token("amount_assignment:2+2", final_state_only, [], set()) is None
+
+
+@pytest.mark.parametrize(
+    "token",
+    [
+        "amount_assignment:2+1",
+        "amount_assignment:2",
+        "amount_assignment:2+2+2",
+        "amount_assignment:4",
+    ],
+)
+def test_an_assignment_token_must_match_the_observed_legs(token: str) -> None:
+    trace = [
+        _assigned("P2", 2, "decision-1", context={"amount_remaining": 4}),
+        _assigned("obj:x", 2, "decision-2", context={"amount_remaining": 2}),
+    ]
+    assert mr.verify_token(token, [], trace, set()) is None
+
+
+def test_an_assignment_total_that_disagrees_with_the_engine_frame_fails_closed() -> None:
+    """The engine's own remaining total is the authority: a record that sums to
+    something else did not assign what the engine asked to distribute."""
+    trace = [
+        _assigned("P2", 1, "decision-1", context={"amount_remaining": 4}),
+        _assigned("obj:x", 1, "decision-2", context={"amount_remaining": 3}),
+    ]
+    assert mr.verify_token("amount_assignment:1+1", [], trace, set()) is None
+
+
+def _cast_frame(source: str, *, scripted: bool = True) -> mr.Frame:
+    return mr.Frame(
+        "priority",
+        "P2",
+        ["Hex — Cast Hex"],
+        selected_label="Hex — Cast Hex",
+        scripted=scripted,
+        decision_id="cast-1",
+        selected_source_object=source,
+    )
+
+
+def _payment_frames(unpaid: str, taps: int, spends: int, paid: bool = True) -> list[mr.Frame]:
+    frames: list[mr.Frame] = []
+    for index in range(taps):
+        frames.append(
+            mr.Frame(
+                "mana_payment",
+                "P2",
+                ["Swamp"],
+                selected_label="Swamp",
+                selected_option_type="mana_ability",
+                decision_id=f"pay-{index}",
+                context={"unpaid_mana": unpaid},
+            )
+        )
+    for index in range(spends):
+        frames.append(
+            mr.Frame(
+                "mana_payment",
+                "P2",
+                ["Spend"],
+                selected_label="Spend",
+                selected_option_type="mana_pool",
+                decision_id=f"spend-{index}",
+                context={"unpaid_mana": unpaid},
+            )
+        )
+    return frames
+
+
+OBLIGATION = ("native-hex", "{4}{B}{B}", "{7}{B}{B}")
+
+
+def test_the_cost_obligation_is_the_engine_determined_and_charged_total() -> None:
+    trace = [_cast_frame("native-hex"), *_payment_frames("{7}{B}{B}", 9, 9)]
+    evidence = mr.verify_token(
+        "cost_determined:base_plus_3_generic", [], trace, set(), None, None, OBLIGATION
+    )
+    assert evidence is not None
+    assert evidence["unpaid_mana"] == "{7}{B}{B}"
+    assert evidence["charged_mana"] == 9
+
+
+def test_a_cost_token_without_a_declared_obligation_fails_closed() -> None:
+    trace = [_cast_frame("native-hex"), *_payment_frames("{7}{B}{B}", 9, 9)]
+    assert mr.verify_token("cost_determined:base_plus_3_generic", [], trace, set()) is None
+
+
+def test_a_cost_token_needs_the_cast_and_the_actual_charge() -> None:
+    target_only = [
+        _cast_frame("native-hex"),
+        mr.Frame("target", "P2", ["Grizzly Bears"], selected_label="Grizzly Bears", scripted=True),
+    ]
+    assert (
+        mr.verify_token(
+            "cost_determined:base_plus_3_generic", [], target_only, set(), None, None, OBLIGATION
+        )
+        is None
+    )
+    wrong_cast = [_cast_frame("native-other"), *_payment_frames("{7}{B}{B}", 9, 9)]
+    assert (
+        mr.verify_token(
+            "cost_determined:base_plus_3_generic", [], wrong_cast, set(), None, None, OBLIGATION
+        )
+        is None
+    )
+    unscripted = [_cast_frame("native-hex", scripted=False), *_payment_frames("{7}{B}{B}", 9, 9)]
+    assert (
+        mr.verify_token(
+            "cost_determined:base_plus_3_generic", [], unscripted, set(), None, None, OBLIGATION
+        )
+        is None
+    )
+
+
+def test_a_cost_token_rejects_a_determined_cost_that_is_not_base_plus_three() -> None:
+    for unpaid in ("{4}{B}{B}", "{5}{B}{B}", "{8}{B}{B}", "{7}{B}{B}{B}"):
+        trace = [_cast_frame("native-hex"), *_payment_frames(unpaid, 9, 9)]
+        assert (
+            mr.verify_token(
+                "cost_determined:base_plus_3_generic", [], trace, set(), None, None, OBLIGATION
+            )
+            is None
+        ), unpaid
+
+
+def test_a_cost_token_rejects_a_charge_that_never_left_the_pool() -> None:
+    """A payment frame that was answered but never charged is not a payment: the
+    wrong-reason implementation that reads the frame's prompt instead of the
+    actual charge must fail this control."""
+    taps_only = [_cast_frame("native-hex"), *_payment_frames("{7}{B}{B}", 9, 0)]
+    assert (
+        mr.verify_token(
+            "cost_determined:base_plus_3_generic", [], taps_only, set(), None, None, OBLIGATION
+        )
+        is None
+    )
+    floating = [_cast_frame("native-hex"), *_payment_frames("{7}{B}{B}", 9, 8)]
+    assert (
+        mr.verify_token(
+            "cost_determined:base_plus_3_generic", [], floating, set(), None, None, OBLIGATION
+        )
+        is None
+    )
+
+
+def test_a_cost_token_rejects_an_unreadable_mana_string() -> None:
+    for unpaid in ("{W/U}{7}", "7", "{X}{B}{B}", ""):
+        trace = [_cast_frame("native-hex"), *_payment_frames(unpaid, 9, 9)]
+        assert (
+            mr.verify_token(
+                "cost_determined:base_plus_3_generic", [], trace, set(), None, None, OBLIGATION
+            )
+            is None
+        ), unpaid
+
+
+def test_assignment_terminal_checks_read_the_engine_frames() -> None:
+    trace = [
+        _assigned("P2", 2, "decision-1", context={"amount_remaining": 4}),
+        _assigned("obj:x", 2, "decision-2", context={"amount_remaining": 2}),
+    ]
+    assert mr.check_terminal(mr.TerminalCheck("assignment_total", value=4), {}, [], trace)
+    assert not mr.check_terminal(mr.TerminalCheck("assignment_total", value=5), {}, [], trace)
+    assert mr.check_terminal(mr.TerminalCheck("assignment_minimum", value=1), {}, [], trace)
+    assert not mr.check_terminal(mr.TerminalCheck("assignment_minimum", value=3), {}, [], trace)
+    assert not mr.check_terminal(mr.TerminalCheck("assignment_total", value=4), {}, [], [])
+    # The engine's own remaining total overrides a self-consistent record total.
+    disagreeing = [_assigned("P2", 1, "decision-1", context={"amount_remaining": 4})]
+    assert not mr.check_terminal(mr.TerminalCheck("assignment_total", value=1), {}, [], disagreeing)

@@ -4,7 +4,7 @@ worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
 branch: hardening/midgame-multiselect-amount-closure-20261001
 audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
 audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
-state_written_against_head: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
+state_written_against_head: 724764868810be59d325bea415618ee376c6a348
 validated_head: null
 
 objective: >-
@@ -14,26 +14,26 @@ objective: >-
   validation.
 
 in_scope:
-  - engine-authored multi-select choose_targets support
-  - semantic-object to offered-option matching
-  - divided-damage amount_assignment support
-  - MICRO_COSTS exact cost-charge verification
-  - negative and wrong-reason controls
+  - engine-authored multi-select target selection (semantic_objects)
+  - divided-damage amount_assignment selection and verification
+  - MICRO_COSTS engine-determined cost-charge verification
+  - live wrong-reason controls on the production executor
   - direct re-execution of MICRO_COSTS
   - direct re-execution of PILOT_TARGET_AMOUNT
   - direct re-execution of PILOT_MULTI_AMOUNT
   - impacted current-boundary receipt and evidence reassembly
+  - CI, independent review and merge adjudication
 
 out_of_scope:
   - AF05 hidden-information knowledge projection
-  - AF07 29-card actual-card corpus expansion
+  - AF07 actual-card corpus expansion
   - AF09 semantic replay twins
   - Forge mid-game lane creation
   - Production Provider selection
   - AF11
   - Architecture Freeze
   - unrelated Rules-engine remediation
-  - broad cleanup
+  - Foundry routing changes
 
 ownership: MIDGAME-LANE-MULTISELECT-AMOUNT-CLOSURE-20261001
 
@@ -69,36 +69,70 @@ forbidden_shortcuts:
   - manual outcome injection
   - implicit equal damage split
 
-validated_gates: []
+validated_gates:
+  - 'unit: tests/qualification/test_current_boundary_midgame_rows.py 85 passed'
+  - 'unit: tests/qualification 822 passed / 13 skipped'
+  - 'dev-runtime: three rows verified locally via execute_and_persist (MODELED, non-credit)'
+  - 'dev-control: three live wrong-reason controls stop unverified with the obligation token missing'
 failed_gates: []
 invalidated_gates: []
 do_not_rerun: []
 
 failure_class: NONE
 root_cause_class: NONE
+current_failure: >-
+  none in scope; the pre-change selector gap is remediated and the remaining
+  requirement is at-pin CI credit for the three rows.
 
-files_modified: []
-tests_run: []
-evidence: []
-artifacts: []
+first_failing_boundary: >-
+  selector dispatch in _scripted_answer: 'semantic_objects' (MICRO_COSTS) and
+  'amount_assignment' (PILOT_TARGET_AMOUNT / PILOT_MULTI_AMOUNT); reproduced
+  before the change, now implemented.
+
+files_modified:
+  - src/commander_lab/qualification/current_boundary/midgame_rows.py
+  - scripts/run_midgame_capability_probe.py
+  - tests/qualification/test_current_boundary_midgame_rows.py
+  - docs/midgame_multiselect_amount_closure_20261001/
+
+tests_run:
+  - 'python3 -m pytest -q tests/qualification/test_current_boundary_midgame_rows.py -> 85 passed'
+  - 'python3 -m pytest -q tests/qualification -> 822 passed, 13 skipped'
+  - 'python3 -m ruff check + ruff format --check on modified files -> clean'
+  - 'mypy 1.20.2 strict on midgame_rows.py -> no errors in the modified module'
+
+evidence:
+  - 'fail-before: three rows stop at the missing selector with EXACT construction'
+  - 'engine frames reproduced: target_amount per-leg frames (numeric bounds + amount_remaining), target 6-of-6 frame, target 2-of-2 frame, mana_payment {7}{B}{B}'
+  - 'dev positive: MICRO_COSTS cost evidence charged_mana=9, determined {7}{B}{B}, 18 engine decision ids'
+  - 'dev positive: PILOT_TARGET_AMOUNT and PILOT_MULTI_AMOUNT amount_assignment:2+2 with engine decision ids and engine_amount_remaining=4'
+  - 'dev controls: MICRO_COSTS without payment -> cost token missing; Magma Opus with one leg -> amount_assignment:2+2 missing'
+
+artifacts:
+  - docs/midgame_multiselect_amount_closure_20261001/SELECTOR_DESIGN.md
+  - docs/midgame_multiselect_amount_closure_20261001/FAIL_BEFORE_AND_CONTROLS.md
 
 remaining_scope:
-  - source and ownership census
-  - reproduce actual multi-select decision frame
-  - multi-select target selector
-  - amount_assignment selector
-  - MICRO_COSTS cost verifier
-  - wrong-reason controls
-  - three-row direct execution
-  - impacted evidence reassembly
-  - independent review
-  - CI and merge adjudication
+  - commit the validated milestone and push the owned branch
+  - open the Draft PR and attach the evidence
+  - run the authoritative PB-03 CI on the exact head
+  - commit the CI-produced evidence epoch for the impacted rows
+  - independent fresh-context review
+  - merge adjudication and terminal handoff
 
 status: ACTIVE
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
-hypotheses_rejected: []
-technical_decisions: []
+hypotheses_rejected:
+  - 'the two Magma Opus rows need the tap-target multi-select frame before the assignment obligation is observable: false; the assignment completes first and the record scripts no tap targets'
+  - 'the divided-damage amount is a separate engine frame class after target selection: false; each target_amount frame carries the target and its share together'
+  - 'the MICRO_COSTS cost increase is visible in the priority action metadata before targets: false; the engine determines {7}{B}{B} only in the payment frame after targets'
+technical_decisions:
+  - 'semantic_objects is a generic ordered-identity selector with the engine frame cardinality as authority'
+  - 'amount_assignment consumes one engine target_amount frame per declared leg and submits target + numeric_choice'
+  - 'the amount_assignment verifier binds each leg to a scripted frame with the engine decision id and the engine amount_remaining total'
+  - 'cost_determined:base_plus_N_generic compares the engine unpaid_mana vector and the actually charged pool spends to the row-declared base and total'
+  - 'the two Magma Opus rows verify at the assignment obligation and stop before the unscripted tap frame instead of inventing targets'
 authority_gates: []
 
 execution_profile: deepseek
@@ -107,7 +141,6 @@ native_variant: max
 variant_resolution: native_max
 
 exact_next_action: >-
-  Fresh-fetch origin and GitHub, reread #255 and #449, establish current
-  writer ownership and drift, reproduce the three affected decision paths,
-  then continue autonomously through implementation, direct evidence,
-  CI, review and merge adjudication.
+  Commit the validated milestone with the state file and design evidence, push
+  the owned branch, open the Draft PR, then drive the PB-03 CI to green and
+  commit the CI-produced evidence epoch for the three rows.
