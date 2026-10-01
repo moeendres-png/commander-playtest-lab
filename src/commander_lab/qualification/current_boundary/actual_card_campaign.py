@@ -939,8 +939,6 @@ def classify(
             if dimension
             in {
                 "stack_objects",
-                "counters",
-                "tapped_permanents",
                 "face_down",
                 "control_divergence",
                 "library_identity_objects",
@@ -976,6 +974,24 @@ def classify(
                     "blocker_detail": (
                         f"the engine refused the requested starting state ({engine_token}); its "
                         f"own manifest names the dimension as unsupported: {named_text[:1]}; "
+                        f"engine detail: {detail}"
+                    ),
+                }
+            if "UNKNOWN_CARD_NAME" in detail and any(
+                str(obj.get("card_identity") or "").endswith(" Token")
+                and str(obj.get("card_identity")) in detail
+                for obj in row.record.get("semantic_objects") or ()
+            ):
+                # A token is not a card: the card-vehicle restoration cannot
+                # place it, and only an effect creates one.
+                return {
+                    "outcome": OUTCOME_BLOCKED,
+                    "blocker_class": BLOCKER_PROVIDER_ADAPTER_DEFECT,
+                    "blocker_surface": SURFACE_NATIVE_RESTORATION,
+                    "blocker_owner": None,
+                    "blocker_detail": (
+                        "the record requests a token object, which the card-vehicle restoration "
+                        f"cannot place (a token is created by an effect, not loaded as a card); "
                         f"engine detail: {detail}"
                     ),
                 }

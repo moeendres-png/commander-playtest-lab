@@ -346,6 +346,14 @@ final class XmageNativeStateRestoration {
      */
     XmageLosslessHiddenPlan.Verification losslessHiddenVerification(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
+        if (!losslessLibrariesApplied && requestsCheckpointState()) {
+            // Before the checkpoint the requested libraries, tapped state and
+            // counters are not placed yet. One coded mismatch, never per object:
+            // naming a requested library object here would tell the requester
+            // that such a hidden card was requested.
+            return new XmageLosslessHiddenPlan.Verification(
+                    List.of(), List.of("checkpoint_state: the requested checkpoint was not reached"));
+        }
         XmageLosslessHiddenPlan.Verification hidden = losslessHidden.verify(game, playersByPid, this);
         XmageLosslessHiddenPlan.Verification permanents = checkpointPermanentVerification(game);
         List<String> checks = new ArrayList<>(hidden.checks());
@@ -1100,6 +1108,13 @@ final class XmageNativeStateRestoration {
             }
         }
         return new XmageLosslessHiddenPlan.Verification(checks, mismatches);
+    }
+
+    private boolean requestsCheckpointState() {
+        if (!losslessHidden.isEmpty() || !plan.objectCounters().isEmpty()) {
+            return true;
+        }
+        return plan.objects().stream().anyMatch(RequestedObject::tapped);
     }
 
     private boolean atRequestedCheckpoint(GameCommanderImpl game) {

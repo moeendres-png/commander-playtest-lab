@@ -152,6 +152,10 @@ class XmageCheckpointStateRestorationTest {
 
     /** Drives to the record's precombat-main checkpoint, completing the arrival at every priority. */
     private static JsonObject arrive(String fixtureId) {
+        return arrive(fixtureId, new ArrayList<>());
+    }
+
+    private static JsonObject arrive(String fixtureId, List<String> earlierArrivals) {
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
         JsonObject create = new JsonObject();
         create.addProperty("game_id", fixtureId);
@@ -174,6 +178,7 @@ class XmageCheckpointStateRestorationTest {
                 if ("PRECOMBAT_MAIN".equals(arrival.getAsJsonObject("observation").get("phase").getAsString())) {
                     return arrival;
                 }
+                earlierArrivals.add(arrival.toString());
                 submit(lane, decision, option(decision, "pass_priority"));
             } else {
                 fail("unexpected decision during arrival: " + decisionClass);
@@ -201,6 +206,23 @@ class XmageCheckpointStateRestorationTest {
         JsonObject arrival = arrive("CARD_09");
         assertExact(arrival, "library_object", 2);
         assertExact(arrival, "library_order", 1);
+    }
+
+    /**
+     * Fail-before (found by the AF05 knowledge-projection regression): while
+     * the libraries waited for the checkpoint, every earlier arrival response
+     * listed each requested library object as "not placed", naming its
+     * semantic id to a requester who may not know such a card was requested.
+     */
+    @Test
+    void noArrivalBeforeTheCheckpointNamesARequestedLibraryObject() {
+        List<String> earlier = new ArrayList<>();
+        assertExact(arrive("CARD_12", earlier), "library_object", 7);
+        assertFalse(earlier.isEmpty(), "the arrival must have been completed before the checkpoint");
+        for (String response : earlier) {
+            assertFalse(response.contains("obj:card12-lib"), "an early arrival named a library object");
+            assertTrue(response.contains("the requested checkpoint was not reached"), response);
+        }
     }
 
     /**
