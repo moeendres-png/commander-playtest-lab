@@ -115,14 +115,9 @@ DEFAULT_FOREIGN_OWNED_SURFACES: Mapping[str, str] = {
     "src/commander_lab/qualification/current_boundary/midgame_rows.py": "PR #450",
     "scripts/run_midgame_capability_probe.py": "PR #450",
     "tests/qualification/test_current_boundary_midgame_rows.py": "PR #450",
-    # #452 merged; the successor-contract surfaces are owned by the next active
-    # AF05 writer (#462) until it is terminal.
-    "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": "PR #462",
-    "qualification/pre-freeze-successor/": "PR #462",
-    "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "PR #462",
-    "src/commander_lab/qualification/current_boundary/source_lock.py": "PR #462",
-    "tests/qualification/test_knowledge_projection.py": "PR #462",
-    "tests/qualification/test_pre_freeze_contract_successor.py": "PR #462",
+    # #452, #460 and #462 merged: the successor-contract surfaces have no
+    # foreign writer any more, so a missing script step there is a fixture
+    # defect for this campaign to correct, not a dependency.
 }
 
 SURFACE_CAMPAIGN = "src/commander_lab/qualification/current_boundary/actual_card_campaign.py"
@@ -1078,12 +1073,20 @@ def classify(
                 "the engine offered a decision the generic production executor cannot answer "
                 f"from the record's declared script: {detail}",
             )
-        return dependency(
-            SURFACE_SUCCESSOR_CONTRACT,
+        missing_step = (
             "the engine offered a discretionary decision class the effective record does not "
             f"script ({frame_class!r}; the record scripts {sorted(scripted_classes)}); recorded "
-            "by the engine as: " + detail,
+            "by the engine as: " + detail
         )
+        if not surfaces.get(SURFACE_SUCCESSOR_CONTRACT):
+            return {
+                "outcome": OUTCOME_BLOCKED,
+                "blocker_class": BLOCKER_FIXTURE_DEFECT,
+                "blocker_surface": SURFACE_SUCCESSOR_CONTRACT,
+                "blocker_owner": None,
+                "blocker_detail": missing_step,
+            }
+        return dependency(SURFACE_SUCCESSOR_CONTRACT, missing_step)
     if detail.startswith("arrival failed closed"):
         return dependency(
             SURFACE_MIDGAME_PROBE,

@@ -541,6 +541,18 @@ def test_unscripted_decision_family_absent_from_the_record_is_a_contract_depende
     assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
     assert evaluation["blocker_surface"] == campaign.SURFACE_SUCCESSOR_CONTRACT
     assert evaluation["blocker_owner"] == "PR #462"
+    # Once no foreign writer owns the contract, the same gap is a fixture
+    # defect for this campaign to correct, never a dependency or a pass.
+    assert campaign.SURFACE_SUCCESSOR_CONTRACT not in campaign.DEFAULT_FOREIGN_OWNED_SURFACES
+    unowned = campaign.evaluate_row(
+        row,
+        measurement,
+        expected_engine_commit=PIN,
+        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+    )
+    assert unowned["blocker_class"] == campaign.BLOCKER_FIXTURE_DEFECT
+    assert unowned["blocker_surface"] == campaign.SURFACE_SUCCESSOR_CONTRACT
+    assert unowned["blocker_owner"] is None
 
 
 def test_unscripted_decision_family_the_record_scripts_is_an_executor_dependency() -> None:
