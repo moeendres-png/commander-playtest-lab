@@ -418,7 +418,21 @@ def select_cost_order_action(actions: list[dict[str, Any]]) -> dict[str, Any]:
     if not actions:
         raise DecisionUnsatisfied("ORDER_CHOICE exposed no legal actions")
     action_types = {_action_kind(action) for action in actions}
-    if action_types == {"cost_order"}:
+    if action_types != {"structural_decision"}:
+        raise DecisionUnsatisfied(
+            f"ORDER_CHOICE must use shared structural_decision ActionType: "
+            f"{sorted(action_types)!r}"
+        )
+    subtypes: set[str] = set()
+    for action in actions:
+        metadata = action.get("metadata")
+        if not isinstance(metadata, dict):
+            raise DecisionUnsatisfied("cost-order action has no metadata object")
+        subtype = metadata.get("decision_subtype")
+        if not isinstance(subtype, str) or not subtype:
+            raise DecisionUnsatisfied("cost-order action has no decision_subtype")
+        subtypes.add(subtype)
+    if subtypes == {"cost_order"}:
         parsed = [(action, _cost_order_indices(action)) for action in actions]
         width = len(parsed[0][1])
         if width < 2:
@@ -430,7 +444,7 @@ def select_cost_order_action(actions: list[dict[str, Any]]) -> dict[str, Any]:
                     "cost_order options do not describe one complete native index domain"
                 )
         matches = [action for action, indices in parsed if indices == expected]
-    elif action_types == {"cost_order_next"}:
+    elif subtypes == {"cost_order_next"}:
         parsed = [(action, _cost_order_indices(action)) for action in actions]
         if any(len(indices) != 1 for _, indices in parsed):
             raise DecisionUnsatisfied("cost_order_next must identify exactly one native part")
@@ -441,7 +455,7 @@ def select_cost_order_action(actions: list[dict[str, Any]]) -> dict[str, Any]:
         matches = [action for action, indices in parsed if indices[0] == wanted]
     else:
         raise DecisionUnsatisfied(
-            f"unsupported ORDER_CHOICE action types: {sorted(action_types)!r}"
+            f"unsupported or mixed ORDER_CHOICE decision_subtype: {sorted(subtypes)!r}"
         )
     if len(matches) != 1:
         raise DecisionUnsatisfied("declared cost-order policy did not identify one legal option")
