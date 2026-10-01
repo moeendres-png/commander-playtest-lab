@@ -8,6 +8,7 @@ from commander_lab.qualification.current_boundary.game_driver import (
     DecisionUnsatisfied,
     select_cost_order_action,
 )
+from commander_lab.models import ActionType, LegalAction
 
 
 def _action(
@@ -217,3 +218,14 @@ def test_game_driver_submits_declared_cost_order_policy(
     assert proposal["action_type"] == "structural_decision"
     assert result.decision_tape[0].policy == COST_ORDER_POLICY
     assert result.decision_tape[0].chosen_option_id == "native"
+
+
+def test_generic_legal_action_preserves_cost_order_metadata() -> None:
+    raw = _action("native", "cost_order", [0, 1])
+    raw["actor_id"] = "p1"
+
+    action = LegalAction.model_validate(raw)
+
+    assert action.action_type is ActionType.STRUCTURAL_DECISION
+    assert action.metadata["decision_subtype"] == "cost_order"
+    assert action.metadata["cost_order_indices"] == [0, 1]
