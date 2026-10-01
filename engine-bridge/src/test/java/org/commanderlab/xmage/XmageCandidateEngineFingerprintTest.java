@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30): the bridge
+ * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -64,6 +64,24 @@ class XmageCandidateEngineFingerprintTest {
         Method blockOrder = combat.getDeclaredMethod("getPlayerDefendersInApnapOrder", Game.class);
         assertEquals(List.class, blockOrder.getReturnType(), "F-29: loaded engine is not the successor: "
                 + combat.getProtectionDomain().getCodeSource().getLocation());
+    }
+
+    /**
+     * Successor v3 (2026-10-01): the loaded engine carries F-43's combat-damage
+     * source revalidation (mage#29). F-44 (mage#33) changes behaviour inside
+     * GameImpl.checkTriggered only and F-45 (mage#35) inside
+     * PlayerImpl.moveObjectToLibrary only; neither has a structural signature.
+     * Their native regressions TriggerOrderLeaver4PTest and SuddenSetbackCopyTest
+     * run in the candidate's Mage.Tests.
+     */
+    @Test
+    void loadedEngineCarriesTheF43Revalidation() throws Exception {
+        Class<?> group = mage.game.combat.CombatGroup.class;
+        Method revalidate = group.getDeclaredMethod("revalidateCombatDamageSource",
+                mage.MageObjectReference.class, UUID.class, Game.class);
+        assertEquals(mage.game.permanent.Permanent.class, revalidate.getReturnType(),
+                "F-43: loaded engine is not the successor: "
+                        + group.getProtectionDomain().getCodeSource().getLocation());
     }
 
     /**
