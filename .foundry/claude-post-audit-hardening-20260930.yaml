@@ -164,8 +164,11 @@ tasks:
     evidence: ExternalValidationOutcome per attempt; external mismatch outranks tactical oracle (card -> STRUCTURAL_ONLY);
       4/4 red before
   G1:
-    status: OWNERSHIP_BLOCKED
-    evidence: '#436 (Sol R-5 integration gate) owns config/rules_engines.json and the pin-authority tests'
+    status: FIXED
+    pr: '#440'
+    evidence: 'unblocked when #436 merged; Python scripts/tests read canonical_xmage_engine_pin(), bootstraps resolve
+      via docker_resolve_engine_pin.py; literal pin only in 4 workflows, 3 Java files, 3 guard tests + config (20 -> 11
+      files); test_current_pin_fanout_ratchet mutation-checked; full suite 2863/0'
   H1:
     status: SUPERSEDED_ALREADY_FIXED
     pr: '#423'
@@ -173,8 +176,8 @@ tasks:
       terminal PRs were also closed with a measured comment each (lab 21, forge 6, mage 5); no branch deleted; #297/#299
       stay open until PB-09 is signed'
   R1:
-    status: FIXED_UPSTREAM_PROPOSED
-    pr: moeendres-png/mage#34
+    status: FIXED_IN_MAGE_MASTER
+    pr: moeendres-png/mage#34 (merged 8e84aabf; not yet in the candidate branch)
     evidence: 'real engine defect (ledger S-16): moveObjectToLibrary keyed a copy by the effect source, so Sudden
       Setback on a copy put Sudden Setback into its owner''s library and the copy resolved; red at pin 9375f35a and
       master, 2/2 green with the fix on both; 20 related test classes green; Lab pin unchanged (repin lane)'

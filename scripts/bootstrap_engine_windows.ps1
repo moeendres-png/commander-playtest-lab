@@ -3,8 +3,14 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Provider = if ($env:ENGINE_PROVIDER) { $env:ENGINE_PROVIDER } else { "xmage" }
 $RulesCommit = $null
 if ($Provider -eq "xmage") {
-  $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { "https://github.com/moeendres-png/mage.git" }
-  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326" }
+  # G1: the default pin comes from config/rules_engines.json (sole authority).
+  $Python = Get-Command python -ErrorAction SilentlyContinue
+  if (-not $Python) { throw "python is required to resolve XMage pin authority" }
+  $Resolved = (& $Python.Source (Join-Path $Root "scripts\docker_resolve_engine_pin.py") --provider xmage --format json | Out-String)
+  if ($LASTEXITCODE -ne 0) { throw "XMage pin authority resolution failed" }
+  $Pin = $Resolved | ConvertFrom-Json
+  $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { $Pin.repository }
+  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { $Pin.commit }
   $RulesCommit = $Commit
 } elseif ($Provider -eq "forge") {
   $Python = Get-Command python -ErrorAction SilentlyContinue
