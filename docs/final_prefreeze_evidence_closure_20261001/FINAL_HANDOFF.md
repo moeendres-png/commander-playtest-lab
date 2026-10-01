@@ -6,16 +6,17 @@
 
 | Role | Identity |
 |---|---|
-| Lab origin/main merged into this branch | `77f99951cf04c66a405ff1a3470d5d0da19ad81d` (via #446 `42f19dd1`, #447) |
+| Lab origin/main merged into this branch | `94f0d3d272d1bd2edd4173aa1783b31155278e68` (via #446, #447, #444, #448) |
 | This branch | `hardening/final-prefreeze-evidence-closure-20261001` |
-| Producing source tree of the epoch | `f4a715978f5c76d2e883ab3bd815a3612da19c65` (the PR merge commit `401b6fd19d8e00dc919d5868891291cb4dc9c166` has exactly this tree) |
-| Successor evidence epoch | `qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/` (65 files, all verified against the CI-produced `CURRENT_BOUNDARY_SHA256SUMS`) |
+| Producing source tree of the epoch | `d0fc69bb4022f620ee68ea05a5e83c5a71f7b88e` (the PR merge commit `2b60482af250…` has exactly this tree) |
+| Successor evidence epoch | `qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/` (65 files, all verified against the CI-produced `CURRENT_BOUNDARY_SHA256SUMS`) |
 | XMage candidate | `37e4df6c914f1e189e24f0ef59fa91734c922436` (repin v3 with F-43/F-44/F-45) |
 | Forge Rules-Core candidate | `bb0a740d2bef725194798383c2452213ecdd0b37` |
 | Forge bridge/materialization source | `20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c` (final #11+#16 identities) |
 | Effective FULL107 contract | `commander-lab.full107/1.0.7-successor` (9 corrected fixtures) |
 | Historical epoch (untouched) | `qualification/current-boundary-epochs/4cad91897216-a43e80d96595/` |
-| Superseded workstream epochs | `fac12a9b…` (pre-review-repair) and the 3fa371d6 PR-run epoch (correct code, #441-locked pins): both preserved in branch history, removed from the tip |
+| Superseded workstream epochs | `fac12a9b…` (pre-review-repair), the 3fa371d6 PR-run epoch (#441-locked pins) and `401b6fd1…` (current pins, pre-final-merge): preserved in branch history, removed from the tip |
+| Sibling epoch on main | `77f99951cf04-06b8661b9700` (#448's epoch for the same pins), additional provenance only |
 
 ## Work Completed
 
@@ -43,10 +44,11 @@
    the merged #443 policy.
 6. **H — reassembly** — the PB-03 workflow was run twice: once on the
    #441-locked pins (run 36829423872, green, superseded by pin drift) and once
-   on the merged head at the current canonical pins (run **36843153264**, green,
-   producing merge commit `401b6fd1`, tree `f4a71597`). The second epoch was
-   downloaded, all 65 digests verified byte-for-byte, and committed unchanged.
-   No result differed in kind between the two runs.
+   on the merged heads at the current canonical pins (runs 36843153264 and
+   **36849890708**, both green). The final run's epoch (producing tree
+   `d0fc69bb` = this branch's tree) was downloaded, all 65 digests verified
+   byte-for-byte, and committed unchanged. No result differed in kind between
+   the runs.
 
 ## New Findings
 
@@ -96,7 +98,7 @@
 
 | Classification | Evidence |
 |---|---|
-| `DIRECTLY_VERIFIED` | PB-03 workflow run 36843153264 green at the current pins (XMage `37e4df6c`, Forge bridge `20e3e1f7`); 65/65 epoch digests verified |
+| `DIRECTLY_VERIFIED` | PB-03 workflow run 36849890708 green at the current pins (XMage `37e4df6c`, Forge bridge `20e3e1f7`) on the exact final head; 65/65 epoch digests verified |
 | `DIRECTLY_VERIFIED` | 19 mid-game lane rows executed, 19 verified, each with an R-4 positive receipt bound to candidate/runner/requested-state/obligation |
 | `DIRECTLY_VERIFIED` | 4 NEGATIVE_* rows PASS on well-formed typed refusals (`state_mutated=false`, `submissions_in_window=[]`) |
 | `DIRECTLY_VERIFIED` | AF04 PASS for both candidates (30 / 25 proven frames) |

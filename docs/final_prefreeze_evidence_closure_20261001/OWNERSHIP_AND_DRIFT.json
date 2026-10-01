@@ -2,8 +2,8 @@
  "_schema": "commander-lab.final-prefreeze-ownership-and-drift/1.0.0",
  "architecture_freeze": "NOT_CLAIMED",
  "current_origin_main_at_packet": {
-  "commit": "77f99951cf04c66a405ff1a3470d5d0da19ad81d",
-  "note": "before this branch merged into it"
+  "commit": "94f0d3d272d1bd2edd4173aa1783b31155278e68",
+  "note": "merged into this branch at 28e36938; the merge commit records the exact parent"
  },
  "drift_events": [
   {
@@ -54,6 +54,13 @@
     "fac12a9b73b1-3234e300d699: pre-review-repair (its effective manifest misstated the corrected-fixture set); preserved in branch history",
     "PR-run epoch on 3fa371d6 (producing commit 8f8c0156, tree 99886b6c): correct code but #441-locked pins; preserved in branch history"
    ]
+  },
+  {
+   "action_taken": "requalified on the exact final head; results identical in kind",
+   "class": "RELEVANT_NONCONFLICTING",
+   "event": "main advanced again to 94f0d3d2 (#444 repin v3 completion, #448 final-identities epoch) before this branch's checks completed",
+   "impact_on_this_workstream": "pins unchanged from the previous requalification (XMage 37e4df6c, Forge bridge 20e3e1f7); #448 persists main's own epoch for the same pins, which is additional provenance",
+   "integration": "origin/main merged normally at 28e36938 (only the hash manifests conflicted and were regenerated); the PB-03 workflow was re-run on that merged head (run 36849890708, green) and its epoch 2b60482af250-d0fc69bb4022 (producing tree d0fc69bb = this branch's tree) is the packet's evidence epoch"
   }
  ],
  "foreign_active_surfaces_not_touched": [

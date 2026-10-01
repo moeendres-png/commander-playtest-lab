@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
 branch: hardening/final-prefreeze-evidence-closure-20261001
 audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
 audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d
-state_written_against_head: 2cca3de09b7e9355350753f3af78db41dd18de10
-validated_head: 2cca3de09b7e9355350753f3af78db41dd18de10
+state_written_against_head: 28e36938ebc2e3d4064d811e0a566707117e4302
+validated_head: 28e36938ebc2e3d4064d811e0a566707117e4302
 objective: 'Close the Coordinator-adjudicated pre-Freeze evidence and qualification
   gaps tracked by issue #441 and produce a fresh source-bound provider-readiness packet
   for subsequent Coordinator adjudication under #255.'
@@ -68,13 +68,13 @@ tests_run:
 - PB-03 workflow run 36829423872 on fac12a9b => success
 - python3 scripts/regenerate_hash_manifests.py (304/309 entries)
 evidence:
-- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/ (65 files, digests
-  verified; current pins 37e4df6c / 20e3e1f7)
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/ (65 files, digests
+  verified; exact final head; pins 37e4df6c / 20e3e1f7)
 - docs/final_prefreeze_evidence_closure_20261001/ (13 packet files)
 artifacts:
-- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/FULL107_XMAGE_RESULTS.json
-- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/FULL107_FORGE_RESULTS.json
-- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/PROVIDER_READINESS_CURRENT.json
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/FULL107_XMAGE_RESULTS.json
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/FULL107_FORGE_RESULTS.json
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/PROVIDER_READINESS_CURRENT.json
 - docs/final_prefreeze_evidence_closure_20261001/FINAL_HANDOFF.md
 remaining_scope:
 - AF05 mandatory HIDDEN_* channels (needs principal-scoped knowledge-projection observation
@@ -95,9 +95,9 @@ execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 variant_resolution: native_max
-exact_next_action: 'Verify all PR #445 checks on the final head (92f0a7ee), then integrate
-  if the merge-gate conditions hold; otherwise leave MERGEABLE_READY with the exact
-  failing gate.'
+exact_next_action: 'Wait for the pb03-runtime check on this head, then merge #445
+  if the merge-gate conditions hold (exact head, fresh main, all checks green, no
+  unresolved P1/P2 review finding).'
 files_modified:
 - src/commander_lab/qualification/current_boundary/decision_boundary.py
 - scripts/assemble_current_boundary_evidence.py

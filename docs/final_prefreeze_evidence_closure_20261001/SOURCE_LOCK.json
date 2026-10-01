@@ -59,8 +59,8 @@
    "engine_candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "engine_candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
    "evidence_epoch": {
-    "epoch_id": "401b6fd19d8e-f4a715978f5c",
-    "epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+    "epoch_id": "2b60482af250-d0fc69bb4022",
+    "epoch_root": "qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022",
     "predecessor_epoch": "qualification/final-current-boundary-20260927",
     "predecessor_is_read_only": true,
     "writes_historical_epoch": false
@@ -117,15 +117,15 @@
     "one_sided_modules": [],
     "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
    },
-   "runner_commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
-   "runner_tree": "f4a715978f5c76d2e883ab3bd815a3612da19c65",
+   "runner_commit": "2b60482af2506002d7799d1312f6b85e43300201",
+   "runner_tree": "d0fc69bb4022f620ee68ea05a5e83c5a71f7b88e",
    "scenario_injection_supported": true,
    "seed_supported": true,
    "starting_state_injection_supported": true
   },
   "xmage": {
    "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
-   "adapter_commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
+   "adapter_commit": "2b60482af2506002d7799d1312f6b85e43300201",
    "capabilities_provider_reported": {
     "action_submission_supported": false,
     "commander_damage_visible": false,
@@ -163,8 +163,8 @@
    },
    "engine_candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
    "evidence_epoch": {
-    "epoch_id": "401b6fd19d8e-f4a715978f5c",
-    "epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+    "epoch_id": "2b60482af250-d0fc69bb4022",
+    "epoch_root": "qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022",
     "predecessor_epoch": "qualification/final-current-boundary-20260927",
     "predecessor_is_read_only": true,
     "writes_historical_epoch": false
@@ -172,8 +172,8 @@
    "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
    "lane": "generic protocol-2 compatibility lane",
    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-   "runner_commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
-   "runner_tree": "f4a715978f5c76d2e883ab3bd815a3612da19c65",
+   "runner_commit": "2b60482af2506002d7799d1312f6b85e43300201",
+   "runner_tree": "d0fc69bb4022f620ee68ea05a5e83c5a71f7b88e",
    "scenario_injection_supported": false,
    "seed_supported": true,
    "starting_state_injection_supported": false
@@ -197,19 +197,19 @@
  },
  "epoch": {
   "authority": "operational evidence identity, not a qualification verdict: it names which source produced the bytes in this epoch",
-  "created_utc": "2026-10-01T09:43:20+00:00",
-  "epoch_id": "401b6fd19d8e-f4a715978f5c",
-  "epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+  "created_utc": "2026-10-01T10:41:45+00:00",
+  "epoch_id": "2b60482af250-d0fc69bb4022",
+  "epoch_root": "qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022",
   "predecessor_epoch": "qualification/final-current-boundary-20260927",
   "predecessor_is_read_only": true,
   "producing_source": {
    "branch": "HEAD",
-   "commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
+   "commit": "2b60482af2506002d7799d1312f6b85e43300201",
    "repository": "https://github.com/moeendres-png/commander-playtest-lab",
-   "tree": "f4a715978f5c76d2e883ab3bd815a3612da19c65"
+   "tree": "d0fc69bb4022f620ee68ea05a5e83c5a71f7b88e"
   },
   "schema_version": "commander-lab.current-boundary-epoch-identity/1.0.0"
  },
- "evidence_epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+ "evidence_epoch_root": "qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022",
  "historical_epoch_untouched": "qualification/current-boundary-epochs/4cad91897216-a43e80d96595"
 }

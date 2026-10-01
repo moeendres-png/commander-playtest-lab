@@ -31,7 +31,7 @@ REPO = Path(__file__).resolve().parents[2]
 # test that only read the predecessor would not cover the epoch #255 consumes.
 EPOCHS = (
     REPO / "qualification/current-boundary-epochs/4cad91897216-a43e80d96595",
-    REPO / "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+    REPO / "qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022",
 )
 EPOCH = EPOCHS[0]
 
