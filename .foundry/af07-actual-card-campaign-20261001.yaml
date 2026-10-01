@@ -4,13 +4,87 @@ worktree: /home/moeen/code/lab-af07-actual-card-campaign-20261001
 branch: hardening/af07-actual-card-campaign-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
+state_written_against_head: bf6323be45c61c62ec3d48c373e48796d54e596c
 validated_head: null
 
 objective: >-
   Build and execute the AF07 current-boundary campaign for the frozen
   29-card actual-card corpus while preserving Rules-Core authority and
   foreign-writer ownership.
+
+authority:
+  issue: 453
+  parent: 255
+  concurrency_ruling: 255#5936731960
+
+source_lock:
+  lab_main: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
+  lab_main_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
+  effective_contract: commander-lab.full107/1.0.8-successor
+  xmage_pin: 37e4df6c914f1e189e24f0ef59fa91734c922436
+  forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
+  forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+
+foreign_writers:
+  - pr: 450
+    branch: hardening/midgame-multiselect-amount-closure-20261001
+    head: 1e9619a1d37ce0f5f3c879a133a097214952ad5d
+    state: OPEN_DRAFT
+    surfaces:
+      - .foundry/midgame-multiselect-amount-closure-20261001.yaml
+      - docs/midgame_multiselect_amount_closure_20261001/**
+      - scripts/run_midgame_capability_probe.py
+      - src/commander_lab/qualification/current_boundary/midgame_rows.py
+      - tests/qualification/test_current_boundary_midgame_rows.py
+  - pr: 452
+    branch: claude/optimistic-bohr-6asye6
+    head: ca92a2e8f291abe68ecd9dd4677d1128229e6a4d
+    state: OPEN
+    surfaces:
+      - WS17_SHA256SUMS
+      - docs/af05_knowledge_projection_20261001/README.md
+      - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
+      - qualification/SHA256SUMS
+      - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json
+      - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_9_SUCCESSOR.json
+      - src/commander_lab/qualification/current_boundary/knowledge_projection.py
+      - src/commander_lab/qualification/current_boundary/source_lock.py
+      - tests/qualification/test_knowledge_projection.py
+      - tests/qualification/test_pre_freeze_contract_successor.py
+
+census_findings:
+  corpus:
+    identities_source: qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json regression_corpus_29
+    identity_count: 29
+    fixture_map_source: qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json
+    card_fixture_count: 29
+    bijection_verified: true
+  effective_materialization:
+    record_count: 135
+    card_records_present: 29
+    provider_denominator_count: 107
+    card_rows_in_denominator: [CARD_02]
+    card_rows_excluded: 28
+    exclusion_source: qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json excluded_fixture_ids
+  credit_chain:
+    af07_gate: src/commander_lab/qualification/current_boundary/gate_derivations.py af07_actual_card
+    rule: >-
+      AF07 coverage is derived from CARD_* row exit_state in
+      FULL107_<CANDIDATE>_RESULTS.json plus the frozen fixture->identity map;
+      no summary flag is trusted.
+    current_xmage_card_pass: CARD_02 only (midgame-lane placement receipt)
+  execution_seams_observed:
+    production_midgame_lane: src/commander_lab/qualification/current_boundary/midgame_lane.py
+    generic_row_executor: src/commander_lab/qualification/current_boundary/midgame_rows.py execute_row
+    onboarded_card_rows_in_executor: [CARD_02]
+    causal_probe_reachability_rows: [CARD_13, CARD_20]
+    native_state_restoration_manifest:
+      supported: battlefield/graveyard/exile placement, hand identity, life, qualified turn-1 checkpoints, commanders with cast counts, seed
+      unsupported: stack spells, attachments and counters, tapped permanents, controller/owner divergence, revealed zones, freeze digest reproduction
+  engine_bridge_build:
+    worktree_local: engine-bridge/target (built, untracked)
+    classpath_manifest: engine-bridge/target/cp-wsr22.txt
+    runtime_isolation_env: ENGINE_RUNTIME_DIRECTORY
 
 in_scope:
   - frozen 29-card denominator derivation
@@ -38,6 +112,10 @@ executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 variant_resolution: native_max
 
+phase: 1
+
 exact_next_action: >-
-  Fetch current GitHub/main, read issue 453 and coordinator comment 5936731960,
-  inventory active writer paths, then begin Phase 1 on dedicated AF07 files only.
+  Author the dedicated AF07 campaign producer, runner, adversarial tests and
+  docs under the Phase-1 surfaces; validate unit tests and ruff; commit; then
+  execute the 29-row campaign on the isolated production midgame lane and
+  persist the machine-readable matrix.
