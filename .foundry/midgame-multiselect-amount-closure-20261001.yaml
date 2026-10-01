@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
 branch: hardening/midgame-multiselect-amount-closure-20261001
 audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
 audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
-state_written_against_head: f76c6cefebe65952d654424c4e59152252cdf2fa
-validated_head: f76c6cefebe65952d654424c4e59152252cdf2fa
+state_written_against_head: 33d4a541c3712bac4d84faa777ec5c09c280da88
+validated_head: 33d4a541c3712bac4d84faa777ec5c09c280da88
 
 objective: >-
   Close the current Lab mid-game decision-lane gaps for MICRO_COSTS,
@@ -120,7 +120,9 @@ evidence:
   - 'pre-drift PB-03 epoch 00cad32010ca-1e5764089ab5 was green (22/22 midgame rows, xmage 33 PASS) but is superseded by drift 2; preserved outside the worktree, not committed'
   - 'main drift 3: #460 (AF05 M2 batch 2) merged as 6ae06efc; contract 1.0.10 adds HIDDEN_09/14/18 and a face-down event-tape Java fix; merge 9778d87e clean; the three fixtures again byte-identical (replace payloads and successor digests); focused suite 146 passed and the three rows verify locally (MODELED) on the merged head'
   - 'authoritative PB-03 run 36916800598 on merge ref 1710cac9 (tree 210d2ade): SUCCESS; epoch 1710cac9d2eb-210d2adeeac1 with 80/80 digests verified, midgame 22/22, XMage FULL107 38 PASS / 0 FAIL, the three rows PASS FRESH_CURRENT_BOUNDARY_RUNTIME with current receipts at runner digest 10d3fd2c..., engine artifact 004c84e1... at candidate 37e4df6c'
-  - 'multi-writer convergence note: AF05 batches and AF07/AF09 are active concurrently; this workstream requalified across the 1.0.8/1.0.9/1.0.10 drifts and sealed the first epoch whose merge ref remained current through the run'
+  - 'main drift 4: #462 (AF05 M2 batch 3) merged as 7784fba6 (contract 1.0.11, HIDDEN_17); merging it produced a generated-manifest conflict resolved by regeneration; the resolved head 33d4a541 was requalified end-to-end by PB-03 run 36924534689 on merge ref b2e2ca31: SUCCESS, epoch b2e2ca316049-57f121f50e27 with 81/81 digests, midgame 22/22, xmage 39 PASS, the three rows PASS with current receipts'
+  - 'local validation on the resolved head 33d4a541: focused 173 passed; full suite 3057 passed / 15 skipped; the three rows verify locally (MODELED)'
+  - 'multi-writer convergence note: AF05 batches and AF07/AF09 are active concurrently; this workstream requalified across the 1.0.8/1.0.9/1.0.10/1.0.11 drifts and sealed the epoch of the resolved head immediately before merging'
 
 artifacts:
   - docs/midgame_multiselect_amount_closure_20261001/SELECTOR_DESIGN.md

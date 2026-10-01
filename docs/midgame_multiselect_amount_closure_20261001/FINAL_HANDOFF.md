@@ -16,7 +16,8 @@ Coordinator sequencing comment 5931735894; ownership reservation comment 5931753
 | Forge Rules-Core / bridge | `bb0a740d2bef725194798383c2452213ecdd0b37` / `20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c` |
 | Effective contract at run time | `commander-lab.full107/1.0.7-successor` |
 | PB-03 CI run | ``36916800598` (PB-03 Current Boundary Runtime Qualification, conclusion success)` on merge ref ``1710cac9d2ebbfc4a0f736832b1c05fb029f78dd` (tree `210d2adeeac11e0a6bc8a32b4da99eb0c0a450e1`)` |
-| Evidence epoch | `qualification/current-boundary-epochs/1710cac9d2eb-210d2adeeac1/` (digests verified against `CURRENT_BOUNDARY_SHA256SUMS`) |
+| Evidence epoch (authoritative, post-conflict head) | `qualification/current-boundary-epochs/b2e2ca316049-57f121f50e27/` (PB-03 run `36924534689` on merge ref `b2e2ca3160492db5e22d7c1cebe9b5679af82030`, 81/81 digests verified) |
+| Earlier source-bound epoch (provenance) | `qualification/current-boundary-epochs/1710cac9d2eb-210d2adeeac1/` (PB-03 run `36916800598` on merge ref `1710cac9…`, 80/80 digests verified) |
 
 ## Terminal Main Lock
 
