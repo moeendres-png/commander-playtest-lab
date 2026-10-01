@@ -75,6 +75,7 @@ jobs:
             src/commander_lab/storage/**
             tests/conftest.py
             src/commander_lab/semantic_replay/**
+            src/commander_lab/qualification/**
 
   conformance:
     needs: [conformance-scope]

@@ -76,6 +76,7 @@ jobs:
             src/commander_lab/cards/**
             src/commander_lab/engine/**
             tests/conftest.py
+            src/commander_lab/qualification/**
 
   real-4p-smoke:
     needs: [smoke-scope]

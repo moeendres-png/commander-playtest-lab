@@ -24,9 +24,11 @@ from commander_lab.engine.rules.full_game_batch import (
     XmageFullGameBatchRunner,
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-XMAGE_COMMIT = "4e59e8b9087878816b37728055eb61757a2fbf07"
+# G1: the live pin is read from config/rules_engines.json, never restated here.
+XMAGE_COMMIT = canonical_xmage_engine_pin()
 
 
 def _binding(seat: int, deck_id: str) -> FullGamePilotBinding:

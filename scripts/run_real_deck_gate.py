@@ -31,10 +31,12 @@ from commander_lab.models import (
     PilotStrength,
     RulesDeckInput,
 )
+from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 from commander_lab.semantic_replay.gate import run_semantic_tape_replay
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "4e59e8b9087878816b37728055eb61757a2fbf07"
+# G1: the live pin is read from config/rules_engines.json, never restated here.
+XMAGE_COMMIT = canonical_xmage_engine_pin()
 GATE_LABEL = "REAL_CARD_TECHNICAL_USABILITY_GATE"
 
 # Seat plan: two verified decks, each fielded twice (only two distinct
