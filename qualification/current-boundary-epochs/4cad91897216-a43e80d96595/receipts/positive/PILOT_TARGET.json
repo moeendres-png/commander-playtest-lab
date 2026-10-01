@@ -1,0 +1,41 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_TARGET",
+  "obligation_exercised": {
+    "obligation_digest": "8fd355b01a675f94cb93e0fb642c7b01c047c299d08732262aa931362382f56d",
+    "requested_state_digest": "6cde35b1ecea77ed5e4eef8447eb064173b88a95754224b0223720f364995f8d",
+    "required_events": [
+      "target_decision_frame:P1",
+      "target_selected:P2"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "P2 is the target selected from the provider legal target set."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "target_decision_frame:P1": {
+        "decision_frames": [
+          1
+        ]
+      },
+      "target_selected:P2": {
+        "decision_frames": [
+          1
+        ]
+      }
+    }
+  },
+  "outcome": "PASS",
+  "receipt_digest": "4c9a1bb66a94c743dfcbfc47033dd1b7194f9a02d71e79a73521a36802269a63",
+  "runner_digest": "87c0abfdcf1b09305b484c577d9ce239c86c593f35cac37cb7a3efd6d3403365",
+  "runtime_receipt_digest": "bedce427316558762bd882e80b471e263745c29fec266ba6491ea0063a307b8a",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_TARGET"
+}
