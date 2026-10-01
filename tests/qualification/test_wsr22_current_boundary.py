@@ -54,6 +54,16 @@ RANKING_SCAN_PACKETS = (
 )
 
 
+def _recorded_epoch_xmage_pin() -> str:
+    lock = json.loads(
+        Path(
+            "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
+        ).read_text(encoding="utf-8")
+    )
+    pin: str = lock["new_live_pin"]["commit"]
+    return pin
+
+
 def _load(name: str) -> Any:
     return json.loads((OUT / name).read_text(encoding="utf-8"))
 
@@ -146,16 +156,13 @@ def test_af01_is_current_boundary_and_exact_identity(candidate: str) -> None:
         "fail_closed_unsupported_decision",
     ):
         assert required in names, required
-    # The successor current-boundary epoch binds the canonical live XMage pin
-    # (config/rules_engines.json) exactly. The historical WSR22 pin is not
-    # accepted here: the artifact is regenerated in place, so accepting the old
-    # epoch would let a stale identity pass as current.
-    from commander_lab.qualification.current_boundary.bridge_launcher import (
-        canonical_xmage_engine_pin,
-    )
-
+    # Since B1 this tree is a read-only historical epoch: runs write their own
+    # source-bound epoch under qualification/current-boundary-epochs/ instead of
+    # regenerating it in place. Its XMage AF01 therefore names exactly the pin of
+    # the epoch it was recorded in (candidate repin v2), never the live pin and
+    # never the older WSR22 pin; a later repin cannot relabel it.
     expected = {
-        "XMAGE": canonical_xmage_engine_pin(),
+        "XMAGE": _recorded_epoch_xmage_pin(),
         "FORGE": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     }[candidate]
     assert af01["engine_commit_reported"] == expected, (candidate, af01["engine_commit_reported"])
