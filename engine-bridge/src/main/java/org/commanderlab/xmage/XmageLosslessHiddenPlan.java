@@ -375,8 +375,9 @@ final class XmageLosslessHiddenPlan {
     /**
      * Post-arrival application, once, while the engine is parked: place the
      * requested library cards with the engine's typed setup primitive, then
-     * restore every declared complete library order and the typed face-down
-     * object through the native RG-06A game-load APIs.
+     * restore every declared complete library order through the native RG-06A
+     * game-load API. Libraries wait for the opening hands; the face-down object
+     * does not ({@link #applyPreStart}).
      */
     void applyAfterArrival(
             GameCommanderImpl game,
