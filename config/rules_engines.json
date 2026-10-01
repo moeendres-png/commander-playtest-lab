@@ -100,10 +100,10 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+   "commit": "5f702f847263980233741fb634d588d2c2134d2d",
    "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after merging the bridge-only R-3/AF01 child #13 (merge commit; tree identical to the #13 head). forge#15/#16 are not part of this identity: their exact-head Test build failed. rules_core_base_commit binds it back to the admitted #11/#12 candidate."
+   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after the bridge-only children #13 (R-3/AF01) and #16 (#15 no-default hardening plus structured cost-order projection) were integrated by fast-forward; rules_core_base_commit binds it back to the admitted #11/#12 candidate."
   },
   "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
   "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. Forge #16 is bound separately as the integrated bridge/materialization successor combining #13 and #15 and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
@@ -125,12 +125,12 @@
     "is_current_candidate": false
    },
    "bridge_source": {
-    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head with the bridge-only #13 merged; separately source-bound from the #11 Rules-Core candidate.",
+    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head with the bridge-only #13 and #16 integrated; separately source-bound from the #11 Rules-Core candidate.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
-    "tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
+    "commit": "5f702f847263980233741fb634d588d2c2134d2d",
+    "tree": "7806a236d22ea55c900f9489f3d21c63e68b6fb8",
     "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-    "pull_request": 13
+    "pull_request": 16
    },
    "upstream_baseline": {
     "role": "REFERENCE BASELINE / DONOR EVIDENCE ONLY. Not the current candidate and not the engine under current qualification.",
