@@ -1,0 +1,181 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_03",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "6bd4eded24f24ac6858c4806cd7ffc0e940059dc0801b40f34c5b48cb292300d",
+    "requested_state_digest": "36f766fedfd04cffa4f9596816f77712e00300a17644e2eec664a73e0d298710",
+    "required_events": [
+      "knowledge_projection:HIDDEN_03:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "face-up exile identities public"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 72,
+      "context": 11,
+      "event": 7,
+      "log": 216,
+      "option_id": 52,
+      "option_label": 52,
+      "option_metadata": 52,
+      "pile_metadata": 0,
+      "prompt": 11,
+      "source_metadata": 11,
+      "state": 24,
+      "transcript": 113
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in its owner's own projection",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "P1 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "public_exile_visible:obj:public-exile:P1"
+      },
+      {
+        "detail": "P2 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "public_exile_visible:obj:public-exile:P2"
+      },
+      {
+        "detail": "P3 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "public_exile_visible:obj:public-exile:P3"
+      },
+      {
+        "detail": "P4 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "public_exile_visible:obj:public-exile:P4"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_03:P1": [
+        {
+          "detail": "P1 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "public_exile_visible:obj:public-exile:P1"
+        },
+        {
+          "detail": "P2 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "public_exile_visible:obj:public-exile:P2"
+        },
+        {
+          "detail": "P3 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "public_exile_visible:obj:public-exile:P3"
+        },
+        {
+          "detail": "P4 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "public_exile_visible:obj:public-exile:P4"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "6768a67fb850a26205c49ff66546bb848562827844a9262332f022fd850c469f",
+  "runner_digest": "10d3fd2cf76c09ae1b74a4a8e633225aa1ea55b4bf66c645caf836e0397e6178",
+  "runtime_receipt_digest": "d8ba0bd2a23dbb699bfb958ffda54bde6c35cf788ac156a24094e2a4b2976a05",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_03"
+}

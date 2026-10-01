@@ -72,8 +72,30 @@ fresh PB-03 epoch on the post-1.0.9 merge ref.
 
 ## Authoritative at-pin execution
 
-The PR's PB-03 workflow run is the authoritative execution: it builds the pinned
-XMage candidate, runs the mid-game probe and the two-candidate current-boundary
-runner, assembles the evidence, asserts the R-4 receipt invariants, and uploads
-the source-bound epoch artifact. Its results and digests are recorded in the
-terminal handoff once green.
+PB-03 workflow run `36916800598` on the PR merge ref
+`1710cac9d2ebbfc4a0f736832b1c05fb029f78dd` (tree
+`210d2adeeac11e0a6bc8a32b4da99eb0c0a450e1`) concluded **success**; every job
+step passed (pinned builds, PB-03 contract tests, probe freshness, two-candidate
+runner, assembler, R-4 invariants, epoch hash, artifact upload).
+
+The produced epoch `qualification/current-boundary-epochs/1710cac9d2eb-210d2adeeac1/`:
+
+- 80/80 files verify against the CI-produced `CURRENT_BOUNDARY_SHA256SUMS`.
+- `MIDGAME_ROW_EXECUTIONS.json`: 22/22 rows verified; runner digest
+  `10d3fd2cf76c09ae1b74a4a8e633225aa1ea55b4bf66c645caf836e0397e6178`.
+- XMage `FULL107`: 38 PASS / 0 FAIL / 31 UNKNOWN / 38 BLOCKED; the three rows
+  `MICRO_COSTS`, `PILOT_TARGET_AMOUNT`, `PILOT_MULTI_AMOUNT` are `PASS` with
+  `FRESH_CURRENT_BOUNDARY_RUNTIME` and
+  `MIDGAME_LANE_PLACEMENT_OBLIGATION`, each carrying its
+  `midgame-lane:placement-obligation#<fixture>` receipt.
+- Loaded engine artifact: `file`, sha256 `004c84e16dc2…`, 7,107,602 bytes at
+  candidate `37e4df6c914f…`; adapter `1710cac9d2eb…`.
+- Reconstructed claims: construction EXACT for all three; the Hex 6-of-6
+  multi-select frame accepted six engine-offered targets; the engine determined
+  `{7}{B}{B}` and charged 9 mana; each Magma Opus row accepted two assigned legs
+  (`P2` 2 and `obj:pilot-p3-target` 2) whose total equals the engine frame's own
+  `amount_remaining` 4.
+
+Classification: `DIRECTLY_VERIFIED` for the three rows on this source identity.
+Any later main drift makes this epoch the source-bound provenance of this
+lineage rather than current credit on the new source.

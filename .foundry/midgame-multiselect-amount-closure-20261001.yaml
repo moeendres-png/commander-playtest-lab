@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
 branch: hardening/midgame-multiselect-amount-closure-20261001
 audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
 audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
-state_written_against_head: 9778d87ea4e2fe1388cc22bb0e291bc2e9eb3572
-validated_head: 9778d87ea4e2fe1388cc22bb0e291bc2e9eb3572
+state_written_against_head: f76c6cefebe65952d654424c4e59152252cdf2fa
+validated_head: f76c6cefebe65952d654424c4e59152252cdf2fa
 
 objective: >-
   Close the current Lab mid-game decision-lane gaps for MICRO_COSTS,
@@ -119,19 +119,18 @@ evidence:
   - 'post-1.0.9 requalification on d77d5eca: full suite 3047 passed / 15 skipped; focused 138 passed; ruff/mypy clean; the three rows verify again locally (MODELED)'
   - 'pre-drift PB-03 epoch 00cad32010ca-1e5764089ab5 was green (22/22 midgame rows, xmage 33 PASS) but is superseded by drift 2; preserved outside the worktree, not committed'
   - 'main drift 3: #460 (AF05 M2 batch 2) merged as 6ae06efc; contract 1.0.10 adds HIDDEN_09/14/18 and a face-down event-tape Java fix; merge 9778d87e clean; the three fixtures again byte-identical (replace payloads and successor digests); focused suite 146 passed and the three rows verify locally (MODELED) on the merged head'
-  - 'multi-writer convergence note: AF05 batches and AF09 are landing concurrently; this workstream requalifies at each contract-relevant drift and merges at the first green epoch whose merge ref is current'
+  - 'authoritative PB-03 run 36916800598 on merge ref 1710cac9 (tree 210d2ade): SUCCESS; epoch 1710cac9d2eb-210d2adeeac1 with 80/80 digests verified, midgame 22/22, XMage FULL107 38 PASS / 0 FAIL, the three rows PASS FRESH_CURRENT_BOUNDARY_RUNTIME with current receipts at runner digest 10d3fd2c..., engine artifact 004c84e1... at candidate 37e4df6c'
+  - 'multi-writer convergence note: AF05 batches and AF07/AF09 are active concurrently; this workstream requalified across the 1.0.8/1.0.9/1.0.10 drifts and sealed the first epoch whose merge ref remained current through the run'
 
 artifacts:
   - docs/midgame_multiselect_amount_closure_20261001/SELECTOR_DESIGN.md
   - docs/midgame_multiselect_amount_closure_20261001/FAIL_BEFORE_AND_CONTROLS.md
 
 remaining_scope:
-  - commit the validated milestone and push the owned branch
-  - open the Draft PR and attach the evidence
-  - run the authoritative PB-03 CI on the exact head
-  - commit the CI-produced evidence epoch for the impacted rows
-  - independent fresh-context review
-  - merge adjudication and terminal handoff
+  - commit and push the sealed evidence epoch
+  - re-verify the non-PB-03 checks on the seal head
+  - mark PR #450 ready and merge normally
+  - verify terminal main HEAD/tree and update #449 / #255
 
 status: ACTIVE
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
@@ -154,6 +153,7 @@ native_variant: max
 variant_resolution: native_max
 
 exact_next_action: >-
-  Push the merged head so PB-03 re-runs on the post-AF05 merge ref, then
-  download the green epoch, verify every digest, commit it with regenerated
-  hash manifests, finalize the terminal handoff and merge PR #450.
+  Commit the sealed epoch 1710cac9d2eb-210d2adeeac1 with the regenerated hash
+  manifests, final handoff, validation record and state; push; confirm the
+  non-PB-03 exact-head checks on the seal commit; mark PR #450 ready and merge
+  normally; then verify main and update #449 and #255.
