@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-af09-replay-twins-20261001
 branch: hardening/af09-replay-twins-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: 0c63e454
-validated_head: 0c63e454
+state_written_against_head: 05f45bc5
+validated_head: 05f45bc5
 
 objective: >-
   Implement and qualify clean-process semantic replay twins for AF09
@@ -65,6 +65,31 @@ foreign_writer_census_at_start:
       - tests/qualification/test_knowledge_projection.py
       - tests/qualification/test_pre_freeze_contract_successor.py
 
+candidate_results:
+  xmage:
+    verdict: PASS
+    evidence: docs/af09_replay_twins_20261001/evidence/AF09_REPLAY_TWIN_XMAGE.json
+    candidate_commit: 37e4df6c914f1e189e24f0ef59fa91734c922436
+    observed_artifact_sha256: bf3d91bc2722d186327a5cc69b6fe931e540219a1f506c48bb7003c84068cc27
+    fixture: technical-isamaru-full-game-4p-v1 (4P, seed 20260824)
+    decisions_events_checkpoints: 127 / 127 / 128
+    fresh_process_steps_verified: 127
+    terminal: GAME_OVER (complete)
+    processes: RECORD_FIRST, RECORD_SECOND, REPLAY_CONSUMER (distinct, observed)
+    semantic_divergences: 0
+    adversarial_controls: all detected
+  forge:
+    verdict: PASS
+    evidence: docs/af09_replay_twins_20261001/evidence/AF09_REPLAY_TWIN_FORGE.json
+    bridge_commit: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+    rules_core_commit: bb0a740d2bef725194798383c2452213ecdd0b37
+    fixture: AF09-GENERIC-forge-4P-v1 (4P, seed 424242, real singleton decks)
+    decisions_events_checkpoints: 122 / 122 / 244
+    terminal: GAME_OVER (complete, engine-offered concession horizon 120)
+    processes: RECORD, REPLAY (distinct, observed)
+    semantic_divergences: 0
+    adversarial_controls: all detected
+
 milestones:
   - id: M1
     head: 0c63e454
@@ -80,6 +105,19 @@ milestones:
     evidence:
       - tests/qualification/test_replay_twins.py -> 36 passed
       - python3 -m ruff check (three AF09 files) -> clean
+  - id: M2
+    head: 05f45bc5
+    at: '2026-10-01T22:15Z'
+    status: COMMITTED
+    content: >-
+      Engine execution for both candidates. Forge: engine-offered concede
+      horizon, real singleton deck fixture, clean-bound PASS. XMage: isolated
+      exact-source candidate build, full-game tape twin, clean-bound PASS.
+      RESULTS.md records identities and limitations.
+    evidence:
+      - docs/af09_replay_twins_20261001/evidence/AF09_REPLAY_TWIN_XMAGE.json
+      - docs/af09_replay_twins_20261001/evidence/AF09_REPLAY_TWIN_FORGE.json
+      - tests/qualification/test_replay_twins.py -> 37 passed
 
 local_engine_execution:
   forge:
@@ -161,10 +199,22 @@ known_findings:
       deck lists to keep cleanup-discard decisions distinguishable and records
       the ambiguity when it cannot.
 
+phase2:
+  status: PENDING_FOREIGN_WRITERS
+  gate: >-
+    #450 and #452 must both be terminal, then fresh-fetch and merge current
+    main, impact-adjudicate their exact bytes, and integrate the twin artifact
+    into the current-boundary runner/assembler/gate derivation (RNG_REPLAY_*)
+    only if ownership is free.
+  note: >-
+    Phase 1 twin producer and direct per-candidate evidence are complete;
+    the current-boundary RNG_REPLAY evidence chain is untouched.
+
 exact_next_action: >-
-  Monitor the Forge full run and the isolated XMage candidate build. Publish
-  the Forge twin evidence when the run completes, then build the engine-bridge
-  against the isolated repository and run the XMage tape twin. Record every
-  candidate's PASS or terminal UNKNOWN with the exact missing capability,
-  update RESULTS.md, commit, and move to Phase 2 only after #450 and #452 are
-  terminal.
+  Push the evidence commit, then check whether PR #450 and PR #452 are
+  terminal. If both are merged/closed, fresh-fetch main, merge it, apply the
+  test-impact skill to their exact bytes, and integrate the clean_process_twin
+  document into the current-boundary replay artifact under the freed
+  ownership. If they remain active, leave Phase 2 pending with this state as
+  the handoff and close the session with the twin contract and both candidate
+  PASSes already persisted in Git.
