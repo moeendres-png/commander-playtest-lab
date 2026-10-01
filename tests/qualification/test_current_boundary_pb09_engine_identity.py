@@ -89,8 +89,14 @@ BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
 BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
 CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
 CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
-CURRENT_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
-CURRENT_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
+CURRENT_BRIDGE = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
+CURRENT_BRIDGE_TREE = "000066890decca5ed7b1b889be0ea46d77903aee"
+# The R-1 lock's bridge source, superseded by forge#16 (bridge successor lock).
+R1_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
+R1_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
+BRIDGE_SUCCESSOR_LOCK = (
+    REPO / "qualification/forge-bridge-r5-integrated-20261001/SUCCESSOR_SOURCE_LOCK.json"
+)
 
 
 def test_the_four_forge_commits_are_all_distinct() -> None:
@@ -180,8 +186,9 @@ def test_r1_successor_source_lock_matches_live_authority_and_preserves_wsr22() -
     current = successor["current_forge_authority"]
     assert current["candidate_commit"] == secondary["commit"] == CURRENT_CANDIDATE
     assert current["candidate_tree"] == CURRENT_CANDIDATE_TREE
-    assert current["bridge_commit"] == secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
-    assert current["bridge_tree"] == CURRENT_BRIDGE_TREE
+    # The R-1 lock stays historical for its bridge source; forge#16 supersedes it.
+    assert current["bridge_commit"] == R1_BRIDGE
+    assert current["bridge_tree"] == R1_BRIDGE_TREE
     assert (
         current["bridge_rules_core_base_commit"]
         == secondary["bridge_source"]["rules_core_base_commit"]
@@ -419,3 +426,23 @@ def test_pb05_credit_rule_is_recorded_with_the_identities() -> None:
     identity = sl.boundary_receipt()["candidates"]["forge"]["engine_identity_pb09"]
     assert identity["pb05_provenance_consumed"] == list(sl.FORGE_PB05_PROVENANCE_FIELDS)
     assert "no AF00 or PB-05 credit" in identity["pb05_credit_rule"]
+
+
+def test_bridge_successor_lock_binds_the_live_bridge_without_moving_rules_core() -> None:
+    lock = json.loads(BRIDGE_SUCCESSOR_LOCK.read_text(encoding="utf-8"))
+    secondary = _config()["secondary_engine"]
+
+    assert lock["new_bridge_source"]["commit"] == secondary["bridge_source"]["commit"]
+    assert lock["new_bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert lock["new_bridge_source"]["tree"] == CURRENT_BRIDGE_TREE
+    assert lock["prior_bridge_source"]["commit"] == R1_BRIDGE
+    # Two roles, never mixed: Rules-Core authority stays the R-1 candidate.
+    assert lock["rules_core_authority"]["commit"] == secondary["commit"] == CURRENT_CANDIDATE
+    assert secondary["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
+    assert CURRENT_BRIDGE != CURRENT_CANDIDATE
+    qual = lock["exact_head_qualification"]
+    assert qual["commit"] == CURRENT_BRIDGE
+    assert all(r["java17"] == r["java21"] == "success" for r in qual["github_test_build"])
+    assert qual["local_forge_bridge_suite"]["failures"] == 0
+    assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "RULES_CORE_AUTHORITY_CHANGE"}
+    assert lock["evidence_transfer"]["historical_receipts_relabelled"] is False

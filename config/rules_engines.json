@@ -100,13 +100,13 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+   "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
    "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after merging the bridge-only R-3/AF01 child #13 (merge commit; tree identical to the #13 head). forge#15/#16 are not part of this identity: their exact-head Test build failed. rules_core_base_commit binds it back to the admitted #11/#12 candidate."
+   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after the fast-forward to the integrated R-5 bridge gate forge#16 (AF01 #13 + no-default hardening #15 + structured cost-order projection; exact head 20e3e1f7: Java 17/21 and iOS green). Every change over the Rules-Core candidate is under forge-protocol2-bridge/. rules_core_base_commit binds it back to the admitted #11/#12 candidate. Prior bridge source e8b8aec6 (successor lock qualification/forge-r1-candidate-authority-20260930) is historical; successor lock: qualification/forge-bridge-r5-integrated-20261001/SUCCESSOR_SOURCE_LOCK.json."
   },
   "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-  "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. Forge #16 is bound separately as the integrated bridge/materialization successor combining #13 and #15 and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
+  "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. Forge #16 (exact head 20e3e1f7, now the #11 branch head) is bound separately as the bridge/materialization source and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
   "engine_identity_pb09": {
    "pb09_status": "RESOLVED_BY_OWNER_R1_2026_09_30_FOR_CURRENT_QUALIFICATION_AUTHORITY",
    "current_candidate": {
@@ -125,12 +125,12 @@
     "is_current_candidate": false
    },
    "bridge_source": {
-    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head with the bridge-only #13 merged; separately source-bound from the #11 Rules-Core candidate.",
+    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head fast-forwarded to the integrated bridge gate #16; separately source-bound from the #11 Rules-Core candidate.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
-    "tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
+    "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "tree": "000066890decca5ed7b1b889be0ea46d77903aee",
     "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-    "pull_request": 13
+    "pull_request": 16
    },
    "upstream_baseline": {
     "role": "REFERENCE BASELINE / DONOR EVIDENCE ONLY. Not the current candidate and not the engine under current qualification.",
