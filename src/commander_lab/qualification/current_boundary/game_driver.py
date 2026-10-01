@@ -420,7 +420,7 @@ def select_cost_order_action(actions: list[dict[str, Any]]) -> dict[str, Any]:
     action_types = {_action_kind(action) for action in actions}
     if action_types != {"structural_decision"}:
         raise DecisionUnsatisfied(
-            f"ORDER_CHOICE must use shared structural_decision ActionType: "
+            "ORDER_CHOICE must use shared structural_decision ActionType: "
             f"{sorted(action_types)!r}"
         )
     subtypes: set[str] = set()
