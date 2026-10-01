@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-af09-replay-twins-20261001
 branch: hardening/af09-replay-twins-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: 05f45bc5a3493be81222f35ae29067f82a5f9116
-validated_head: 05f45bc5a3493be81222f35ae29067f82a5f9116
+state_written_against_head: 97893827d5f86439658793476ed4ba2a92994833
+validated_head: 97893827d5f86439658793476ed4ba2a92994833
 
 objective: >-
   Implement and qualify clean-process semantic replay twins for AF09
@@ -116,6 +116,18 @@ milestones:
     evidence:
       - tests/qualification/test_replay_twins.py -> 36 passed
       - python3 -m ruff check (three AF09 files) -> clean
+  - id: M3
+    head: 97893827d5f86439658793476ed4ba2a92994833
+    at: '2026-10-01T23:55Z'
+    status: COMMITTED_PUSHED
+    content: >-
+      Committed evidence bound to the AF09 gate in regression tests (40 tests
+      green), state file conformed to the Foundry validator, full local suite
+      3049 passed / 17 skipped at the previous head.
+    evidence:
+      - tests/qualification/test_replay_twins.py -> 40 passed
+      - tests/foundry/test_foundry_state_conformance.py -> 18 passed
+      - pytest -q (repo) -> 3049 passed, 17 skipped
   - id: M2
     head: 40c7e5e41f954098e8d8e678a6bdee7f6efa325d
     at: '2026-10-01T22:30Z'
@@ -215,7 +227,7 @@ known_findings:
       the ambiguity when it cannot.
 
 phase2:
-  status: PENDING_FOREIGN_WRITERS
+  status: PENDING_PR450_MERGE
   gate: >-
     #450 and #452 must both be terminal, then fresh-fetch and merge current
     main, impact-adjudicate their exact bytes, and integrate the twin artifact
@@ -223,13 +235,23 @@ phase2:
     only if ownership is free.
   note: >-
     Phase 1 twin producer and direct per-candidate evidence are complete;
-    the current-boundary RNG_REPLAY evidence chain is untouched.
+    the current-boundary RNG_REPLAY evidence chain is untouched. #452 is
+    merged. #450 is out of draft and its mergeStateStatus is CLEAN, but it is
+    still OPEN: merging another writer's PR is outside this workstream's
+    ownership, so Phase 2 waits on its owner's merge action.
 
 exact_next_action: >-
-  Push the evidence commit, then check whether PR #450 and PR #452 are
-  terminal. If both are merged/closed, fresh-fetch main, merge it, apply the
-  test-impact skill to their exact bytes, and integrate the clean_process_twin
-  document into the current-boundary replay artifact under the freed
-  ownership. If they remain active, leave Phase 2 pending with this state as
-  the handoff and close the session with the twin contract and both candidate
-  PASSes already persisted in Git.
+  Wait for PR #450 to merge (it is CLEAN and out of draft; merging another
+  writer's PR is not this workstream's authority). Then: git fetch origin
+  --prune; record main; merge current main into
+  hardening/af09-replay-twins-20261001; run the test-impact skill on #450's
+  and #452's exact bytes (they touch midgame_rows.py, run_midgame_capability_probe.py,
+  knowledge_projection.py, source_lock.py, the successor contract and SHA
+  manifests; this workstream only consumes repo_root() from source_lock and the
+  current-boundary receipts/bridge_launcher/game_driver surfaces); rerun the 40
+  AF09 tests plus the affected qualification tests; then integrate
+  clean_process_twin into scripts/run_current_boundary_qualification.py's
+  RNG_REPLAY_*.json writer and mark the five REPLAY/RNG rows from the twin
+  verdict if the runner path is owned. Re-run PB-03 for the integrated epoch.
+  If #450 is still open, resume from this state file; nothing else in Phase 1
+  remains.
