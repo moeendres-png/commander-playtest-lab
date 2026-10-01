@@ -4,7 +4,8 @@
   - That commit is the forge#16 head.
   - The #11 qualification branch was fast-forwarded to it at 2026-10-01 08:18Z.
 - **Unchanged:** the Rules-Core authority `bb0a740d2bef725194798383c2452213ecdd0b37` (R-1, #11 incl. #12). The two roles stay separate fields: `secondary_engine.commit` and `secondary_engine.bridge_source.commit`.
-- **Lock:** `qualification/forge-bridge-r5-integrated-20261001/SUCCESSOR_SOURCE_LOCK.json`. The R-1 lock `qualification/forge-r1-candidate-authority-20260930/` keeps `e8b8aec6` as its bridge source.
+- **Lock:** `qualification/forge-bridge-r5-integrated-20261001/SUCCESSOR_SOURCE_LOCK.json`.
+- **Parallel lane:** Lab #446 (`42f19dd1`) bound the same bridge source in the manifest and moved the bridge fields of the R-1 lock `qualification/forge-r1-candidate-authority-20260930/` in place. #444 keeps that state; its own lock adds the exact-head gate record.
 - **Not:** Production Provider selection, Architecture Freeze, a denominator change, a Rules-Core change, or a merge to `forge/master`.
 
 ## Delta `e8b8aec6..20e3e1f7` (bridge only)

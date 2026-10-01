@@ -91,7 +91,7 @@ CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
 CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
 CURRENT_BRIDGE = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
 CURRENT_BRIDGE_TREE = "000066890decca5ed7b1b889be0ea46d77903aee"
-# The R-1 lock's bridge source, superseded by forge#16 (bridge successor lock).
+# The bridge source before forge#16 (#11 + #13), historical.
 R1_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
 R1_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
 BRIDGE_SUCCESSOR_LOCK = (
@@ -186,9 +186,9 @@ def test_r1_successor_source_lock_matches_live_authority_and_preserves_wsr22() -
     current = successor["current_forge_authority"]
     assert current["candidate_commit"] == secondary["commit"] == CURRENT_CANDIDATE
     assert current["candidate_tree"] == CURRENT_CANDIDATE_TREE
-    # The R-1 lock stays historical for its bridge source; forge#16 supersedes it.
-    assert current["bridge_commit"] == R1_BRIDGE
-    assert current["bridge_tree"] == R1_BRIDGE_TREE
+    # #446 updated the R-1 lock to the forge#16 bridge source; Rules-Core is unchanged.
+    assert current["bridge_commit"] == secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
+    assert current["bridge_tree"] == CURRENT_BRIDGE_TREE
     assert (
         current["bridge_rules_core_base_commit"]
         == secondary["bridge_source"]["rules_core_base_commit"]

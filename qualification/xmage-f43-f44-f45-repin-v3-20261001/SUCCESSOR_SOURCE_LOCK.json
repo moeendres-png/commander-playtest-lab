@@ -126,8 +126,13 @@
  "intermediate_candidate": {
   "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
   "tree": "97951fd7c84b49c20cbaa975b7f2b5d669df9262",
-  "live": false,
-  "role": "candidate after F-44 + F-43, before F-45; the first v3 retarget on Lab #444 bound it, then the owner gate held the repin for F-45. Its evidence below is about this commit only and is not relabelled as evidence for new_live_pin.",
+  "live": {
+   "on_lab_main_from": "42f19dd1d3231911f02d3a27a94260541a17f8fb (#446)",
+   "until": "the merge commit of this repin (#444)",
+   "current_boundary_epoch_persisted": false,
+   "its_own_successor_lock": "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
+  },
+  "role": "candidate after F-44 + F-43, before F-45. The first v3 retarget on Lab #444 bound it; the owner then gated the repin on F-45. A parallel lane made it live on Lab main through #446 (42f19dd1) before this repin landed. Its evidence below (and #446's own lock) is about this commit only and is not relabelled as evidence for new_live_pin.",
   "native_qualification": {
    "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929 (mvn test, JDK 17, release 8)",
    "run_id": 36825505981,

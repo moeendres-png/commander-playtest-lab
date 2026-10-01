@@ -10,7 +10,7 @@ The first v3 retarget on this PR bound `4e59e8b9`, the candidate after F-44 (mag
 
 - mage#35 (F-45, head `9dbda865`, parent exactly `4e59e8b9`) was merged into the candidate as `37e4df6c`. Its tree equals the donor head tree.
 - The candidate head was re-read immediately before the lock: `37e4df6c`. No further candidate commits exist.
-- `4e59e8b9` was never live. Its native and bridge evidence stays in the lock under `intermediate_candidate`, with its own identity. It is **not** relabelled as evidence for `37e4df6c`.
+- `4e59e8b9` was live on Lab main only from #446 (42f19dd1) until this repin: the parallel #446 pinned it while this PR was in its exact-head gate. Its native and bridge evidence stays in the lock under `intermediate_candidate`, and #446's lock `qualification/xmage-mp-candidate-repin-v3-20261001/` stays as is. Both are bound to their own identity. It is **not** relabelled as evidence for `37e4df6c`.
 
 ## Modified engine paths (the complete production delta over `9375f35a`)
 
@@ -39,7 +39,7 @@ No card data or other engine file changed.
 | F-42 follow-up 3, `multi_amount` fail-closed control (S-15) | yes (F-43) | **REQUALIFIED, promoted for combat damage only.** See `docs/multiplayer_findings/F-42_LEAVER_OWN_MAY_CHOICE.md`, follow-up 4. Green on the new pin. On `9375f35a` the same bridge code fails closed, and no damage is chosen for the departed player. |
 | Lab evidence on spell copies moved to a library | yes (F-45) | **No Lab fixture asserts the defective outcome.** The engine regression is native (`SuddenSetbackCopyTest`, red at `4e59e8b9` + test only, green at `37e4df6c`). Ledger S-16 records the defect. |
 | Engine identity (AF00-style) | yes | Re-established by `XmageProvider.ENGINE_COMMIT`, `JsonlBridgeTest` and the runtime fingerprint (F-43 `CombatGroup.revalidateCombatDamageSource`). F-44 and F-45 have no structural signature. |
-| Intermediate candidate `4e59e8b9` evidence (CI run 36825505981; bridge 903 / 0 / 0 / 1) | — | **HISTORICAL_ONLY**: evidence about `4e59e8b9`, which was never live. |
+| Intermediate candidate `4e59e8b9` evidence (CI run 36825505981; bridge 903 / 0 / 0 / 1) | — | **HISTORICAL_ONLY**: evidence about `4e59e8b9` (live on main only from #446 until this repin; no epoch persisted). |
 | Current-boundary epoch `4cad91897216-a43e80d96595` (R-5 final, FULL107 / AF00–AF11) | bound to `9375f35a` | **HISTORICAL_ONLY**, unchanged. Credit at the new pin is **TARGETED_REQUALIFICATION_REQUIRED**: a PB-03 `workflow_dispatch` on the exact Lab `main` merge commit of this repin, persisted as a new epoch. Until then no FULL107 or AF credit is claimed for `37e4df6c`. |
 | WSR22 FULL107 evidence (`b19596980f27`) | — | **HISTORICAL_ONLY**, unchanged. |
 | v2 repin guard (`test_xmage_mp_candidate_repin_v2_20260930.py`) and the v1 and 2026-09-25 guards | — | **HISTORICAL_ONLY**: the current-pin checks skip as superseded, and the historical checks stay active. |

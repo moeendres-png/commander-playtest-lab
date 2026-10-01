@@ -3,7 +3,7 @@
 The live XMage pin is the multiplayer candidate branch advanced by F-44 (leaver
 trigger order, mage#33), F-43 (combat-damage source revalidation, mage#29) and
 F-45 (copied-spell library move, mage#35). The intermediate candidate 4e59e8b9
-(F-44 + F-43 only) was qualified but never live; the lock keeps that evidence
+(F-44 + F-43 only) was live on main only briefly (#446); the lock keeps that evidence
 under its own identity.
 The prior pin (9375f35a, successor lock v2), its current-boundary epoch
 4cad91897216-a43e80d96595 and the frozen WSR22 identity (b19596980f27) stay
@@ -85,7 +85,16 @@ def test_successor_lock_binds_the_candidate_its_donors_and_the_prior_pin() -> No
 def test_intermediate_candidate_evidence_keeps_its_own_identity() -> None:
     intermediate = _lock()["intermediate_candidate"]
     assert intermediate["commit"] == INTERMEDIATE
-    assert intermediate["live"] is False
+    # Live on main only between #446 and this repin; no epoch was persisted for it.
+    assert intermediate["live"]["on_lab_main_from"].startswith("42f19dd1")
+    assert intermediate["live"]["current_boundary_epoch_persisted"] is False
+    parallel = json.loads(
+        (
+            REPO_ROOT
+            / "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
+        ).read_text()
+    )
+    assert parallel["new_live_pin"]["commit"] == INTERMEDIATE
     assert intermediate["native_qualification"]["commit"] == INTERMEDIATE
     assert intermediate["lab_runtime_qualification"]["commit"] == INTERMEDIATE
 

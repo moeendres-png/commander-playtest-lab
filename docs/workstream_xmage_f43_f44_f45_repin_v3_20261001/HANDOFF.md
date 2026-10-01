@@ -4,9 +4,9 @@
 
 | | Before | After |
 |---|---|---|
-| Lab `main` | `a79257c2` (after #443) | the merge commit of this PR |
+| Lab `main` | `42f19dd1` (after #443 and the parallel #446) | the merge commit of this PR |
 | XMage pin | `9375f35a` (tree `0fb7c2f9`) | `37e4df6c914f1e189e24f0ef59fa91734c922436` (tree `dac695ab`), branch `claude/xmage-mp-candidate-20260929` |
-| Intermediate candidate, never live | — | `4e59e8b9` (tree `97951fd7`, F-44 + F-43 only), kept in the lock with its own evidence |
+| Intermediate candidate (live on main only between #446 and this PR) | — | `4e59e8b9` (tree `97951fd7`, F-44 + F-43 only), kept in the lock with its own evidence |
 
 **Ownership.** No active lane owned the repin:
 - `origin/sol/xmage-f43-f44-repin-20261001` points at the then-current `main` with no commits;
@@ -51,7 +51,7 @@ See `SUCCESSOR_SOURCE_LOCK.json` for exact numbers and run ids.
 | F-45 red control #36 and fixed head `9dbda865` | DIRECTLY_VERIFIED, remote |
 | Lab bridge suite against `37e4df6c` (isolated Maven repository) | DIRECTLY_VERIFIED |
 | F-43 Lab guard on the new pin; the same code fails closed on `9375f35a` | DIRECTLY_VERIFIED |
-| Intermediate `4e59e8b9`: CI run 36825505981 (7032 / 0) and bridge suite 903 / 0 / 0 / 1 | HISTORICAL_ONLY (never live) |
+| Intermediate `4e59e8b9`: CI run 36825505981 (7032 / 0) and bridge suite 903 / 0 / 0 / 1 | HISTORICAL_ONLY |
 | Exact-head Lab CI | this PR |
 
 ## Remaining / next

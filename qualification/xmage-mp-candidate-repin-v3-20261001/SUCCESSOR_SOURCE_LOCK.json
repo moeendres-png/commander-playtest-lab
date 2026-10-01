@@ -1,0 +1,69 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-mp-candidate-repin-v3-20261001",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "tree": "0fb7c2f9a038e471de3a6e56419244482a645218",
+  "role": "prior live XMage pin (repin v2: F-22/F-23/F-28/F-29/F-34); its successor lock qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json and the R-5 epoch qualification/current-boundary-epochs/4cad91897216-a43e80d96595 stay historical",
+  "wsr22_source_lock": "src/commander_lab/qualification/current_boundary/source_lock.py#XMAGE_CANDIDATE_COMMIT stays b19596980f27 (NOT repinned)"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+  "tree": "97951fd7c84b49c20cbaa975b7f2b5d669df9262",
+  "tested_code_commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/4e59e8b9087878816b37728055eb61757a2fbf07.tar.gz"
+ },
+ "donors": [
+  {
+   "finding": "F-43",
+   "tracker": "moeendres-png/commander-playtest-lab#430",
+   "pr": "moeendres-png/mage#29",
+   "head": "3fba145b258e9b4d12541c4a6c46d4a5e3509f23",
+   "integration": "merged (merge commit 4e59e8b9087878816b37728055eb61757a2fbf07)"
+  },
+  {
+   "finding": "F-44",
+   "tracker": "moeendres-png/commander-playtest-lab#433",
+   "pr": "moeendres-png/mage#33",
+   "head": "aac1bcedc3a4e1793b167532781392d48971d35f",
+   "integration": "merged (merge commit 9367341d574b0a42bb2b4e1ec16a6889b0bb8758)"
+  }
+ ],
+ "rules_core_change_against_prior_pin": {
+  "main_source_files": [
+   "Mage/src/main/java/mage/game/GameImpl.java",
+   "Mage/src/main/java/mage/game/combat/CombatGroup.java"
+  ],
+  "test_files": [
+   "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/CombatDamageSourceLeaves4PTest.java",
+   "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/CombatDamageSourceLeaves5PTest.java",
+   "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/TriggerOrderLeaver4PTest.java"
+  ],
+  "rule": "CR 800.4a"
+ },
+ "native_qualification": {
+  "full_mage_tests": {
+   "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+   "modules": "Mage,Mage.Tests",
+   "tests": 7032,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "environment": "local, offline, isolated Maven repository (never the shared ~/.m2)",
+   "evidence_class": "DIRECTLY_VERIFIED"
+  }
+ },
+ "evidence_transfer": "No result observed on 9375f35a is credited to 4e59e8b9; current-boundary credit requires a fresh epoch on the new pin."
+}
