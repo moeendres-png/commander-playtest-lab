@@ -174,9 +174,7 @@ def test_read_pidfile_identity_round_trip(tmp_path: Path) -> None:
 
 
 def test_read_pidfile_identity_missing_is_not_observed(tmp_path: Path) -> None:
-    identity = rt.read_pidfile_identity(
-        tmp_path / "absent.pid", role="RECORD", command=("java",)
-    )
+    identity = rt.read_pidfile_identity(tmp_path / "absent.pid", role="RECORD", command=("java",))
     assert not identity.observed
     assert identity.pid is None
 
@@ -187,7 +185,13 @@ def test_process_identities_must_be_distinct() -> None:
     assert rt.process_identities_distinct([a, b])[0] is True
     assert rt.process_identities_distinct([a, a])[0] is False
     unobserved = rt.ProcessIdentity(
-        role="X", pid=None, start_ticks=None, boot_id=None, command_sha256="x", command=(), observation=""
+        role="X",
+        pid=None,
+        start_ticks=None,
+        boot_id=None,
+        command_sha256="x",
+        command=(),
+        observation="",
     )
     assert rt.process_identities_distinct([a, unobserved])[0] is False
 
@@ -330,9 +334,7 @@ def test_same_process_identity_is_not_a_twin(twin_pair: tuple[Any, ...]) -> None
     mutated["process_identity"] = record.to_document()["process_identity"]
     comparison = rt.compare_twin_runs(record, mutated)
     assert not comparison.verified
-    assert rt.DIVERGENCE_PROCESS_NOT_DISTINCT in {
-        item["code"] for item in comparison.divergences
-    }
+    assert rt.DIVERGENCE_PROCESS_NOT_DISTINCT in {item["code"] for item in comparison.divergences}
 
 
 def test_missing_process_identity_is_not_pass(twin_pair: tuple[Any, ...]) -> None:
@@ -360,9 +362,7 @@ def test_horizon_terminal_is_unknown_not_pass() -> None:
     comparison = rt.compare_twin_runs(record, replay)
     assert comparison.verified is False
     assert comparison.verdict == "UNKNOWN"
-    assert rt.DIVERGENCE_TERMINAL_INCOMPLETE in {
-        item["code"] for item in comparison.divergences
-    }
+    assert rt.DIVERGENCE_TERMINAL_INCOMPLETE in {item["code"] for item in comparison.divergences}
 
 
 def test_missing_required_section_is_unknown(twin_pair: tuple[Any, ...]) -> None:
@@ -448,9 +448,7 @@ def test_unverified_twin_document_cannot_pass_the_gate(twin_pair: tuple[Any, ...
     mutated = replay.to_document()
     mutated["terminal_outcome"]["complete"] = False
     mutated["terminal_outcome"]["kind"] = "DECISION_HORIZON"
-    replay_run = rt.TwinRun(
-        **{**replay.__dict__, "terminal": mutated["terminal_outcome"]}
-    )
+    replay_run = rt.TwinRun(**{**replay.__dict__, "terminal": mutated["terminal_outcome"]})
     comparison = rt.compare_twin_runs(record, replay_run)
     twin = rt.clean_process_twin_document(record=record, replay=replay_run, comparison=comparison)
     assert twin["verified"] is False
@@ -663,8 +661,22 @@ class FakeForgeBridge:
         if not self.deterministic:
             public = rt.sha256_json([public, self.nonce])
         outcomes = [
-            {"seat": 0, "player_id": "p1", "life": 40, "lost": False, "won": self.game_over, "left": False},
-            {"seat": 1, "player_id": "p2", "life": 0, "lost": self.game_over, "won": False, "left": False},
+            {
+                "seat": 0,
+                "player_id": "p1",
+                "life": 40,
+                "lost": False,
+                "won": self.game_over,
+                "left": False,
+            },
+            {
+                "seat": 1,
+                "player_id": "p2",
+                "life": 0,
+                "lost": self.game_over,
+                "won": False,
+                "left": False,
+            },
         ]
         return {
             "public_state_digest": public,
@@ -787,9 +799,7 @@ def test_generic_lane_horizon_terminal_is_not_pass(monkeypatch: pytest.MonkeyPat
 def test_generic_lane_nondeterminism_is_detected(monkeypatch: pytest.MonkeyPatch) -> None:
     _fake_identity(monkeypatch)
     record = _gather(FakeForgeBridge(deterministic=True), role="RECORD", tape=None)
-    replay = _gather(
-        FakeForgeBridge(deterministic=False), role="REPLAY", tape=record.decisions
-    )
+    replay = _gather(FakeForgeBridge(deterministic=False), role="REPLAY", tape=record.decisions)
     assert replay.failure is not None
     assert "public state digest differs" in replay.failure
     comparison = rt.compare_twin_runs(record, replay)
@@ -800,9 +810,7 @@ def test_generic_lane_concede_horizon_uses_the_engine_offered_concession(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _fake_identity(monkeypatch)
-    record = _gather(
-        FakeForgeBridge(), role="RECORD", tape=None, concede_after_decisions=1
-    )
+    record = _gather(FakeForgeBridge(), role="RECORD", tape=None, concede_after_decisions=1)
     assert record.failure is None, record.failure
     concession_entries = [
         entry for entry in record.decisions if entry["policy"] == "concede_at_defined_horizon"

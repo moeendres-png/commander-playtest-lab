@@ -214,11 +214,7 @@ class ProcessIdentity:
 
     @property
     def observed(self) -> bool:
-        return (
-            self.pid is not None
-            and self.start_ticks is not None
-            and bool(self.boot_id)
-        )
+        return self.pid is not None and self.start_ticks is not None and bool(self.boot_id)
 
     @property
     def key(self) -> tuple[int, int, str] | None:
@@ -268,9 +264,9 @@ def read_process_identity(
     command_tuple = tuple(str(part) for part in command)
     command_digest = sha256_json(list(command_tuple))
     try:
-        boot_id = (root / "sys" / "kernel" / "random" / "boot_id").read_text(
-            encoding="utf-8"
-        ).strip()
+        boot_id = (
+            (root / "sys" / "kernel" / "random" / "boot_id").read_text(encoding="utf-8").strip()
+        )
     except OSError:
         boot_id = None
     try:
@@ -546,9 +542,7 @@ class TwinRun:
             "fixture_identity": self.fixture_identity,
             "candidate_build": self.candidate_build,
             "lab_source": self.lab_source,
-            "process_identity": (
-                self.process.to_document() if self.process is not None else None
-            ),
+            "process_identity": (self.process.to_document() if self.process is not None else None),
             "rules_rng": self.rules_rng,
             "decisions": self.decisions,
             "semantic_events": self.semantic_events,
@@ -1042,9 +1036,7 @@ def run_adversarial_controls(
         document["decisions"][0]["chosen_fingerprint"] = "different-with-same-seed"
 
     def _same_process_identity(document: dict[str, Any]) -> None:
-        document["process_identity"] = copy.deepcopy(
-            record.to_document()["process_identity"]
-        )
+        document["process_identity"] = copy.deepcopy(record.to_document()["process_identity"])
 
     has_decisions = bool(record.decisions) and bool(replay.decisions)
     has_rng_coordinates = bool(record.rules_rng.get("rng_call_coordinates")) and bool(
@@ -1052,9 +1044,7 @@ def run_adversarial_controls(
     )
     has_events = len(record.semantic_events) >= 1 and len(replay.semantic_events) >= 1
     has_two_events = len(record.semantic_events) >= 2 and len(replay.semantic_events) >= 2
-    has_checkpoints = bool(record.checkpoint_state_hashes) and bool(
-        replay.checkpoint_state_hashes
-    )
+    has_checkpoints = bool(record.checkpoint_state_hashes) and bool(replay.checkpoint_state_hashes)
 
     control(
         "changed_decision",
@@ -1134,8 +1124,7 @@ def run_adversarial_controls(
             "control": "normalization_of_rules_significant_field_fails",
             "detected": normalization_guard,
             "applicable": True,
-            "detail": guard_detail
-            or "a Rules-significant normalization rule was NOT rejected",
+            "detail": guard_detail or "a Rules-significant normalization rule was NOT rejected",
         }
     )
 
@@ -1331,9 +1320,7 @@ def _record_action_for_kind(
     counts: dict[str, int] = {}
     for fingerprint in fingerprints:
         counts[fingerprint] = counts.get(fingerprint, 0) + 1
-    unique = sorted(
-        fingerprint for fingerprint, count in counts.items() if count == 1
-    )
+    unique = sorted(fingerprint for fingerprint, count in counts.items() if count == 1)
     if not unique:
         raise DecisionUnsatisfied(
             f"{kind} offered only indistinguishable duplicate options "
@@ -1342,11 +1329,7 @@ def _record_action_for_kind(
         )
     wanted = unique[0]
     return (
-        next(
-            action
-            for action in actions
-            if _action_fingerprint(candidate, action) == wanted
-        ),
+        next(action for action in actions if _action_fingerprint(candidate, action) == wanted),
         "deterministic_unique_lexicographic_fingerprint",
     )
 
@@ -1361,9 +1344,7 @@ def _resolve_replay_action(
         raise TwinReplayDivergence(
             f"decision {entry.get('sequence')}: the tape records no chosen fingerprint"
         )
-    matches = [
-        action for action in actions if _action_fingerprint(candidate, action) == recorded
-    ]
+    matches = [action for action in actions if _action_fingerprint(candidate, action) == recorded]
     if len(matches) != 1:
         raise TwinReplayDivergence(
             f"decision {entry.get('sequence')}: the recorded choice "
@@ -1540,9 +1521,7 @@ def gather_generic_lane_process(
         last_state: dict[str, Any] | None = None
         while steps < max_decisions:
             try:
-                frame = poll_decision(
-                    proc, game_id, seat_count=player_count, candidate=candidate
-                )
+                frame = poll_decision(proc, game_id, seat_count=player_count, candidate=candidate)
             except GameDriveError:
                 # No parked decision: either the game ended or the lane stalled.
                 state = _read_generic_state(proc, game_id, observer=None)
@@ -1567,14 +1546,17 @@ def gather_generic_lane_process(
                 entry = tape[steps - 1]
                 recorded = entry.get("pre_checkpoint") or {}
                 for field_name in ("kind", "actor", "revision"):
-                    if recorded.get(field_name) != {
-                        "kind": kind,
-                        "actor": actor,
-                        "revision": revision,
-                    }[field_name]:
+                    if (
+                        recorded.get(field_name)
+                        != {
+                            "kind": kind,
+                            "actor": actor,
+                            "revision": revision,
+                        }[field_name]
+                    ):
                         raise TwinReplayDivergence(
                             f"decision {steps}: {field_name} is "
-                            f"{ { 'kind': kind, 'actor': actor, 'revision': revision }[field_name]!r}, "
+                            f"{ {'kind': kind, 'actor': actor, 'revision': revision}[field_name]!r}, "
                             f"the tape records {recorded.get(field_name)!r}"
                         )
                 if recorded.get("public_state_digest") != checkpoint_before.get(
@@ -1602,11 +1584,7 @@ def gather_generic_lane_process(
                     # ordinary engine-offered external decision that reaches a
                     # real terminal outcome.
                     concede_action = next(
-                        (
-                            action
-                            for action in actions
-                            if action.get("action_type") == "concede"
-                        ),
+                        (action for action in actions if action.get("action_type") == "concede"),
                         None,
                     )
                 if concede_action is not None:
@@ -1780,9 +1758,7 @@ def gather_generic_lane_process(
     process = None
     popen = getattr(proc, "popen", None)
     if popen is not None and getattr(popen, "pid", None) is not None:
-        process = read_process_identity(
-            popen.pid, role=role, command=plan_command
-        )
+        process = read_process_identity(popen.pid, role=role, command=plan_command)
     if failure is not None and terminal.get("complete") is not True:
         terminal = {
             "kind": "FAILED",
@@ -1884,8 +1860,9 @@ def run_generic_lane_twin(
     resolved_fixture = fixture_id or GENERIC_LANE_FIXTURE_TEMPLATE.format(
         candidate=candidate, player_count=player_count
     )
+    # The guard above established that only the Forge lane is supported here.
     plan = build_launch_plan(
-        candidate,
+        "forge",
         xmage_workspace=xmage_workspace,
         forge_workspace=forge_workspace,
     )
@@ -2088,9 +2065,7 @@ def xmage_tape_run_from_document(
         },
         process_local_identifiers={
             "tape_id": raw.get("tape_id"),
-            "engine_game_id": (
-                (raw.get("initial_checkpoint") or {}).get("engine_game_id")
-            ),
+            "engine_game_id": ((raw.get("initial_checkpoint") or {}).get("engine_game_id")),
         },
         limitations=[],
     )
@@ -2181,13 +2156,12 @@ def run_xmage_tape_twin(
     raw_b = json.loads(paths[1].read_text(encoding="utf-8"))
     tape_comparison = comparator.compare_tapes(raw_a, raw_b)
     comparison = compare_twin_runs(runs[0], runs[1])
+    first_divergence = tape_comparison.divergence
     comparison_document: dict[str, Any] = {
         "tape_comparison_match": bool(tape_comparison.match),
         "compared_steps": int(tape_comparison.compared_steps),
         "first_divergence_kind": (
-            tape_comparison.divergence.kind.value
-            if getattr(tape_comparison, "divergence", None) is not None
-            else None
+            first_divergence.kind.value if first_divergence is not None else None
         ),
     }
 

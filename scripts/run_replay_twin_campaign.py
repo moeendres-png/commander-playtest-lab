@@ -182,9 +182,7 @@ def _base_document(candidate: str, args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
-def _forge_deck_payloads(
-    profile: str, player_count: int
-) -> list[dict[str, Any]] | None:
+def _forge_deck_payloads(profile: str, player_count: int) -> list[dict[str, Any]] | None:
     if profile == "synthetic":
         return None
     from commander_lab.engine.rules.project import load_rules_deck_snapshot
@@ -196,22 +194,21 @@ def _forge_deck_payloads(
         if not path.is_file():
             raise SystemExit(f"real deck source missing: {relative}")
         deck = load_rules_deck_snapshot(path)
-        deck_id = (
-            deck.deck_id
-            if seat <= len(REAL_DECK_PATHS)
-            else f"{deck.deck_id}-seat{seat}"
+        deck_id = deck.deck_id if seat <= len(REAL_DECK_PATHS) else f"{deck.deck_id}-seat{seat}"
+        deck_hash = (
+            deck.deck_hash
+            or hashlib.sha256(
+                json.dumps(
+                    {
+                        "deck_id": deck_id,
+                        "commander_names": list(deck.commander_names),
+                        "mainboard": list(deck.mainboard),
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
         )
-        deck_hash = deck.deck_hash or hashlib.sha256(
-            json.dumps(
-                {
-                    "deck_id": deck_id,
-                    "commander_names": list(deck.commander_names),
-                    "mainboard": list(deck.mainboard),
-                },
-                sort_keys=True,
-                separators=(",", ":"),
-            ).encode("utf-8")
-        ).hexdigest()
         payloads.append(
             {
                 "deck_id": deck_id,
@@ -306,9 +303,7 @@ def run_xmage(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
         document["failure"] = f"fixture construction failed: {type(exc).__name__}: {exc}"
         document["verdict"] = "FAIL"
         return document
-    plan = bridge_launcher.build_launch_plan(
-        "xmage", lane="full-game", xmage_workspace=workspace
-    )
+    plan = bridge_launcher.build_launch_plan("xmage", lane="full-game", xmage_workspace=workspace)
     command = plan.argv
     if args.xmage_mage_jar is not None:
         command = _apply_mage_jar_override(command, args.xmage_mage_jar)
@@ -386,9 +381,7 @@ def main() -> int:
     results: dict[str, str] = {}
     for candidate in candidates:
         print(f"=== AF09 replay twin: {candidate} ===")
-        document = (
-            run_forge(args, work_dir) if candidate == "forge" else run_xmage(args, work_dir)
-        )
+        document = run_forge(args, work_dir) if candidate == "forge" else run_xmage(args, work_dir)
         suffix = f"_{args.player_count}P" if args.player_count != 4 else ""
         name = args.evidence_name or f"AF09_REPLAY_TWIN_{candidate.upper()}{suffix}"
         _write(args.out_dir / f"{name}.json", document)
