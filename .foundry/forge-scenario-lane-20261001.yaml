@@ -7,7 +7,12 @@ audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
 main_merged_at_start: a91590842b3a3c96336bf3e6296eb80db606926b
 merge_commit_at_start: a60ee60048ebed27be49bd81af444ef67c9b2014
 state_written_against_head: cc18d84aeba4f6edaf16f8aff2cd67cf53f1c5d1
-validated_head: a60ee60048ebed27be49bd81af444ef67c9b2014
+validated_head: 35ff9ee3d1f076a5ff0f772473e782548c933d11
+reproduced_on_committed_head: >-
+  35ff9ee3: the full 16-row runtime batch was re-executed after the lane files
+  were committed and reproduced {UNSUPPORTED_DIMENSION: 7,
+  OBLIGATION_NOT_OBSERVABLE: 3, EXECUTED_OBLIGATION_OBSERVED: 6}; the persisted
+  EXECUTION_RECEIPT.json is bound to Lab commit 35ff9ee3.
 observed_origin_main_drift:
   origin_main_at_final_check: 6ae06efcdd2a894596d4c48d14b32632a6950c60
   content: >-
