@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import pytest
 
+from commander_lab.models import ActionType, LegalAction
 from commander_lab.qualification.current_boundary import game_driver
 from commander_lab.qualification.current_boundary.game_driver import (
     COST_ORDER_POLICY,
     DecisionUnsatisfied,
     select_cost_order_action,
 )
-from commander_lab.models import ActionType, LegalAction
 
 
 def _action(
