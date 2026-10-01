@@ -45,6 +45,12 @@ class EffectiveMaterialization:
     bundle: dict[str, Any]
     denominator: list[str]
     canonical_bundle_digest: str
+    # The corrected-fixture set the current authority names. It is carried on
+    # the materialization itself because the successor overlay does not put it
+    # into the bundle: the authority document is the sole source, and a
+    # hard-coded fallback here previously advertised one corrected fixture
+    # while nine were in effect.
+    changed_fixture_ids: tuple[str, ...] = ()
 
     def record(self, fixture_id: str) -> dict[str, Any]:
         for item in self.bundle["records"]:
@@ -72,15 +78,13 @@ class EffectiveMaterialization:
             "canonical_bundle_digest": self.canonical_bundle_digest,
             "materialization_record_count": self.bundle["record_count"],
             "provider_denominator_count": len(self.denominator),
-            "changed_fixture_ids": self.bundle.get("evidence_migration", {}).get(
-                "changed_fixture_ids", ["WS05-CMD-START-2"]
-            ),
+            "changed_fixture_ids": list(self.changed_fixture_ids),
             "rules_authority": self.bundle.get("current_rules_authority"),
         }
 
 
 def load_effective_materialization(root: Path | None = None) -> EffectiveMaterialization:
-    """Load and validate the effective v1.0.6 materialization and denominator."""
+    """Load and validate the effective successor materialization and denominator."""
     resolved_root = root or repo_root()
     module = _resolver(str(resolved_root))
     bundle = module.load_effective_materialization()
@@ -92,10 +96,26 @@ def load_effective_materialization(root: Path | None = None) -> EffectiveMateria
         raise RuntimeError(f"provider denominator must be 107 rows, got {len(denominator)}")
     if denominator_doc.get("denominator_decreased_to_bypass_blocker") is not False:
         raise RuntimeError("provider denominator was decreased to bypass a blocker")
+    authority = module._load(resolved_root / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json")
+    changed = tuple(str(item) for item in authority["full107"]["changed_fixture_ids"])
+    if not changed:
+        raise RuntimeError("the current authority names no corrected fixture")
+    if len(set(changed)) != len(changed):
+        raise RuntimeError(f"the authority's corrected-fixture set has duplicates: {changed}")
+    for fixture_id in changed:
+        if bundle["records"] and not any(
+            record["fixture_id"] == fixture_id and record.get("repair_provenance")
+            for record in bundle["records"]
+        ):
+            raise RuntimeError(
+                f"authority names {fixture_id} as corrected but the effective materialization "
+                "carries no repair provenance for it"
+            )
     return EffectiveMaterialization(
         bundle=bundle,
         denominator=denominator,
         canonical_bundle_digest=bundle["canonical_bundle_digest"],
+        changed_fixture_ids=changed,
     )
 
 

@@ -1,0 +1,735 @@
+{
+ "classification": "EVIDENCE_ASSEMBLY_GAP (Coordinator: #255 comment 5925956587)",
+ "derivation": "commander_lab.qualification.current_boundary.decision_boundary",
+ "discrepancy": "the assembler hard-coded Forge AF04 UNKNOWN on the premise that no decision class beyond PRIORITY had been exercised, while the same-epoch PLAYER_CARDINALITY_FORGE artifact records externally answered STARTING_PLAYER/MULLIGAN/PRIORITY frames at 2P-6P",
+ "proof_conditions": [
+  "the frame is provider-authored (engine pending decision with decision_class)",
+  "the submitted actor and revision come from that frame and the engine rejects a mismatch (XMage STALE_EXTERNAL_DECISION/EXTERNAL_DECISION_ACTOR_MISMATCH; Forge STALE_REVISION/WRONG_ACTOR)",
+  "every non-null submitted choice is a member of the frame's offered option ids",
+  "the MULLIGAN class is bound to the engine's own mulligan decision route, where the engine selects the matching offered option by option_type/isKeep",
+  "the keep-all progression is proven by one frame per seat, no repeated actor and a priority frame after the final keep",
+  "no fail-closed policy answered a frame and no run stopped at an unsupported decision class",
+  "the artifact's runtime identity is this assembly's runtime identity"
+ ],
+ "verdicts": {
+  "forge": {
+   "blocking_rows": [],
+   "decision_boundary": {
+    "bounded_secondary_cardinalities_checked": [
+     "6P"
+    ],
+    "candidate": "forge",
+    "contradictions": [],
+    "externally_answered_decision_classes": [
+     "MULLIGAN",
+     "PRIORITY",
+     "STARTING_PLAYER"
+    ],
+    "frame_count": 30,
+    "frames": [
+     {
+      "actor": "p1",
+      "cardinality": "2P",
+      "chosen_option_id": "opt-0d57d80c-9c11-492c-bfa2-8646f3909b16",
+      "detail": "STARTING_PLAYER answered by p1 at revision 1; 2 engine-offered option(s); chosen='opt-0d57d80c-9c11-492c-bfa2-8646f3909b16'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p1",
+      "cardinality": "2P",
+      "chosen_option_id": "opt-d913ee57-f874-4969-826d-375d341e5aae",
+      "detail": "PRIORITY answered by p1 at revision 4; 2 engine-offered option(s); chosen='opt-d913ee57-f874-4969-826d-375d341e5aae'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p2",
+      "cardinality": "3P",
+      "chosen_option_id": "opt-bb7af4a9-1813-4229-ae68-52c08d489240",
+      "detail": "STARTING_PLAYER answered by p2 at revision 1; 3 engine-offered option(s); chosen='opt-bb7af4a9-1813-4229-ae68-52c08d489240'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 3,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p1",
+      "cardinality": "3P",
+      "chosen_option_id": "opt-a1af608d-9fe5-47af-b5aa-7cb4b8ec2502",
+      "detail": "PRIORITY answered by p1 at revision 5; 2 engine-offered option(s); chosen='opt-a1af608d-9fe5-47af-b5aa-7cb4b8ec2502'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p3",
+      "cardinality": "4P",
+      "chosen_option_id": "opt-4febf084-6076-4046-961c-fa431b59f9f3",
+      "detail": "STARTING_PLAYER answered by p3 at revision 1; 4 engine-offered option(s); chosen='opt-4febf084-6076-4046-961c-fa431b59f9f3'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 4,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p4",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p1",
+      "cardinality": "4P",
+      "chosen_option_id": "opt-002aff74-b5b4-462c-9eda-79e95ee95c59",
+      "detail": "PRIORITY answered by p1 at revision 6; 2 engine-offered option(s); chosen='opt-002aff74-b5b4-462c-9eda-79e95ee95c59'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "p3",
+      "cardinality": "5P",
+      "chosen_option_id": "opt-1cc20e7b-21ec-42fa-99b9-9a16f583cc44",
+      "detail": "STARTING_PLAYER answered by p3 at revision 1; 5 engine-offered option(s); chosen='opt-1cc20e7b-21ec-42fa-99b9-9a16f583cc44'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 5,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p4",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p5",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "p1",
+      "cardinality": "5P",
+      "chosen_option_id": "opt-63aac03b-d561-4744-b97c-439626f2bd38",
+      "detail": "PRIORITY answered by p1 at revision 7; 2 engine-offered option(s); chosen='opt-63aac03b-d561-4744-b97c-439626f2bd38'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 7
+     },
+     {
+      "actor": "p2",
+      "cardinality": "6P",
+      "chosen_option_id": "opt-07425473-125c-49a4-9545-40b20d26edfe",
+      "detail": "STARTING_PLAYER answered by p2 at revision 1; 6 engine-offered option(s); chosen='opt-07425473-125c-49a4-9545-40b20d26edfe'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 6,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p4",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p5",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "p6",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p6 at revision 7; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 7
+     },
+     {
+      "actor": "p1",
+      "cardinality": "6P",
+      "chosen_option_id": "opt-f8bff155-d9e5-4494-80ee-115fedf23df9",
+      "detail": "PRIORITY answered by p1 at revision 8; 2 engine-offered option(s); chosen='opt-f8bff155-d9e5-4494-80ee-115fedf23df9'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 8
+     }
+    ],
+    "gaps": [],
+    "gate": "AF04",
+    "limitations": [
+     {
+      "actor": null,
+      "cardinality": "-",
+      "detail": "Forge responses carry no executed-actor field; the actor binding rests on the frame-supplied actor/revision plus the engine's stale-revision and wrong-actor rejection, not on a response-side identity",
+      "kind": "ACTOR_BINDING",
+      "severity": "NOTE"
+     }
+    ],
+    "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+    "required_cardinalities": [
+     "2P",
+     "3P",
+     "4P",
+     "5P"
+    ],
+    "required_frame_counts": {
+     "2P": 4,
+     "3P": 5,
+     "4P": 6,
+     "5P": 7
+    },
+    "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+    "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+    "verdict": "PASS"
+   },
+   "evidence": [
+    "AF04 derived from this epoch's external decision frames (30 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY, STARTING_PLAYER",
+    "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'actor_id': True, 'revision': True}, 'identity_field': 'revision', 'pass_identity_offered': True, 'submitted_fields': ['actor_id', 'revision'], 'verified': True}",
+    "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [
+    "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+   ],
+   "owner_ruling": "R-2",
+   "verdict": "PASS"
+  },
+  "xmage": {
+   "blocking_rows": [],
+   "decision_boundary": {
+    "bounded_secondary_cardinalities_checked": [
+     "6P"
+    ],
+    "candidate": "xmage",
+    "contradictions": [],
+    "externally_answered_decision_classes": [
+     "MULLIGAN",
+     "PRIORITY"
+    ],
+    "frame_count": 25,
+    "frames": [
+     {
+      "actor": "f83bf7b1-fc77-419b-9612-ddb7f20bdc20",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by f83bf7b1-fc77-419b-9612-ddb7f20bdc20 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "3509cf9ede46ed3878fc7e5bd3893611c7be0c8c760b9cc8ffeaa5cd3b5536cc",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "436e50d7-525a-4f19-89cb-1ae033df9b66",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 436e50d7-525a-4f19-89cb-1ae033df9b66 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "bb15cc3659fa802aa345b3698e2e170a69fe457e4264a35d09f1d682a29560ee",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "f83bf7b1-fc77-419b-9612-ddb7f20bdc20",
+      "cardinality": "2P",
+      "chosen_option_id": "70f87e0ef1a0d5eba3d83c644a821f01e42aef4f1acbbe5f368d08cb796690e4",
+      "detail": "PRIORITY answered by f83bf7b1-fc77-419b-9612-ddb7f20bdc20 at revision 3; 1 engine-offered option(s); chosen='70f87e0ef1a0d5eba3d83c644a821f01e42aef4f1acbbe5f368d08cb796690e4'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "70f87e0ef1a0d5eba3d83c644a821f01e42aef4f1acbbe5f368d08cb796690e4",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 3
+     },
+     {
+      "actor": "e6673305-6119-4858-9b93-7a69f3bd71cb",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by e6673305-6119-4858-9b93-7a69f3bd71cb at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "0390da1bd27c96dfd0fef7ffdddb10cdd4a6d5aa1254a4ad252edb43bde0bca9",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "ba1c6c89-0d1d-45e1-8a26-953513987ec4",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by ba1c6c89-0d1d-45e1-8a26-953513987ec4 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "ffb8e44a47b32400f2d53d08d03f759fa6663a30db0207ef11bd4ad100daf9b1",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "f925e88f-7826-4572-ba94-8af8322d0d2f",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by f925e88f-7826-4572-ba94-8af8322d0d2f at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "d44105e3b83631d0b0566f3d0603279e4e652227cdda5e38eddca13f6ac2f087",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "e6673305-6119-4858-9b93-7a69f3bd71cb",
+      "cardinality": "3P",
+      "chosen_option_id": "495eea2fdfc56b48546a4eb3863c044ff90e8cc7c4da418caa821f94868ea15e",
+      "detail": "PRIORITY answered by e6673305-6119-4858-9b93-7a69f3bd71cb at revision 4; 1 engine-offered option(s); chosen='495eea2fdfc56b48546a4eb3863c044ff90e8cc7c4da418caa821f94868ea15e'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "495eea2fdfc56b48546a4eb3863c044ff90e8cc7c4da418caa821f94868ea15e",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 4
+     },
+     {
+      "actor": "f48eb41e-9745-483b-8567-c8f6cf202782",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by f48eb41e-9745-483b-8567-c8f6cf202782 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "07621b2d21a75e40948e545efbb3e00da0986ece599be6021fa69186e084204c",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "d38fea8f-877c-4bfa-afe0-f862c1304dd7",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by d38fea8f-877c-4bfa-afe0-f862c1304dd7 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "ba40b71e9c00231a8b196557b04119ff6f9141b33819a8993232b8c687a6983d",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "ec735d5d-138c-4afd-a83c-a8b26773b846",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by ec735d5d-138c-4afd-a83c-a8b26773b846 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "e38d010f41353c0d8f12503a7c0b87000a1e1b5f78f115fbeabd4460445815fe",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "77bab867-5122-4dea-be56-0b032dcf5175",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 77bab867-5122-4dea-be56-0b032dcf5175 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "ae76fe0a27044d79850ef1bd075be706544da9d90c2ef572e30d1ed050356592",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "f48eb41e-9745-483b-8567-c8f6cf202782",
+      "cardinality": "4P",
+      "chosen_option_id": "606e6d4dc76e6d0841bd98f5f733283920a81cc2f3f6d02221c9c4e2ab2adedf",
+      "detail": "PRIORITY answered by f48eb41e-9745-483b-8567-c8f6cf202782 at revision 5; 1 engine-offered option(s); chosen='606e6d4dc76e6d0841bd98f5f733283920a81cc2f3f6d02221c9c4e2ab2adedf'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "606e6d4dc76e6d0841bd98f5f733283920a81cc2f3f6d02221c9c4e2ab2adedf",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 5
+     },
+     {
+      "actor": "483ac6bf-7b35-4a62-aa49-269913ac89cd",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 483ac6bf-7b35-4a62-aa49-269913ac89cd at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "344b193f019524e4a648e35848aef0f71240238d82ea6053732ea5ea70e1589d",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "e7b9dae9-8c5d-4940-8ee4-026513e92812",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by e7b9dae9-8c5d-4940-8ee4-026513e92812 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "8d9ea81715648b96a113dd50d3fcb6836f0122f7ad7af45a020418630588c863",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "4705a578-dc7f-41dc-bffd-5263e49e56c7",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 4705a578-dc7f-41dc-bffd-5263e49e56c7 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "81600d15ce07d5dae018977fa2b64a0be198dbd114ab2abbd121673d14f3268c",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "4798e21a-9fb0-4b22-a51e-82daa1c42c23",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 4798e21a-9fb0-4b22-a51e-82daa1c42c23 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "9c608ea21206dbe139e292e878634727a0768761b531aedfce540cd8de53ce97",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "f55772c1-e7b6-4cc9-9378-eb870ba16554",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by f55772c1-e7b6-4cc9-9378-eb870ba16554 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "9dce3376c725b016060eff765ffbf9a42d963a7c5903edda741f298008106716",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "483ac6bf-7b35-4a62-aa49-269913ac89cd",
+      "cardinality": "5P",
+      "chosen_option_id": "25d7aa52b60bac66cf9b0782f59fb5fe0f6ae848b014b6676b1374d8561855ce",
+      "detail": "PRIORITY answered by 483ac6bf-7b35-4a62-aa49-269913ac89cd at revision 6; 1 engine-offered option(s); chosen='25d7aa52b60bac66cf9b0782f59fb5fe0f6ae848b014b6676b1374d8561855ce'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "25d7aa52b60bac66cf9b0782f59fb5fe0f6ae848b014b6676b1374d8561855ce",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 6
+     },
+     {
+      "actor": "7aa1d299-6640-4e36-a331-0e9d243bf7bf",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 7aa1d299-6640-4e36-a331-0e9d243bf7bf at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "f5c5de3fe2593c383c77645ac228342a4efdf00672a68c5f8a6d6448ca9c5730",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "8c4e6eeb-dc76-453b-a630-69ed52f2240f",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 8c4e6eeb-dc76-453b-a630-69ed52f2240f at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "72d2e60d9f415237cb578bf83e3b937147861dfc03a6302c0f4bb67ac30185d1",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "3f983e81-8c09-424a-8da1-d51e2ecd1893",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 3f983e81-8c09-424a-8da1-d51e2ecd1893 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "0f6bdd345879a6499175c644ed163896e0e687ab1d218a5ff34a6c8bae956cd7",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "8da64f63-0ce5-42f9-9c17-4516cac6ab06",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 8da64f63-0ce5-42f9-9c17-4516cac6ab06 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "33b58f9eb2c055b8b89fb49d490c3ae4e60a5abc8c8ccfb021d51081e414685c",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "22c05175-cd58-4621-9f1b-3ea36453538f",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 22c05175-cd58-4621-9f1b-3ea36453538f at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "af6be799c6da57020471fe48c3edfcec62e6bd3b2a36a8bd19638d279e425d72",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "f3f98855-92cd-4d23-83dd-e5d56c8c183d",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by f3f98855-92cd-4d23-83dd-e5d56c8c183d at revision 6; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "624372adf5b11ce628b38c880f37d3e78b16cbf7be57e4e3ac4208dafb7bef6f",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "7aa1d299-6640-4e36-a331-0e9d243bf7bf",
+      "cardinality": "6P",
+      "chosen_option_id": "bfa1db7be0e3c523411fc6d7b54f30347024e94713e08544e0e0a90aa9ef2741",
+      "detail": "PRIORITY answered by 7aa1d299-6640-4e36-a331-0e9d243bf7bf at revision 7; 1 engine-offered option(s); chosen='bfa1db7be0e3c523411fc6d7b54f30347024e94713e08544e0e0a90aa9ef2741'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "bfa1db7be0e3c523411fc6d7b54f30347024e94713e08544e0e0a90aa9ef2741",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 7
+     }
+    ],
+    "gaps": [],
+    "gate": "AF04",
+    "limitations": [],
+    "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+    "required_cardinalities": [
+     "2P",
+     "3P",
+     "4P",
+     "5P"
+    ],
+    "required_frame_counts": {
+     "2P": 3,
+     "3P": 4,
+     "4P": 5,
+     "5P": 6
+    },
+    "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+    "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+    "verdict": "PASS"
+   },
+   "evidence": [
+    "AF04 derived from this epoch's external decision frames (25 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY",
+    "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'action_id': True, 'actor_id': True, 'decision_id': True}, 'identity_field': 'decision_id', 'pass_identity_offered': True, 'submitted_fields': ['action_id', 'actor_id', 'decision_id'], 'verified': True}",
+    "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [
+    "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+   ],
+   "owner_ruling": "R-2",
+   "verdict": "PASS"
+  }
+ },
+ "wrong_reason_controls": [
+  "substituted option outside the offered set -> FAIL",
+  "null choice on an option-id-addressed class -> FAIL",
+  "engine executed option outside the frame -> FAIL",
+  "engine executed for a different actor -> FAIL",
+  "engine reported non-execution -> FAIL",
+  "shipped-hand mulligan progression -> FAIL",
+  "missing count/observation -> UNKNOWN, never PASS"
+ ]
+}

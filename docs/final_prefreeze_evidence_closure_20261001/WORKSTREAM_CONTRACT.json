@@ -1,0 +1,19 @@
+{
+ "architecture_freeze": "NOT_CLAIMED",
+ "binding_adjudication": "#255 comment 5925956587",
+ "branch": "hardening/final-prefreeze-evidence-closure-20261001",
+ "coordinator_parent": 255,
+ "executor": "opencode-go/deepseek-v4.1-flash native MAX",
+ "issue": 441,
+ "objective": "close the Coordinator-adjudicated pre-Freeze evidence and qualification gaps tracked by #441 and produce a fresh source-bound provider-readiness packet for #255",
+ "out_of_scope": [
+  "production provider selection",
+  "architecture freeze",
+  "AF11 before provider selection",
+  "broad engine survey",
+  "mutation of active foreign-writer surfaces"
+ ],
+ "ownership_reservation": "#441 comment 5926003035",
+ "production_provider": "NOT_SELECTED",
+ "workstream": "FINAL-PREFREEZE-EVIDENCE-CLOSURE-20261001"
+}

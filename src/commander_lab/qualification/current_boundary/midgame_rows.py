@@ -40,6 +40,7 @@ from typing import Any
 
 from . import midgame_lane as ml
 from . import receipts as receipt_mod
+from . import refusal as refusal_mod
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PROBE_SCRIPT = REPO_ROOT / "scripts" / "run_midgame_capability_probe.py"
@@ -108,7 +109,11 @@ class RowSpec:
 
 # The record's decision family and the engine's decision class name the same
 # decision differently for these families; every other family is spelled alike.
-ENGINE_DECISION_CLASS = {"choose_mode": "mode"}
+# The multi_amount record and the target_amount record both reach XMage's single
+# divided-damage `choose_targets` frame (observed on the production mid-game
+# lane); the record distinguishes the number of damage legs in its semantic
+# value, not in the engine's class name.
+ENGINE_DECISION_CLASS = {"choose_mode": "mode", "multi_amount": "target_amount"}
 
 
 def engine_decision_class(family: str) -> str:
@@ -198,6 +203,32 @@ ROWS: dict[str, RowSpec] = {
             TerminalCheck("no_permanent_damage"),
         ),
     ),
+    # MICRO_MODES is the same mode obligation as PILOT_CHOOSE_MODE on a different
+    # record; its 1.0.7 successor scripts the opening cast explicitly, so the
+    # decision is reached through the engine's own legal-action domain.
+    "MICRO_MODES": RowSpec(
+        mana_sources=tuple(f"obj:micro-modes-mana-{index}" for index in range(5)),
+        mode_bindings=(("create_devils", "Devil creature tokens"),),
+        terminal_checks=(
+            TerminalCheck("tokens_created", card_identity="Devil", value=3),
+            TerminalCheck("no_permanent_damage"),
+        ),
+    ),
+    # The fail-closed negatives: reach the decision frame the record names, then
+    # refuse it explicitly and with no state mutation. The obligation is the
+    # typed refusal itself, never a timeout and never a selected option.
+    "NEGATIVE_FIRST_OPTION": RowSpec(
+        mana_sources=tuple(f"obj:negative_first_option-mana-{index}" for index in range(5)),
+    ),
+    "NEGATIVE_GUI_DEFAULT": RowSpec(
+        mana_sources=tuple(f"obj:negative_gui_default-mana-{index}" for index in range(5)),
+    ),
+    "NEGATIVE_RANDOM_OPTION": RowSpec(
+        mana_sources=("obj:negative_random_option-mana-0",),
+    ),
+    "NEGATIVE_SILENT_SKIP": RowSpec(
+        mana_sources=("obj:negative_silent_skip-mana-0",),
+    ),
 }
 
 
@@ -213,6 +244,9 @@ class Frame:
     # submitted on a numeric frame the engine accepted.
     selected_key: str | None = None
     numeric: int | None = None
+    # An explicit typed refusal of this frame (no option was selected at all).
+    refused: bool = False
+    refusal_kind: str | None = None
 
 
 @dataclass
@@ -226,6 +260,8 @@ class RowExecution:
     terminal_facts: dict[str, bool] = field(default_factory=dict)
     decision_trace: list[dict[str, Any]] = field(default_factory=list)
     tape: list[dict[str, Any]] = field(default_factory=list)
+    # Explicit typed refusals this row performed, with their no-mutation proofs.
+    refusals: list[dict[str, Any]] = field(default_factory=list)
 
     def document(self) -> dict[str, Any]:
         return {
@@ -238,6 +274,7 @@ class RowExecution:
             "terminal_facts": self.terminal_facts,
             "decision_trace": self.decision_trace,
             "tape": self.tape,
+            "refusals": self.refusals,
         }
 
 
@@ -277,6 +314,7 @@ def verify_token(
     trace: list[Frame],
     commander_object_ids: set[str],
     commander_printed_mana_value: int | None = None,
+    refusals: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any] | None:
     """Positive evidence for one required-event token, or None.
 
@@ -313,6 +351,18 @@ def verify_token(
     if match := re.fullmatch(r"spell_cast:(obj:.+)", token):
         hits = [e for e in _events(tape, "SPELL_CAST") if e.get("source_object") == match.group(1)]
         return {"events": [e["sequence"] for e in hits]} if hits else None
+    if match := re.fullmatch(r"create_([A-Za-z][A-Za-z_]*)_token:(\d+)", token):
+        # The engine's own CREATED_TOKEN events, by the token's name. The count
+        # must be exact: a row that created a different number of tokens did not
+        # satisfy the obligation.
+        hits = [
+            e
+            for e in _events(tape, "CREATED_TOKEN")
+            if _name_matches(e, "target_name", match.group(1))
+        ]
+        return (
+            {"events": [e["sequence"] for e in hits]} if len(hits) == int(match.group(2)) else None
+        )
     if match := re.fullmatch(r"attacker_declared:(obj:.+)->(P\d+)", token):
         hits = [
             e
@@ -352,6 +402,37 @@ def verify_token(
             and frame.principal == principal
         ]
         return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"decision_frame:([a-z_]+)", token):
+        # A frame token without a principal names the decision class only; the
+        # engine's own offer set must still be non-empty, so a frame that
+        # exposed nothing cannot satisfy it.
+        family = match.group(1)
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == engine_decision_class(family) and frame.offered_labels
+        ]
+        return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"fail_closed:([A-Z_]+)", token):
+        # The obligation is the explicit typed refusal, evidenced by a
+        # well-formed refusal record bound to an engine-authored frame this run
+        # refused. An absent, timeout-derived or malformed refusal never matches.
+        wanted = match.group(1)
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.refused and frame.refusal_kind == wanted
+        ]
+        proofs = [
+            str(item.get("frame_digest"))
+            for item in refusals or ()
+            if item.get("kind") == wanted and item.get("well_formed") is True
+        ]
+        return (
+            {"decision_frames": frames, "refusal_frame_digests": proofs}
+            if frames and proofs
+            else None
+        )
     if match := re.fullmatch(r"mode_selected:([a-z_]+)", token):
         frames = [
             index
@@ -802,6 +883,7 @@ def execute_row(
     ordinal = 0
     declaring = False
     placed_by_native = {native: semantic for semantic, native in placed.items()}
+    refusals: list[dict[str, Any]] = []
     detail = "bound reached"
     try:
         for _ in range(spec.max_decisions):
@@ -810,7 +892,12 @@ def execute_row(
                 position >= len(script)
                 and all(
                     verify_token(
-                        t, tape, trace, semantic_commanders, spec.commander_printed_mana_value
+                        t,
+                        tape,
+                        trace,
+                        semantic_commanders,
+                        spec.commander_printed_mana_value,
+                        refusals,
                     )
                     is not None
                     for t in required
@@ -835,6 +922,26 @@ def execute_row(
                 position += 1
                 step = script[position] if position < len(script) else None
             scripted = step is not None and step.get("actor") == principal
+            if (
+                scripted
+                and step is not None
+                and str((step.get("selection") or {}).get("selector_kind")) == "fail_closed_probe"
+            ):
+                # The record's obligation is the explicit typed refusal of a
+                # decision class the handler does not support. Nothing is
+                # selected, nothing is submitted and the engine state cannot
+                # change; a malformed refusal fails the row closed.
+                try:
+                    typed = refusal_mod.refuse_pending_decision(client, decision, legal=legal)
+                except refusal_mod.RefusalError as exc:
+                    raise ml.MidgameLaneError(
+                        f"the typed unsupported-decision refusal failed closed: {exc}"
+                    ) from exc
+                frame.refused = True
+                frame.refusal_kind = typed.kind
+                refusals.append(typed.document())
+                position += 1
+                continue
             if (
                 decision_class == "declare_attacker"
                 and scripted
@@ -907,7 +1014,12 @@ def execute_row(
     missing: list[str] = []
     for token in required:
         found = verify_token(
-            token, tape, trace, semantic_commanders, spec.commander_printed_mana_value
+            token,
+            tape,
+            trace,
+            semantic_commanders,
+            spec.commander_printed_mana_value,
+            refusals,
         )
         if found is None:
             missing.append(token)
@@ -933,6 +1045,7 @@ def execute_row(
         terminal_facts=terminal,
         decision_trace=[frame.__dict__ for frame in trace],
         tape=tape,
+        refusals=refusals,
     )
 
 
@@ -966,8 +1079,16 @@ def positive_receipt(
         "observed_assertion": {
             "token_evidence": execution.token_evidence,
             "terminal_facts": execution.terminal_facts,
+            # For a fail-closed obligation the observed assertion is the typed
+            # refusal itself, with its no-mutation proof. It is a positive
+            # observation of the required behaviour, not an absent one, and it
+            # is never derived from a timeout.
+            "typed_refusals": execution.refusals,
         },
         "assertion_kind": "POSITIVE_BEHAVIOUR",
+        "assertion_class": (
+            "TYPED_FAIL_CLOSED_REFUSAL" if execution.refusals else "BEHAVIOUR_OBSERVED"
+        ),
         "outcome": "PASS",
         "runtime_receipt_digest": receipt_mod._digest(execution.document()),
     }

@@ -1,0 +1,92 @@
+{
+ "candidates": {
+  "forge": {
+   "clean_process_twin": null,
+   "replay_export": {
+    "error": [
+     {
+      "code": "unknown_message",
+      "details": {},
+      "message": "export_replay is not supported: deterministic replay is not claimed",
+      "retryable": false
+     }
+    ]
+   },
+   "rows": {
+    "REPLAY_CLEAN_PROCESS": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "REPLAY_DECISION_TAPE": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "REPLAY_EVENT_TAPE": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "REPLAY_STATE_HASHES": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "RNG_RULES_TAPE": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    }
+   },
+   "rules_rng_binding": {
+    "acknowledged_seed": 424242,
+    "acknowledgement_source": "create_commander_game_response",
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
+    "requested_seed": 424242,
+    "rng_credit": true,
+    "schema_version": "commander-lab.seed-binding/1.0.0"
+   }
+  },
+  "xmage": {
+   "clean_process_twin": null,
+   "replay_export": {
+    "error": [
+     {
+      "code": "unsupported_message",
+      "message": "Current XMage bridge does not support message type: export_replay",
+      "retryable": false
+     }
+    ]
+   },
+   "rows": {
+    "REPLAY_CLEAN_PROCESS": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "REPLAY_DECISION_TAPE": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "REPLAY_EVENT_TAPE": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "REPLAY_STATE_HASHES": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    "RNG_RULES_TAPE": {
+     "exit_state": "UNKNOWN",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    }
+   },
+   "rules_rng_binding": {
+    "acknowledged_seed": 424242,
+    "acknowledgement_source": "create_commander_game_response",
+    "classification": "ACKNOWLEDGED_ENGINE_SEED",
+    "controlled": true,
+    "requested_seed": 424242,
+    "rng_credit": true,
+    "schema_version": "commander-lab.seed-binding/1.0.0"
+   }
+  }
+ },
+ "required_contract": "fresh_process_replay_required with same-provider semantic checkpoint and tape equality; seed acknowledgement is a precondition, deterministic setup is not replay proof, and an unsupported export_replay is honest fail-closed but not PASS"
+}

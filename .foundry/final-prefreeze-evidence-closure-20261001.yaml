@@ -1,0 +1,136 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
+branch: hardening/final-prefreeze-evidence-closure-20261001
+audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
+audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d
+state_written_against_head: 28e36938ebc2e3d4064d811e0a566707117e4302
+validated_head: 28e36938ebc2e3d4064d811e0a566707117e4302
+objective: 'Close the Coordinator-adjudicated pre-Freeze evidence and qualification
+  gaps tracked by issue #441 and produce a fresh source-bound provider-readiness packet
+  for subsequent Coordinator adjudication under #255.'
+in_scope:
+- Forge AF04 evidence reassembly
+- R-4-compliant causal direct execution where exact fixture obligations are proven
+- versioned fixture errata including inside-cast fixtures and MICRO_COSTS
+- explicit UNSUPPORTED_DISCRETIONARY_DECISION refusal semantics
+- AF05 mandatory hidden-information campaign
+- AF07 effective 29-card actual-card boundary campaign
+- AF09 clean-process semantic replay twins
+- fresh FULL107 and AF00-AF10 evidence reassembly
+out_of_scope:
+- Production Provider selection
+- Architecture Freeze
+- AF11 before provider selection
+- unrelated cleanup
+- broad engine survey
+- mutation of active foreign-writer PR surfaces
+ownership: FINAL-PREFREEZE-EVIDENCE-CLOSURE-20261001
+dependencies:
+- '#255 Coordinator adjudication comment 5925956587'
+- '#441 workstream contract'
+- '#441 ownership reservation comment 5926003035'
+- 'PR #440 remains FOREIGN_ACTIVE until terminal'
+hard_gates:
+- UNKNOWN is not PASS
+- no historical PASS transfer without impact adjudication
+- Rules Core remains sole legality authority
+- no hidden-information leakage
+- no forbidden fallback or fabricated legal action
+- no denominator shrink
+- no provider selection
+- no Architecture Freeze
+forbidden_shortcuts:
+- first option
+- random option
+- default yes/no
+- internal engine AI fallback
+- GUI default
+- silent skip
+- parent-class fallback
+- requested-option legality reconstruction
+- fabricated legal action
+- manual outcome injection
+validated_gates:
+- 'AF04_MERGE_SAFE_2026-10-01: both candidates PASS from measured external decision
+  frames (Forge 30, XMage 25)'
+- 'SUCCESSOR_EPOCH_FAC12A9B_VERIFIED: 65/65 digests; PB-03 workflow 36829423872 green'
+- 'TYPED_REFUSAL_LIVE: 4 NEGATIVE_* rows PASS with well-formed no-mutation refusals'
+- 'C1_C2_ERRATA: successor contract 1.0.7 in effect; MICRO_MODES + 4 NEGATIVE rows
+  now PASS; MICRO_COSTS cast now offered'
+failed_gates: []
+invalidated_gates:
+- 'ALL_RUNTIME_EVIDENCE_ON_441_LOCKED_PINS: superseded by the #446/#447 repin (XMage
+  9375f35a -> 37e4df6c, Forge bridge e8b8aec6 -> 20e3e1f7); requalified on the merged
+  head'
+tests_run:
+- python3 -m pytest tests -m "not external" => 2953 passed, 11 skipped
+- PB-03 workflow run 36829423872 on fac12a9b => success
+- python3 scripts/regenerate_hash_manifests.py (304/309 entries)
+evidence:
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/ (65 files, digests
+  verified; exact final head; pins 37e4df6c / 20e3e1f7)
+- docs/final_prefreeze_evidence_closure_20261001/ (13 packet files)
+artifacts:
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/FULL107_XMAGE_RESULTS.json
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/FULL107_FORGE_RESULTS.json
+- qualification/current-boundary-epochs/2b60482af250-d0fc69bb4022/PROVIDER_READINESS_CURRENT.json
+- docs/final_prefreeze_evidence_closure_20261001/FINAL_HANDOFF.md
+remaining_scope:
+- AF05 mandatory HIDDEN_* channels (needs principal-scoped knowledge-projection observation
+  channel)
+- AF07 29-card corpus (28 identities still need per-card causal execution)
+- AF09 clean-process semantic replay twins (needs twin executor + checkpoint state
+  hash channel)
+- MICRO_COSTS / PILOT_TARGET_AMOUNT / PILOT_MULTI_AMOUNT lane selectors (semantic_objects
+  + amount_assignment)
+- AF11 post-selection
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+authority_gates: []
+failure_class: NONE
+root_cause_class: NONE
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+exact_next_action: 'Wait for the pb03-runtime check on this head, then merge #445
+  if the merge-gate conditions hold (exact head, fresh main, all checks green, no
+  unresolved P1/P2 review finding).'
+files_modified:
+- src/commander_lab/qualification/current_boundary/decision_boundary.py
+- scripts/assemble_current_boundary_evidence.py
+- tests/qualification/test_current_boundary_decision_boundary.py
+- tests/qualification/test_current_boundary_decision_identity_provenance.py
+- .foundry/final-prefreeze-evidence-closure-20261001.yaml
+technical_decisions:
+- 'AF04 (Forge): the same-epoch PLAYER_CARDINALITY_FORGE decision tape records externally
+  answered STARTING_PLAYER/MULLIGAN/PRIORITY frames at 2P-6P with per-frame actor+revision
+  and engine-offered option ids, and every answered frame has a recorded engine acceptance
+  payload. The assembler hard-code was therefore replaced by a measured derivation
+  (decision_boundary.derive_decision_boundary). Both candidates derive PASS from real
+  evidence; XMage is strengthened, not weakened.'
+- 'MULLIGAN is not option-id-addressed at the harness boundary on either candidate:
+  XMage filters the offered mulligan actions by metadata.option_type and Forge filters
+  the parked frame by isKeep, and both engines reject a mismatched actor/revision.
+  The derivation therefore requires the engine executed option (XMage) or the engine
+  executed flag plus the keep-all actor progression (Forge) instead of a raw chosen
+  option id.'
+- Successor contract 1.0.7 re-applies all overlays to the same 1.0.5 base; the record
+  shape is unchanged so the materialization schema version moved with it but the predecessor
+  contract is preserved byte-for-byte.
+- 'The typed unsupported-decision refusal is a control-plane mechanism (not a new
+  Protocol-2 message): Protocol 2.0.0 has no refusal message, adding one would change
+  the shared transport for both candidates, and the obligation is about handler behaviour.
+  No-mutation is proven from the transport window and the unchanged event offset/pending
+  decision.'
+- 'Three corrected rows (MICRO_COSTS, PILOT_TARGET_AMOUNT, PILOT_MULTI_AMOUNT) are
+  not registered in the lane: the engine frame is a multi-select choose_targets offer
+  followed by the assignment leg, and implementing a divided-damage selector without
+  a negative control risks a wrong-reason PASS. Left UNKNOWN with the exact mechanism
+  observed on the production lane.'
+- 'Pin drift (#446/#447) was classified RELEVANT_REQUALIFICATION_REQUIRED: current
+  main was merged normally and the PB-03 workflow was re-run on the merged head rather
+  than carrying the #441-locked-pin results forward. The superseded workstream epochs
+  remain in branch history only.'

@@ -1,0 +1,2535 @@
+{
+ "column_provenance": {
+  "forge": {
+   "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+  },
+  "xmage": {
+   "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+  }
+ },
+ "denominator": 107,
+ "dispositions": {
+  "NON_COMPARABLE": 107
+ },
+ "no_ranking": "this packet contains no score, no ranking and no preferred provider",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "rows": [
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "CARD_02",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#CARD_02): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_01",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_02",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_03",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_04",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_05",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_06",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_07",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_08",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_09",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_10",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_11",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_12",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_13",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_14",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_15",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_16",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_17",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_18",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_19",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_COMBAT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_CONTROL",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_COPY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_COSTS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR307_1, supersedes d90d525a43d4); its predecessor's evidence does not transfer. the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR307_1, supersedes d90d525a43d4); its predecessor's evidence does not transfer. the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_LAYERS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_MODES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 3fbfd0829ef1); its predecessor's evidence does not transfer. the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_MODES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_PREVENTION",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_PRIORITY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_REPLACEMENT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_STACK",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_TARGETS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_TARGETS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_TRIGGERS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_TRIGGERS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 2a113a9a791b); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_FIRST_OPTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8fb40cf8fcd2); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_GUI_DEFAULT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_INTERNAL_AI",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 27e48a2a3629); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_RANDOM_OPTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes dfdcea34210e); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_SILENT_SKIP): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_ANNOUNCE_X): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOICE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_ABILITY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_CHOOSE_MODE): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_OBJECT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_USE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_DECLARE_ATTACKER): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_MANA_PAYMENT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_MULLIGAN",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8d8d91ab3366); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8d8d91ab3366); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_PILE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_PRIORITY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_PRIORITY): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_TARGET",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_TARGET): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes ad1a4eafe505); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes ad1a4eafe505); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_TRIGGER_ORDER): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_2P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 2P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 2P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_3P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 3P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 3P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_4P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 4P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 4P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_5P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 5P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 5P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "RNG_RULES_TAPE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-MULL-2",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-MULL-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-START-2",
+   "forge": {
+    "execution_mode": "PROTOCOL2_START2_V1_0_6",
+    "exit_state": "PASS",
+    "reason": "CR 103.8a satisfied on the current boundary: engine-observed turn-1 upkeep and precombat-main principal views have identical hand/library counts, and no draw-step checkpoint, draw event or in-step priority was exposed between them"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_START2_V1_0_6",
+    "exit_state": "PASS",
+    "reason": "CR 103.8a satisfied on the current boundary: engine-observed turn-1 upkeep and precombat-main principal views have identical hand/library counts, and no draw-step checkpoint, draw event or in-step priority was exposed between them"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-START-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-START-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-TAX-2",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-TAX-2): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-TAX-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-TAX-4): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-COMBAT-4): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-COMBAT-5): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-PRIO-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-PRIO-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TRIG-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TRIG-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TURN-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TURN-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+   }
+  }
+ ],
+ "schema_version": "wsr22.current-boundary-comparison/1.0.0"
+}

@@ -1,0 +1,184 @@
+{
+ "forge": {
+  "principal_scoping": {
+   "attribution": "NONE",
+   "credible": true,
+   "distinct_state_views": 4,
+   "findings": [],
+   "verdict": "PRINCIPAL_SCOPED"
+  },
+  "rows": {
+   "HIDDEN_01": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_02": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_03": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_04": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_05": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_06": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_07": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_08": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_09": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_10": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_11": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_12": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_13": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_14": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_15": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_16": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_17": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_18": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_19": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_HONEYCARD_SENTINEL": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  }
+ },
+ "xmage": {
+  "principal_scoping": {
+   "attribution": "NONE",
+   "credible": true,
+   "distinct_state_views": 4,
+   "findings": [],
+   "verdict": "PRINCIPAL_SCOPED"
+  },
+  "rows": {
+   "HIDDEN_01": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_02": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_03": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_04": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_05": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_06": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_07": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_08": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_09": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_10": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_11": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_12": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_13": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_14": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_15": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_16": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_17": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_18": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_19": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   },
+   "HIDDEN_HONEYCARD_SENTINEL": {
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+   }
+  }
+ }
+}
