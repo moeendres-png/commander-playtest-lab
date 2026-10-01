@@ -24,9 +24,9 @@
   "observed_assertion": {
     "engine_artifact": {
       "kind": "file",
-      "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-      "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-      "size": 7112962
+      "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+      "size": 7113924
     },
     "postcondition_proofs": [
       {
@@ -59,8 +59,8 @@
     "typed_refusals": []
   },
   "outcome": "PASS",
-  "receipt_digest": "48ba77319c6fcf7d3521ffc1397a37885fcd0d105954dd5e6d06541ebe2215ad",
-  "runner_digest": "b61d84273682b1df11dce0fb117eef68576ac15f1386e9550ce88a3874cb3da2",
+  "receipt_digest": "7bbc970cb028429abf404037c0070e2ad5cc31e4b48aabcf9abb36c57f78bd01",
+  "runner_digest": "9e99320a8e4ccba837c562a58541fb3663f8ec55a5b7fd3003b34eae1a6a3b98",
   "runtime_receipt_digest": "b3ef438d11d3848e94a0d41ee1ca96f029d8d80c3f1e9b8dcd47086ceee7c1f5",
   "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
   "test_identity": "af07-actual-card-campaign#CARD_24"

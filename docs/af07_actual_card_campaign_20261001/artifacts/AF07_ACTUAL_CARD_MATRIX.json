@@ -35,17 +35,17 @@
     ],
     "engine_artifact": {
       "kind": "file",
-      "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-      "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-      "size": 7112962
+      "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+      "size": 7113924
     },
-    "engine_runtime_directory": "/tmp/foundry-af07-actual-card-campaign-20261001/af07-engine-runtime",
+    "engine_runtime_directory": "/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/af07run/rt",
     "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
-    "matrix_digest": "3bbc18ce455812309ff6e0d15dcda195a392af305db7938550c4ab086987300e",
+    "matrix_digest": "959f057a219e34e14028c4522957870372549379f9a891b7ffc3c55b68d38ddb",
     "runner": {
-      "branch": "hardening/af07-actual-card-campaign-20261001",
-      "built_utc": "2026-10-01T20:19:37+00:00",
-      "commit": "0b61ab80a30638a4fda229d5be77a56c302017af",
+      "branch": "claude/optimistic-bohr-6asye6",
+      "built_utc": "2026-10-01T22:09:11+00:00",
+      "commit": "9e2291e7ea6e907d76a6e99b3176831d8e6d8b7f",
       "dirty": false,
       "dirty_paths": [],
       "input_digests": {
@@ -71,11 +71,11 @@
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "6ba4f7325b833fd9a1ea09803c661e87c562463b604fb396a2e1e414836cc921",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "be8a044c11b0c412664529c71970114d38464465482079029b184649c51f4802",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "9c78134b5f1fb9b222eb7c399d92a7100f70d1c79794f40c486790d442ed2023",
-        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageHiddenStateRestoration.java": "1b30a67421cc485c01daff11f505fc5fbb891611ebb990c276996c4e4ee10181",
-        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageLosslessHiddenPlan.java": "de2fbae721c6559a119f8df880ed7eff04e98a6c6f820d70618201ec16bdd69a",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageHiddenStateRestoration.java": "5d9409d209db9d2ac3451870e1607edd36cc534326a266682c1a06da1c6f9a3f",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageLosslessHiddenPlan.java": "72af659b71a7b97d9395cffa66fb047021ed794d3ecee1797c4c570fa76d58b8",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameCausalBridge.java": "e23d41e89de6851758862a1327ca7f2f1a9be23fa85e15efbd836f45f09f38f6",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java": "e1cf2f9e41f6750cd9a9f61e6b01b8858148a1d66bd97e75ebe904dd87fc2946",
-        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "75a13dbf2a294cbcb564e7b2e72991f35942829dcb0e05e58bfd39a9653ebc04",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "8a31a3d44b9d5353838ccd05dc4a6d3016159ff9a138b1ad5f7b6a3562a2d8ac",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java": "2d47ad94162066b42bcecff94bf9b882bb883cbf5bb086c7efcbb69e4b486e1d",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmagePublicEventWatcher.java": "7743b5307228b90d88e144e83c7b3094f2501623732013c5ce5f99e62f24c2f8",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageRulesSeedBinding.java": "831658759dc3e53b695b5e78fb600085cb504f42114343ed4175ca689aa8de50",
@@ -99,6 +99,7 @@
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalEliminationReconstructionTest.java": "88cb1863353826f1056336b377c974bae6c8cf4b0631a7e7e18df535fb2e7a1b",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalStackMechanicsTest.java": "a56b501a31c424e6b1c964515ef03f69120e0d3c8767e7073d7d18a98df76199",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalStackReconstructionTest.java": "944a7b912a38986e7600c44f4fbe4c7cf472f373d57a094e8ffc33850887f105",
+        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCheckpointStateRestorationTest.java": "73eb07b923962002068b1cc2a6cfeb2847d663edee33899ec07fb1e06afbafc7",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCombatDamageLeaverUnwindQualificationTest.java": "2a3bba032a5768a268fb41131c636388ea5472ec04eb460123caea31eee5f6eb",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCommanderDamageRestorationTest.java": "34737a28bb077870bbd23f8012ba1c7e40d5ff4b1d21faca4592c60c6b9f82e5",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageControlDivergenceReconstructionTest.java": "89b8850c2007248b4c54c27565ebaf3709a6886ef27ccc5da134f34eb3376e1c",
@@ -150,7 +151,7 @@
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageHiddenReplayIntegrationTest.java": "de759c323132097517caaf9406a76c89f78fcb4ec4cf49afad7da7ba16578e76",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameCausalTest.java": "88ceb6c61319ce9f5937da41a9892f2c7e5e375f457776d745feaf47de46074e",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameKnowledgeProjectionTest.java": "10804df84032a0f4a239638b9c2b5244d6f93a70709711bf117a39742ff9640d",
-        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameLaneTest.java": "1cd5adbeeb1f2b8307b796f9759d20dd9741f2d0c647c5fbc369ed87c2db4c44",
+        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameLaneTest.java": "62a4b244c6c2e2163d7666cb309a177b6e8770d8fe85b18de7cd5078e59528ff",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgamePrivacyTest.java": "5b62a7caf0d84a6d06ee16990f4e829e2baf49de77ff223bcc4e2bb3763a4e19",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameReviewRemediationTest.java": "3c7ebb90246aeecd13f439317d465793f2747f02799b20506a2ea977153d1fbb",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameTriggerOrderArrivalTest.java": "61b37aa86397df78a850a139eae82dcd343661daeafd1f1a2f3a3a5b266efb60",
@@ -266,17 +267,17 @@
         "src/commander_lab/engine/rules/tactical.py": "6613ad25a2de36233eec1acff73b859c7ce35777087465a1f46075b0ffed8024",
         "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b684300d229e503b6a0e977ae39dd263464656053c4d4cb145ad1",
         "src/commander_lab/qualification/current_boundary/__init__.py": "0a214758505a910970e01984efa392c5bc99d85306a713ee04e81ed38284776c",
-        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "c0055bfd031a84236c4fa3508f4147e349cebc56a5791e79857ff59707ca8a4d",
+        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "c7147670ac8e4df1af7bc22fe977c75e2b2651c87575d83f19ac44667ce5f40b",
         "src/commander_lab/qualification/current_boundary/af01.py": "df6b97a516ae8ea5f92367cfa5af97e712108ae4ee5a07ccf4ba7d4e53cfff80",
         "src/commander_lab/qualification/current_boundary/af03.py": "ba6fd0d50be08cbaad81121862679958ca2736f00470ca11eb10c61e74431b60",
         "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "fa0d03e09759b63c1514dc94a790c7dfbb4e3ad5179d4198ddac794771208263",
         "src/commander_lab/qualification/current_boundary/decision_boundary.py": "c4c610e426a21413d11422b1c33efd89867b7ad25318fc9084d5248d3bdf1767",
-        "src/commander_lab/qualification/current_boundary/dimension_admission.py": "9cdc4360136f1a15acd3f742108f64e30fc314960583e320b155c9d031627513",
+        "src/commander_lab/qualification/current_boundary/dimension_admission.py": "c77d0c63182786f024f1d01be1131f1f80f58b6a41c9adfd0e0dfb14004cd679",
         "src/commander_lab/qualification/current_boundary/evidence_epoch.py": "220f5789c65ffd46409175806c29cfd88f9c58560eb8cf8992aefe15816ce7b0",
         "src/commander_lab/qualification/current_boundary/full107.py": "4cb67c0937051b87794e9644e95b7738a332da4a4267e06efe5e9fc5bd1585e6",
         "src/commander_lab/qualification/current_boundary/game_driver.py": "d8889fc69f3386d27bc7fb3f722df97f3e84cb1c1d27840560dac7488cd349aa",
         "src/commander_lab/qualification/current_boundary/gate_derivations.py": "265bc2904bbddb74058ca757e978cbaeaa04cb146af0720715a885a5504d4811",
-        "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "bd6a286d87dde33361a8e6926b87e07f74592b8d2033b882de5d9909a1f0b4eb",
+        "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "b100ac70d763fe51b3ca95918fa035c998a13c4eb6a3d12ab66b41574b8ed73e",
         "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
         "src/commander_lab/qualification/current_boundary/materialization.py": "dd329bc1365a40538bde393ac54d9800062b637648e8ada7ea02577aa57f5693",
         "src/commander_lab/qualification/current_boundary/midgame_lane.py": "73c4b4a6b3278c0105fb8d0402491416539d791b06bee2c795fe4ee3f9df5b4c",
@@ -286,16 +287,16 @@
         "src/commander_lab/qualification/current_boundary/refusal.py": "7677ae55d23f2fd49c5903794d7e3099ff610741716a1f618611c4762674fdc0",
         "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
         "src/commander_lab/qualification/current_boundary/shortcut_campaign.py": "a4f80471aa67cea5a55a7f5ae0d2fa186a63a15bfc5782da0f6b1cbff0f1013f",
-        "src/commander_lab/qualification/current_boundary/source_lock.py": "d2e6f30596365b47f5e3418f9139cb0cae7c6d2ff1a08ba307e9d7ae96823222"
+        "src/commander_lab/qualification/current_boundary/source_lock.py": "8b687a43289b14804df39c4ae3be87ea63c9759ff8ff702b265156c1f3c2013f"
       },
-      "repository": "https://github.com/moeendres-png/commander-playtest-lab.git",
+      "repository": "https://github.com/moeendres-png/commander-playtest-lab",
       "run_output_prefixes": [
         "qualification/current-boundary-epochs/"
       ],
       "schema_version": "commander-lab.runner-identity/1.0.0",
-      "tree": "5d25ded21dc29a68650922d5b182587834bfa204"
+      "tree": "8c0ec3c4dfd3c54134e39b1941f91dd0e7a09bc1"
     },
-    "runner_digest": "b61d84273682b1df11dce0fb117eef68576ac15f1386e9550ce88a3874cb3da2",
+    "runner_digest": "9e99320a8e4ccba837c562a58541fb3663f8ec55a5b7fd3003b34eae1a6a3b98",
     "seed": 424242,
     "selected_rows": [
       "CARD_01",
@@ -331,10 +332,10 @@
     "test_identity_prefix": "af07-actual-card-campaign#",
     "workspace": {
       "classes_present": true,
-      "classpath_manifest": "/home/moeen/code/lab-af07-actual-card-campaign-20261001/engine-bridge/target/cp-wsr22.txt",
+      "classpath_manifest": "/home/user/commander-playtest-lab/engine-bridge/target/cp-wsr22.txt",
       "classpath_manifest_present": true,
-      "classpath_manifest_sha256": "21512b3bd21fa6c0a768a388e029bc894708b257e4effc2ba68592d873cf90ad",
-      "workspace": "/home/moeen/code/lab-af07-actual-card-campaign-20261001/engine-bridge"
+      "classpath_manifest_sha256": "845710bd7a77c8d1679a00f0404b67ab2adeaa4d53ad9ed18092cfb69744a76e",
+      "workspace": "/home/user/commander-playtest-lab/engine-bridge"
     },
     "workstream": "AF07-ACTUAL-CARD-CAMPAIGN-20261001"
   },
@@ -405,7 +406,7 @@
     ],
     "identities_source": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json",
     "materialization": {
-      "canonical_bundle_digest": "d6d63b7d3c005b78a014d373ff91256588801866c45e45d8a74b1f4477b3853d",
+      "canonical_bundle_digest": "7fe0671a2d9fb0b807cd2b173cf59fcc3ebd6822d2e44d4cf7032ac3dbe8835c",
       "changed_fixture_ids": [
         "WS05-CMD-START-2",
         "MICRO_MODES",
@@ -426,9 +427,15 @@
         "HIDDEN_08",
         "HIDDEN_09",
         "HIDDEN_14",
-        "HIDDEN_18"
+        "HIDDEN_18",
+        "HIDDEN_17",
+        "CARD_09",
+        "CARD_12",
+        "CARD_15",
+        "CARD_27",
+        "CARD_29"
       ],
-      "contract_id": "commander-lab.full107/1.0.10-successor",
+      "contract_id": "commander-lab.full107/1.0.12-successor",
       "frozen_full107_source": "5a2e4f462fd45bba25f2271153212aab9faf09f5",
       "materialization_record_count": 135,
       "provider_denominator_count": 107,
@@ -438,7 +445,7 @@
         "receipt_path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
         "rule": "103.8a"
       },
-      "schema_version": "commander-lab.semantic-fixture-materialization/1.0.10-successor"
+      "schema_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor"
     },
     "required_count": 29
   },
@@ -485,12 +492,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.777,
+        "elapsed_s": 28.536,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted target for P2: the row stops unverified",
@@ -526,9 +533,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P2: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Ishai, Ojutai Dragonspeaker",
         "construction_verdict": "ALLOWED_VARIANCE",
@@ -597,12 +604,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.68,
+        "elapsed_s": 7.498,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "obligation observed",
@@ -632,7 +639,7 @@
           }
         }
       },
-      "receipt_digest": "e77cea9d290f726dc989de6f0e14cc688374fa1ecb7df6e387fb8a4b5ac60c32",
+      "receipt_digest": "ac68470f2ca5c5e951359de06e8f595965d81bdb5633c9aac04b975a69c49b7d",
       "record": {
         "card_identity": "Rograkh, Son of Rohgahh",
         "excluded_by_frozen_denominator": false,
@@ -725,7 +732,7 @@
             "postcondition": "No commander-tax increment was charged."
           }
         ],
-        "receipt_digest": "e77cea9d290f726dc989de6f0e14cc688374fa1ecb7df6e387fb8a4b5ac60c32"
+        "receipt_digest": "ac68470f2ca5c5e951359de06e8f595965d81bdb5633c9aac04b975a69c49b7d"
       }
     },
     {
@@ -764,12 +771,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.381,
+        "elapsed_s": 8.256,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "execution failed closed: scripted priority action 'announce_cast' is not executed by this lane",
@@ -869,12 +876,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.634,
+        "elapsed_s": 7.924,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted target for P1: the row stops unverified",
@@ -913,9 +920,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['declare_attacker', 'declare_blocker']); recorded by the engine as: unscripted target for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Kediss, Emberclaw Familiar",
         "construction_verdict": "ALLOWED_VARIANCE",
@@ -963,12 +970,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.104,
+        "elapsed_s": 7.72,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted target for P1: the row stops unverified",
@@ -1004,9 +1011,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Veyran, Voice of Duality",
         "construction_verdict": "EXACT",
@@ -1054,12 +1061,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.238,
+        "elapsed_s": 7.825,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted target for P1: the row stops unverified",
@@ -1093,9 +1100,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Harmonic Prodigy",
         "construction_verdict": "EXACT",
@@ -1130,12 +1137,12 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.153,
+        "elapsed_s": 0.203,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -1279,12 +1286,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 5.899,
+        "elapsed_s": 8.17,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted declare_attacker for P1: the row stops unverified",
@@ -1354,7 +1361,8 @@
           "native_op:NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OBJECT_DECISION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
           "library_identity_objects"
@@ -1362,24 +1370,43 @@
       },
       "fixture_id": "CARD_09",
       "measurement": {
-        "creation_errors": [
+        "creation_errors": [],
+        "decision_trace": [
           {
-            "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_ZONE: CARD_09 obj:card09-lib-0 requests library"
+            "decision_class": "priority",
+            "offered_labels": 20,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target_amount",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
           }
         ],
-        "decision_trace": [],
-        "elapsed_s": 0.157,
+        "elapsed_s": 8.292,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": null,
-        "missing_tokens": [],
-        "phase": "CREATION_REFUSED",
+        "execution_detail": "execution failed closed: selector 'amount_assignment' is not executed by this lane",
+        "missing_tokens": [
+          "damage:P2:2",
+          "damage:obj:card09-p3-creature:2",
+          "tap:obj:card09-p4-a",
+          "tap:obj:card09-p4-b",
+          "token_created:4/4_Elemental",
+          "draw:P1:2"
+        ],
+        "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
         "token_evidence": {}
@@ -1392,10 +1419,10 @@
         "fixture_id": "CARD_09",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "cbe33985953b3a5028936bc908367f43367ef028e9f7cdbfdb07ed17779390a1",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "cd6ea212ab24e1fe74a06d7fc7e720905b4ce973149b178c341bd00ffd07294a",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
         "obligation_digest": "af9732d8434b07f79e321c13ae094b0f138a305e08aa24e9d1f3ccb22d34d838",
-        "requested_state_digest": "4c0857398e41b313523e5f7acaec85f11e6dba3f930b7b0aba669ba44d721b3d",
+        "requested_state_digest": "78cb4f05911e88466bf873bd5e913fccc206d28874c77ce97b8f26e4d3af86ca",
         "required_events": [
           "damage:P2:2",
           "damage:obj:card09-p3-creature:2",
@@ -1411,12 +1438,12 @@
         ]
       },
       "verdict": {
-        "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_ZONE:library); its own manifest names the dimension as unsupported: ['legacy/frozen partial library identity: no complete permutation, fail closed']; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_09 obj:card09-lib-0 requests library",
-        "blocker_owner": null,
-        "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: selector 'amount_assignment' is not executed by this lane",
+        "blocker_owner": "PR #450",
+        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Magma Opus",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
         "direct_receipt_eligible": false,
         "engine_verified": false,
@@ -1452,12 +1479,12 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.158,
+        "elapsed_s": 0.21,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -1532,12 +1559,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 5.696,
+        "elapsed_s": 8.183,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "execution failed closed: scripted priority action 'cast_fused' is not executed by this lane",
@@ -1608,7 +1635,8 @@
           "native_op:NATIVE_GENERATE_OR_REVEAL_ORDERABLE_OBJECTS_AND_REQUEST_ORDER",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
           "library_identity_objects"
@@ -1616,24 +1644,74 @@
       },
       "fixture_id": "CARD_12",
       "measurement": {
-        "creation_errors": [
+        "creation_errors": [],
+        "decision_trace": [
           {
-            "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_ZONE: CARD_12 obj:card12-lib1 requests library"
+            "decision_class": "priority",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
           }
         ],
-        "decision_trace": [],
-        "elapsed_s": 0.161,
+        "elapsed_s": 7.901,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": null,
-        "missing_tokens": [],
-        "phase": "CREATION_REFUSED",
+        "execution_detail": "execution failed closed: no declared mana source or single pool spend was offered",
+        "missing_tokens": [
+          "delve_exile:6",
+          "mana_paid:UU",
+          "look_top:7",
+          "put_hand:2",
+          "put_bottom:5"
+        ],
+        "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
         "token_evidence": {}
@@ -1646,10 +1724,10 @@
         "fixture_id": "CARD_12",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "0d9bbe4ee1db6643f664d66510182f35d31f0733dea1216ade167ab3b0892d1c",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "ebe84ef0d006698bcc9aa75680efb181a8ab8d643de2d683f47c1bdbc0a0637f",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
         "obligation_digest": "92de1a2dc0cea02e20f5cf598782491a8e60f109cbad85e9f647d9499865892f",
-        "requested_state_digest": "02afc1cf412ecd5304880cc7240dd03005cc248c3bd1985515cdbb7df19a3875",
+        "requested_state_digest": "0525062f779f0ed802ad00f58d9f0c736b3094118f670a2688b2f982d2e7e919",
         "required_events": [
           "delve_exile:6",
           "mana_paid:UU",
@@ -1663,12 +1741,12 @@
         ]
       },
       "verdict": {
-        "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_ZONE:library); its own manifest names the dimension as unsupported: ['legacy/frozen partial library identity: no complete permutation, fail closed']; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_12 obj:card12-lib1 requests library",
+        "blocker_class": "UNKNOWN",
+        "blocker_detail": "the required event tokens were not positively observed and no plan-declared proof covers them: ['delve_exile:6', 'mana_paid:UU', 'look_top:7', 'put_hand:2', 'put_bottom:5']",
         "blocker_owner": null,
-        "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+        "blocker_surface": null,
         "card_identity": "Dig Through Time",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
         "direct_receipt_eligible": false,
         "engine_verified": false,
@@ -1707,12 +1785,12 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.159,
+        "elapsed_s": 0.212,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -2100,12 +2178,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.207,
+        "elapsed_s": 8.629,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted choose_object for P1: the row stops unverified",
@@ -2141,9 +2219,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choose_object'; the record scripts ['priority']); recorded by the engine as: unscripted choose_object for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Vandalblast",
         "construction_verdict": "EXACT",
@@ -2175,7 +2253,8 @@
           "native_op:NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OBJECT_DECISION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
           "tapped_permanents",
@@ -2184,24 +2263,226 @@
       },
       "fixture_id": "CARD_15",
       "measurement": {
-        "creation_errors": [
+        "creation_errors": [],
+        "decision_trace": [
           {
-            "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_ZONE: CARD_15 obj:card15-lib-0 requests library"
+            "decision_class": "priority",
+            "offered_labels": 28,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 23,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "choose_object",
+            "offered_labels": 9,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
           }
         ],
-        "decision_trace": [],
-        "elapsed_s": 0.168,
+        "elapsed_s": 8.45,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": null,
-        "missing_tokens": [],
-        "phase": "CREATION_REFUSED",
+        "execution_detail": "unscripted choose_object for P1: the row stops unverified",
+        "missing_tokens": [
+          "shuffle_graveyard_into_library",
+          "draw:10",
+          "untap_lands:5",
+          "grant_no_max_hand_size",
+          "exile_Finale"
+        ],
+        "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
         "token_evidence": {}
@@ -2214,10 +2495,10 @@
         "fixture_id": "CARD_15",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "744b72c7f5ce168b4f7970992fd023afaadb562ca47642753771c196957bbb79",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "bff7dc414fbcc136e9589ffcfcea03b4c32b6db9405cbe8c358b917e26937204",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
         "obligation_digest": "c0fbfe7a3b4b7121f1a9219605c7f12b2611cb61e3b86d2a22446e52f7582c02",
-        "requested_state_digest": "c514d5d765b29e3e1b1337e5ec4e9ecfa9ee743aee92f78249479dcb6f29af9e",
+        "requested_state_digest": "b38d3134ef6213d0dcca5bdf490651c60584dc7f21cceb7a4c0afc167129376d",
         "required_events": [
           "shuffle_graveyard_into_library",
           "draw:10",
@@ -2231,12 +2512,12 @@
         ]
       },
       "verdict": {
-        "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_ZONE:library); its own manifest names the dimension as unsupported: ['legacy/frozen partial library identity: no complete permutation, fail closed']; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_15 obj:card15-lib-0 requests library",
-        "blocker_owner": null,
-        "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_detail": "the engine offered a decision the generic production executor cannot answer from the record's declared script: unscripted choose_object for P1: the row stops unverified",
+        "blocker_owner": "PR #450",
+        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Finale of Revelation",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
         "direct_receipt_eligible": false,
         "engine_verified": false,
@@ -2268,12 +2549,12 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.172,
+        "elapsed_s": 0.213,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -2689,12 +2970,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.562,
+        "elapsed_s": 8.541,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted choose_object for P2: the row stops unverified",
@@ -2739,9 +3020,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choose_object'; the record scripts ['priority', 'target']); recorded by the engine as: unscripted choose_object for P2: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Kaervek the Merciless",
         "construction_verdict": "EXACT",
@@ -2815,12 +3096,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 5.916,
+        "elapsed_s": 7.782,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted choice for P1: the row stops unverified",
@@ -2862,9 +3143,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choice'; the record scripts ['priority', 'target', 'trigger_order']); recorded by the engine as: unscripted choice for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Shriekmaw",
         "construction_verdict": "EXACT",
@@ -2916,12 +3197,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 5.655,
+        "elapsed_s": 7.832,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "execution failed closed: scripted priority action 'activate' is not executed by this lane",
@@ -3007,12 +3288,12 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.161,
+        "elapsed_s": 0.204,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -3074,12 +3355,12 @@
       "measurement": {
         "creation_errors": [],
         "decision_trace": [],
-        "elapsed_s": 5.897,
+        "elapsed_s": 8.005,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "arrival failed closed: the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
@@ -3153,16 +3434,16 @@
         "creation_errors": [
           {
             "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_COUNTERS: CARD_22 obj:card22-power4"
+            "message": "RestorationException: UNSUPPORTED_ZONE: CARD_22 obj:card22-bolt requests stack"
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.156,
+        "elapsed_s": 0.28,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -3195,7 +3476,7 @@
       },
       "verdict": {
         "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_COUNTERS); its own manifest names the dimension as unsupported: ['attachments and counters']; engine detail: RestorationException: UNSUPPORTED_COUNTERS: CARD_22 obj:card22-power4",
+        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_ZONE:stack); its own manifest names the dimension as unsupported: ['stack spells (casting requires real costs/timing: executor scope)']; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_22 obj:card22-bolt requests stack",
         "blocker_owner": null,
         "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
         "card_identity": "Bolt Bend",
@@ -3250,12 +3531,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.128,
+        "elapsed_s": 7.89,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted target for P1: the row stops unverified",
@@ -3293,9 +3574,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Makeshift Mannequin",
         "construction_verdict": "EXACT",
@@ -3443,12 +3724,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.046,
+        "elapsed_s": 8.213,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "obligation observed",
@@ -3476,7 +3757,7 @@
           }
         }
       },
-      "receipt_digest": "48ba77319c6fcf7d3521ffc1397a37885fcd0d105954dd5e6d06541ebe2215ad",
+      "receipt_digest": "7bbc970cb028429abf404037c0070e2ad5cc31e4b48aabcf9abb36c57f78bd01",
       "record": {
         "card_identity": "Warstorm Surge",
         "excluded_by_frozen_denominator": true,
@@ -3535,7 +3816,7 @@
             "postcondition": "P2 is at 18 life after trigger resolves."
           }
         ],
-        "receipt_digest": "48ba77319c6fcf7d3521ffc1397a37885fcd0d105954dd5e6d06541ebe2215ad"
+        "receipt_digest": "7bbc970cb028429abf404037c0070e2ad5cc31e4b48aabcf9abb36c57f78bd01"
       }
     },
     {
@@ -3562,16 +3843,16 @@
         "creation_errors": [
           {
             "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_COUNTERS: CARD_25 obj:card25-blocker"
+            "message": "RestorationException: UNKNOWN_CARD_NAME: Soldier Token"
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.151,
+        "elapsed_s": 7.432,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": null,
@@ -3606,7 +3887,7 @@
       },
       "verdict": {
         "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_COUNTERS); its own manifest names the dimension as unsupported: ['attachments and counters']; engine detail: RestorationException: UNSUPPORTED_COUNTERS: CARD_25 obj:card25-blocker",
+        "blocker_detail": "the record requests a token object, which the card-vehicle restoration cannot place (a token is created by an effect, not loaded as a card); engine detail: RestorationException: UNKNOWN_CARD_NAME: Soldier Token",
         "blocker_owner": null,
         "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
         "card_identity": "Basilisk Collar",
@@ -3839,12 +4120,12 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 6.829,
+        "elapsed_s": 8.393,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
         "execution_detail": "unscripted choose_object for P1: the row stops unverified",
@@ -3880,9 +4161,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "FIXTURE_DEFECT",
         "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choose_object'; the record scripts ['mode']); recorded by the engine as: unscripted choose_object for P1: the row stops unverified",
-        "blocker_owner": "PR #462",
+        "blocker_owner": null,
         "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Burn Down the House",
         "construction_verdict": "EXACT",
@@ -3913,7 +4194,8 @@
           "native_op:NATIVE_RESOLVE_OR_CONTINUE_RULES_PROCEDURE_TO_OPTIONAL_DECISION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
           "library_identity_objects"
@@ -3921,24 +4203,32 @@
       },
       "fixture_id": "CARD_27",
       "measurement": {
-        "creation_errors": [
+        "creation_errors": [],
+        "decision_trace": [
           {
-            "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_ZONE: CARD_27 obj:card27-top requests library"
+            "decision_class": "priority",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
           }
         ],
-        "decision_trace": [],
-        "elapsed_s": 0.207,
+        "elapsed_s": 8.107,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": null,
-        "missing_tokens": [],
-        "phase": "CREATION_REFUSED",
+        "execution_detail": "execution failed closed: scripted priority action 'activate_mana' is not executed by this lane",
+        "missing_tokens": [
+          "mana_ability:red",
+          "mana_spent_on_shared_type_creature",
+          "scry:1"
+        ],
+        "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
         "token_evidence": {}
@@ -3951,10 +4241,10 @@
         "fixture_id": "CARD_27",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "c3b273912eb7282968704a3855c7b5c038390d101c1395aad4252077cf9aa9dc",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "4edb1e460e55cb929f9eef85605f831d3c2f3fb95e9d0757d11830649e21db21",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
         "obligation_digest": "1dfbe0a6ff7205d57c91862814ea4016a116162e3aacd05f0333d5f3bbe838b2",
-        "requested_state_digest": "13677764611eb13334f7c609049c57ec5e8216b5b1f7f0bb10694b577ca87146",
+        "requested_state_digest": "9b8819389687dcffd70042368b089696719fcfe43a8fc3aef95b0fa317587732",
         "required_events": [
           "mana_ability:red",
           "mana_spent_on_shared_type_creature",
@@ -3965,12 +4255,12 @@
         ]
       },
       "verdict": {
-        "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_ZONE:library); its own manifest names the dimension as unsupported: ['legacy/frozen partial library identity: no complete permutation, fail closed']; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_27 obj:card27-top requests library",
-        "blocker_owner": null,
-        "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'activate_mana' is not executed by this lane",
+        "blocker_owner": "PR #450",
+        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Path of Ancestry",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
         "direct_receipt_eligible": false,
         "engine_verified": false,
@@ -4002,24 +4292,33 @@
       },
       "fixture_id": "CARD_28",
       "measurement": {
-        "creation_errors": [
+        "creation_errors": [],
+        "decision_trace": [
           {
-            "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_COUNTERS: CARD_28 obj:card28-p1-creature"
+            "decision_class": "priority",
+            "offered_labels": 18,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
           }
         ],
-        "decision_trace": [],
-        "elapsed_s": 0.172,
+        "elapsed_s": 7.973,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": null,
-        "missing_tokens": [],
-        "phase": "CREATION_REFUSED",
+        "execution_detail": "execution failed closed: scripted priority action 'cast_split_half' is not executed by this lane",
+        "missing_tokens": [
+          "cast_split_half:Finality",
+          "put_+1/+1_counters:2",
+          "continuous_-4/-4_all_creatures",
+          "state_based_actions"
+        ],
+        "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
         "token_evidence": {}
@@ -4048,12 +4347,12 @@
         ]
       },
       "verdict": {
-        "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_COUNTERS); its own manifest names the dimension as unsupported: ['attachments and counters']; engine detail: RestorationException: UNSUPPORTED_COUNTERS: CARD_28 obj:card28-p1-creature",
-        "blocker_owner": null,
-        "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'cast_split_half' is not executed by this lane",
+        "blocker_owner": "PR #450",
+        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Find // Finality",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
         "direct_receipt_eligible": false,
         "engine_verified": false,
@@ -4082,7 +4381,8 @@
           "native_op:NATIVE_BEGIN_OR_CONTINUE_RULES_PROCEDURE_TO_TARGET_DECISION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
           "library_identity_objects"
@@ -4090,24 +4390,34 @@
       },
       "fixture_id": "CARD_29",
       "measurement": {
-        "creation_errors": [
+        "creation_errors": [],
+        "decision_trace": [
           {
-            "code": "midgame_starting_state_rejected",
-            "message": "RestorationException: UNSUPPORTED_ZONE: CARD_29 obj:card29-lib-forest-0 requests library"
+            "decision_class": "priority",
+            "offered_labels": 15,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
           }
         ],
-        "decision_trace": [],
-        "elapsed_s": 0.173,
+        "elapsed_s": 7.75,
         "engine_artifact": {
           "kind": "file",
-          "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-          "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-          "size": 7112962
+          "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+          "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+          "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": null,
-        "missing_tokens": [],
-        "phase": "CREATION_REFUSED",
+        "execution_detail": "execution failed closed: the engine did not offer the scripted cast of {'action': 'cast', 'object': 'obj:card_29-subject'}",
+        "missing_tokens": [
+          "Saga_I",
+          "Saga_II",
+          "Saga_III",
+          "exile_Saga",
+          "return_transformed:Branch_of_Boseiju"
+        ],
+        "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
         "token_evidence": {}
@@ -4120,10 +4430,10 @@
         "fixture_id": "CARD_29",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "e8e815db0f2a4b1b7b88d3f40e7008c5ffeec3636889c6e4c3535062ceb0d12a",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "5614bda68b2afc1dcbbd46e58f1753bf0b807b28163326183e55de3f8288667f",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
         "obligation_digest": "5ee2f43029bfeedcb45321511bdeed019cc9df5d15b35e3d5a319319b6d94ce2",
-        "requested_state_digest": "bf808faf04a30a321ab505f266b5b7e2e076c7790624238f7f3d0bee497f48fc",
+        "requested_state_digest": "2e7dc8f28ab285c9f9d962da3bc7fa795cd944235cc874b8ea9010c379cbc578",
         "required_events": [
           "Saga_I",
           "Saga_II",
@@ -4136,12 +4446,12 @@
         ]
       },
       "verdict": {
-        "blocker_class": "PROVIDER_ADAPTER_DEFECT",
-        "blocker_detail": "the engine refused the requested starting state (UNSUPPORTED_ZONE:library); its own manifest names the dimension as unsupported: ['legacy/frozen partial library identity: no complete permutation, fail closed']; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_29 obj:card29-lib-forest-0 requests library",
+        "blocker_class": "UNKNOWN",
+        "blocker_detail": "the required event tokens were not positively observed and no plan-declared proof covers them: ['Saga_I', 'Saga_II', 'Saga_III', 'exile_Saga', 'return_transformed:Branch_of_Boseiju']",
         "blocker_owner": null,
-        "blocker_surface": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java",
+        "blocker_surface": null,
         "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
         "direct_receipt_eligible": false,
         "engine_verified": false,
@@ -4156,8 +4466,10 @@
   "schema_version": "commander-lab.af07-actual-card-campaign-matrix/1.0.0",
   "summary": {
     "blockers": {
-      "DEPENDENCY_WAITING": 16,
-      "PROVIDER_ADAPTER_DEFECT": 11
+      "DEPENDENCY_WAITING": 11,
+      "FIXTURE_DEFECT": 9,
+      "PROVIDER_ADAPTER_DEFECT": 5,
+      "UNKNOWN": 2
     },
     "direct_pass": [
       "CARD_02",

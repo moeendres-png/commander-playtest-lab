@@ -172,3 +172,94 @@ whose effective record or executor surface changed, consume the merged
 selector/contract changes, then add the CARD rows to the current-boundary
 denominator/receipt route only on the freed surfaces — without overwriting
 historical epochs.
+
+## Phase 2a: adapter and fixture closure (Claude lane, after #452/#460/#462)
+
+#452, #460 and #462 are merged, so the successor contract has no foreign
+writer any more. #450 (`midgame_rows.py`, the capability probe) is still
+active and stays read-only here. This step closes everything the campaign
+attributed to the Lab adapter or to lossy fixtures that does not need the #450
+surfaces. It changes no executor and no provider denominator (107).
+
+### Fixture errata (contract 1.0.12)
+
+CARD_09, 12, 15, 27 and 29 name only the top library cards their obligation
+uses and nothing else. Under SLOT-04 (#255 comment 5925956587) a partial library
+request fails closed: this is the `UNSUPPORTED_ZONE: library` the campaign
+measured.
+
+`LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04` declares instead:
+- the complete checkpoint library (the requested objects on top in their order,
+  then the 99-Mountain template convention);
+- complete checkpoint hands.
+
+Objects, script and obligation digests are unchanged. The five rows are outside
+the provider denominator, which keeps 86 unchanged rows.
+
+### Lab adapter (engine-bridge)
+
+Every change below is verified engine-direct and covered by
+`XmageCheckpointStateRestorationTest`; the fail-before is shown locally.
+
+- **Libraries at the checkpoint.** The lossless plan placed a requested library
+  at the first arrival completion. The driver issues that completion at earlier
+  priorities too, so the active player's first-turn draw took the requested top
+  card (`INCOMPLETE_LIBRARY_ORDER`). Libraries are now placed once the game
+  stands at the requested turn, phase and step.
+- **Pinned library objects.** A requested library object that shares its
+  identity with the template (a Mountain on Mountains) holds its own position.
+- **Tapped state and counters** (+1/+1 and -1/-1, on requested battlefield
+  permanents) are checkpoint state, because an untap step would undo a
+  pre-start tap.
+  - They are set silently through the game-load path at the checkpoint and
+    verified as the lossless check kinds `tapped` and `counters`.
+  - Other counter types, counters on commanders or off the battlefield,
+    attachments and stack spells still fail closed. The dimension manifest and
+    the admission tokens say exactly that.
+- **Transforming double-faced cards.** A card requested as "Front // Back" is
+  the engine card named after its front face. It resolves to that name only if
+  the engine reports exactly that back face.
+- **Regression found and fixed in the same step.** Before the checkpoint, every
+  arrival response listed each requested library object as "not placed", which
+  named `obj:hidden-lib-0`. The AF05 knowledge-projection run caught it as a
+  demonstrated leak on all twelve HIDDEN rows. A pre-checkpoint arrival now
+  reports one coded mismatch, and the twelve rows verify again.
+
+### Campaign attribution
+
+- A discretionary frame the effective record does not script is now a
+  `FIXTURE_DEFECT` on the contract surface, not a dependency on a finished
+  writer.
+- Counters and tapped state are no longer listed as unsupported.
+- A requested token object (`Soldier Token`) is attributed as a token the
+  card-vehicle restoration cannot load.
+
+### Result: fresh 29-row run on `9e2291e7` (clean tree, XMage `37e4df6c`)
+
+Matrix digest `71f035fbb8f7240d43dd5b703c852a27dba2a4e6cef74ea85db77e65349b44fe`.
+
+| Outcome | Rows |
+|---|---|
+| DIRECT_PASS (2) | CARD_02, CARD_24 |
+| FIXTURE_DEFECT (9) | CARD_01, 04, 05, 06, 14, 17, 18, 23, 26: the record does not script a target, object choice or choice the engine requires |
+| DEPENDENCY_WAITING on #450 (11) | CARD_03, 08, 09, 11, 13, 15, 19, 20, 21, 27, 28: executor actions or selectors (`announce_cast`, `cast_fused`, `activate`, `activate_mana`, `cast_split_half`, `amount_assignment`), unscripted frames, the combat arrival, causal entries |
+| PROVIDER_ADAPTER_DEFECT (5) | CARD_07, 16, 22 (stack spells); CARD_10 (commander spell on the stack); CARD_25 (token object) |
+| UNKNOWN (2) | CARD_12, CARD_29: construct and execute through the whole script, but their required event tokens (`delve_exile`, `look_top`, `Saga_I`, ...) are not in the executor's token vocabulary (#450 surface) and no obligation plan covers them yet |
+
+Six rows moved from a construction refusal to execution: CARD_09, 12, 15, 27, 28
+and 29.
+
+AF07 stays **UNKNOWN**. 27 identities are not directly proven, and the CARD rows
+outside the denominator still need the Coordinator's credit route.
+
+### Next
+
+1. **Fixture errata.** Script the missing discretionary steps for the nine
+   FIXTURE_DEFECT rows, each target chosen so that it leaves the obligation
+   untouched.
+2. **After #450 is terminal.** Merge main, extend the token vocabulary and the
+   executor actions, add obligation plans, and re-run.
+3. **Adapter.** Stack spells and tokens need a causal-entry or effect-created
+   route, not a load.
+4. **Coordinator.** Decide the AF07 credit route for CARD rows outside the 107-row
+   denominator. Changing the denominator is a Coordinator gate.

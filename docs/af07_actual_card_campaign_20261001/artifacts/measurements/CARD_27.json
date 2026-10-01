@@ -1,24 +1,61 @@
 {
   "arrival_detail": null,
   "construction_mismatches": [],
-  "construction_verdict": null,
-  "creation_errors": [
-    {
-      "code": "midgame_starting_state_rejected",
-      "message": "RestorationException: UNSUPPORTED_ZONE: CARD_27 obj:card27-top requests library"
-    }
-  ],
-  "elapsed_s": 0.207,
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 8.107,
   "engine_artifact": {
     "kind": "file",
-    "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
-    "sha256": "e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603",
-    "size": 7112962
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
   },
   "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-  "execution": null,
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "decision_class": "priority",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Path of Ancestry \u2014 {T}: Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. <i>(Look at the top card of your library. You may put that card on the bottom of your library.)</i>",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Keldon Marauders \u2014 Cast Keldon Marauders",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_type": null
+      }
+    ],
+    "detail": "execution failed closed: scripted priority action 'activate_mana' is not executed by this lane",
+    "fixture_id": "CARD_27",
+    "missing_tokens": [
+      "mana_ability:red",
+      "mana_spent_on_shared_type_creature",
+      "scry:1"
+    ],
+    "refusals": [],
+    "tape": [],
+    "terminal_facts": {},
+    "token_evidence": {},
+    "verified": false
+  },
   "fixture_id": "CARD_27",
-  "phase": "CREATION_REFUSED",
+  "phase": "EXECUTED",
   "runtime_error": null,
   "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
   "start_errors": [],
@@ -39,6 +76,7 @@
       "strict native readback with field-level compare and digests",
       "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
       "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
       "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
       "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
       "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
@@ -49,8 +87,8 @@
       "legacy/frozen face_down=true without explicit native type: fail closed",
       "revealed-zone restoration",
       "controller/owner divergence (engine layers re-derive control)",
-      "attachments and counters",
-      "tapped permanents (unqualified dimension)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
       "commander relations other than validated Partner linkage",
       "poison counters",
       "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
