@@ -565,10 +565,19 @@ class FakeForgeBridge:
             6,
             [
                 _forge_action("opt-pass", "pass_priority", "fp-pass-6"),
+                _forge_action("opt-concede", "concede", "fp-concede-6"),
                 _forge_action("opt-cast", "cast_spell", "fp-cast-6"),
             ],
         )
-        add("PRIORITY", "p2", 7, [_forge_action("opt-pass", "pass_priority", "fp-pass-7")])
+        add(
+            "PRIORITY",
+            "p2",
+            7,
+            [
+                _forge_action("opt-pass", "pass_priority", "fp-pass-7"),
+                _forge_action("opt-concede", "concede", "fp-concede-7"),
+            ],
+        )
         return frames
 
     # -- protocol surface -------------------------------------------------
@@ -700,7 +709,12 @@ LAB_SOURCE = {"commit": "c" * 40, "tree": "d" * 40, "clean": True}
 
 
 def _gather(
-    bridge: FakeForgeBridge, *, role: str, tape: list[dict[str, Any]] | None, max_decisions: int = 20
+    bridge: FakeForgeBridge,
+    *,
+    role: str,
+    tape: list[dict[str, Any]] | None,
+    max_decisions: int = 20,
+    concede_after_decisions: int | None = None,
 ) -> rt.TwinRun:
     return rt.gather_generic_lane_process(
         bridge,
@@ -716,6 +730,7 @@ def _gather(
         lab_source=LAB_SOURCE,
         decision_tape=tape,
         max_decisions=max_decisions,
+        concede_after_decisions=concede_after_decisions,
     )
 
 
@@ -779,6 +794,59 @@ def test_generic_lane_nondeterminism_is_detected(monkeypatch: pytest.MonkeyPatch
     assert "public state digest differs" in replay.failure
     comparison = rt.compare_twin_runs(record, replay)
     assert comparison.verified is False
+
+
+def test_generic_lane_concede_horizon_uses_the_engine_offered_concession(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _fake_identity(monkeypatch)
+    record = _gather(
+        FakeForgeBridge(), role="RECORD", tape=None, concede_after_decisions=1
+    )
+    assert record.failure is None, record.failure
+    concession_entries = [
+        entry for entry in record.decisions if entry["policy"] == "concede_at_defined_horizon"
+    ]
+    assert [entry["chosen_fingerprint"] for entry in concession_entries] == [
+        "fp-concede-6",
+        "fp-concede-7",
+    ]
+    replay = _gather(
+        FakeForgeBridge(),
+        role="REPLAY",
+        tape=record.decisions,
+        concede_after_decisions=1,
+    )
+    assert replay.failure is None, replay.failure
+    assert rt.compare_twin_runs(record, replay).verified is True
+
+
+def test_record_policy_fails_closed_on_all_duplicate_options() -> None:
+    actions = [
+        _forge_action("opt-0", "choose_object", "same-fingerprint"),
+        _forge_action("opt-1", "choose_object", "same-fingerprint"),
+        _forge_action("opt-2", "choose_object", "same-fingerprint"),
+    ]
+    frame = {"decision": {"actor": "p1", "revision": 9, "kind": "GENERIC_SELECTION"}}
+    with pytest.raises(rt.DecisionUnsatisfied) as excinfo:
+        rt._record_action_for_kind(
+            "forge", "GENERIC_SELECTION", actions, frame, scripted_starting_seat="p1"
+        )
+    assert "indistinguishable duplicate options" in str(excinfo.value)
+
+
+def test_record_policy_chooses_a_unique_fingerprint() -> None:
+    actions = [
+        _forge_action("opt-0", "choose_object", "dup"),
+        _forge_action("opt-1", "choose_object", "dup"),
+        _forge_action("opt-2", "choose_object", "unique"),
+    ]
+    frame = {"decision": {"actor": "p1", "revision": 9, "kind": "GENERIC_SELECTION"}}
+    chosen, policy = rt._record_action_for_kind(
+        "forge", "GENERIC_SELECTION", actions, frame, scripted_starting_seat="p1"
+    )
+    assert chosen["semantic_fingerprint"] == "unique"
+    assert policy == "deterministic_unique_lexicographic_fingerprint"
 
 
 def test_xmage_tape_reduction_preserves_required_sections() -> None:

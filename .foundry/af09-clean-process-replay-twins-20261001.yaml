@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-af09-replay-twins-20261001
 branch: hardening/af09-replay-twins-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
-validated_head: null
+state_written_against_head: 0c63e454
+validated_head: 0c63e454
 
 objective: >-
   Implement and qualify clean-process semantic replay twins for AF09
@@ -38,7 +38,133 @@ executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 variant_resolution: native_max
 
+foreign_writer_census_at_start:
+  pr_450:
+    number: 450
+    state: OPEN_DRAFT
+    head: hardening/midgame-multiselect-amount-closure-20261001
+    owned_paths:
+      - .foundry/midgame-multiselect-amount-closure-20261001.yaml
+      - docs/midgame_multiselect_amount_closure_20261001/**
+      - scripts/run_midgame_capability_probe.py
+      - src/commander_lab/qualification/current_boundary/midgame_rows.py
+      - tests/qualification/test_current_boundary_midgame_rows.py
+  pr_452:
+    number: 452
+    state: OPEN
+    head: claude/optimistic-bohr-6asye6
+    owned_paths:
+      - WS17_SHA256SUMS
+      - docs/af05_knowledge_projection_20261001/README.md
+      - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
+      - qualification/SHA256SUMS
+      - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json
+      - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_9_SUCCESSOR.json
+      - src/commander_lab/qualification/current_boundary/knowledge_projection.py
+      - src/commander_lab/qualification/current_boundary/source_lock.py
+      - tests/qualification/test_knowledge_projection.py
+      - tests/qualification/test_pre_freeze_contract_successor.py
+
+milestones:
+  - id: M1
+    head: 0c63e454
+    at: '2026-10-01T21:40Z'
+    status: COMMITTED_PUSHED
+    pr: 461
+    content: >-
+      replay_twins.py twin contract (schema, process identity, normalization
+      contract, typed semantic comparison, mandatory adversarial controls,
+      Forge generic-lane record/replay driver, XMage WS218 tape adapter,
+      provider-identity probe); run_replay_twin_campaign.py; 36 tests green;
+      ruff clean; Draft PR #461 opened.
+    evidence:
+      - tests/qualification/test_replay_twins.py -> 36 passed
+      - python3 -m ruff check (three AF09 files) -> clean
+
+local_engine_execution:
+  forge:
+    workspace: /home/moeen/code/claude-forge-r5-integration-20260930
+    workspace_commit: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+    workspace_tree: 000066890decca5ed7b1b889be0ea46d77903aee
+    workspace_clean: true
+    status: PASS_PRELIMINARY
+    run:
+      output: docs/af09_replay_twins_20261001/evidence/AF09_REPLAY_TWIN_FORGE.json
+      work_dir: /tmp/opencode/af09-forge-full-work
+      max_decisions: 6000
+      concede_after: 120
+      deck_profile: real (data/decks/rogshai_current.json + three opponent decks)
+    smoke_findings:
+      - >-
+        60-decision smoke with the synthetic 89-Plains deck: record process
+        completed 60 decisions; replay failed closed at decision 38 because
+        Forge WS227 option identity treats seven indistinguishable Plains as
+        one colliding fingerprint (no authoritative occurrence identity).
+      - >-
+        60-decision smoke with the real singleton deck profile: both processes
+        completed 60 decisions with identical decision/event/checkpoint chains;
+        the only divergence was the bounded-horizon terminal (expected).
+      - >-
+        4000-decision horizon run: zero semantic divergence across 4000
+        decisions, 4000 event digests, 8000 checkpoints and all RNG
+        coordinates; UNKNOWN only because a bounded horizon is not a terminal.
+      - >-
+        20000-decision horizon run failed closed at HIDDEN_ZONE_SELECTION with
+        eight indistinguishable duplicate options: the draw-go policy
+        eventually discards every unique card, leaving only duplicate basics.
+      - >-
+        RESOLVED by using the engine's own offered concession (CR 104.3a) at a
+        defined horizon: 122 decisions, complete GAME_OVER terminal, zero
+        divergence, all adversarial controls detected -> PASS (preliminary).
+  xmage:
+    build:
+      scaffold: /home/moeen/code/.af09-xmage-37e4df6c (isolated clone, HEAD 37e4df6c, tree dac695ab)
+      isolated_repo: /home/moeen/code/.af09-m2-repo
+      status: BUILD_SUCCESS
+      log: /home/moeen/code/.af09-xmage-build.log
+    status: PASS_PRELIMINARY
+    result:
+      decisions: 127
+      fresh_process_consumer_steps: 127
+      terminal: GAME_OVER
+      tape_comparison_match: true
+      adversarial_controls: all detected
+    planned:
+      engine_bridge_build: >-
+        mvn -o -Dmaven.repo.local=/home/moeen/code/.af09-m2-repo compile
+        dependency:build-classpath in this worktree's engine-bridge module
+      lane: xmage full-game semantic replay tape (WS218 recorder/consumer)
+      risks:
+        - >-
+          the full-game lane was last qualified at engine db134b97; the
+          current candidate 37e4df6c may refuse or diverge. A refusal is
+          evidence; it is recorded as the exact missing capability.
+
+known_findings:
+  - id: F-AF09-1
+    title: game_driver priority state-change fact is always null
+    detail: >-
+      In src/commander_lab/qualification/current_boundary/game_driver.py the
+      terminal_facts["priority_pass_state_changed"] expression calls
+      _payload(answer) on an already-unwrapped payload, so it always evaluates
+      to None (both candidates' committed epochs record null). The engine DOES
+      publish pre_state_hash/post_state_hash for Forge decisions and records
+      them in the XMage event log. Out of this workstream's write scope;
+      recorded for the owner of that surface.
+  - id: F-AF09-2
+    title: Forge WS227 fully-identical duplicate options are unreplayable by design
+    detail: >-
+      Forge's semantic option identity intentionally collides indistinguishable
+      duplicate siblings (SemanticReplay.occurrenceIndex). A decision whose
+      entire offered set collides has no authoritative occurrence identity, so
+      external decision replay must fail closed. The twin uses real singleton
+      deck lists to keep cleanup-discard decisions distinguishable and records
+      the ambiguity when it cannot.
+
 exact_next_action: >-
-  Fetch current source truth, reread issue 454 and coordinator comment
-  5936731960, inventory active writer paths, then implement the isolated
-  replay-twin producer and adversarial contract.
+  Monitor the Forge full run and the isolated XMage candidate build. Publish
+  the Forge twin evidence when the run completes, then build the engine-bridge
+  against the isolated repository and run the XMage tape twin. Record every
+  candidate's PASS or terminal UNKNOWN with the exact missing capability,
+  update RESULTS.md, commit, and move to Phase 2 only after #450 and #452 are
+  terminal.

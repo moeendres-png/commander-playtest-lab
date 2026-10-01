@@ -59,8 +59,36 @@ def _parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--forge-max-decisions", type=int, default=6000)
+    parser.add_argument(
+        "--forge-concede-after",
+        type=int,
+        default=120,
+        help=(
+            "from this decision onward the pilot chooses the engine's own "
+            "offered concession for each not-yet-conceded priority actor, "
+            "reaching a real engine terminal outcome; 0 disables it"
+        ),
+    )
     parser.add_argument("--xmage-max-decisions", type=int, default=120)
+    parser.add_argument(
+        "--forge-deck-profile",
+        choices=("real", "synthetic"),
+        default="real",
+        help=(
+            "real loads the four in-repo singleton Commander deck lists; synthetic "
+            "uses the 89-Plains technical deck, whose duplicate basics make cleanup "
+            "choices indistinguishable to the engine's identity discipline"
+        ),
+    )
     return parser.parse_args()
+
+
+REAL_DECK_PATHS = (
+    Path("data/decks/rogshai_current.json"),
+    Path("data/decks/opponents/kaervek/current/deck.json"),
+    Path("data/opponents/hosts_of_mordor_precon.json"),
+    Path("data/opponents/lorehold_spirit_precon.json"),
+)
 
 
 def _now() -> str:
@@ -149,6 +177,42 @@ def _base_document(candidate: str, args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def _forge_deck_payloads(
+    profile: str, player_count: int
+) -> list[dict[str, Any]] | None:
+    if profile == "synthetic":
+        return None
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+
+    payloads: list[dict[str, Any]] = []
+    for relative in REAL_DECK_PATHS[:player_count]:
+        path = REPO_ROOT / relative
+        if not path.is_file():
+            raise SystemExit(f"real deck source missing: {relative}")
+        deck = load_rules_deck_snapshot(path)
+        deck_hash = deck.deck_hash or hashlib.sha256(
+            json.dumps(
+                {
+                    "deck_id": deck.deck_id,
+                    "commander_names": list(deck.commander_names),
+                    "mainboard": list(deck.mainboard),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        payloads.append(
+            {
+                "deck_id": deck.deck_id,
+                "deck_hash": deck_hash,
+                "name": deck.name,
+                "commander_names": list(deck.commander_names),
+                "mainboard": list(deck.mainboard),
+            }
+        )
+    return payloads
+
+
 def run_forge(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
     document = _base_document("forge", args)
     forge_workspace = args.forge_workspace
@@ -167,13 +231,20 @@ def run_forge(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
         }
         return document
     document["forge_workspace"] = str(forge_workspace)
+    document["forge_deck_profile"] = args.forge_deck_profile
+    document["forge_concede_after"] = args.forge_concede_after
     try:
+        deck_payloads = _forge_deck_payloads(args.forge_deck_profile, args.player_count)
         record, replay, comparison = twins.run_generic_lane_twin(
             candidate="forge",
             player_count=args.player_count,
             seed=args.seed,
             forge_workspace=forge_workspace,
             max_decisions=args.forge_max_decisions,
+            deck_payloads=deck_payloads,
+            concede_after_decisions=(
+                args.forge_concede_after if args.forge_concede_after > 0 else None
+            ),
         )
     except twins.TwinChannelUnavailable as exc:
         document["missing_capability"] = exc.to_document()
@@ -242,7 +313,14 @@ def run_xmage(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
         "deck_hashes": [deck.deck_hash for deck in decks],
     }
     try:
-        run_a, run_b, comparison, replay_check, processes = twins.run_xmage_tape_twin(
+        (
+            run_a,
+            run_b,
+            comparison,
+            replay_check,
+            tape_comparison,
+            processes,
+        ) = twins.run_xmage_tape_twin(
             scenario=scenario,
             decks=tuple(decks),
             pilots=tuple(pilots),
@@ -272,7 +350,7 @@ def run_xmage(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
         *twin["process_identity"],
         *[identity.to_document() for identity in processes[2:]],
     ]
-    twin["tape_comparison"] = replay_check
+    twin["tape_comparison"] = tape_comparison
     document["clean_process_twin"] = twin
     document["adversarial_controls"] = controls
     document["verdict"] = twin["verdict"]

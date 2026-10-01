@@ -881,12 +881,19 @@ def _first_difference(left: Sequence[Any], right: Sequence[Any]) -> dict[str, An
 
 def _embedded(entries: Sequence[Any]) -> dict[str, Any]:
     payload = list(entries)
-    embedded = payload[:MAX_EMBEDDED_ENTRIES]
+    if len(payload) <= MAX_EMBEDDED_ENTRIES:
+        sample = payload
+        kind = "full"
+    else:
+        half = MAX_EMBEDDED_ENTRIES // 2
+        sample = [*payload[:half], *payload[-half:]]
+        kind = "head_tail_sample"
     return {
         "count": len(payload),
         "sha256": sha256_json(payload),
-        "embedded": "full" if len(embedded) == len(payload) else "sample",
-        "entries": embedded,
+        "embedded": kind,
+        "omitted": max(0, len(payload) - len(sample)),
+        "entries": sample,
     }
 
 
@@ -927,6 +934,8 @@ def clean_process_twin_document(
         "verified": verified,
         "verdict": verdict,
         "fixture_identity": record.fixture_identity,
+        "candidate_build": record.candidate_build,
+        "lab_source": record.lab_source,
         "process_identity": process_documents,
         "decisions": _embedded(record.decisions),
         "rules_rng": record.rules_rng,
@@ -1307,13 +1316,39 @@ def _record_action_for_kind(
                 return action, "pass_when_offered"
         raise DecisionUnsatisfied(f"{kind} pass option was not among the offered actions")
     # Any other engine-offered discretionary frame: choose the deterministically
-    # smallest engine-published semantic fingerprint. This is an explicit
-    # external policy over engine-offered options; it fabricates nothing and
-    # fails closed when the engine does not publish the identity channel.
-    ordered = sorted(actions, key=lambda action: _action_fingerprint(candidate, action))
-    if not ordered:
+    # smallest semantic fingerprint that occurs exactly once among the offered
+    # options. This is an explicit external policy over engine-offered options;
+    # it fabricates nothing.
+    #
+    # The engine's own identity discipline deliberately treats fully
+    # indistinguishable duplicate siblings (identical name/controller/zone and
+    # tie-breakers) as one colliding fingerprint. Selecting among them would be
+    # a forbidden first-match, so a frame whose entire offered set collides
+    # fails closed with the exact ambiguity.
+    fingerprints = [_action_fingerprint(candidate, action) for action in actions]
+    if not fingerprints:
         raise DecisionUnsatisfied(f"{kind} exposed no offered options")
-    return ordered[0], "deterministic_lexicographic_fingerprint"
+    counts: dict[str, int] = {}
+    for fingerprint in fingerprints:
+        counts[fingerprint] = counts.get(fingerprint, 0) + 1
+    unique = sorted(
+        fingerprint for fingerprint, count in counts.items() if count == 1
+    )
+    if not unique:
+        raise DecisionUnsatisfied(
+            f"{kind} offered only indistinguishable duplicate options "
+            f"({len(fingerprints)} options across {len(counts)} colliding fingerprints); "
+            "no authoritative occurrence identity exists, so the choice cannot be replayed"
+        )
+    wanted = unique[0]
+    return (
+        next(
+            action
+            for action in actions
+            if _action_fingerprint(candidate, action) == wanted
+        ),
+        "deterministic_unique_lexicographic_fingerprint",
+    )
 
 
 def _resolve_replay_action(
@@ -1370,7 +1405,7 @@ def _submit_generic_decision(
         )
     if action is None:
         raise DecisionUnsatisfied(f"{kind} has no chosen offered action to submit")
-    if kind == "PRIORITY":
+    if kind == "PRIORITY" and action.get("action_type") != "concede":
         return _require_ok(
             proc.request("pass_priority", identity, game_id=game_id, timeout_s=120.0),
             "pass_priority",
@@ -1412,6 +1447,8 @@ def gather_generic_lane_process(
     decision_tape: Sequence[Mapping[str, Any]] | None,
     max_decisions: int = 6000,
     scripted_starting_seat: str = "p1",
+    deck_payloads: Sequence[Mapping[str, Any]] | None = None,
+    concede_after_decisions: int | None = None,
 ) -> TwinRun:
     """Drive one fresh engine process and record its twin evidence.
 
@@ -1423,6 +1460,7 @@ def gather_generic_lane_process(
     """
     replaying = decision_tape is not None
     tape = list(decision_tape or [])
+    conceded_actors: set[str] = set()
     run_limitations: list[str] = []
     decisions: list[dict[str, Any]] = []
     events: list[dict[str, Any]] = []
@@ -1452,10 +1490,19 @@ def gather_generic_lane_process(
             if message == "get_provider_version":
                 provider = dict(payload)
         handles: list[str] = []
+        resolved_decks = list(deck_payloads) if deck_payloads is not None else []
+        if resolved_decks and len(resolved_decks) != player_count:
+            raise GameDriveError(
+                f"{len(resolved_decks)} fixture decks were supplied for {player_count} seats"
+            )
         for seat in range(1, player_count + 1):
-            deck = build_deck(f"{candidate}-af09-twin-seat{seat}")
-            deck_identity.append(deck["deck_id"])
-            deck_hashes.append(deck["deck_hash"])
+            deck = (
+                dict(resolved_decks[seat - 1])
+                if resolved_decks
+                else build_deck(f"{candidate}-af09-twin-seat{seat}")
+            )
+            deck_identity.append(str(deck.get("deck_id")))
+            deck_hashes.append(str(deck.get("deck_hash")))
             payload = _require_ok(
                 proc.request("import_deck", {"deck": deck}, timeout_s=120.0),
                 "import_deck",
@@ -1543,13 +1590,35 @@ def gather_generic_lane_process(
                 chosen = _resolve_replay_action(candidate, entry, actions)
                 policy = str(entry.get("policy") or "externally_supplied_decision_tape")
             else:
-                chosen, policy = _record_action_for_kind(
-                    candidate,
-                    kind,
-                    actions,
-                    frame,
-                    scripted_starting_seat=scripted_starting_seat,
-                )
+                concede_action: dict[str, Any] | None = None
+                if (
+                    concede_after_decisions is not None
+                    and steps >= concede_after_decisions
+                    and kind == "PRIORITY"
+                    and actor not in conceded_actors
+                ):
+                    # The engine itself offers native concession on every
+                    # supported priority frame (CR 104.3a); choosing it is an
+                    # ordinary engine-offered external decision that reaches a
+                    # real terminal outcome.
+                    concede_action = next(
+                        (
+                            action
+                            for action in actions
+                            if action.get("action_type") == "concede"
+                        ),
+                        None,
+                    )
+                if concede_action is not None:
+                    chosen, policy = concede_action, "concede_at_defined_horizon"
+                else:
+                    chosen, policy = _record_action_for_kind(
+                        candidate,
+                        kind,
+                        actions,
+                        frame,
+                        scripted_starting_seat=scripted_starting_seat,
+                    )
             chosen_fingerprint = _action_fingerprint(candidate, chosen)
 
             answer = _submit_generic_decision(
@@ -1568,6 +1637,8 @@ def gather_generic_lane_process(
                     f"decision {steps}: the engine did not execute the submission "
                     f"(executed={answer_decision.get('executed')!r})"
                 )
+            if chosen.get("action_type") == "concede":
+                conceded_actors.add(actor)
             state = answer.get("state")
             state = state if isinstance(state, dict) else None
             checkpoint_after = _state_checkpoint(state)
@@ -1674,6 +1745,7 @@ def gather_generic_lane_process(
         }
         candidate_build = {
             "candidate": candidate,
+            "provider_payload": provider,
             "engine": provider.get("engine"),
             "engine_version": provider.get("engine_version"),
             "engine_commit": provider.get("engine_commit"),
@@ -1793,6 +1865,8 @@ def run_generic_lane_twin(
     xmage_workspace: Path | None = None,
     forge_workspace: Path | None = None,
     max_decisions: int = 6000,
+    deck_payloads: Sequence[Mapping[str, Any]] | None = None,
+    concede_after_decisions: int | None = None,
 ) -> tuple[TwinRun, TwinRun, TwinComparison]:
     """Run the two-process generic-lane twin for one candidate/fixture.
 
@@ -1833,6 +1907,8 @@ def run_generic_lane_twin(
             lab_source=lab_source,
             decision_tape=None,
             max_decisions=max_decisions,
+            deck_payloads=deck_payloads,
+            concede_after_decisions=concede_after_decisions,
         )
     finally:
         record_proc.close()
@@ -1857,6 +1933,8 @@ def run_generic_lane_twin(
             lab_source=lab_source,
             decision_tape=record.decisions,
             max_decisions=max_decisions,
+            deck_payloads=deck_payloads,
+            concede_after_decisions=concede_after_decisions,
         )
     finally:
         replay_proc.close()
@@ -2027,14 +2105,24 @@ def run_xmage_tape_twin(
     cwd: str | Path | None,
     work_dir: Path,
     max_decisions: int = 120,
-) -> tuple[TwinRun, TwinRun, TwinComparison, dict[str, Any], list[ProcessIdentity]]:
+) -> tuple[
+    TwinRun,
+    TwinRun,
+    TwinComparison,
+    dict[str, Any],
+    dict[str, Any],
+    list[ProcessIdentity],
+]:
     """Record two fresh-process tapes, compare them, and consume the first.
 
     The recorder and consumer are the qualified WS218 surfaces; this function
     only binds process identities, reduces the tapes to the twin sections, and
     runs the semantic comparison and fresh-process consumption. It returns
-    ``(run_a, run_b, comparison, replay_check, processes)``. Two recordings are
-    required: a single recording compared with itself is not a twin.
+    ``(run_a, run_b, comparison, replay_check, tape_comparison, processes)``
+    where ``replay_check`` is the fresh consumer's own verdict and
+    ``tape_comparison`` additionally carries the WS218 tape comparison and the
+    process-distinctness record. Two recordings are required: a single
+    recording compared with itself is not a twin.
     """
     from commander_lab.semantic_replay import comparator, consumer, recorder
 
@@ -2045,12 +2133,13 @@ def run_xmage_tape_twin(
     provider_probe, probe_identity = _probe_full_game_provider(
         command, cwd=cwd, wrapper=wrapper, work_dir=work_dir
     )
-    if probe_identity is not None and probe_identity.observed:
-        processes.append(probe_identity)
     build_identity = {
         "module": "engine-bridge",
         "lane": "full-game",
         "provider": provider_probe,
+        "provider_probe_process": (
+            probe_identity.to_document() if probe_identity is not None else None
+        ),
         "command": [str(part) for part in command],
         "command_sha256": sha256_json([str(part) for part in command]),
     }
@@ -2134,7 +2223,7 @@ def run_xmage_tape_twin(
     comparison_document["fresh_process_engine_check"] = replay_check
     comparison_document["process_identities_distinct"] = process_identities_distinct(processes)[0]
     comparison_document["process_identity_detail"] = process_identities_distinct(processes)[1]
-    return runs[0], runs[-1], comparison, comparison_document, processes
+    return runs[0], runs[-1], comparison, replay_check, comparison_document, processes
 
 
 def _probe_full_game_provider(
