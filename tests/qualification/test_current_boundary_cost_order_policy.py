@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import pytest
 
+from commander_lab.qualification.current_boundary import game_driver
 from commander_lab.qualification.current_boundary.game_driver import (
+    COST_ORDER_POLICY,
     DecisionUnsatisfied,
     select_cost_order_action,
 )
@@ -107,3 +109,105 @@ def test_chosen_cost_order_requires_engine_action_identity() -> None:
 
     with pytest.raises(DecisionUnsatisfied, match="no action_id"):
         select_cost_order_action(actions)  # type: ignore[arg-type]
+
+
+class _FakeProcess:
+    def __init__(self) -> None:
+        self.imports = 0
+        self.submissions: list[dict[str, object]] = []
+
+    def request(
+        self,
+        message_type: str,
+        payload: dict[str, object],
+        *,
+        game_id: str | None = None,
+        timeout_s: float = 0,
+    ) -> dict[str, object]:
+        del game_id, timeout_s
+        if message_type == "get_capabilities":
+            return {"success": True, "payload": {"capabilities": {"seed_supported": False}}}
+        if message_type in {"start_engine", "get_provider_version"}:
+            return {"success": True, "payload": {}}
+        if message_type == "import_deck":
+            self.imports += 1
+            return {
+                "success": True,
+                "payload": {"deck_handle": {"handle_id": f"deck-{self.imports}"}},
+            }
+        if message_type == "create_commander_game":
+            return {"success": True, "payload": {"player_count": 2}}
+        if message_type == "start_game":
+            return {"success": True, "payload": {"status": "started"}}
+        if message_type == "submit_action":
+            self.submissions.append(payload)
+            return {"success": True, "payload": {"accepted": True}}
+        if message_type == "pass_priority":
+            return {"success": True, "payload": {"accepted": True}}
+        raise AssertionError(f"unexpected request {message_type}")
+
+
+def test_game_driver_submits_declared_cost_order_policy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    frames = iter(
+        [
+            {
+                "seat": "p1",
+                "decision": {
+                    "kind": "ORDER_CHOICE",
+                    "actor": "p1",
+                    "revision": 41,
+                    "decision_id": None,
+                    "status": "SUPPORTED",
+                },
+                "actions": [
+                    _action("reverse", "cost_order", [1, 0]),
+                    _action("native", "cost_order", [0, 1]),
+                ],
+                "raw": {},
+            },
+            {
+                "seat": "p1",
+                "decision": {
+                    "kind": "PRIORITY",
+                    "actor": "p1",
+                    "revision": 42,
+                    "decision_id": None,
+                    "status": "SUPPORTED",
+                },
+                "actions": [
+                    {
+                        "action_id": "pass",
+                        "action_type": "pass_priority",
+                        "metadata": {},
+                    }
+                ],
+                "raw": {},
+            },
+        ]
+    )
+
+    def _poll(*args: object, **kwargs: object) -> dict[str, object]:
+        del args, kwargs
+        return next(frames)
+
+    monkeypatch.setattr(game_driver, "poll_decision", _poll)
+    proc = _FakeProcess()
+
+    result = game_driver.drive_commander_game(
+        proc,  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=2,
+        seed=7,
+        drive_to="priority",
+    )
+
+    assert result.failure is None
+    assert proc.submissions
+    proposal = proc.submissions[0]["proposal"]
+    assert isinstance(proposal, dict)
+    assert proposal["legal_action_id"] == "native"
+    assert proposal["action_type"] == "cost_order"
+    assert result.decision_tape[0].policy == COST_ORDER_POLICY
+    assert result.decision_tape[0].chosen_option_id == "native"
