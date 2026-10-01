@@ -63,6 +63,7 @@ ROWS: dict[str, str] = {
     "HIDDEN_08": "look_audience",
     "HIDDEN_09": "search_inspection",
     "HIDDEN_14": "target_metadata",
+    "HIDDEN_17": "copy_face_down",
     "HIDDEN_18": "transcript_privacy",
 }
 
@@ -79,6 +80,7 @@ OBLIGATION_TEXT: dict[str, str] = {
     "look_audience": "look reaches only specified audience",
     "search_inspection": "hidden-zone search inspection does not leak",
     "target_metadata": "target option metadata does not leak",
+    "copy_face_down": "copy/face-down interactions hide original identity",
     "transcript_privacy": "transcripts omit actor-private state",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
@@ -217,6 +219,16 @@ class ForbiddenTokens:
     ambiguous: dict[str, str]
 
 
+def _scripted_casts(record: dict[str, Any]) -> list[str]:
+    """The objects the record's own decision script casts."""
+    casts: list[str] = []
+    for step in record.get("decision_script") or ():
+        value = ((step or {}).get("selection") or {}).get("semantic_value")
+        if isinstance(value, dict) and value.get("action") == "cast" and value.get("object"):
+            casts.append(str(value["object"]))
+    return casts
+
+
 def forbidden_tokens(
     record: dict[str, Any], viewer: str, *, after_event: bool = False
 ) -> ForbiddenTokens:
@@ -236,6 +248,12 @@ def forbidden_tokens(
         temporary += [
             {"object": known, "permission": "look", "viewer": state.get("viewer")}
             for known in state.get("known_object_identities") or ()
+        ]
+        # A card the script itself casts is put onto the stack, a public zone
+        # (CR 601.2a): after the event every principal may know it.
+        temporary += [
+            {"object": cast, "permission": "reveal", "viewer": "ALL_PLAYERS"}
+            for cast in _scripted_casts(record)
         ]
     visible: set[str] = set()
     hidden: dict[str, str] = {}
@@ -511,13 +529,34 @@ def _face_down_target_offer(
     return offer
 
 
+def _boolean_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any] | None:
+    """The yes/no offer the step names, or None for any other selector."""
+    selection = step.get("selection") or {}
+    if selection.get("selector_kind") != "boolean":
+        return None
+    wanted = selection.get("semantic_value")
+    if not isinstance(wanted, bool):
+        raise ml.MidgameLaneError(f"boolean selector carries {wanted!r}")
+    matches = [
+        action
+        for action in legal.get("actions") or ()
+        if (action.get("metadata") or {}).get("option_type") == "boolean"
+        and ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get("value")
+        is wanted
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"the scripted answer {wanted} matched {len(matches)} offers")
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
 def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dict[str, Any]]:
     """Answer the record's decision script from the engine's own offers only.
 
     A scripted priority step casts or activates the named object once the
     stack is empty (a script declares events, never responses); a scripted
-    target step selects the named player, the named library object or the one
-    face-down permanent a named player controls; a mana payment uses only the record's
+    target or choice step selects the named player, the named library object,
+    the one face-down permanent a named player controls, or the named yes/no; a mana payment uses only the record's
     explicit payment sources; every other priority is passed. The event is
     complete when every step was answered and the checkpoint's priority player
     holds priority again with an empty stack. Anything else fails closed.
@@ -596,7 +635,7 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
             and midgame_rows_mod.engine_decision_class(str(step.get("decision_family")))
             == decision_class
         ):
-            chosen = _library_object_offer(legal, step, record)
+            chosen = _library_object_offer(legal, step, record) or _boolean_offer(legal, step)
             if chosen is None:
                 chosen = _face_down_target_offer(client, legal, step, principal)
             if chosen is None:
@@ -1313,7 +1352,12 @@ def _search_inspection(record: dict[str, Any], capture: Capture, viewer: str) ->
     return checks
 
 
-def _target_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+def _target_metadata(
+    record: dict[str, Any],
+    capture: Capture,
+    viewer: str,
+    classes: tuple[str, ...] = ("target",),
+) -> list[Check]:
     """A hidden permanent offered as a target carries no hidden identity.
 
     The hidden target is a face-down permanent the viewer does not control, as
@@ -1333,7 +1377,7 @@ def _target_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> l
     offers = [
         option
         for frame in _after_event_frames(capture, viewer)
-        if frame.get("decision_class") == "target"
+        if frame.get("decision_class") in classes
         for option in frame.get("legal_options") or ()
         if isinstance(option, dict) and option.get("option_id") in hidden
     ]
@@ -1354,6 +1398,64 @@ def _target_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> l
                 f"hidden_target_option_carries_no_identity:{option.get('option_id')}",
                 not hits and not any(named),
                 f"label/name {named}; {len(hits)} denied tokens",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _copy_face_down(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """A copy of a hidden face-down permanent copies only what is public.
+
+    The viewer's own choice of what to copy must offer the hidden permanent
+    without its identity; the resulting copy, in the viewer's own projection,
+    must be a face-up permanent with only the face-down characteristics (no
+    name, 2/2, no private identity); and every principal other than the
+    viewer and the hidden permanent's controller must receive no denied
+    identity anywhere.
+    """
+    checks = _target_metadata(record, capture, viewer, ("target", "choose_object"))
+    own = capture.projections.get(viewer) or {}
+    labels = list(own.get("seat_labels") or ())
+    copies = [
+        permanent
+        for player in (own.get("view") or {}).get("players") or ()
+        if isinstance(player, dict)
+        and isinstance(player.get("seat"), int)
+        and player["seat"] < len(labels)
+        and labels[player["seat"]] == viewer
+        for permanent in player.get("battlefield") or ()
+        if isinstance(permanent, dict)
+        and permanent.get("face_down") is not True
+        and not permanent.get("name")
+    ]
+    public_only = [
+        permanent
+        for permanent in copies
+        if permanent.get("power") == 2
+        and permanent.get("toughness") == 2
+        and not permanent.get("private_identity")
+    ]
+    checks.append(
+        Check(
+            "copy_has_only_face_down_characteristics",
+            len(copies) == 1 and len(public_only) == 1,
+            f"{len(copies)} nameless face-up copies; {len(public_only)} with only 2/2 and no identity",
+            "LEAK" if copies else "MEASURED",
+        )
+    )
+    controllers = {
+        label for label in _labels(record) if label != viewer and face_down_permanents(own, label)
+    }
+    for label in _labels(record):
+        if label == viewer or label in controllers:
+            continue
+        hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not hits,
+                f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
                 "LEAK",
             )
         )
@@ -1629,6 +1731,8 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _search_inspection(record, capture, viewer)
     elif kind == "target_metadata":
         focus = _target_metadata(record, capture, viewer)
+    elif kind == "copy_face_down":
+        focus = _copy_face_down(record, capture, viewer)
     elif kind == "transcript_privacy":
         focus = _transcript_privacy(record, capture, viewer)
     else:
