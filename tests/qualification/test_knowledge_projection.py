@@ -136,6 +136,17 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         "observation": {"seats": [{"player_id": "P2", "hand_count": 8, "exile": ["Sol Ring"]}]},
     }
     projections = {label: _projection(label) for label in LABELS}
+    kind = kp.ROWS.get(str(record["fixture_id"]))
+    # The record's scripted event, as the engine logs it in each projection.
+    if kind == "reveal_audience":
+        for label in LABELS:
+            projections[label]["view"]["revealed"] = [
+                {"title": "Cards in Full Game Seat 2's hand", "cards": [{"name": "Demonic Tutor"}]}
+            ]
+    if kind == "look_audience":
+        projections["P1"]["view"]["looked_at"] = [
+            {"title": "Orcish Spy", "cards": [{"name": "Vampiric Tutor"}, {"name": "Mountain"}]}
+        ]
     tape: list[dict[str, Any]] = [
         _entry("get_capabilities", None, _ok(copy.deepcopy(CAPABILITIES))),
         _entry(
@@ -160,6 +171,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         ),
         _entry("complete_midgame_arrival", {"actor_id": "P1"}, _ok(copy.deepcopy(scoped))),
     ]
+    script_start = len(tape) if record.get("decision_script") else None
     for label in LABELS:
         tape.append(_entry("get_midgame_projection", {"actor_id": label}, _ok(projections[label])))
     tape.append(
@@ -201,6 +213,9 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         attempts=attempts,
         tape=tape,
         log="log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).\n",
+        script_start=script_start,
+        script_trace=[{"decision_class": "priority", "step": 0}] if script_start else [],
+        script_complete=script_start is not None,
     )
 
 
@@ -437,13 +452,15 @@ def test_a_hidden_public_exile_card_is_a_denied_entitlement(
         ("a construction mismatch", lambda c: c.scoped_arrival.update(mismatches=["x"])),
         (
             "frames without prompts or options",
+            # In place, so the tape keeps its length and the event boundary.
             lambda c: c.tape.__setitem__(
                 slice(None),
                 [
-                    e
-                    for e in c.tape
+                    _entry("get_provider_version", None, _ok({}))
                     if e["message_type"]
-                    not in {"get_midgame_decision", "get_legal_actions", "submit_midgame_decision"}
+                    in {"get_midgame_decision", "get_legal_actions", "submit_midgame_decision"}
+                    else e
+                    for e in c.tape
                 ],
             ),
         ),
@@ -567,3 +584,60 @@ def test_demonstrated_failures_count_only_from_a_bound_document() -> None:
     assert not kp.demonstrated_failures(document, candidate_commit="d" * 40, runner_digest="runner")
     assert not kp.demonstrated_failures(document, candidate_commit="c" * 40, runner_digest="other")
     assert not kp.demonstrated_failures(None, candidate_commit="c" * 40, runner_digest="runner")
+
+
+# --------------------------------------------------------------------------- #
+# Scripted events: a reveal reaches everyone, a look reaches only its viewer
+# --------------------------------------------------------------------------- #
+
+
+def test_a_reveal_that_misses_a_principal_is_a_denied_entitlement(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def missed(capture: kp.Capture) -> None:
+        capture.projections["P3"]["view"]["revealed"] = []
+
+    verdict = _verdict(records, "HIDDEN_07", missed)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "reveal_reaches:obj:hidden-hand:P3" in _failed(verdict)
+
+
+def test_a_look_shown_to_another_principal_is_a_demonstrated_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def leaked(capture: kp.Capture) -> None:
+        capture.projections["P3"]["view"]["looked_at"] = [{"cards": [{"name": "Vampiric Tutor"}]}]
+
+    verdict = _verdict(records, "HIDDEN_08", leaked)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "look_withheld_from:obj:hidden-lib-0:P3" in _failed(verdict)
+
+
+def test_a_permission_does_not_reach_back_before_its_event(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    """The look entitles P1 only after it happened: the same identity in a
+    frame P1 received before the event is a leak."""
+
+    def early(capture: kp.Capture) -> None:
+        frame = _frame("P1", "d0")
+        frame["pilot_state"]["players"][1]["granted_library"] = [{"name": "Vampiric Tutor"}]
+        capture.tape.insert(2, _entry("get_midgame_decision", None, _ok({"decision": frame})))
+        assert capture.script_start is not None
+        capture.script_start += 1
+
+    verdict = _verdict(records, "HIDDEN_08", early)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "no_forbidden_token_in_channels_of:P1" in _failed(verdict)
+
+
+def test_an_event_that_never_ran_is_unverified_not_denied(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def never(capture: kp.Capture) -> None:
+        capture.script_complete = False
+        for label in LABELS:
+            capture.projections[label]["view"]["revealed"] = []
+
+    verdict = _verdict(records, "HIDDEN_07", never)
+    assert verdict.classification == kp.UNVERIFIED

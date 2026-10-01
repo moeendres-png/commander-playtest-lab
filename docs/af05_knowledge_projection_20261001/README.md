@@ -152,3 +152,29 @@ Outcomes:
   it can execute.
 - **M3:** Forge HIDDEN rows, which need a Forge mid-game construction lane.
 - **AF05** stays UNKNOWN until all twenty rows PASS. M1 can lift at most six.
+
+## M2 batch 1: HIDDEN_07 and HIDDEN_08 (contract 1.0.9)
+
+Every HIDDEN_05–18 record has the M1 static base and an empty decision script,
+but its obligation names an event. A versioned scenario erratum adds the objects
+that cause that event and a decision script that selects only engine offers.
+The obligation, the viewer state and the lossless base state stay unchanged
+(`HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04`).
+
+| Row | Obligation | Event route |
+|---|---|---|
+| HIDDEN_07 | reveal reaches exactly legal audience | P1 casts Telepathy (Island pays). Its opponents play with their hands revealed, so P2's hand card reaches every principal's `revealed` log. |
+| HIDDEN_08 | look reaches only specified audience | P1 activates Orcish Spy (`{T}`: look at the top three cards of target player's library), targeting P2. Only P1's `looked_at` log names `obj:hidden-lib-0`; P2 (the owner), P3 and P4 receive it nowhere. |
+
+Verifier additions:
+- A small script runner answers the record's script from engine offers only.
+- The record's temporary permissions apply only to documents after the event.
+  The same identity in a frame the viewer received earlier is still a leak.
+- An event that never completed leaves the row UNVERIFIED, never FAIL.
+
+A measured limit for later rows: a range-of-influence static (Telepathy) cannot
+be *placed* before game start. XMage raises `IllegalStateException` in
+`hasPlayerInRange`, so scenarios that need one have to cast it.
+
+Local end to end on `37e4df6c`: 8/8 rows verified (six M1 rows plus HIDDEN_07
+and HIDDEN_08). Credit only through the PB-03 receipts.
