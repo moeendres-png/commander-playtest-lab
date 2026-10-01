@@ -11,12 +11,29 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CURRENT_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
 CURRENT_TREE = "0fb7c2f9a038e471de3a6e56419244482a645218"
 PRIOR_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
 WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
 SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
+
+
+def _live_pin() -> str:
+    manifest = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
+    return manifest["primary_engine"]["commit"]
+
+
+# This file proves the 2026-09-30 repin EVENT. Its current-pin assertions hold only while
+# this repin's pin is live; after a later forward repin they are superseded by that repin's
+# successor guard (tests/qualification/test_xmage_f43_f44_repin_v3_20261001.py) and are
+# skipped, never rewritten. Its historical assertions stay active.
+superseded_by_later_repin = pytest.mark.skipif(
+    _live_pin() != CURRENT_PIN,
+    reason="superseded: live XMage pin moved forward (see test_xmage_f43_f44_repin_v3_20261001.py)",
+)
 
 # Consumers that cannot read the manifest (workflow YAML env, Java constants)
 # or are the deliberate pin-authority guards. Every other consumer resolves
@@ -56,6 +73,7 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
 
 
+@superseded_by_later_repin
 def test_live_pin_is_the_successor_candidate() -> None:
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
@@ -70,6 +88,7 @@ def test_selection_truth_unchanged() -> None:
     assert cfg["current_runtime"]["production_provider"] is None
 
 
+@superseded_by_later_repin
 def test_successor_lock_binds_the_candidate_its_donors_and_the_prior_pin() -> None:
     lock = _lock()
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
@@ -85,6 +104,7 @@ def test_successor_lock_binds_the_candidate_its_donors_and_the_prior_pin() -> No
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "ARCHITECTURE_FREEZE"}
 
 
+@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
@@ -100,6 +120,7 @@ def test_manifest_pin_readers_restate_no_pin() -> None:
         assert "canonical_xmage_engine_pin" in text or "--provider xmage" in text, rel
 
 
+@superseded_by_later_repin
 def test_prior_lock_and_wsr22_boundary_stay_historical() -> None:
     from commander_lab.qualification.current_boundary import source_lock
 

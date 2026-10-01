@@ -27,8 +27,8 @@ import pytest
 
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
-# Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-CANONICAL_XMAGE_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+# Live pin: multiplayer candidate after F-44 (mage#33) and F-43 (mage#29), repin v3.
+CANONICAL_XMAGE_PIN = "4e59e8b9087878816b37728055eb61757a2fbf07"
 CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")

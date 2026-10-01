@@ -17,7 +17,6 @@ from typing import Any
 
 import pytest
 
-from commander_lab.qualification.current_boundary import bridge_launcher
 from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
@@ -28,6 +27,28 @@ RECEIPT = (
     / "pb03-fresh-main-reconciliation-20260929"
     / "MIDGAME_CAPABILITY_PROBE.json"
 )
+
+
+def _sealed_xmage_pin() -> str:
+    """The XMage pin these in-place artifacts were last requalified on.
+
+    The legacy in-place directories (pb03-fresh-main-reconciliation-20260929,
+    final-current-boundary-20260927) were last requalified at 9375f35a, the
+    repin-v2 pin. Since the evidence-epoch design, runs write to
+    qualification/current-boundary-epochs/<commit>-<tree>/ and these directories
+    are never a target again, so they stay bound to the pin they were sealed at
+    (never relabelled). Current-pin binding of fresh runs is asserted by the
+    PB-03 workflow against canonical_xmage_engine_pin().
+    """
+    lock = json.loads(
+        (
+            REPO_ROOT
+            / "qualification"
+            / "xmage-mp-candidate-repin-v2-20260930"
+            / "SUCCESSOR_SOURCE_LOCK.json"
+        ).read_text(encoding="utf-8")
+    )
+    return lock["new_live_pin"]["commit"]
 
 
 def _arrival(**overrides: Any) -> dict[str, Any]:
@@ -289,10 +310,10 @@ class TestProbeReceipt:
     def test_receipt_is_present_and_engine_identity_pinned(self) -> None:
         assert RECEIPT.is_file(), f"missing runtime receipt {RECEIPT}"
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
-        # The receipt must name the canonical live pin, not a historical donor
+        # The receipt must name the pin it was sealed at, not a historical donor
         # pin: a row observed on another engine epoch is not evidence for this
-        # one.
-        assert receipt["engine_commit"] == bridge_launcher.canonical_xmage_engine_pin()
+        # one, and a sealed receipt is never relabelled to a later pin.
+        assert receipt["engine_commit"] == _sealed_xmage_pin()
         assert receipt["candidate_commit"] == receipt["engine_commit"]
         assert receipt["lane"] == ml.MIDGAME_LANE
         assert receipt["protocol_version"] == ml.PROTOCOL_VERSION
@@ -347,7 +368,7 @@ class TestProbeReceipt:
             admission["provider_identity"]["engine_artifact_sha256"]
             == receipt["engine_artifact_sha256"]
         )
-        assert receipt["engine_commit"] == bridge_launcher.canonical_xmage_engine_pin()
+        assert receipt["engine_commit"] == _sealed_xmage_pin()
 
     def test_every_row_states_its_construction_verdict_explicitly(self) -> None:
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
