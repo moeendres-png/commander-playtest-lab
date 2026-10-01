@@ -21,7 +21,7 @@
   "denominator_count": 107,
   "historical_base_materialization": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
   "historical_base_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
-  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_8.json",
+  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json",
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -37,9 +37,11 @@
    "HIDDEN_03",
    "HIDDEN_04",
    "HIDDEN_19",
-   "HIDDEN_HONEYCARD_SENTINEL"
+   "HIDDEN_HONEYCARD_SENTINEL",
+   "HIDDEN_07",
+   "HIDDEN_08"
   ],
-  "unchanged_fixture_count": 92,
+  "unchanged_fixture_count": 90,
   "evidence_survival": {
    "WS05-CMD-START-2": "REQUALIFICATION_REQUIRED_SEMANTIC_CHANGE",
    "MICRO_COSTS": "REQUALIFICATION_REQUIRED_FIXTURE_DEFECT_CORRECTION_CR_307_1",
@@ -56,9 +58,11 @@
    "HIDDEN_04": "REQUALIFICATION_REQUIRED_LOSSLESS_HIDDEN_STATE_ERRATUM_SLOT04",
    "HIDDEN_19": "REQUALIFICATION_REQUIRED_LOSSLESS_HIDDEN_STATE_ERRATUM_SLOT04",
    "HIDDEN_HONEYCARD_SENTINEL": "REQUALIFICATION_REQUIRED_LOSSLESS_HIDDEN_STATE_ERRATUM_SLOT04",
+   "HIDDEN_07": "REQUALIFICATION_REQUIRED_HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+   "HIDDEN_08": "REQUALIFICATION_REQUIRED_HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
    "all_other_full107_rows": "HISTORICAL_PROVENANCE_ONLY_PENDING_CURRENT_BOUNDARY_EXECUTION"
   },
-  "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_8_SUCCESSOR.json",
+  "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_9_SUCCESSOR.json",
   "evidence_migration": {
    "protocol_boundary_changed": true,
    "automatic_carry_forward": false,

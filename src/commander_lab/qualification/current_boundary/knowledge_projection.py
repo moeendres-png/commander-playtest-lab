@@ -59,6 +59,8 @@ ROWS: dict[str, str] = {
     "HIDDEN_04": "face_down_controller",
     "HIDDEN_19": "no_omniscient_api",
     "HIDDEN_HONEYCARD_SENTINEL": "honey_sentinel",
+    "HIDDEN_07": "reveal_audience",
+    "HIDDEN_08": "look_audience",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -70,6 +72,8 @@ OBLIGATION_TEXT: dict[str, str] = {
     "public_exile": "face-up exile identities public",
     "face_down_controller": ("face-down permanent controller sees identity while opponents do not"),
     "no_omniscient_api": "pilot code cannot access omniscient raw engine APIs",
+    "reveal_audience": "reveal reaches exactly legal audience",
+    "look_audience": "look reaches only specified audience",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -146,13 +150,39 @@ def _look_permitted(obj: dict[str, Any], viewer: str, permissions: Iterable[Any]
     return False
 
 
-def entitled(obj: dict[str, Any], viewer: str, permissions: Iterable[Any] = ()) -> bool:
+#: Temporary permissions that entitle their viewer to an object's identity once
+#: the record's scripted event has happened.
+IDENTITY_PERMISSIONS = frozenset({"reveal", "look", "look_at_face_down_exile"})
+
+
+def _temporarily_entitled(obj: dict[str, Any], viewer: str, temporary: Iterable[Any]) -> bool:
+    for permission in temporary:
+        if (
+            isinstance(permission, dict)
+            and permission.get("object") == obj.get("semantic_id")
+            and permission.get("permission") in IDENTITY_PERMISSIONS
+            and permission.get("viewer") in (viewer, "ALL_PLAYERS")
+        ):
+            return True
+    return False
+
+
+def entitled(
+    obj: dict[str, Any],
+    viewer: str,
+    permissions: Iterable[Any] = (),
+    temporary: Iterable[Any] = (),
+) -> bool:
     """Whether the record entitles ``viewer`` to the object's identity.
 
     Hand cards are their owner's; library cards are nobody's; a face-down
     permanent is its controller's and any principal's the record grants a look;
-    every other requested zone here is public.
+    every other requested zone here is public. ``temporary`` holds the record's
+    temporary permissions, which apply only after the record's scripted event
+    (a reveal to every player, a look by one).
     """
+    if _temporarily_entitled(obj, viewer, temporary):
+        return True
     zone = obj.get("zone")
     if zone == "library":
         return False
@@ -181,19 +211,24 @@ class ForbiddenTokens:
     ambiguous: dict[str, str]
 
 
-def forbidden_tokens(record: dict[str, Any], viewer: str) -> ForbiddenTokens:
+def forbidden_tokens(
+    record: dict[str, Any], viewer: str, *, after_event: bool = False
+) -> ForbiddenTokens:
     """The identities, semantic ids and sentinels ``viewer`` is not entitled to.
 
     A card identity the viewer may also legitimately see through another object
     (or through its scaffolding template) cannot decide anything and is set
-    aside as ambiguous rather than scanned.
+    aside as ambiguous rather than scanned. ``after_event`` applies the record's
+    temporary permissions, which hold only once its scripted event happened.
     """
-    permissions = _viewer_state(record).get("face_down_look_permissions") or ()
+    state = _viewer_state(record)
+    permissions = state.get("face_down_look_permissions") or ()
+    temporary = (state.get("temporary_permissions") or ()) if after_event else ()
     visible: set[str] = set()
     hidden: dict[str, str] = {}
     for obj in _objects(record):
         identity = str(obj["card_identity"])
-        if entitled(obj, viewer, permissions):
+        if entitled(obj, viewer, permissions, temporary):
             visible.add(identity)
         else:
             hidden[identity] = f"identity of {obj['semantic_id']}"
@@ -290,6 +325,11 @@ class Capture:
     tape: list[dict[str, Any]] = field(default_factory=list)
     log: str = ""
     failure: str | None = None
+    # The record's scripted event: where on the tape it began, every answer
+    # given, and whether every scripted step was answered and resolved.
+    script_start: int | None = None
+    script_trace: list[dict[str, Any]] = field(default_factory=list)
+    script_complete: bool = False
 
 
 def _payload(response: dict[str, Any]) -> dict[str, Any]:
@@ -326,6 +366,14 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
     capture.scoped_arrival = _payload(
         client.request("complete_midgame_arrival", {"actor_id": viewer})
     )
+    if record.get("decision_script"):
+        capture.script_start = len(client.tape)
+        try:
+            capture.script_trace = run_script(client, record)
+            capture.script_complete = True
+        except ml.MidgameLaneError as exc:
+            capture.failure = f"the scripted event failed closed: {exc}"
+            return capture
     for label in _labels(record):
         response = client.request("get_midgame_projection", {"actor_id": label})
         if not response.get("success"):
@@ -355,6 +403,109 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
     return capture
 
 
+def _activation_offer(legal: dict[str, Any], native: str) -> dict[str, Any]:
+    offers = [
+        action
+        for action in legal.get("actions") or ()
+        if action.get("action_type") == "activate_ability"
+        and ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
+            "source_object_id"
+        )
+        == native
+    ]
+    if len(offers) != 1:
+        raise ml.MidgameLaneError(f"the engine offered {len(offers)} activations of the source")
+    offer: dict[str, Any] = offers[0]
+    return offer
+
+
+def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dict[str, Any]]:
+    """Answer the record's decision script from the engine's own offers only.
+
+    A scripted priority step casts or activates the named object; a scripted
+    target step selects the named player; a mana payment uses only the record's
+    explicit payment sources; every other priority is passed. The event is
+    complete when every step was answered and the checkpoint's priority player
+    holds priority again with an empty stack. Anything else fails closed.
+    """
+    probe = midgame_rows_mod.probe_module()
+    created = next(
+        (
+            _payload(entry["response"])
+            for entry in client.tape
+            if entry.get("message_type") == "create_midgame_game"
+        ),
+        {},
+    )
+    placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
+    commanders = {str(k): str(v) for k, v in (created.get("commander_objects") or {}).items()}
+    script = list(record.get("decision_script") or ())
+    sources = [
+        placed[source]
+        for cost in record.get("action_cost_state") or ()
+        for source in cost.get("explicit_payment_sources") or ()
+        if source in placed
+    ]
+    holder = str((record.get("temporal_state") or {}).get("priority_player"))
+    trace: list[dict[str, Any]] = []
+    position = 0
+    for _ in range(80):
+        decision = client.pending_decision(attempts=5)
+        if decision is None:
+            raise ml.MidgameLaneError("the engine went terminal during the scripted event")
+        legal = probe.legal_actions(client)
+        principal = probe.decision_principal(decision, legal)
+        decision_class = str(decision.get("decision_class"))
+        step = script[position] if position < len(script) else None
+        scripted = step is not None and step.get("actor") == principal
+        if decision_class == "priority":
+            stack = (decision.get("pilot_state") or {}).get("stack")
+            if step is None and principal == holder and stack == []:
+                return trace
+            if scripted and step is not None and step.get("decision_family") == "priority":
+                value = (step.get("selection") or {}).get("semantic_value") or {}
+                if value.get("action") == "activate":
+                    native = placed.get(str(value.get("object")))
+                    if native is None:
+                        raise ml.MidgameLaneError("the scripted source was not placed")
+                    action = _activation_offer(legal, native)
+                else:
+                    action = midgame_rows_mod._scripted_priority_action(
+                        legal, step, placed, commanders
+                    )
+                probe.submit_proposal(client, legal, action, f"knowledge-{len(trace)}")
+                trace.append({"decision_class": decision_class, "step": position})
+                position += 1
+                continue
+            passed = probe.option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError("the engine offered no pass")
+            client.submit_options(decision, [passed])
+            continue
+        if decision_class == "mana_payment":
+            offer = midgame_rows_mod._mana_offer(legal, sources)
+            if offer is None:
+                raise ml.MidgameLaneError("no declared mana source was offered")
+            probe.submit_proposal(client, legal, offer, f"knowledge-mana-{len(trace)}")
+            trace.append({"decision_class": decision_class, "step": None})
+            continue
+        if (
+            scripted
+            and step is not None
+            and midgame_rows_mod.engine_decision_class(str(step.get("decision_family")))
+            == decision_class
+        ):
+            answer = midgame_rows_mod._scripted_answer(
+                legal, step, placed, midgame_rows_mod.RowSpec()
+            )
+            probe.submit_proposal(client, legal, answer.action, f"knowledge-{len(trace)}")
+            trace.append({"decision_class": decision_class, "step": position})
+            position += 1
+            continue
+        raise ml.MidgameLaneError(f"unscripted {decision_class} for {principal}")
+    raise ml.MidgameLaneError("the scripted event did not complete within its bound")
+
+
 # --------------------------------------------------------------------------- #
 # Channels a principal receives
 # --------------------------------------------------------------------------- #
@@ -373,7 +524,7 @@ class AddressedDocument:
 
 
 def addressed_documents(
-    tape: list[dict[str, Any]], natives: dict[str, str]
+    tape: list[dict[str, Any]], natives: dict[str, str], *, start: int = 0
 ) -> list[AddressedDocument]:
     """Every piece of the tape, addressed to the principal it names.
 
@@ -392,7 +543,7 @@ def addressed_documents(
         return labels_by_native.get(principal, principal)
 
     out: list[AddressedDocument] = []
-    for index, entry in enumerate(tape):
+    for index, entry in enumerate(tape, start=start):
         if "response" not in entry:
             continue
         message_type = str(entry.get("message_type"))
@@ -408,9 +559,13 @@ def addressed_documents(
             out.append(AddressedDocument(None, f"{name}.request", request))
             out.append(AddressedDocument(None, f"{name}.response", response))
             continue
-        if message_type in {"get_midgame_decision", "submit_midgame_decision"}:
-            if message_type == "submit_midgame_decision":
-                answer = payload.get("response")
+        if message_type in {"get_midgame_decision", "submit_midgame_decision", "submit_action"}:
+            # Both submission messages answer with the next pending frame; the
+            # answer itself is the submitter's (an option answer or a proposal).
+            if message_type != "get_midgame_decision":
+                answer = payload.get(
+                    "response" if message_type == "submit_midgame_decision" else "proposal"
+                )
                 submitter = label_of(answer.get("actor_id")) if isinstance(answer, dict) else None
                 out.append(AddressedDocument(submitter, f"{name}.request", request))
             else:
@@ -443,12 +598,12 @@ def addressed_documents(
 
 
 def principal_documents(
-    tape: list[dict[str, Any]], principal: str, natives: dict[str, str]
+    tape: list[dict[str, Any]], principal: str, natives: dict[str, str], *, start: int = 0
 ) -> list[AddressedDocument]:
     """Every document the principal receives: its own and the public ones."""
     return [
         item
-        for item in addressed_documents(tape, natives)
+        for item in addressed_documents(tape, natives, start=start)
         if item.addressee is None or item.addressee == principal
     ]
 
@@ -864,6 +1019,79 @@ def _face_down(record: dict[str, Any], capture: Capture, viewer: str) -> list[Ch
     return checks
 
 
+def _logged_names(projection: dict[str, Any], log: str) -> list[str]:
+    view = projection.get("view") or {}
+    return [
+        str(card.get("name"))
+        for entry in view.get(log) or ()
+        if isinstance(entry, dict)
+        for card in entry.get("cards") or ()
+        if isinstance(card, dict)
+    ]
+
+
+def _event_audience(record: dict[str, Any], capture: Capture, kind: str) -> list[Check]:
+    """A reveal reaches every principal; a look reaches its viewer and nobody else.
+
+    The audience is the record's own temporary permission; what each principal
+    was shown is the engine's own reveal or look log in that principal's
+    projection, read after the record's scripted event.
+    """
+    wanted = "reveal" if kind == "reveal_audience" else "look"
+    log = "revealed" if wanted == "reveal" else "looked_at"
+    permissions = [
+        permission
+        for permission in _viewer_state(record).get("temporary_permissions") or ()
+        if isinstance(permission, dict) and permission.get("permission") == wanted
+    ]
+    objects = {str(obj["semantic_id"]): obj for obj in _objects(record)}
+    checks = [
+        Check(
+            "scripted_event_executed",
+            capture.script_complete and bool(capture.script_trace),
+            f"{len(capture.script_trace)} scripted answers, complete={capture.script_complete}",
+        ),
+        Check(f"{wanted}_permission_declared", bool(permissions), f"{len(permissions)} declared"),
+    ]
+    for permission in permissions:
+        obj = objects.get(str(permission.get("object")))
+        if obj is None:
+            checks.append(Check(f"{wanted}_object_declared", False, str(permission)))
+            continue
+        identity = str(obj["card_identity"])
+        audience = str(permission.get("viewer"))
+        for label, projection in capture.projections.items():
+            shown = identity in _logged_names(projection, log)
+            if audience in (label, "ALL_PLAYERS"):
+                checks.append(
+                    Check(
+                        f"{wanted}_reaches:{obj['semantic_id']}:{label}",
+                        shown,
+                        f"{label}'s {log} log names the object: {shown}",
+                        "ENTITLEMENT",
+                    )
+                )
+                continue
+            checks.append(
+                Check(
+                    f"{wanted}_withheld_from:{obj['semantic_id']}:{label}",
+                    not shown,
+                    f"{label}'s {log} log names the object: {shown}",
+                    "LEAK",
+                )
+            )
+            hits, _, tokens = _scan_principal(record, capture, label)
+            checks.append(
+                Check(
+                    f"no_forbidden_token_in_channels_of:{label}",
+                    not hits,
+                    f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+                    "LEAK",
+                )
+            )
+    return checks
+
+
 def _no_omniscient_api(capture: Capture) -> list[Check]:
     capabilities = capture.capabilities.get("capabilities") or {}
     scopes = capabilities.get("observation_scopes") or {}
@@ -937,10 +1165,23 @@ def _no_omniscient_api(capture: Capture) -> list[Check]:
 def _scan_principal(
     record: dict[str, Any], capture: Capture, principal: str
 ) -> tuple[list[dict[str, str]], dict[str, int], ForbiddenTokens]:
-    tokens = forbidden_tokens(record, principal)
-    documents = principal_documents(capture.tape, principal, capture.natives)
-    scanned, coverage = channel_documents(documents, capture.log)
-    return scan(scanned, tokens.tokens), coverage, tokens
+    """Scan everything the principal received. Documents before the record's
+    scripted event are held to the entitlement before it; documents after it,
+    and the process log, to the entitlement after it."""
+    before = forbidden_tokens(record, principal)
+    after = forbidden_tokens(record, principal, after_event=capture.script_start is not None)
+    split = len(capture.tape) if capture.script_start is None else capture.script_start
+    early = principal_documents(capture.tape[:split], principal, capture.natives)
+    late = principal_documents(capture.tape[split:], principal, capture.natives, start=split)
+    scanned, coverage = channel_documents(early + late, capture.log)
+    early_names = {item.channel for item in early}
+    hits = scan(
+        [(name, doc) for name, doc in scanned if name in early_names], before.tokens
+    ) + scan([(name, doc) for name, doc in scanned if name not in early_names], after.tokens)
+    merged = ForbiddenTokens(
+        {**before.tokens, **after.tokens}, {**before.ambiguous, **after.ambiguous}
+    )
+    return hits, coverage, merged
 
 
 def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> RowVerdict:
@@ -961,7 +1202,12 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         return RowVerdict(fixture_id, viewer, UNVERIFIED, [], detail="a projection is missing")
 
     checks = _construction(record, capture) + _viewer_binding(capture, labels, viewer)
-    construction_holds = all(check.holds for check in checks)
+    # A FAIL needs a measured state: the requested construction, and the
+    # record's scripted event when it declares one. An event that never ran
+    # leaves its obligation unmeasured, never denied.
+    construction_holds = all(check.holds for check in checks) and (
+        not record.get("decision_script") or capture.script_complete
+    )
 
     # Forbidden-identity and sentinel scan over every channel the viewer receives.
     hits, coverage, tokens = _scan_principal(record, capture, viewer)
@@ -1040,6 +1286,8 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
                 )
     elif kind == "no_omniscient_api":
         focus = _no_omniscient_api(capture)
+    elif kind in ("reveal_audience", "look_audience"):
+        focus = _event_audience(record, capture, kind)
     else:
         # The sentinel row's obligation is the scan itself, with its controls.
         focus = []
