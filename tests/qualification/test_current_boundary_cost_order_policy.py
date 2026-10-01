@@ -12,10 +12,14 @@ from commander_lab.qualification.current_boundary.game_driver import (
 
 def _action(
     action_id: str | None,
-    action_type: str,
+    decision_subtype: str | None,
     indices: object = None,
+    *,
+    action_type: str = "structural_decision",
 ) -> dict[str, object]:
     metadata: dict[str, object] = {}
+    if decision_subtype is not None:
+        metadata["decision_subtype"] = decision_subtype
     if indices is not None:
         metadata["cost_order_indices"] = indices
     action: dict[str, object] = {
@@ -65,6 +69,8 @@ def test_iterative_cost_order_selects_lowest_remaining_native_index() -> None:
     [
         [],
         [_action("x", "cost_order", None)],
+        [_action("x", None, [0, 1])],
+        [_action("x", "cost_order", [0, 1], action_type="cost_order")],
         [_action("x", "cost_order", [0, True])],
         [_action("x", "cost_order", [0, -1])],
         [_action("x", "cost_order", [0, 0])],
@@ -208,6 +214,6 @@ def test_game_driver_submits_declared_cost_order_policy(
     proposal = proc.submissions[0]["proposal"]
     assert isinstance(proposal, dict)
     assert proposal["legal_action_id"] == "native"
-    assert proposal["action_type"] == "cost_order"
+    assert proposal["action_type"] == "structural_decision"
     assert result.decision_tape[0].policy == COST_ORDER_POLICY
     assert result.decision_tape[0].chosen_option_id == "native"
