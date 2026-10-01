@@ -9,7 +9,7 @@ concurrency ruling #255 comment 5936731960.
   `366a73100045a8ada93dfacf53c428968305a13a`), after #452 and #460 merged.
 - Workstream branch: `hardening/af07-actual-card-campaign-20261001` (main merged).
 - Runner identity of the recorded run: commit
-  `49712fe563bc1611f12c68d151a64baf3bf6ac9a`, clean tree; digest in
+  `0b61ab80a30638a4fda229d5be77a56c302017af`, clean tree; digest in
   `artifacts/CAMPAIGN_IDENTITY.json`.
 - Effective contract `commander-lab.full107/1.0.10-successor`.
 - XMage candidate `37e4df6c914f1e189e24f0ef59fa91734c922436`; provider-reported
@@ -17,7 +17,7 @@ concurrency ruling #255 comment 5936731960.
   `e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603`.
 - Forge Rules-Core `bb0a740d2bef725194798383c2452213ecdd0b37`, Forge bridge
   `20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c` (not executed in this phase).
-- Matrix digest `f00e47bc3b3261f99ec919d5522800eb60bfff32a910d8b6ea15c987df7227b5`.
+- Matrix digest `3bbc18ce455812309ff6e0d15dcda195a392af305db7938550c4ab086987300e`.
 
 ## Work Completed
 
@@ -114,6 +114,10 @@ manifests are untouched.
   (`DIRECTLY_VERIFIED`).
 - `ruff check` and `ruff format --check` on all new files — clean
   (`DIRECTLY_VERIFIED`).
+- `mypy --strict` on `src/commander_lab` — the campaign producer is clean; the
+  first CI quality run caught ten strict-lane errors in it, which are fixed and
+  the evidence re-run on the fixed module bytes (`DIRECTLY_VERIFIED` locally,
+  CI re-run in flight).
 - 29 live row executions — `FRESH_CURRENT_BOUNDARY_RUNTIME`; raw engine per-row
   documents in `artifacts/measurements/`, receipts for the two direct passes,
   matrix in `artifacts/AF07_ACTUAL_CARD_MATRIX.json`.

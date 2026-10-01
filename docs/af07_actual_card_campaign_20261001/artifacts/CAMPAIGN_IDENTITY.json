@@ -36,8 +36,8 @@
   "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
   "runner": {
     "branch": "hardening/af07-actual-card-campaign-20261001",
-    "built_utc": "2026-10-01T19:57:53+00:00",
-    "commit": "49712fe563bc1611f12c68d151a64baf3bf6ac9a",
+    "built_utc": "2026-10-01T20:19:37+00:00",
+    "commit": "0b61ab80a30638a4fda229d5be77a56c302017af",
     "dirty": false,
     "dirty_paths": [],
     "input_digests": {
@@ -258,7 +258,7 @@
       "src/commander_lab/engine/rules/tactical.py": "6613ad25a2de36233eec1acff73b859c7ce35777087465a1f46075b0ffed8024",
       "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b684300d229e503b6a0e977ae39dd263464656053c4d4cb145ad1",
       "src/commander_lab/qualification/current_boundary/__init__.py": "0a214758505a910970e01984efa392c5bc99d85306a713ee04e81ed38284776c",
-      "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "73249a00eb8ceaa9edc32ef3f6e3d97623f8113b3120c5f5a6daa221167cd41c",
+      "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "c0055bfd031a84236c4fa3508f4147e349cebc56a5791e79857ff59707ca8a4d",
       "src/commander_lab/qualification/current_boundary/af01.py": "df6b97a516ae8ea5f92367cfa5af97e712108ae4ee5a07ccf4ba7d4e53cfff80",
       "src/commander_lab/qualification/current_boundary/af03.py": "ba6fd0d50be08cbaad81121862679958ca2736f00470ca11eb10c61e74431b60",
       "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "fa0d03e09759b63c1514dc94a790c7dfbb4e3ad5179d4198ddac794771208263",
@@ -285,9 +285,9 @@
       "qualification/current-boundary-epochs/"
     ],
     "schema_version": "commander-lab.runner-identity/1.0.0",
-    "tree": "f5c51bb1a7f33de9581d8ba0a1c789b928b3a161"
+    "tree": "5d25ded21dc29a68650922d5b182587834bfa204"
   },
-  "runner_digest": "9137664e8285ae3fe195fb131be83f0a0fbf41fd18539e4307c2ca3d13138624",
+  "runner_digest": "b61d84273682b1df11dce0fb117eef68576ac15f1386e9550ce88a3874cb3da2",
   "seed": 424242,
   "selected_rows": [
     "CARD_01",

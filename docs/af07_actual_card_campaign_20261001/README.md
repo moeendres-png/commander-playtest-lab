@@ -28,8 +28,8 @@ active on them.
 | Loaded engine artifact | `mage-1.4.61.jar`, sha256 `e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603` (provider-reported) |
 | Forge Rules-Core | `bb0a740d2bef725194798383c2452213ecdd0b37` |
 | Forge bridge | `20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c` |
-| Runner identity | commit `49712fe563bc1611f12c68d151a64baf3bf6ac9a`, clean tree; digest in `artifacts/CAMPAIGN_IDENTITY.json` |
-| Output matrix digest | `f00e47bc3b3261f99ec919d5522800eb60bfff32a910d8b6ea15c987df7227b5` |
+| Runner identity | commit `0b61ab80a30638a4fda229d5be77a56c302017af`, clean tree; digest in `artifacts/CAMPAIGN_IDENTITY.json` |
+| Output matrix digest | `3bbc18ce455812309ff6e0d15dcda195a392af305db7938550c4ab086987300e` |
 
 Impact note: #452/#460 changed HIDDEN fixtures and the bridge event watcher, not
 the CARD records. The effective CARD-02/CARD-24 required-state and obligation
@@ -112,10 +112,10 @@ run-scoped runtime directory (`ENGINE_RUNTIME_DIRECTORY`), using this worktree's
 - **CARD_02** Rograkh, Son of Rohgahh — construction `EXACT`; the engine's cast and
   resolve observed on the tape; `Rograkh is on P1 battlefield`, commander cast count
   `1`, and no mana payment. Receipt
-  `artifacts/receipts/positive/CARD_02.json` (digest `c5975ab52454fb51…`).
+  `artifacts/receipts/positive/CARD_02.json` (digest `e77cea9d290f726d…`).
 - **CARD_24** Warstorm Surge — construction `EXACT`; `entering_creature_damage:P2:2`
   observed on the tape and P2 at 18 life on the engine's observation. Receipt
-  `artifacts/receipts/positive/CARD_24.json` (digest `84a377c993794733…`).
+  `artifacts/receipts/positive/CARD_24.json` (digest `48ba77319c6fcf7d…`).
 
 Both receipts are scoped to the canonical candidate identity, the current runner
 digest and the effective record digests; the assembler's
