@@ -1,0 +1,113 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
+branch: hardening/midgame-multiselect-amount-closure-20261001
+audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
+audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
+state_written_against_head: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
+validated_head: null
+
+objective: >-
+  Close the current Lab mid-game decision-lane gaps for MICRO_COSTS,
+  PILOT_TARGET_AMOUNT and PILOT_MULTI_AMOUNT using only engine-authored
+  decision domains, direct source-bound evidence and wrong-reason-resistant
+  validation.
+
+in_scope:
+  - engine-authored multi-select choose_targets support
+  - semantic-object to offered-option matching
+  - divided-damage amount_assignment support
+  - MICRO_COSTS exact cost-charge verification
+  - negative and wrong-reason controls
+  - direct re-execution of MICRO_COSTS
+  - direct re-execution of PILOT_TARGET_AMOUNT
+  - direct re-execution of PILOT_MULTI_AMOUNT
+  - impacted current-boundary receipt and evidence reassembly
+
+out_of_scope:
+  - AF05 hidden-information knowledge projection
+  - AF07 29-card actual-card corpus expansion
+  - AF09 semantic replay twins
+  - Forge mid-game lane creation
+  - Production Provider selection
+  - AF11
+  - Architecture Freeze
+  - unrelated Rules-engine remediation
+  - broad cleanup
+
+ownership: MIDGAME-LANE-MULTISELECT-AMOUNT-CLOSURE-20261001
+
+dependencies:
+  - '#255 Coordinator comment 5931735894'
+  - '#449 workstream contract'
+  - '#449 ownership reservation comment 5931753920'
+  - 'commander-lab.full107/1.0.7-successor'
+  - 'current source-bound epoch 2b60482af250-d0fc69bb4022'
+
+hard_gates:
+  - Rules Core remains sole legality authority
+  - use only engine-authored pending decision domains
+  - no historical PASS transfer
+  - direct credit requires exact current obligation execution
+  - wrong-reason controls required
+  - unsupported or ambiguous mapping fails closed
+  - UNKNOWN is not PASS
+  - no provider selection
+  - no Architecture Freeze
+
+forbidden_shortcuts:
+  - first option
+  - random option
+  - inferred target
+  - default yes/no
+  - internal engine AI fallback
+  - GUI default
+  - silent skip
+  - prose-derived legal action
+  - requested-option legality reconstruction
+  - fabricated legal action
+  - manual outcome injection
+  - implicit equal damage split
+
+validated_gates: []
+failed_gates: []
+invalidated_gates: []
+do_not_rerun: []
+
+failure_class: NONE
+root_cause_class: NONE
+
+files_modified: []
+tests_run: []
+evidence: []
+artifacts: []
+
+remaining_scope:
+  - source and ownership census
+  - reproduce actual multi-select decision frame
+  - multi-select target selector
+  - amount_assignment selector
+  - MICRO_COSTS cost verifier
+  - wrong-reason controls
+  - three-row direct execution
+  - impacted evidence reassembly
+  - independent review
+  - CI and merge adjudication
+
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+hypotheses_rejected: []
+technical_decisions: []
+authority_gates: []
+
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+
+exact_next_action: >-
+  Fresh-fetch origin and GitHub, reread #255 and #449, establish current
+  writer ownership and drift, reproduce the three affected decision paths,
+  then continue autonomously through implementation, direct evidence,
+  CI, review and merge adjudication.
