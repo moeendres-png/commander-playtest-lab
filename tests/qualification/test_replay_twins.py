@@ -857,6 +857,55 @@ def test_record_policy_chooses_a_unique_fingerprint() -> None:
     assert policy == "deterministic_unique_lexicographic_fingerprint"
 
 
+EVIDENCE_DIR = Path(__file__).resolve().parents[2] / "docs/af09_replay_twins_20261001/evidence"
+AF09_ROWS = {
+    fixture: {"exit_state": "PASS"}
+    for fixture in (
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_STATE_HASHES",
+        "RNG_RULES_TAPE",
+    )
+}
+
+
+@pytest.mark.parametrize("name", ["AF09_REPLAY_TWIN_XMAGE.json", "AF09_REPLAY_TWIN_FORGE.json"])
+def test_committed_evidence_verifies_and_passes_the_af09_gate(name: str) -> None:
+    from commander_lab.qualification.current_boundary import gate_derivations as gates
+
+    document = json.loads((EVIDENCE_DIR / name).read_text(encoding="utf-8"))
+    twin = document["clean_process_twin"]
+    assert document["verdict"] == "PASS", name
+    assert twin["verified"] is True, name
+    assert twin["lab_source"]["clean"] is True, name
+    assert all(control["detected"] for control in document["adversarial_controls"]), name
+    gate_document = {
+        "rules_rng_binding": {
+            "classification": "ACKNOWLEDGED_ENGINE_SEED",
+            "requested_seed": twin["rules_rng"]["requested_seed"],
+            "acknowledged_seed": twin["rules_rng"]["acknowledged_seed"],
+        },
+        "semantic_replay": {},
+        "clean_process_twin": twin,
+    }
+    gate = gates.af09_rng_replay(document["candidate"], AF09_ROWS, gate_document)
+    assert gate["verdict"] == "PASS", gate["nonblocking_limitations"]
+
+
+def test_committed_xmage_2p_evidence_is_honest_unknown() -> None:
+    document = json.loads(
+        (EVIDENCE_DIR / "AF09_REPLAY_TWIN_XMAGE_2P.json").read_text(encoding="utf-8")
+    )
+    assert document["verdict"] == "UNKNOWN"
+    assert document["clean_process_twin"]["verified"] is False
+    divergence = document["consumer_divergence"]
+    assert divergence["divergence_class"] == "CHOSEN_OPTION_AMBIGUOUS"
+    assert "step 110" in divergence["detail"]
+    # The collision is recorded from the engine and never normalized away.
+    assert document["clean_process_twin"]["comparison"]["verified"] is True
+
+
 def test_xmage_tape_reduction_preserves_required_sections() -> None:
     raw = _synthetic_tape()
     run = rt.xmage_tape_run_from_document(
