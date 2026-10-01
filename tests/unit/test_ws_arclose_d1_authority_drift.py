@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
-CANONICAL_XMAGE_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+CANONICAL_XMAGE_PIN = "37e4df6c914f1e189e24f0ef59fa91734c922436"
 CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
