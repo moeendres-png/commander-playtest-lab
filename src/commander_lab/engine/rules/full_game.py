@@ -143,8 +143,60 @@ class FullGameClaimBasis(_StrictModel):
     xmage_rules_authority: Literal["CODE_DERIVED"] = "CODE_DERIVED"
     commander_lab_pilot_decision_authority: Literal["CODE_DERIVED"] = "CODE_DERIVED"
     fallback_used: Literal["CODE_DERIVED"] = "CODE_DERIVED"
-    hidden_information_actor_scoped: Literal["DECLARED_NOT_OBSERVED"] = "DECLARED_NOT_OBSERVED"
+    # OBSERVED only when the run audited at least one decision frame (C2).
+    hidden_information_actor_scoped: Literal["OBSERVED", "DECLARED_NOT_OBSERVED"] = (
+        "DECLARED_NOT_OBSERVED"
+    )
     bit_exact_replay_validated: Literal["NOT_CLAIMED"] = "NOT_CLAIMED"
+
+
+class FullGameHiddenInformationAudit(_StrictModel):
+    """Per-frame runtime audit of the actor-scoped observation (C2).
+
+    Every decision frame the engine publishes carries the actor's principal-
+    scoped state. The audit checks that exactly one row is the actor's, that
+    it is the frame's actor, and that no other player's private rows (hand,
+    mana pool) appear unless the engine itself marked that row visible to this
+    principal (control, CR 723.4). A frame that breaks this ends the run fail
+    closed; the counts below describe a run that passed every frame.
+    """
+
+    frames_audited: int = Field(default=0, ge=0)
+    non_actor_rows_audited: int = Field(default=0, ge=0)
+    non_actor_rows_engine_visible: int = Field(default=0, ge=0)
+
+
+_PRIVATE_ROW_KEYS = ("hand", "mana_pool")
+
+
+def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[str]]:
+    """Audit one decision frame; returns (non_actor_rows, engine_visible_rows, violations).
+
+    Violations name seats and keys only, never card identities.
+    """
+    state = decision.get("pilot_state")
+    if not isinstance(state, dict) or not isinstance(state.get("players"), list):
+        return 0, 0, ["frame carries no principal-scoped player state"]
+    players = [p for p in state["players"] if isinstance(p, dict)]
+    actor_rows = [p for p in players if p.get("is_actor") is True]
+    violations: list[str] = []
+    if len(actor_rows) != 1:
+        violations.append(f"frame marks {len(actor_rows)} actor rows, expected 1")
+    elif actor_rows[0].get("player_id") != decision.get("actor_id"):
+        violations.append("the actor row is not the frame's actor")
+    rows = 0
+    visible = 0
+    for player in players:
+        if player.get("is_actor") is True:
+            continue
+        rows += 1
+        if player.get("private_state_visible") is True:
+            visible += 1
+            continue
+        for key in _PRIVATE_ROW_KEYS:
+            if key in player:
+                violations.append(f"seat {player.get('seat')} exposes {key} to another principal")
+    return rows, visible, violations
 
 
 class FullGameConformanceResult(_StrictModel):
@@ -176,6 +228,9 @@ class FullGameConformanceResult(_StrictModel):
     fallback_used: Literal[False] = False
     bit_exact_replay_validated: Literal[False] = False
     claim_basis: FullGameClaimBasis = Field(default_factory=FullGameClaimBasis)
+    hidden_information_audit: FullGameHiddenInformationAudit = Field(
+        default_factory=FullGameHiddenInformationAudit
+    )
 
 
 class FullGameSmokeResult(_StrictModel):
@@ -1913,6 +1968,8 @@ class XmageFullGameRunner:
         self.max_decisions = max_decisions
         if self.max_decisions < 1:
             raise ValueError("max_decisions must be positive")
+        # Armed by run() for the duration of one game (C2 per-frame audit).
+        self._hidden_audit: FullGameHiddenInformationAudit | None = None
 
     @staticmethod
     def command_from_environment() -> tuple[str, ...] | None:
@@ -1932,6 +1989,8 @@ class XmageFullGameRunner:
                 f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
             )
         policy = self._validated_policy(scenario, decks, pilots)
+        audit = FullGameHiddenInformationAudit()
+        self._hidden_audit = audit
 
         with _RawFullGameClient(
             command,
@@ -1939,7 +1998,10 @@ class XmageFullGameRunner:
             request_timeout_seconds=self.request_timeout_seconds,
         ) as client:
             provider = self._open_game(client, scenario, decks)
-            _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
+            try:
+                _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
+            finally:
+                self._hidden_audit = None
             assert terminal is True
             result = client.request("get_full_game_result")
         # The same lifecycle gate as the bounded smoke: a game-over result rests
@@ -1947,7 +2009,9 @@ class XmageFullGameRunner:
         disposition = getattr(client, "shutdown_disposition", None)
         if disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
             raise FullGameConformanceError(f"full game shutdown not graceful: {disposition}")
-        return self._build_result(scenario, provider, result, shutdown_disposition=disposition)
+        return self._build_result(
+            scenario, provider, result, shutdown_disposition=disposition, hidden_audit=audit
+        )
 
     def run_smoke(
         self,
@@ -2113,6 +2177,17 @@ class XmageFullGameRunner:
                 decision_class = decision.get("decision_class")
                 if isinstance(decision_class, str) and decision_class not in observed:
                     observed.append(decision_class)
+                audit = self._hidden_audit
+                if audit is not None:
+                    rows, visible, violations = audit_actor_scoped_frame(decision)
+                    if violations:
+                        raise FullGameConformanceError(
+                            "hidden information not actor-scoped at decision "
+                            f"{decision_count}: " + "; ".join(violations)
+                        )
+                    audit.frames_audited += 1
+                    audit.non_actor_rows_audited += rows
+                    audit.non_actor_rows_engine_visible += visible
                 response = policy.decide(decision)
                 status = client.request(
                     "submit_full_game_decision",
@@ -2281,6 +2356,7 @@ class XmageFullGameRunner:
         result: dict[str, Any],
         *,
         shutdown_disposition: str | None = None,
+        hidden_audit: FullGameHiddenInformationAudit | None = None,
     ) -> FullGameConformanceResult:
         if shutdown_disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
             raise FullGameConformanceError(
@@ -2317,6 +2393,7 @@ class XmageFullGameRunner:
             if isinstance(item, dict) and item.get("won") is True
         )
         semantic = cls.semantic_transcript(result)
+        audit = hidden_audit or FullGameHiddenInformationAudit()
         return FullGameConformanceResult(
             scenario=scenario,
             engine_version=str(provider.get("engine_version", "unknown")),
@@ -2329,6 +2406,12 @@ class XmageFullGameRunner:
             semantic_transcript_sha256=cls._sha256(semantic),
             raw_result_sha256=cls._sha256(result),
             shutdown_disposition=FULL_GAME_SHUTDOWN_GRACEFUL,
+            hidden_information_audit=audit,
+            claim_basis=FullGameClaimBasis(
+                hidden_information_actor_scoped=(
+                    "OBSERVED" if audit.frames_audited > 0 else "DECLARED_NOT_OBSERVED"
+                )
+            ),
         )
 
     @staticmethod

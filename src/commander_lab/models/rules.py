@@ -249,6 +249,31 @@ class InteractionValidation(FrozenModel):
     evidence_path: str | None = None
 
 
+ExternalValidationStatus = Literal[
+    "UNAVAILABLE",
+    "PROTOCOL_FAIL",
+    "ENGINE_FAIL",
+    "RESULT_MISMATCH",
+    "PASS",
+]
+
+
+class ExternalValidationOutcome(FrozenModel):
+    """What one external rules-engine attempt actually produced (F2).
+
+    Every attempt is recorded, not only passes: an unavailable adapter, a
+    protocol refusal, an engine failure and a disagreement with the expected
+    result are each persisted so a registry can never read as if the external
+    engine had simply not been asked. ``detail`` is structural (exception type
+    and mismatching keys), never raw engine output.
+    """
+
+    interaction_id: str
+    backend: str
+    status: ExternalValidationStatus
+    detail: str = ""
+
+
 class CardValidationRecord(FrozenModel):
     oracle_name: str
     level: ValidationLevel
@@ -267,6 +292,7 @@ class ValidationRegistry(MutableModel):
     tactical_passed: int = Field(default=0, ge=0)
     rules_engine_cases: int = Field(default=0, ge=0)
     rules_engine_passed: int = Field(default=0, ge=0)
+    external_outcomes: list[ExternalValidationOutcome] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 

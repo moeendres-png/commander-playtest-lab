@@ -106,6 +106,8 @@ def _actor_state(player_count: int) -> dict[str, Any]:
     players: list[dict[str, Any]] = [
         {
             "player_id": "actor",
+            "is_actor": True,
+            "private_state_visible": True,
             "seat": 0,
             "life": 40,
             "hand_count": 7,
@@ -129,6 +131,8 @@ def _actor_state(player_count: int) -> dict[str, Any]:
         players.append(
             {
                 "player_id": f"opponent-{seat}",
+                "is_actor": False,
+                "private_state_visible": False,
                 "seat": seat,
                 "life": 40,
                 "hand_count": 7,

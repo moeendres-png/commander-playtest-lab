@@ -5,7 +5,7 @@ import json
 import time
 from enum import StrEnum
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -14,6 +14,7 @@ from commander_lab.models import RulesDeckInput
 
 from .failure_privacy import redacted_exception_message
 from .full_game import (
+    FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     FullGameConformanceError,
     FullGameConformanceResult,
@@ -127,7 +128,8 @@ class FullGameBatchReport(_StrictModel):
 class XmageFullGameBatchRunner:
     """Correctness-first batch layer around the one-process/one-game runner.
 
-    A completed record is content-addressed by all scenario, deck, and pilot inputs.
+    A completed record is content-addressed by all scenario, deck, and pilot inputs
+    and by the execution identity (protocol, result schema, bridge artifact bytes).
     Re-running the same batch therefore reuses only byte-compatible completed work.
     Failed records are not silently treated as complete and are retried only when
     explicitly requested.
@@ -136,6 +138,35 @@ class XmageFullGameBatchRunner:
     def __init__(self, runner: XmageFullGameRunner, output_directory: str | Path) -> None:
         self.runner = runner
         self.output_directory = Path(output_directory)
+        self._execution_identity: dict[str, Any] | None = None
+
+    def execution_identity(self) -> dict[str, Any]:
+        """What executes a case beyond its own inputs (D2).
+
+        A completed record may be reused only by a run that would execute the
+        same bytes: the decision protocol, the result schema and the SHA-256 of
+        every bridge artifact file named by the runner's command. A rebuilt
+        bridge jar therefore invalidates earlier completed records instead of
+        silently lending them to a different build. Computed once per batch.
+        """
+        if self._execution_identity is None:
+            artifacts: dict[str, str] = {}
+            for token in getattr(self.runner, "command", None) or ():
+                path = Path(token)
+                if path.suffix in {".jar", ".py"} and path.is_file():
+                    digest = hashlib.sha256()
+                    with path.open("rb") as handle:
+                        for chunk in iter(lambda: handle.read(1 << 20), b""):
+                            digest.update(chunk)
+                    artifacts[path.name] = digest.hexdigest()
+            self._execution_identity = {
+                "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+                "result_schema_version": FullGameConformanceResult.model_fields[
+                    "schema_version"
+                ].default,
+                "bridge_artifacts": dict(sorted(artifacts.items())),
+            }
+        return self._execution_identity
 
     def run(
         self,
@@ -150,7 +181,11 @@ class XmageFullGameBatchRunner:
             run_key = self.run_key(case)
             path = self.output_directory / f"{run_key}.json"
             existing = self._read_record(path) if resume and path.exists() else None
-            if existing is not None and existing.case_id == case.case_id:
+            if (
+                existing is not None
+                and existing.case_id == case.case_id
+                and existing.run_key == run_key
+            ):
                 if existing.status == "completed":
                     records.append(
                         existing.model_copy(update={"resumed_from_completed_record": True})
@@ -208,10 +243,9 @@ class XmageFullGameBatchRunner:
             records=tuple(records),
         )
 
-    @staticmethod
-    def run_key(case: FullGameBatchCase) -> str:
+    def run_key(self, case: FullGameBatchCase) -> str:
         payload = json.dumps(
-            case.model_dump(mode="json"),
+            {"case": case.model_dump(mode="json"), "execution": self.execution_identity()},
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=True,
