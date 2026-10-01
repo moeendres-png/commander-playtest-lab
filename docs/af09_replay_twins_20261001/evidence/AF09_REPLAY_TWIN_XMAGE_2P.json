@@ -287,692 +287,692 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2514987,
+        "pid": 2514340,
         "role": "PROVIDER_PROBE",
-        "start_ticks": 48259411
+        "start_ticks": 48255496
       }
     },
     "checkpoint_state_hashes": {
-      "count": 128,
+      "count": 123,
       "embedded": "head_tail_sample",
       "entries": [
         {
           "event_offset": 0,
-          "public_state_digest": "2b58db0e9262fadb3e91e027789762f3180311347ef91b54eb2f364427448b27",
-          "rng_calls": 392,
+          "public_state_digest": "872f213a5614547175cdb5bd650fe8965dc659293831886004ef53d095872a03",
+          "rng_calls": 196,
           "scope": "initial",
-          "semantic_state_digest": "5fe598a613fc1f0b07226046d6c3b0dcf54bc9f9194cb63a4776b38f36db2e1d",
+          "semantic_state_digest": "5fd6b5bb01dbf64eb8c97fa4d32f2505159015067991f64425555b541db78827",
           "sequence": 0,
           "turn_number": 1
         },
         {
           "event_offset": 2,
-          "rng_calls": 392,
+          "rng_calls": 196,
           "scope": "post",
-          "semantic_state_digest": "271ef7587917d8f69f53ffd13d04e2e083de197d380b14a6bd666b1c34d55693",
+          "semantic_state_digest": "65f7095ad8131b01dc0d072b1546b04f8a2d1e749c82e246eedc62fcef8336c8",
           "sequence": 1
         },
         {
           "event_offset": 3,
-          "rng_calls": 392,
+          "rng_calls": 196,
           "scope": "post",
-          "semantic_state_digest": "9f8dfc40bd4b96c5d37de3df798d10afbc473f0edd17a637b6a9e3a162f0c493",
+          "semantic_state_digest": "96908dae185080e346ae3400fbf84303d046286a3e409af0e0ebf297442cfdff",
           "sequence": 2
         },
         {
           "event_offset": 4,
-          "rng_calls": 392,
+          "rng_calls": 294,
           "scope": "post",
-          "semantic_state_digest": "628fbcce595313b26c940948d7e226ca46f15b151b298c505d77de41f3e4f927",
+          "semantic_state_digest": "25fb211c7cccc2df340edd33aaea1d75a375285ce0b6a9b57f88e78241127178",
           "sequence": 3
         },
         {
           "event_offset": 5,
           "rng_calls": 392,
           "scope": "post",
-          "semantic_state_digest": "56416464fd14846a5b33905747d4f0ba3036e37ee99ba0e9392ff761d8164f98",
+          "semantic_state_digest": "d009b2fbc0cc41359d35a6bbc39dd3a6cb3809511ae99b646fba53105a320e4c",
           "sequence": 4
         },
         {
           "event_offset": 6,
-          "rng_calls": 784,
+          "rng_calls": 392,
           "scope": "post",
-          "semantic_state_digest": "ad0f96e7763144f501d2afd3d78a6ecf32c77469517f1de0e91fc7a90ad3b78b",
+          "semantic_state_digest": "ba159348fb0b1f20a76759d399d5eb7307f33b3df8ce17df07696df2ee6f26ab",
           "sequence": 5
         },
         {
           "event_offset": 7,
-          "rng_calls": 784,
+          "rng_calls": 392,
           "scope": "post",
-          "semantic_state_digest": "dfb6297167686f8599746d304482ab29118d1f497906c4df17270f0c9dc872a4",
+          "semantic_state_digest": "d71507a48ca586f3ae2055e21f1ea9f7e0f19a128ca4f84eb51ed2913e97c191",
           "sequence": 6
         },
         {
           "event_offset": 8,
-          "rng_calls": 784,
+          "rng_calls": 490,
           "scope": "post",
-          "semantic_state_digest": "f0f78a6d79089de990f138a0157e439d1f9160ea70ec340cc212463dad2b21bf",
+          "semantic_state_digest": "6cc76976eb894279eef9879e5234888c3695d21432fbf5ad7e6c33aaa704eb66",
           "sequence": 7
         },
         {
           "event_offset": 9,
-          "rng_calls": 784,
+          "rng_calls": 490,
           "scope": "post",
-          "semantic_state_digest": "034467d05a6ec6f740be20b342d7f2282d31d037e5af253e86bdad66923598bd",
+          "semantic_state_digest": "48f875adb5f16e5358f6830927261f575f36759a6e6a57bbaf25b544d6fe7273",
           "sequence": 8
         },
         {
           "event_offset": 10,
-          "rng_calls": 882,
+          "rng_calls": 588,
           "scope": "post",
-          "semantic_state_digest": "0985b7eb3a4b48e6fb7f45a16bf4d157493fea3a1757ec7691ca3d7023d72fb2",
+          "semantic_state_digest": "d2f426ce961d5e094f9ef4e7f993b72933e978450e20cde6958b443c47eeb5d8",
           "sequence": 9
         },
         {
           "event_offset": 11,
-          "rng_calls": 980,
+          "rng_calls": 588,
           "scope": "post",
-          "semantic_state_digest": "49e10ce3d124e419209e5badb9c38a6aae4b1e60bb4628b46481b59a4d825952",
+          "semantic_state_digest": "9eb218666cda38d6b9f55dd7e80726feec37e0a2134dba007b429b818c05c986",
           "sequence": 10
         },
         {
           "event_offset": 12,
-          "rng_calls": 1078,
+          "rng_calls": 588,
           "scope": "post",
-          "semantic_state_digest": "aa1109205fdf6e90db45e66799642a999c78d1e4d31811d16c41c9ba91d8a7b3",
+          "semantic_state_digest": "d3c1bd751f41aa4d0bf1b23e1a22e23d27256032fd95c65f37b6efc2c8dd109d",
           "sequence": 11
         },
         {
           "event_offset": 13,
-          "rng_calls": 1176,
+          "rng_calls": 588,
           "scope": "post",
-          "semantic_state_digest": "af21744388014d447fd8ee4424b3329741315168d5f008239139af51bb763cc1",
+          "semantic_state_digest": "add87a5782b1b7febc65191c8650d75036c5d8d6c75d11c4418c31292f2d92fc",
           "sequence": 12
         },
         {
           "event_offset": 14,
-          "rng_calls": 1176,
+          "rng_calls": 686,
           "scope": "post",
-          "semantic_state_digest": "b0c495e38724e98a47c264c0f5ccc9668a349308663be521855b782c6c368ab1",
+          "semantic_state_digest": "c5be2f156c6885b35e5b9a5a618381e505544b948f292293a53aa43e909ab688",
           "sequence": 13
         },
         {
           "event_offset": 15,
-          "rng_calls": 1176,
+          "rng_calls": 686,
           "scope": "post",
-          "semantic_state_digest": "473538e1b6a29cf791dc1757135d6f9d138185cec3447a09908682438e7d640d",
+          "semantic_state_digest": "7e5d4acdb6bab45117b9d12827ea37fe170f3d706956ff3987acb3dc84174f99",
           "sequence": 14
         },
         {
           "event_offset": 16,
-          "rng_calls": 1176,
+          "rng_calls": 686,
           "scope": "post",
-          "semantic_state_digest": "00665caa8be5e58fa65d535d77f0c9afc1687a703eba2da2fdfc3e5f28b5961b",
+          "semantic_state_digest": "2a4f59fd007dc549f9d340d42e2e49662fc626cd4b254c82aa1cf6f4f53cfd31",
           "sequence": 15
         },
         {
           "event_offset": 17,
-          "rng_calls": 1176,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "c2556dbcb0c639a579cd3f25b751c6cd9af9dc92e4b60c37a2eef5c7bc2dc299",
+          "semantic_state_digest": "56a627c78197bb98ee98c3e04ffcc69947db0dfdb997ce59148cc9a31e5a91d8",
           "sequence": 16
         },
         {
           "event_offset": 18,
-          "rng_calls": 1274,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "6b1609afc2ed1c04bf2ece4f5be562411fe2c36501647d8b896ee0f9627cabfc",
+          "semantic_state_digest": "893e9caeb499b24d27c2882d2a6d18d997e68fa013f4282de48c486a77311ba3",
           "sequence": 17
         },
         {
           "event_offset": 19,
-          "rng_calls": 1274,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "d7f0ac0d60cb5be31442e32b45f6d5fd04f016faabf50ebe5d38d6854a27bc89",
+          "semantic_state_digest": "735f8afb469592e4efff4520eb242427f79e10b1ced37c573c23f21bba1b7830",
           "sequence": 18
         },
         {
           "event_offset": 20,
-          "rng_calls": 1372,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "d3832c54cc371672b8abff780d68653d2e4864173c8a86fa4fd499edeae08324",
+          "semantic_state_digest": "b55b799d0b7e8b175f6268b8281f659e3cc74c88c97ea0ded7ac443aaaaa39f5",
           "sequence": 19
         },
         {
           "event_offset": 21,
-          "rng_calls": 1372,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "845ec53220f3dab1a83dbb1fddab1f4db6a1a3ac599baabaf12fd88b497f731f",
+          "semantic_state_digest": "cf172ede997cec3dba74bf7b81b13ca4f3a52d829f2a2c3fa9f14fe535de6947",
           "sequence": 20
         },
         {
           "event_offset": 22,
-          "rng_calls": 1470,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "1858d489392eaff08cd644639697c67ebbe549d7d2c3d604c8b2cb846ecc8897",
+          "semantic_state_digest": "7df4cf09cf2e58b9e300605d959859153ecc73bf60d82c1e1116db0a600676e0",
           "sequence": 21
         },
         {
           "event_offset": 23,
-          "rng_calls": 1470,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "93d024225753beda13f8048c9cc8e250d85697d680ed68f1261bdea9b6007a12",
+          "semantic_state_digest": "e4bee281020a958acd1ed6299039e844076134bfdfd5554c8e50abe3e32aa326",
           "sequence": 22
         },
         {
           "event_offset": 24,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "6b365191025e8bbb43b1a5a91a3e1f922f3563337979b1031f946728fdde885f",
+          "semantic_state_digest": "5630426461529187c8fa8ec5b13ed1c83db7d4148934232287a89fc63b838653",
           "sequence": 23
         },
         {
           "event_offset": 25,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "762f02d7189ea433c6abe7fd21ecf78fffa2ed407079e21b3d90ece029259fa0",
+          "semantic_state_digest": "cc9329099854706bdfdcad98bc053d96d962bc76fc7e375631309a8ef068abf2",
           "sequence": 24
         },
         {
           "event_offset": 26,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "3fc8ffec81013c44784ddc898b762dc657ad0d1a4e0adbd700ed2e355eeb68ff",
+          "semantic_state_digest": "2b742a547395d2ff992bafa80880e70e9117ede11148bc51fb6919827d8301d0",
           "sequence": 25
         },
         {
           "event_offset": 27,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "4c1f346cbd571fcd0a853ba6e66f9383ac285a8b9ea3148a438f8b0f1688b88c",
+          "semantic_state_digest": "1f28f5d95f4aa95a9a0bf4a0405405e29b3842e20f4b6b561f012292cf8ddd8a",
           "sequence": 26
         },
         {
           "event_offset": 28,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "2dbf6a1393650399ddce6af9241e41cc29ee6d5b89cb4cf3298be32a99799431",
+          "semantic_state_digest": "7814ae4ab9b578ef2ecde8cb8c813bcc545f282bb036141f7878994a3d306a1f",
           "sequence": 27
         },
         {
           "event_offset": 29,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "9e1f72b8e84ef4bf6538c7024294afd2cd49bacfbaeb1bda3260222ff35a8e30",
+          "semantic_state_digest": "c980ffbf91eeaf20c64fa7cf1dc9105c6d6549246710723aa12fa39194114589",
           "sequence": 28
         },
         {
           "event_offset": 30,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "dee6d348a8d0e87c15c16f40fa70019f7756c38dc86daf660f3134ac9d8c023d",
+          "semantic_state_digest": "dbe373a259575b5e5b193f3fe93af21add5d4bf6429699d500f6e06530cd4f30",
           "sequence": 29
         },
         {
           "event_offset": 31,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "10afa0ad441f50f1347dbb012c9903300a2556bfd520ca67ac5eae30d8e9a0d8",
+          "semantic_state_digest": "fd154a955e489114a9127d143c4144e33063b45a3010ba70b77dea86fc903400",
           "sequence": 30
         },
         {
           "event_offset": 32,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "68509a9504256aa9f4d802756a112f77aca8ef0e3c020b6cd4c08ed10e9c40f8",
+          "semantic_state_digest": "393707a4a3a526c539f3a44c0d87885e998600b65518b9a6b785ccf6f9d5c063",
           "sequence": 31
         },
         {
           "event_offset": 33,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "caf91fb56b578b8166f5b76386503de5a5df3aeb8c97628cd0275e52e0d64929",
+          "semantic_state_digest": "59604cd8bf786cc9bd80e3029e1a8454da71165035f34684fe54fe8537218639",
           "sequence": 32
         },
         {
           "event_offset": 34,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "3487dc7cfa1d69a5786bc3c55d465c452b9fff6cdc513278ea8653d74efa5610",
+          "semantic_state_digest": "7b2eef5761bce84de6b6e170884161092e1844e03bbc0843c591a2f2675bc29b",
           "sequence": 33
         },
         {
           "event_offset": 35,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "55c96d47f89f3f5ed21167b8ec33a493e07d8c2888ef5cff808748461229ea19",
+          "semantic_state_digest": "5b052e5d33a981a18d01dc5cb592b3b733f7e50ef78e5247468f8d9006edd2ec",
           "sequence": 34
         },
         {
           "event_offset": 36,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "13390e9f9e10887a1c2c1f6aefc9e308065701933931f45dadae4ed85c04e501",
+          "semantic_state_digest": "37895bfbcd6ba5a5017fdeceec58d3ad7340f37cd57636e8e0697a817ae4c293",
           "sequence": 35
         },
         {
           "event_offset": 37,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "db4d42760ec04be14ad446c0a4aefb18b31ded53c8570eda35aedc41927dc539",
+          "semantic_state_digest": "bbaeba0ac78f9bbbffb00648ae3c3d19899490c22aef70fbfce0b46bd32df6d8",
           "sequence": 36
         },
         {
           "event_offset": 38,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "77c4422946655170d01f91c2f7cac3c78bc47b759a4242e6f6e3e573aec2197d",
+          "semantic_state_digest": "7c4efee07310ad2fd2649af4dde1d34e27d3e4376b6926f707d3545ef945783b",
           "sequence": 37
         },
         {
           "event_offset": 39,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "87c0d0b2cb25314f8174d21ac8e7de10b389fd0282c1fcc1c2bf9824e1df4c9b",
+          "semantic_state_digest": "9f836ed9d94d10bc205d46914803c396de79191b0f3d4cf845b5fc6c514c8050",
           "sequence": 38
         },
         {
           "event_offset": 40,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "6fe6dafeacec3f1daa57f30e45e5c8940f92bba7dbccc898d5a0664ff4ff765a",
+          "semantic_state_digest": "78b6898df00c4affbdf2ccf3202eed54832b7afb244fc8823d55a9946e704612",
           "sequence": 39
         },
         {
           "event_offset": 41,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "7c3939d0fcffad34bbb9989af4ca3c8867a668f6ca105d34cd6d8384072dfd66",
+          "semantic_state_digest": "2157c6517cc8f16e1eae6c8aff7bebeeb8f08d8dbb3f64ce5fad89b87097e80f",
           "sequence": 40
         },
         {
           "event_offset": 42,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "6fb9ff6dae7f104446d0ce6ea86d8404d47e1e3a8349b54bb29aebc722d95472",
+          "semantic_state_digest": "1314e21a5e41cc031a2ef77cd9f97fd5f95688c6eb686e13cb6cd41a3b66aa6b",
           "sequence": 41
         },
         {
           "event_offset": 43,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "f82fa1d222e69c0c873c48aaa227df6de96cc7633958ef9e670c59a53aca1521",
+          "semantic_state_digest": "bc738e6074ab6cc40c64ce293e8c985a6ed1c4442de08399f4168011e27c0860",
           "sequence": 42
         },
         {
           "event_offset": 44,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "44ba09e5a7e2ce501597210dd5e9bab6f9789770c5ddd7369e7f83c3e5dc19d3",
+          "semantic_state_digest": "90de8d6cd5fb96656149ab4f0fa75bed7952e8941d09c8e6e0119a859642ae29",
           "sequence": 43
         },
         {
           "event_offset": 45,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "0a98d3799a504abd1cc9bd3b3e9b99f85ddabf62f39f956cd1a1683f007f435b",
+          "semantic_state_digest": "ab74e7a4048efd52513f21900cc78af744c374524cb6dac8b7cb858052559625",
           "sequence": 44
         },
         {
           "event_offset": 46,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "33e16cc17e7d2a3459cd9e4a14538337bb5f5438b468ba57a403a310d1f3e01a",
+          "semantic_state_digest": "8cfc998eca1fb6a49664bc7d7af466c6a45af1bdb0c685274820e6b7a38baaa5",
           "sequence": 45
         },
         {
           "event_offset": 47,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "447bc6ae6af443b7775daaed8108649b4225db5cce97531f33c458099d471659",
+          "semantic_state_digest": "3815e670398b1e8fa9a59d4d7d48a67907f415b14b8c21c7ecb831774533b0e2",
           "sequence": 46
         },
         {
           "event_offset": 48,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "b42abe8749c25fdd19b0b07dde3d64df93c4d14a17896877d4fed56c1c933383",
+          "semantic_state_digest": "46ea96ffd2dd031ef852a25fb9c1cef5befa71d9164cd3f5579b727c0c12bc47",
           "sequence": 47
         },
         {
-          "event_offset": 81,
-          "rng_calls": 1568,
+          "event_offset": 76,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "1973f756293dd3da9c26032e1f0914dfc21477e0528e7904df6cfb9a420a7bb6",
+          "semantic_state_digest": "7f6936e54946e9c5ab24e2ec6583fd17ff5d517357b02b937c573d978ffcd968",
+          "sequence": 75
+        },
+        {
+          "event_offset": 77,
+          "rng_calls": 784,
+          "scope": "post",
+          "semantic_state_digest": "f4024097b6901facaa6ac0506ea8f10169bc445b65d2e5a3939b8c947d5423a0",
+          "sequence": 76
+        },
+        {
+          "event_offset": 78,
+          "rng_calls": 784,
+          "scope": "post",
+          "semantic_state_digest": "8b464e0fa78d6f709a7074a39774379fdcdaea1dd12d66e35efc239c701ab6b6",
+          "sequence": 77
+        },
+        {
+          "event_offset": 79,
+          "rng_calls": 784,
+          "scope": "post",
+          "semantic_state_digest": "050411b86588844ac3f6be779ea2d7b54b9793784541362b359e78ec88539847",
+          "sequence": 78
+        },
+        {
+          "event_offset": 80,
+          "rng_calls": 784,
+          "scope": "post",
+          "semantic_state_digest": "24c73a9bc0298736abb4e00b1fe0e7af15e1df154ce640963b6ac08c3ffa0d41",
+          "sequence": 79
+        },
+        {
+          "event_offset": 81,
+          "rng_calls": 784,
+          "scope": "post",
+          "semantic_state_digest": "d5ff20dbd83db5ee21e26fd5b7448139061379f83952fbb900e251ca8b1f83ac",
           "sequence": 80
         },
         {
           "event_offset": 82,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "ae78121b5073ddb1b9bea084d6258ece06cdd0e91f5ebac4bc868728439f5593",
+          "semantic_state_digest": "c6ac6a4e56134ecc8c31669f4b01336f426145731d0cc32811bde1b901eea2eb",
           "sequence": 81
         },
         {
           "event_offset": 83,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "be96047a6ae119b1227aabe2168293ac53854c246cd750de90e113fe23a23d15",
+          "semantic_state_digest": "51d8dcd22b5113d031b2104fa7832ab664c0748e2231bfefcb52dfb5964a5197",
           "sequence": 82
         },
         {
           "event_offset": 84,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "5524add5a3bf4429d2ba525dc7a541cf06a86c6e96af73277fc36bf6e7e4849f",
+          "semantic_state_digest": "d041d7491fda1d75f8f1a26e247e06876512e8bbe0c124dbd0e8be8dcdddd123",
           "sequence": 83
         },
         {
           "event_offset": 85,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "eecf638c7ecc630a811c3dc6892ae00533c2ae904171a7d86168910dc90f0ff7",
+          "semantic_state_digest": "6e9d7a868727c2cc69cee998fa01223731d4daff03359c25ad7f4cffd9f1924b",
           "sequence": 84
         },
         {
           "event_offset": 86,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "b295059a925ae9fd054339e26a07756a88647acd792c82c2246b5d4ef4be4e7b",
+          "semantic_state_digest": "5013644b96fad928de2e28407a416b932ec59f3f64d3bfc1cfc6120933fb65ad",
           "sequence": 85
         },
         {
           "event_offset": 87,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "2d7972cda907d52d1ac1a44915fb886494c3d0cd3f7e075c6ea72de83de5d629",
+          "semantic_state_digest": "1e0d9807a69c87607bf892b9ce9f4333333777f59267882c17202e4baf0e4356",
           "sequence": 86
         },
         {
           "event_offset": 88,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "99b41c24324283d81f0ac2c8fb43ffc1928dfba31260cdafaa98232134a1a856",
+          "semantic_state_digest": "5b167a41ae0f091ec7fe564ba0c11f0a1c8de88d64ce38958188a2454f34409a",
           "sequence": 87
         },
         {
           "event_offset": 89,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "3cafddad86407bf84a12a4f988b0ff0e088f94e9cd7bb222e0d310f9c2b0b1f8",
+          "semantic_state_digest": "69679d0de7f81dfb68fc37aa6085268357425283c8ef942b64481e0228187e0a",
           "sequence": 88
         },
         {
           "event_offset": 90,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "50ee53d794cbbcf4e70b446e2a2a85a40b50d52cb408b5ccc97e980a885789e8",
+          "semantic_state_digest": "ccadb85dcc11fb5d4841669c86f3efe9ea2e9595c1a1181fa9d196c4d2973dd3",
           "sequence": 89
         },
         {
           "event_offset": 91,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "c756b04e16d6494cfd91ee59b3f1138470b41f89e67944ab48e9b88146c2e1f3",
+          "semantic_state_digest": "7658a29cf949c8de404739cf9b4d97061d06da699d0ed8b9dad2c83416024d8e",
           "sequence": 90
         },
         {
           "event_offset": 92,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "e5406de88ba6472e23e68c712f09f3164754c1dab2880256af57af26da3f0c8d",
+          "semantic_state_digest": "192ce4aa4ff5661ed0a1eed7a1fcf71305670510ef2c8822bd9ed82c5abf240f",
           "sequence": 91
         },
         {
           "event_offset": 93,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "c4ca74936df61a5a6a0e0231131093313085f170942f0ec04080a2b92a1ef85c",
+          "semantic_state_digest": "c057ee449fe3fde8086e331f4e1d4d25328c47bd0eb1017bc393a25bc5a803da",
           "sequence": 92
         },
         {
           "event_offset": 94,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "a4244d8a9134280562f9008730c5e78d2bf16951858bd815c1a08b3bb81b8950",
+          "semantic_state_digest": "1eed3470f478942faa67eff1236594d529fb2edbf1c080a6fe8b1d9a4632b7d6",
           "sequence": 93
         },
         {
           "event_offset": 95,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "11cc7674fed16ce545ec49d5a3eae65a009e10b9bd84417feb150830d93ee5e4",
+          "semantic_state_digest": "2e963b6bfc95d77632e678822ae7ab8770a8dc9b0bef18127f5cbc312252f05e",
           "sequence": 94
         },
         {
           "event_offset": 96,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "051c6a2d63e8dcf82f30ccc030340dcfd50aab5605df5c8a0f1783bb05bac4cb",
+          "semantic_state_digest": "1322a05201b112eed8166a9abcc0db97e62a29d1b5bb2d2f0a7983774271ed48",
           "sequence": 95
         },
         {
           "event_offset": 97,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "5767cee0aade503cf97d9f7524bca1a6358e20f43089932b710c8ee4120925d5",
+          "semantic_state_digest": "699cb02ec0b7c0089cf8e98590ff05c8b857b5fdec280749617b83916050d385",
           "sequence": 96
         },
         {
           "event_offset": 98,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "d87435ddaab7576cff2a94400052da69f392d9e8db63f1fe74e454bbebabe022",
+          "semantic_state_digest": "f1bf64dfed1fabbc8b69774fdb85032e13ebf58314af314e3344672eead24fab",
           "sequence": 97
         },
         {
           "event_offset": 99,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "c70fb3a95a4529f32fbdde94e08afc5de75ce12621471adde5fec2f4eed92c11",
+          "semantic_state_digest": "9c7ae3bca2ee06818c16884a63cb58a09d977c26ec85f8799aa530c2426eecd8",
           "sequence": 98
         },
         {
           "event_offset": 100,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "c0b5914cf96f1d9bf1b00ced830628a99b4fd72d456695aae40adf3d42e0a6bd",
+          "semantic_state_digest": "aaa66618e148c9f7c45ed7eaeb1d6de010b69cbda29f3e9d72c2941e00e261fc",
           "sequence": 99
         },
         {
           "event_offset": 101,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "2d3aed8003db11df85617e11b832ca40a2c360e2b51f704dbfa4f4a92d03e784",
+          "semantic_state_digest": "4e39ceb228c6ee14b7ed77c5179e8d37548628cd51a5356e6a036f4e285e17ee",
           "sequence": 100
         },
         {
           "event_offset": 102,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "16edae023ee5df278f2d2fe6a0f416adfe0ff58b3114ab4c0379e7f132b7a4c1",
+          "semantic_state_digest": "10cfb0ef4cb20c4b646839c264de44ba46f378bb36cc0a08453467813559f3fd",
           "sequence": 101
         },
         {
           "event_offset": 103,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "92005e9ed7cf4085585cae90f0c82ab678f577410725702ca3b774c2215c6c2f",
+          "semantic_state_digest": "e54339bc08e8b66c2257d0482ea10ef94bb7e6a7fc948bd6389a995be8556b1c",
           "sequence": 102
         },
         {
           "event_offset": 104,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "8dfe065c55ff2c40c66c0b671bc3884c5926398f32ff8dae6e95fe04bd97f1c2",
+          "semantic_state_digest": "7e3399bbc1c9804263663efe1ea63ffab55f3d8e74a1e925523f3bfbce34e6da",
           "sequence": 103
         },
         {
           "event_offset": 105,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "41bbea2034ddfece0c2b3736b92dde8237135b8466bee6b4c1e9eb48cf36bc74",
+          "semantic_state_digest": "72ab2345f8315a97f923977ba8338af0557243da26815ecd96b9e8c1af036add",
           "sequence": 104
         },
         {
           "event_offset": 106,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "0f1bdaff26d9c9b6128c188c27808b334779c73d62193001d35415db5abf261a",
+          "semantic_state_digest": "987ea0907c93e9771749edf52199414b03db91cab7799ab0bd27bb2d2e601138",
           "sequence": 105
         },
         {
           "event_offset": 107,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "6f147b7b42308aac99a82fc50a3ee8afbc8f87444a140e26f1a7a5d89a9420ca",
+          "semantic_state_digest": "d6963f46383c407afc606d52bc7ee769f7d1f970a81234df793ab2b61af3589f",
           "sequence": 106
         },
         {
           "event_offset": 108,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "650e623c9e3555e2d09cc8083c58aa028644dbf840d5b3d062b621dc522324b5",
+          "semantic_state_digest": "7d354ab28d5954aa30a70533c92e1fb5f5a81d3795f65923453424d413ee3f4d",
           "sequence": 107
         },
         {
           "event_offset": 109,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "c617d7e14f988b70dd3ddbcf30816cd24961ebf11b36875eb130492416b1513a",
+          "semantic_state_digest": "3628b44b7427786d4c142bd04217ba51e5b1618b3f474632f5d09c9f24a59808",
           "sequence": 108
         },
         {
           "event_offset": 110,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "bc71813b491fcbe47dada6e931ab18cfc0cb38b379c14435a00dc54839401be7",
+          "semantic_state_digest": "10b94332bc44f7c094f4f5dc7baa3b7487e5dda110701235c7ec0d392fda7c0f",
           "sequence": 109
         },
         {
           "event_offset": 111,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "18702eb6971d683c46e91e1c03dd58abc3b2b3c1faded2a45ccc4727e2293772",
+          "semantic_state_digest": "3a74c7ea5a3abd369afbe732e63e9c877f75cee16d669a20c493d5406d9dbeda",
           "sequence": 110
         },
         {
           "event_offset": 112,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "38b86c9e09a4601be7585c368c1fc3950bfab1708afef4ee28689325fb5d4b5a",
+          "semantic_state_digest": "7477ea1e34c4e729d75827ee607d505c6ecaa343971c06abc89bcc9257b04044",
           "sequence": 111
         },
         {
           "event_offset": 113,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "01c9536668d9129d4d374c2435792bef625463d8d05c83a20909574b05786ac6",
+          "semantic_state_digest": "cf925c121b0ac4949c48b3cc94d65940775cb2803efd8881a96a877371900d63",
           "sequence": 112
         },
         {
           "event_offset": 114,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "5022016f0ac95851a8f9f29ff818976ac3d6e634c3195f630a0fb90254c82922",
+          "semantic_state_digest": "4dcddd228e3287a5bc36d47705c28af7ce0c29f143a559d47160d8bef9d30cac",
           "sequence": 113
         },
         {
           "event_offset": 115,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "48df8dfc0ad21d3695206a2b1da65f81f6c1b8f13a614e8c39393d200c10b051",
+          "semantic_state_digest": "0c609487858e901a27afbe7b2625f74574259413e86a63a250e47aa56c669241",
           "sequence": 114
         },
         {
           "event_offset": 116,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "52be77e94fc2ac8c17e6862274598d17d6102f5e9028ebc81713e57a13603b17",
+          "semantic_state_digest": "7d3c9d07b6123e608ae44dee915cda13cf86437d7ac124d8b17cb79c6c111c8f",
           "sequence": 115
         },
         {
           "event_offset": 117,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "ba16f8bf51051632ff9cec0a7ade81ede7282c4a15cb519ebdbfb12e5f982101",
+          "semantic_state_digest": "34ad5a7c37c3f3d08fdc734029bbacd39abedc4691e1a7ca4e7f2bd0212bba00",
           "sequence": 116
         },
         {
           "event_offset": 118,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "642218d2f6bb0642fd4df6320b3a94d758fb10a18b17aa51d1d2ec3b225e1332",
+          "semantic_state_digest": "f1bd501fdfc58487165d15f962561bbb91d07c14f5856ecb61f38859b9141c16",
           "sequence": 117
         },
         {
           "event_offset": 119,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "511d6f9c2febfc4ffd36dc3133f679bdf458d90e9aeb67e5ac9920e65eef4d5c",
+          "semantic_state_digest": "f8eb808f1eecdf198ab864932aba4f917f9dc2d79c960950dd9c6a4125bb5e92",
           "sequence": 118
         },
         {
           "event_offset": 120,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "7815e9dfa27f392f239d6327179095c8ed618b3fbc359e17fdeee6b5b2c63604",
+          "semantic_state_digest": "a6aed2f5382e3c7745f8f7d48de85284495ded10c75d04268d6c88433d04426f",
           "sequence": 119
         },
         {
           "event_offset": 121,
-          "rng_calls": 1568,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "f4608a9eea64f4c20ff0aec553855c81e5bb2332e6de5290744f75492642db2b",
+          "semantic_state_digest": "10cead367eff0d9da81d9bb251262e3988f89f3d8de227d3b9785315b244bdbd",
           "sequence": 120
         },
         {
-          "event_offset": 122,
-          "rng_calls": 1568,
+          "event_offset": 784,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "da38d4f8e0cc04a4054d564d46454e00d9ee7864b562ebf49b66967ecd87c254",
+          "semantic_state_digest": null,
           "sequence": 121
         },
         {
-          "event_offset": 123,
-          "rng_calls": 1568,
+          "event_offset": 121,
+          "rng_calls": 784,
           "scope": "post",
-          "semantic_state_digest": "e0e3b72f2d9306262bb0da348acaa9cea9cc982de151b6ce8a24390492fd741c",
+          "semantic_state_digest": null,
           "sequence": 122
-        },
-        {
-          "event_offset": 124,
-          "rng_calls": 1568,
-          "scope": "post",
-          "semantic_state_digest": "fc25eaa329fe1148831a8aadc5877413d0cdf20d1ab150b4c21c8924e7c9af8d",
-          "sequence": 123
-        },
-        {
-          "event_offset": 1568,
-          "rng_calls": 1568,
-          "scope": "post",
-          "semantic_state_digest": null,
-          "sequence": 124
-        },
-        {
-          "event_offset": 1568,
-          "rng_calls": 1568,
-          "scope": "post",
-          "semantic_state_digest": null,
-          "sequence": 125
-        },
-        {
-          "event_offset": 1568,
-          "rng_calls": 1568,
-          "scope": "post",
-          "semantic_state_digest": null,
-          "sequence": 126
-        },
-        {
-          "event_offset": 124,
-          "rng_calls": 1568,
-          "scope": "post",
-          "semantic_state_digest": null,
-          "sequence": 127
         }
       ],
-      "omitted": 32,
-      "sha256": "bc9e2dbf385938309092c854fcbe40aee55a617cdbc524df1820128c575e5ebb"
+      "omitted": 27,
+      "sha256": "150fbd0815ad2bae411fb44bda4e5320cad7d614400053069486224b4305c62b"
     },
     "comparison": {
       "checks": [
@@ -1058,9 +1058,9 @@
           "check": "decisions",
           "detail": "the externally supplied decision tape must replay identically",
           "first_difference": null,
-          "left_count": 127,
+          "left_count": 122,
           "passed": true,
-          "right_count": 127
+          "right_count": 122
         },
         {
           "check": "semantic_events",
@@ -1071,9 +1071,9 @@
           "check": "checkpoint_state_hashes",
           "detail": "the ordered checkpoint chain must be identical",
           "first_difference": null,
-          "left_count": 128,
+          "left_count": 123,
           "passed": true,
-          "right_count": 128
+          "right_count": 123
         },
         {
           "check": "terminal_outcome",
@@ -1095,26 +1095,26 @@
       "verified": true
     },
     "decisions": {
-      "count": 127,
+      "count": 122,
       "embedded": "head_tail_sample",
       "entries": [
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "choose_object",
           "decision_revision": 1,
-          "legal_set_size": 4,
+          "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "8bd599e6e9babb31f39993bb35bf717061f28cbf53d1afa17cc31689d07181d9"
+            "54c0e40d7d87a72366abe5e1be242e7c11a627b64fa75cc8739659bd190f4b4c"
           ],
           "selected_labels": [
-            "Full Game Seat 1"
+            "Full Game Seat 2"
           ],
           "sequence": 1,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "mulligan",
           "decision_revision": 2,
           "legal_set_size": 2,
@@ -1129,7 +1129,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "mulligan",
           "decision_revision": 3,
           "legal_set_size": 2,
@@ -1144,37 +1144,37 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
+          "actor_principal": 2,
+          "decision_class": "target",
           "decision_revision": 4,
-          "legal_set_size": 2,
+          "legal_set_size": 7,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 4,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
+          "actor_principal": 1,
+          "decision_class": "target",
           "decision_revision": 5,
-          "legal_set_size": 2,
+          "legal_set_size": 7,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "30e3ec15af53b77d60e9576101a984f399a89fb196e5872001247b958f48fc51"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 5,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "mulligan",
           "decision_revision": 6,
           "legal_set_size": 2,
@@ -1189,7 +1189,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "mulligan",
           "decision_revision": 7,
           "legal_set_size": 2,
@@ -1204,31 +1204,31 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
+          "actor_principal": 2,
+          "decision_class": "target",
           "decision_revision": 8,
-          "legal_set_size": 2,
+          "legal_set_size": 7,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 8,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
+          "actor_principal": 2,
+          "decision_class": "target",
           "decision_revision": 9,
-          "legal_set_size": 2,
+          "legal_set_size": 6,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "1904fbf48a203757d6b55970b0ede749efc36df820f18b20b338b0d42c05c9a5"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 9,
           "step_kind": "decision"
@@ -1249,13 +1249,13 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "target",
           "decision_revision": 11,
-          "legal_set_size": 7,
+          "legal_set_size": 6,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
+            "ff2622a7fe0c18cb73a0750ae380dd323b26dcf20d75bbefcdaeb1d881f619c2"
           ],
           "selected_labels": [
             "Plains"
@@ -1264,39 +1264,9 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "target",
-          "decision_revision": 12,
-          "legal_set_size": 7,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "b25f15c5f29ecae3e24dd9f6a9a4a682e29cd3bcac2a0e98bf4feed929e74f68"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 12,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "target",
-          "decision_revision": 13,
-          "legal_set_size": 7,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "da6cdcc21989dd12b16b4460cf565f41ffb99f5bb45cadbf61f92739b83a0e0b"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 13,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "mulligan",
-          "decision_revision": 14,
+          "decision_revision": 12,
           "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
@@ -1304,51 +1274,81 @@
           ],
           "selected_labels": [
             "Take mulligan"
+          ],
+          "sequence": 12,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "decision_revision": 13,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 13,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "decision_revision": 14,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
+          ],
+          "selected_labels": [
+            "Plains"
           ],
           "sequence": 14,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "mulligan",
+          "decision_class": "target",
           "decision_revision": 15,
-          "legal_set_size": 2,
+          "legal_set_size": 6,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "1904fbf48a203757d6b55970b0ede749efc36df820f18b20b338b0d42c05c9a5"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 15,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
+          "actor_principal": 2,
+          "decision_class": "target",
           "decision_revision": 16,
-          "legal_set_size": 2,
+          "legal_set_size": 5,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "2bb208d7cc5d141d546c3717fbc75402d547e3d4f3d4c7de50feff2da61e18f0"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 16,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
+          "actor_principal": 1,
+          "decision_class": "target",
           "decision_revision": 17,
-          "legal_set_size": 2,
+          "legal_set_size": 7,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+            "30e3ec15af53b77d60e9576101a984f399a89fb196e5872001247b958f48fc51"
           ],
           "selected_labels": [
-            "Take mulligan"
+            "Plains"
           ],
           "sequence": 17,
           "step_kind": "decision"
@@ -1357,10 +1357,10 @@
           "actor_principal": 1,
           "decision_class": "target",
           "decision_revision": 18,
-          "legal_set_size": 7,
+          "legal_set_size": 6,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "30e3ec15af53b77d60e9576101a984f399a89fb196e5872001247b958f48fc51"
+            "ff2622a7fe0c18cb73a0750ae380dd323b26dcf20d75bbefcdaeb1d881f619c2"
           ],
           "selected_labels": [
             "Plains"
@@ -1372,10 +1372,10 @@
           "actor_principal": 1,
           "decision_class": "target",
           "decision_revision": 19,
-          "legal_set_size": 6,
+          "legal_set_size": 5,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "ff2622a7fe0c18cb73a0750ae380dd323b26dcf20d75bbefcdaeb1d881f619c2"
+            "8ee6e5bc301977b76ecdbb61857884dd220c6fcf16813c7e2f2638dfe6399644"
           ],
           "selected_labels": [
             "Plains"
@@ -1385,98 +1385,8 @@
         },
         {
           "actor_principal": 2,
-          "decision_class": "target",
-          "decision_revision": 20,
-          "legal_set_size": 7,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 20,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 2,
-          "decision_class": "target",
-          "decision_revision": 21,
-          "legal_set_size": 6,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "1904fbf48a203757d6b55970b0ede749efc36df820f18b20b338b0d42c05c9a5"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 21,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "target",
-          "decision_revision": 22,
-          "legal_set_size": 7,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "b25f15c5f29ecae3e24dd9f6a9a4a682e29cd3bcac2a0e98bf4feed929e74f68"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 22,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "target",
-          "decision_revision": 23,
-          "legal_set_size": 6,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "cad526dfb511cf4e30da027669e6710423f5b31d005b43c296b0c6399b0ce025"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 23,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "target",
-          "decision_revision": 24,
-          "legal_set_size": 7,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "da6cdcc21989dd12b16b4460cf565f41ffb99f5bb45cadbf61f92739b83a0e0b"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 24,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "target",
-          "decision_revision": 25,
-          "legal_set_size": 6,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "88e9d929789989135faa079dc12adf4e547c11475f97ec7bfac38d0812804e20"
-          ],
-          "selected_labels": [
-            "Plains"
-          ],
-          "sequence": 25,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 1,
           "decision_class": "mulligan",
-          "decision_revision": 26,
+          "decision_revision": 20,
           "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
@@ -1484,57 +1394,147 @@
           ],
           "selected_labels": [
             "Keep opening hand"
+          ],
+          "sequence": 20,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "decision_revision": 21,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+          ],
+          "selected_labels": [
+            "Keep opening hand"
+          ],
+          "sequence": 21,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 22,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 22,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 23,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 23,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 24,
+          "legal_set_size": 5,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "a7ca6c6ec4205577e40643bca26dc140f595f601f707ef82844c42978a06bbc5"
+          ],
+          "selected_labels": [
+            "Plains \u2014 Play Plains"
+          ],
+          "sequence": 24,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 25,
+          "legal_set_size": 3,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "afe6832537c11bf65157b318dafe5333a8d1b7b83cae25b7fcdd7305337ef32c"
+          ],
+          "selected_labels": [
+            "Plains \u2014 {T}: Add {W}."
+          ],
+          "sequence": 25,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 26,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "c43d7120930850eb357f6f569c2e90770dfa74ef372ef8baec02fa14cdad72b4"
+          ],
+          "selected_labels": [
+            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
           ],
           "sequence": 26,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "mulligan",
+          "decision_class": "mana_payment",
           "decision_revision": 27,
           "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+            "39577ed1ff09e0a7f8de6a1c43a371110e80c013c96071f818fd4eb077c457df"
           ],
           "selected_labels": [
-            "Keep opening hand"
+            "Spend white mana from pool"
           ],
           "sequence": 27,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
+          "actor_principal": 2,
+          "decision_class": "priority",
           "decision_revision": 28,
-          "legal_set_size": 2,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Keep opening hand"
+            "Pass priority"
           ],
           "sequence": 28,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
+          "actor_principal": 1,
+          "decision_class": "priority",
           "decision_revision": 29,
-          "legal_set_size": 2,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Keep opening hand"
+            "Pass priority"
           ],
           "sequence": 29,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 30,
           "legal_set_size": 1,
@@ -1549,7 +1549,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 31,
           "legal_set_size": 1,
@@ -1564,7 +1564,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 32,
           "legal_set_size": 1,
@@ -1579,7 +1579,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 33,
           "legal_set_size": 1,
@@ -1594,7 +1594,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 34,
           "legal_set_size": 1,
@@ -1609,7 +1609,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 35,
           "legal_set_size": 1,
@@ -1624,7 +1624,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 36,
           "legal_set_size": 1,
@@ -1639,7 +1639,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 37,
           "legal_set_size": 1,
@@ -1654,16 +1654,16 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 38,
-          "legal_set_size": 7,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "4ffcc1749219f5f0d3940f821d42f1588ad30d935c77053a1152be602bd166a8"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Plains \u2014 Play Plains"
+            "Pass priority"
           ],
           "sequence": 38,
           "step_kind": "decision"
@@ -1672,43 +1672,43 @@
           "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 39,
-          "legal_set_size": 3,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "782b2f373e650228927d60161b65aae4c5f5889d56da033ed2769a9da4304bbc"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Plains \u2014 {T}: Add {W}."
+            "Pass priority"
           ],
           "sequence": 39,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 40,
-          "legal_set_size": 2,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "13b2c07cb2d3b5334e57c104bceae473906a2ec08e3c5fb8ce295c2fdb5f020a"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
+            "Pass priority"
           ],
           "sequence": 40,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
-          "decision_class": "mana_payment",
+          "decision_class": "priority",
           "decision_revision": 41,
-          "legal_set_size": 2,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "39577ed1ff09e0a7f8de6a1c43a371110e80c013c96071f818fd4eb077c457df"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Spend white mana from pool"
+            "Pass priority"
           ],
           "sequence": 41,
           "step_kind": "decision"
@@ -1744,7 +1744,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 44,
           "legal_set_size": 1,
@@ -1759,7 +1759,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 45,
           "legal_set_size": 1,
@@ -1777,81 +1777,66 @@
           "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 46,
-          "legal_set_size": 1,
+          "legal_set_size": 6,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "61d647233a2b0eedead15b3f66e056b6b00a89f7445ce8c1593d9a34126acc89"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 Play Plains"
           ],
           "sequence": 46,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 47,
-          "legal_set_size": 1,
+          "legal_set_size": 3,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "782b2f373e650228927d60161b65aae4c5f5889d56da033ed2769a9da4304bbc"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 {T}: Add {W}."
           ],
           "sequence": 47,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 48,
-          "legal_set_size": 1,
+          "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "13b2c07cb2d3b5334e57c104bceae473906a2ec08e3c5fb8ce295c2fdb5f020a"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
           ],
           "sequence": 48,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "priority",
-          "decision_revision": 80,
+          "decision_class": "declare_attacker",
+          "decision_revision": 75,
           "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "c43d7120930850eb357f6f569c2e90770dfa74ef372ef8baec02fa14cdad72b4"
+            "345a0122214b32429cbbdb7037ddf5cfe0a02bf3867f37c64d63c002ecb578d0"
           ],
           "selected_labels": [
-            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
+            "Isamaru, Hound of Konda attacks Full Game Seat 1"
           ],
-          "sequence": 80,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 2,
-          "decision_class": "mana_payment",
-          "decision_revision": 81,
-          "legal_set_size": 2,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "39577ed1ff09e0a7f8de6a1c43a371110e80c013c96071f818fd4eb077c457df"
-          ],
-          "selected_labels": [
-            "Spend white mana from pool"
-          ],
-          "sequence": 81,
+          "sequence": 75,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "priority",
-          "decision_revision": 82,
+          "decision_revision": 76,
           "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
@@ -1860,11 +1845,101 @@
           "selected_labels": [
             "Pass priority"
           ],
+          "sequence": 76,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 77,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 77,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "declare_blocker",
+          "decision_revision": 78,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "778af85459da8a5b3dbfa1195c05dbe1451e8f55aefe0c8e78ffc0315578d30c"
+          ],
+          "selected_labels": [
+            "Isamaru, Hound of Konda blocks Isamaru, Hound of Konda"
+          ],
+          "sequence": 78,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 79,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 79,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 80,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 80,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "choose_use",
+          "decision_revision": 81,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "687b0e01e43e29d772add2f0de795ad88c96df1f56f3a4bee8d46a3cf2e1d2e1"
+          ],
+          "selected_labels": [
+            "Move to command"
+          ],
+          "sequence": 81,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "choose_use",
+          "decision_revision": 82,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "687b0e01e43e29d772add2f0de795ad88c96df1f56f3a4bee8d46a3cf2e1d2e1"
+          ],
+          "selected_labels": [
+            "Move to command"
+          ],
           "sequence": 82,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 83,
           "legal_set_size": 1,
@@ -1879,7 +1954,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 84,
           "legal_set_size": 1,
@@ -1894,7 +1969,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 85,
           "legal_set_size": 1,
@@ -1909,7 +1984,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 86,
           "legal_set_size": 1,
@@ -1924,7 +1999,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 87,
           "legal_set_size": 1,
@@ -1939,7 +2014,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 88,
           "legal_set_size": 1,
@@ -1954,7 +2029,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 89,
           "legal_set_size": 1,
@@ -1969,7 +2044,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 90,
           "legal_set_size": 1,
@@ -1984,22 +2059,22 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 91,
-          "legal_set_size": 1,
+          "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "782b2f373e650228927d60161b65aae4c5f5889d56da033ed2769a9da4304bbc"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 {T}: Add {W}."
           ],
           "sequence": 91,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 92,
           "legal_set_size": 1,
@@ -2014,7 +2089,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 93,
           "legal_set_size": 1,
@@ -2029,7 +2104,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 94,
           "legal_set_size": 1,
@@ -2044,7 +2119,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 95,
           "legal_set_size": 1,
@@ -2059,16 +2134,16 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 96,
-          "legal_set_size": 1,
+          "legal_set_size": 6,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "61d647233a2b0eedead15b3f66e056b6b00a89f7445ce8c1593d9a34126acc89"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 Play Plains"
           ],
           "sequence": 96,
           "step_kind": "decision"
@@ -2077,19 +2152,19 @@
           "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 97,
-          "legal_set_size": 1,
+          "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "782b2f373e650228927d60161b65aae4c5f5889d56da033ed2769a9da4304bbc"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 {T}: Add {W}."
           ],
           "sequence": 97,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 98,
           "legal_set_size": 1,
@@ -2104,7 +2179,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 99,
           "legal_set_size": 1,
@@ -2119,7 +2194,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 100,
           "legal_set_size": 1,
@@ -2134,7 +2209,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 101,
           "legal_set_size": 1,
@@ -2149,7 +2224,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 102,
           "legal_set_size": 1,
@@ -2164,7 +2239,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 103,
           "legal_set_size": 1,
@@ -2179,7 +2254,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 104,
           "legal_set_size": 1,
@@ -2194,7 +2269,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 105,
           "legal_set_size": 1,
@@ -2209,7 +2284,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 106,
           "legal_set_size": 1,
@@ -2224,7 +2299,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 107,
           "legal_set_size": 1,
@@ -2239,7 +2314,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 108,
           "legal_set_size": 1,
@@ -2254,7 +2329,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 109,
           "legal_set_size": 1,
@@ -2269,37 +2344,37 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 110,
-          "legal_set_size": 1,
+          "legal_set_size": 3,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "afe6832537c11bf65157b318dafe5333a8d1b7b83cae25b7fcdd7305337ef32c"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 {T}: Add {W}."
           ],
           "sequence": 110,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 111,
-          "legal_set_size": 1,
+          "legal_set_size": 2,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "afe6832537c11bf65157b318dafe5333a8d1b7b83cae25b7fcdd7305337ef32c"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 {T}: Add {W}."
           ],
           "sequence": 111,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 112,
           "legal_set_size": 1,
@@ -2314,7 +2389,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 113,
           "legal_set_size": 1,
@@ -2329,7 +2404,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 114,
           "legal_set_size": 1,
@@ -2344,7 +2419,7 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 115,
           "legal_set_size": 1,
@@ -2359,16 +2434,16 @@
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 116,
-          "legal_set_size": 1,
+          "legal_set_size": 5,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+            "a7ca6c6ec4205577e40643bca26dc140f595f601f707ef82844c42978a06bbc5"
           ],
           "selected_labels": [
-            "Pass priority"
+            "Plains \u2014 Play Plains"
           ],
           "sequence": 116,
           "step_kind": "decision"
@@ -2377,6 +2452,21 @@
           "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 117,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "afe6832537c11bf65157b318dafe5333a8d1b7b83cae25b7fcdd7305337ef32c"
+          ],
+          "selected_labels": [
+            "Plains \u2014 {T}: Add {W}."
+          ],
+          "sequence": 117,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 118,
           "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
@@ -2385,73 +2475,56 @@
           "selected_labels": [
             "Pass priority"
           ],
-          "sequence": 117,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "priority",
-          "decision_revision": 118,
-          "legal_set_size": 7,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "cedb723fc44272e179f45aa25737a9eb6d4157800b1a7ba8a27a794c5687f0fd"
-          ],
-          "selected_labels": [
-            "Plains \u2014 Play Plains"
-          ],
           "sequence": 118,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
           "decision_revision": 119,
-          "legal_set_size": 3,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "d8dfb051f1b6796dd6cdeefa7b79dc04360e7c19a5bbe9aba042e80deef7763e"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Plains \u2014 {T}: Add {W}."
+            "Pass priority"
           ],
           "sequence": 119,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
           "decision_revision": 120,
-          "legal_set_size": 2,
+          "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
-            "d3cfae7f3e41d0be44bfb6238b16d1368705f6bc50e5c8d06a2d759202f346dd"
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
           ],
           "selected_labels": [
-            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
+            "Pass priority"
           ],
           "sequence": 120,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mana_payment",
+          "actor_principal": 2,
+          "decision_class": "concede",
           "decision_revision": 121,
-          "legal_set_size": 2,
+          "legal_set_size": 1,
           "numeric_choice": null,
-          "selected_fingerprints": [
-            "39577ed1ff09e0a7f8de6a1c43a371110e80c013c96071f818fd4eb077c457df"
-          ],
+          "selected_fingerprints": [],
           "selected_labels": [
-            "Spend white mana from pool"
+            "concede seat 2"
           ],
           "sequence": 121,
-          "step_kind": "decision"
+          "step_kind": "lifecycle_concede"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "decision_revision": 122,
+          "decision_revision": 121,
           "legal_set_size": 1,
           "numeric_choice": null,
           "selected_fingerprints": [
@@ -2462,79 +2535,10 @@
           ],
           "sequence": 122,
           "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "priority",
-          "decision_revision": 123,
-          "legal_set_size": 1,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
-          ],
-          "selected_labels": [
-            "Pass priority"
-          ],
-          "sequence": 123,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 2,
-          "decision_class": "concede",
-          "decision_revision": 124,
-          "legal_set_size": 1,
-          "numeric_choice": null,
-          "selected_fingerprints": [],
-          "selected_labels": [
-            "concede seat 2"
-          ],
-          "sequence": 124,
-          "step_kind": "lifecycle_concede"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "concede",
-          "decision_revision": 124,
-          "legal_set_size": 1,
-          "numeric_choice": null,
-          "selected_fingerprints": [],
-          "selected_labels": [
-            "concede seat 3"
-          ],
-          "sequence": 125,
-          "step_kind": "lifecycle_concede"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "concede",
-          "decision_revision": 124,
-          "legal_set_size": 1,
-          "numeric_choice": null,
-          "selected_fingerprints": [],
-          "selected_labels": [
-            "concede seat 4"
-          ],
-          "sequence": 126,
-          "step_kind": "lifecycle_concede"
-        },
-        {
-          "actor_principal": 1,
-          "decision_class": "priority",
-          "decision_revision": 124,
-          "legal_set_size": 1,
-          "numeric_choice": null,
-          "selected_fingerprints": [
-            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
-          ],
-          "selected_labels": [
-            "Pass priority"
-          ],
-          "sequence": 127,
-          "step_kind": "decision"
         }
       ],
-      "omitted": 31,
-      "sha256": "7ae04dc32d473b1df637d93a741f5c2eace8b19d10d10628c3a890f0f783966d"
+      "omitted": 26,
+      "sha256": "b8de3006cb43db1de591f43bb669ca8f2c5b0031003ff818690cfc3ab09b89dd"
     },
     "evidence_class": "CLEAN_PROCESS_SEMANTIC_REPLAY_TWIN",
     "fixture_identity": {
@@ -2542,16 +2546,15 @@
       "commander_identities": [
         "Isamaru, Hound of Konda"
       ],
-      "fixture_id": "technical-isamaru-full-game-4p-v1",
-      "player_count": 4,
-      "rules_seed": 20260824,
+      "fixture_id": "technical-isamaru-full-game-2p-v1",
+      "player_count": 2,
+      "rules_seed": 20260825,
       "tape_schema_version": "semantic-replay-tape/1.0.0"
     },
     "fresh_process_engine_check": {
-      "detail": "127 steps re-derived in a fresh process",
-      "pass": true,
-      "steps_verified": 127,
-      "tape_id": "ff3449dee92ff53f5bcdaf2e73d53c25243e899a8f5914e8b04ff1fe3ae26d9a"
+      "detail": "fresh-process replay diverged: CHOSEN_OPTION_AMBIGUOUS: step 110: recorded choice matches 2 native options",
+      "divergence_class": "CHOSEN_OPTION_AMBIGUOUS",
+      "pass": false
     },
     "lab_source": {
       "clean": true,
@@ -2576,9 +2579,9 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515022,
+        "pid": 2514375,
         "role": "RECORD_FIRST",
-        "start_ticks": 48259429
+        "start_ticks": 48255514
       },
       {
         "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
@@ -2594,9 +2597,9 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515139,
+        "pid": 2514479,
         "role": "RECORD_SECOND",
-        "start_ticks": 48260101
+        "start_ticks": 48256133
       },
       {
         "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
@@ -2612,1730 +2615,1704 @@
         "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
         "observation": "wrapper-captured before exec",
         "observed": true,
-        "pid": 2515225,
+        "pid": 2514567,
         "role": "REPLAY_CONSUMER",
-        "start_ticks": 48260757
+        "start_ticks": 48256738
       }
     ],
     "rules_rng": {
-      "acknowledged_seed": 20260824,
+      "acknowledged_seed": 20260825,
       "classification": "ACKNOWLEDGED_ENGINE_SEED",
       "controlled": true,
-      "requested_seed": 20260824,
+      "requested_seed": 20260825,
       "require_explicit_seed": true,
       "rng_call_coordinates": [
         {
-          "after": 392,
-          "before": 392,
+          "after": 196,
+          "before": 196,
           "sequence": 1
         },
         {
-          "after": 392,
-          "before": 392,
+          "after": 196,
+          "before": 196,
           "sequence": 2
         },
         {
-          "after": 392,
-          "before": 392,
+          "after": 294,
+          "before": 196,
           "sequence": 3
         },
         {
           "after": 392,
-          "before": 392,
+          "before": 294,
           "sequence": 4
         },
         {
-          "after": 784,
+          "after": 392,
           "before": 392,
           "sequence": 5
         },
         {
-          "after": 784,
-          "before": 784,
+          "after": 392,
+          "before": 392,
           "sequence": 6
         },
         {
-          "after": 784,
-          "before": 784,
+          "after": 490,
+          "before": 392,
           "sequence": 7
         },
         {
-          "after": 784,
-          "before": 784,
+          "after": 490,
+          "before": 490,
           "sequence": 8
         },
         {
-          "after": 882,
-          "before": 784,
+          "after": 588,
+          "before": 490,
           "sequence": 9
         },
         {
-          "after": 980,
-          "before": 882,
+          "after": 588,
+          "before": 588,
           "sequence": 10
         },
         {
-          "after": 1078,
-          "before": 980,
+          "after": 588,
+          "before": 588,
           "sequence": 11
         },
         {
-          "after": 1176,
-          "before": 1078,
+          "after": 588,
+          "before": 588,
           "sequence": 12
         },
         {
-          "after": 1176,
-          "before": 1176,
+          "after": 686,
+          "before": 588,
           "sequence": 13
         },
         {
-          "after": 1176,
-          "before": 1176,
+          "after": 686,
+          "before": 686,
           "sequence": 14
         },
         {
-          "after": 1176,
-          "before": 1176,
+          "after": 686,
+          "before": 686,
           "sequence": 15
         },
         {
-          "after": 1176,
-          "before": 1176,
+          "after": 784,
+          "before": 686,
           "sequence": 16
         },
         {
-          "after": 1274,
-          "before": 1176,
+          "after": 784,
+          "before": 784,
           "sequence": 17
         },
         {
-          "after": 1274,
-          "before": 1274,
+          "after": 784,
+          "before": 784,
           "sequence": 18
         },
         {
-          "after": 1372,
-          "before": 1274,
+          "after": 784,
+          "before": 784,
           "sequence": 19
         },
         {
-          "after": 1372,
-          "before": 1372,
+          "after": 784,
+          "before": 784,
           "sequence": 20
         },
         {
-          "after": 1470,
-          "before": 1372,
+          "after": 784,
+          "before": 784,
           "sequence": 21
         },
         {
-          "after": 1470,
-          "before": 1470,
+          "after": 784,
+          "before": 784,
           "sequence": 22
         },
         {
-          "after": 1568,
-          "before": 1470,
+          "after": 784,
+          "before": 784,
           "sequence": 23
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 24
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 25
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 26
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 27
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 28
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 29
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 30
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 31
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 32
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 33
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 34
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 35
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 36
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 37
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 38
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 39
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 40
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 41
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 42
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 43
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 44
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 45
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 46
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 47
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 48
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 49
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 50
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 51
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 52
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 53
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 54
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 55
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 56
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 57
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 58
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 59
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 60
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 61
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 62
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 63
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 64
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 65
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 66
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 67
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 68
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 69
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 70
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 71
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 72
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 73
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 74
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 75
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 76
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 77
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 78
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 79
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 80
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 81
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 82
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 83
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 84
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 85
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 86
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 87
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 88
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 89
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 90
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 91
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 92
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 93
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 94
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 95
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 96
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 97
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 98
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 99
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 100
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 101
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 102
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 103
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 104
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 105
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 106
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 107
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 108
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 109
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 110
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 111
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 112
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 113
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 114
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 115
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 116
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 117
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 118
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 119
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 120
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 121
         },
         {
-          "after": 1568,
-          "before": 1568,
+          "after": 784,
+          "before": 784,
           "sequence": 122
-        },
-        {
-          "after": 1568,
-          "before": 1568,
-          "sequence": 123
-        },
-        {
-          "after": 1568,
-          "before": 1568,
-          "sequence": 124
-        },
-        {
-          "after": 1568,
-          "before": 1568,
-          "sequence": 125
-        },
-        {
-          "after": 1568,
-          "before": 1568,
-          "sequence": 126
-        },
-        {
-          "after": 1568,
-          "before": 1568,
-          "sequence": 127
         }
       ],
       "rng_credit": true,
-      "root_rules_seed": 20260824
+      "root_rules_seed": 20260825
     },
     "schema_version": "commander-lab.af09-replay-twin/1.0.0",
     "semantic_events": {
-      "count": 127,
+      "count": 122,
       "embedded": "head_tail_sample",
       "entries": [
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "choose_object",
-          "event_digest": "4ab2359f2dcb31df5cca14a33db8abd458fb330a93ba735dbbb9326883e0a5f1",
+          "event_digest": "54355b4e59f664697f2eca4fc91e7a01840d461c42ca1749eaf2bde01815516a",
           "event_offset_after": 2,
           "event_offset_before": 1,
-          "rng_calls_after": 392,
-          "rng_calls_before": 392,
+          "rng_calls_after": 196,
+          "rng_calls_before": 196,
           "sequence": 1,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 1,
-          "decision_class": "mulligan",
-          "event_digest": "8932849e51fcbf367c71116def04698a820edb95a5acd47464f71c300f977e5f",
-          "event_offset_after": 3,
-          "event_offset_before": 2,
-          "rng_calls_after": 392,
-          "rng_calls_before": 392,
-          "sequence": 2,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "mulligan",
-          "event_digest": "1067f553741209e0e9ec0ecb6a56baa260a689037777633197b078e25dce9947",
+          "event_digest": "7adf3db9df2097c352b19b4f3af1aa9ffc116f3921a84a28848ad5f59dbe27a5",
+          "event_offset_after": 3,
+          "event_offset_before": 2,
+          "rng_calls_after": 196,
+          "rng_calls_before": 196,
+          "sequence": 2,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "event_digest": "b6e6c4fde43db6316bc44f06c93bc7eff1b97c42bd24fda7c71ccf73917a3bfc",
           "event_offset_after": 4,
           "event_offset_before": 3,
-          "rng_calls_after": 392,
-          "rng_calls_before": 392,
+          "rng_calls_after": 294,
+          "rng_calls_before": 196,
           "sequence": 3,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
-          "event_digest": "7796876cb5d83ee1793d71484d446ddf197b48fccb2bf70f99140f191285eb15",
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "4508bbc09ce4c0230282fc664c9ecff3cad90ed51f426680899c1c119d9e19e8",
           "event_offset_after": 5,
           "event_offset_before": 4,
           "rng_calls_after": 392,
-          "rng_calls_before": 392,
+          "rng_calls_before": 294,
           "sequence": 4,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
-          "event_digest": "b4fa0bd424042eda6e79ffcf788f42cfd97cef19531471c71901fc4b0014f10d",
+          "actor_principal": 1,
+          "decision_class": "target",
+          "event_digest": "f1f1c7750e0dacdafff3ba752ba0d0e84bb0401f6aacfbf9587d85b4137a81b6",
           "event_offset_after": 6,
           "event_offset_before": 5,
-          "rng_calls_after": 784,
+          "rng_calls_after": 392,
           "rng_calls_before": 392,
           "sequence": 5,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "mulligan",
-          "event_digest": "2faff0a7d8f013ba60dcab92d6088597a63c0d5f5a1b7626abd002896d9c5938",
+          "event_digest": "7aef42eee10d1def78b15eed84a6a97e313fa04096a7571becf8aec07d528864",
           "event_offset_after": 7,
           "event_offset_before": 6,
-          "rng_calls_after": 784,
-          "rng_calls_before": 784,
+          "rng_calls_after": 392,
+          "rng_calls_before": 392,
           "sequence": 6,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "mulligan",
-          "event_digest": "ef0abdd358cc18a1c4dd09beaa8297f054aee0d905c80721677418b487474811",
+          "event_digest": "0fee6b12758578da9f5c710bae3fbeddca07f0bf1e6cd23d65f72445dde811a6",
           "event_offset_after": 8,
           "event_offset_before": 7,
-          "rng_calls_after": 784,
-          "rng_calls_before": 784,
+          "rng_calls_after": 490,
+          "rng_calls_before": 392,
           "sequence": 7,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
-          "event_digest": "719c3c6b45d2822aadeb9b27ae5869b722dc4d432af4d8c5524ac4da285c9855",
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "a5241e2e5a16517b56616fea279c1098bd24b6a079fa9c27439b90283ce0ed05",
           "event_offset_after": 9,
           "event_offset_before": 8,
-          "rng_calls_after": 784,
-          "rng_calls_before": 784,
+          "rng_calls_after": 490,
+          "rng_calls_before": 490,
           "sequence": 8,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
-          "event_digest": "66ef2297dcdb63a66112bddbb12fcef4275f31db3fef7bc7548dc11ace54acc0",
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "5ec0b18d706068e1dab05ed51a684072206fcb6d14db404d47903abe59090dc2",
           "event_offset_after": 10,
           "event_offset_before": 9,
-          "rng_calls_after": 882,
-          "rng_calls_before": 784,
+          "rng_calls_after": 588,
+          "rng_calls_before": 490,
           "sequence": 9,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "target",
-          "event_digest": "2c7c09193d3d841aece72816f36bbd46d7c4308e0587747d784eb05f01918268",
+          "event_digest": "345b4340eba4bd4bb40556335523e63f51fe47e6f32737c052d03493d3ce76d8",
           "event_offset_after": 11,
           "event_offset_before": 10,
-          "rng_calls_after": 980,
-          "rng_calls_before": 882,
+          "rng_calls_after": 588,
+          "rng_calls_before": 588,
           "sequence": 10,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "target",
-          "event_digest": "46f08dbb6fc6e8478087ca184cf84df0e59a3fadd136f108906ee4d0902c561c",
+          "event_digest": "70d384717777eb16cf0b15e73375d5cc0cbbb1d8320bb7b9edcd753afd209559",
           "event_offset_after": 12,
           "event_offset_before": 11,
-          "rng_calls_after": 1078,
-          "rng_calls_before": 980,
+          "rng_calls_after": 588,
+          "rng_calls_before": 588,
           "sequence": 11,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "target",
-          "event_digest": "80868e75eb2a72734662a166024651041be2d454bbd9951435759fb5c58548e0",
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "event_digest": "e59298fad46873a71b7fd28291017571301e14d6c5e8b7aff36e6abd83fc3b6b",
           "event_offset_after": 13,
           "event_offset_before": 12,
-          "rng_calls_after": 1176,
-          "rng_calls_before": 1078,
+          "rng_calls_after": 588,
+          "rng_calls_before": 588,
           "sequence": 12,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "target",
-          "event_digest": "26a7223b8641599d0e082e984036a161e8b5b1726b5f2f31fa3eca4b536edc24",
-          "event_offset_after": 14,
-          "event_offset_before": 13,
-          "rng_calls_after": 1176,
-          "rng_calls_before": 1176,
-          "sequence": 13,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "mulligan",
-          "event_digest": "59550fa5f5eeffefbe2bcdf2c4562e485cbeb267003b7c50941055f32450b32a",
+          "event_digest": "1520c96b32a1687cde4e8791cb90eae7ffdf447ab6582ea41fd926c09da3a792",
+          "event_offset_after": 14,
+          "event_offset_before": 13,
+          "rng_calls_after": 686,
+          "rng_calls_before": 588,
+          "sequence": 13,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "1f85b8e1749593ba0eabf0e59dfe9cc1091b77736ce09db8a04b9c4337a1ccb8",
           "event_offset_after": 15,
           "event_offset_before": 14,
-          "rng_calls_after": 1176,
-          "rng_calls_before": 1176,
+          "rng_calls_after": 686,
+          "rng_calls_before": 686,
           "sequence": 14,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "mulligan",
-          "event_digest": "b44233dfd912f69da2c6c17afc9f9032eb98e8db2fe2f7b60c1c14de33238665",
+          "decision_class": "target",
+          "event_digest": "320ca7c979d7be77219eb8976b68a89bf0639b4aa1e4e63e0d1b4565d9d98f7f",
           "event_offset_after": 16,
           "event_offset_before": 15,
-          "rng_calls_after": 1176,
-          "rng_calls_before": 1176,
+          "rng_calls_after": 686,
+          "rng_calls_before": 686,
           "sequence": 15,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
-          "event_digest": "89bf558aafc41d5ceb3388baa45908e44e4fcd92501d3927820587c02437e3b7",
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "9a965025ed4a790220213d720d70e353a46243b48c3146b873d9b88c17d3867b",
           "event_offset_after": 17,
           "event_offset_before": 16,
-          "rng_calls_after": 1176,
-          "rng_calls_before": 1176,
+          "rng_calls_after": 784,
+          "rng_calls_before": 686,
           "sequence": 16,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
-          "event_digest": "6849e26e36e1a01dd9ab7a230b1abea1c59e7c7a47fde47495d30fffe49ff9e6",
+          "actor_principal": 1,
+          "decision_class": "target",
+          "event_digest": "67a2368fdd3215c7c58b8100a6d0d46378263488b622f7b1f9a4a674ebce0bb9",
           "event_offset_after": 18,
           "event_offset_before": 17,
-          "rng_calls_after": 1274,
-          "rng_calls_before": 1176,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 17,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "target",
-          "event_digest": "859d3d421b4912e91a7a472dd15d2b9a3335690e4195134f3e32060fecc22dc8",
+          "event_digest": "b438a9d2059651de1e1a03cb0802d278728726594d066d4d06f13838a53f9c46",
           "event_offset_after": 19,
           "event_offset_before": 18,
-          "rng_calls_after": 1274,
-          "rng_calls_before": 1274,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 18,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "target",
-          "event_digest": "63b81010da1ba74158e4f303bad61840f3512b43ea438df0b971b9dc8080f1a1",
+          "event_digest": "d8627ed7b4cbb4374afc3d697c56f552c3206259fd2bfc3fd7507b1ee0e6fe5e",
           "event_offset_after": 20,
           "event_offset_before": 19,
-          "rng_calls_after": 1372,
-          "rng_calls_before": 1274,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 19,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "target",
-          "event_digest": "3a76c7e7f68b8005dee04e45e87813ee002672b733261d55cfa89cb7420d1da4",
+          "decision_class": "mulligan",
+          "event_digest": "ffb182f18d988c4cf4eb1daa3a119ab021d8a43e93ee6b4b8796525577c191a0",
           "event_offset_after": 21,
           "event_offset_before": 20,
-          "rng_calls_after": 1372,
-          "rng_calls_before": 1372,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 20,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 2,
-          "decision_class": "target",
-          "event_digest": "aaecb51443b8910770ef6eb067aab5f14ae3805c798fb20974f2de1288a80702",
-          "event_offset_after": 22,
-          "event_offset_before": 21,
-          "rng_calls_after": 1470,
-          "rng_calls_before": 1372,
-          "sequence": 21,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "target",
-          "event_digest": "2f5435ffaeddb5aaef959eab91512e8e1eee409e0285c6886a1cd1d8a039c9bf",
-          "event_offset_after": 23,
-          "event_offset_before": 22,
-          "rng_calls_after": 1470,
-          "rng_calls_before": 1470,
-          "sequence": 22,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "target",
-          "event_digest": "ecd3d795c6497d9d3e15d70e73f240650c2aad9c9811adbf99db58d7e87a4f5c",
-          "event_offset_after": 24,
-          "event_offset_before": 23,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1470,
-          "sequence": 23,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "target",
-          "event_digest": "c3a78daec2e0b07821b64331c878923dd96b4276cee31d970652009b20a2b709",
-          "event_offset_after": 25,
-          "event_offset_before": 24,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 24,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "target",
-          "event_digest": "e5ec990d5186186420c87d0ac34523fbd985d3b1066e0e26867785e3fb8e6816",
-          "event_offset_after": 26,
-          "event_offset_before": 25,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 25,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "mulligan",
-          "event_digest": "646fb471f3a0e3002cd657f861ce4a02e544ac66e31ba5157002d47329224b8f",
+          "event_digest": "7213e3ab6a3ae0f2b5dba2b06811244f8f7ef47363714a0f071389088b4e5e50",
+          "event_offset_after": 22,
+          "event_offset_before": 21,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 21,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "319b5907ecfd3e35a94274f5032858cef3995dac5baee556c4478c1c1f96c649",
+          "event_offset_after": 23,
+          "event_offset_before": 22,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 22,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "33bb3bd34e9b6171b0f1cdfc2d6e90316621e0727f9d40bbd449c2e21c433485",
+          "event_offset_after": 24,
+          "event_offset_before": 23,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 23,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "ef7b2bd091c66df68a9e60ba09e04a866aad1947241aed59f50fad6a44ff1b5d",
+          "event_offset_after": 25,
+          "event_offset_before": 24,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 24,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "669b286b71b45e24f49026516543b832bde0b8d2848263e742000ebcfca95ec2",
+          "event_offset_after": 26,
+          "event_offset_before": 25,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 25,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "93e086bcbdc9a5d63b1042e386b95b5ae3b0b9ea6892b262376abe1cc9d0fc57",
           "event_offset_after": 27,
           "event_offset_before": 26,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 26,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "mulligan",
-          "event_digest": "775578129a4043340c1c88ee74a8a0e8a2b44ac47db06b0b5bc963772c7dd0ae",
+          "decision_class": "mana_payment",
+          "event_digest": "72ed10a73f20492bb334d4f38b060c81a508951023924f00336ca27d5b7f74db",
           "event_offset_after": 28,
           "event_offset_before": 27,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 27,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
-          "decision_class": "mulligan",
-          "event_digest": "ac14532373d3eed2c2e3caa00a90ea5f21f37cf950f3215c5eba4ae4166f1c06",
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "b207016b70c813a27446e8d1401eff0017cf954cffdf343e6e8d484f91019e4a",
           "event_offset_after": 29,
           "event_offset_before": 28,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 28,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
-          "decision_class": "mulligan",
-          "event_digest": "9ab49f6fdbce6f4b9d1a9ee1f6fc70caa55962c576150b6261a1bdc14a5711cb",
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "cc73c826e2bfd2c168f1b90a4511c512e418db02fa8ab2c0c79319a2b2ffc8f7",
           "event_offset_after": 30,
           "event_offset_before": 29,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 29,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "4edd72b6f995404cff93b642b94f70ef56b8025563439c60cfed535d1b23d4cd",
+          "event_digest": "4a6a5996130252ad31b45ba42054e2fe5f15d6cb90ab5f01f49d5555e82d5e5e",
           "event_offset_after": 31,
           "event_offset_before": 30,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 30,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "e8f7ce45968ce21f65596590e7023850e31c3225fda4540a5b3e0176650edf5f",
+          "event_digest": "efd8d6724843cbc1c13f2ef3e41194e5bbea2d9bfed34e900f9a9456f1f436d8",
           "event_offset_after": 32,
           "event_offset_before": 31,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 31,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "27aeccf44e2b8400dca656abd9690e55ed3586af0b067ac6502c58cac7e8615a",
+          "event_digest": "de724fdea91b882b962515c6dd476fbdbbca580104ea868aedb830374a0c022c",
           "event_offset_after": 33,
           "event_offset_before": 32,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 32,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "priority",
-          "event_digest": "31bd362a1fb2fb131c95b70d49351a33bb0305b4d61b4a1b9ee1796f2aadda48",
-          "event_offset_after": 34,
-          "event_offset_before": 33,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 33,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "3ac3f0224822b477bef8c010a0e9fd81c734b2cc9bfe1782e7d59f17ab22902c",
-          "event_offset_after": 35,
-          "event_offset_before": 34,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 34,
+          "event_digest": "3490b520dea9a820584fc91d0d9ee6c3fe6cb203507e64e6c64460c48f3d0ed0",
+          "event_offset_after": 34,
+          "event_offset_before": 33,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 33,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "8b91bb98fc11dd89e3f85a4bdb10af11a0ee95bbefd92ba327f7dd49c4bebed8",
-          "event_offset_after": 36,
-          "event_offset_before": 35,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 35,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "priority",
-          "event_digest": "80281fa0764726e1e96f4993d793cfb9b29c3661e606b7b43841f6c2d744f9b8",
-          "event_offset_after": 37,
-          "event_offset_before": 36,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 36,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "priority",
-          "event_digest": "4599df83f0f0b5b9e44525d0be427a780998f91b7efdbdc832ccb4707833bd5d",
-          "event_offset_after": 38,
-          "event_offset_before": 37,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 37,
+          "event_digest": "213a1470570f042408e43d7f2aba0dc413077124f6eea4d6feb4a9c2c98fd2ba",
+          "event_offset_after": 35,
+          "event_offset_before": 34,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 34,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "447a173b455c7c0c3ece36562c7086da631d51cc5115f622537d5f56756e8f88",
+          "event_digest": "2e759328f6e1385718b8650717bdeaa68e98b60ebbe1a6fe2af3305cbca051ef",
+          "event_offset_after": 36,
+          "event_offset_before": 35,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 35,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "8d90c789694b7458fc814f4096cf200e0c2e7a0e336ac4b0edb2017f8610ed1b",
+          "event_offset_after": 37,
+          "event_offset_before": 36,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 36,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "96c74f0526d12a8f986839b792b924cdad6f548abc9d79b063c0c0958dfdd7bc",
+          "event_offset_after": 38,
+          "event_offset_before": 37,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 37,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "15a2e8d6aed9208d2dac1432ea7bdb70564456faf25374404c0248b7f17b4811",
           "event_offset_after": 39,
           "event_offset_before": 38,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 38,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "7e605732e36f0bcb0d76c130f39f64aed8d1f9a229f7d69ed37d9d1b6fe2dbce",
+          "event_digest": "d204f4be1e58c0cde61acbf5c314d1eb2ee4ddd6a575870b598e98ad9bb18794",
           "event_offset_after": 40,
           "event_offset_before": 39,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 39,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "4dea79389e3cf5622f3948f19ff8e60fbce08c7cfc5c25218881fde4d0f3107d",
+          "event_digest": "b32a5a30a4c6ee35b2027c29a8dad4e39ed476d136cc7f6e1329a4fe7139238f",
           "event_offset_after": 41,
           "event_offset_before": 40,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 40,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
-          "decision_class": "mana_payment",
-          "event_digest": "08fbeec960df6817a682b9f5a4a87177eb726ccbe0d32337aa93821788c9ec76",
+          "decision_class": "priority",
+          "event_digest": "d6e59b9c08dc719a56bc159d209cc8b61af348bfadc5bb833aafce43bb55c2bd",
           "event_offset_after": 42,
           "event_offset_before": 41,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 41,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "94f9cdad65e8188e42b59d0416e37210527e5790eb6f6a27606947e4580bedd0",
+          "event_digest": "04ee1da58dd1c0bab8ba0195dfd27244a9388b3113ee48f2be64a459532365e1",
           "event_offset_after": 43,
           "event_offset_before": 42,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 42,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "6122497e4eeba584e0201baaf45892bcdcda76914acf7344ca2497837a229e94",
+          "event_digest": "9aa30a209b4ecfc749516d9ffe2a96277152b1aa0f7be78803fd317847931685",
           "event_offset_after": 44,
           "event_offset_before": 43,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 43,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "6544a686eb439272598555ed11034f4f465c2a3014f38684953d6c2812d13b10",
+          "event_digest": "553ac42099c13204d22a456a63f3ec9f59fb3aea2af407f29363e3bcca9d5c9a",
           "event_offset_after": 45,
           "event_offset_before": 44,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 44,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "3b354dadc77ae55ff99fc9fa941e8be61658eacaa14cc656aafcdadb4648bda5",
+          "event_digest": "8d4554fb7de22d604dcbd62d0add6f15ca348f98cc46c3ea35554ddafbba6c8b",
           "event_offset_after": 46,
           "event_offset_before": 45,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 45,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "62d81a453364c59ffa05f5982b5736a54eca975f07ef009d676ec6ca8e4bd281",
+          "event_digest": "4060c1615bb735247ac33dcba1af229d0ccfd5adfe8b1e4862ee706346d06ddf",
           "event_offset_after": 47,
           "event_offset_before": 46,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 46,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "78a6dcbafad93b4ad2529b57d78d56658ea37c6b763d405b0f727c8587933914",
+          "event_digest": "cb66448d52d988d0c2d3cf074bffae5506eaa76a7c75baa8a8b525a09fca5063",
           "event_offset_after": 48,
           "event_offset_before": 47,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 47,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "41687767e718301f95ea440c54e130b3d30ce45843b808a249b2e54957bf0b67",
+          "event_digest": "d93e4b299ab5c3811c1abc2bd6a5b1cc8ce2ebfc57d06e16f87107325b0d05ee",
           "event_offset_after": 49,
           "event_offset_before": 48,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 48,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
+          "decision_class": "declare_attacker",
+          "event_digest": "9d1c891f3e21ce24fd2bad3798c0e74dce86f1bbb0e186bdd773fa4d5637f637",
+          "event_offset_after": 76,
+          "event_offset_before": 75,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 75,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "f34be575390ec6626e8a442a2c625731b2513188590a0999a4e71ba572e0b0c1",
+          "event_digest": "dc594bbb047b690dd7b2fb06b8d39c6d70e9d535b119ec60bdc9b0c3bfadcac5",
+          "event_offset_after": 77,
+          "event_offset_before": 76,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 76,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "3f3b03b42140edeac43e81dfe48a017f6c4adf31064f1cba1536c37ab105753b",
+          "event_offset_after": 78,
+          "event_offset_before": 77,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 77,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "declare_blocker",
+          "event_digest": "f5f1275620ab37378a848165e6c9182ce263adc216854a31b0b019e8a2c05124",
+          "event_offset_after": 79,
+          "event_offset_before": 78,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 78,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "0534a580ce8f50a5a6a48e86e961d815489a39fc953eae33775071b7dd5754c0",
+          "event_offset_after": 80,
+          "event_offset_before": 79,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 79,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "c4dbd3d96cf81eb405f614c5d9f83b9909ca63545caad24e79a3fe1e7253c96d",
           "event_offset_after": 81,
           "event_offset_before": 80,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 80,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
-          "decision_class": "mana_payment",
-          "event_digest": "c6dc8ab8d0bd4801675b5094baceada30db0040276233cbd7958102f70893ec3",
+          "decision_class": "choose_use",
+          "event_digest": "94e42224378d83febe7cef4623d92a90e8b24150e2d3dfe8d2d1bca3216b80ff",
           "event_offset_after": 82,
           "event_offset_before": 81,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 81,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
-          "decision_class": "priority",
-          "event_digest": "db117ddcbfd299abb5dcb99fa5dfd96ebd667c9fed9d43b4ecf4d669c863d14e",
+          "actor_principal": 1,
+          "decision_class": "choose_use",
+          "event_digest": "8332afdedbf920570683df596993a5385b9cf1083a897d1d2fb8ee614893b236",
           "event_offset_after": 83,
           "event_offset_before": 82,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 82,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "de0a4c79e02f0e24c576dd1307ebed2aba970739e343c6df854f03f04adc0dfd",
+          "event_digest": "06738fbeaf17f5c74e51228632929611757c3ef03e592c0b60ac16b5a139d54b",
           "event_offset_after": 84,
           "event_offset_before": 83,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 83,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "8f1d7d3bbfa7e7f931d4b356313071fef7b8edf5bb4f97d3168d67a3cbf305c5",
+          "event_digest": "bd326362cecbf6178c384561b0b9bfaefd0770be526590aec49872928b5ecfbe",
           "event_offset_after": 85,
           "event_offset_before": 84,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 84,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "a912108833121f879d98b181f37998bfc6eecd21f83c6cbc8432de035735476f",
+          "event_digest": "06817fdbb2380ab4b32eba5201a0ba9199711cf74ee53de32a7effca75e9e268",
           "event_offset_after": 86,
           "event_offset_before": 85,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 85,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "31e2b4a7664d753f7ce98465db2391a273a1029e3e9395c8a0e5123bff965af1",
+          "event_digest": "d0a37682e8c5abb66846d575f92b73d2ec0800efa171a7d9cf0e88fcb1e56acf",
           "event_offset_after": 87,
           "event_offset_before": 86,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 86,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "82c512fb9e0709e89f92a96fc8c53256e858b11ca739cc2c79cd6f596e4531a1",
+          "event_digest": "c20c2a1aad4e08da82ddc70870d50384702390c35a1631489d46bcd46ebb91ac",
           "event_offset_after": 88,
           "event_offset_before": 87,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 87,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "b61b7d4f90446e94c4a65ec0b925b3e0a842f90c35c008fdcd241c5f42bb09f5",
+          "event_digest": "e9c28e638ebb57e46ddf8d8156150ce2a176eb36a04989548c0e26d0eac1afbb",
           "event_offset_after": 89,
           "event_offset_before": 88,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 88,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "f6ef2d25dfb9ca50dabe9e0a226ef66e99e9bda299be254b9465ea6930d47e0e",
+          "event_digest": "103ba51e4147f650466ef8f0acb114de7c04d786fd49037c913e5fbca31b3b99",
           "event_offset_after": 90,
           "event_offset_before": 89,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 89,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "f275e46b4ba198e2b4521f5c3e6d90bdd244af7f70bb8467351583aa94091309",
+          "event_digest": "b5e87cc5a0833cbbc7dd8f80e7381c1b7eccbb2b7fd05bfbbe68b4cfc09315f4",
           "event_offset_after": 91,
           "event_offset_before": 90,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 90,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "priority",
-          "event_digest": "86ee4fd8f453713204011dbcc8789269f39e8e5b0b363b48e0f334b036d712a5",
-          "event_offset_after": 92,
-          "event_offset_before": 91,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 91,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "priority",
-          "event_digest": "0d20c5a95a287bea44a83298b788a0a4e75b6c4346c5e05e8b8b49983e77e648",
-          "event_offset_after": 93,
-          "event_offset_before": 92,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 92,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "e240aa7311b1b220a1b832d022f7f6f7108f363ba5f2911af59167c6f5978290",
-          "event_offset_after": 94,
-          "event_offset_before": 93,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 93,
+          "event_digest": "fc7254306769ea5d3c158f10eb3ef8c4b7db6479efc3e419ad68e8f0d33fe238",
+          "event_offset_after": 92,
+          "event_offset_before": 91,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 91,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "ceafc126bb9904ba56ec8e3b82d12cffc96dd0237dd5e3e13e52e1957d07b422",
+          "event_offset_after": 93,
+          "event_offset_before": 92,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 92,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "c878f66acf65ef278739af8cde667283c94a27b4a5fd674536339684e6588eb7",
+          "event_digest": "7881a9989caef12e801a54dc7764afe095d084c9d57927e10b3da8f209a3ec6a",
+          "event_offset_after": 94,
+          "event_offset_before": 93,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 93,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "039dfbf6d7bd63def4f50251206c46bc64cf4cab3d3ed71cbe844521253fabab",
           "event_offset_after": 95,
           "event_offset_before": 94,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 94,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "f5aa95b0a1db794767632cc466b4a37e0f314890875221d70a895821f8954546",
+          "event_digest": "b09202bed03a9f13a81b789d13efdcf19822f266399883ae9e8b070b263aed5d",
           "event_offset_after": 96,
           "event_offset_before": 95,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 95,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "8cb9cc0fdb66e52442391971a4e6023b07c9845faf08e48e4194a7c94e1c4086",
+          "event_digest": "2ccef3cb529c881f18275d81ad9aa6702ba1f5e75a124f723bfd95afdb227f1a",
           "event_offset_after": 97,
           "event_offset_before": 96,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 96,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "e9bc90d539d0e7e67796522345a05b4f6d9cf0b9f73789756f11f7e4b7f8a141",
+          "event_digest": "3809fbd80e529089089a94a2c42e9d464f85d5a748e2f0fb69f2d894d6d883a5",
           "event_offset_after": 98,
           "event_offset_before": 97,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 97,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "fff02a9189f1f0c0ed0c28c508ad4716ae0492135c6abb0d5c95105ae4bb2254",
+          "event_digest": "31bdff0c873d3f223dc2e017d2bd986b7327f092c7e7424d4e7c12cc2268b063",
           "event_offset_after": 99,
           "event_offset_before": 98,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 98,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "3982756494b65c0331b3a39cdbff2e0989370dedc8c1b463463b79f140e8c593",
+          "event_digest": "dbfb915d0ecaeb9323ef357243fdacd227e72fe1b94b5198f38f2d802a3cb43a",
           "event_offset_after": 100,
           "event_offset_before": 99,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 99,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "a8c774d8747ae42ac857c9a72a8697b4c403731ed5d7e0bcef82edc37ad1543d",
+          "event_digest": "f806e2e3ac98b3f5fae1d0c5365175f04fe70a2fded275204c33682dbe6336a6",
           "event_offset_after": 101,
           "event_offset_before": 100,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 100,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "3a247ca1e89cc9f936a6ddab6d3fe19e15b1cb6ccedda608952170ed691f5f60",
+          "event_digest": "16a0e2903942484afc114a878d5ffe58d49d0ea734781230139a96b26b102054",
           "event_offset_after": 102,
           "event_offset_before": 101,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 101,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "7d565a748b8afe14cb8f45d9ccb58a21dc7ad5aee02c260ca10217bf1abacaa1",
+          "event_digest": "86a93779d4bcfe0c2011674eb90fbb5a39a525cd9933da075be2c3c4e04cd19a",
           "event_offset_after": 103,
           "event_offset_before": 102,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 102,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "524d296d07fe0da460bebb9175f9a1731a629fdc31a1c9af9a68a9ea967e3196",
+          "event_digest": "2eb27131470f934c6c64d9c97083ad5b3addd0d6675f341c4088d0bb44d1fccc",
           "event_offset_after": 104,
           "event_offset_before": 103,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 103,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "a6e15558b5026897ccefe994d3d5476ff685321ca712703a20efb0b54b804a85",
+          "event_digest": "98edf1ed6ac035eadbe5d61833f065db8739be12279d2cb40fe859a7d6fee1ac",
           "event_offset_after": 105,
           "event_offset_before": 104,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 104,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 1,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "06f465726adb362fb41164e2be6be1bf527dd963591f60e301fa82ac43bafbc1",
+          "event_digest": "455b7bd2523091308238b6e4a13c2593f9cbcf6dd8d8e04045b064f2e0f4dee5",
           "event_offset_after": 106,
           "event_offset_before": 105,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 105,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 2,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "38c4d42d80a868e92cfe8abaaf97a98d180787b244f76275325b3150c09fe01a",
+          "event_digest": "a0061cd2acd3a6f44990305de3729f263abbed13391cdd2e8e6125b24fedffb4",
           "event_offset_after": 107,
           "event_offset_before": 106,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 106,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "aefee374ed12d39ac985095e75b6b0668c5f2f2f71b06a5a7c6d2f5c98370f0b",
+          "event_digest": "109816af8baf6de272010129c68005766bd5406d68d2901e386a7a12234c1dcd",
           "event_offset_after": 108,
           "event_offset_before": 107,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 107,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "bcc54d641a5fff5af3a7858ab4da602b56f0a25672f1196c420c6fa8575bbd67",
+          "event_digest": "448dfa07ce069a4b897b7b43dafa5289ddf3c78a9c2eeb950f013de26fa31fc4",
           "event_offset_after": 109,
           "event_offset_before": 108,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 108,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 1,
-          "decision_class": "priority",
-          "event_digest": "ce239921e8c0305494f56dc468fe35f24c637271fc7651410c8e117f2cdbd97c",
-          "event_offset_after": 110,
-          "event_offset_before": 109,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 109,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "priority",
-          "event_digest": "b41ab0c690f3f35c5314c8cb02cd80feda72c5c9834107fc49079794a41715d1",
-          "event_offset_after": 111,
-          "event_offset_before": 110,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 110,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "priority",
-          "event_digest": "91641172d72a6a4ddcf2af17456965b4ced64a5c72d7118335ec7689f71831d1",
-          "event_offset_after": 112,
-          "event_offset_before": 111,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 111,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 1,
-          "decision_class": "priority",
-          "event_digest": "4b4f1c47bc27eeb2facd2091e718160f6048a000cb1bfce71dfa44fa7ff0a177",
-          "event_offset_after": 113,
-          "event_offset_before": 112,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 112,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "6004dc5c0d6ad46d309ee1ea04def54fd29927e627f90cb291140362681cc45f",
-          "event_offset_after": 114,
-          "event_offset_before": 113,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 113,
+          "event_digest": "7a15c48355b21d229800c19af07493c89fa6dd0e6310de60940821ce1d6da669",
+          "event_offset_after": 110,
+          "event_offset_before": 109,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 109,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "066ca72fb719fdbe6a6775ee2a5ff19404ace8120169acf5f8f23f93d30d4e13",
-          "event_offset_after": 115,
-          "event_offset_before": 114,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 114,
+          "event_digest": "7a87c10f61b24b5bc371fc48fd5f9a2cc8b596570dcda4716a0d15959d609dea",
+          "event_offset_after": 111,
+          "event_offset_before": 110,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 110,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 4,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "5bccddb96ba80a444346b867dbf1178ca3008f9bc880f1f79d08205bd93d7642",
-          "event_offset_after": 116,
-          "event_offset_before": 115,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 115,
+          "event_digest": "4253c90d8636320a34b9f032d291f53ea475a213fe4351521d36bf8d27282469",
+          "event_offset_after": 112,
+          "event_offset_before": 111,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 111,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "366d770dc19d28a6f4a04f2ddfa04f52b427c2ee68346d1854cf320749e5853c",
+          "event_offset_after": 113,
+          "event_offset_before": 112,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 112,
           "step_kind": "decision"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "686fee896995d7f2b1d0cce854977155558f33101343d2d008971b7eabf95285",
+          "event_digest": "4576bc1246fa8020f59b3152cbaa401a3b1325afc00e3849f5a22453824b6118",
+          "event_offset_after": 114,
+          "event_offset_before": 113,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 113,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "2028bd052722cbadb6962f4048f7d5da0125d3d29ef59e426918207e78082164",
+          "event_offset_after": 115,
+          "event_offset_before": 114,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 114,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "94eca46f7dcc85d5ddfe5b5295b2fa6b10f17fd53988ea529991c13d9d882184",
+          "event_offset_after": 116,
+          "event_offset_before": 115,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 115,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "a6f8259d09fa9b55c585023a109417ccbbc07b257973c50692232cf2c8ad5052",
           "event_offset_after": 117,
           "event_offset_before": 116,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 116,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "291c98e05b736a5444fd0532d73d5293250f73ccdc2be4edbc376b2be4e9e45e",
+          "event_digest": "44023edaefc8c0b661e844bc53d35373beb4ca5958abbd5a4bd4fbb1472b5ed4",
           "event_offset_after": 118,
           "event_offset_before": 117,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 117,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "34a8e595fa0075e380e98244bb4390a783a10ad1918a61b91dcf3605faeebd42",
+          "event_digest": "d41dafaf72d35ee83a222d05a17fdb1c6ddb23d6e51b0beb2b56ed407eab3b97",
           "event_offset_after": 119,
           "event_offset_before": 118,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 118,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "17956c3ab1499f54d4fda2f5c3b30d2393c7c5d0b11c29ccfde04c0198f19804",
+          "event_digest": "a6ef51da404f78074a5db0810a1283f7e20aae52d0834ea86dbfb6da6d1467d2",
           "event_offset_after": 120,
           "event_offset_before": 119,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 119,
           "step_kind": "decision"
         },
         {
-          "actor_principal": 3,
+          "actor_principal": 2,
           "decision_class": "priority",
-          "event_digest": "ac101fddc3e2bf249d83cd5d4e48dbb3717ea21597aba94d7f820ce83698b2c9",
+          "event_digest": "5342858f137c368ff000a7672d1308d51477bc814b1ed31983af9154a0bcbd32",
           "event_offset_after": 121,
           "event_offset_before": 120,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
           "sequence": 120,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "mana_payment",
-          "event_digest": "53435ceedb488461401d6604eca4c24da7d0bf72b00783cbedec512229f0e460",
-          "event_offset_after": 122,
-          "event_offset_before": 121,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 121,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "priority",
-          "event_digest": "c9fa2510b194e5173e1e8ed86e2d5548b8e4cfbbff290b5daae134a540c9b052",
-          "event_offset_after": 123,
-          "event_offset_before": 122,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 122,
-          "step_kind": "decision"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "priority",
-          "event_digest": "c53ebba37ed82b9ca0b2c8bf504b35cb831fb8f97616435edea9111eade8ffdc",
-          "event_offset_after": 124,
-          "event_offset_before": 123,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 123,
           "step_kind": "decision"
         },
         {
           "actor_principal": 2,
           "decision_class": "concede",
-          "event_digest": "ab373420d0fe45fe479800d8ddbf46529c5f037df598b8b433c0d79177fe4155",
-          "event_offset_after": 1568,
-          "event_offset_before": 1568,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 124,
-          "step_kind": "lifecycle_concede"
-        },
-        {
-          "actor_principal": 3,
-          "decision_class": "concede",
-          "event_digest": "bd75ed8bfc747ab2c93b16ec44b75f07b947c1cfc1aa916d65b77a50ac9ed6ba",
-          "event_offset_after": 1568,
-          "event_offset_before": 1568,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 125,
-          "step_kind": "lifecycle_concede"
-        },
-        {
-          "actor_principal": 4,
-          "decision_class": "concede",
-          "event_digest": "7de43e27be836833b83f69f75aeeebafbdcfe7e8fcb42f4989442355a1f9a7a5",
-          "event_offset_after": 1568,
-          "event_offset_before": 1568,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 126,
+          "event_digest": "a178c4a088ae868096844720a7329431ce0049b28b408a7c54fd3aafe94c3afc",
+          "event_offset_after": 784,
+          "event_offset_before": 784,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 121,
           "step_kind": "lifecycle_concede"
         },
         {
           "actor_principal": 1,
           "decision_class": "priority",
-          "event_digest": "5d31332bb7af4f1890b5214559ffde11645bbf316d3ab68f2313de2717012fe8",
-          "event_offset_after": 124,
-          "event_offset_before": 124,
-          "rng_calls_after": 1568,
-          "rng_calls_before": 1568,
-          "sequence": 127,
+          "event_digest": "bf7ae69010ef64966a7d4319153ab1129e0e24409a850ac2c312c3833a8efe29",
+          "event_offset_after": 121,
+          "event_offset_before": 121,
+          "rng_calls_after": 784,
+          "rng_calls_before": 784,
+          "sequence": 122,
           "step_kind": "decision"
         }
       ],
-      "omitted": 31,
-      "sha256": "4ba2dd3b23b846d1c4e918df1bdf7db905fb53ea4da79f9bc52a4a6a874629d0"
+      "omitted": 26,
+      "sha256": "7dc32da0ca86caf47143927683afbcfa7e567584134197481fb6b73898cadd11"
     },
     "tape_comparison": {
-      "compared_steps": 127,
+      "compared_steps": 122,
       "first_divergence_kind": null,
       "fresh_process_engine_check": {
-        "detail": "127 steps re-derived in a fresh process",
-        "pass": true,
-        "steps_verified": 127,
-        "tape_id": "ff3449dee92ff53f5bcdaf2e73d53c25243e899a8f5914e8b04ff1fe3ae26d9a"
+        "detail": "fresh-process replay diverged: CHOSEN_OPTION_AMBIGUOUS: step 110: recorded choice matches 2 native options",
+        "divergence_class": "CHOSEN_OPTION_AMBIGUOUS",
+        "pass": false
       },
       "process_identities_distinct": true,
       "process_identity_detail": "all recorded process identities are observed and pairwise distinct",
@@ -4359,29 +4336,20 @@
           "lost": true,
           "seat": 2,
           "won": false
-        },
-        {
-          "left": true,
-          "life": 40,
-          "lost": true,
-          "seat": 3,
-          "won": false
-        },
-        {
-          "left": true,
-          "life": 40,
-          "lost": true,
-          "seat": 4,
-          "won": false
         }
       ],
-      "rng_calls": 1568,
-      "state_digest": "492d98ae58fffdb8b627bf79d31a725210504350450a04e76718db53684a1cae",
-      "terminal_digest": "492d98ae58fffdb8b627bf79d31a725210504350450a04e76718db53684a1cae",
-      "turn_number": 3
+      "rng_calls": 784,
+      "state_digest": "d3913e3e8369f1323449c30eec31946756359a3defc8488720f2ed4c977f1e66",
+      "terminal_digest": "d3913e3e8369f1323449c30eec31946756359a3defc8488720f2ed4c977f1e66",
+      "turn_number": 5
     },
-    "verdict": "PASS",
-    "verified": true
+    "verdict": "UNKNOWN",
+    "verified": false
+  },
+  "consumer_divergence": {
+    "detail": "fresh-process replay diverged: CHOSEN_OPTION_AMBIGUOUS: step 110: recorded choice matches 2 native options",
+    "divergence_class": "CHOSEN_OPTION_AMBIGUOUS",
+    "pass": false
   },
   "engine_pins": {
     "forge_bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
@@ -4393,20 +4361,18 @@
   "fixture": {
     "deck_hashes": [
       "40a81b3379e0a2473948a5b6d5121f5bd1baf63617279b79537f83cf8d1cf8cd",
-      "2f473900d1eb7966c78ac8bee5564b8e6efbe87ec191e377aab53ad45772d87e",
-      "3f93b360de73f638c59c350ca24e7df2746955a30a99a6b7e636674be547f550",
-      "960cb677a27b93b096e7dd2e2f31f5b49e74bbd6e2d7bb51cf1d1e7a2588a2c4"
+      "2f473900d1eb7966c78ac8bee5564b8e6efbe87ec191e377aab53ad45772d87e"
     ],
-    "player_count": 4,
-    "scenario_id": "technical-isamaru-full-game-4p-v1",
-    "seed": 20260824,
+    "player_count": 2,
+    "scenario_id": "technical-isamaru-full-game-2p-v1",
+    "seed": 20260825,
     "xmage_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436"
   },
   "fixture_request": {
-    "player_count": 4,
+    "player_count": 2,
     "seed": 424242
   },
-  "generated_at": "2026-10-01T20:28:38Z",
+  "generated_at": "2026-10-01T20:27:59Z",
   "lab_source": {
     "clean": true,
     "commit": "299b1e8adcbe83c9c2b87bc3314e4a15845d8bff",
@@ -4415,5 +4381,5 @@
   },
   "missing_capability": null,
   "schema_version": "commander-lab.af09-replay-twin-campaign/1.0.0",
-  "verdict": "PASS"
+  "verdict": "UNKNOWN"
 }

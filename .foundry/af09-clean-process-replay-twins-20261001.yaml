@@ -66,12 +66,23 @@ foreign_writer_census_at_start:
       - tests/qualification/test_pre_freeze_contract_successor.py
 
 candidate_results:
+  cardinality_matrix:
+    forge: {'2P': PASS, '3P': PASS, '4P': PASS, '5P': PASS}
+    xmage:
+      '2P': >-
+        UNKNOWN - fresh consumer CHOSEN_OPTION_AMBIGUOUS at step 110: two
+        identical battlefield Plains share one WS218 fingerprint (the
+        harness fingerprint disambiguates same-name cards by occurrence in
+        hand/graveyard/command/exile but not on the battlefield)
+      '3P': PASS
+      '4P': PASS
+      '5P': PASS
   xmage:
     verdict: PASS
     evidence: docs/af09_replay_twins_20261001/evidence/AF09_REPLAY_TWIN_XMAGE.json
     candidate_commit: 37e4df6c914f1e189e24f0ef59fa91734c922436
     observed_artifact_sha256: bf3d91bc2722d186327a5cc69b6fe931e540219a1f506c48bb7003c84068cc27
-    fixture: technical-isamaru-full-game-4p-v1 (4P, seed 20260824)
+    fixture: technical-isamaru-full-game-4P-v1 (4P, seed 20260824; 3P/5P also PASS)
     decisions_events_checkpoints: 127 / 127 / 128
     fresh_process_steps_verified: 127
     terminal: GAME_OVER (complete)
@@ -106,9 +117,13 @@ milestones:
       - tests/qualification/test_replay_twins.py -> 36 passed
       - python3 -m ruff check (three AF09 files) -> clean
   - id: M2
-    head: 05f45bc5
-    at: '2026-10-01T22:15Z'
+    head: 299b1e8a
+    at: '2026-10-01T22:30Z'
     status: COMMITTED
+    content_extra: >-
+      Cardinality matrix: Forge PASS 2P/3P/4P/5P; XMage PASS 3P/4P/5P,
+      UNKNOWN 2P with the exact identical-battlefield-permanent fingerprint
+      collision at step 110.
     content: >-
       Engine execution for both candidates. Forge: engine-offered concede
       horizon, real singleton deck fixture, clean-bound PASS. XMage: isolated

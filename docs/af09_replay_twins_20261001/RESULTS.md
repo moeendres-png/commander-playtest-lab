@@ -4,15 +4,45 @@
 
 Evidence documents:
 
-- `evidence/AF09_REPLAY_TWIN_XMAGE.json`
-- `evidence/AF09_REPLAY_TWIN_FORGE.json`
+- `evidence/AF09_REPLAY_TWIN_XMAGE.json` and `…_XMAGE_{2,3,5}P.json`
+- `evidence/AF09_REPLAY_TWIN_FORGE.json` and `…_FORGE_{2,3,5}P.json`
 
-Both were produced from a clean worktree at Lab `155096d9` (tree `9421c406`)
-with `lab_source.clean = true` recorded inside each document. Heavy engine
-execution was serialized per candidate and used isolated runtime directories
-outside every foreign worktree.
+All were produced from a clean worktree at Lab `299b1e8a` (tree recorded
+inside each document) with `lab_source.clean = true`. Heavy engine execution
+was serialized per candidate and used isolated runtime directories outside
+every foreign worktree.
 
-## XMage — PASS (fresh direct, clean-process tape twin)
+## Cardinality matrix (all four required counts)
+
+| Count | Forge | XMage |
+|---|---|---|
+| 2P | PASS (120 decisions/events, 240 checkpoints) | UNKNOWN — fresh consumer `CHOSEN_OPTION_AMBIGUOUS` at step 110 |
+| 3P | PASS (121 / 121 / 242) | PASS (123 / 123 / 124; 123 steps re-derived) |
+| 4P | PASS (122 / 122 / 244) | PASS (127 / 127 / 128; 127 steps re-derived) |
+| 5P | PASS (123 / 123 / 246) | PASS (126 / 126 / 127; 126 steps re-derived) |
+
+Every PASS row has zero semantic divergences, a complete `GAME_OVER`
+terminal, observed pairwise-distinct process identities, an acknowledged
+requested seed, and every adversarial control detected.
+
+**2P XMage blocker (exact).** At step 110 the recorded choice is the mana
+ability of a `Plains`; the fresh process offers two native options carrying the
+same semantic fingerprint, so the qualified WS218 resolution refuses the
+first-match and fails closed. The harness-side fingerprint projection
+(`semantic_replay/fingerprint.py`) disambiguates same-name cards in
+hand/graveyard/command/exile by occurrence but projects identical battlefield
+permanents without an occurrence identity. The recorder's own two tapes agree;
+only the live consumer exposes the collision. This is a lane/fixture
+capability limit of the current fingerprint contract, not a Semantic Rules
+disagreement, and it is recorded rather than normalized: the twin is UNKNOWN
+for 2P. 3P/4P/5P fixtures do not select between identical battlefield
+permanents.
+
+## XMage — PASS at 3P/4P/5P, UNKNOWN at 2P (fresh direct, clean-process tape twin)
+
+The 4P row is detailed below; the 3P and 5P documents carry the same shape and
+all verify. The 2P UNKNOWN is the identical-battlefield-permanent fingerprint
+collision documented in the cardinality matrix.
 
 | Fact | Observed |
 |---|---|
@@ -37,7 +67,10 @@ concession and the terminal outcome rows. This is the same terminal contract
 the tape lane was qualified with; it is a real engine terminal, not a harness
 assertion.
 
-## Forge — PASS (fresh direct, clean-process generic-lane twin)
+## Forge — PASS at 2P/3P/4P/5P (fresh direct, clean-process generic-lane twin)
+
+The 4P row is detailed below; the 2P/3P/5P documents carry the same shape and
+all verify.
 
 | Fact | Observed |
 |---|---|
