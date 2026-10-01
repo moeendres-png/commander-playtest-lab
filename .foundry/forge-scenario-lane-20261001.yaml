@@ -146,6 +146,13 @@ artifacts:
   - docs/forge_scenario_lane_20261001/receipts/SCENARIO_CAPABILITY_MATRIX.json
   - docs/forge_scenario_lane_20261001/receipts/LIVE_REJECTION_PROBE.json
 
+outputs:
+  pull_request: 464
+  pull_request_url: https://github.com/moeendres-png/commander-playtest-lab/pull/464
+  pull_request_state: DRAFT_OPEN
+  branch_pushed_at: e9e5087f1e3d9d1b0e8b593693a715294ef1b7d6
+  evidence_source_commit: 35ff9ee3d1f076a5ff0f772473e782548c933d11
+
 remaining_scope:
   - Phase 2 integration into the shared current-boundary evidence chain, gated on #450 terminal
   - re-derive against current main (contract 1.0.10) and impact-adjudicate before re-running
