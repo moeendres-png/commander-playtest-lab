@@ -37,7 +37,12 @@ final class XmageHiddenStateRestoration {
     }
 
     /** Exact top-to-bottom card-identity sequence for the entire live library. */
-    record LibraryOrder(String playerId, List<String> orderedCardIdentities) {
+    record LibraryOrder(
+            String playerId, List<String> orderedCardIdentities, Map<Integer, UUID> pinned) {
+
+        LibraryOrder(String playerId, List<String> orderedCardIdentities) {
+            this(playerId, orderedCardIdentities, Map.of());
+        }
     }
 
     /** Exact semantic battlefield object plus explicit native face-down type. */
@@ -295,7 +300,12 @@ final class XmageHiddenStateRestoration {
                 }
                 byIdentity.computeIfAbsent(card.getName(), ignored -> new ArrayList<>()).add(id);
             }
+            // A pinned position holds exactly that card (a requested library
+            // object whose identity the template shares); every other position
+            // takes the remaining cards of its identity in a stable order.
+            Map<Integer, UUID> pinned = request.pinned() == null ? Map.of() : request.pinned();
             for (List<UUID> ids : byIdentity.values()) {
+                ids.removeAll(pinned.values());
                 ids.sort(java.util.Comparator.comparing(UUID::toString));
             }
 
@@ -305,6 +315,18 @@ final class XmageHiddenStateRestoration {
                 if (identity == null || identity.isBlank()) {
                     throw new HiddenStateException(
                             "INVALID_LIBRARY_ORDER", "blank card identity");
+                }
+                UUID pin = pinned.get(ordered.size());
+                if (pin != null) {
+                    Card pinnedCard = game.getCard(pin);
+                    if (pinnedCard == null || !current.contains(pin)
+                            || !identity.equals(pinnedCard.getName())) {
+                        throw new HiddenStateException(
+                                "LIBRARY_PIN_MISMATCH",
+                                request.playerId() + " position " + ordered.size());
+                    }
+                    ordered.add(pin);
+                    continue;
                 }
                 List<UUID> candidates = byIdentity.get(identity);
                 int index = nextIndex.getOrDefault(identity, 0);
