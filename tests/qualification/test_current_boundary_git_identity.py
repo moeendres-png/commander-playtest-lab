@@ -148,7 +148,9 @@ def test_runner_digest_covers_the_native_suite_test_sources() -> None:
     assert covered, "no native-suite test source is covered by the runner digest"
 
 
-def test_git_redirection_list_covers_config_and_index_overrides() -> None:
+def test_git_redirection_list_covers_config_and_index_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """One canonical strip list, shared by every evidence Git read.
 
     A redirected index can hide a dirty worktree from the provenance gate, and
@@ -178,19 +180,13 @@ def test_git_redirection_list_covers_config_and_index_overrides() -> None:
     assert required <= set(R._GIT_REDIRECTION_ENV)
     assert not required & set(R.clean_git_environment())
     # Injected config entries are name-prefixed rather than fixed names.
-    import os
-
-    os.environ["GIT_CONFIG_KEY_0"] = "status.showUntrackedFiles"
-    try:
-        assert "GIT_CONFIG_KEY_0" not in R.clean_git_environment()
-    finally:
-        del os.environ["GIT_CONFIG_KEY_0"]
-
-    os.environ["GIT_CONFIG_VALUE_0"] = "no"
-    try:
-        assert "GIT_CONFIG_VALUE_0" not in R.clean_git_environment()
-    finally:
-        del os.environ["GIT_CONFIG_VALUE_0"]
+    # monkeypatch restores any pre-existing value: deleting a GIT_CONFIG_KEY_0
+    # the environment already set (while GIT_CONFIG_COUNT stays) breaks every
+    # later git call in the process.
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "status.showUntrackedFiles")
+    assert "GIT_CONFIG_KEY_0" not in R.clean_git_environment()
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "no")
+    assert "GIT_CONFIG_VALUE_0" not in R.clean_git_environment()
     # The runner consumes the same strict reader (which strips the environment),
     # and the epoch resolver calls the sanitizer directly; neither keeps a
     # second strip list that could drift.

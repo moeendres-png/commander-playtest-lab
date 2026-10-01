@@ -200,20 +200,34 @@ def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
         json.dumps(gate.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    audits = (first.hidden_information_audit, second.hidden_information_audit)
+    audit_frames = sum(audit.frames_audited for audit in audits)
+    audit_rows = sum(audit.non_actor_rows_audited for audit in audits)
+    audit_visible = sum(audit.non_actor_rows_engine_visible for audit in audits)
+    if any(audit.frames_audited == 0 for audit in audits):
+        raise SystemExit("actor-scope audit observed no decision frame")
+    if audit_visible:
+        raise SystemExit(
+            "the conformance fixture has no control effect, yet an opponent row was visible"
+        )
     hidden = {
         "schema_version": "xmage-full-game-hidden-information-report-1.0.0",
-        # C3: status covers only what this run observed (the transcript scan
-        # above, which aborts the gate on any private key). Per-actor channel
-        # properties are the lane's contract and are not probed here.
+        # C2/C3: status covers what these runs observed: the exported
+        # transcript scan above and the per-frame actor-scope audit of both
+        # games (every decision frame; a leak aborts the run). Library order is
+        # not exported by the lane's state projection at all and is not probed.
         "status": "PASS",
-        "status_scope": "exported_transcript_scan",
+        "status_scope": "exported_transcript_scan+per_frame_actor_scope_audit",
         "observed": {
             "full_transcript_scan_forbidden_private_keys": "PASS",
             "private_pilot_state_retained_in_exported_transcript": False,
-        },
-        "declared_not_observed": {
             "actor_scoped_state": True,
             "opponent_hand_arrays_exported_to_actor": False,
+            "frames_audited": audit_frames,
+            "non_actor_rows_audited": audit_rows,
+            "non_actor_rows_engine_visible": audit_visible,
+        },
+        "declared_not_observed": {
             "library_order_exported": False,
         },
         "evidence_class": FULL_GAME_EVIDENCE_CLASS,

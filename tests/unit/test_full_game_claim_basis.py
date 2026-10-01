@@ -48,6 +48,7 @@ def test_every_constant_game_claim_has_an_evidence_status() -> None:
 
 def test_no_unprobed_claim_is_labelled_observed() -> None:
     basis = FullGameClaimBasis()
+    # Default until a run audits frames (C2); run() sets OBSERVED from its audit.
     assert basis.hidden_information_actor_scoped == "DECLARED_NOT_OBSERVED"
     assert basis.bit_exact_replay_validated == "NOT_CLAIMED"
     observed = {name for name, value in basis.model_dump().items() if value == "OBSERVED"}
@@ -85,6 +86,6 @@ def test_hidden_report_separates_the_observed_scan_from_the_contract() -> None:
     source = (ROOT / "scripts" / "run_external_full_game_conformance.py").read_text(
         encoding="utf-8"
     )
-    assert '"status_scope": "exported_transcript_scan"' in source
+    assert '"status_scope": "exported_transcript_scan+per_frame_actor_scope_audit"' in source
     assert '"declared_not_observed": {' in source
     assert '"observed": {' in source
