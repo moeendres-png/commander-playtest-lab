@@ -1,0 +1,43 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/lab-af07-actual-card-campaign-20261001
+branch: hardening/af07-actual-card-campaign-20261001
+audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
+audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
+state_written_against_head: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
+validated_head: null
+
+objective: >-
+  Build and execute the AF07 current-boundary campaign for the frozen
+  29-card actual-card corpus while preserving Rules-Core authority and
+  foreign-writer ownership.
+
+in_scope:
+  - frozen 29-card denominator derivation
+  - CARD fixture identity mapping
+  - dedicated actual-card campaign producer
+  - source-bound per-card runtime evidence
+  - exact dependency/blocker classification
+  - adversarial campaign tests
+
+out_of_scope:
+  - foreign-active PR 450 surfaces
+  - foreign-active PR 452 surfaces
+  - current-boundary runner or assembler while foreign writers are active
+  - active successor contract mutation
+  - provider selection
+  - AF11
+  - Architecture Freeze
+
+ownership: AF07-ACTUAL-CARD-CAMPAIGN-20261001
+
+status: ACTIVE
+
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+
+exact_next_action: >-
+  Fetch current GitHub/main, read issue 453 and coordinator comment 5936731960,
+  inventory active writer paths, then begin Phase 1 on dedicated AF07 files only.
