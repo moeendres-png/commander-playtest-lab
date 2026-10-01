@@ -20,6 +20,21 @@ PRIOR_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
 WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
 SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
 
+
+def _live_pin() -> str:
+    manifest = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
+    return manifest["primary_engine"]["commit"]
+
+
+# This file proves the 2026-09-30 repin EVENT. Its current-pin assertions hold only while
+# this repin's pin is live; after a later forward repin they are superseded by that repin's
+# successor guard (tests/qualification/test_xmage_f43_f44_f45_repin_v3_20261001.py) and are
+# skipped, never rewritten. Its historical assertions stay active.
+superseded_by_later_repin = pytest.mark.skipif(
+    _live_pin() != CURRENT_PIN,
+    reason="superseded: live XMage pin moved forward (see test_xmage_f43_f44_f45_repin_v3_20261001.py)",
+)
+
 # Consumers that cannot read the manifest (workflow YAML env, Java constants)
 # or are the deliberate pin-authority guards. Every other consumer resolves
 # the pin from config/rules_engines.json (G1), so a repin edits only these.
@@ -56,16 +71,6 @@ def _manifest() -> dict:
 
 def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
-
-
-# This file proves the 2026-09-30 repin EVENT. Its current-pin assertions hold only while
-# this repin's pin is live; after the forward repin v3 (F-43/F-44) they are superseded by
-# tests/qualification/test_xmage_mp_candidate_repin_v3_20261001.py and skipped, never
-# rewritten. Its historical assertions stay active.
-superseded_by_later_repin = pytest.mark.skipif(
-    _manifest()["primary_engine"]["commit"] != CURRENT_PIN,
-    reason="superseded: live XMage pin moved forward (see test_xmage_mp_candidate_repin_v3_20261001.py)",
-)
 
 
 @superseded_by_later_repin

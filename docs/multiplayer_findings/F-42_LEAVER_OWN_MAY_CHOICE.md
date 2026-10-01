@@ -135,3 +135,25 @@ The Player seam cannot express "no damage" here:
 So the fail-closed path is the rules-correct behaviour at pin `9375f35a`. Qualifying this class needs an engine-side fix: `CombatGroup` must not assign damage for a creature whose controller has left. That fix is for the repin lane.
 
 The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-closed code in both of the forms it is reported in. It is either the controller's `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount`, or the same code wrapped as `XMAGE_FULL_GAME_FAILED: DecisionException: …`, once the engine thread has surfaced it first. CI on the #420 head saw the wrapped form at 4P.
+
+## Follow-up 4 — `multi_amount` for combat damage, requalified at pin `4e59e8b9` (F-43, 2026-10-01)
+
+**What changed in the engine.** Follow-up 3 needed an engine-side fix. F-43 (mage#29) delivers it: after each player callback, `CombatGroup` re-resolves the exact damage source. When the source left with its controller, it deals no cached damage, gets no retry and gets no default vector. It was first measured at the candidate `4e59e8b9` (F-44 + F-43). The repin v3 lands on `37e4df6c`, which adds F-45 (mage#35); the measurement was repeated there.
+
+**Bridge change, deliberately narrow.**
+- `XmageFullGamePlayer` marks a `multi_amount` frame as qualified for a departed-player unwind **only** when its dialogue is one of CombatGroup's three combat damage titles (`Assign combat damage`, `… (with trample)`, `Assign blocker combat damage`).
+- Only such a frame is retired when its player leaves. The callback then answers `null`; no default vector is chosen for the departed player. The engine continues in one of two ways:
+  - **The source left with the player:** F-43 drops its damage.
+  - **The source still exists** (another player held assignment authority): CombatGroup asks the departed player again, and the controller fails closed (`PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`).
+- Every non-combat `multi_amount` stays fail-closed.
+- `XmageCombatDamageLeaverUnwindQualificationTest` binds the three titles to the pinned `CombatGroup` bytecode and requires `revalidateCombatDamageSource` to be on the classpath.
+
+**Measured (the scenario of follow-up 3).** P1's Craw Wurm is double-blocked by Grizzly Bears and Runeclaw Bear, and P1 concedes at its own damage assignment.
+
+| | 4P and 5P result |
+|---|---|
+| Live pin `37e4df6c` (repin v3) | Same as at `4e59e8b9`: 14/14 and 3/3 green (bridge suite 903 / 0 / 0 / 1). |
+| Intermediate candidate `4e59e8b9` | The game goes on. Both blockers survive with 0 damage, the Wurm left with P1, and every other player is at 40 (`combatDamageAssignmentOfALeaverDealsNoDamage`). |
+| The same bridge code on exact `9375f35a` | The engine asks the departed player again and the lane fails closed; nothing is dealt for P1. |
+
+**Still fail-closed:** `replacement_effect`; non-combat `multi_amount`.

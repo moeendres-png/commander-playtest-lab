@@ -3,6 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonObject;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.permanent.Permanent;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -168,24 +169,29 @@ class XmageMultiplayerLeaverDecisionClassTest {
     }
 
     /**
-     * Control for the fail-closed path: {@code multi_amount} (combat damage
-     * assignment among several blockers) has no qualified departed-player
-     * unwind yet, so P1 conceding at it still ends the lane fail-closed
-     * instead of anything being answered for P1.
+     * F-43 (XMage candidate 4e59e8b9): a combat damage assignment of a player
+     * who leaves while making it. P1's Craw Wurm (6/4) is double-blocked by
+     * Grizzly Bears and Runeclaw Bear; P1 concedes at its own damage
+     * assignment. CR 800.4a removes the Wurm with P1, so it deals no combat
+     * damage: both blockers survive with no damage marked, and the game goes
+     * on for everyone else. At pin 9375f35a this class stayed fail-closed
+     * because the engine dealt the cached damage anyway (F-42 follow-up 3).
      */
     @ParameterizedTest(name = "{0} players")
     @org.junit.jupiter.params.provider.ValueSource(ints = {4, 5})
-    void anUnqualifiedClassStillFailsClosed(int playerCount) {
+    void combatDamageAssignmentOfALeaverDealsNoDamage(int playerCount) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Craw Wurm", 0, Zone.BATTLEFIELD));
         objects.add(XmageMultiplayerScenario.obj("P2", "Grizzly Bears", 1, Zone.BATTLEFIELD));
         objects.add(XmageMultiplayerScenario.obj("P2", "Runeclaw Bear", 2, Zone.BATTLEFIELD));
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
                 "leave-multi-amount-" + playerCount + "p", playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
         List<String> seen = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        boolean conceded = false;
+        for (int i = 0; i < 400 && !conceded; i++) {
             JsonObject payload = s.session.pendingDecisionPayload();
-            assertTrue(payload.get("failure").isJsonNull(), "control: the lane runs until P1's damage assignment "
+            assertTrue(payload.get("failure").isJsonNull(), "the lane runs until P1's damage assignment "
                     + payload.get("failure") + " seen=" + seen);
             String cls = s.decisionClass();
             String actor = s.actor();
@@ -198,14 +204,9 @@ class XmageMultiplayerLeaverDecisionClassTest {
                 concede.addProperty("player_id", id);
                 JsonObject result = s.session.submitConcede(concede);
                 assertFalse(s.seats.get("P1").isInGame(), "P1 left the game");
-                assertTrue(result.get("decision").isJsonNull(), "no frame stays answerable for P1: " + result);
-                // The controller's code is either reported directly or, once the
-                // engine thread has already surfaced it, wrapped as a game failure.
-                String message = result.getAsJsonObject("failure").get("message").getAsString();
-                assertTrue(message.startsWith("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount")
-                        || message.startsWith("XMAGE_FULL_GAME_FAILED: DecisionException: "
-                                + "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount"), result.toString());
-                return;
+                assertTrue(result.get("failure").isJsonNull(), "800.4a: the game goes on: " + result);
+                conceded = true;
+                break;
             }
             switch (cls) {
                 case "priority" -> s.submit(s.action("pass_priority", "Pass"));
@@ -214,7 +215,37 @@ class XmageMultiplayerLeaverDecisionClassTest {
                 default -> fail("unexpected " + cls + " for " + actor + " " + s.labels() + " seen=" + seen);
             }
         }
-        fail("P1 never reached a damage assignment: " + seen);
+        assertTrue(conceded, "P1 never reached a damage assignment: " + seen);
+        // No frame is ever addressed to P1 again; drive the remaining players
+        // until the next turn starts.
+        for (int i = 0; i < 400 && game.getTurnNum() < 2; i++) {
+            JsonObject payload = s.session.pendingDecisionPayload();
+            assertTrue(payload.get("failure").isJsonNull(), "no failure after the concession: "
+                    + payload.get("failure") + " seen=" + seen);
+            if (payload.get("decision").isJsonNull()) {
+                break;
+            }
+            String actor = s.actor();
+            String cls = s.decisionClass();
+            seen.add(actor + ":" + cls);
+            assertFalse("P1".equals(actor), "a frame reached the departed P1: " + cls);
+            assertEquals("priority", cls, "only priority is expected after the concession: " + seen);
+            s.submit(s.action("pass_priority", "Pass"));
+        }
+        for (String blocker : List.of("Grizzly Bears", "Runeclaw Bear")) {
+            Permanent permanent = game.getBattlefield().getAllActivePermanents().stream()
+                    .filter(p -> blocker.equals(p.getName()))
+                    .findFirst()
+                    .orElse(null);
+            assertTrue(permanent != null, blocker + " survived: the departed Wurm dealt no damage");
+            assertEquals(0, permanent.getDamage(), blocker + " has no damage marked");
+        }
+        assertTrue(game.getBattlefield().getAllActivePermanents().stream()
+                .noneMatch(p -> "Craw Wurm".equals(p.getName())), "the Wurm left with P1");
+        for (int seat = 2; seat <= playerCount; seat++) {
+            assertEquals(40, s.seats.get("P" + seat).getLife(), "P" + seat + " is unaffected");
+        }
+        assertFalse(game.hasEnded(), "the remaining players are still playing");
     }
 
     private static JsonObject labelled(XmageMultiplayerScenario s, String a, String b) {

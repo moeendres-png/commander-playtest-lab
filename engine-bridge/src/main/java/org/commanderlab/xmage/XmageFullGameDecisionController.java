@@ -94,6 +94,28 @@ final class XmageFullGameDecisionController {
             JsonObject context,
             JsonObject sourceObject
     ) {
+        return request(game, actor, decisionClass, prompt, minimumSelections, maximumSelections,
+                legalOptions, context, sourceObject, false);
+    }
+
+    /**
+     * As {@link #request}, with {@code departedUnwindQualified} marking a frame
+     * outside {@link #DEPARTED_CANCELLABLE} whose callback the caller has
+     * qualified to unwind natively when its player leaves (F-43: a combat
+     * damage assignment, see {@code XmageFullGamePlayer}).
+     */
+    synchronized DecisionResponse request(
+            Game game,
+            Player actor,
+            String decisionClass,
+            String prompt,
+            int minimumSelections,
+            int maximumSelections,
+            JsonArray legalOptions,
+            JsonObject context,
+            JsonObject sourceObject,
+            boolean departedUnwindQualified
+    ) {
         if (terminalFailure != null) {
             throw terminalFailure;
         }
@@ -153,6 +175,7 @@ final class XmageFullGameDecisionController {
 
         pendingRequest = request;
         pendingPlayerId = controlled.getId();
+        pendingDepartedUnwindQualified = departedUnwindQualified;
         response = null;
         recordDecisionRequested(request);
         notifyAll();
@@ -377,7 +400,7 @@ final class XmageFullGameDecisionController {
         event.addProperty("decision_id", decisionId);
         event.addProperty("decision_class", decisionClass);
         event.addProperty("actor_seat", pendingRequest.get("seat").getAsInt());
-        if (!DEPARTED_CANCELLABLE.contains(decisionClass)) {
+        if (!DEPARTED_CANCELLABLE.contains(decisionClass) && !pendingDepartedUnwindQualified) {
             // Systemic rule: a departed player's pending frame is never left
             // answerable. A class whose callback is not qualified to unwind
             // natively ends the lane fail-closed instead of guessing a result.
@@ -401,6 +424,9 @@ final class XmageFullGameDecisionController {
         notifyAll();
         return true;
     }
+
+    /** The current frame's caller qualified it to unwind natively for a departed player. */
+    private boolean pendingDepartedUnwindQualified;
 
     private static final Set<String> DEPARTED_CANCELLABLE = Set.of(
             "target", "choose_object", "mana_payment", "choose_use", "declare_blocker",
