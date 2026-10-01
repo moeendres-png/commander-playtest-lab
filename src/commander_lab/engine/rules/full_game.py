@@ -268,13 +268,54 @@ class FullGameSmokeResult(_StrictModel):
     fallback_used: Literal[False] = False
 
 
+class FullGameSemanticTapeEvidence(_StrictModel):
+    """C1: replay evidence from the semantic replay tape system (WS218).
+
+    Two tapes are recorded in fresh processes and compared step by step
+    (`compare_tapes`), and the first tape is consumed by a third fresh process
+    (`replay_tape`), which re-derives every legal set, selection, event digest and
+    the terminal outcome from the live engine.
+    """
+
+    basis: Literal["semantic_replay_tape"] = "semantic_replay_tape"
+    tape_schema_version: str
+    first_tape_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    second_tape_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    recorded_steps: int = Field(ge=1)
+    tape_comparison_match: bool
+    compared_steps: int = Field(ge=0)
+    first_divergence_kind: str | None = None
+    fresh_process_replay_pass: bool
+    replay_steps_verified: int = Field(ge=0)
+    replay_divergence_class: str | None = None
+
+    @property
+    def passed(self) -> bool:
+        return self.tape_comparison_match and self.fresh_process_replay_pass
+
+    @model_validator(mode="after")
+    def _divergence_consistent(self) -> FullGameSemanticTapeEvidence:
+        if self.tape_comparison_match != (self.first_divergence_kind is None):
+            raise ValueError("tape comparison match and first divergence disagree")
+        if self.fresh_process_replay_pass != (self.replay_divergence_class is None):
+            raise ValueError("fresh-process replay verdict and divergence class disagree")
+        if self.fresh_process_replay_pass and self.replay_steps_verified != self.recorded_steps:
+            raise ValueError("a passing replay must verify every recorded step")
+        return self
+
+
 class FullGameReplayGate(_StrictModel):
-    schema_version: Literal["xmage-full-game-replay-gate-1.0.0"] = (
-        "xmage-full-game-replay-gate-1.0.0"
+    schema_version: Literal["xmage-full-game-replay-gate-1.1.0"] = (
+        "xmage-full-game-replay-gate-1.1.0"
     )
     scenario_id: str
     seed: int = Field(ge=0)
+    # C1: decided by the semantic replay tape, never by the twin transcript hash.
     semantic_replay_match: bool
+    semantic_tape: FullGameSemanticTapeEvidence
+    # Diagnostic only: two same-seed runs of the conformance runner hash their
+    # reduced semantic transcripts; a mismatch is reported, not the verdict.
+    twin_transcript_hash_match: bool
     raw_result_match: bool
     first_semantic_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     second_semantic_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -284,6 +325,12 @@ class FullGameReplayGate(_StrictModel):
     evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
     consumed_gameplay_evidence: Literal[False] = False
     holdout_consumed: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verdict_is_the_tape(self) -> FullGameReplayGate:
+        if self.semantic_replay_match != self.semantic_tape.passed:
+            raise ValueError("semantic_replay_match must be the semantic tape verdict")
+        return self
 
 
 @dataclass(frozen=True, slots=True)
@@ -2200,19 +2247,20 @@ class XmageFullGameRunner:
                 return decision_count, observed, True
             status = client.request("get_full_game_decision")
 
-    def run_replay_gate(
-        self,
+    @staticmethod
+    def replay_gate(
         *,
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, ...],
-        pilots: tuple[FullGamePilotBinding, ...],
+        first: FullGameConformanceResult,
+        second: FullGameConformanceResult,
+        tape: FullGameSemanticTapeEvidence,
     ) -> FullGameReplayGate:
-        first = self.run(scenario=scenario, decks=decks, pilots=pilots)
-        second = self.run(scenario=scenario, decks=decks, pilots=pilots)
         return FullGameReplayGate(
             scenario_id=scenario.scenario_id,
             seed=scenario.seed,
-            semantic_replay_match=(
+            semantic_replay_match=tape.passed,
+            semantic_tape=tape,
+            twin_transcript_hash_match=(
                 first.semantic_transcript_sha256 == second.semantic_transcript_sha256
             ),
             raw_result_match=first.raw_result_sha256 == second.raw_result_sha256,
@@ -2500,5 +2548,6 @@ __all__ = [
     "FullGamePilotBinding",
     "FullGameProtocolError",
     "FullGameReplayGate",
+    "FullGameSemanticTapeEvidence",
     "XmageFullGameRunner",
 ]

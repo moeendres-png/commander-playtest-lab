@@ -427,6 +427,24 @@ def _root_patterns(root: str) -> tuple[str, str]:
     return canonical, f"{canonical}/*"
 
 
+def _edit_patterns(root: str, worktree: str) -> tuple[str, ...]:
+    """Edit-permission patterns for one root, in the form the pinned CLI matches.
+
+    OpenCode asks the ``edit`` permission with ``path.relative(worktree, file)``
+    (write/edit/patch tools, CLI 1.18.30), so an absolute pattern never matches
+    an edit. The E1 runtime canary proved it: an absolute ``edit`` deny on a
+    directory outside the worktree let the write through, the same directory
+    as a worktree-relative pattern was denied. The absolute forms are kept for
+    readers of the bundle; the relative forms are the ones that bind.
+    """
+    absolute = _root_patterns(root)
+    try:
+        relative = os.path.relpath(absolute[0], os.path.realpath(os.path.abspath(worktree)))
+    except ValueError:  # different drive on Windows: no relative form exists
+        return absolute
+    return (*absolute, relative, f"{relative}/*")
+
+
 def sibling_denies(worktree: str, accessible_roots: set[str] | None = None) -> list[str]:
     """Deny every undeclared sibling worktree of the same repo at path boundaries."""
     canonical = os.path.realpath(os.path.abspath(worktree))
@@ -732,25 +750,36 @@ def resolve_environment(
     )
     ext = bundle["permission"].setdefault("external_directory", {})
     edit = bundle["permission"].setdefault("edit", {})
+    # E1: sibling worktrees are also denied at the edit layer. External-directory
+    # denies alone do not bind under the system temp directory, which the pinned
+    # CLI exempts from that check (runtime canary); edit rules always apply.
+    for pattern in denies:
+        if not pattern.endswith("/*") and pattern not in static_denies_only:
+            for edit_pattern in _edit_patterns(pattern, worktree):
+                edit[edit_pattern] = "deny"
     for ref in references:
         source = ref.get("source_root")
         if source:
             for pattern in _root_patterns(source):
                 ext[pattern] = "deny"
+            for pattern in _edit_patterns(source, worktree):
                 edit[pattern] = "deny"
         root = os.path.realpath(ref["root"])
         for pattern in _root_patterns(root):
             ext[pattern] = "allow"
+        for pattern in _edit_patterns(root, worktree):
             edit[pattern] = "deny"
     for spec in workspace_access:
         source = spec.get("source_root")
         if source:
             for pattern in _root_patterns(source):
                 ext[pattern] = "deny"
+            for pattern in _edit_patterns(source, worktree):
                 edit[pattern] = "deny"
         root = os.path.realpath(spec["root"])
         for pattern in _root_patterns(root):
             ext[pattern] = "allow"
+        for pattern in _edit_patterns(root, worktree):
             edit[pattern] = "allow" if spec["access"] == "owned-write" else "deny"
     # Root-specific allows are intentionally broad, so canonical sensitive-file
     # edit denials must be reinserted LAST (OpenCode permission matching is
@@ -764,6 +793,12 @@ def resolve_environment(
         edit.pop(pattern, None)
         edit[pattern] = "deny"
     env = dict(os.environ)
+    # E1: the pinned CLI takes its session directory (and so its project, its
+    # worktree-relative edit patterns and its external-directory boundary) from
+    # PWD, not from the process cwd. An inherited PWD would run the child in
+    # the operator's directory, e.g. the main checkout, while cwd is the
+    # worktree (runtime canary: session directory = parent PWD).
+    env["PWD"] = os.path.realpath(os.path.abspath(worktree))
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
     env.pop("OPENCODE_PERMISSION", None)

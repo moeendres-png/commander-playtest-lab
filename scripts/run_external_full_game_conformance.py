@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -13,10 +14,10 @@ from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     FullGamePilotBinding,
-    FullGameReplayGate,
     XmageFullGameRunner,
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from commander_lab.semantic_replay.gate import run_semantic_tape_replay
 
 ROOT = Path(__file__).resolve().parents[1]
 XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
@@ -149,21 +150,19 @@ def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
     if _contains_forbidden_private_state(first.result_payload.get("transcript", [])):
         raise SystemExit("exported full-game transcript contains private pilot state")
 
-    semantic_match = first.semantic_transcript_sha256 == second.semantic_transcript_sha256
-    raw_match = first.raw_result_sha256 == second.raw_result_sha256
-    gate = FullGameReplayGate(
-        scenario_id=scenario.scenario_id,
-        seed=scenario.seed,
-        semantic_replay_match=semantic_match,
-        raw_result_match=raw_match,
-        first_semantic_sha256=first.semantic_transcript_sha256,
-        second_semantic_sha256=second.semantic_transcript_sha256,
-        first_raw_sha256=first.raw_result_sha256,
-        second_raw_sha256=second.raw_result_sha256,
-        bit_exact_replay_validated=False,
-    )
-    if not semantic_match:
-        raise SystemExit("same-seed semantic full-game replay diverged")
+    # C1: the replay verdict comes from the semantic replay tape system (two
+    # fresh-process recordings compared step by step, and a third fresh process
+    # consuming the first tape). The twin transcript hash stays a diagnostic.
+    with tempfile.TemporaryDirectory(prefix="full-game-tapes-") as tape_dir:
+        tape = run_semantic_tape_replay(
+            runner, scenario=scenario, decks=decks, pilots=pilots, tape_dir=tape_dir
+        )
+    gate = XmageFullGameRunner.replay_gate(scenario=scenario, first=first, second=second, tape=tape)
+    if not gate.semantic_replay_match:
+        raise SystemExit(
+            "semantic replay tape diverged: "
+            f"comparison={tape.first_divergence_kind} replay={tape.replay_divergence_class}"
+        )
 
     accepted_classes = sorted(
         {
@@ -244,8 +243,11 @@ def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
         "player_count": player_count,
         "decision_count": first.decision_count,
         "winner_seats": first.winner_seats,
-        "semantic_replay_match": semantic_match,
-        "raw_result_match": raw_match,
+        "semantic_replay_match": gate.semantic_replay_match,
+        "semantic_replay_basis": gate.semantic_tape.basis,
+        "semantic_tape_steps_verified": gate.semantic_tape.replay_steps_verified,
+        "twin_transcript_hash_match": gate.twin_transcript_hash_match,
+        "raw_result_match": gate.raw_result_match,
         "observed_decision_classes": accepted_classes,
         "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
         "evidence_class": FULL_GAME_EVIDENCE_CLASS,

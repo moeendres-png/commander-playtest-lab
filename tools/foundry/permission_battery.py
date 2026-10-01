@@ -133,8 +133,8 @@ ANALYSIS_VERDICTS = {
         "read-tool deny on *.env does not stop python open()/requests; raw-secret exfiltration via interpreter is instruction-gated only.",
     ),
     "I17": (
-        "ASK_GATED",
-        "sibling worktree paths are outside cwd so external_directory ASK applies before any edit; no silent cross-worktree write path in the rule set.",
+        "DENIED",
+        "launcher-generated sibling denies bind at external_directory (absolute) and, since E1, at edit in the worktree-relative form the CLI asks; the E1 runtime canary (CLI 1.18.30) denies a sibling write even under the temp directory, which the CLI exempts from external_directory. Interpreter/shell writes stay BYPASSABLE (I14).",
     ),
     "A24": (
         "INSTRUCTION_ONLY",

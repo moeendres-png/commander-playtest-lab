@@ -341,6 +341,47 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     assert (Path(env["OPENCODE_CONFIG_DIR"]) / "agents" / "foundry-implementer.md").is_file()
 
 
+def _edit_verdict(bundle: dict, worktree: Path, path: Path) -> str:
+    """Evaluate an edit exactly as the pinned CLI asks it (E1 runtime canary).
+
+    The write/edit tools request ``edit`` with ``path.relative(worktree, file)``
+    and the last matching rule wins.
+    """
+    rules = [
+        {"permission": "edit", "pattern": pattern, "action": action}
+        for pattern, action in bundle["permission"]["edit"].items()
+    ]
+    relative = os.path.relpath(path, os.path.realpath(worktree))
+    return permission_battery_mod.evaluate_rule(rules, "edit", relative)[0]
+
+
+def test_child_pwd_is_the_worktree_not_the_operators_directory(
+    target: dict, canon: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # E1: the pinned CLI derives its session directory from PWD. An inherited
+    # PWD ran the child in the operator's directory while cwd was the worktree.
+    monkeypatch.setenv("PWD", str(canon))
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["_env"]["PWD"] == os.path.realpath(target["wt"])
+
+
+def test_sibling_worktree_edits_are_denied_in_the_form_the_cli_asks(
+    target: dict, canon: Path
+) -> None:
+    sibling = target["wt"].parent / "sib"
+    _git(["worktree", "add", str(sibling), "-b", "project/sib"], target["wt"], target["env"])
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    wt = target["wt"]
+    assert _edit_verdict(bundle, wt, sibling / "src" / "x.py") == "DENIED"
+    assert _edit_verdict(bundle, wt, sibling) == "DENIED"
+    assert _edit_verdict(bundle, wt, wt / "src" / "x.py") == "ENFORCED_ALLOW"
+    # Canonical secret-file denials stay last and still bind inside the worktree.
+    assert _edit_verdict(bundle, wt, wt / ".env") == "DENIED"
+
+
 def test_effort_below_high_refused(target: dict, canon: Path) -> None:
     plan = _plan(target, canon, effort="medium")
     assert plan["verdict"] == "LAUNCH_REFUSED"
@@ -1448,6 +1489,10 @@ def test_workspace_access_read_only_uses_disposable_snapshot(
     for pattern in launcher_mod._root_patterns(str(snapshot)):
         assert ext[pattern] == "allow"
         assert edit[pattern] == "deny"
+    # E1: the absolute patterns above never bind an edit; the CLI asks with a
+    # worktree-relative path, and that form must deny too.
+    assert _edit_verdict(bundle, target["wt"], snapshot / "side.txt") == "DENIED"
+    assert _edit_verdict(bundle, target["wt"], root / "side.txt") == "DENIED"
 
     # Build/tool output may mutate the disposable snapshot, never authoritative source.
     (snapshot / "side.txt").write_text("snapshot-only\n", encoding="utf-8")
@@ -1548,6 +1593,8 @@ def test_workspace_access_owned_write_requires_matching_state_and_injects_write(
     for pattern in launcher_mod._root_patterns(str(root)):
         assert bundle["permission"]["external_directory"][pattern] == "allow"
         assert bundle["permission"]["edit"][pattern] == "allow"
+    assert _edit_verdict(bundle, target["wt"], root / "src" / "x.py") == "ENFORCED_ALLOW"
+    assert _edit_verdict(bundle, target["wt"], root / ".env") == "DENIED"
     assert plan["worktree_states"][str(root)] == spec["state_path"]
     assert plan["workspace_access"][0]["ownership"] == "TEST-WS"
 
@@ -1575,6 +1622,10 @@ def test_workspace_path_rules_do_not_match_same_prefix_sibling(
     probe = str(evil / "payload.txt")
     for pattern in launcher_mod._root_patterns(str(root)):
         assert not permission_battery_mod.matches(pattern, probe), pattern
+    # The worktree-relative edit forms (E1) are boundary anchored as well.
+    relative_probe = os.path.relpath(probe, os.path.realpath(target["wt"]))
+    for pattern in launcher_mod._edit_patterns(str(root), str(target["wt"])):
+        assert not permission_battery_mod.matches(pattern, relative_probe), pattern
 
 
 def test_workspace_access_owned_write_refuses_wrong_ownership(

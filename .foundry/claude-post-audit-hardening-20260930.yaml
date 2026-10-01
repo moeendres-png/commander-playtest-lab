@@ -25,8 +25,8 @@ out_of_scope:
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
   session after the handoff of 2026-09-30 evening (single writer)
 status: ACTIVE
-exact_next_action: 'Merge #437 when exact-head CI is green; then C1 (replay convergence onto semantic_replay), F1
-  (process-pool spawn test), E1 (OpenCode canary), R1 (moveObjectToLibrary investigation).'
+exact_next_action: 'Merge #438 (C1, R1 record, E1 launcher fixes) when exact-head CI is green. R1 fix awaits the
+  repin lane (mage#34); E1 owner decisions recorded in RESULTS.md.'
 authority_gates:
 - 'issue #255 provider adjudication (Coordinator)'
 - 'issue #192 destructive cleanup (operator)'
@@ -112,7 +112,12 @@ tasks:
     evidence: no default FORGE_WORKSPACE; a Forge run requires an explicit top-level checkout and fails before writing;
       assembler dead path removed; PB-09 not decided
   C1:
-    status: UNADJUDICATED
+    status: FIXED
+    pr: 'follow-up to #437'
+    evidence: 'semantic_replay/gate.py: two fresh-process tape recordings compared step by step (compare_tapes) plus a
+      third fresh process consuming the first tape (replay_tape); FullGameReplayGate 1.1.0 verdict = tape, validator
+      refuses a contradicting verdict; twin hash kept as diagnostic; conformance + real-deck replay converged; live 4P:
+      127/127 steps, byte-identical tapes; tests 10, mutation-checked'
   C2:
     status: FIXED
     pr: '#437'
@@ -138,14 +143,21 @@ tasks:
     evidence: run_key = sha256(case + protocol + result schema + bridge artifact digests); stored run_key must match;
       rebuilt jar re-executes (3/4 red before)
   E1:
-    status: UNADJUDICATED
+    status: FIXED_WITH_OWNER_DECISIONS_OPEN
+    evidence: 'research/foundry/e1-opencode-canary-20261001/RESULTS.md: runtime canary on pinned CLI 1.18.30 with a
+      local mock provider. Fixed launcher defects: child PWD now the worktree (CLI takes its session directory from
+      PWD); edit rules emitted worktree-relative (absolute edit patterns never bound); sibling worktrees denied at
+      edit (temp dir is exempt from external_directory). Open owner decisions: external_directory "*" allow is
+      documented workspace scope; interpreter writes need Bubblewrap on single-worktree launches.'
   E2:
     status: FIXED
     pr: '#423'
     evidence: environment_identity keeps option names, command shape, validated scalars and sha256/16; sentinel
       secret + private path test 4/5 red before, 6/6 green; no committed receipt carried raw values
   F1:
-    status: UNADJUDICATED
+    status: FIXED
+    pr: '#437'
+    evidence: subprocess without PYTEST_CURRENT_TEST; exactly one spawn pool; 24 pooled == serial matches and aggregate
   F2:
     status: FIXED
     pr: '#437'
@@ -161,8 +173,11 @@ tasks:
       terminal PRs were also closed with a measured comment each (lab 21, forge 6, mage 5); no branch deleted; #297/#299
       stay open until PB-09 is signed'
   R1:
-    status: UNADJUDICATED
-    note: investigation, not an assumed bug
+    status: FIXED_UPSTREAM_PROPOSED
+    pr: moeendres-png/mage#34
+    evidence: 'real engine defect (ledger S-16): moveObjectToLibrary keyed a copy by the effect source, so Sudden
+      Setback on a copy put Sudden Setback into its owner''s library and the copy resolved; red at pin 9375f35a and
+      master, 2/2 green with the fix on both; 20 related test classes green; Lab pin unchanged (repin lane)'
   D8_first_option_ratchet:
     status: FIXED
     pr: '#423'
