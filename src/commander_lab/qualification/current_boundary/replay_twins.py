@@ -2209,7 +2209,7 @@ def run_xmage_tape_twin(
         if isinstance(exc, ReplayDivergence):
             replay_check = {
                 "pass": False,
-                "detail": f"fresh-process replay diverged: {exc.divergence.value}",
+                "detail": f"fresh-process replay diverged: {exc}",
                 "divergence_class": exc.divergence.value,
             }
         else:

@@ -45,6 +45,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--player-count", type=int, default=4)
     parser.add_argument("--seed", type=int, default=424242)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    parser.add_argument(
+        "--evidence-name",
+        default=None,
+        help="evidence file stem (default AF09_REPLAY_TWIN_<CANDIDATE>[ _<N>P])",
+    )
     parser.add_argument("--work-dir", type=Path, default=None)
     parser.add_argument("--forge-workspace", type=Path, default=None)
     parser.add_argument("--xmage-workspace", type=Path, default=None)
@@ -185,15 +190,21 @@ def _forge_deck_payloads(
     from commander_lab.engine.rules.project import load_rules_deck_snapshot
 
     payloads: list[dict[str, Any]] = []
-    for relative in REAL_DECK_PATHS[:player_count]:
+    for seat in range(1, player_count + 1):
+        relative = REAL_DECK_PATHS[(seat - 1) % len(REAL_DECK_PATHS)]
         path = REPO_ROOT / relative
         if not path.is_file():
             raise SystemExit(f"real deck source missing: {relative}")
         deck = load_rules_deck_snapshot(path)
+        deck_id = (
+            deck.deck_id
+            if seat <= len(REAL_DECK_PATHS)
+            else f"{deck.deck_id}-seat{seat}"
+        )
         deck_hash = deck.deck_hash or hashlib.sha256(
             json.dumps(
                 {
-                    "deck_id": deck.deck_id,
+                    "deck_id": deck_id,
                     "commander_names": list(deck.commander_names),
                     "mainboard": list(deck.mainboard),
                 },
@@ -203,9 +214,9 @@ def _forge_deck_payloads(
         ).hexdigest()
         payloads.append(
             {
-                "deck_id": deck.deck_id,
+                "deck_id": deck_id,
                 "deck_hash": deck_hash,
-                "name": deck.name,
+                "name": f"{deck.name} (seat {seat})",
                 "commander_names": list(deck.commander_names),
                 "mainboard": list(deck.mainboard),
             }
@@ -354,6 +365,8 @@ def run_xmage(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
     document["clean_process_twin"] = twin
     document["adversarial_controls"] = controls
     document["verdict"] = twin["verdict"]
+    if not replay_check.get("pass"):
+        document["consumer_divergence"] = replay_check
     return document
 
 
@@ -376,7 +389,9 @@ def main() -> int:
         document = (
             run_forge(args, work_dir) if candidate == "forge" else run_xmage(args, work_dir)
         )
-        _write(args.out_dir / f"AF09_REPLAY_TWIN_{candidate.upper()}.json", document)
+        suffix = f"_{args.player_count}P" if args.player_count != 4 else ""
+        name = args.evidence_name or f"AF09_REPLAY_TWIN_{candidate.upper()}{suffix}"
+        _write(args.out_dir / f"{name}.json", document)
         results[candidate] = str(document["verdict"])
         print(f"{candidate}: {document['verdict']}")
     print(json.dumps({"verdicts": results}, sort_keys=True))
