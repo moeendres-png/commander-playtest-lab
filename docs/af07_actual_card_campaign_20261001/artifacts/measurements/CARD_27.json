@@ -8,7 +8,7 @@
       "message": "RestorationException: UNSUPPORTED_ZONE: CARD_27 obj:card27-top requests library"
     }
   ],
-  "elapsed_s": 0.193,
+  "elapsed_s": 0.153,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",

@@ -4,8 +4,10 @@ worktree: /home/moeen/code/lab-af07-actual-card-campaign-20261001
 branch: hardening/af07-actual-card-campaign-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: bd65a2ffa19b4c8cd9538aa79fa2280d7f278356
-validated_head: bd65a2ffa19b4c8cd9538aa79fa2280d7f278356
+merged_main: 6ae06efcdd2a894596d4c48d14b32632a6950c60
+merged_main_tree: 366a73100045a8ada93dfacf53c428968305a13a
+state_written_against_head: 49712fe563bc1611f12c68d151a64baf3bf6ac9a
+validated_head: 49712fe563bc1611f12c68d151a64baf3bf6ac9a
 
 objective: >-
   Build and execute the AF07 current-boundary campaign for the frozen
@@ -18,17 +20,18 @@ authority:
   concurrency_ruling: 255#5936731960
 
 source_lock:
-  lab_main: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
-  lab_main_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-  effective_contract: commander-lab.full107/1.0.8-successor
+  lab_main: 6ae06efcdd2a894596d4c48d14b32632a6950c60
+  lab_main_tree: 366a73100045a8ada93dfacf53c428968305a13a
+  effective_contract: commander-lab.full107/1.0.10-successor
   xmage_pin: 37e4df6c914f1e189e24f0ef59fa91734c922436
+  loaded_engine_artifact_sha256: e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603
   forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
   forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
 
 foreign_writers:
   - pr: 450
     branch: hardening/midgame-multiselect-amount-closure-20261001
-    head: 1e9619a1d37ce0f5f3c879a133a097214952ad5d
+    head: f76c6cefebe65952d654424c4e59152252cdf2fa
     state: OPEN_DRAFT
     surfaces:
       - .foundry/midgame-multiselect-amount-closure-20261001.yaml
@@ -38,19 +41,32 @@ foreign_writers:
       - tests/qualification/test_current_boundary_midgame_rows.py
   - pr: 452
     branch: claude/optimistic-bohr-6asye6
-    head: ca92a2e8f291abe68ecd9dd4677d1128229e6a4d
+    merged_commit: a91590842b3a3c96336bf3e6296eb80db606926b
+    state: MERGED
+    impact: >-
+      CARD records unchanged; campaign re-run on merged main and receipts
+      rebound to the merged runner/engine bytes.
+  - pr: 462
+    branch: claude/optimistic-bohr-6asye6
+    head: 5594ab9140a190c00d451397c2da2efd397f3f04
     state: OPEN
+    note: AF05 M2 batch 3; succeeds #452 on the successor-contract surfaces.
     surfaces:
       - WS17_SHA256SUMS
       - docs/af05_knowledge_projection_20261001/README.md
       - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
       - qualification/SHA256SUMS
-      - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_9.json
-      - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_9_SUCCESSOR.json
+      - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_11.json
+      - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_11_SUCCESSOR.json
       - src/commander_lab/qualification/current_boundary/knowledge_projection.py
       - src/commander_lab/qualification/current_boundary/source_lock.py
       - tests/qualification/test_knowledge_projection.py
       - tests/qualification/test_pre_freeze_contract_successor.py
+  - pr: 461
+    branch: hardening/af09-replay-twins-20261001
+    head: 0c63e4542a79154ee66e3b772212b5a9fba61a01
+    state: OPEN_DRAFT
+    note: AF09 replay twins; disjoint new surfaces, no AF07 overlap.
 
 census_findings:
   corpus:
@@ -115,14 +131,17 @@ variant_resolution: native_max
 phase: 1
 
 phase1_result:
-  runner_identity_commit: bd65a2ffa19b4c8cd9538aa79fa2280d7f278356
+  runner_identity_commit: 49712fe563bc1611f12c68d151a64baf3bf6ac9a
   reloaded_engine_artifact_sha256: e04062d2e180c8e322256bd92675c5cd49d73f5f6894140e5a86e45764661603
-  matrix_digest: e8afffa31783c482444bbb3befc5624ca070dad3c3358e495724661defc6ab56
+  matrix_digest: f00e47bc3b3261f99ec919d5522800eb60bfff32a910d8b6ea15c987df7227b5
   direct_pass: [CARD_02, CARD_24]
+  direct_pass_receipts:
+    CARD_02: c5975ab52454fb51
+    CARD_24: 84a377c993794733
   dependency_waiting:
     pr_450_midgame_executor: [CARD_03, CARD_08, CARD_11, CARD_19]
     pr_450_probe_causal_or_arrival: [CARD_13, CARD_20, CARD_21]
-    pr_452_successor_contract: [CARD_01, CARD_04, CARD_05, CARD_06, CARD_14, CARD_17, CARD_18, CARD_23, CARD_26]
+    pr_462_successor_contract: [CARD_01, CARD_04, CARD_05, CARD_06, CARD_14, CARD_17, CARD_18, CARD_23, CARD_26]
   provider_adapter_defect: [CARD_07, CARD_09, CARD_10, CARD_12, CARD_15, CARD_16, CARD_22, CARD_25, CARD_27, CARD_28, CARD_29]
   unknown: []
   unknown_overall: >-
