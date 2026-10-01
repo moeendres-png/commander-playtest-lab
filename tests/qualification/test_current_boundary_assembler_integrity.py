@@ -433,3 +433,30 @@ def test_af09_committed_artifacts_describe_refusals(monkeypatch: pytest.MonkeyPa
         assert document is not None, f"missing committed RNG_REPLAY_{candidate.upper()}.json"
         described = asm._describe_replay_evidence(document, candidate)
         assert any("refused by the engine" in line for line in described["evidence"])
+
+
+def test_a_demonstrated_knowledge_boundary_failure_is_recorded_before_any_promotion() -> None:
+    """AF05: a leak the production lane demonstrably showed is a FAIL row.
+
+    The executions document is bound to this column's candidate and the
+    assembling runner, a carried-forward column never reads it, and the FAIL is
+    written before receipt promotion, which never overwrites a FAIL.
+    """
+    source = _source(ASSEMBLER)
+    call = source.index("knowledge_projection_mod.demonstrated_failures(")
+    assert 'if candidate == "xmage" and not carried_forward:' in source[call - 400 : call]
+    assert "runner_digest=assembly_runner_digest" in source[call : call + 600]
+    assert call < source.index("for fixture, per in bindings.items():")
+    # Promotion still refuses to overwrite a contradictory direct failure.
+    promotion = source[source.index("for fixture, per in bindings.items():") :]
+    assert '"FAIL",' in promotion and "positive_receipt_conflict" in promotion
+
+
+def test_the_runner_persists_knowledge_projection_receipts_after_the_pb03_ledger() -> None:
+    source = _source(RUNNER)
+    ledger = source.index('write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)')
+    executions = source.index('"KNOWLEDGE_PROJECTION_EXECUTIONS.json"')
+    assert ledger < executions
+    window = source[executions : executions + 700]
+    assert "runner_digest=runner.digest()" in window
+    assert "RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR" in window
