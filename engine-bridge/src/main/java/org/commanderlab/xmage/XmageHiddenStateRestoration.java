@@ -187,20 +187,7 @@ final class XmageHiddenStateRestoration {
         // The native RG-06A method completes all of its own validation before
         // mutation. Library mutations follow only after full Lab prevalidation.
         if (preparedFaceDown != null) {
-            try {
-                BecomesFaceDownCreatureEffect.restoreFaceDownStateForGameLoad(
-                        preparedFaceDown.permanentId(),
-                        preparedFaceDown.type(),
-                        game);
-            } catch (IllegalArgumentException exc) {
-                throw new HiddenStateException(
-                        "NATIVE_FACE_DOWN_RESTORE_REJECTED",
-                        String.valueOf(exc.getMessage()));
-            }
-            XmageFullGameStateRedactor.registerRestoredFaceDownIdentity(
-                    game,
-                    preparedFaceDown.permanentId(),
-                    preparedFaceDown.cardIdentity());
+            restorePreparedFaceDown(game, preparedFaceDown);
         }
 
         for (Map.Entry<String, List<UUID>> entry : preparedLibraries.entrySet()) {
@@ -216,6 +203,59 @@ final class XmageHiddenStateRestoration {
 
         XmageNativeStateRestoration.revalidate(game);
         return new Receipt(preparedLibraries.size(), preparedFaceDown == null ? 0 : 1);
+    }
+
+    /**
+     * The typed face-down request applied before game start, in the
+     * constructing thread, so that no observation ever shows the object face
+     * up (an opponent's mulligan frame would otherwise name it).
+     *
+     * <p>Same request validation, the same native face-down game-load primitive
+     * and the same identity registration as {@link #apply}. It orders no
+     * library: libraries can be ordered only after game start has shuffled them
+     * and dealt the opening hands. And it runs no state-based-action or trigger
+     * check, because the game has not started; like the engine's own pre-start
+     * setup primitive ({@code Game.cheat}) it only applies continuous effects.</p>
+     */
+    static Receipt applyFaceDownPreStart(
+            GameCommanderImpl game,
+            XmageNativeStateRestoration restoration,
+            List<FaceDownState> faceDownStates
+    ) {
+        if (game == null || restoration == null || faceDownStates == null) {
+            throw new HiddenStateException(
+                    "INVALID_HIDDEN_STATE_REQUEST",
+                    "game, restoration and face-down list are required");
+        }
+        if (faceDownStates.size() > 1) {
+            throw new HiddenStateException(
+                    "MULTIPLE_FACE_DOWN_STATES_UNSUPPORTED_ATOMICALLY",
+                    Integer.toString(faceDownStates.size()));
+        }
+        PreparedFaceDown prepared = prepareFaceDown(game, restoration, faceDownStates);
+        if (prepared == null) {
+            return new Receipt(0, 0);
+        }
+        restorePreparedFaceDown(game, prepared);
+        game.applyEffects();
+        return new Receipt(0, 1);
+    }
+
+    private static void restorePreparedFaceDown(GameCommanderImpl game, PreparedFaceDown prepared) {
+        try {
+            BecomesFaceDownCreatureEffect.restoreFaceDownStateForGameLoad(
+                    prepared.permanentId(),
+                    prepared.type(),
+                    game);
+        } catch (IllegalArgumentException exc) {
+            throw new HiddenStateException(
+                    "NATIVE_FACE_DOWN_RESTORE_REJECTED",
+                    String.valueOf(exc.getMessage()));
+        }
+        XmageFullGameStateRedactor.registerRestoredFaceDownIdentity(
+                game,
+                prepared.permanentId(),
+                prepared.cardIdentity());
     }
 
     private static Map<String, List<UUID>> prepareLibraries(

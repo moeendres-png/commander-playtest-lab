@@ -29,6 +29,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     gate_derivations as gate_derivations_mod,
 )
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    knowledge_projection as knowledge_projection_mod,
+)
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     midgame_rows as midgame_rows_mod,
@@ -651,6 +654,35 @@ def assemble() -> None:
         demoted_without_receipt = 0
         receipt_backed_existing_pass = 0
 
+        # AF05: a knowledge boundary the production lane demonstrably violated is
+        # a FAIL with its findings, never an UNKNOWN. Only a document bound to
+        # this column's candidate and the assembling runner demonstrates anything.
+        demonstrated: dict[str, dict[str, Any]] = {}
+        if candidate == "xmage" and not carried_forward:
+            executions_path = OUT / "KNOWLEDGE_PROJECTION_EXECUTIONS.json"
+            demonstrated = knowledge_projection_mod.demonstrated_failures(
+                load(executions_path) if executions_path.is_file() else None,
+                candidate_commit=str(
+                    results["runtime_identity"].get("engine_candidate_commit", "")
+                ),
+                runner_digest=assembly_runner_digest,
+            )
+        for fixture, finding in demonstrated.items():
+            if fixture not in rows:
+                continue
+            row = rows[fixture]
+            row["pre_knowledge_projection_exit_state"] = row["exit_state"]
+            row["exit_state"] = "FAIL"
+            row["execution_mode"] = knowledge_projection_mod.EXECUTION_MODE
+            row["failure_reason"] = (
+                f"{finding['classification']}: the production mid-game lane's "
+                "actor-entitled knowledge projection violated the record's viewer "
+                "obligation (KNOWLEDGE_PROJECTION_EXECUTIONS.json)"
+            )
+            row["reason"] = row["failure_reason"]
+            row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
+            row["knowledge_projection_failed_checks"] = finding["failed_checks"]
+
         # R-4 is an all-PASS invariant, not merely a promotion rule. A row that
         # the runner directly classified PASS still earns zero FULL107 credit
         # unless the admitted producer persisted an exact, current
@@ -709,6 +741,20 @@ def assemble() -> None:
                     "every answer was an engine-offered option from the record's decision "
                     "script, and every required event and terminal check was verified "
                     "against the engine's public event tape and observation"
+                )
+            elif all(
+                name.startswith(knowledge_projection_mod.TEST_IDENTITY_PREFIX)
+                for name in receipt_ids
+            ):
+                row["execution_mode"] = knowledge_projection_mod.EXECUTION_MODE
+                row["reason"] = (
+                    "actor-entitled knowledge boundary executed on the production midgame "
+                    f"lane ({', '.join(receipt_ids)}): the engine constructed the record's "
+                    "SLOT-04 lossless state exactly and reported every declared lossless "
+                    "check, every principal's projection was read from the live rules "
+                    "state, the record's viewer obligation held against the values the "
+                    "record requests, and no forbidden identity or honey sentinel appeared "
+                    "in any channel the viewer receives"
                 )
             else:
                 row["reason"] = (

@@ -65,6 +65,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    knowledge_projection as knowledge_projection_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     midgame_rows as midgame_rows_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -1598,6 +1601,26 @@ def classify_remaining(
                     runtime_identity=identity,
                 )
             )
+        elif fixture_id in HIDDEN_SCENARIO_ROWS and (
+            candidate == "xmage" and fixture_id in knowledge_projection_mod.ROWS
+        ):
+            reason = erratum + (
+                "the effective obligation is a knowledge boundary at a constructed "
+                "checkpoint; it is executed on the production mid-game lane's "
+                "actor-entitled knowledge-projection route after the PB-03 runtime ledger "
+                "(KNOWLEDGE_PROJECTION_EXECUTIONS.json) and earns credit only through that "
+                "route's runner-bound positive receipt; a demonstrated leak is recorded "
+                "there as FAIL"
+            )
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome="UNKNOWN",
+                    reason=reason,
+                    runtime_identity=identity,
+                )
+            )
         elif fixture_id in HIDDEN_SCENARIO_ROWS:
             reason = erratum + (
                 "the effective obligation is a per-scenario hidden-information probe "
@@ -1869,6 +1892,21 @@ def main() -> int:
         write(
             "MIDGAME_ROW_EXECUTIONS.json",
             midgame_rows_mod.execute_and_persist(
+                workspace=REPO_ROOT / "engine-bridge",
+                records={
+                    record["fixture_id"]: record for record in materialization.denominator_records()
+                },
+                candidate_commit=canonical_xmage_engine_pin(),
+                runner_digest=runner.digest(),
+                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+            ),
+        )
+        # AF05: the construct-and-project HIDDEN rows on the same production
+        # lane, each verified knowledge boundary persisted as a runner-bound
+        # positive receipt; a demonstrated leak is recorded as FAIL.
+        write(
+            "KNOWLEDGE_PROJECTION_EXECUTIONS.json",
+            knowledge_projection_mod.execute_and_persist(
                 workspace=REPO_ROOT / "engine-bridge",
                 records={
                     record["fixture_id"]: record for record in materialization.denominator_records()

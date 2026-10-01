@@ -227,6 +227,7 @@ final class XmageNativeStateRestoration {
 
     private final Plan plan;
     private final Deck materializationVehicle;
+    private final XmageLosslessHiddenPlan losslessHidden;
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
@@ -234,6 +235,16 @@ final class XmageNativeStateRestoration {
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
+        this(plan, materializationVehicle, XmageLosslessHiddenPlan.EMPTY);
+    }
+
+    XmageNativeStateRestoration(
+            Plan plan, Deck materializationVehicle, XmageLosslessHiddenPlan losslessHidden) {
+        if (losslessHidden == null) {
+            throw new RestorationException(
+                    "INVALID_PLAN", "lossless hidden-state plan must not be null");
+        }
+        this.losslessHidden = losslessHidden;
         if (plan == null) {
             throw new RestorationException(
                     "INVALID_PLAN", "restoration plan must not be null");
@@ -283,6 +294,40 @@ final class XmageNativeStateRestoration {
         return null;
     }
 
+    XmageLosslessHiddenPlan losslessHidden() {
+        return losslessHidden;
+    }
+
+    /**
+     * Reserves one materialization-vehicle card of the identity for a requested
+     * object placed after arrival (a library object): a vehicle card the game
+     * has not loaded yet, bound to the semantic id exactly once.
+     */
+    synchronized Card reserveVehicleCard(String semanticId, String cardIdentity, mage.game.Game game) {
+        if (injectedObjectIdsBySemanticId.containsKey(semanticId)) {
+            throw new RestorationException("DUPLICATE_SEMANTIC_OBJECT", semanticId);
+        }
+        Set<UUID> bound = new HashSet<>(injectedObjectIdsBySemanticId.values());
+        for (Card card : materializationVehicle.getCards()) {
+            if (cardIdentity.equals(card.getName())
+                    && !bound.contains(card.getId())
+                    && game.getCard(card.getId()) == null) {
+                injectedObjectIdsBySemanticId.put(semanticId, card.getId());
+                return card;
+            }
+        }
+        throw new RestorationException("VEHICLE_SHORTAGE", "no unplaced vehicle card for " + semanticId);
+    }
+
+    /**
+     * Engine-direct lossless hidden-state verification: the checks performed and
+     * the mismatches found, coded, with no hidden identity.
+     */
+    XmageLosslessHiddenPlan.Verification losslessHiddenVerification(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        return losslessHidden.verify(game, playersByPid, this);
+    }
+
     UUID injectedObjectId(String semanticId) {
         UUID id = injectedObjectIdsBySemanticId.get(semanticId);
         if (id == null) {
@@ -299,6 +344,9 @@ final class XmageNativeStateRestoration {
      */
     static Plan planFromFrozenRecord(JsonObject record, String planId, long seed) {
         String fixtureId = record.get("fixture_id").getAsString();
+        // SLOT-04: only a record that states its hidden dimensions losslessly may
+        // carry a face-down or library object; everything else fails closed below.
+        XmageLosslessHiddenPlan lossless = XmageLosslessHiddenPlan.fromRecord(record);
         List<RequestedPlayer> players = new ArrayList<>();
         for (JsonElement element : record.getAsJsonArray("players")) {
             JsonObject player = element.getAsJsonObject();
@@ -379,7 +427,8 @@ final class XmageNativeStateRestoration {
             String semanticId = object.has("semantic_id") && !object.get("semantic_id").isJsonNull()
                     ? object.get("semantic_id").getAsString() : "?";
             if (object.has("face_down") && !object.get("face_down").isJsonNull()
-                    && object.get("face_down").getAsBoolean()) {
+                    && object.get("face_down").getAsBoolean()
+                    && !lossless.declaresFaceDown(semanticId)) {
                 throw new RestorationException("UNSUPPORTED_FACEDOWN", fixtureId + " " + semanticId);
             }
             if (object.has("counters") && !object.get("counters").isJsonNull()
@@ -431,6 +480,11 @@ final class XmageNativeStateRestoration {
                                 commander.zone(), semanticId));
                     }
                 }
+                continue;
+            }
+            if ("library".equals(zoneName) && lossless.declaresLibraryObject(semanticId)) {
+                // Placed after the opening hands by the lossless plan, at its
+                // declared position of a complete checkpoint library.
                 continue;
             }
             if ("command".equals(zoneName)) {
@@ -794,6 +848,10 @@ final class XmageNativeStateRestoration {
             // Life is not set here: game start re-derives it (initLife). See
             // restoreStartingLife, which runs after arrival (F-40).
         }
+        // SLOT-04: the typed face-down object turns face down here, before game
+        // start and before the public event tape exists, so no observation
+        // ever shows it face up.
+        losslessHidden.applyPreStart(game, this);
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         // After placement: the public event tape starts with the game, not the setup.
         game.getState().addWatcher(new XmagePublicEventWatcher());
@@ -880,6 +938,10 @@ final class XmageNativeStateRestoration {
 
         placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
         restoreStartingLife(game, playersByPid);
+        // SLOT-04: requested library cards and the complete library order, after
+        // the opening hands, through the native game-load API. The face-down
+        // object was already turned face down before game start.
+        losslessHidden.applyAfterArrival(game, playersByPid, this);
         arrivalRestored = true;
     }
 
@@ -1206,6 +1268,15 @@ final class XmageNativeStateRestoration {
         }
         Map<String, Integer> requestedCounts = new TreeMap<>();
         for (RequestedObject object : plan.objects()) {
+            if (losslessHidden.declaresFaceDown(object.semanticId())) {
+                // A face-down permanent has no public name (CR 708.2); its
+                // underlying identity and native type are verified engine-direct
+                // by the lossless plan, never through this public readback.
+                requestedCounts.merge(multisetKey(new RequestedObject(object.semanticId(),
+                        mage.constants.EmptyNames.FACE_DOWN_CREATURE.getObjectName(), object.owner(),
+                        object.controller(), object.zone(), object.tapped())), 1, Integer::sum);
+                continue;
+            }
             requestedCounts.merge(multisetKey(object), 1, Integer::sum);
         }
         for (RequestedCommander commander : plan.commanders()) {
@@ -1355,6 +1426,7 @@ final class XmageNativeStateRestoration {
         supported.add("frozen requested_state_digest equality for constructed states "
                 + "in the v1 subset (canonical projection per the recovered spec, "
                 + "verified per fixture; see requestedDigest/constructedDigest)");
+        supported.addAll(XmageLosslessHiddenPlan.supportedDescriptor());
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
         unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
