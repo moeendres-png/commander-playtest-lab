@@ -1601,6 +1601,8 @@ final class XmageNativeStateRestoration {
         unsupported.add("revealed-zone restoration");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
         unsupported.add("attachments (aura/equipment attachment relations)");
+        unsupported.add("counters other than +1/+1 and -1/-1, and counters on commanders or "
+                + "on objects off the battlefield");
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
         unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
