@@ -1,0 +1,47 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_ANNOUNCE_X",
+  "obligation_exercised": {
+    "obligation_digest": "3ae2fef5ea6788c27c51873e7308cac77df8e5f73a22a4f722f73052484f68f3",
+    "requested_state_digest": "7e1d2c81f0f6a1a57e2b4e5c86922cd442342fc20847b7b007d71444e7535047",
+    "required_events": [
+      "announce_x_frame:P1",
+      "x_announced:3"
+    ],
+    "terminal_checks": [
+      "P1 moved exactly 3 card(s) from library to hand",
+      "the engine charged exactly 5 mana"
+    ],
+    "terminal_postconditions": [
+      "X=3 is bound into the announced spell and cost calculation by the Rules Core."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P1 moved exactly 3 card(s) from library to hand": true,
+      "the engine charged exactly 5 mana": true
+    },
+    "token_evidence": {
+      "announce_x_frame:P1": {
+        "decision_frames": [
+          1
+        ]
+      },
+      "x_announced:3": {
+        "decision_frames": [
+          1
+        ]
+      }
+    }
+  },
+  "outcome": "PASS",
+  "receipt_digest": "40e616965678db5021646856fb26d8d6360326a2b9c91acaf2750ca5c7980878",
+  "runner_digest": "87c0abfdcf1b09305b484c577d9ce239c86c593f35cac37cb7a3efd6d3403365",
+  "runtime_receipt_digest": "f4c7ff03af4f521bf652918b3ddfd8eb6a48c2aac1bba86e358a2611bf06c637",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_ANNOUNCE_X"
+}

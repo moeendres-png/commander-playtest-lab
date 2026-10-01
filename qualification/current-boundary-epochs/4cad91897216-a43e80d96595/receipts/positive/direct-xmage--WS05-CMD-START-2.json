@@ -1,0 +1,35 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "execution_mode": "PROTOCOL2_START2_V1_0_6",
+  "fixture_id": "WS05-CMD-START-2",
+  "obligation_exercised": {
+    "fixture_family": "multiplayer_commander",
+    "forbidden_events": [
+      "draw_step_started:P1:turn1",
+      "draw_step_draw:P1:turn1"
+    ],
+    "obligation_digest": "bda093c040b17cf9e3447fcea28bda7f62289f14c8eb0ed1d159e0accdb6e325",
+    "requested_state_digest": "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342",
+    "required_events": [
+      "starting_player:P1",
+      "first_turn_draw_step_skipped:true"
+    ],
+    "terminal_postconditions": [
+      "In 2P, starting player P1 skips the entire draw step on the first turn; no draw-step priority occurs and P1 hand/library counts remain unchanged from the post-mulligan opening state through entry to precombat main."
+    ]
+  },
+  "observed_assertion": {
+    "principal_observation_scope": "engine-offered decision frames for the acting seat",
+    "row_document_sha256": "4d144a8221e22823acc5fe34f31567c9e93c4a7c2bc4cf5df99c986b42b2ff0b",
+    "semantic_events_sha256": "7361157e560b2f3fbd15c1d33c5ded035735c0f55412f3166340adf92bb0a865",
+    "terminal_facts_sha256": "3f21f5579eed64e53c5a5a89c7b891efdaea009097228f6a0cddcfb13981f1b7"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "d7a3ea78df8d8b906a659ab19306b67fddc2a2ff939dfb83d026451fe2a7337a",
+  "runner_digest": "87c0abfdcf1b09305b484c577d9ce239c86c593f35cac37cb7a3efd6d3403365",
+  "runtime_receipt_digest": "4d144a8221e22823acc5fe34f31567c9e93c4a7c2bc4cf5df99c986b42b2ff0b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "current-boundary-direct:PROTOCOL2_START2_V1_0_6#WS05-CMD-START-2"
+}
