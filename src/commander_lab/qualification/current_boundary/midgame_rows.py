@@ -307,6 +307,10 @@ class Frame:
     # engine's own option metadata names one (used to bind a cost obligation to
     # the exact cast it belongs to).
     selected_source_object: str | None = None
+    # Every engine-offered option id this frame submitted. A single-select
+    # answer carries one; a multi-select answer carries the complete vector, so
+    # the receipt shows exactly which targets the engine accepted.
+    selected_option_ids: tuple[str, ...] = ()
 
 
 @dataclass
@@ -932,6 +936,12 @@ def _source_of(action: dict[str, Any]) -> str | None:
     return str(value) if value else None
 
 
+def _single_option_id(action: dict[str, Any]) -> tuple[str, ...]:
+    """The offered option id of a single-select action, or an empty tuple."""
+    option_id = _option_id(action)
+    return (option_id,) if option_id else ()
+
+
 def _semantic_offers(
     key: str, actions: list[dict[str, Any]], placed: dict[str, str]
 ) -> list[dict[str, Any]]:
@@ -1053,6 +1063,10 @@ def _scripted_answer(
                 )
             selected.append(found[0])
         requested_option_ids = [_option_id(action) for action in selected]
+        if any(not option_id for option_id in requested_option_ids):
+            raise ml.MidgameLaneError(
+                f"an engine offer for semantic_objects carries no option id: {value!r}"
+            )
         if len(set(requested_option_ids)) != len(requested_option_ids):
             raise ml.MidgameLaneError(
                 f"semantic_objects maps two requested identities to one engine offer: {value!r}"
@@ -1363,6 +1377,7 @@ def execute_row(
             ):
                 action = _attacker_answer(legal, step, placed_by_native)
                 frame.selected_label, frame.scripted = _label_of(action), True
+                frame.selected_option_ids = _single_option_id(action)
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 declaring = True
                 continue
@@ -1371,6 +1386,7 @@ def execute_row(
                     action = _scripted_priority_action(legal, step, placed, commanders)
                     frame.selected_label, frame.scripted = _label_of(action), True
                     frame.selected_source_object = _source_of(action)
+                    frame.selected_option_ids = _single_option_id(action)
                     probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                     position += 1
                     continue
@@ -1387,6 +1403,7 @@ def execute_row(
                     )
                 frame.selected_label = _label_of(offer)
                 frame.selected_option_type = str((offer.get("metadata") or {}).get("option_type"))
+                frame.selected_option_ids = _single_option_id(offer)
                 probe.submit_proposal(client, legal, offer, f"{fixture_id}-mana-{len(trace)}")
                 continue
             if (
@@ -1398,6 +1415,7 @@ def execute_row(
                 frame.selected_label, frame.scripted = _label_of(answer.action), True
                 frame.selected_key, frame.numeric = answer.key, answer.numeric
                 frame.selected_source_object = _source_of(answer.action)
+                frame.selected_option_ids = answer.option_ids
                 probe.submit_proposal(
                     client,
                     legal,

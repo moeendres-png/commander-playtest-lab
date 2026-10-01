@@ -693,6 +693,14 @@ def test_a_multi_select_without_engine_selection_bounds_fails_closed() -> None:
         mr._scripted_answer(legal, _multi_step(["obj:a"]), {"obj:a": "native-a"}, mr.RowSpec())
 
 
+def test_a_multi_select_offer_without_an_option_id_fails_closed() -> None:
+    offer = _target_offer("native-a", "Grizzly Bears")
+    del offer["metadata"]["option_id"]
+    legal = _multi_select_legal(1, 1, [offer])
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(legal, _multi_step(["obj:a"]), {"obj:a": "native-a"}, mr.RowSpec())
+
+
 def test_a_malformed_multi_select_value_fails_closed() -> None:
     legal = _multi_select_legal(1, 1, [_target_offer("native-a", "Grizzly Bears")])
     for bad in ([], "obj:a", {"obj:a": 1}, ["obj:a", 1]):
@@ -716,7 +724,7 @@ def test_an_amount_outside_the_engine_frames_bounds_fails_closed() -> None:
     with pytest.raises(mr.ml.MidgameLaneError):
         mr._scripted_answer(legal, _amount_step({"P2": 2}), {}, mr.RowSpec(), 0)
     # The declaration itself must be a positive integer.
-    for bad in ({"P2": 0}, {"P2": True}, {"P2": "2"}, {"P2": None}, [], {}):
+    for bad in ({"P2": 0}, {"P2": -2}, {"P2": True}, {"P2": "2"}, {"P2": None}, [], {}):
         with pytest.raises(mr.ml.MidgameLaneError):
             mr._scripted_answer(legal, _amount_step(bad), {}, mr.RowSpec(), 0)
 
@@ -936,6 +944,20 @@ def test_a_cost_token_rejects_an_unreadable_mana_string() -> None:
             )
             is None
         ), unpaid
+
+
+def test_a_cost_token_rejects_a_payment_frame_without_the_engine_determination() -> None:
+    """A payment frame that exposes no unpaid_mana carries no engine cost
+    determination; an adjacent mechanism cannot stand in for it."""
+    payments = _payment_frames("{7}{B}{B}", 9, 9)
+    payments[0].context = {}
+    trace = [_cast_frame("native-hex"), *payments]
+    assert (
+        mr.verify_token(
+            "cost_determined:base_plus_3_generic", [], trace, set(), None, None, OBLIGATION
+        )
+        is None
+    )
 
 
 def test_assignment_terminal_checks_read_the_engine_frames() -> None:

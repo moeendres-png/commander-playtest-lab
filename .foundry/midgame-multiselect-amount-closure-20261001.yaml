@@ -108,6 +108,8 @@ evidence:
   - 'dev positive: MICRO_COSTS cost evidence charged_mana=9, determined {7}{B}{B}, 18 engine decision ids'
   - 'dev positive: PILOT_TARGET_AMOUNT and PILOT_MULTI_AMOUNT amount_assignment:2+2 with engine decision ids and engine_amount_remaining=4'
   - 'dev controls: MICRO_COSTS without payment -> cost token missing; Magma Opus with one leg -> amount_assignment:2+2 missing'
+  - 'dev runner+assembler on 577390fb (local artifact e04062d2, NON-CREDIT): 22/22 midgame rows verified, xmage PASS 24 -> 27, the three rows PASS with fresh current-boundary receipts; epoch 577390fb6cd8-64d8559bb8e3 was produced for validation and is deliberately not committed (local artifact differs from the at-pin CI artifact)'
+  - 'independent fresh-context review: PASS, no P1/P2; P3 advisories addressed (multi-select option ids persisted on the frame, doc precision, three added negative tests) except the local-epoch hygiene item which is resolved by discarding it'
 
 artifacts:
   - docs/midgame_multiselect_amount_closure_20261001/SELECTOR_DESIGN.md

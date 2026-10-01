@@ -79,7 +79,12 @@ the leg's semantic target against the frame's offers and requires the declared
 amount to lie inside the frame's own `numeric_min..numeric_max` (the engine's
 leg bounds, never a Lab rule). It submits the option id plus `numeric_choice`
 in one proposal. The step completes when every declared leg has been consumed;
-a further assignment frame then fails closed rather than defaulting.
+if the engine asks for another assignment while the step is still current, the
+selector fails closed rather than defaulting. (In the executor loop the success
+check runs before the next pending frame is read once the obligation tokens
+hold, so a record whose legs already total the engine's `amount_remaining`
+stops there; the engine cannot ask for another assignment after the remaining
+total reaches zero.)
 
 Fail-closed: missing/ambiguous target; non-integer, boolean, zero or negative
 amount; amount outside the engine's numeric bounds; an extra assignment frame
