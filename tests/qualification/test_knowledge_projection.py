@@ -212,6 +212,19 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         _entry("complete_midgame_arrival", {"actor_id": "P1"}, _ok(copy.deepcopy(scoped))),
     ]
     script_start = len(tape) if record.get("decision_script") else None
+    if kind == "copy_face_down":
+        # P2's manifested permanent; P1's copy choice offering it without its
+        # identity; P1's copy with only the face-down characteristics.
+        for label in LABELS:
+            projections[label]["view"]["players"][1]["battlefield"] = [
+                {"face_down": True, "name": "", "object_id": "p2-fd"}
+            ]
+        projections["P1"]["view"]["players"][0]["battlefield"].append(
+            {"face_down": False, "name": "", "object_id": "copy", "power": 2, "toughness": 2}
+        )
+        frame = _target_frame()
+        frame["decision_class"] = "choose_object"
+        tape.append(_entry("get_midgame_decision", None, _ok({"decision": frame})))
     if kind == "target_metadata":
         # P2's manifested permanent, as P1's own projection shows it, and P1's
         # target frame offering it with its public face-down characteristics.
@@ -834,3 +847,34 @@ def test_a_target_frame_that_never_offers_the_hidden_permanent_is_unverified(
     verdict = _verdict(records, "HIDDEN_14", no_offer)
     assert verdict.classification == kp.UNVERIFIED
     assert _failed(verdict) == ["hidden_target_offered:P1"]
+
+
+def test_a_copy_that_carries_the_hidden_identity_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def named_copy(capture: kp.Capture) -> None:
+        battlefield = capture.projections["P1"]["view"]["players"][0]["battlefield"]
+        battlefield[-1] = {
+            "face_down": False,
+            "name": "",
+            "object_id": "copy",
+            "power": 2,
+            "toughness": 2,
+            "private_identity": "Vampiric Tutor",
+        }
+
+    verdict = _verdict(records, "HIDDEN_17", named_copy)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "copy_has_only_face_down_characteristics" in _failed(verdict)
+
+
+def test_a_card_the_script_casts_is_public_only_after_the_event(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    record = records["HIDDEN_17"]
+    # P1's hand card is P1's alone until the script casts it onto the stack.
+    assert "Phantasmal Image" in kp.forbidden_tokens(record, "P3").tokens
+    assert "Phantasmal Image" not in kp.forbidden_tokens(record, "P3", after_event=True).tokens
+    # Nothing else about P2's hidden cards becomes public with it.
+    after = kp.forbidden_tokens(record, "P3", after_event=True).tokens
+    assert {"Demonic Tutor", "Vampiric Tutor"} <= set(after)

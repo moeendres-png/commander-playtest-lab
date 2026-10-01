@@ -252,3 +252,31 @@ HIDDEN_07, 08, 09, 14 and 18). In
 HIDDEN_09, P1, P3 and P4 received no library offer. In HIDDEN_18 there were 120
 public documents with 0 occurrences of any denied identity. Credit comes only
 from the PB-03 receipts.
+
+## M2 batch 3: HIDDEN_17 (contract 1.0.11)
+
+Contract 1.0.11 carries the twenty 1.0.10 overlays byte for byte and adds the
+same erratum class for HIDDEN_17.
+
+| Row | Obligation | Event route |
+|---|---|---|
+| HIDDEN_17 | copy/face-down interactions hide original identity | P2 activates **Mastery of the Unseen**, so `obj:hidden-lib-0` becomes a face-down 2/2. P1 casts **Phantasmal Image** (two Islands), answers its "use" prompt yes, and copies that face-down permanent. |
+
+Verifier additions:
+- **Boolean selector:** a yes/no frame is answered only by the engine's own
+  boolean offer whose value is the script's.
+- **Copy of a hidden permanent:**
+  - P1's copy choice must offer the hidden permanent with an empty label and
+    name.
+  - P1's resulting copy must be a face-up, nameless 2/2 with no private
+    identity, as the copiable values of a face-down permanent are only its
+    face-down characteristics.
+  - Every principal other than P1 and the face-down permanent's controller is
+    scanned.
+- **Scripted casts become public:** a card that the record's own script casts
+  is on the stack, a public zone (CR 601.2a), so every principal may know it
+  after the event. Before the event it is still its owner's alone. The first
+  local run showed why: P3 and P4 received "Phantasmal Image" once it was cast.
+  Nothing else becomes public with it, and a test covers both directions.
+
+Local end to end on `37e4df6c`: 12/12 rows verified.
