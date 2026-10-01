@@ -93,7 +93,7 @@ def load_effective_materialization() -> dict[str, Any]:
     historical_bundle_digest = effective.pop("canonical_bundle_digest", None)
     historical_supersedes = copy.deepcopy(effective.get("supersedes"))
 
-    effective["schema_version"] = "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+    effective["schema_version"] = "commander-lab.semantic-fixture-materialization/1.0.7-successor"
     effective["contract_id"] = successor["contract_id"]
     effective["qualification_boundary"] = "commander-lab.pre-freeze-qualification/2.0.0"
     effective["qualification_protocol_version"] = "2.0.0"
@@ -147,12 +147,19 @@ def load_effective_materialization() -> dict[str, Any]:
 
         record["materialization_status"] = "AUTHORITY_CORRECTED_SUCCESSOR"
         record["materialization_version"] = (
-            "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+            "commander-lab.semantic-fixture-materialization/1.0.7-successor"
         )
         record["repair_provenance"] = {
             "predecessor_version": bundle.get("schema_version"),
             "predecessor_requested_state_digest": patch["predecessor_requested_state_digest"],
-            "correction_class": successor["change_accounting"]["change_class"],
+            # A per-record erratum class is more precise than the contract-level
+            # one, which now covers several distinct corrections (a CR authority
+            # correction, script errata and a CR 307.1 fixture-defect repair).
+            # The contract-level class remains the fallback for historical
+            # patches that only carry it.
+            "correction_class": patch.get(
+                "correction_class", successor["change_accounting"]["change_class"]
+            ),
             "provider_semantics_used": False,
             "historical_record_preserved": True,
             "current_boundary_runtime_credit": "NOT_GRANTED_BY_MATERIALIZATION",

@@ -12,8 +12,26 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
+)
+PREDECESSOR_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
 )
+# The successor contract now carries the adjudicated fixture errata from
+# #255/441 section C: the rows whose script began inside a cast, plus the
+# MICRO_COSTS CR 307.1 fixture-defect correction, alongside the CR 103.8a
+# START-2 successor.
+CHANGED_FIXTURE_IDS = [
+    "WS05-CMD-START-2",
+    "MICRO_MODES",
+    "NEGATIVE_FIRST_OPTION",
+    "NEGATIVE_GUI_DEFAULT",
+    "NEGATIVE_RANDOM_OPTION",
+    "NEGATIVE_SILENT_SKIP",
+    "PILOT_TARGET_AMOUNT",
+    "PILOT_MULTI_AMOUNT",
+    "MICRO_COSTS",
+]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_gate_catalog_v2.json"
@@ -22,7 +40,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_7_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -40,15 +58,28 @@ def _resolver():
     return module
 
 
-def test_current_authority_preserves_history_and_changes_only_start2() -> None:
+def test_current_authority_preserves_history_and_lists_every_changed_fixture() -> None:
     authority = _json(AUTHORITY_PATH)
     assert authority["full107"]["denominator_count"] == 107
-    assert authority["full107"]["changed_fixture_ids"] == ["WS05-CMD-START-2"]
-    assert authority["full107"]["unchanged_fixture_count"] == 106
+    assert authority["full107"]["changed_fixture_ids"] == CHANGED_FIXTURE_IDS
+    assert authority["full107"]["unchanged_fixture_count"] == 107 - len(CHANGED_FIXTURE_IDS)
     assert (
         authority["full107"]["evidence_survival"]["WS05-CMD-START-2"]
         == "REQUALIFICATION_REQUIRED_SEMANTIC_CHANGE"
     )
+    assert (
+        authority["full107"]["evidence_survival"]["MICRO_COSTS"]
+        == "REQUALIFICATION_REQUIRED_FIXTURE_DEFECT_CORRECTION_CR_307_1"
+    )
+    assert (
+        authority["full107"]["successor_contract"]
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
+    )
+    # Every changed fixture needs requalification; none may inherit credit.
+    for fixture_id in CHANGED_FIXTURE_IDS:
+        assert authority["full107"]["evidence_survival"][fixture_id].startswith(
+            "REQUALIFICATION_REQUIRED"
+        )
     assert (
         authority["full107"]["evidence_migration"]["common_comparison_runtime_credit"]
         == "FRESH_CURRENT_BOUNDARY_EXECUTION_REQUIRED_ALL_107"
@@ -101,6 +132,139 @@ def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
     assert record["materialization_digest"] == resolver.materialization_digest(record)
 
 
+def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None:
+    """Historical overlays are provenance; the new contract supersedes them."""
+
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_6.json")
+    assert (
+        contract["predecessor"]["sha256"]
+        == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
+    )
+    # The CR 103.8a patch is carried over unchanged, including its digest.
+    carried = next(
+        patch
+        for patch in contract["record_successors"]
+        if patch["fixture_id"] == "WS05-CMD-START-2"
+    )
+    original = predecessor["record_successors"][0]
+    assert carried == {**original, "correction_class": "OFFICIAL_RULES_AUTHORITY_CORRECTION"}
+
+
+def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_domain() -> None:
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    errata = {
+        patch["fixture_id"]: patch
+        for patch in contract["record_successors"]
+        if patch.get("correction_class") == "FIXTURE_SCRIPT_CONTRACT_ERRATUM"
+    }
+    assert set(errata) == {
+        "MICRO_MODES",
+        "NEGATIVE_FIRST_OPTION",
+        "NEGATIVE_GUI_DEFAULT",
+        "NEGATIVE_RANDOM_OPTION",
+        "NEGATIVE_SILENT_SKIP",
+        "PILOT_TARGET_AMOUNT",
+        "PILOT_MULTI_AMOUNT",
+    }
+    for fixture_id, patch in errata.items():
+        record = resolver.effective_record(fixture_id)
+        first = record["decision_script"][0]
+        # The successor's first scripted step is an engine-offered cast; the
+        # predecessor's first step (the inside-cast decision) is preserved after
+        # it, so the intended obligation is unchanged.
+        assert first["decision_family"] == "priority", fixture_id
+        selection = first["selection"]
+        assert selection["selector_kind"] == "semantic_action"
+        assert selection["semantic_value"]["action"] == "cast"
+        assert selection["matches_only_provider_offered_legal_options"] is True
+        assert selection["on_zero_match"] == "FAIL_CLOSED"
+        assert record["decision_script"][1] == patch["replace"]["decision_script"][1]
+        # The cast is payable only from the record's own explicit sources.
+        assert record["action_cost_state"], fixture_id
+        assert record["action_cost_state"][0]["payable"] is True
+        assert record["action_cost_state"][0]["explicit_payment_sources"]
+        assert record["repair_provenance"]["correction_class"] == (
+            "FIXTURE_SCRIPT_CONTRACT_ERRATUM"
+        )
+        assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+        assert record["requested_state_digest"] != patch["predecessor_requested_state_digest"]
+        # The erratum is recorded on the record itself, and it explicitly
+        # disclaims prose-derived action injection.
+        erratum = record["native_procedure"][-1]
+        assert erratum["operation"] == "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
+        assert erratum["details"]["prose_derived_action_injection"] is False
+
+
+def test_micro_costs_correction_makes_the_scripted_sorcery_legal_and_preserves_the_obligation() -> (
+    None
+):
+    """CR 307.1: a sorcery needs its controller's own main phase."""
+
+    resolver = _resolver()
+    record = resolver.effective_record("MICRO_COSTS")
+    assert record["temporal_state"] == {
+        "active_player": "P2",
+        "extra_turn_queue": [],
+        "phase": "precombat_main",
+        "priority_player": "P2",
+        "step": "main",
+        "turn_number": 1,
+    }
+    # The intended cost/interaction obligation is untouched: the scripted cast
+    # and its target assignment, the required cost event and the postcondition
+    # are the predecessor's.
+    first = record["decision_script"][0]
+    assert first["decision_family"] == "priority"
+    assert first["selection"]["semantic_value"] == {
+        "action": "cast",
+        "object": "obj:micro-hex",
+    }
+    assert "cost_determined:base_plus_3_generic" in record["expected_events"]["required_events"]
+    assert record["terminal_postconditions"] == [
+        "Targeting two P1 commanders while Esior is controlled adds exactly {3} total, once."
+    ]
+    assert record["repair_provenance"]["correction_class"] == ("FIXTURE_DEFECT_CORRECTION_CR307_1")
+    erratum = record["native_procedure"][-1]["details"]
+    assert erratum["comprehensive_rules"] == "307.1"
+    assert erratum["provider_semantics_used"] is False
+
+
+def test_lane_rows_bound_to_corrected_fixtures_agree_with_the_records() -> None:
+    """Every registered lane row must be executable against its own record.
+
+    A lane spec that names a mana source the record does not place, or a cast
+    object the record does not carry, would fail at run time for a harness
+    reason rather than an engine reason. This is a static consistency check over
+    the corrected fixtures; it proves nothing about engine behaviour.
+    """
+
+    from commander_lab.qualification.current_boundary import midgame_rows as mr
+
+    resolver = _resolver()
+    corrected = [
+        fixture_id for fixture_id in CHANGED_FIXTURE_IDS if fixture_id != "WS05-CMD-START-2"
+    ]
+    for fixture_id in corrected:
+        if fixture_id not in mr.ROWS:
+            continue
+        record = resolver.effective_record(fixture_id)
+        semantic_ids = {str(o["semantic_id"]) for o in record["semantic_objects"]}
+        spec = mr.ROWS[fixture_id]
+        for source in spec.mana_sources:
+            assert source in semantic_ids, (fixture_id, source)
+        priority_steps = [
+            step for step in record["decision_script"] if step["decision_family"] == "priority"
+        ]
+        assert priority_steps, fixture_id
+        for step in priority_steps:
+            target = step["selection"]["semantic_value"].get("object")
+            if target is not None:
+                assert target in semantic_ids, (fixture_id, target)
+
+
 def test_successor_overlay_does_not_mutate_other_records() -> None:
     authority = _json(AUTHORITY_PATH)
     base = _json(REPO_ROOT / authority["full107"]["historical_base_materialization"])
@@ -110,9 +274,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.7-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.6-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.7-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -127,8 +291,15 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
     assert old.keys() == new.keys()
     for fixture_id in old:
-        if fixture_id == "WS05-CMD-START-2":
+        if fixture_id in CHANGED_FIXTURE_IDS:
             assert old[fixture_id] != new[fixture_id]
+            # Lineage is preserved rather than rewritten: the predecessor's
+            # digests survive under historical_digests and the successor names
+            # the record it supersedes.
+            assert (
+                new[fixture_id]["supersedes_record_digest"]
+                == old[fixture_id]["materialization_digest"]
+            )
         else:
             assert old[fixture_id] == new[fixture_id]
 

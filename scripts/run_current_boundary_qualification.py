@@ -1530,6 +1530,19 @@ def classify_remaining(
         fixture_id = record["fixture_id"]
         if fixture_id in executed:
             continue
+        # A record corrected by the current successor contract has a new
+        # evidence identity: its predecessor's evidence did not transfer, and
+        # every residual reason must say which erratum produced this identity.
+        erratum = ""
+        if record.get("materialization_status") == "AUTHORITY_CORRECTED_SUCCESSOR":
+            provenance = record.get("repair_provenance") or {}
+            predecessor = str(provenance.get("predecessor_requested_state_digest") or "")
+            erratum = (
+                "this fixture was corrected by the current successor contract "
+                f"({provenance.get('correction_class', 'UNKNOWN_CORRECTION')}, supersedes "
+                f"{predecessor[:12] or 'unknown'}); its predecessor's evidence does not "
+                "transfer. "
+            )
         # PB-03: decide from the obligation's mechanisms, not from the row name.
         mechanisms = mid_game_mechanisms(record)
         if mechanisms:
@@ -1556,7 +1569,7 @@ def classify_remaining(
                 )
                 outcome = "BLOCKED"
             else:
-                reason = (
+                reason = erratum + (
                     "no current-boundary execution seam: the effective obligation requires a "
                     "frozen mid-game starting state because it requires the mid-game "
                     f"mechanisms {sorted(mechanisms)}, and this candidate reports "
@@ -1576,7 +1589,7 @@ def classify_remaining(
                 )
             )
         elif fixture_id in HIDDEN_SCENARIO_ROWS:
-            reason = (
+            reason = erratum + (
                 "the effective obligation is a per-scenario hidden-information probe "
                 "(actor/principal, zone movement, invalidation, replay knowledge boundary). "
                 "The generic Protocol-2 state projection exposes principal-scoped zones but "
@@ -1593,7 +1606,7 @@ def classify_remaining(
                 )
             )
         elif fixture_id in NEGATIVE_ROWS:
-            reason = (
+            reason = erratum + (
                 "the effective obligation is a dedicated per-shortcut negative proving that "
                 "one prohibited fallback cannot satisfy a production-reachable decision. "
                 "The current-boundary runner has no such shortcut to exercise, so the "
@@ -1610,7 +1623,7 @@ def classify_remaining(
                 )
             )
         elif fixture_id in REPLAY_ROWS:
-            reason = (
+            reason = erratum + (
                 "the effective obligation is an N-scoped replay/RNG fixture requiring a "
                 "clean-process twin of the same decisions and Rules RNG. A single-process "
                 "replay export was executed, but the twin half of the obligation is not "
@@ -1626,7 +1639,7 @@ def classify_remaining(
                 )
             )
         elif fixture_id in NATIVE_MICRO_ROWS:
-            reason = (
+            reason = erratum + (
                 "the effective obligation is a micro-rules mechanism in a constructed "
                 "mid-game state. The generic Protocol-2 lane reaches priority and the "
                 "opening phase only; reaching this mechanism needs the engine-native "
@@ -1642,7 +1655,7 @@ def classify_remaining(
                 )
             )
         elif fixture_id in PILOT_ROWS or fixture_id.startswith("PILOT_"):
-            reason = (
+            reason = erratum + (
                 "the effective obligation is a specific engine-offered decision family in a "
                 "constructed game state. The generic lane exercised PRIORITY; the remaining "
                 "families are not offered in the opening phase and no first-option default "
@@ -1658,7 +1671,7 @@ def classify_remaining(
                 )
             )
         else:
-            reason = (
+            reason = erratum + (
                 "no current-boundary execution path for this obligation in this run; "
                 "recorded explicitly rather than left unclassified or inherited."
             )
