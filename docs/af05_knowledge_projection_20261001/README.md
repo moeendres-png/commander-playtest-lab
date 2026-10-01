@@ -152,3 +152,103 @@ Outcomes:
   it can execute.
 - **M3:** Forge HIDDEN rows, which need a Forge mid-game construction lane.
 - **AF05** stays UNKNOWN until all twenty rows PASS. M1 can lift at most six.
+
+## M2 batch 1: HIDDEN_07 and HIDDEN_08 (contract 1.0.9)
+
+Every HIDDEN_05–18 record has the M1 static base and an empty decision script,
+but its obligation names an event. A versioned scenario erratum adds the objects
+that cause that event and a decision script that selects only engine offers.
+The obligation, the viewer state and the lossless base state stay unchanged
+(`HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04`).
+
+| Row | Obligation | Event route |
+|---|---|---|
+| HIDDEN_07 | reveal reaches exactly legal audience | P1 casts Telepathy (Island pays). Its opponents play with their hands revealed, so P2's hand card reaches every principal's `revealed` log. |
+| HIDDEN_08 | look reaches only specified audience | P1 activates Orcish Spy (`{T}`: look at the top three cards of target player's library), targeting P2. Only P1's `looked_at` log names `obj:hidden-lib-0`; P2 (the owner), P3 and P4 receive it nowhere. |
+
+Verifier additions:
+- A small script runner answers the record's script from engine offers only.
+- The record's temporary permissions apply only to documents after the event.
+  The same identity in a frame the viewer received earlier is still a leak.
+- An event that never completed leaves the row UNVERIFIED, never FAIL.
+
+A measured limit for later rows: a range-of-influence static (Telepathy) cannot
+be *placed* before game start. XMage raises `IllegalStateException` in
+`hasPlayerInRange`, so scenarios that need one have to cast it.
+
+Local end to end on `37e4df6c`: 8/8 rows verified (six M1 rows plus HIDDEN_07
+and HIDDEN_08). Credit only through the PB-03 receipts.
+
+## M2 batch 2: HIDDEN_09, HIDDEN_14 and HIDDEN_18 (contract 1.0.10)
+
+Contract 1.0.10 carries the seventeen 1.0.9 overlays byte for byte and adds the
+same `HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04` class for three more rows.
+
+| Row | Obligation | Event route |
+|---|---|---|
+| HIDDEN_09 | hidden-zone search inspection does not leak | P2 activates **Planar Portal** (`{6}, {T}`: search your library for a card, put it into your hand, then shuffle), paid by six P2 Islands, and chooses `obj:hidden-lib-0`. |
+| HIDDEN_14 | target option metadata does not leak | P2 activates **Mastery of the Unseen** (`{3}{W}`: manifest the top card of your library), so `obj:hidden-lib-0` becomes a face-down 2/2 that P1 may not identify. P1 activates **Prodigal Pyromancer** (`{T}`: 1 damage to any target) and targets it. |
+| HIDDEN_18 | transcripts omit actor-private state | P1 activates **Orcish Spy** targeting P2. P1 now privately knows `obj:hidden-lib-0`, the record's `known_object_identities`. |
+
+Planar Portal was chosen because the search reveals nothing. A spell tutor
+would make its own card public on the stack, and Mystical-style tutors reveal
+the found card.
+
+Verifier additions:
+- **Search inspection.** The searcher and zone come from the record's own search
+  permission. The searcher's own frame must offer every card of that library
+  (93 of 93 at the checkpoint), including the requested identity. No other
+  principal may receive any library offer or any identity it is not entitled
+  to. If the searcher's frames carry no options, nothing was measured, so the
+  row is UNVERIFIED rather than denied.
+- **Library-object selector.** The lane reports no native id for a hidden
+  library card. The script's `semantic_object` selector therefore matches a
+  library object by the record's checkpoint position and identity, which the
+  engine's offer to the searcher carries. Zero or several matches fail closed.
+- **Hidden target.** The hidden target is the face-down permanent that the viewer
+  does not control, as the viewer's own projection shows it. The script selects
+  it with `semantic_face_down_permanent`, which resolves through the acting
+  principal's own projection and nothing else. Every offer of it must carry an
+  empty label and name and no denied token.
+- **Script timing.** A scripted priority action now waits for an empty stack. A
+  script declares events, never responses. Without this, P1 activated Prodigal
+  Pyromancer while P2's manifest was still on the stack.
+- **Transcript privacy.** The viewer's `known_object_identities` entitle it only
+  after the scripted event, like temporary permissions. Before the event the
+  same identity is a leak.
+  - The look must reach the viewer.
+  - Every public document (event tape, status and refusal envelopes) and the
+    process log may carry no identity that any principal is denied.
+  - Every other principal's channels are scanned.
+
+### Finding: the public event tape named a face-down permanent's requested object
+
+The first local run of HIDDEN_14 failed with `FAIL_DEMONSTRATED_LEAK`. The public
+`get_midgame_events` tape carried `target_object: obj:hidden-lib-0` on the
+`DAMAGED_PERMANENT` event for P2's manifested permanent, and every principal
+receives that tape. `XmagePublicEventWatcher` treated every event other than a
+zone change as public, so the bridge resolved the face-down target to the
+semantic object the record requested, and the record binds that object to the
+hidden identity. The card name itself was already withheld.
+
+Fixed in the Lab adapter: the watcher marks the target and source of every
+event other than a zone change as hidden while the object is a face-down
+permanent or sits in a hidden zone, and the bridge then names neither its
+semantic object nor its card. A public source is still named.
+`XmageMidgameKnowledgeProjectionTest.thePublicEventTapeNeverResolvesAFaceDownPermanentToItsRequestedObject`
+damages P1's own face-down permanent. It fails without the fix and passes with
+it.
+
+HIDDEN_11 (shuffle invalidates order knowledge) is executable with Orcish Spy
+followed by a shuffle. After the shuffle, though, XMage keeps the viewer's
+`looked_at` entry and its pre-shuffle card order as a turn-stamped history.
+No current-state field (`granted_library`, `library_top_revealed`) ever
+carried the order. Whether such a retained history entry is "pre-shuffle order
+retained after shuffle" is a Coordinator adjudication, so the row is not built
+yet.
+
+Local end to end on `37e4df6c`: 11/11 rows verified (the six M1 rows,
+HIDDEN_07, 08, 09, 14 and 18). In
+HIDDEN_09, P1, P3 and P4 received no library offer. In HIDDEN_18 there were 120
+public documents with 0 occurrences of any denied identity. Credit comes only
+from the PB-03 receipts.
