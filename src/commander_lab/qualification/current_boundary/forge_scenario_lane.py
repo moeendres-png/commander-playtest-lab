@@ -1698,12 +1698,14 @@ def drive_scenario_game(
                     if action.get("action_type") == "structural_decision"
                     and action.get("source_object_id") == wanted
                 ]
-                if not options:
+                if len(options) != 1:
                     raise DecisionUnsatisfied(
-                        f"engine offered no starting-player option for {wanted!r}; "
-                        f"offered {[a.get('source_object_id') for a in actions]}"
+                        f"engine offered {len(options)} starting-player options for "
+                        f"{wanted!r}; require exactly one, offered "
+                        f"{[a.get('source_object_id') for a in actions]}"
                     )
-                chosen = str(options[0]["action_id"])
+                [chosen_action] = options
+                chosen = str(chosen_action["action_id"])
                 response = proc.request(
                     "submit_action",
                     {
@@ -1775,9 +1777,13 @@ def drive_scenario_game(
                     for action in actions
                     if action.get("action_type") == "pass_priority"
                 ]
-                if not pass_actions:
-                    raise DecisionUnsatisfied("PRIORITY offered no pass_priority option")
-                chosen = str(pass_actions[0]["action_id"])
+                if len(pass_actions) != 1:
+                    raise DecisionUnsatisfied(
+                        f"PRIORITY offered {len(pass_actions)} pass_priority options; "
+                        "require exactly one"
+                    )
+                [pass_action] = pass_actions
+                chosen = str(pass_action["action_id"])
                 response = proc.request(
                     "pass_priority",
                     decision_identity_params("forge", frame),
