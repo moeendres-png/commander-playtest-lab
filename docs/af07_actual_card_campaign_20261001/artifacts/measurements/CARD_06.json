@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.825,
+  "elapsed_s": 7.603,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "cf2fc0642ee61b9f2732f70fd507c07d47aae13085e8f335ab2b50225fcf7670",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -32,15 +34,28 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "57b6fe787b370dac2b5388cacfd736f4384c7facf1dc795432b808adf500cebb"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "e02c058a-0329-4779-b07a-fbe3e58f3800"
       },
       {
+        "context": {
+          "outcome": "damage",
+          "required": false,
+          "target_description": "any target",
+          "target_name": "any target",
+          "targeted": true
+        },
         "decision_class": "target",
+        "decision_id": "d19c510a00d8a7d93d1143986e53d6fd5f237e34b8ef36de8e7b971ce1eba8cc",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -51,12 +66,15 @@
           "Harmonic Prodigy"
         ],
         "principal": "P1",
+        "prompt": "Select any target",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "unscripted target for P1: the row stops unverified",

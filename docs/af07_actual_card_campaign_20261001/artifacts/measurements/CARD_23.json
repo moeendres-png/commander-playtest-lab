@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.89,
+  "elapsed_s": 8.215,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "730801503f740b68c7a40ade7ba6521e91383d334b5c4e998044f59beba877e6",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -37,26 +39,42 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Makeshift Mannequin \u2014 Cast Makeshift Mannequin",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "bf27202b829707d710a6eebc0e0b96727cb176012e3278cc3fffc9383b8c9386"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "c393e864-29ca-4a1d-8c7f-e0946c01fabf"
       },
       {
+        "context": {
+          "outcome": "putcreatureinplay",
+          "required": false,
+          "target_description": "target creature card from your graveyard",
+          "target_name": "creature card from your graveyard",
+          "targeted": true
+        },
         "decision_class": "target",
+        "decision_id": "ef6f30fe3065d020111f3f499a2f7b0a8a3e068ec3cbf53adc5830ed3d478e2b",
         "numeric": null,
         "offered_labels": [
           "Grizzly Bears"
         ],
         "principal": "P1",
+        "prompt": "Select a creature card from your graveyard",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "unscripted target for P1: the row stops unverified",

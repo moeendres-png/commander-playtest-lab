@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.782,
+  "elapsed_s": 7.77,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "64f780a2c467e433383065a6a5d4081762c6c55e0f2c14554d5b00a4af5e2301",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -33,27 +35,39 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Shriekmaw \u2014 Cast Shriekmaw",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "9765bcbacfe436f2be4db99a266122ac8fb864a99225fd75861deb06992b0b2e"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "2d845e76-585f-4959-b501-8812665c7c4b"
       },
       {
+        "context": {
+          "outcome": "benefit"
+        },
         "decision_class": "choice",
+        "decision_id": "fdc71dccc47d14d0dde49f1181b6d91ea5e319f9bb9cf383480949df1a1ae762",
         "numeric": null,
         "offered_labels": [
           "Cast with Evoke alternative cost: {1}{B} (source: <font color='#696969' object_id='#'>Shriekmaw</font> [#])",
           "Cast with no alternative cost: {4}{B}"
         ],
         "principal": "P1",
+        "prompt": "You may choose an alternative cost for casting <font color='#696969' object_id='#'>Shriekmaw</font> [#]",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "unscripted choice for P1: the row stops unverified",

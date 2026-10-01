@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.832,
+  "elapsed_s": 7.673,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "fd83af4d7a54129708600eda060528b6aa2f07abe2179787f05b80dd4d847514",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -31,12 +33,15 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "execution failed closed: scripted priority action 'activate' is not executed by this lane",

@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "ALLOWED_VARIANCE",
   "creation_errors": [],
-  "elapsed_s": 7.924,
+  "elapsed_s": 7.688,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "ALLOWED_VARIANCE",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "declare_attacker",
+        "decision_id": "d3f423efaee194e3956fa03cab07e591ab118f3d912340bd17ae7f978b3384f8",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Bruse Tarl, Boorish Herder",
@@ -24,15 +26,22 @@
           "Bruse Tarl, Boorish Herder attacks Full Game Seat 4"
         ],
         "principal": "P1",
+        "prompt": "Choose attack for Bruse Tarl, Boorish Herder",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "5fe908b68ea39bcfd99493059d0a62238b893b113cc1a33f07843316082a4670"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "declare_attacker",
+        "decision_id": "e5928a11ea85624f6c1704f53805a373bbcc07c7c1961800888e12c6448675ea",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Kediss, Emberclaw Familiar",
@@ -41,27 +50,43 @@
           "Kediss, Emberclaw Familiar attacks Full Game Seat 4"
         ],
         "principal": "P1",
+        "prompt": "Choose attack for Kediss, Emberclaw Familiar",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Do not attack with Kediss, Emberclaw Familiar",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "867347127500e729d155042dbc90f200d5ba9ab4d4695da31564e91e56662134"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {
+          "outcome": "addability",
+          "required": true,
+          "target_description": "target creature you control",
+          "target_name": "creature you control",
+          "targeted": true
+        },
         "decision_class": "target",
+        "decision_id": "218ca471f259ad794a94e40a368a6318908aa6b695bfe4000fad2a64a99193db",
         "numeric": null,
         "offered_labels": [
           "Bruse Tarl, Boorish Herder",
           "Kediss, Emberclaw Familiar"
         ],
         "principal": "P1",
+        "prompt": "Select a creature you control",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "unscripted target for P1: the row stops unverified",

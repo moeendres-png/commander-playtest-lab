@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.541,
+  "elapsed_s": 8.519,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "88d70a8f7becac7f1882405382763203451f99e75188adc70e51e5bf06f93a36",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -35,15 +37,24 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Wrath of God \u2014 Cast Wrath of God",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "915e58693e9ef7d1ba6d324ce21d88da67be21cc52cebeb89858f8d5ca4e9fd1"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "2b568108-8823-4ede-a825-80bf34f46b7a"
       },
       {
+        "context": {
+          "unpaid_mana": "{2}{W}{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "ef9e452f77c79977ad1ab9df2aef8826ff3e6cee5c3da864e82ac7e3528fb7c9",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -53,15 +64,24 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{2}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
-        "selected_option_type": "mana_ability"
+        "selected_option_ids": [
+          "c5fad48df654133e97ccffd27492af7315e429f5f2e2a7845d85b87da4b7ba99"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{2}{W}{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "ed555e31aa1cf9b2126d2bb5570f166d5206b3cf01a87c81ac60014ecacbec5a",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -71,15 +91,24 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{2}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Spend red mana from pool",
-        "selected_option_type": "mana_pool"
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{1}{W}{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "7984e139d398e3b5d85c39945576ebb1eb5dee7937c0387af1bc76823d6c8237",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -88,15 +117,24 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{1}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
-        "selected_option_type": "mana_ability"
+        "selected_option_ids": [
+          "531f48c0c95ce31388687505b8a1707a6b526951df5fc4afc03db5c39e8f5c29"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{1}{W}{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "6365723ebde52d022fdc46ed254f574a7452de0c5b6ff13fb706f99822e4909f",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -105,15 +143,24 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{1}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Spend red mana from pool",
-        "selected_option_type": "mana_pool"
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{W}{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "5825b60c3f851698fbb457025b39ddd658ebf5c19a3bd92ecd4e8902fa5df531",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -121,15 +168,24 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Plains \u2014 {T}: Add {W}.",
-        "selected_option_type": "mana_ability"
+        "selected_option_ids": [
+          "08140aaa1d4321dcfcc5f52587587efc5a6a39da63d26a076087732fba7ccc53"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{W}{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "06767601dbaca799098fe86726f930afc0b3948e80b2bc96e30ad90bf4b34be7",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -137,45 +193,76 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Spend white mana from pool",
-        "selected_option_type": "mana_pool"
+        "selected_option_ids": [
+          "829ba9dd01794808c9dd9cfc55e28c3937d9afc03c028cf9b60abbe4f8216835"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "0d45febecbc299fe02406cc243931467cc49f77b3e2fdf6b821eb0aa61655453",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
+        "prompt": "{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Plains \u2014 {T}: Add {W}.",
-        "selected_option_type": "mana_ability"
+        "selected_option_ids": [
+          "0eb34b4b07a4661ee9d07f3c567b9eacbf83513fbe1d3b422913318113178ff1"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "unpaid_mana": "{W}"
+        },
         "decision_class": "mana_payment",
+        "decision_id": "d12f1f8ed115d37c8db429ea126a62a22787fc75b7894e5b6cd25216023af588",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Spend white mana from pool"
         ],
         "principal": "P2",
+        "prompt": "{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='2b568108-8823-4ede-a825-80bf34f46b7a'>Wrath of God</font> [2b5]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Spend white mana from pool",
-        "selected_option_type": "mana_pool"
+        "selected_option_ids": [
+          "829ba9dd01794808c9dd9cfc55e28c3937d9afc03c028cf9b60abbe4f8216835"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
       },
       {
+        "context": {
+          "outcome": "benefit",
+          "required": true,
+          "target_description": "any target",
+          "target_name": "any target",
+          "targeted": true
+        },
         "decision_class": "target",
+        "decision_id": "c854d519ba6662d7778c248500c386accf52c19422d9f17068c3a58e418173c4",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -185,127 +272,172 @@
           "Kaervek the Merciless"
         ],
         "principal": "P1",
+        "prompt": "Select any target",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Full Game Seat 2",
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "19d77d515a1c752ac9d983c41f2cb08809794172d9c24d750f65c57f6dc34317",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "c32b243611034de107afd963ce1fa6467452754a44bb7a7942798ba5ae93004d",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "d1939dff0089bc1c0679d44e936f5a309dffc583b19079303ed149872618cb0e",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "23809683594481d2311d4dd010c7bcbbaf0b91faff6b151174a86773e29207d5",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "984a172c8611f58d29b097069bef73277182965c34ddd8700d3e22abe504ed9b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "0d24a7565322c764b365f51149d09b76993ec3e74daf8c13f6229c32ded23ed4",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "6f99b777a711a925bd06d83de080e0b9ba8e546968e98eb530d003126dc18ba3",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "98c95a9329419e389d2e3ec40a60748edb3e89206fff61aae6eea86e7f2f1855",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "7e33c1f7d1ac14c7bb4f0c5ec80fafaa7d0ae929f768c15ae68ee5159bd82f7a",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -320,225 +452,305 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "13f36ce21315c5684ab1a460e4253e536b0e0792f466c127b168753c3537c9d2",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "96ac3ae35aea435327d0262d6fee5f85ffa991418e798a4ffb93893ba620b73d",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "b35b9f77f27597bd79f5c4cb4679f089f4587d09e1a645ec47b8419e03ec91f6",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "de34cc4d763f09263b9a96eead53b382119fc57851f114d624df5b2134e9de2b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "889a3408996c823731f87b75dc21ad2e7ffd23d6dd23da63bda4b4b1350c8173",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "e717477a5980fca5efd6409062c85b2dc92a0ca2be472eb8e1052688cc15a475",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "51a8f7ef4763577af38b0cb0cf6a5a888162b1ef6c1715553209661259d6b390",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "b3ae9a98fcbc760925c18d49e58428ad526fa7092ce845988fcc0615e9a42ad5",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "c14612377077382f64fa7d7d39159129d7c9c13eecff5feae104b469a1fb5330",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "124a8aee7c2181c67fa97b458e694502784b7d5656285437bcffe3ff63fa8e44",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "3cfd17c8e0ba3bb4a333450e122fc2d112fa82d06a61666fc08fd8156a43120b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "379944213e6efe201caf86212bd40b626bfb074c300ddd63fb35afe48009eb24",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "8b2989b4390952864ad05fc9457c93658ad6e8412b835d88889615e923795722",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "f20d8a1049fa638e8bed902cae7e55921a0aa7e7dff47bb6386a5dbec3aa57bb",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "b3276e20b0e65e477934a07794733b42e572b675fdf6580cb314037946fd20bd",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "f1ab61da94a4b4e4a083459e5f0db00ee0f19c501855888e7d996e02e8895c11",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -553,113 +765,159 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "95c1d31ba07fea78bde753770d21f861c0fbd8a87082da96d8f91dd99274a24c",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "aab1972bc8e2ea1f1adcb4a310fa1e619f7c986b3056d82a6c3301318f69f1c4",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "05cb9f1e5096d79087d3782d0f00a23775121e5f5ce2a289dcf73f0a25d85f01",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "9a0c42f7650762373be64922abbec29fa96b5e5801c4f4e2c0f3cdcdd44b1f42",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "b52d971716e8a2046a05e7946198c741351162b8a92959d80e40155c7c4d1882",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "14148051bc63053ceec425c7ad61142c2d59ad42ed4cdc397a91449f1c040c17",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "0483f1dc5855830ef43a80474ed7239882ba121873c755c8ef663ab4224a61aa",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {
+          "outcome": "discard",
+          "required": true,
+          "target_description": "target card to discard",
+          "target_name": "card to discard",
+          "targeted": false
+        },
         "decision_class": "choose_object",
+        "decision_id": "7669a5ba970d2d771896687d1cf7fb274245526adf9d3d662117fc40e55f4af4",
         "numeric": null,
         "offered_labels": [
           "Mountain",
@@ -672,12 +930,15 @@
           "Mountain"
         ],
         "principal": "P2",
+        "prompt": "Select a card to discard",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "unscripted choose_object for P2: the row stops unverified",

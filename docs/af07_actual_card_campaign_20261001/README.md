@@ -176,8 +176,9 @@ historical epochs.
 ## Phase 2a: adapter and fixture closure (Claude lane, after #452/#460/#462)
 
 #452, #460 and #462 are merged, so the successor contract has no foreign
-writer any more. #450 (`midgame_rows.py`, the capability probe) is still
-active and stays read-only here. This step closes everything the campaign
+writer any more. #450 (`midgame_rows.py`, the capability probe) was still
+active while this step was built; it merged before the final run, and this
+step does not edit its surfaces. This step closes everything the campaign
 attributed to the Lab adapter or to lossy fixtures that does not need the #450
 surfaces. It changes no executor and no provider denominator (107).
 
@@ -234,31 +235,33 @@ Every change below is verified engine-direct and covered by
 - A requested token object (`Soldier Token`) is attributed as a token the
   card-vehicle restoration cannot load.
 
-### Result: fresh 29-row run on `9e2291e7` (clean tree, XMage `37e4df6c`)
+### Result: fresh 29-row run after #450 merged (`83c32903`, clean tree, XMage `37e4df6c`)
 
-Matrix digest `71f035fbb8f7240d43dd5b703c852a27dba2a4e6cef74ea85db77e65349b44fe`.
+Main was merged normally after #450 landed (multi-select targets and divided
+amounts in the executor). No surface has a foreign writer any more, so every
+blocker is now this campaign's own to close. Matrix digest `67bbf838d7f5bfd0c7e88bb69bcced2b34b6f327a790bf761da60954acfb090c`.
 
 | Outcome | Rows |
 |---|---|
 | DIRECT_PASS (2) | CARD_02, CARD_24 |
-| FIXTURE_DEFECT (9) | CARD_01, 04, 05, 06, 14, 17, 18, 23, 26: the record does not script a target, object choice or choice the engine requires |
-| DEPENDENCY_WAITING on #450 (11) | CARD_03, 08, 09, 11, 13, 15, 19, 20, 21, 27, 28: executor actions or selectors (`announce_cast`, `cast_fused`, `activate`, `activate_mana`, `cast_split_half`, `amount_assignment`), unscripted frames, the combat arrival, causal entries |
+| FIXTURE_DEFECT (10) | CARD_01, 04, 05, 06, 09, 14, 17, 18, 23, 26: the record does not script a target, object choice or choice the engine requires (CARD_09 now passes its divided-damage legs and stops at the unscripted tap targets) |
+| HARNESS_DEFECT (10) | CARD_03, 08, 11, 13, 15, 19, 20, 21, 27, 28: executor priority actions (`announce_cast`, `cast_fused`, `activate`, `activate_mana`, `cast_split_half`), unscripted frames, the combat arrival, causal entries |
 | PROVIDER_ADAPTER_DEFECT (5) | CARD_07, 16, 22 (stack spells); CARD_10 (commander spell on the stack); CARD_25 (token object) |
-| UNKNOWN (2) | CARD_12, CARD_29: construct and execute through the whole script, but their required event tokens (`delve_exile`, `look_top`, `Saga_I`, ...) are not in the executor's token vocabulary (#450 surface) and no obligation plan covers them yet |
+| UNKNOWN (2) | CARD_12, CARD_29: construct and execute through the whole script; their required event tokens (`delve_exile`, `look_top`, `Saga_I`, ...) are not in the executor's token vocabulary and no obligation plan covers them yet |
 
-Six rows moved from a construction refusal to execution: CARD_09, 12, 15, 27, 28
-and 29.
+Six rows moved from a construction refusal to execution (CARD_09, 12, 15, 27, 28,
+29). No row waits on another writer.
 
 AF07 stays **UNKNOWN**. 27 identities are not directly proven, and the CARD rows
 outside the denominator still need the Coordinator's credit route.
 
 ### Next
 
-1. **Fixture errata.** Script the missing discretionary steps for the nine
+1. **Fixture errata.** Script the missing discretionary steps for the ten
    FIXTURE_DEFECT rows, each target chosen so that it leaves the obligation
    untouched.
-2. **After #450 is terminal.** Merge main, extend the token vocabulary and the
-   executor actions, add obligation plans, and re-run.
+2. **Executor.** Now that #450 is merged, extend the executor actions and the
+   token vocabulary, add obligation plans, and re-run.
 3. **Adapter.** Stack spells and tokens need a causal-entry or effect-created
    route, not a load.
 4. **Coordinator.** Decide the AF07 credit route for CARD rows outside the 107-row

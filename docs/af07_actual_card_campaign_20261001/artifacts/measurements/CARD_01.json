@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "ALLOWED_VARIANCE",
   "creation_errors": [],
-  "elapsed_s": 28.536,
+  "elapsed_s": 29.303,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "ALLOWED_VARIANCE",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "960385e0c86f426ecb39ff2f87db170fcf20b20b6cb1a9e890d04a57181b5f9b",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -30,15 +32,20 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "60af68fa8083a4e249bc7fa453e857892f4b7418c7ac5b4791275e7a7b654ad9",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -46,15 +53,28 @@
           "Lightning Bolt \u2014 Cast Lightning Bolt"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "02fe7bc96d2a81d7c0257e24a0b95396552ae809ca296523be42470ee5d075e0"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "53772368-1706-493c-b21b-6276f9a713f0"
       },
       {
+        "context": {
+          "outcome": "damage",
+          "required": false,
+          "target_description": "any target",
+          "target_name": "any target",
+          "targeted": true
+        },
         "decision_class": "target",
+        "decision_id": "ee7ef3c242bde6cba261c376e7c2e4b47d1a47cccd3ce1f971b3697cd8f4e857",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -64,12 +84,15 @@
           "Ishai, Ojutai Dragonspeaker"
         ],
         "principal": "P2",
+        "prompt": "Select any target",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "unscripted target for P2: the row stops unverified",

@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.292,
+  "elapsed_s": 7.933,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "0ea60bb4771b2074272ef206ba247e03d8799d7028a0b320e8f24ccd981880fa",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -40,16 +42,28 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Magma Opus \u2014 Cast Magma Opus",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "9ba1802b46211645770c7236759d7124233f0c2af2eeacd126bea06fb6842d27"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "790a76da-8f4c-4b74-8c9b-5f29b5e9485c"
       },
       {
+        "context": {
+          "amount_remaining": 4,
+          "numeric_max": 4,
+          "numeric_min": 1,
+          "outcome": "damage"
+        },
         "decision_class": "target_amount",
-        "numeric": null,
+        "decision_id": "b31c4a79ef5886df307e5d1c63b5b6db96f174778626dc83183d004e9905e68e",
+        "numeric": 2,
         "offered_labels": [
           "Full Game Seat 1",
           "Full Game Seat 2",
@@ -58,15 +72,84 @@
           "Grizzly Bears"
         ],
         "principal": "P1",
+        "prompt": "Select targets (selected 0 of 4) (damage)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "P2",
+        "selected_label": "Full Game Seat 2",
+        "selected_option_ids": [
+          "d0c1a034-7211-44b2-9ba3-13177f9b4ee8"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "amount_remaining": 2,
+          "numeric_max": 2,
+          "numeric_min": 1,
+          "outcome": "damage"
+        },
+        "decision_class": "target_amount",
+        "decision_id": "7882e87fe9b05a76f93d836b84895e2e85aa099d2e9aa3ae5b3a2996827067c1",
+        "numeric": 2,
+        "offered_labels": [
+          "Full Game Seat 1",
+          "Full Game Seat 3",
+          "Full Game Seat 4",
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select targets (selected 1 of 4) (damage)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "obj:card09-p3-creature",
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [
+          "aa1f41c2-9b24-482c-b43e-8ad64910079d"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "damage",
+          "required": false,
+          "target_description": "two target permanents",
+          "target_name": "permanents",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "f8667e75f0819cac22047a71f1ba3ce58795033dd3984b777bd73df85cd92c8b",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears",
+          "Island",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Sol Ring"
+        ],
+        "principal": "P1",
+        "prompt": "Select permanents (selected 0 of 2, min 2) (tap)",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
-    "detail": "execution failed closed: selector 'amount_assignment' is not executed by this lane",
+    "detail": "unscripted target for P1: the row stops unverified",
     "fixture_id": "CARD_09",
     "missing_tokens": [
       "damage:P2:2",

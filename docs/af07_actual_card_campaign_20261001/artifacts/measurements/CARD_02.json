@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.498,
+  "elapsed_s": 7.769,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -15,7 +15,9 @@
     "construction_verdict": "EXACT",
     "decision_trace": [
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "874f79544787a16cb0f6a31c943cbcad978076f6e91d6c04294104a90154500e",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -30,68 +32,93 @@
           "Mountain \u2014 Play Mountain"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": true,
         "selected_key": null,
         "selected_label": "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
-        "selected_option_type": null
+        "selected_option_ids": [
+          "8c24d5ae68ddf0b97330a6560cdfd28da3c05784e8f0d8b1d5dfa66f88f7ac1a"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "d53d017a-23a6-464c-b2b6-d0650626eece"
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "728ee132590be0d64a2593d78448ba7f1848e683a49336726d1d5237bd02d62b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P1",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "6b15f0a2b1a846069939ea6dd876d72ccd427d7433c3d0d0da69839bf4ddbd27",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P2",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "09b6cd6ed15049423d5bd50934aa49d2b3645db3dc2693ef0e9a981a12685fbd",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P3",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       },
       {
+        "context": {},
         "decision_class": "priority",
+        "decision_id": "101852b302af7d763849c3a475bab5744ba61d8244b060c71ed4c588b5e05b12",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
         ],
         "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
-        "selected_option_type": null
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
     "detail": "obligation observed",

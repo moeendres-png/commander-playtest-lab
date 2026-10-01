@@ -41,11 +41,11 @@
     },
     "engine_runtime_directory": "/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/af07run/rt",
     "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
-    "matrix_digest": "959f057a219e34e14028c4522957870372549379f9a891b7ffc3c55b68d38ddb",
+    "matrix_digest": "6cea86ace54bf0318a90f64d664dfaabc8ce18738ae7764968093e5ded655774",
     "runner": {
       "branch": "claude/optimistic-bohr-6asye6",
-      "built_utc": "2026-10-01T22:09:11+00:00",
-      "commit": "9e2291e7ea6e907d76a6e99b3176831d8e6d8b7f",
+      "built_utc": "2026-10-01T22:31:12+00:00",
+      "commit": "83c32903fc0a43cc7d66e8c544fc204a78bf3bfb",
       "dirty": false,
       "dirty_paths": [],
       "input_digests": {
@@ -251,7 +251,7 @@
         "schemas/engine_adapter_protocol.schema.json": "741e0acc45d1a358841b7dc26c1e9d0aace313497d39e3cfbd8464d18d8c4650",
         "scripts/assemble_current_boundary_evidence.py": "b42513b28c402021b690ee56a066ec81e5fdf790cf8c153c13cc4f4abdf4cef1",
         "scripts/run_current_boundary_qualification.py": "fcdc0e3b3e5d04289de489cad50d4d6ced14183fa4c0602ed449899b2f142f21",
-        "scripts/run_midgame_capability_probe.py": "cc71f9213eab47656b3e442784c7a3a7f78aa4ce0d9a2cf446580a7e46f79afa",
+        "scripts/run_midgame_capability_probe.py": "54eca4929623263bfc83fa50c27d28d623874b580b4e3b878737002dd8c58cee",
         "src/commander_lab/engine/rules/__init__.py": "cdfbe6f64eedd857e07ecddeb8d16649eb1ac2613bb3a02849d2826c8625fdb3",
         "src/commander_lab/engine/rules/base.py": "14b1248504d8b96cac9d7758ab2e0c9917182c2c5a72b2c56557445400dd0db5",
         "src/commander_lab/engine/rules/bridge.py": "c8419eb217e763d6434a4b4536a3d4fdd7e722a71c482ad6798a7ddef42bd059",
@@ -267,7 +267,7 @@
         "src/commander_lab/engine/rules/tactical.py": "6613ad25a2de36233eec1acff73b859c7ce35777087465a1f46075b0ffed8024",
         "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b684300d229e503b6a0e977ae39dd263464656053c4d4cb145ad1",
         "src/commander_lab/qualification/current_boundary/__init__.py": "0a214758505a910970e01984efa392c5bc99d85306a713ee04e81ed38284776c",
-        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "c7147670ac8e4df1af7bc22fe977c75e2b2651c87575d83f19ac44667ce5f40b",
+        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "06f663dd47673c23108b58abab2adced7599d7fc139a97cb412c7d97ad503788",
         "src/commander_lab/qualification/current_boundary/af01.py": "df6b97a516ae8ea5f92367cfa5af97e712108ae4ee5a07ccf4ba7d4e53cfff80",
         "src/commander_lab/qualification/current_boundary/af03.py": "ba6fd0d50be08cbaad81121862679958ca2736f00470ca11eb10c61e74431b60",
         "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "fa0d03e09759b63c1514dc94a790c7dfbb4e3ad5179d4198ddac794771208263",
@@ -281,7 +281,7 @@
         "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
         "src/commander_lab/qualification/current_boundary/materialization.py": "dd329bc1365a40538bde393ac54d9800062b637648e8ada7ea02577aa57f5693",
         "src/commander_lab/qualification/current_boundary/midgame_lane.py": "73c4b4a6b3278c0105fb8d0402491416539d791b06bee2c795fe4ee3f9df5b4c",
-        "src/commander_lab/qualification/current_boundary/midgame_rows.py": "49b3d9acb3ea038a1686738db4704f561aa3cbc0446160d227f25842f9dcce00",
+        "src/commander_lab/qualification/current_boundary/midgame_rows.py": "dd21941295f3124117f9e6041e87c1521145201749436c15f6208eaa1f928dc0",
         "src/commander_lab/qualification/current_boundary/pb03_runtime.py": "e842387d179cb6b10c2d5848c596812ebcbc0d1bfd80239d6afd9d99867fff0d",
         "src/commander_lab/qualification/current_boundary/receipts.py": "db518c6c34d6ff03867b46a97043c9fb3a133c97b6129f8255907483d54b6522",
         "src/commander_lab/qualification/current_boundary/refusal.py": "7677ae55d23f2fd49c5903794d7e3099ff610741716a1f618611c4762674fdc0",
@@ -294,9 +294,9 @@
         "qualification/current-boundary-epochs/"
       ],
       "schema_version": "commander-lab.runner-identity/1.0.0",
-      "tree": "8c0ec3c4dfd3c54134e39b1941f91dd0e7a09bc1"
+      "tree": "7ca449995c074b745a2aa63fa012b9139f953eb1"
     },
-    "runner_digest": "9e99320a8e4ccba837c562a58541fb3663f8ec55a5b7fd3003b34eae1a6a3b98",
+    "runner_digest": "749a7fe3564aa2d30d151f90b05fd52d92a97f4568ce7feef57f22459cf18627",
     "seed": 424242,
     "selected_rows": [
       "CARD_01",
@@ -492,7 +492,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 28.536,
+        "elapsed_s": 29.303,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -604,7 +604,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.498,
+        "elapsed_s": 7.769,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -639,7 +639,7 @@
           }
         }
       },
-      "receipt_digest": "ac68470f2ca5c5e951359de06e8f595965d81bdb5633c9aac04b975a69c49b7d",
+      "receipt_digest": "3fc3fe9869a9eb4a8d12421b86409abd3323dd672f9353bba1471106d53f09c4",
       "record": {
         "card_identity": "Rograkh, Son of Rohgahh",
         "excluded_by_frozen_denominator": false,
@@ -732,7 +732,7 @@
             "postcondition": "No commander-tax increment was charged."
           }
         ],
-        "receipt_digest": "ac68470f2ca5c5e951359de06e8f595965d81bdb5633c9aac04b975a69c49b7d"
+        "receipt_digest": "3fc3fe9869a9eb4a8d12421b86409abd3323dd672f9353bba1471106d53f09c4"
       }
     },
     {
@@ -771,7 +771,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.256,
+        "elapsed_s": 8.251,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -812,9 +812,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'announce_cast' is not executed by this lane",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Esior, Wardwing Familiar",
         "construction_verdict": "ALLOWED_VARIANCE",
@@ -876,7 +876,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.924,
+        "elapsed_s": 7.688,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -970,7 +970,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.72,
+        "elapsed_s": 7.618,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1061,7 +1061,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.825,
+        "elapsed_s": 7.603,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1137,7 +1137,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.203,
+        "elapsed_s": 0.224,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1286,7 +1286,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.17,
+        "elapsed_s": 8.259,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1328,9 +1328,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the engine offered a decision the generic production executor cannot answer from the record's declared script: unscripted declare_attacker for P1: the row stops unverified",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Jeska, Thrice Reborn",
         "construction_verdict": "EXACT",
@@ -1385,11 +1385,27 @@
             "offered_labels": 5,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": "P2"
+          },
+          {
+            "decision_class": "target_amount",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": "obj:card09-p3-creature"
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 11,
+            "principal": "P1",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.292,
+        "elapsed_s": 7.933,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1397,7 +1413,7 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "execution failed closed: selector 'amount_assignment' is not executed by this lane",
+        "execution_detail": "unscripted target for P1: the row stops unverified",
         "missing_tokens": [
           "damage:P2:2",
           "damage:obj:card09-p3-creature:2",
@@ -1438,10 +1454,10 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
-        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: selector 'amount_assignment' is not executed by this lane",
-        "blocker_owner": "PR #450",
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_class": "FIXTURE_DEFECT",
+        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['choose_object', 'priority', 'target_amount']); recorded by the engine as: unscripted target for P1: the row stops unverified",
+        "blocker_owner": null,
+        "blocker_surface": "qualification/pre-freeze-successor/",
         "card_identity": "Magma Opus",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
@@ -1479,7 +1495,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.21,
+        "elapsed_s": 0.208,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1559,7 +1575,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.183,
+        "elapsed_s": 7.872,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1600,9 +1616,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'cast_fused' is not executed by this lane",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Wear // Tear",
         "construction_verdict": "EXACT",
@@ -1695,7 +1711,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.901,
+        "elapsed_s": 8.072,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1785,7 +1801,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.212,
+        "elapsed_s": 0.196,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1823,9 +1839,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the direct native state load refuses the record's stack object (UNSUPPORTED_ZONE:stack); the current production probe declares a causal-entry route for this row but its driver is owned by the foreign writer and does not execute the obligation yet; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_13 obj:card13-bolt requests stack",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "scripts/run_midgame_capability_probe.py",
         "card_identity": "Flare of Duplication",
         "construction_verdict": null,
@@ -2178,7 +2194,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.629,
+        "elapsed_s": 8.7,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2466,7 +2482,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.45,
+        "elapsed_s": 8.395,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2512,9 +2528,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the engine offered a decision the generic production executor cannot answer from the record's declared script: unscripted choose_object for P1: the row stops unverified",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Finale of Revelation",
         "construction_verdict": "EXACT",
@@ -2549,7 +2565,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.213,
+        "elapsed_s": 0.184,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2970,7 +2986,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.541,
+        "elapsed_s": 8.519,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3096,7 +3112,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.782,
+        "elapsed_s": 7.77,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3197,7 +3213,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.832,
+        "elapsed_s": 7.673,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3240,9 +3256,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'activate' is not executed by this lane",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Butcher of Malakir",
         "construction_verdict": "EXACT",
@@ -3288,7 +3304,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.204,
+        "elapsed_s": 0.197,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3326,9 +3342,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the direct native state load refuses the record's stack object (UNSUPPORTED_ZONE:stack); the current production probe declares a causal-entry route for this row but its driver is owned by the foreign writer and does not execute the obligation yet; engine detail: RestorationException: UNSUPPORTED_ZONE: CARD_20 obj:card_20-subject requests stack",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "scripts/run_midgame_capability_probe.py",
         "card_identity": "Syphon Mind",
         "construction_verdict": null,
@@ -3355,7 +3371,7 @@
       "measurement": {
         "creation_errors": [],
         "decision_trace": [],
-        "elapsed_s": 8.005,
+        "elapsed_s": 7.956,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3392,9 +3408,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the record-aware arrival driver refused the row: arrival failed closed: the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "scripts/run_midgame_capability_probe.py",
         "card_identity": "Gratuitous Violence",
         "construction_verdict": null,
@@ -3438,7 +3454,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.28,
+        "elapsed_s": 0.302,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3531,7 +3547,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.89,
+        "elapsed_s": 8.215,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3724,7 +3740,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.213,
+        "elapsed_s": 8.069,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3757,7 +3773,7 @@
           }
         }
       },
-      "receipt_digest": "7bbc970cb028429abf404037c0070e2ad5cc31e4b48aabcf9abb36c57f78bd01",
+      "receipt_digest": "9b214230ce0f9f3e669f7eae7ad5db27173b645287f1aeb7c8d38f368a1d97a5",
       "record": {
         "card_identity": "Warstorm Surge",
         "excluded_by_frozen_denominator": true,
@@ -3816,7 +3832,7 @@
             "postcondition": "P2 is at 18 life after trigger resolves."
           }
         ],
-        "receipt_digest": "7bbc970cb028429abf404037c0070e2ad5cc31e4b48aabcf9abb36c57f78bd01"
+        "receipt_digest": "9b214230ce0f9f3e669f7eae7ad5db27173b645287f1aeb7c8d38f368a1d97a5"
       }
     },
     {
@@ -3847,7 +3863,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 7.432,
+        "elapsed_s": 7.367,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4120,7 +4136,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.393,
+        "elapsed_s": 8.308,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4214,7 +4230,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.107,
+        "elapsed_s": 7.811,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4255,9 +4271,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'activate_mana' is not executed by this lane",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Path of Ancestry",
         "construction_verdict": "EXACT",
@@ -4303,7 +4319,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.973,
+        "elapsed_s": 7.813,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4347,9 +4363,9 @@
         ]
       },
       "verdict": {
-        "blocker_class": "DEPENDENCY_WAITING",
+        "blocker_class": "HARNESS_DEFECT",
         "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'cast_split_half' is not executed by this lane",
-        "blocker_owner": "PR #450",
+        "blocker_owner": null,
         "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Find // Finality",
         "construction_verdict": "EXACT",
@@ -4401,7 +4417,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.75,
+        "elapsed_s": 7.777,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4466,8 +4482,8 @@
   "schema_version": "commander-lab.af07-actual-card-campaign-matrix/1.0.0",
   "summary": {
     "blockers": {
-      "DEPENDENCY_WAITING": 11,
-      "FIXTURE_DEFECT": 9,
+      "FIXTURE_DEFECT": 10,
+      "HARNESS_DEFECT": 10,
       "PROVIDER_ADAPTER_DEFECT": 5,
       "UNKNOWN": 2
     },
