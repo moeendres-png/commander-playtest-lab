@@ -1,0 +1,43 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-START-3",
+  "obligation_exercised": {
+    "obligation_digest": "d777b8a8f30c6310919fa30cc45d246251cd77c910a20970b2fc25dfd316c6d2",
+    "requested_state_digest": "aab65291849db6a9fa905b0705681ccdd22c96d3dae77c4e2e50ecd5e34108aa",
+    "required_events": [
+      "starting_player:P1",
+      "first_turn_draw:true"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "In 3P multiplayer, starting player P1 draws on first turn."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "first_turn_draw:true": {
+        "events": [
+          5
+        ]
+      },
+      "starting_player:P1": {
+        "events": [
+          4
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "23e340eb6f02ffce13ad3b76ae447c271fc175ea09391e3b8a84b7a9311e167c",
+  "runner_digest": "44524a958eaf15e9022d547c2e38753707ff96214465461ab140cad20e64b684",
+  "runtime_receipt_digest": "7fcc7b6606e634b5ce1daf459a130df37738be13701f4d2b86778a81b27b7229",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-START-3"
+}

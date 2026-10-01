@@ -1,0 +1,3203 @@
+{
+ "af11": "DEFERRED_UNTIL_AFTER_PROVIDER_SELECTION",
+ "architecture_freeze": "NOT_CLAIMED",
+ "candidates": {
+  "forge": {
+   "af00_af10": [
+    {
+     "blocking_rows": [],
+     "bridge_identity_proof": {
+      "actual_bridge_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+      "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "bridge_module": "forge-protocol2-bridge",
+      "detail": "the executing checkout's forge-protocol2-bridge module tree is identical to the bound bridge/evidence commit's, so the bridge that executes is the bridge the evidence is about; the Rules Core is bound separately by tree equivalence",
+      "expected_bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "expected_bridge_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+      "expected_bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+      "identical": true,
+      "justification": "EXACT_BRIDGE_COMMIT",
+      "recorded_commit_tree": "000066890decca5ed7b1b889be0ea46d77903aee"
+     },
+     "build_provenance": {
+      "af00_credit": true,
+      "build_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "build_dirty": "false",
+      "build_source": "build:bridge.properties:git",
+      "build_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+      "engine_commit_verified": true,
+      "expected_rules_core": null,
+      "expected_source_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "expected_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+      "findings": [],
+      "pb05_credit": true,
+      "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown or dirty build source is never treated as clean"
+     },
+     "evidence": [
+      "provider/build source commit: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "provider/build source tree: 000066890decca5ed7b1b889be0ea46d77903aee",
+      "provider reported commit: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "provider build provenance verified: True",
+      "R-1 Rules-Core candidate commit: bb0a740d2bef725194798383c2452213ecdd0b37",
+      "R-1 Rules-Core candidate tree: 4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+      "Rules-Core equivalence: RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+      "bridge identity binding: EXACT_BRIDGE_COMMIT",
+      "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+     ],
+     "gate": "AF00",
+     "name": "SOURCE_AND_BUILD_LOCK",
+     "nonblocking_limitations": [],
+     "rules_core_identity_proof": {
+      "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+      "compared_module_roots": [
+       "forge-game",
+       "forge-core",
+       "forge-ai",
+       "forge-gui",
+       "forge-gui-desktop",
+       "adventure-editor"
+      ],
+      "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+      "differing_modules": [],
+      "engine_equivalent": true,
+      "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+      "modules": {
+       "adventure-editor": {
+        "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+        "identical": true,
+        "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+       },
+       "forge-ai": {
+        "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+        "identical": true,
+        "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+       },
+       "forge-core": {
+        "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+        "identical": true,
+        "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+       },
+       "forge-game": {
+        "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+        "identical": true,
+        "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+       },
+       "forge-gui": {
+        "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+        "identical": true,
+        "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+       },
+       "forge-gui-desktop": {
+        "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+        "identical": true,
+        "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+       }
+      },
+      "one_sided_modules": [],
+      "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+     },
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "20 AF01 v2 invariants executed under Protocol 2.0.0 on the protocol2-jsonl lane",
+      "AF01_*_FORGE.json"
+     ],
+     "gate": "AF01",
+     "name": "PROTOCOL_HANDSHAKE",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "all_or_nothing": true,
+     "blocking_rows": [],
+     "evidence": [
+      "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "counts with a complete lifecycle: [2, 3, 4, 5]",
+      "counts without one: []",
+      "bounded 6P lifecycle recorded: True"
+     ],
+     "gate": "AF02",
+     "lifecycle_assessment": {
+      "all_or_nothing": true,
+      "complete_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "detail": {
+       "2P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "3P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "4P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "5P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       }
+      },
+      "incomplete_counts": [],
+      "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "required_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "verdict": "PASS"
+     },
+     "name": "PLAYER_CARDINALITY",
+     "nonblocking_limitations": [
+      "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "authority": "ENGINE_ONLY",
+     "blocking_rows": [],
+     "evidence": [
+      "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+     ],
+     "gate": "AF03",
+     "name": "RULES_AUTHORITY",
+     "nonblocking_limitations": [
+      "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+     ],
+     "observed_probe_count": 5,
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "decision_boundary": {
+      "bounded_secondary_cardinalities_checked": [
+       "6P"
+      ],
+      "candidate": "forge",
+      "contradictions": [],
+      "externally_answered_decision_classes": [
+       "MULLIGAN",
+       "PRIORITY",
+       "STARTING_PLAYER"
+      ],
+      "frame_count": 30,
+      "frames": [
+       {
+        "actor": "p1",
+        "cardinality": "2P",
+        "chosen_option_id": "opt-eb18189e-ae9f-400b-b30c-bdef7024afe3",
+        "detail": "STARTING_PLAYER answered by p1 at revision 1; 2 engine-offered option(s); chosen='opt-eb18189e-ae9f-400b-b30c-bdef7024afe3'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p1",
+        "cardinality": "2P",
+        "chosen_option_id": "opt-d64e004b-7c4c-4a98-87be-cd9d89d15c92",
+        "detail": "PRIORITY answered by p1 at revision 4; 2 engine-offered option(s); chosen='opt-d64e004b-7c4c-4a98-87be-cd9d89d15c92'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p2",
+        "cardinality": "3P",
+        "chosen_option_id": "opt-516e6f55-3560-4f9c-9186-1f700dcd6a81",
+        "detail": "STARTING_PLAYER answered by p2 at revision 1; 3 engine-offered option(s); chosen='opt-516e6f55-3560-4f9c-9186-1f700dcd6a81'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 3,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p1",
+        "cardinality": "3P",
+        "chosen_option_id": "opt-04521052-9b28-4393-8397-971893129e97",
+        "detail": "PRIORITY answered by p1 at revision 5; 2 engine-offered option(s); chosen='opt-04521052-9b28-4393-8397-971893129e97'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p3",
+        "cardinality": "4P",
+        "chosen_option_id": "opt-120bab1b-ce6c-4ba6-ac2c-c809c421cc94",
+        "detail": "STARTING_PLAYER answered by p3 at revision 1; 4 engine-offered option(s); chosen='opt-120bab1b-ce6c-4ba6-ac2c-c809c421cc94'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 4,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p4",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p1",
+        "cardinality": "4P",
+        "chosen_option_id": "opt-9e671bb3-f4a6-4fdd-8345-d83d5c44bc5f",
+        "detail": "PRIORITY answered by p1 at revision 6; 2 engine-offered option(s); chosen='opt-9e671bb3-f4a6-4fdd-8345-d83d5c44bc5f'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "p3",
+        "cardinality": "5P",
+        "chosen_option_id": "opt-b909e9a9-43f8-46c8-9c49-391c0631c246",
+        "detail": "STARTING_PLAYER answered by p3 at revision 1; 5 engine-offered option(s); chosen='opt-b909e9a9-43f8-46c8-9c49-391c0631c246'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 5,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p4",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p5",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "p1",
+        "cardinality": "5P",
+        "chosen_option_id": "opt-95b3f4ad-a0eb-4732-851b-2a6e88f36939",
+        "detail": "PRIORITY answered by p1 at revision 7; 2 engine-offered option(s); chosen='opt-95b3f4ad-a0eb-4732-851b-2a6e88f36939'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 7
+       },
+       {
+        "actor": "p2",
+        "cardinality": "6P",
+        "chosen_option_id": "opt-f1876500-0f07-4423-93e0-25e22637ef30",
+        "detail": "STARTING_PLAYER answered by p2 at revision 1; 6 engine-offered option(s); chosen='opt-f1876500-0f07-4423-93e0-25e22637ef30'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 6,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p4",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p5",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "p6",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p6 at revision 7; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 7
+       },
+       {
+        "actor": "p1",
+        "cardinality": "6P",
+        "chosen_option_id": "opt-9ff963f2-3cf0-4685-a8b0-5ab423e71bd5",
+        "detail": "PRIORITY answered by p1 at revision 8; 2 engine-offered option(s); chosen='opt-9ff963f2-3cf0-4685-a8b0-5ab423e71bd5'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 8
+       }
+      ],
+      "gaps": [],
+      "gate": "AF04",
+      "limitations": [
+       {
+        "actor": null,
+        "cardinality": "-",
+        "detail": "Forge responses carry no executed-actor field; the actor binding rests on the frame-supplied actor/revision plus the engine's stale-revision and wrong-actor rejection, not on a response-side identity",
+        "kind": "ACTOR_BINDING",
+        "severity": "NOTE"
+       }
+      ],
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "required_cardinalities": [
+       "2P",
+       "3P",
+       "4P",
+       "5P"
+      ],
+      "required_frame_counts": {
+       "2P": 4,
+       "3P": 5,
+       "4P": 6,
+       "5P": 7
+      },
+      "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+      "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+      "verdict": "PASS"
+     },
+     "evidence": [
+      "AF04 derived from this epoch's external decision frames (30 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY, STARTING_PLAYER",
+      "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'actor_id': True, 'revision': True}, 'identity_field': 'revision', 'pass_identity_offered': True, 'submitted_fields': ['actor_id', 'revision'], 'verified': True}",
+      "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+     ],
+     "gate": "AF04",
+     "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+     "nonblocking_limitations": [
+      "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+     ],
+     "owner_ruling": "R-2",
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [
+      "HIDDEN_01",
+      "HIDDEN_02",
+      "HIDDEN_03",
+      "HIDDEN_04",
+      "HIDDEN_05",
+      "HIDDEN_06",
+      "HIDDEN_07",
+      "HIDDEN_08",
+      "HIDDEN_09",
+      "HIDDEN_10",
+      "HIDDEN_11",
+      "HIDDEN_12",
+      "HIDDEN_13",
+      "HIDDEN_14",
+      "HIDDEN_15",
+      "HIDDEN_16",
+      "HIDDEN_17",
+      "HIDDEN_18",
+      "HIDDEN_19",
+      "HIDDEN_HONEYCARD_SENTINEL"
+     ],
+     "evidence": [
+      "0 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [
+      "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "MICRO_COMBAT",
+      "MICRO_CONTINUOUS_EFFECTS",
+      "MICRO_CONTROL",
+      "MICRO_COPY",
+      "MICRO_COSTS",
+      "MICRO_MANA_PAYMENT",
+      "MICRO_MODES",
+      "MICRO_PREVENTION",
+      "MICRO_PRIORITY",
+      "MICRO_REPLACEMENT",
+      "MICRO_RULES_RANDOMNESS",
+      "MICRO_STACK",
+      "MICRO_STATE_BASED_ACTIONS",
+      "MICRO_TRIGGERS",
+      "MICRO_ZONE_CHANGES",
+      "PILOT_DECLARE_ATTACKER",
+      "PILOT_DECLARE_BLOCKER",
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "5 of 107 rows PASS under the effective contract; 44 BLOCKED; 58 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "102 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "CARD_02"
+     ],
+     "evidence": [
+      "0 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [
+      "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+      "29 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 19 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-DMG",
+      "WS05-CMD-PARTNER-TAX",
+      "WS05-CMD-PARTNER-ZONE",
+      "WS05-CMD-START-3",
+      "WS05-CMD-TAX-2",
+      "WS05-CMD-TAX-4",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "1 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "35 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-DMG-SPLIT: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-DMG: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-START-3: UNKNOWN, WS05-CMD-TAX-2: UNKNOWN, WS05-CMD-TAX-4: UNKNOWN, WS05-CMD-ZONE-EXILE-NO: BLOCKED, WS05-CMD-ZONE-EXILE-YES: BLOCKED, WS05-CMD-ZONE-GY-NO: BLOCKED and 20 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_STATE_HASHES",
+      "RNG_RULES_TAPE"
+     ],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unknown_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json; refusal codes: unknown_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "the clean-process twin half of each replay obligation is not proven per fixture",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+      "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "denominator accounting complete: 107 explicit outcomes for 107 rows",
+      "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+      "native suites: 217 tests, all green"
+     ],
+     "gate": "AF10",
+     "name": "RUNTIME_EVIDENCE_RELIABILITY",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    }
+   ],
+   "af00_af10_non_pass": [
+    {
+     "blocking_rows": [
+      "HIDDEN_01",
+      "HIDDEN_02",
+      "HIDDEN_03",
+      "HIDDEN_04",
+      "HIDDEN_05",
+      "HIDDEN_06",
+      "HIDDEN_07",
+      "HIDDEN_08",
+      "HIDDEN_09",
+      "HIDDEN_10",
+      "HIDDEN_11",
+      "HIDDEN_12",
+      "HIDDEN_13",
+      "HIDDEN_14",
+      "HIDDEN_15",
+      "HIDDEN_16",
+      "HIDDEN_17",
+      "HIDDEN_18",
+      "HIDDEN_19",
+      "HIDDEN_HONEYCARD_SENTINEL"
+     ],
+     "evidence": [
+      "0 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [
+      "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "MICRO_COMBAT",
+      "MICRO_CONTINUOUS_EFFECTS",
+      "MICRO_CONTROL",
+      "MICRO_COPY",
+      "MICRO_COSTS",
+      "MICRO_MANA_PAYMENT",
+      "MICRO_MODES",
+      "MICRO_PREVENTION",
+      "MICRO_PRIORITY",
+      "MICRO_REPLACEMENT",
+      "MICRO_RULES_RANDOMNESS",
+      "MICRO_STACK",
+      "MICRO_STATE_BASED_ACTIONS",
+      "MICRO_TRIGGERS",
+      "MICRO_ZONE_CHANGES",
+      "PILOT_DECLARE_ATTACKER",
+      "PILOT_DECLARE_BLOCKER",
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "5 of 107 rows PASS under the effective contract; 44 BLOCKED; 58 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "102 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "CARD_02"
+     ],
+     "evidence": [
+      "0 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [
+      "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+      "29 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 19 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-DMG",
+      "WS05-CMD-PARTNER-TAX",
+      "WS05-CMD-PARTNER-ZONE",
+      "WS05-CMD-START-3",
+      "WS05-CMD-TAX-2",
+      "WS05-CMD-TAX-4",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "1 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "35 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-DMG-SPLIT: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-DMG: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-START-3: UNKNOWN, WS05-CMD-TAX-2: UNKNOWN, WS05-CMD-TAX-4: UNKNOWN, WS05-CMD-ZONE-EXILE-NO: BLOCKED, WS05-CMD-ZONE-EXILE-YES: BLOCKED, WS05-CMD-ZONE-GY-NO: BLOCKED and 20 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_STATE_HASHES",
+      "RNG_RULES_TAPE"
+     ],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unknown_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json; refusal codes: unknown_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "the clean-process twin half of each replay obligation is not proven per fixture",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+      "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "column_provenance": {
+    "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+   },
+   "full107_counts": {
+    "BLOCKED": 44,
+    "CRASH": 0,
+    "FAIL": 0,
+    "PASS": 5,
+    "PROTOCOL_FAILURE": 0,
+    "TIMEOUT": 0,
+    "UNKNOWN": 58
+   },
+   "full107_residual_count": 102,
+   "full107_residual_rows": [
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "CARD_02",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_01",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_02",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_03",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_04",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_05",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_06",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_07",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_08",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_09",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_10",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_11",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_12",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_13",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_14",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_15",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_16",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_17",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_18",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_19",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COMBAT",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_CONTROL",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COPY",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COSTS",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR307_1, supersedes d90d525a43d4); its predecessor's evidence does not transfer. the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "MICRO_LAYERS",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_MANA_PAYMENT",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_MODES",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 3fbfd0829ef1); its predecessor's evidence does not transfer. the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_PREVENTION",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_PRIORITY",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_REPLACEMENT",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_RULES_RANDOMNESS",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_STACK",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "MICRO_TARGETS",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_TRIGGERS",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_ZONE_CHANGES",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_FIRST_OPTION",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 2a113a9a791b); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_GUI_DEFAULT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8fb40cf8fcd2); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_INTERNAL_AI",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_RANDOM_OPTION",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 27e48a2a3629); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_SILENT_SKIP",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes dfdcea34210e); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_ANNOUNCE_X",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOICE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_ABILITY",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_MODE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_OBJECT",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_USE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "PILOT_DECLARE_ATTACKER",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "PILOT_DECLARE_BLOCKER",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MANA_PAYMENT",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MULLIGAN",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MULTI_AMOUNT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8d8d91ab3366); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_PILE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_PRIORITY",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TARGET",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TARGET_AMOUNT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes ad1a4eafe505); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TRIGGER_ORDER",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_CLEAN_PROCESS",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_DECISION_TAPE",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_EVENT_TAPE",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_STATE_HASHES",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "RNG_RULES_TAPE",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-CONTROL",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-SAME-21",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-SPLIT",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ELIM-4",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-2",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-4",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-DMG",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-TAX",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-ZONE",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-START-3",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-TAX-2",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-TAX-4",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-GY-NO",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-GY-YES",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['zone_manipulation']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-BLOCK-4",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-COMBAT-4",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-COMBAT-5",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['combat_declaration']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-5",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-OWNED-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-PRIO-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-STACK-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-TURN-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['multiplayer_lifecycle']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-PRIO-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-PRIO-5",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['live_priority_ring', 'stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TRIG-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TRIG-5",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['stack_response']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TURN-3",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TURN-5",
+     "reason": "no current-boundary execution seam, and this is a LAB EXECUTION-PATH gap rather than a candidate capability gap: the obligation requires a frozen mid-game starting state (['turn_transition']), and this candidate DECLARES starting_state_injection_supported=true, but this run did not exercise the injection seam. The rows stay unestablished and uncredited; closing them requires Lab execution work, not candidate remediation."
+    }
+   ],
+   "native_suite_role": "SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT",
+   "runtime_identity": {
+    "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+    "adapter_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "adapter_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+    "bridge_identity": {
+     "actual_bridge_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+     "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+     "bridge_module": "forge-protocol2-bridge",
+     "detail": "the executing checkout's forge-protocol2-bridge module tree is identical to the bound bridge/evidence commit's, so the bridge that executes is the bridge the evidence is about; the Rules Core is bound separately by tree equivalence",
+     "expected_bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+     "expected_bridge_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+     "expected_bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+     "identical": true,
+     "justification": "EXACT_BRIDGE_COMMIT",
+     "recorded_commit_tree": "000066890decca5ed7b1b889be0ea46d77903aee"
+    },
+    "bridge_source_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "bridge_source_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+    "capabilities_provider_reported": {
+     "action_submission_supported": false,
+     "commander_damage_visible": true,
+     "commander_supported": true,
+     "commander_tax_visible": true,
+     "concede_supported": true,
+     "deck_import_supported": true,
+     "engine_shutdown_supported": true,
+     "event_log_supported": false,
+     "game_shutdown_supported": true,
+     "headless_supported": true,
+     "healthcheck_supported": true,
+     "legal_actions_supported": false,
+     "max_players": 6,
+     "min_players": 2,
+     "mode_selection_supported": true,
+     "mulligan_supported": false,
+     "multiplayer_supported": true,
+     "notes": [
+      "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms, priority concession, and complete attack/block declarations (each whole declaration validated by CombatUtil.validateAttackers/validateBlocks, including multi-block; more than four candidate attackers or blockers fail closed); multi-target/divided, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+      "partner commanders import but pod-level partner lifecycle is not yet qualified",
+      "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+      "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+      "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+      "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+      "replay is not offered: deterministic replay is not claimed"
+     ],
+     "partner_supported": false,
+     "priority_visible": true,
+     "replay_supported": false,
+     "runtime_kind": "external_rules_engine",
+     "scenario_injection_supported": true,
+     "seed_supported": true,
+     "stack_visible": true,
+     "starting_state_injection_supported": true,
+     "target_selection_supported": true,
+     "trigger_order_supported": true
+    },
+    "engine_candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "engine_candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+    "evidence_epoch": {
+     "epoch_id": "401b6fd19d8e-f4a715978f5c",
+     "epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+     "predecessor_epoch": "qualification/final-current-boundary-20260927",
+     "predecessor_is_read_only": true,
+     "writes_historical_epoch": false
+    },
+    "forge_workspace": "/home/runner/work/commander-playtest-lab/commander-playtest-lab/vendor/engine-source/forge",
+    "lane": "protocol2-jsonl",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "rules_core_identity": {
+     "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+     "compared_module_roots": [
+      "forge-game",
+      "forge-core",
+      "forge-ai",
+      "forge-gui",
+      "forge-gui-desktop",
+      "adventure-editor"
+     ],
+     "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+     "differing_modules": [],
+     "engine_equivalent": true,
+     "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+     "modules": {
+      "adventure-editor": {
+       "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+       "identical": true,
+       "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+      },
+      "forge-ai": {
+       "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+       "identical": true,
+       "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+      },
+      "forge-core": {
+       "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+       "identical": true,
+       "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+      },
+      "forge-game": {
+       "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+       "identical": true,
+       "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+      },
+      "forge-gui": {
+       "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+       "identical": true,
+       "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+      },
+      "forge-gui-desktop": {
+       "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+       "identical": true,
+       "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+      }
+     },
+     "one_sided_modules": [],
+     "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+    },
+    "runner_commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
+    "runner_tree": "f4a715978f5c76d2e883ab3bd815a3612da19c65",
+    "scenario_injection_supported": true,
+    "seed_supported": true,
+    "starting_state_injection_supported": true
+   }
+  },
+  "xmage": {
+   "af00_af10": [
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "candidate commit reported by the provider at handshake: 37e4df6c914f1e189e24f0ef59fa91734c922436",
+      "commit the evidence is required to be about: 37e4df6c914f1e189e24f0ef59fa91734c922436",
+      "engine_commit provenance: file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+     ],
+     "gate": "AF00",
+     "name": "SOURCE_AND_BUILD_LOCK",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "20 AF01 v2 invariants executed under Protocol 2.0.0 on the compatibility lane",
+      "AF01_*_XMAGE.json"
+     ],
+     "gate": "AF01",
+     "name": "PROTOCOL_HANDSHAKE",
+     "nonblocking_limitations": [
+      "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact"
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "all_or_nothing": true,
+     "blocking_rows": [],
+     "evidence": [
+      "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "counts with a complete lifecycle: [2, 3, 4, 5]",
+      "counts without one: []",
+      "bounded 6P lifecycle recorded: True"
+     ],
+     "gate": "AF02",
+     "lifecycle_assessment": {
+      "all_or_nothing": true,
+      "complete_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "detail": {
+       "2P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "3P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "4P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "5P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       }
+      },
+      "incomplete_counts": [],
+      "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "required_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "verdict": "PASS"
+     },
+     "name": "PLAYER_CARDINALITY",
+     "nonblocking_limitations": [
+      "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "authority": "ENGINE_ONLY",
+     "blocking_rows": [],
+     "evidence": [
+      "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+     ],
+     "gate": "AF03",
+     "name": "RULES_AUTHORITY",
+     "nonblocking_limitations": [
+      "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+     ],
+     "observed_probe_count": 5,
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "decision_boundary": {
+      "bounded_secondary_cardinalities_checked": [
+       "6P"
+      ],
+      "candidate": "xmage",
+      "contradictions": [],
+      "externally_answered_decision_classes": [
+       "MULLIGAN",
+       "PRIORITY"
+      ],
+      "frame_count": 25,
+      "frames": [
+       {
+        "actor": "307ffbc0-a966-4e04-8db3-ec1dc3851e10",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 307ffbc0-a966-4e04-8db3-ec1dc3851e10 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "fd2288748170cacc08676715f6abc46a8adfe74416a9dde49c48abc25bab04a0",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "a9e67a8e-0020-49c9-b8c2-2eff7fc584fb",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by a9e67a8e-0020-49c9-b8c2-2eff7fc584fb at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "0d458bc68200fecdb6e696e7c80c81c37b01ee44ae412d630b9610489fab4a51",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "307ffbc0-a966-4e04-8db3-ec1dc3851e10",
+        "cardinality": "2P",
+        "chosen_option_id": "30d07dffcd3b79efaa013ff498d2b83208c659b3d3e84831d9eb31f83680dbd1",
+        "detail": "PRIORITY answered by 307ffbc0-a966-4e04-8db3-ec1dc3851e10 at revision 3; 1 engine-offered option(s); chosen='30d07dffcd3b79efaa013ff498d2b83208c659b3d3e84831d9eb31f83680dbd1'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "30d07dffcd3b79efaa013ff498d2b83208c659b3d3e84831d9eb31f83680dbd1",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 3
+       },
+       {
+        "actor": "25f1c073-e482-446c-a135-4d0bb26a99a9",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 25f1c073-e482-446c-a135-4d0bb26a99a9 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "05f3c85439c8c540c108ce84f92dae49214907f5267984b204fd155728838334",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "db5b63d4-f753-415a-a33f-c24242737594",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by db5b63d4-f753-415a-a33f-c24242737594 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "bc453c27da7655e5892869f148c6c45c9e53398a7e7b85b4fe7492f252964fc1",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "cc3c1144-f4de-4b61-81eb-c09ab22d8e83",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by cc3c1144-f4de-4b61-81eb-c09ab22d8e83 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "6d1d1b0484ab6e475b8a8fda6f57a71ae22392f9673a148803ce80f2667a4504",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "25f1c073-e482-446c-a135-4d0bb26a99a9",
+        "cardinality": "3P",
+        "chosen_option_id": "cc953c5d05f5fbddcf5514ae31b2a9923c02f9df67e897488c91864856146c52",
+        "detail": "PRIORITY answered by 25f1c073-e482-446c-a135-4d0bb26a99a9 at revision 4; 1 engine-offered option(s); chosen='cc953c5d05f5fbddcf5514ae31b2a9923c02f9df67e897488c91864856146c52'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "cc953c5d05f5fbddcf5514ae31b2a9923c02f9df67e897488c91864856146c52",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 4
+       },
+       {
+        "actor": "63001780-5bb0-4ea3-91bf-a62d4486fd71",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 63001780-5bb0-4ea3-91bf-a62d4486fd71 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "8e40408960ca67654c425368d524d3dd8368f9f9809543d0fee4c7e075ae7e66",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "2c23a1aa-c034-430a-8287-1e374180fb98",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 2c23a1aa-c034-430a-8287-1e374180fb98 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "db9e9a08fea361c09f217373ac8cb3a79e74053ad44716bb3562c00ace1a32f7",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "40cbd6f5-d013-434d-a779-f3752fea8f2f",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 40cbd6f5-d013-434d-a779-f3752fea8f2f at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "0c9ff8d5b3a6f19a8537db5cfcf58db33472251d92ae44d82766ef8251ec081a",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "c43bee1a-56ab-45e6-8eb2-428ffbd68a3c",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by c43bee1a-56ab-45e6-8eb2-428ffbd68a3c at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "88efeeda939437876279936c2764f0854a7c7e3a9c4e701a6363bfcb5d8dd541",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "63001780-5bb0-4ea3-91bf-a62d4486fd71",
+        "cardinality": "4P",
+        "chosen_option_id": "8a68bf4ff14c7f7c1b3d2a70bd9d0befeb93ad756a298456f354bdb1653c9323",
+        "detail": "PRIORITY answered by 63001780-5bb0-4ea3-91bf-a62d4486fd71 at revision 5; 1 engine-offered option(s); chosen='8a68bf4ff14c7f7c1b3d2a70bd9d0befeb93ad756a298456f354bdb1653c9323'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "8a68bf4ff14c7f7c1b3d2a70bd9d0befeb93ad756a298456f354bdb1653c9323",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 5
+       },
+       {
+        "actor": "23770762-b849-47df-98db-206b0a897ace",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 23770762-b849-47df-98db-206b0a897ace at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "a67845fa9697b76bd7333cb97ac0100726947565670ca52109c695912e7f58c8",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "280f3576-6c82-43d0-8de2-953cc92d353d",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 280f3576-6c82-43d0-8de2-953cc92d353d at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "4310ef7b63936173bdc3dfee0b5701a363d6ff523407e5da1b8f92ca98b58e25",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "4bcbdf34-fa10-4c3c-b6d1-3c91068059fa",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 4bcbdf34-fa10-4c3c-b6d1-3c91068059fa at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "0c3ca957f957f54fb0bd20c88cd6570e76f4992fdff802a7c6893721530cfc21",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "7093750a-d507-4aad-8fe3-bfb5ad69bbd1",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 7093750a-d507-4aad-8fe3-bfb5ad69bbd1 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "1d29c089a32491cbffbcda88204dc07bc418e9462130e3aa6afe4e5d7508d832",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "49d12e77-9205-4ce7-b237-f40ff1748c41",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 49d12e77-9205-4ce7-b237-f40ff1748c41 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "060d6c3418e91eec504372144ce2269fbc61f8d97f4a1e8e57c7f00dd969ef4f",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "23770762-b849-47df-98db-206b0a897ace",
+        "cardinality": "5P",
+        "chosen_option_id": "41b0f5af81fe22551e3d8436af6c1c345312a38ee9511d52bd9362678c2b08e7",
+        "detail": "PRIORITY answered by 23770762-b849-47df-98db-206b0a897ace at revision 6; 1 engine-offered option(s); chosen='41b0f5af81fe22551e3d8436af6c1c345312a38ee9511d52bd9362678c2b08e7'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "41b0f5af81fe22551e3d8436af6c1c345312a38ee9511d52bd9362678c2b08e7",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 6
+       },
+       {
+        "actor": "40d15f7c-e152-4195-8d78-bcadabbb2636",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 40d15f7c-e152-4195-8d78-bcadabbb2636 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "e4ee1e592751ac351ea9b8afbde89923b1cd41e13964cbd0c5596102bf9e862d",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "6bdd050f-7287-4043-b2ac-9cdfcdcb58e1",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 6bdd050f-7287-4043-b2ac-9cdfcdcb58e1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "0c4b93a625487fccab5f6d8818ef4f409feac7c316ac2ebdb3d75881d014e4f3",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "bd46348a-7352-4cdf-a615-bf27ea1c73cd",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by bd46348a-7352-4cdf-a615-bf27ea1c73cd at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "78426c1a177c33bf92101137fd474da72e2824023911cf16693215ea4bcbd059",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "f05e5568-d6c3-4e95-94d4-3ae3bed9b66b",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by f05e5568-d6c3-4e95-94d4-3ae3bed9b66b at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "a8d3b2f770126f332a83ea7ee96c28754ca81271b2089b0735b08ecd5e81dbad",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "08043193-0d6b-4759-a85e-971bc37dbecb",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 08043193-0d6b-4759-a85e-971bc37dbecb at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "a61e5a455b70d17f9d4b19e7cc2bfcb4d3b5667581f1552ffabb5d9e03b37eb0",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "485578cf-aca2-45c6-931b-79b6c7471c9b",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 485578cf-aca2-45c6-931b-79b6c7471c9b at revision 6; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "be1f6fafa2ca2a2322ff562bb8d39e042c5febc012d625dad6886820fc489713",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "40d15f7c-e152-4195-8d78-bcadabbb2636",
+        "cardinality": "6P",
+        "chosen_option_id": "f2d112bc20d2c69777c7312cc940f8375d3b419bf75b636fa72cb8fdcf2e828c",
+        "detail": "PRIORITY answered by 40d15f7c-e152-4195-8d78-bcadabbb2636 at revision 7; 1 engine-offered option(s); chosen='f2d112bc20d2c69777c7312cc940f8375d3b419bf75b636fa72cb8fdcf2e828c'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "f2d112bc20d2c69777c7312cc940f8375d3b419bf75b636fa72cb8fdcf2e828c",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 7
+       }
+      ],
+      "gaps": [],
+      "gate": "AF04",
+      "limitations": [],
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "required_cardinalities": [
+       "2P",
+       "3P",
+       "4P",
+       "5P"
+      ],
+      "required_frame_counts": {
+       "2P": 3,
+       "3P": 4,
+       "4P": 5,
+       "5P": 6
+      },
+      "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+      "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+      "verdict": "PASS"
+     },
+     "evidence": [
+      "AF04 derived from this epoch's external decision frames (25 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY",
+      "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'action_id': True, 'actor_id': True, 'decision_id': True}, 'identity_field': 'decision_id', 'pass_identity_offered': True, 'submitted_fields': ['action_id', 'actor_id', 'decision_id'], 'verified': True}",
+      "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+     ],
+     "gate": "AF04",
+     "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+     "nonblocking_limitations": [
+      "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+     ],
+     "owner_ruling": "R-2",
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [
+      "HIDDEN_01",
+      "HIDDEN_02",
+      "HIDDEN_03",
+      "HIDDEN_04",
+      "HIDDEN_05",
+      "HIDDEN_06",
+      "HIDDEN_07",
+      "HIDDEN_08",
+      "HIDDEN_09",
+      "HIDDEN_10",
+      "HIDDEN_11",
+      "HIDDEN_12",
+      "HIDDEN_13",
+      "HIDDEN_14",
+      "HIDDEN_15",
+      "HIDDEN_16",
+      "HIDDEN_17",
+      "HIDDEN_18",
+      "HIDDEN_19",
+      "HIDDEN_HONEYCARD_SENTINEL"
+     ],
+     "evidence": [
+      "0 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [
+      "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "MICRO_COMBAT",
+      "MICRO_CONTINUOUS_EFFECTS",
+      "MICRO_CONTROL",
+      "MICRO_COPY",
+      "MICRO_COSTS",
+      "MICRO_MANA_PAYMENT",
+      "MICRO_PREVENTION",
+      "MICRO_PRIORITY",
+      "MICRO_REPLACEMENT",
+      "MICRO_RULES_RANDOMNESS",
+      "MICRO_STACK",
+      "MICRO_STATE_BASED_ACTIONS",
+      "MICRO_ZONE_CHANGES",
+      "PILOT_DECLARE_BLOCKER",
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "24 of 107 rows PASS under the effective contract; 39 BLOCKED; 44 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "83 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "1 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [
+      "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+      "28 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 18 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-DMG",
+      "WS05-CMD-PARTNER-TAX",
+      "WS05-CMD-PARTNER-ZONE",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "6 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "30 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-DMG-SPLIT: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-DMG: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-ZONE-EXILE-NO: BLOCKED, WS05-CMD-ZONE-EXILE-YES: BLOCKED, WS05-CMD-ZONE-GY-NO: BLOCKED, WS05-CMD-ZONE-GY-YES: BLOCKED, WS05-CMD-ZONE-HAND-NO: BLOCKED, WS05-CMD-ZONE-HAND-YES: BLOCKED and 15 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_STATE_HASHES",
+      "RNG_RULES_TAPE"
+     ],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unsupported_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_XMAGE.json; refusal codes: unsupported_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "the clean-process twin half of each replay obligation is not proven per fixture",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+      "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "denominator accounting complete: 107 explicit outcomes for 107 rows",
+      "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+      "native suites: 219 tests, all green"
+     ],
+     "gate": "AF10",
+     "name": "RUNTIME_EVIDENCE_RELIABILITY",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    }
+   ],
+   "af00_af10_non_pass": [
+    {
+     "blocking_rows": [
+      "HIDDEN_01",
+      "HIDDEN_02",
+      "HIDDEN_03",
+      "HIDDEN_04",
+      "HIDDEN_05",
+      "HIDDEN_06",
+      "HIDDEN_07",
+      "HIDDEN_08",
+      "HIDDEN_09",
+      "HIDDEN_10",
+      "HIDDEN_11",
+      "HIDDEN_12",
+      "HIDDEN_13",
+      "HIDDEN_14",
+      "HIDDEN_15",
+      "HIDDEN_16",
+      "HIDDEN_17",
+      "HIDDEN_18",
+      "HIDDEN_19",
+      "HIDDEN_HONEYCARD_SENTINEL"
+     ],
+     "evidence": [
+      "0 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [
+      "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "MICRO_COMBAT",
+      "MICRO_CONTINUOUS_EFFECTS",
+      "MICRO_CONTROL",
+      "MICRO_COPY",
+      "MICRO_COSTS",
+      "MICRO_MANA_PAYMENT",
+      "MICRO_PREVENTION",
+      "MICRO_PRIORITY",
+      "MICRO_REPLACEMENT",
+      "MICRO_RULES_RANDOMNESS",
+      "MICRO_STACK",
+      "MICRO_STATE_BASED_ACTIONS",
+      "MICRO_ZONE_CHANGES",
+      "PILOT_DECLARE_BLOCKER",
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "24 of 107 rows PASS under the effective contract; 39 BLOCKED; 44 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "83 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "1 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [
+      "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+      "28 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 18 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-DMG-SPLIT",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-DMG",
+      "WS05-CMD-PARTNER-TAX",
+      "WS05-CMD-PARTNER-ZONE",
+      "WS05-CMD-ZONE-EXILE-NO",
+      "WS05-CMD-ZONE-EXILE-YES",
+      "WS05-CMD-ZONE-GY-NO",
+      "WS05-CMD-ZONE-GY-YES",
+      "WS05-CMD-ZONE-HAND-NO",
+      "WS05-CMD-ZONE-HAND-YES",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-ELIM-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-OWNED-3",
+      "WS05-MP-ELIM-PRIO-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "6 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "30 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-DMG-SPLIT: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-DMG: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-ZONE-EXILE-NO: BLOCKED, WS05-CMD-ZONE-EXILE-YES: BLOCKED, WS05-CMD-ZONE-GY-NO: BLOCKED, WS05-CMD-ZONE-GY-YES: BLOCKED, WS05-CMD-ZONE-HAND-NO: BLOCKED, WS05-CMD-ZONE-HAND-YES: BLOCKED and 15 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_STATE_HASHES",
+      "RNG_RULES_TAPE"
+     ],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unsupported_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_XMAGE.json; refusal codes: unsupported_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "the clean-process twin half of each replay obligation is not proven per fixture",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+      "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "column_provenance": {
+    "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+   },
+   "full107_counts": {
+    "BLOCKED": 39,
+    "CRASH": 0,
+    "FAIL": 0,
+    "PASS": 24,
+    "PROTOCOL_FAILURE": 0,
+    "TIMEOUT": 0,
+    "UNKNOWN": 44
+   },
+   "full107_residual_count": 83,
+   "full107_residual_rows": [
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_01",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_02",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_03",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_04",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_05",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_06",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_07",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_08",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_09",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_10",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_11",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_12",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_13",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_14",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_15",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_16",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_17",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_18",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_19",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+     "reason": "the effective obligation is a per-scenario hidden-information probe (actor/principal, zone movement, invalidation, replay knowledge boundary). The generic Protocol-2 state projection exposes principal-scoped zones but not the per-scenario channel instrumentation each fixture requires, so no honest fixture-corresponding observation path exists in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COMBAT",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_CONTROL",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COPY",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COSTS",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR307_1, supersedes d90d525a43d4); its predecessor's evidence does not transfer. the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "MICRO_LAYERS",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_MANA_PAYMENT",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_PREVENTION",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_PRIORITY",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_REPLACEMENT",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_RULES_RANDOMNESS",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_STACK",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_ZONE_CHANGES",
+     "reason": "the effective obligation is a micro-rules mechanism in a constructed mid-game state. The generic Protocol-2 lane reaches priority and the opening phase only; reaching this mechanism needs the engine-native restoration harness, whose current-boundary credit is tracked separately."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_INTERNAL_AI",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOICE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_ABILITY",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_OBJECT",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_USE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "PILOT_DECLARE_BLOCKER",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MANA_PAYMENT",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MULLIGAN",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MULTI_AMOUNT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8d8d91ab3366); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_PILE",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+     "reason": "the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TARGET_AMOUNT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes ad1a4eafe505); its predecessor's evidence does not transfer. the effective obligation is a specific engine-offered decision family in a constructed game state. The generic lane exercised PRIORITY; the remaining families are not offered in the opening phase and no first-option default was substituted to manufacture a pass."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_CLEAN_PROCESS",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_DECISION_TAPE",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_EVENT_TAPE",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_STATE_HASHES",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "RNG_RULES_TAPE",
+     "reason": "the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-CONTROL",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-SAME-21",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration', 'commander_damage_accounting', 'multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-SPLIT",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ELIM-4",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['commander_damage_accounting', 'multiplayer_lifecycle', 'zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-2",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-4",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-DMG",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-TAX",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-ZONE",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-GY-NO",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-GY-YES",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['zone_manipulation'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-BLOCK-4",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['combat_declaration'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-5",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-OWNED-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-PRIO-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-STACK-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-TURN-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['multiplayer_lifecycle'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-PRIO-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-PRIO-5",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['live_priority_ring', 'stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TRIG-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TRIG-5",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['stack_response'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TURN-3",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TURN-5",
+     "reason": "no current-boundary execution seam: the effective obligation requires a frozen mid-game starting state because it requires the mid-game mechanisms ['turn_transition'], and this candidate reports starting_state_injection_supported=False. Native causal-reconstruction harnesses exist for adjacent mechanisms but are not the same obligation; no credit is transferred."
+    }
+   ],
+   "native_suite_role": "SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT",
+   "runtime_identity": {
+    "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+    "adapter_commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
+    "capabilities_provider_reported": {
+     "action_submission_supported": false,
+     "commander_damage_visible": false,
+     "commander_supported": true,
+     "commander_tax_visible": false,
+     "concede_supported": false,
+     "deck_import_supported": true,
+     "engine_shutdown_supported": true,
+     "event_log_supported": true,
+     "game_shutdown_supported": true,
+     "headless_supported": true,
+     "healthcheck_supported": true,
+     "legal_actions_supported": false,
+     "max_players": 5,
+     "mode_selection_supported": false,
+     "mulligan_supported": false,
+     "multiplayer_supported": true,
+     "notes": [
+      "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap",
+      "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process",
+      "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable",
+      "An explicit create-game seed is bound to the native per-game Rules RNG (setRulesSeed + requireExplicitSeed before start) and acknowledged from engine readback; unseeded games report seed_controlled=false and the seed value never appears in principal-scoped state",
+      "NO_PROVIDER_READY remains in force"
+     ],
+     "partner_supported": true,
+     "priority_visible": true,
+     "replay_supported": false,
+     "runtime_kind": "external_rules_engine",
+     "scenario_injection_supported": false,
+     "seed_supported": true,
+     "stack_visible": true,
+     "starting_state_injection_supported": false,
+     "target_selection_supported": false,
+     "trigger_order_supported": false
+    },
+    "engine_candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+    "evidence_epoch": {
+     "epoch_id": "401b6fd19d8e-f4a715978f5c",
+     "epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+     "predecessor_epoch": "qualification/final-current-boundary-20260927",
+     "predecessor_is_read_only": true,
+     "writes_historical_epoch": false
+    },
+    "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+    "lane": "generic protocol-2 compatibility lane",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "runner_commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
+    "runner_tree": "f4a715978f5c76d2e883ab3bd815a3612da19c65",
+    "scenario_injection_supported": false,
+    "seed_supported": true,
+    "starting_state_injection_supported": false
+   }
+  }
+ },
+ "coordinator_tracker": 255,
+ "evidence_epoch": {
+  "authority": "operational evidence identity, not a qualification verdict: it names which source produced the bytes in this epoch",
+  "created_utc": "2026-10-01T09:43:20+00:00",
+  "epoch_id": "401b6fd19d8e-f4a715978f5c",
+  "epoch_root": "qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c",
+  "predecessor_epoch": "qualification/final-current-boundary-20260927",
+  "predecessor_is_read_only": true,
+  "producing_source": {
+   "branch": "HEAD",
+   "commit": "401b6fd19d8e00dc919d5868891291cb4dc9c166",
+   "repository": "https://github.com/moeendres-png/commander-playtest-lab",
+   "tree": "f4a715978f5c76d2e883ab3bd815a3612da19c65"
+  },
+  "schema_version": "commander-lab.current-boundary-epoch-identity/1.0.0"
+ },
+ "issue": 425,
+ "owner_rulings": [
+  "R-1",
+  "R-2",
+  "R-3",
+  "R-4"
+ ],
+ "production_provider": "NOT_SELECTED",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "r4_credit_policy": "FULL107 PASS requires a current exact positive per-fixture receipt bound to candidate, runner, requested-state digest and obligation digest",
+ "ranking": "NONE",
+ "schema_version": "commander-lab.provider-readiness-current/1.0.0",
+ "selection": "COORDINATOR_OWNED_IN_ISSUE_255"
+}

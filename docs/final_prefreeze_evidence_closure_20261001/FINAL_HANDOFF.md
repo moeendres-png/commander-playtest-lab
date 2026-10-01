@@ -6,21 +6,26 @@
 
 | Role | Identity |
 |---|---|
-| Lab origin/main at packet | `a79257c23061e3f380afff5c288d96a26843e572`, tree `6473e05e3be3165f0bfcf41bb8b995b06fe1d4e7` |
+| Lab origin/main merged into this branch | `77f99951cf04c66a405ff1a3470d5d0da19ad81d` (via #446 `42f19dd1`, #447) |
 | This branch | `hardening/final-prefreeze-evidence-closure-20261001` |
-| Producing source of the epoch | `fac12a9b73b13c235ea1aa7f97e2696c5376d59d`, tree `3234e300d6990c9c7a570fab12bfd9ed927b3d27` |
-| Successor evidence epoch | `qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/` (65 files, all verified against the CI-produced `CURRENT_BOUNDARY_SHA256SUMS`) |
-| XMage candidate | `9375f35ac7c9a540ebcb8b262b8645b8c6b1b326` |
+| Producing source tree of the epoch | `f4a715978f5c76d2e883ab3bd815a3612da19c65` (the PR merge commit `401b6fd19d8e00dc919d5868891291cb4dc9c166` has exactly this tree) |
+| Successor evidence epoch | `qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/` (65 files, all verified against the CI-produced `CURRENT_BOUNDARY_SHA256SUMS`) |
+| XMage candidate | `37e4df6c914f1e189e24f0ef59fa91734c922436` (repin v3 with F-43/F-44/F-45) |
 | Forge Rules-Core candidate | `bb0a740d2bef725194798383c2452213ecdd0b37` |
-| Forge bridge/materialization source | `e8b8aec60720aee218338754224721597b8c6ec5` |
+| Forge bridge/materialization source | `20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c` (final #11+#16 identities) |
 | Effective FULL107 contract | `commander-lab.full107/1.0.7-successor` (9 corrected fixtures) |
 | Historical epoch (untouched) | `qualification/current-boundary-epochs/4cad91897216-a43e80d96595/` |
+| Superseded workstream epochs | `fac12a9b…` (pre-review-repair) and the 3fa371d6 PR-run epoch (correct code, #441-locked pins): both preserved in branch history, removed from the tip |
 
 ## Work Completed
 
-1. **Gate 0 / ownership census** — #440 merged (953b231d) and #443 merged (a79257c2)
-   were consumed by a normal merge; #444 (XMage repin v3) remains a foreign-active
-   surface and was not touched or consumed. See `OWNERSHIP_AND_DRIFT.json`.
+1. **Gate 0 / ownership census and drift** — #440 (953b231d), #443 (a79257c2),
+   #446 (42f19dd1) and #447 (77f99951) were consumed by normal merges. #444's
+   XMage repin v3 landed through #446/#447, so the #441-locked candidate
+   identities were superseded mid-workstream: this was classified
+   `RELEVANT_REQUALIFICATION_REQUIRED`, adjudicated by merging current main and
+   re-running the PB-03 workflow on the merged head. See
+   `OWNERSHIP_AND_DRIFT.json`.
 2. **A — Forge AF04 reassembly (CLOSED)** — the hard-coded UNKNOWN was replaced by a
    measured derivation over the same-epoch external decision frames.
    `AF04 = PASS` for both candidates, from 30 (Forge) / 25 (XMage) proven frames.
@@ -36,9 +41,12 @@
 5. **AF05–AF09 gate derivations** — the remaining hard-coded gate literals were
    replaced by derivations; AF04 now also measures the `ORDER_CHOICE` class added by
    the merged #443 policy.
-6. **H — reassembly** — a fresh source-bound epoch was produced by the PB-03
-   workflow on the exact branch head (run 36829423872, green), assembled and
-   downloaded, its 65 digests verified byte-for-byte, and committed unchanged.
+6. **H — reassembly** — the PB-03 workflow was run twice: once on the
+   #441-locked pins (run 36829423872, green, superseded by pin drift) and once
+   on the merged head at the current canonical pins (run **36843153264**, green,
+   producing merge commit `401b6fd1`, tree `f4a71597`). The second epoch was
+   downloaded, all 65 digests verified byte-for-byte, and committed unchanged.
+   No result differed in kind between the two runs.
 
 ## New Findings
 
@@ -88,7 +96,7 @@
 
 | Classification | Evidence |
 |---|---|
-| `DIRECTLY_VERIFIED` | PB-03 workflow run 36829423872 green on `fac12a9b`; 65/65 epoch digests verified |
+| `DIRECTLY_VERIFIED` | PB-03 workflow run 36843153264 green at the current pins (XMage `37e4df6c`, Forge bridge `20e3e1f7`); 65/65 epoch digests verified |
 | `DIRECTLY_VERIFIED` | 19 mid-game lane rows executed, 19 verified, each with an R-4 positive receipt bound to candidate/runner/requested-state/obligation |
 | `DIRECTLY_VERIFIED` | 4 NEGATIVE_* rows PASS on well-formed typed refusals (`state_mutated=false`, `submissions_in_window=[]`) |
 | `DIRECTLY_VERIFIED` | AF04 PASS for both candidates (30 / 25 proven frames) |
@@ -134,8 +142,9 @@ Denominator 107 unchanged. No crash/timeout/protocol failure. No ranking.
 2. **AF07 (both candidates)**: 1 of the 29 frozen corpus identities (CARD_02,
    Rograkh) has a passing mandatory row on XMage and none on Forge; the other 28
    identities need the same causal placement lane extended per card. The epoch's
-   `ACTUAL_CARD_*.json` summary under-reports because it is written before the
-   mid-game lane runs; AF07 derives coverage from the row states instead.
+   `ACTUAL_CARD_*.json` summary is marked `ROWS_EXECUTED_BEFORE_THE_MID_GAME_LANE`
+   because it is written before the lane runs; AF07 derives coverage from the row
+   states plus the frozen fixture->identity map instead.
 3. **AF09 (both candidates)**: `export_replay` is refused by both engines
    (XMage `unsupported_message`, Forge `unknown_message`). The obligation is a
    fresh-process twin with same-provider semantic tape/checkpoint equality; no

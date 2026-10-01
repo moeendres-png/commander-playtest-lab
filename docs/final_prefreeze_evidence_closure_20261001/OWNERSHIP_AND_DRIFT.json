@@ -1,20 +1,9 @@
 {
  "_schema": "commander-lab.final-prefreeze-ownership-and-drift/1.0.0",
- "workstream": "FINAL-PREFREEZE-EVIDENCE-CLOSURE-20261001",
- "issue": 441,
- "gate_0_census": {
-  "census_utc": "2026-10-01T07:00:00Z",
-  "audit_base": {
-   "main_commit": "d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2",
-   "main_tree": "02eb292528f36d3bf75c7878fcf33269218cb10d",
-   "note": "authorization-time source lock recorded in #441"
-  },
-  "owned_surface": {
-   "branch": "hardening/final-prefreeze-evidence-closure-20261001",
-   "worktree": "/home/moeen/code/lab-final-prefreeze-evidence-closure-20261001",
-   "writer": "OpenCode Go / opencode-go/deepseek-v4.1-flash native MAX",
-   "state_file": ".foundry/final-prefreeze-evidence-closure-20261001.yaml"
-  }
+ "architecture_freeze": "NOT_CLAIMED",
+ "current_origin_main_at_packet": {
+  "commit": "77f99951cf04c66a405ff1a3470d5d0da19ad81d",
+  "note": "before this branch merged into it"
  },
  "drift_events": [
   {
@@ -41,36 +30,58 @@
    "integration": "origin/main merged normally into the owned branch at 5e0edc91"
   },
   {
+   "change": "explicit Forge cost-order pilot policy: game_driver gains ORDER_CHOICE handling and a new decision class reaches the shared surface",
    "class": "RELEVANT_NONCONFLICTING",
    "event": "PR #443 merged into main as a79257c23061e3f380afff5c288d96a26843e572",
-   "change": "explicit Forge cost-order pilot policy: game_driver gains ORDER_CHOICE handling and a new decision class reaches the shared surface",
    "impact_on_this_workstream": "AF04's decision boundary must measure the ORDER_CHOICE class like every other option-id-addressed class; decision_boundary.OBSERVATION_STEP_BY_KIND now maps ORDER_CHOICE -> cost_order, and a wrong-reason test covers it",
    "integration": "consumed through the same normal merge; no conflict"
   },
   {
+   "action_taken": "not merged or consumed by this workstream; this epoch binds config/rules_engines.json at run time (primary_engine.commit)",
    "class": "RELEVANT_REQUALIFICATION_REQUIRED_IF_MERGED",
    "event": "PR #444 (Repin v3: live XMage pin 9375f35a -> 4e59e8b9) is OPEN, another writer's surface",
    "head": "dd6662c0f38fef3bc583ecc8563a10bdaba97f05",
    "impact_if_merged": "the XMage candidate identity changes, so every XMage row, AF gate and R-4 receipt in this workstream's epoch would be bound to a superseded candidate and would require requalification on the new pin",
-   "action_taken": "not merged or consumed by this workstream; this epoch binds config/rules_engines.json at run time (primary_engine.commit)",
    "ownership": "foreign-active; not modified"
+  },
+  {
+   "action_taken": "requalified on the merged head; no result differed in kind (AF04 PASS both, XMage 24 PASS, no FAIL/CRASH/TIMEOUT/PROTOCOL_FAILURE)",
+   "class": "RELEVANT_REQUALIFICATION_REQUIRED",
+   "event": "main advanced through #446 (42f19dd1) and #447 (77f99951) before this branch merged: XMage repin v3 with F-43/F-44/F-45 (4e59e8b9 -> 37e4df6c) and the final Forge #11+#16 identities (Rules-Core bb0a740d, bridge 20e3e1f7)",
+   "impact_on_this_workstream": "the #441-locked candidate identities (XMage 9375f35a, Forge bridge e8b8aec6) are superseded; every runtime receipt produced on them is superseded as current evidence and required requalification on the new pins",
+   "integration": "origin/main merged normally at 82e0e22e; hash manifests regenerated; the PB-03 workflow was re-run on the merged head (run 36843153264, green) and its epoch 401b6fd19d8e-f4a715978f5c is the packet's evidence epoch",
+   "superseded_workstream_epochs": [
+    "fac12a9b73b1-3234e300d699: pre-review-repair (its effective manifest misstated the corrected-fixture set); preserved in branch history",
+    "PR-run epoch on 3fa371d6 (producing commit 8f8c0156, tree 99886b6c): correct code but #441-locked pins; preserved in branch history"
+   ]
   }
  ],
- "current_origin_main_at_packet": {
-  "commit": "a79257c23061e3f380afff5c288d96a26843e572",
-  "tree": "6473e05e3be3165f0bfcf41bb8b995b06fe1d4e7"
- },
- "rules_engines_at_run": {
-  "xmage_primary_engine": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
-  "forge_rules_core_candidate": "bb0a740d2bef725194798383c2452213ecdd0b37",
-  "forge_bridge_materialization_source": "e8b8aec60720aee218338754224721597b8c6ec5"
- },
  "foreign_active_surfaces_not_touched": [
   "PR #444 branch claude/optimistic-bohr-6asye6 (XMage repin v3)",
   "PR #443 branch sol/r5-forge-cost-order-consumer-20261001 (merged before this packet; consumed by normal merge)"
  ],
+ "gate_0_census": {
+  "audit_base": {
+   "main_commit": "d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2",
+   "main_tree": "02eb292528f36d3bf75c7878fcf33269218cb10d",
+   "note": "authorization-time source lock recorded in #441"
+  },
+  "census_utc": "2026-10-01T07:00:00Z",
+  "owned_surface": {
+   "branch": "hardening/final-prefreeze-evidence-closure-20261001",
+   "state_file": ".foundry/final-prefreeze-evidence-closure-20261001.yaml",
+   "worktree": "/home/moeen/code/lab-final-prefreeze-evidence-closure-20261001",
+   "writer": "OpenCode Go / opencode-go/deepseek-v4.1-flash native MAX"
+  }
+ },
+ "issue": 441,
  "no_force_push": true,
  "no_history_rewrite": true,
  "production_provider": "NOT_SELECTED",
- "architecture_freeze": "NOT_CLAIMED"
+ "rules_engines_at_run": {
+  "forge_bridge_materialization_source": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "forge_rules_core_candidate": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "xmage_primary_engine": "37e4df6c914f1e189e24f0ef59fa91734c922436"
+ },
+ "workstream": "FINAL-PREFREEZE-EVIDENCE-CLOSURE-20261001"
 }

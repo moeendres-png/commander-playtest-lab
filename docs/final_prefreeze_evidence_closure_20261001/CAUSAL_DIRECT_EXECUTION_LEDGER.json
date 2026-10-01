@@ -1,5 +1,5 @@
 {
- "candidate_commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+ "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
  "mechanism_equivalent_native_evidence": "SUPPORTING_ONLY_NO_FULL107_CREDIT",
  "rows": [
   {
@@ -120,18 +120,18 @@
    "fixture_id": "NEGATIVE_FIRST_OPTION",
    "refusals": [
     {
-     "actor_id": "d18e906b-fec2-48cf-a8dd-52f34caba7a7",
+     "actor_id": "aee740e3-9b52-498e-8692-8ceee298e08a",
      "decision_class": "mode",
-     "decision_id": "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b",
-     "decision_id_after": "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b",
-     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor d18e906b-fec2-48cf-a8dd-52f34caba7a7, revision/decision 5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "decision_id": "d35b4eda6308a8d73f6226048d703d6b591051c254adcd834802e4e67fdb4c78",
+     "decision_id_after": "d35b4eda6308a8d73f6226048d703d6b591051c254adcd834802e4e67fdb4c78",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor aee740e3-9b52-498e-8692-8ceee298e08a, revision/decision d35b4eda6308a8d73f6226048d703d6b591051c254adcd834802e4e67fdb4c78): no action submitted; the same frame is still pending and the public event offset is unchanged",
      "event_offset_after": 7,
      "event_offset_before": 7,
-     "frame_digest": "5271e03b3450fdb4e494e4538c550714032714a00266a7a5d963cb363b75b242",
+     "frame_digest": "d16032635d3a1f484a05cec0fcaecb951a65331370099f913f394f5420cd6abd",
      "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
      "offered_option_ids": [
-      "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b:cc42c157-199c-44f4-baf3-6eb4113e4778",
-      "5ad1ebbd465bd8844f44a2dd6907c4e49aebb817f63b1b615add458ce807464b:c1eede81-e15b-4710-80f5-f90b47323bcd"
+      "d35b4eda6308a8d73f6226048d703d6b591051c254adcd834802e4e67fdb4c78:c4ddb706-315b-44f2-af91-24edce5feaf8",
+      "d35b4eda6308a8d73f6226048d703d6b591051c254adcd834802e4e67fdb4c78:892c63e0-5fd8-4441-9a02-84a3eccb5d8f"
      ],
      "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
      "state_mutated": false,
@@ -155,7 +155,7 @@
       1
      ],
      "refusal_frame_digests": [
-      "5271e03b3450fdb4e494e4538c550714032714a00266a7a5d963cb363b75b242"
+      "d16032635d3a1f484a05cec0fcaecb951a65331370099f913f394f5420cd6abd"
      ]
     }
    },
@@ -169,18 +169,18 @@
    "fixture_id": "NEGATIVE_GUI_DEFAULT",
    "refusals": [
     {
-     "actor_id": "aa23dab1-218d-477e-ab48-c703d99a8d00",
+     "actor_id": "0206f82a-2752-4c07-9fd5-9820852929dd",
      "decision_class": "mode",
-     "decision_id": "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d",
-     "decision_id_after": "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d",
-     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor aa23dab1-218d-477e-ab48-c703d99a8d00, revision/decision 679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "decision_id": "d370cebe75a8f289c1689b5a3e863c0b905c3f942f2ff331c53cf359e51ae275",
+     "decision_id_after": "d370cebe75a8f289c1689b5a3e863c0b905c3f942f2ff331c53cf359e51ae275",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of mode (actor 0206f82a-2752-4c07-9fd5-9820852929dd, revision/decision d370cebe75a8f289c1689b5a3e863c0b905c3f942f2ff331c53cf359e51ae275): no action submitted; the same frame is still pending and the public event offset is unchanged",
      "event_offset_after": 7,
      "event_offset_before": 7,
-     "frame_digest": "846c04c29f492f4fc481dbb073112077069a15475a8d1674e37382a4fceb0cef",
+     "frame_digest": "217a0abb426e90859a218bc3ee0affa1a6b836157ca24befbb623cf521f2807e",
      "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
      "offered_option_ids": [
-      "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d:366ed1b2-d901-41ed-85a5-cfb82a32492b",
-      "679bf397564cc65bc8769ef1fabac245bfda5a0022aad604e1375bfd664faa2d:a2699df8-f00a-41d0-81c6-f7ff672f11f7"
+      "d370cebe75a8f289c1689b5a3e863c0b905c3f942f2ff331c53cf359e51ae275:8885aab9-822e-4c04-91f0-b78254aadb63",
+      "d370cebe75a8f289c1689b5a3e863c0b905c3f942f2ff331c53cf359e51ae275:75e654bb-36aa-4d3a-8efc-1568a8c6b6a8"
      ],
      "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
      "state_mutated": false,
@@ -204,7 +204,7 @@
       1
      ],
      "refusal_frame_digests": [
-      "846c04c29f492f4fc481dbb073112077069a15475a8d1674e37382a4fceb0cef"
+      "217a0abb426e90859a218bc3ee0affa1a6b836157ca24befbb623cf521f2807e"
      ]
     }
    },
@@ -218,23 +218,23 @@
    "fixture_id": "NEGATIVE_RANDOM_OPTION",
    "refusals": [
     {
-     "actor_id": "9c4f0d79-a353-4ca5-8465-bc350c162009",
+     "actor_id": "9f521ea3-cd89-4bfe-8eff-514b215218fa",
      "decision_class": "target",
-     "decision_id": "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43",
-     "decision_id_after": "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43",
-     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 9c4f0d79-a353-4ca5-8465-bc350c162009, revision/decision 555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "decision_id": "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf",
+     "decision_id_after": "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 9f521ea3-cd89-4bfe-8eff-514b215218fa, revision/decision 93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf): no action submitted; the same frame is still pending and the public event offset is unchanged",
      "event_offset_after": 7,
      "event_offset_before": 7,
-     "frame_digest": "42f95912fd10409f9239d086945a74718d2ac99df9a17f0dcec474419ff70214",
+     "frame_digest": "694315d11bdd0d1ef6c07a86aa9f7c26d96c028e2cc269ba70c71d1cae66ed88",
      "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
      "offered_option_ids": [
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:9c4f0d79-a353-4ca5-8465-bc350c162009",
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:593d6dc4-42b5-4643-b0c8-1316355a9971",
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:13d34221-fdf2-4f99-92fb-9d43fdfe1bb2",
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:113ed1ed-dced-4308-ab54-d0f90aee30c6",
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:fa256c9f-6d30-442d-8db2-cce07b15cef3",
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:39f770d4-eb1e-4a00-8ab7-8a492e6786fe",
-      "555598aafd8e0d5675bfdb443c40be9802ca041d7bce33cdc119736848ebfb43:b4bcd89f-df85-4880-9ddc-d54896de0991"
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:9f521ea3-cd89-4bfe-8eff-514b215218fa",
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:59ff8366-79ac-469a-84f4-d4ddaf532438",
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:7cdcfcd3-470e-4189-8112-f2a0ff97eefe",
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:36605b11-56b6-4fb3-838d-cbcb8e61700a",
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:83245b12-8aff-4ab9-af40-c10be82892f5",
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:777adb56-f6d5-47e4-b786-e2556a124d00",
+      "93a46021583e58b88a63272a5e4a24c46382beea57de1f2fe139d914996f15bf:8b12ba24-f133-46fb-9b29-7c8ac44be981"
      ],
      "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
      "state_mutated": false,
@@ -258,7 +258,7 @@
       1
      ],
      "refusal_frame_digests": [
-      "42f95912fd10409f9239d086945a74718d2ac99df9a17f0dcec474419ff70214"
+      "694315d11bdd0d1ef6c07a86aa9f7c26d96c028e2cc269ba70c71d1cae66ed88"
      ]
     }
    },
@@ -272,23 +272,23 @@
    "fixture_id": "NEGATIVE_SILENT_SKIP",
    "refusals": [
     {
-     "actor_id": "59e0b4ac-e758-4f38-aed3-152968b3a561",
+     "actor_id": "28df8eb0-bf06-453b-9632-47ef2425077f",
      "decision_class": "target",
-     "decision_id": "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1",
-     "decision_id_after": "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1",
-     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 59e0b4ac-e758-4f38-aed3-152968b3a561, revision/decision 70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1): no action submitted; the same frame is still pending and the public event offset is unchanged",
+     "decision_id": "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b",
+     "decision_id_after": "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b",
+     "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 28df8eb0-bf06-453b-9632-47ef2425077f, revision/decision a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b): no action submitted; the same frame is still pending and the public event offset is unchanged",
      "event_offset_after": 7,
      "event_offset_before": 7,
-     "frame_digest": "be1156d858cd3fb1c75af05e484de1dda7ac7eeaeacc826539fabce79761cf83",
+     "frame_digest": "98f05e1755f5416ad4f8e8d56c82dea04373f4b66142af0a9619967d92e31dae",
      "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
      "offered_option_ids": [
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:59e0b4ac-e758-4f38-aed3-152968b3a561",
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:f89c0855-4fbe-4f6d-8855-0cf8be0263b4",
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:44de03a1-ac91-4163-a5e0-4e5c772e4371",
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:4114e158-ee8c-409d-9770-30870651cc4c",
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:ccaa5b73-9388-40fc-a665-3a515347c54f",
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:e315a431-319f-452e-adad-3fee5f079236",
-      "70fa3ab08f1dd8a349a456953f27d818e7c233569dfa5d6ba1bc0e9eb9a288d1:779eb594-5d52-4606-9833-515ad9447d78"
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:28df8eb0-bf06-453b-9632-47ef2425077f",
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:d1812156-662d-41c5-b9ae-82193ec0f881",
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:71fb9f36-7de7-4737-ae66-4c454e05bf70",
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:5a7fbfdd-6b1a-4d7d-8fd1-35300f10c57f",
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:6d9d5d37-a01c-4e8d-976e-75036e484111",
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:aee2f6fd-4c85-4574-b89e-ce24d8398961",
+      "a3d7fa5bb1df2d3be181b6aad32d27a50abc0e5914cde4de0b5ca48a78bb466b:4874d1d7-570b-417c-a7d0-3b6c2fbc8674"
      ],
      "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
      "state_mutated": false,
@@ -312,7 +312,7 @@
       1
      ],
      "refusal_frame_digests": [
-      "be1156d858cd3fb1c75af05e484de1dda7ac7eeaeacc826539fabce79761cf83"
+      "98f05e1755f5416ad4f8e8d56c82dea04373f4b66142af0a9619967d92e31dae"
      ]
     }
    },

@@ -4,8 +4,8 @@ worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
 branch: hardening/final-prefreeze-evidence-closure-20261001
 audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
 audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d
-state_written_against_head: fac12a9b73b13c235ea1aa7f97e2696c5376d59d
-validated_head: fac12a9b73b13c235ea1aa7f97e2696c5376d59d
+state_written_against_head: 92f0a7ee600f7ab1c8b3a5a0f7f6c4c1b5a3d2e1
+validated_head: 92f0a7ee600f7ab1c8b3a5a0f7f6c4c1b5a3d2e1
 objective: 'Close the Coordinator-adjudicated pre-Freeze evidence and qualification
   gaps tracked by issue #441 and produce a fresh source-bound provider-readiness packet
   for subsequent Coordinator adjudication under #255.'
@@ -59,19 +59,22 @@ validated_gates:
 - 'C1_C2_ERRATA: successor contract 1.0.7 in effect; MICRO_MODES + 4 NEGATIVE rows
   now PASS; MICRO_COSTS cast now offered'
 failed_gates: []
-invalidated_gates: []
+invalidated_gates:
+- 'ALL_RUNTIME_EVIDENCE_ON_441_LOCKED_PINS: superseded by the #446/#447 repin (XMage
+  9375f35a -> 37e4df6c, Forge bridge e8b8aec6 -> 20e3e1f7); requalified on the merged
+  head'
 tests_run:
 - python3 -m pytest tests -m "not external" => 2953 passed, 11 skipped
 - PB-03 workflow run 36829423872 on fac12a9b => success
 - python3 scripts/regenerate_hash_manifests.py (304/309 entries)
 evidence:
-- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/ (65 files, digests
-  verified)
-- docs/final_prefreeze_evidence_closure_20261001/ (12 packet files)
+- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/ (65 files, digests
+  verified; current pins 37e4df6c / 20e3e1f7)
+- docs/final_prefreeze_evidence_closure_20261001/ (13 packet files)
 artifacts:
-- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/FULL107_XMAGE_RESULTS.json
-- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/FULL107_FORGE_RESULTS.json
-- qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699/PROVIDER_READINESS_CURRENT.json
+- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/FULL107_XMAGE_RESULTS.json
+- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/FULL107_FORGE_RESULTS.json
+- qualification/current-boundary-epochs/401b6fd19d8e-f4a715978f5c/PROVIDER_READINESS_CURRENT.json
 - docs/final_prefreeze_evidence_closure_20261001/FINAL_HANDOFF.md
 remaining_scope:
 - AF05 mandatory HIDDEN_* channels (needs principal-scoped knowledge-projection observation
@@ -92,10 +95,9 @@ execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 variant_resolution: native_max
-exact_next_action: 'Open the #441 PR, run the full CI gate set on the PR head, obtain
-  an independent fresh-context review, then integrate if merge-gate conditions hold.
-  Then continue with the lane multi-select/amount selector and the AF05 knowledge-projection
-  channel.'
+exact_next_action: 'Verify all PR #445 checks on the final head (92f0a7ee), then integrate
+  if the merge-gate conditions hold; otherwise leave MERGEABLE_READY with the exact
+  failing gate.'
 files_modified:
 - src/commander_lab/qualification/current_boundary/decision_boundary.py
 - scripts/assemble_current_boundary_evidence.py
@@ -128,3 +130,7 @@ technical_decisions:
   followed by the assignment leg, and implementing a divided-damage selector without
   a negative control risks a wrong-reason PASS. Left UNKNOWN with the exact mechanism
   observed on the production lane.'
+- 'Pin drift (#446/#447) was classified RELEVANT_REQUALIFICATION_REQUIRED: current
+  main was merged normally and the PB-03 workflow was re-run on the merged head rather
+  than carrying the #441-locked-pin results forward. The superseded workstream epochs
+  remain in branch history only.'
