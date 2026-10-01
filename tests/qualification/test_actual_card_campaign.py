@@ -32,6 +32,15 @@ PIN = canonical_xmage_engine_pin()
 # --------------------------------------------------------------------------- #
 
 
+# The ownership while #450 was the active midgame writer: owner routing is
+# tested against this explicit map, independent of the live default.
+FOREIGN_450 = {
+    "src/commander_lab/qualification/current_boundary/midgame_rows.py": "PR #450",
+    "scripts/run_midgame_capability_probe.py": "PR #450",
+    "tests/qualification/test_current_boundary_midgame_rows.py": "PR #450",
+}
+
+
 def _record(
     fixture_id: str = "CARD_02",
     identity: str = "Rograkh, Son of Rohgahh",
@@ -329,7 +338,7 @@ def _complete_direct_pass(
         row,
         measurement,
         expected_engine_commit=PIN,
-        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        foreign_owned_surfaces=FOREIGN_450,
     )
 
 
@@ -463,7 +472,7 @@ def test_stack_refusal_with_a_declared_causal_entry_is_a_probe_dependency() -> N
         row,
         measurement,
         expected_engine_commit=PIN,
-        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        foreign_owned_surfaces=FOREIGN_450,
         causal_entry_rows=("CARD_13",),
     )
     assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
@@ -474,7 +483,7 @@ def test_stack_refusal_with_a_declared_causal_entry_is_a_probe_dependency() -> N
         row,
         measurement,
         expected_engine_commit=PIN,
-        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        foreign_owned_surfaces=FOREIGN_450,
     )
     assert without_causal["blocker_class"] == campaign.BLOCKER_PROVIDER_ADAPTER_DEFECT
 
@@ -533,7 +542,7 @@ def test_unscripted_decision_family_absent_from_the_record_is_a_contract_depende
         detail="unscripted choose_object for P1: the row stops unverified",
         verified=False,
     )
-    foreign = dict(campaign.DEFAULT_FOREIGN_OWNED_SURFACES)
+    foreign = dict(FOREIGN_450)
     foreign[campaign.SURFACE_SUCCESSOR_CONTRACT] = "PR #462"
     evaluation = campaign.evaluate_row(
         row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces=foreign
@@ -576,7 +585,7 @@ def test_unscripted_decision_family_the_record_scripts_is_an_executor_dependency
         row,
         measurement,
         expected_engine_commit=PIN,
-        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        foreign_owned_surfaces=FOREIGN_450,
     )
     assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
     assert evaluation["blocker_surface"] == campaign.SURFACE_MIDGAME_ROWS
@@ -593,7 +602,7 @@ def test_executor_gap_is_dependency_waiting_while_the_surface_is_foreign() -> No
         row,
         measurement,
         expected_engine_commit=PIN,
-        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        foreign_owned_surfaces=FOREIGN_450,
     )
     assert foreign["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
     assert foreign["blocker_owner"] == "PR #450"
@@ -618,7 +627,7 @@ def test_unsupported_scripted_action_is_classified_from_the_executor_detail() ->
         row,
         measurement,
         expected_engine_commit=PIN,
-        foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
+        foreign_owned_surfaces=FOREIGN_450,
     )
     assert evaluation["blocker_class"] == campaign.BLOCKER_DEPENDENCY_WAITING
     assert evaluation["blocker_surface"] == campaign.SURFACE_MIDGAME_ROWS
@@ -786,3 +795,7 @@ def test_matrix_refuses_a_pass_without_receipt_eligibility() -> None:
     matrix = campaign.build_matrix(corpus, evaluations)
     assert matrix["summary"]["direct_pass"] == ["CARD_02"]
     assert matrix["summary"]["direct_receipt_eligible"] == ["CARD_02"]
+
+
+def test_no_surface_has_a_foreign_writer_once_450_and_462_are_merged() -> None:
+    assert dict(campaign.DEFAULT_FOREIGN_OWNED_SURFACES) == {}

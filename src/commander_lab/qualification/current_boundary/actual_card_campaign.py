@@ -111,14 +111,11 @@ OUTCOME_UNKNOWN = "UNKNOWN"
 # HARNESS_DEFECT. The mapping is campaign data, not a statement about the
 # repository forever: Phase 2 (after both PRs are terminal and their bytes are
 # impact-adjudicated) rebuilds it from live ownership.
-DEFAULT_FOREIGN_OWNED_SURFACES: Mapping[str, str] = {
-    "src/commander_lab/qualification/current_boundary/midgame_rows.py": "PR #450",
-    "scripts/run_midgame_capability_probe.py": "PR #450",
-    "tests/qualification/test_current_boundary_midgame_rows.py": "PR #450",
-    # #452, #460 and #462 merged: the successor-contract surfaces have no
-    # foreign writer any more, so a missing script step there is a fixture
-    # defect for this campaign to correct, not a dependency.
-}
+# #450 (midgame executor and probe) and #452/#460/#462 (successor contract)
+# are merged: no surface this campaign depends on has a foreign writer any
+# more, so an executor gap is a harness defect and a missing script step a
+# fixture defect, both for this campaign to correct.
+DEFAULT_FOREIGN_OWNED_SURFACES: Mapping[str, str] = {}
 
 SURFACE_CAMPAIGN = "src/commander_lab/qualification/current_boundary/actual_card_campaign.py"
 SURFACE_MIDGAME_ROWS = "src/commander_lab/qualification/current_boundary/midgame_rows.py"
