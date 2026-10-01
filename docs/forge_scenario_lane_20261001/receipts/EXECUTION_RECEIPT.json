@@ -204,13 +204,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-6ca5e71a-e3f0-49e1-88d3-f853050ead6d",
+     "chosen_option_id": "opt-368af56b-e739-4ae0-ac97-8a51d5ad1d85",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-6ca5e71a-e3f0-49e1-88d3-f853050ead6d",
-      "opt-7e482de5-f470-4aea-b274-2054f52c7713",
-      "opt-3323af01-e946-4e3b-abf6-d2ea0177d6ad",
-      "opt-00f2cb3e-c6f7-48f5-851e-10b26c43d658"
+      "opt-368af56b-e739-4ae0-ac97-8a51d5ad1d85",
+      "opt-c6e882c1-282c-4ca1-b2f9-c0979fab70fe",
+      "opt-d9e69e6a-27fb-4716-8532-51ba504406ec",
+      "opt-e4d334e3-5777-445d-984c-a04f8f6614ad"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -220,8 +220,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-7e771547-77b4-4efb-9793-d164e32acfac",
-      "opt-cbc6098a-5a27-45e5-9a25-77a56543cbf6"
+      "opt-bb262bd5-2555-440a-9eea-a3d2416b8eb1",
+      "opt-616ee0b6-ffee-45b7-99dc-4ee0fb14c5ee"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -231,8 +231,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-031a3416-1d19-4abd-96b7-6cc3acbbce80",
-      "opt-08b368f4-cee3-4247-8409-f55befa04bd0"
+      "opt-c7fb2f8b-f629-4442-86f7-b9645e44b32c",
+      "opt-5c771fe9-79b6-453b-9bd5-2186a65ed22e"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -242,8 +242,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-15943b39-4c69-4e58-8c6b-8ee073913185",
-      "opt-1175e283-5981-4cfa-a307-dd98ccd86e5c"
+      "opt-4c71c13c-66bc-4ce9-99cc-ed0bcab04106",
+      "opt-5e9f6014-080c-48a1-9c23-3a778755bb83"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -253,140 +253,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-e6ba5ba8-bfcb-4a35-bc8d-ad18012202fd",
-      "opt-a011f6ba-0ff8-4a16-96b1-391b1438d530"
+      "opt-c739c45a-afe6-4437-93da-bb9631f2da42",
+      "opt-bb756514-95ed-4825-b19e-80a68aea654d"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-5dab770d-611c-4c66-ae31-ad8e9de0c406",
+     "chosen_option_id": "opt-25be2ef9-76b1-42e9-ae75-6882be23257d",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5dab770d-611c-4c66-ae31-ad8e9de0c406",
-      "opt-76e4c874-8e52-4f27-82d9-303f3fd47bb8"
+      "opt-25be2ef9-76b1-42e9-ae75-6882be23257d",
+      "opt-c2512457-705e-49ff-9060-7122b54685c9"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-ebebb585-9e97-44f0-82b0-1c91f0d2fa8d",
+     "chosen_option_id": "opt-cc5b42eb-0ece-4e50-81fd-f0d68176cb6c",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-ebebb585-9e97-44f0-82b0-1c91f0d2fa8d",
-      "opt-8190d82a-0e7c-4fdf-ab83-9982f01c7a74"
+      "opt-cc5b42eb-0ece-4e50-81fd-f0d68176cb6c",
+      "opt-f0d2b471-615f-4204-b435-927a10b00c10"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-dc07e6bb-b877-4790-967d-f2101965beea",
+     "chosen_option_id": "opt-035f8ecf-6616-425c-8247-c5d3d874a344",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-dc07e6bb-b877-4790-967d-f2101965beea",
-      "opt-42fdd310-f9c3-4e78-b458-0a37e3d6e15c"
+      "opt-035f8ecf-6616-425c-8247-c5d3d874a344",
+      "opt-e4104c55-c98f-40b5-a3cf-1504e0105dfe"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-e3268b6c-7e03-4b72-b142-928998c6b3ff",
+     "chosen_option_id": "opt-a4d7ead4-b448-47f8-8136-dd2de51c602b",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e3268b6c-7e03-4b72-b142-928998c6b3ff",
-      "opt-bb0532b9-f492-484f-b49f-8a61315936bd"
+      "opt-a4d7ead4-b448-47f8-8136-dd2de51c602b",
+      "opt-b9c4d315-532a-4ec8-971f-0f6fdbc7390b"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-ab2fe821-60fc-4803-b820-66acc9c05f0b",
+     "chosen_option_id": "opt-e55a640b-9895-43f7-9288-e01cdd022c88",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-ab2fe821-60fc-4803-b820-66acc9c05f0b",
-      "opt-cd11e4db-c0e7-4df5-943d-c4af3cf90490"
+      "opt-e55a640b-9895-43f7-9288-e01cdd022c88",
+      "opt-bd157b31-4442-4d3d-b322-736a88c1e4b4"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-624dfdbf-b37c-4eb8-a6b6-24f9de286cd3",
+     "chosen_option_id": "opt-ba622daf-3d65-47e1-91a5-5c84bac7276e",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-624dfdbf-b37c-4eb8-a6b6-24f9de286cd3",
-      "opt-e24fdc25-967b-4487-a298-da1dc76e8a2e"
+      "opt-ba622daf-3d65-47e1-91a5-5c84bac7276e",
+      "opt-551e8784-e7be-41ee-a4cd-5c222bc5d3bb"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-5240eac8-0286-497c-895f-3fa1b501e00b",
+     "chosen_option_id": "opt-f0a2126d-594b-44f4-ad5f-75eb66cf540a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5240eac8-0286-497c-895f-3fa1b501e00b",
-      "opt-84a7cfaa-1dd6-405b-b793-1be74f0d7b72"
+      "opt-f0a2126d-594b-44f4-ad5f-75eb66cf540a",
+      "opt-02ac1810-7fbc-44b8-a78f-a2ac6bc85bf7"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-0c76a836-27a8-4ec2-85a2-93f2e3674c0d",
+     "chosen_option_id": "opt-bb33b77c-9781-45b7-933f-068080630fcf",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-0c76a836-27a8-4ec2-85a2-93f2e3674c0d",
-      "opt-7f76b389-ff4d-45d8-b0d0-a581c591464e"
+      "opt-bb33b77c-9781-45b7-933f-068080630fcf",
+      "opt-6f23a544-5030-48b6-bd61-1630811cf677"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-16e23d68-a126-493c-852b-d447c07082d2",
+     "chosen_option_id": "opt-89584ef3-32eb-4ffa-94ff-3d8cc180d93c",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-16e23d68-a126-493c-852b-d447c07082d2",
-      "opt-e21c1878-3f66-4338-a8bb-486cb71366ed"
+      "opt-89584ef3-32eb-4ffa-94ff-3d8cc180d93c",
+      "opt-c60a6d52-7dba-4c50-87b5-91dfc91d35b6"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-73efe27e-6674-464f-a60c-3955ba7fc5a3",
+     "chosen_option_id": "opt-96783a9b-4ccf-42de-b759-0c79f5142f46",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-73efe27e-6674-464f-a60c-3955ba7fc5a3",
-      "opt-67480ff0-b792-46e3-842e-c40e55d1d443"
+      "opt-96783a9b-4ccf-42de-b759-0c79f5142f46",
+      "opt-1277eca1-b9bc-4f70-ae42-333c20057c2b"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-d1bdeef5-9d72-4d7c-9fcd-31b5c65b6bb6",
+     "chosen_option_id": "opt-07f9bab4-9b1f-4391-9687-ae0bb0d47a93",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d1bdeef5-9d72-4d7c-9fcd-31b5c65b6bb6",
-      "opt-736de8de-06b1-41f5-9623-156bb2b529b2"
+      "opt-07f9bab4-9b1f-4391-9687-ae0bb0d47a93",
+      "opt-523c7cec-2595-4734-976d-ff00d790c09e"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-3650b2aa-556e-4fe7-a6aa-4d51a5ddcf90",
+     "chosen_option_id": "opt-3db362e7-abeb-4765-a71b-5e02cb45b786",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-3650b2aa-556e-4fe7-a6aa-4d51a5ddcf90",
-      "opt-c0099a1e-e177-446a-8183-b9078c55d428"
+      "opt-3db362e7-abeb-4765-a71b-5e02cb45b786",
+      "opt-71922df5-f80d-4ee5-b944-be239751adbd"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -396,9 +396,9 @@
    "fixture_identity": "MICRO_COPY",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -406,7 +406,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-micro_copy-9b84f085",
+      "game_id": "fsl-micro_copy-cd506350",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -437,9 +437,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "4fcb9275-a43c-4d1b-b237-3a238bcae3f9",
+     "request_id": "53ecb712-12e3-4236-a5e2-53f45e4e9b2e",
      "result": {
-      "game_id": "fsl-micro_copy-9b84f085",
+      "game_id": "fsl-micro_copy-cd506350",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -471,7 +471,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:46.350087022Z",
+     "timestamp": "2026-10-01T21:37:25.156805829Z",
      "warnings": []
     },
     "failure": null,
@@ -500,8 +500,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-3650b2aa-556e-4fe7-a6aa-4d51a5ddcf90",
-     "opt-c0099a1e-e177-446a-8183-b9078c55d428"
+     "opt-3db362e7-abeb-4765-a71b-5e02cb45b786",
+     "opt-71922df5-f80d-4ee5-b944-be239751adbd"
     ],
     "revision": 17
    },
@@ -511,10 +511,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 61,
      "event_sequence": 61,
-     "game_id": "fsl-micro_copy-9b84f085",
+     "game_id": "fsl-micro_copy-cd506350",
      "legal_actions": [
       {
-       "action_id": "opt-e4f18d3c-e13a-4cad-a307-6c1f3efac8ac",
+       "action_id": "opt-7639dece-38b7-47b4-959a-683ccbe936e8",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -533,7 +533,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-44de8d8b-6afa-4c8c-81b9-3e8416f11d00",
+       "action_id": "opt-7bbfd9b2-1f0b-41b8-baf5-98dedfc71ccc",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -552,7 +552,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-be93bc52-e77d-45b6-bf4e-9e5c6e734e7d",
+       "action_id": "opt-81560103-305f-4ea9-a778-ca4124191b9b",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -571,7 +571,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-bb8deb70-d6b2-4d1b-984c-3d74bf9b7897",
+       "action_id": "opt-f1f85082-e1a6-432e-9b15-5a67aac1b2cb",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -590,7 +590,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-6f8eb6e4-a34b-4d88-9ed9-19bf1d4b8b29",
+       "action_id": "opt-687a7bd9-63ba-4a7a-8170-e3515bb65321",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -609,7 +609,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-c657a18c-f481-4301-88a7-bfb7d6a1d0f1",
+       "action_id": "opt-b926f332-ba36-40be-93ed-54900e3ac7c3",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -628,7 +628,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-ae5edcf3-c258-4c09-9913-f8960461aeef",
+       "action_id": "opt-19d055f0-e3ad-4114-b495-c4bf829985c7",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -647,7 +647,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-c1de3ee8-96aa-4b83-ba55-2d7a2c59f248",
+       "action_id": "opt-4a82f315-74f1-4bfd-a1c0-6d8e4a8bc8d5",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -666,7 +666,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-90678ac5-2003-4cb8-ad4c-b6f7d316be82",
+       "action_id": "opt-3ee51b33-866f-44a1-9da8-cce843e1c075",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -685,7 +685,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-f1c06bb4-fde9-4542-830e-e4398835541f",
+       "action_id": "opt-ac2b81bf-f6a5-4313-8328-1e3c84cec284",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -704,7 +704,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-e43c95c4-829f-43b4-ac42-3bcc8501d3c6",
+       "action_id": "opt-c249a0fe-0823-480c-a052-4c4922d8ff0e",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -1169,7 +1169,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-micro_copy-9b84f085",
+       "game_id": "fsl-micro_copy-cd506350",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -1200,9 +1200,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "4fcb9275-a43c-4d1b-b237-3a238bcae3f9",
+      "request_id": "53ecb712-12e3-4236-a5e2-53f45e4e9b2e",
       "result": {
-       "game_id": "fsl-micro_copy-9b84f085",
+       "game_id": "fsl-micro_copy-cd506350",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -1234,7 +1234,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:46.350087022Z",
+      "timestamp": "2026-10-01T21:37:25.156805829Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -1249,7 +1249,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-micro_copy-9b84f085"
+    "game_id": "fsl-micro_copy-cd506350"
    }
   },
   {
@@ -1294,7 +1294,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-micro_costs-e217bc",
+     "game_id": "fsl-silent-micro_costs-c14f2f",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p2",
@@ -1317,9 +1317,9 @@
    "fixture_identity": "MICRO_COSTS",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -1652,7 +1652,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-micro_costs-e217bc",
+     "game_id": "fsl-silent-micro_costs-c14f2f",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p2",
@@ -1988,13 +1988,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-bd9adacc-f028-40cd-90ff-35709c7d2fde",
+     "chosen_option_id": "opt-3406f78b-b646-4653-a3b6-8d971dee141c",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-bd9adacc-f028-40cd-90ff-35709c7d2fde",
-      "opt-7468a01c-254e-4b5b-8322-92d427a798d1",
-      "opt-29ce2d03-312c-4338-b249-00990c6f84ff",
-      "opt-6ecb1877-9792-4fbd-b51c-052460aacb80"
+      "opt-3406f78b-b646-4653-a3b6-8d971dee141c",
+      "opt-e7a44f67-70ea-49ac-bf92-05cb8c030969",
+      "opt-689f14bb-6b9f-4d43-9016-66549bf2a577",
+      "opt-e10827c7-5114-4cf0-83f3-a498c6028446"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -2004,8 +2004,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-ff83d418-d332-473d-9e16-6a39762f22c2",
-      "opt-3c6db219-b82c-4dc7-8cb7-34e75b4e3583"
+      "opt-1049e20e-f4ac-4433-b30f-462c6bff29c9",
+      "opt-dcaf9169-d75a-4cdd-bc00-9a862fe2f7b0"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -2015,8 +2015,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-1ef68623-31f8-4761-92b3-8921b4910397",
-      "opt-2196d30c-4be0-413f-b928-4e6444dd922b"
+      "opt-e19d49be-f9d3-4df7-b733-cab898a460ef",
+      "opt-76a1cd08-4915-475f-b369-15f9a5cafad6"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -2026,8 +2026,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-10567efb-f397-4d6b-a008-242d25511a70",
-      "opt-6ddf99be-cbe6-427a-b1c8-898e342c3435"
+      "opt-354d146d-81fa-44f8-b242-31a10bf4517e",
+      "opt-4a7e1e02-dfb0-4b2f-b41a-b6e54c4d4b62"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -2037,155 +2037,155 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-7d24340d-37a6-4da8-9775-2709effc93f8",
-      "opt-0da184a5-a2fa-41a2-a79c-b694d185a224"
+      "opt-121fb3e3-b22b-41d0-b46f-c5becfd33aef",
+      "opt-286f9366-d8a7-457a-b0c1-55083c21559b"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-fa0d8d2a-f01a-4d37-a8de-02ddab6f57ae",
+     "chosen_option_id": "opt-111c83aa-e17b-46bd-ad42-15d54c0b16f7",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-fa0d8d2a-f01a-4d37-a8de-02ddab6f57ae",
-      "opt-942c916c-958e-4a1b-9eea-7902fa9f8638",
-      "opt-167a4326-fd15-4a9d-b00a-39c203ec9f73",
-      "opt-1251b077-4210-40f8-8588-297ebd81cb2f",
-      "opt-2fba3f44-7922-43ee-b64c-223a60bd11ec",
-      "opt-700d3772-0bc8-4702-8ec8-b5fa89226f73",
-      "opt-2f325524-7521-499b-88b9-c31f42d1b582"
+      "opt-111c83aa-e17b-46bd-ad42-15d54c0b16f7",
+      "opt-1d6d9382-e55f-48d6-b436-ffe94b04ebdf",
+      "opt-9c2a13f1-058e-4a40-bdb0-048620227b6c",
+      "opt-e8b50d50-3aaf-4807-a507-70e36dd9853c",
+      "opt-fafba4d1-6fe8-47a1-a336-a01961778988",
+      "opt-f05a6686-258c-4e47-9840-9e313c5b297d",
+      "opt-68ac0ee7-3988-433b-8bb6-660f5fbf6afc"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-046cf9db-94a6-4727-8927-e6fb9cfaa4f4",
+     "chosen_option_id": "opt-610fd62a-90f4-4e7c-8975-c96a6361d935",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-046cf9db-94a6-4727-8927-e6fb9cfaa4f4",
-      "opt-69bcddfe-3720-4114-b85e-205c550bf5b4"
+      "opt-610fd62a-90f4-4e7c-8975-c96a6361d935",
+      "opt-19046368-27d9-4524-b5da-72545d9cdaae"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-6f9bf704-ec84-42ae-be45-09afae8e3fa6",
+     "chosen_option_id": "opt-4e99224b-820d-4d26-afc1-04b06209f2b1",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-6f9bf704-ec84-42ae-be45-09afae8e3fa6",
-      "opt-0635ae89-4c69-4dbb-bcec-2c93513e3d92"
+      "opt-4e99224b-820d-4d26-afc1-04b06209f2b1",
+      "opt-1c81caf3-a300-4c29-a7d5-0eae1aa49727"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-26782d88-b532-4813-a1ad-8a99080f4b88",
+     "chosen_option_id": "opt-77184480-f967-4b07-926a-8d9a6548f7be",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-26782d88-b532-4813-a1ad-8a99080f4b88",
-      "opt-25898dd4-f9c4-4530-9559-521e16db1c13"
+      "opt-77184480-f967-4b07-926a-8d9a6548f7be",
+      "opt-92b117f2-dade-4c2a-9a09-78531684af76"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-d86353ae-8cbc-4367-b4c4-1eac1ec72aee",
+     "chosen_option_id": "opt-932bafd6-7c3c-401e-88ed-eaaeb9e91df8",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d86353ae-8cbc-4367-b4c4-1eac1ec72aee",
-      "opt-41f432ff-08d8-4bb0-ae24-cebb1320d6aa",
-      "opt-556ca550-5968-49bc-841c-ac4a5451dd54",
-      "opt-11e5421d-575e-4c78-bf5a-de5b402a893c",
-      "opt-f5d28f3e-28e4-4c7c-b1e8-54060a9d880c",
-      "opt-a27b9fca-dd13-49b9-be58-70e9be4c77ab",
-      "opt-46b24049-2e95-457a-aece-c4dd591c51ec"
+      "opt-932bafd6-7c3c-401e-88ed-eaaeb9e91df8",
+      "opt-c2646bf4-6f55-4f81-93fb-08542e1fc516",
+      "opt-ad68ec94-95a5-43e9-995c-62d345771703",
+      "opt-72514c63-6da6-4d97-b8b1-0838d4ba9f07",
+      "opt-144a8fd3-ae20-4c6f-ad0d-71242caf8075",
+      "opt-a1db5be2-2c34-4deb-a1a8-7388c07041d4",
+      "opt-47478006-8982-4dbb-b253-3b3f12df48b0"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-920d76c1-24c4-41f4-a6c7-879e93a6d5ec",
+     "chosen_option_id": "opt-a21f2dec-7b2d-49ef-aba7-a79d63cc6480",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-920d76c1-24c4-41f4-a6c7-879e93a6d5ec",
-      "opt-53f87f8e-c7ba-4064-a15e-b74acb7e4c9e"
+      "opt-a21f2dec-7b2d-49ef-aba7-a79d63cc6480",
+      "opt-8acfcc84-7991-410c-857d-60d0ffc07cd8"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-1ee15c0e-c67f-4b42-86e3-cec142f77344",
+     "chosen_option_id": "opt-35b9cd99-8540-4800-b319-f5fb3fc3f3c9",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-1ee15c0e-c67f-4b42-86e3-cec142f77344",
-      "opt-2a96211e-ec09-48ed-ace0-c25c1fa203bf"
+      "opt-35b9cd99-8540-4800-b319-f5fb3fc3f3c9",
+      "opt-9e0a1dfa-958d-42c9-ace7-fae4f86905bc"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-5c1dacb1-b3e9-4874-8b03-e14748e5778c",
+     "chosen_option_id": "opt-dfa47dc1-e578-4ae5-a384-87e426014aca",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5c1dacb1-b3e9-4874-8b03-e14748e5778c",
-      "opt-fc909c7e-99f6-4ee1-af8d-10fc28d33757"
+      "opt-dfa47dc1-e578-4ae5-a384-87e426014aca",
+      "opt-2944069a-44c7-4cad-8488-7a335fbcb15f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-42681979-65a5-4f11-b2f6-e5ec66f05b3a",
+     "chosen_option_id": "opt-34eff288-31fa-4d03-b177-30880684ac72",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-42681979-65a5-4f11-b2f6-e5ec66f05b3a",
-      "opt-c9f14eb0-3d07-4364-b1e6-fd5b99ed4010",
-      "opt-bf29a7c8-51b9-4201-bf8b-1a85606eff1e",
-      "opt-ceeb6a75-194c-4a62-b615-f6ffac032bee",
-      "opt-ca2ea2f3-9061-46f9-9a8f-2a3fe914d558",
-      "opt-b9e7efa0-9d7b-4764-bbca-2626c74a94bf",
-      "opt-49f7b583-d781-40bf-aa2a-bba0526adc5b"
+      "opt-34eff288-31fa-4d03-b177-30880684ac72",
+      "opt-3353b962-bba2-4d4d-b3ca-d42c28eae67a",
+      "opt-ed4a44d8-330e-44e2-b09d-9e8e07784eb4",
+      "opt-81f71b25-2b58-4fc9-b2e7-c16e6ddeea3e",
+      "opt-cf90f533-ff37-4740-a2f6-b4632a816e66",
+      "opt-f514e686-155a-4e06-a035-0d396da71db8",
+      "opt-82fda057-b516-4d21-b2dc-d729df5f73cf"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-e204b6fb-1f64-4e0c-b6cf-07085b193876",
+     "chosen_option_id": "opt-afc5a863-6560-4fc9-863b-c1889503555c",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e204b6fb-1f64-4e0c-b6cf-07085b193876",
-      "opt-96fd0330-3770-412d-9ffe-b40c47b342b2"
+      "opt-afc5a863-6560-4fc9-863b-c1889503555c",
+      "opt-e38af17f-de31-47fb-8b90-b694b47547ed"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-4be0e8ef-e706-473a-b15d-5983d234186c",
+     "chosen_option_id": "opt-f633c527-c1a9-43ee-afd1-dea56cdae9a3",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-4be0e8ef-e706-473a-b15d-5983d234186c",
-      "opt-896c2e2d-81e5-44dd-949e-ea3cef35e26e"
+      "opt-f633c527-c1a9-43ee-afd1-dea56cdae9a3",
+      "opt-c3c029a6-1d22-4ea8-b99a-9126eabba0d0"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-e496339e-fe56-4744-ab7f-1bfbe64c0c0c",
+     "chosen_option_id": "opt-b4709d0f-b8d2-4a62-9635-56b01ace26b4",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e496339e-fe56-4744-ab7f-1bfbe64c0c0c",
-      "opt-ac4dbc35-3c1b-44a7-b0b1-6bf753343f03"
+      "opt-b4709d0f-b8d2-4a62-9635-56b01ace26b4",
+      "opt-684d7a9e-087b-4c94-b5d7-7e8bb7e945a5"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -2195,9 +2195,9 @@
    "fixture_identity": "MICRO_MODES",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -2205,7 +2205,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-micro_modes-d0e2f9d1",
+      "game_id": "fsl-micro_modes-3e150fca",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -2236,9 +2236,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "84bda823-7686-45ad-a1ea-7fc941390394",
+     "request_id": "73e1f02c-9c77-4dcc-9102-a04033134518",
      "result": {
-      "game_id": "fsl-micro_modes-d0e2f9d1",
+      "game_id": "fsl-micro_modes-3e150fca",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -2270,7 +2270,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:49.207120791Z",
+     "timestamp": "2026-10-01T21:37:27.943712502Z",
      "warnings": []
     },
     "failure": null,
@@ -2299,8 +2299,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-e496339e-fe56-4744-ab7f-1bfbe64c0c0c",
-     "opt-ac4dbc35-3c1b-44a7-b0b1-6bf753343f03"
+     "opt-b4709d0f-b8d2-4a62-9635-56b01ace26b4",
+     "opt-684d7a9e-087b-4c94-b5d7-7e8bb7e945a5"
     ],
     "revision": 17
    },
@@ -2310,10 +2310,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 67,
      "event_sequence": 67,
-     "game_id": "fsl-micro_modes-d0e2f9d1",
+     "game_id": "fsl-micro_modes-3e150fca",
      "legal_actions": [
       {
-       "action_id": "opt-b3be194a-5382-4411-9f33-a15c3f102dc3",
+       "action_id": "opt-23702ce2-bab7-4309-b66a-b8fd29bab37c",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -2332,7 +2332,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-9e3427ac-ba87-435e-a3e0-1690ef48bd5e",
+       "action_id": "opt-5dd52244-7837-4589-b7e2-a1e3ba65ba8d",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -2351,7 +2351,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-45fc3514-f403-490f-a5f1-399ea6b7952e",
+       "action_id": "opt-4145a03d-9fdb-4183-b501-fc0e3ecdfb0f",
        "action_type": "activate_ability",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -2370,8 +2370,8 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-77ca1c5a-01e6-4521-90ef-88c24c413eb5",
-       "action_type": "play_land",
+       "action_id": "opt-ef7d254a-7fa3-400c-923f-9cc08521e8a8",
+       "action_type": "activate_ability",
        "actor_id": "p1",
        "allowed_target_ids": [],
        "choices_schema": {},
@@ -2379,18 +2379,18 @@
        "decision_class": "forge:priority/1",
        "metadata": {
         "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
+        "label": "Mountain [activate_ability] ({T})",
         "revision": 18
        },
        "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "semantic_fingerprint": "f77919df186cef8d5975805568b5760c31aefcb12677b76275d243f598d1d29a",
+       "semantic_key": "forge:priority/1|p1|activate_ability|Mountain [activate_ability] ({T})|Mountain|f77919df186c",
        "source_object_id": "Mountain",
        "target_ids": []
       },
       {
-       "action_id": "opt-c7076480-f926-4370-8061-80fd0498580b",
-       "action_type": "cast_spell",
+       "action_id": "opt-7a3ba591-455f-40a8-a23b-c820695f7cee",
+       "action_type": "activate_ability",
        "actor_id": "p1",
        "allowed_target_ids": [],
        "choices_schema": {},
@@ -2398,17 +2398,17 @@
        "decision_class": "forge:priority/1",
        "metadata": {
         "frame_kind": "PRIORITY",
-        "label": "Burn Down the House [cast_spell] ({3}{R}{R})",
+        "label": "Mountain [activate_ability] ({T})",
         "revision": 18
        },
        "modes": [],
-       "semantic_fingerprint": "7246ff2191253033029cd9503c88ed0df2914bc936e681b50e6404d1242ccb47",
-       "semantic_key": "forge:priority/1|p1|cast_spell|Burn Down the House [cast_spell] ({3}{R}{R})|Burn Down the House|7246ff219125",
-       "source_object_id": "Burn Down the House",
+       "semantic_fingerprint": "f77919df186cef8d5975805568b5760c31aefcb12677b76275d243f598d1d29a",
+       "semantic_key": "forge:priority/1|p1|activate_ability|Mountain [activate_ability] ({T})|Mountain|f77919df186c",
+       "source_object_id": "Mountain",
        "target_ids": []
       },
       {
-       "action_id": "opt-16a7c75f-0bb5-4e95-97fe-1cb78b3ac9e2",
+       "action_id": "opt-4e61efb6-2b1f-435a-9376-ac60aa7b2ae0",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -2427,7 +2427,45 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-f925cd84-75af-4b8f-b6e7-a8b70df601e2",
+       "action_id": "opt-dd739f38-9677-4599-91ad-dbf6d2b91f12",
+       "action_type": "cast_spell",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Burn Down the House [cast_spell] ({3}{R}{R})",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "7246ff2191253033029cd9503c88ed0df2914bc936e681b50e6404d1242ccb47",
+       "semantic_key": "forge:priority/1|p1|cast_spell|Burn Down the House [cast_spell] ({3}{R}{R})|Burn Down the House|7246ff219125",
+       "source_object_id": "Burn Down the House",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-45900e4a-2fe0-40f8-80e2-3eab5b4e5fc0",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-904d4ed5-2c9c-4f93-9786-ac9a32708499",
        "action_type": "activate_ability",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -2446,45 +2484,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-cf6f7179-169e-4e6b-b55f-5ce99f759309",
-       "action_type": "activate_ability",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [activate_ability] ({T})",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "f77919df186cef8d5975805568b5760c31aefcb12677b76275d243f598d1d29a",
-       "semantic_key": "forge:priority/1|p1|activate_ability|Mountain [activate_ability] ({T})|Mountain|f77919df186c",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-ebc67501-b698-45ac-930c-278813a8e50d",
-       "action_type": "activate_ability",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [activate_ability] ({T})",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "f77919df186cef8d5975805568b5760c31aefcb12677b76275d243f598d1d29a",
-       "semantic_key": "forge:priority/1|p1|activate_ability|Mountain [activate_ability] ({T})|Mountain|f77919df186c",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-211ebfda-2d1e-4692-9f02-5ccc88a2a233",
+       "action_id": "opt-99d41e06-13a6-4045-8cfe-f1450e8c2f1b",
        "action_type": "activate_ability",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -3045,7 +3045,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-micro_modes-d0e2f9d1",
+       "game_id": "fsl-micro_modes-3e150fca",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -3076,9 +3076,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "84bda823-7686-45ad-a1ea-7fc941390394",
+      "request_id": "73e1f02c-9c77-4dcc-9102-a04033134518",
       "result": {
-       "game_id": "fsl-micro_modes-d0e2f9d1",
+       "game_id": "fsl-micro_modes-3e150fca",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -3110,7 +3110,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:49.207120791Z",
+      "timestamp": "2026-10-01T21:37:27.943712502Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -3125,7 +3125,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-micro_modes-d0e2f9d1"
+    "game_id": "fsl-micro_modes-3e150fca"
    }
   },
   {
@@ -3166,7 +3166,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-micro_replacement-546e61",
+     "game_id": "fsl-silent-micro_replacement-3ebb5f",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p1",
@@ -3189,9 +3189,9 @@
    "fixture_identity": "MICRO_REPLACEMENT",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -3399,7 +3399,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-micro_replacement-546e61",
+     "game_id": "fsl-silent-micro_replacement-3ebb5f",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p1",
@@ -3604,13 +3604,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-01ce27f8-b1d1-4e45-b54e-f62030daf83f",
+     "chosen_option_id": "opt-8c6dc7a2-76d3-43bf-bfdd-3faeadf25203",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-01ce27f8-b1d1-4e45-b54e-f62030daf83f",
-      "opt-ea0ee488-ab8e-4c11-ac97-1ad864d0f09b",
-      "opt-3b9e4a48-73a7-44e6-8c88-76a7816fcf4f",
-      "opt-b17b2a50-070e-4e24-a278-aa06e222f226"
+      "opt-8c6dc7a2-76d3-43bf-bfdd-3faeadf25203",
+      "opt-02bfb2ea-8604-4874-889c-c6b7145686ab",
+      "opt-6a42f843-fa5b-4aad-85be-c969b914cfed",
+      "opt-4efe809a-7c85-4067-80f5-dd69713a3581"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -3620,8 +3620,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-99b2db23-8442-4f9e-8b2b-e0b56d93e2d3",
-      "opt-886350ec-6987-4a2b-b62f-732e83172495"
+      "opt-64e97cfa-3a5a-435e-942e-f206996b30cc",
+      "opt-9691c41a-f8df-4f70-9653-96d50650cbb7"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -3631,8 +3631,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-8c2afa07-a74f-4ad5-9d1e-48ad59a58c0f",
-      "opt-cb20561f-036f-4529-b41f-6c669944f56b"
+      "opt-92b68856-3738-474f-ac89-2b3ea9ef618e",
+      "opt-1b96ad25-2921-45e8-9973-9c3a5dbf2510"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -3642,8 +3642,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-a61a2226-b06d-42e4-b8ba-6d4adf25fcde",
-      "opt-e1cbbb98-a9b9-4d6f-9c14-303f1a8be777"
+      "opt-2d7669f6-a587-40d4-a5b9-b706756078b9",
+      "opt-947ad3bb-8f78-42e7-a609-e6225ab0e584"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -3653,140 +3653,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-8b03199d-fe5b-460c-af73-a107f5f94b4d",
-      "opt-7a23753e-c974-4dbb-b3eb-f322c8a0bc45"
+      "opt-45d8cbf8-721e-40c4-8bc6-97b0d2cfa7dc",
+      "opt-aeefa3f0-bb09-45bd-a1c3-e62a2d25fc1b"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-d8271d7e-4231-4f78-8c4b-9e404e07323d",
+     "chosen_option_id": "opt-2278250e-8649-4877-8cf4-b4169c40288b",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d8271d7e-4231-4f78-8c4b-9e404e07323d",
-      "opt-3f5c4147-0a11-4e03-828c-64a7965d8300"
+      "opt-2278250e-8649-4877-8cf4-b4169c40288b",
+      "opt-a805c380-f9ba-4b36-b958-b706f31880a9"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-310b3d0c-4d63-49a9-8028-df39b2cfa9bf",
+     "chosen_option_id": "opt-f9992497-eb6d-455d-97a1-6f2c1e345cd7",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-310b3d0c-4d63-49a9-8028-df39b2cfa9bf",
-      "opt-4ae54202-d1e2-44d8-a0da-f0418331ff11"
+      "opt-f9992497-eb6d-455d-97a1-6f2c1e345cd7",
+      "opt-a334b50a-fe2d-4925-bbf7-c472cd1b18c0"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-5f16190b-6df6-4663-8fd7-db85fbce52d7",
+     "chosen_option_id": "opt-9d2691b9-65e6-4944-ab0a-22ce69ecef8a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5f16190b-6df6-4663-8fd7-db85fbce52d7",
-      "opt-687025f5-a4cc-4d8d-8aba-11286631a7f6"
+      "opt-9d2691b9-65e6-4944-ab0a-22ce69ecef8a",
+      "opt-3e08c7d3-97ea-496a-aad2-e46b52552562"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-6b4b0931-4199-4796-b7a6-c7c364c9cacc",
+     "chosen_option_id": "opt-11c5bae4-995c-4912-9232-e3d1be1a890d",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-6b4b0931-4199-4796-b7a6-c7c364c9cacc",
-      "opt-1c2ae6ac-6e9f-4025-bf84-ba8f8d059aca"
+      "opt-11c5bae4-995c-4912-9232-e3d1be1a890d",
+      "opt-5ad38882-a7db-4d45-bb95-b1c6a6cfc583"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-33cc71ca-eb55-412b-bcfb-90f15f6d2495",
+     "chosen_option_id": "opt-ef8265af-5c33-4625-877f-30d243119dce",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-33cc71ca-eb55-412b-bcfb-90f15f6d2495",
-      "opt-fdfc8d02-255c-4c71-9410-496bdee9f0b5"
+      "opt-ef8265af-5c33-4625-877f-30d243119dce",
+      "opt-544f610c-4447-4b41-9ef5-4db236bf660b"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-d8c5c8d0-bc07-4178-ab68-a856788d47d5",
+     "chosen_option_id": "opt-5dffa8c9-2a7d-45ca-b38a-f38727f52cd3",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d8c5c8d0-bc07-4178-ab68-a856788d47d5",
-      "opt-ab304b90-a0aa-4b97-9b77-a5a5df430f75"
+      "opt-5dffa8c9-2a7d-45ca-b38a-f38727f52cd3",
+      "opt-0a15e30c-eb79-44ed-a343-bb60304b4164"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-b61c4163-10b6-4b56-a7ea-b2baceb8663a",
+     "chosen_option_id": "opt-924af6b4-f6cb-41ef-a153-84fcecdb856d",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b61c4163-10b6-4b56-a7ea-b2baceb8663a",
-      "opt-b234dfea-d257-4e79-a071-335e6933325f"
+      "opt-924af6b4-f6cb-41ef-a153-84fcecdb856d",
+      "opt-8187f72e-37ad-487a-a896-7764a0b6a3e2"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-b31fcb85-4235-4e90-8036-37bf1c6311d9",
+     "chosen_option_id": "opt-1da52958-e52a-42bc-a135-bb26b31b7cdd",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b31fcb85-4235-4e90-8036-37bf1c6311d9",
-      "opt-7e092f49-8b28-425b-91d4-b3eb89ec0512"
+      "opt-1da52958-e52a-42bc-a135-bb26b31b7cdd",
+      "opt-2277ec72-51ac-4e35-9ddd-b020309c84a4"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-56830f76-435e-4457-8adb-8003ab27bb2c",
+     "chosen_option_id": "opt-dae7207a-b64a-4470-aa30-9a203cefeac3",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-56830f76-435e-4457-8adb-8003ab27bb2c",
-      "opt-7d8b0262-2403-4047-a52d-36f07a78017d"
+      "opt-dae7207a-b64a-4470-aa30-9a203cefeac3",
+      "opt-93599f63-cb05-4dcc-a2d5-39613f321c8f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-255f65fe-f611-4439-8cff-17ac27945156",
+     "chosen_option_id": "opt-8483eb1d-6661-4cc5-a16f-bf8381fb936d",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-255f65fe-f611-4439-8cff-17ac27945156",
-      "opt-03ac604f-5fdb-4d9a-8df0-474659a8321b"
+      "opt-8483eb1d-6661-4cc5-a16f-bf8381fb936d",
+      "opt-2441c34f-3ef6-40c3-8a88-059828cc0ca8"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-fa41e877-a160-442f-b448-0c46ff4966cd",
+     "chosen_option_id": "opt-94aa3b63-be27-4ca0-b11b-d657e60429a1",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-fa41e877-a160-442f-b448-0c46ff4966cd",
-      "opt-7e712ca3-bdba-4c43-9ab4-b735e54f3f6a"
+      "opt-94aa3b63-be27-4ca0-b11b-d657e60429a1",
+      "opt-66f0cb7e-0917-4349-9261-7b0f03f49275"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-d86ebbdb-1878-4256-a99b-b9075748d1f6",
+     "chosen_option_id": "opt-a1f0480f-6bb6-4783-b9eb-6d030493fbb7",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d86ebbdb-1878-4256-a99b-b9075748d1f6",
-      "opt-88d8d468-c4e2-45dd-bcd4-38f07483523b"
+      "opt-a1f0480f-6bb6-4783-b9eb-6d030493fbb7",
+      "opt-548dec12-6f69-4f4a-ba0c-3b700fa1531f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -3796,9 +3796,9 @@
    "fixture_identity": "MICRO_ZONE_CHANGES",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -3806,7 +3806,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-micro_zone_changes-43e40e7a",
+      "game_id": "fsl-micro_zone_changes-9aed7cd2",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -3837,9 +3837,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "599ced1f-75c5-482f-bf0e-b03627e4c5ed",
+     "request_id": "cb73bd59-bebb-42aa-8637-9565ced7ffa7",
      "result": {
-      "game_id": "fsl-micro_zone_changes-43e40e7a",
+      "game_id": "fsl-micro_zone_changes-9aed7cd2",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -3871,7 +3871,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:51.814971644Z",
+     "timestamp": "2026-10-01T21:37:30.555000526Z",
      "warnings": []
     },
     "failure": null,
@@ -3901,8 +3901,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-d86ebbdb-1878-4256-a99b-b9075748d1f6",
-     "opt-88d8d468-c4e2-45dd-bcd4-38f07483523b"
+     "opt-a1f0480f-6bb6-4783-b9eb-6d030493fbb7",
+     "opt-548dec12-6f69-4f4a-ba0c-3b700fa1531f"
     ],
     "revision": 17
    },
@@ -3912,10 +3912,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 61,
      "event_sequence": 61,
-     "game_id": "fsl-micro_zone_changes-43e40e7a",
+     "game_id": "fsl-micro_zone_changes-9aed7cd2",
      "legal_actions": [
       {
-       "action_id": "opt-4180a182-08e5-4a3f-b565-db7346f9bc9b",
+       "action_id": "opt-3c9e99a9-4777-4e59-8edc-01fc159df10c",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -3934,7 +3934,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-3ee11d18-95bb-474f-8d52-aa4a5005f5c5",
+       "action_id": "opt-a86f24a3-b15b-4ad7-aa9e-fea5c0c16b82",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -3953,7 +3953,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-514d2e28-ff7b-4ac5-b356-9a13310e2c75",
+       "action_id": "opt-a58135f9-d1cc-4618-831c-609f0f69dfbc",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -3972,7 +3972,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-06e55e8b-e95f-4d25-8529-309e2064e4b7",
+       "action_id": "opt-05d5f971-42cb-4efe-8a8b-470aba257a77",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -3991,7 +3991,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-eb261e02-1bf4-480e-a065-8a5b0c7c4bea",
+       "action_id": "opt-06db81ed-36ab-46b0-a159-6aed114c712f",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4010,7 +4010,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-620c6de2-5c34-4036-81ff-0ed171447647",
+       "action_id": "opt-30c12918-24b1-431f-a4b6-ca43d17bcdad",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4029,7 +4029,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-5b50cbd5-9981-4b68-856c-e87d3ca5f4b3",
+       "action_id": "opt-b38a6729-4dde-441f-a2c1-dc2a52c6e455",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4048,7 +4048,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-5da8852a-337c-4df4-b353-6a582a998285",
+       "action_id": "opt-99ae9f8b-308d-48eb-8252-27391d22be94",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4067,7 +4067,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-6ccebb54-7bf6-42d7-884b-3a739d437682",
+       "action_id": "opt-d4dbe6cb-477f-4cf3-b453-2bbd8a361f64",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4086,7 +4086,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-a052726d-6f6b-4386-8aff-07a36a4be4ff",
+       "action_id": "opt-9ec4b00f-04c9-4781-8008-7cdb0d154e16",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4105,7 +4105,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-df827b30-d600-415b-8720-c2b32a20428a",
+       "action_id": "opt-c974232d-48be-4e50-976d-ee2605229342",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -4556,7 +4556,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-micro_zone_changes-43e40e7a",
+       "game_id": "fsl-micro_zone_changes-9aed7cd2",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -4587,9 +4587,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "599ced1f-75c5-482f-bf0e-b03627e4c5ed",
+      "request_id": "cb73bd59-bebb-42aa-8637-9565ced7ffa7",
       "result": {
-       "game_id": "fsl-micro_zone_changes-43e40e7a",
+       "game_id": "fsl-micro_zone_changes-9aed7cd2",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -4621,7 +4621,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:51.814971644Z",
+      "timestamp": "2026-10-01T21:37:30.555000526Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -4637,7 +4637,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-micro_zone_changes-43e40e7a"
+    "game_id": "fsl-micro_zone_changes-9aed7cd2"
    }
   },
   {
@@ -4678,7 +4678,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-ws05-mp-block-4-a603a7",
+     "game_id": "fsl-silent-ws05-mp-block-4-7f5e57",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p1",
@@ -4701,9 +4701,9 @@
    "fixture_identity": "WS05-MP-BLOCK-4",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -4951,7 +4951,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-ws05-mp-block-4-a603a7",
+     "game_id": "fsl-silent-ws05-mp-block-4-7f5e57",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p1",
@@ -5010,7 +5010,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-ws05-mp-combat-4-d7ee18",
+     "game_id": "fsl-silent-ws05-mp-combat-4-c15eeb",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p1",
@@ -5033,9 +5033,9 @@
    "fixture_identity": "WS05-MP-COMBAT-4",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -5281,7 +5281,7 @@
       "turn_number": 0
      },
      "first_pending_kind": "STARTING_PLAYER",
-     "game_id": "fsl-silent-ws05-mp-combat-4-d7ee18",
+     "game_id": "fsl-silent-ws05-mp-combat-4-c15eeb",
      "note": "the engine accepted the create request with fields its parser has no contract for; acceptance is not construction and the first observable checkpoint cannot contain those dimensions",
      "requested_temporal_state": {
       "active_player": "p1",
@@ -5552,13 +5552,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-f4a1af1b-ff08-49f4-afbe-0fb68b3740c4",
+     "chosen_option_id": "opt-bb06ce88-aadd-4f87-9db1-0d091c0817a1",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-f4a1af1b-ff08-49f4-afbe-0fb68b3740c4",
-      "opt-424ba929-81d5-4a7f-9241-41cd6c630ed0",
-      "opt-72758629-c29e-484c-bafe-ccd9ef0b6a75",
-      "opt-ed97d503-8b90-4203-850c-afdbf02f8b18"
+      "opt-bb06ce88-aadd-4f87-9db1-0d091c0817a1",
+      "opt-80a01048-b72f-4067-858c-4d6d1e850475",
+      "opt-f22d3952-4ec3-4b5e-8bb9-be86c17434de",
+      "opt-315f1aa4-eafd-4de3-820c-9eb85d141b5c"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -5568,8 +5568,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-065fc327-e9b5-4d73-9abc-fe001d30e29a",
-      "opt-78a03102-cd14-4ddd-bcc8-98d3e07d19af"
+      "opt-2fd31af0-870e-4878-af2f-5b3198821eef",
+      "opt-b55379de-771c-41bf-8c4f-8d742f3f21ee"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -5579,8 +5579,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-594bf251-0887-4cd1-b309-6571a4558722",
-      "opt-4885c975-b9d9-40a2-b024-53dc05e0a532"
+      "opt-b66a55eb-fa0f-4e3f-89a4-31f44c63e102",
+      "opt-067e6a2c-b4c8-4ae5-b4ba-4c13032b19f7"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -5590,8 +5590,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-5ab254fb-c602-40ec-877e-d49aba66bf7d",
-      "opt-e2689a83-d27e-42cb-8686-1f2da77c7d51"
+      "opt-e3b6044d-7483-46c1-8582-047b9c3fcaae",
+      "opt-d0498cbb-7da2-415f-ae6a-9bcb1794c813"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -5601,140 +5601,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-bc9c6f56-ee95-474e-8385-5c522c2859d9",
-      "opt-f95f0d9a-3319-4254-b33c-097d7e8e7199"
+      "opt-75d64803-a143-4b70-9a09-0493785ff1fe",
+      "opt-90467a48-4a04-4ce8-a147-f88431837bc6"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-490455a8-7332-4020-bb76-470fe183a3ad",
+     "chosen_option_id": "opt-9d655f50-ec7d-415f-8451-ba006b22cac8",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-490455a8-7332-4020-bb76-470fe183a3ad",
-      "opt-8feed0b7-b36f-4d85-bde8-d39490ac01f9"
+      "opt-9d655f50-ec7d-415f-8451-ba006b22cac8",
+      "opt-b8710e37-9a1b-4fe1-8ca4-d7afb5ca8536"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-3548cf02-b6a2-4f10-b508-eb6e8699460b",
+     "chosen_option_id": "opt-7190b7d6-3609-424f-bfbe-4acfbf73f6db",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-3548cf02-b6a2-4f10-b508-eb6e8699460b",
-      "opt-111f6bba-45bc-407f-bc78-ca3dec897098"
+      "opt-7190b7d6-3609-424f-bfbe-4acfbf73f6db",
+      "opt-1a69aa34-a509-4506-ba73-222f75f2cc1c"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-ec12ff68-7ad5-498e-ae65-679982801f7f",
+     "chosen_option_id": "opt-de4d425a-4cec-498a-b8c5-06879801b301",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-ec12ff68-7ad5-498e-ae65-679982801f7f",
-      "opt-755fe6e0-c535-48e7-95e9-c72de074897a"
+      "opt-de4d425a-4cec-498a-b8c5-06879801b301",
+      "opt-9aa0b3e6-4881-44c0-8751-c29faa0138cb"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-a84b6291-7c51-402d-ba10-09fd8281562f",
+     "chosen_option_id": "opt-32ef3483-4ccc-4b4f-b4e0-b5662598faa3",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-a84b6291-7c51-402d-ba10-09fd8281562f",
-      "opt-a7f2c867-c405-4429-be3a-9b621b56956c"
+      "opt-32ef3483-4ccc-4b4f-b4e0-b5662598faa3",
+      "opt-ebb1f684-ec61-4ad5-becd-d578a1c0a41b"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-deb34e65-e92c-4534-84dd-ddaa923f5373",
+     "chosen_option_id": "opt-5b3ab59f-40ee-454c-b602-0bbdbc493e9a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-deb34e65-e92c-4534-84dd-ddaa923f5373",
-      "opt-b95da760-927a-4855-a99e-5e5c6ee2a928"
+      "opt-5b3ab59f-40ee-454c-b602-0bbdbc493e9a",
+      "opt-0e81b4b6-277f-4368-81aa-057be405a954"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-9efef8c6-3807-40da-afad-920ba513453a",
+     "chosen_option_id": "opt-b1aaa7dc-c00b-45a5-ab4e-39869b962fc0",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-9efef8c6-3807-40da-afad-920ba513453a",
-      "opt-9b5d73f7-b7cb-460c-b59b-64e88fed802a"
+      "opt-b1aaa7dc-c00b-45a5-ab4e-39869b962fc0",
+      "opt-804599ef-8ff5-413f-b30f-8681bafa19c2"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-084b08dc-d37d-425a-8039-e6dc7c3bc846",
+     "chosen_option_id": "opt-abed786a-20a4-469f-ba0d-4726431e5857",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-084b08dc-d37d-425a-8039-e6dc7c3bc846",
-      "opt-3810b032-74af-449a-8e16-e8558dfed92a"
+      "opt-abed786a-20a4-469f-ba0d-4726431e5857",
+      "opt-227ec9d2-dc37-4304-aeb2-b15a5408683a"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-dde84e9c-5c1a-43f4-89f1-995087de7b7a",
+     "chosen_option_id": "opt-044418df-4853-4fde-8c57-1e42869ffe34",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-dde84e9c-5c1a-43f4-89f1-995087de7b7a",
-      "opt-e0f529ec-85c3-4df5-864f-219056892543"
+      "opt-044418df-4853-4fde-8c57-1e42869ffe34",
+      "opt-502d9ac9-dc92-43cb-b906-6804dc058e3c"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-8229b063-83fa-4857-b253-eab065749de4",
+     "chosen_option_id": "opt-fdb9f370-e27e-4871-8c72-abc47ba4bd59",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-8229b063-83fa-4857-b253-eab065749de4",
-      "opt-c19bae97-bcd6-4972-85bd-80ffeb52ac99"
+      "opt-fdb9f370-e27e-4871-8c72-abc47ba4bd59",
+      "opt-cd5768b1-6db3-41dc-beb4-6983d96ec495"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-c0a2c5bd-6561-402a-95da-77ff051af8b8",
+     "chosen_option_id": "opt-40827d87-799b-4439-8caf-9c9cfae320c2",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-c0a2c5bd-6561-402a-95da-77ff051af8b8",
-      "opt-5db1b3aa-6f32-4120-9b44-2b34972dbd1f"
+      "opt-40827d87-799b-4439-8caf-9c9cfae320c2",
+      "opt-f0dfd370-4c5d-4693-b00f-7b27da02a741"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-e087d27e-d161-4998-aeb1-4d91c49d62b7",
+     "chosen_option_id": "opt-08779e0b-faeb-4adb-b1e7-e288bbaba172",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e087d27e-d161-4998-aeb1-4d91c49d62b7",
-      "opt-4fbf8f8b-2ae6-4afe-b8d8-2d0c8b70854e"
+      "opt-08779e0b-faeb-4adb-b1e7-e288bbaba172",
+      "opt-07b1879a-ac6d-444d-a833-660b75d8dae8"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-91f51241-5b1b-4df6-92e5-6e26ae86eb8c",
+     "chosen_option_id": "opt-bb370660-d30c-4c2f-afda-4eade681d5ed",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-91f51241-5b1b-4df6-92e5-6e26ae86eb8c",
-      "opt-4d2f8402-1515-47c2-8831-cb2fa85c4d8a"
+      "opt-bb370660-d30c-4c2f-afda-4eade681d5ed",
+      "opt-247b6309-1cff-4c88-a18a-a2757039cfa2"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -5744,9 +5744,9 @@
    "fixture_identity": "MICRO_LAYERS",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -5754,7 +5754,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-micro_layers-0c8b7ec0",
+      "game_id": "fsl-micro_layers-cb8856dd",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -5785,9 +5785,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "a0120ad4-0059-46c4-97a7-0c77a106e698",
+     "request_id": "4c340e94-4cc5-495f-a020-f625939e0350",
      "result": {
-      "game_id": "fsl-micro_layers-0c8b7ec0",
+      "game_id": "fsl-micro_layers-cb8856dd",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -5819,7 +5819,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:55.436437607Z",
+     "timestamp": "2026-10-01T21:37:34.164495003Z",
      "warnings": []
     },
     "failure": null,
@@ -5849,8 +5849,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-91f51241-5b1b-4df6-92e5-6e26ae86eb8c",
-     "opt-4d2f8402-1515-47c2-8831-cb2fa85c4d8a"
+     "opt-bb370660-d30c-4c2f-afda-4eade681d5ed",
+     "opt-247b6309-1cff-4c88-a18a-a2757039cfa2"
     ],
     "revision": 17
    },
@@ -5860,10 +5860,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 64,
      "event_sequence": 64,
-     "game_id": "fsl-micro_layers-0c8b7ec0",
+     "game_id": "fsl-micro_layers-cb8856dd",
      "legal_actions": [
       {
-       "action_id": "opt-60127a0d-7b7e-48f1-ba13-1817cfbae092",
+       "action_id": "opt-45f24c7d-e996-473c-af28-8bfec5c8fd0b",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5882,7 +5882,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-054ab7d6-1b43-4e53-9a27-de6fc2ae9c89",
+       "action_id": "opt-a3993562-7ce6-42a1-baf5-59e202931c54",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5901,7 +5901,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-660106e7-c2f7-435d-8468-d880f7063cd0",
+       "action_id": "opt-8c256ca3-3bad-4fa8-bf7b-ab636b9e1315",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5920,7 +5920,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-4ab8d8c6-fd0d-4bb9-b665-240135183885",
+       "action_id": "opt-b7db79e6-6eb3-4ce1-8f4a-764f0f14fb54",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5939,7 +5939,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-72db2013-6120-409e-b4c5-da4337b7cefc",
+       "action_id": "opt-fe48fe15-9d07-4e2a-bf22-23c59351f90f",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5958,7 +5958,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-fc7cf720-1528-4714-ba6d-139e1f64c5cf",
+       "action_id": "opt-1fdc87a4-4d1c-41fc-adb6-878306605eee",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5977,7 +5977,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-e5301952-dbc4-4d91-939a-5b7b85632d52",
+       "action_id": "opt-55026326-3a79-4113-a564-a15df49544b5",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -5996,7 +5996,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-89b7f736-598c-4f93-9f96-29abe122f53a",
+       "action_id": "opt-da022311-ac5d-44dd-857d-b3fdabad2065",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -6015,7 +6015,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-0c058031-b9d9-4ec8-84ac-1b93647caaf5",
+       "action_id": "opt-cc67092f-b0b6-47df-9b5f-55bbaf76bc55",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -6034,26 +6034,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-a769bbbf-f2fd-4a0b-a42e-28c7a5fd1682",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-da26c7fd-c4f6-4a5c-84bf-5a17afe346be",
+       "action_id": "opt-2ba000a4-213b-4c39-80e4-1264f7fd7ea7",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -6069,6 +6050,25 @@
        "semantic_fingerprint": "ee1fe41f18e603dbb5d39b846cdace653010ed102fd79f7f182703488ab4285e",
        "semantic_key": "forge:priority/1|p1|cast_spell|Rograkh, Son of Rohgahh [cast_spell] ({0})|Rograkh, Son of Rohgahh|ee1fe41f18e6",
        "source_object_id": "Rograkh, Son of Rohgahh",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-f49a0c10-3da2-462f-b694-150f073f2150",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
        "target_ids": []
       }
      ],
@@ -6485,7 +6485,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-micro_layers-0c8b7ec0",
+       "game_id": "fsl-micro_layers-cb8856dd",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -6516,9 +6516,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "a0120ad4-0059-46c4-97a7-0c77a106e698",
+      "request_id": "4c340e94-4cc5-495f-a020-f625939e0350",
       "result": {
-       "game_id": "fsl-micro_layers-0c8b7ec0",
+       "game_id": "fsl-micro_layers-cb8856dd",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -6550,7 +6550,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:55.436437607Z",
+      "timestamp": "2026-10-01T21:37:34.164495003Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -6566,7 +6566,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-micro_layers-0c8b7ec0"
+    "game_id": "fsl-micro_layers-cb8856dd"
    }
   },
   {
@@ -6734,12 +6734,12 @@
    "external_decision_selection": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-2ef4e357-c5e1-4a93-bacd-abfa31455c4a",
+     "chosen_option_id": "opt-dfed9423-e036-45a1-996f-c72c07066227",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-2ef4e357-c5e1-4a93-bacd-abfa31455c4a",
-      "opt-d3eded92-dd97-4347-be2b-03e3eeb9dc42",
-      "opt-24a83037-3c69-4642-8a29-d5525b7d36d2"
+      "opt-dfed9423-e036-45a1-996f-c72c07066227",
+      "opt-31cd9cae-3d6f-40a9-8ff9-b2173a660726",
+      "opt-7f113df1-4fe7-45c4-81d3-d29a07b67b36"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -6749,8 +6749,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-d2e5018c-e9d0-4701-a703-e5fd8321bf5e",
-      "opt-d4307abc-1588-4728-854c-a6995826968e"
+      "opt-dfbef69d-2329-4edf-9e39-6c8b24b0c982",
+      "opt-0257a0d1-86c9-4d12-8cb4-25c38371a9f9"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -6760,8 +6760,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-f629ccab-ec6a-4703-877c-b016b188cf5c",
-      "opt-d084801b-730d-4046-a50f-e795e58a57fe"
+      "opt-d83e791b-5ef6-49cf-9be2-4415149c2f11",
+      "opt-93d42da8-f6df-4467-99fc-6fe10411d0ca"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -6771,52 +6771,52 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-e51bee5d-670d-47cb-9f18-eb82987353d3",
-      "opt-22091b1b-cc0b-4867-9d50-60ed4b819dd5"
+      "opt-e5ef9d7b-54dd-4f9b-95b1-088e457e9160",
+      "opt-1c27040a-019d-4b45-b8cd-869a5d60634e"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-a98470ed-008e-4308-985f-a96f76b94baf",
+     "chosen_option_id": "opt-1d8e4c91-dfe0-4135-be6e-485a215adb5b",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-a98470ed-008e-4308-985f-a96f76b94baf",
-      "opt-2097fa69-4787-45d2-8d05-6aa99093579c"
+      "opt-1d8e4c91-dfe0-4135-be6e-485a215adb5b",
+      "opt-24c82c0a-be99-46d0-b0ac-bb1fa03ae7a0"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-596f2ad4-24db-4c3b-a1dd-9942e811e993",
+     "chosen_option_id": "opt-f17f64bd-93b0-46a7-8ad3-914e0b5a6ebe",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-596f2ad4-24db-4c3b-a1dd-9942e811e993",
-      "opt-326962fb-50fc-4942-8986-caef3d32bf52"
+      "opt-f17f64bd-93b0-46a7-8ad3-914e0b5a6ebe",
+      "opt-490df9d6-b7ca-4364-a679-e5ecb072e9bc"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-a8e32c26-ceae-4eed-90ef-8b2b66985cb4",
+     "chosen_option_id": "opt-8487353e-23a4-43c5-89a1-e015b6ff63e3",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-a8e32c26-ceae-4eed-90ef-8b2b66985cb4",
-      "opt-a9d1589f-3c94-4fcf-9a36-7eeb73baef48"
+      "opt-8487353e-23a4-43c5-89a1-e015b6ff63e3",
+      "opt-a51a52ba-5823-4868-8d25-3d75903b2aaf"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-a7882c5c-a10f-4c00-bc07-3927322b990e",
+     "chosen_option_id": "opt-8d796b4e-1819-4a83-9686-1b5d7ab7cdff",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-a7882c5c-a10f-4c00-bc07-3927322b990e",
-      "opt-e65c0f27-6757-42e0-a6a0-7eb6cab668b5"
+      "opt-8d796b4e-1819-4a83-9686-1b5d7ab7cdff",
+      "opt-cfc830fd-eaca-41ee-9e87-c7b18d3d3c4a"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -6826,9 +6826,9 @@
    "fixture_identity": "WS05-MP-ELIM-OWNED-3",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -6836,7 +6836,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-mp-elim-owned-3-ac040754",
+      "game_id": "fsl-ws05-mp-elim-owned-3-bec90c3c",
       "player_count": 3,
       "rng": {
        "explicit_seed": true,
@@ -6862,9 +6862,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "e55742a6-0d4f-4325-92eb-e6b3851605c9",
+     "request_id": "2565c043-a100-4d79-b036-10419fac3553",
      "result": {
-      "game_id": "fsl-ws05-mp-elim-owned-3-ac040754",
+      "game_id": "fsl-ws05-mp-elim-owned-3-bec90c3c",
       "player_count": 3,
       "rng": {
        "explicit_seed": true,
@@ -6891,7 +6891,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:56.983895252Z",
+     "timestamp": "2026-10-01T21:37:35.710708597Z",
      "warnings": []
     },
     "failure": null,
@@ -6920,8 +6920,8 @@
     "actor": "p3",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-a7882c5c-a10f-4c00-bc07-3927322b990e",
-     "opt-e65c0f27-6757-42e0-a6a0-7eb6cab668b5"
+     "opt-8d796b4e-1819-4a83-9686-1b5d7ab7cdff",
+     "opt-cfc830fd-eaca-41ee-9e87-c7b18d3d3c4a"
     ],
     "revision": 8
    },
@@ -6931,10 +6931,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 36,
      "event_sequence": 36,
-     "game_id": "fsl-ws05-mp-elim-owned-3-ac040754",
+     "game_id": "fsl-ws05-mp-elim-owned-3-bec90c3c",
      "legal_actions": [
       {
-       "action_id": "opt-d60aa88b-fdd0-41fe-a480-bc3343a694ac",
+       "action_id": "opt-d2c35b03-45a0-4a2e-a4a7-3e5f5e01d321",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -6953,7 +6953,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-1de4e348-a55d-468c-b015-0c91e1234ac7",
+       "action_id": "opt-9b6cf741-4d16-42f0-9cd1-cd2052e6bad8",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -6972,7 +6972,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-4126dabf-1154-4c49-8dfb-a0ea1dda5147",
+       "action_id": "opt-dd99816a-1bc0-488a-a3dc-f21e59f7456c",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -6991,102 +6991,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-7975eb7b-dc8b-4915-a47c-849611279cf0",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 9
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-d24f209f-eab5-4053-ab31-333f7de778ec",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 9
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-a4ff26b1-0d65-4a27-9b59-b5763065c7db",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 9
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-9996e0d8-cd60-42a0-9e87-643ba5f30f03",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 9
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-5ec005e2-8e8d-49b5-a1ce-fe1c686e7bc3",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 9
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-15ee0656-d674-4215-bb2f-b5837174724b",
+       "action_id": "opt-a3c3f7cf-f380-4115-a0a6-2b680ff951ea",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7105,7 +7010,102 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-3ea35aaa-afc2-4e05-a822-5d9ac6de85f7",
+       "action_id": "opt-e9fe9808-e6e3-49ee-ab43-0493fe4d9d9c",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 9
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-4fa8c711-9453-4f7c-a6d8-f2e15bf97b93",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 9
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-b26476bf-36ce-4432-bfaa-1014d5cd3925",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 9
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-b97babfc-4259-4fab-9940-d703ba083f8c",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 9
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-1ecc17d0-28ab-4176-bf89-2784fbc73230",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 9
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-50d92576-a0bb-42ce-a1f8-9a7ebb7e2cfe",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7430,7 +7430,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-mp-elim-owned-3-ac040754",
+       "game_id": "fsl-ws05-mp-elim-owned-3-bec90c3c",
        "player_count": 3,
        "rng": {
         "explicit_seed": true,
@@ -7456,9 +7456,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "e55742a6-0d4f-4325-92eb-e6b3851605c9",
+      "request_id": "2565c043-a100-4d79-b036-10419fac3553",
       "result": {
-       "game_id": "fsl-ws05-mp-elim-owned-3-ac040754",
+       "game_id": "fsl-ws05-mp-elim-owned-3-bec90c3c",
        "player_count": 3,
        "rng": {
         "explicit_seed": true,
@@ -7485,7 +7485,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:56.983895252Z",
+      "timestamp": "2026-10-01T21:37:35.710708597Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -7511,7 +7511,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-mp-elim-owned-3-ac040754"
+    "game_id": "fsl-ws05-mp-elim-owned-3-bec90c3c"
    }
   },
   {
@@ -7667,12 +7667,12 @@
    "external_decision_selection": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-839374b1-6fbf-4530-bd7e-1d5fb9e8aa96",
+     "chosen_option_id": "opt-520795c0-bad6-45dc-a5c9-ce989e8d7e9d",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-839374b1-6fbf-4530-bd7e-1d5fb9e8aa96",
-      "opt-47d60670-d2a8-4954-b0ce-71537e8abbaf",
-      "opt-92352f1c-bbec-4cdf-91fb-ebeeba9ac81e"
+      "opt-520795c0-bad6-45dc-a5c9-ce989e8d7e9d",
+      "opt-48f20094-f898-43fe-8492-5404b1cace1e",
+      "opt-0c5bd118-d845-4ae0-90f7-1fb81e0eca40"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -7682,8 +7682,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-afc8b0ac-f044-4f57-9be4-e57e6cb3f94b",
-      "opt-46f85239-bfb3-4957-822b-99057b3fedd6"
+      "opt-3cca1fb7-90d7-46ac-a104-6e0613781aaf",
+      "opt-960c63c0-ae70-4242-82fd-c3e4845ae17c"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -7693,8 +7693,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-35c14d14-337e-4614-b389-3144fe307e62",
-      "opt-64b43c16-3c41-45fc-b2d1-d2a8d7855fd4"
+      "opt-09012133-c080-4a71-afca-bc27b8ccd3c5",
+      "opt-a4e4ed78-2528-4b80-a2ad-9d38b95f75d3"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -7704,52 +7704,52 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-c415e11f-ac38-4dd3-a4ee-a87c16ff8f66",
-      "opt-bad39568-0676-4896-902c-c595a1e5e9b6"
+      "opt-2f2190e3-d15b-41b9-abad-79505abcc0f6",
+      "opt-cc114043-428e-49e5-bdb4-50f489cf88b6"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-b96627e5-eba0-4cbe-972e-f4da3b04c8aa",
+     "chosen_option_id": "opt-b16160f5-50ae-4c6d-a2d7-ca23a06e4219",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b96627e5-eba0-4cbe-972e-f4da3b04c8aa",
-      "opt-38942642-604e-4621-be7f-18f26de8380e"
+      "opt-b16160f5-50ae-4c6d-a2d7-ca23a06e4219",
+      "opt-75e0d87c-cf7f-41f3-aec0-7dc5eab6aa31"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-5d2bc555-a1f0-4998-9f7a-1535857d3296",
+     "chosen_option_id": "opt-5919d9ac-ec24-4db0-9208-d6ed9ecead33",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5d2bc555-a1f0-4998-9f7a-1535857d3296",
-      "opt-d37c5ebd-0cb5-4d4f-b85f-4a566a0737f8"
+      "opt-5919d9ac-ec24-4db0-9208-d6ed9ecead33",
+      "opt-59a67860-e652-4b53-9ea5-3ab880d18a2f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-c1249f3b-3116-43f8-b302-7a1d55e7c01c",
+     "chosen_option_id": "opt-fe7216d6-f0e4-49bb-8bf0-08a1457883ef",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-c1249f3b-3116-43f8-b302-7a1d55e7c01c",
-      "opt-6a2f34dc-02be-409d-b551-f29c1dbd41f8"
+      "opt-fe7216d6-f0e4-49bb-8bf0-08a1457883ef",
+      "opt-6343b885-4c70-4b54-8a83-132f6f64303a"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-524d10a1-effe-4094-99b5-323e54c293b4",
+     "chosen_option_id": "opt-5993580b-7f07-40ca-b0d0-603060c2d152",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-524d10a1-effe-4094-99b5-323e54c293b4",
-      "opt-61b1ad19-bbfe-46ce-bc04-8f7938d2f085"
+      "opt-5993580b-7f07-40ca-b0d0-603060c2d152",
+      "opt-728a070b-b36c-48ca-a04a-cf65af59bb94"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -7759,9 +7759,9 @@
    "fixture_identity": "WS05-MP-ELIM-PRIO-3",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -7769,7 +7769,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-mp-elim-prio-3-3ff5ec71",
+      "game_id": "fsl-ws05-mp-elim-prio-3-fcecdd50",
       "player_count": 3,
       "rng": {
        "explicit_seed": true,
@@ -7795,9 +7795,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "2c226bee-fa62-43e3-8886-f9a6f7e47ec0",
+     "request_id": "51c339a2-0209-4506-a80f-f89bb3f62eac",
      "result": {
-      "game_id": "fsl-ws05-mp-elim-prio-3-3ff5ec71",
+      "game_id": "fsl-ws05-mp-elim-prio-3-fcecdd50",
       "player_count": 3,
       "rng": {
        "explicit_seed": true,
@@ -7824,7 +7824,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:58.260382741Z",
+     "timestamp": "2026-10-01T21:37:36.989723449Z",
      "warnings": []
     },
     "failure": null,
@@ -7853,8 +7853,8 @@
     "actor": "p3",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-524d10a1-effe-4094-99b5-323e54c293b4",
-     "opt-61b1ad19-bbfe-46ce-bc04-8f7938d2f085"
+     "opt-5993580b-7f07-40ca-b0d0-603060c2d152",
+     "opt-728a070b-b36c-48ca-a04a-cf65af59bb94"
     ],
     "revision": 8
    },
@@ -7864,10 +7864,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 35,
      "event_sequence": 35,
-     "game_id": "fsl-ws05-mp-elim-prio-3-3ff5ec71",
+     "game_id": "fsl-ws05-mp-elim-prio-3-fcecdd50",
      "legal_actions": [
       {
-       "action_id": "opt-2025f92a-c791-47d4-a4ab-14ca0f054365",
+       "action_id": "opt-55711a4c-22e0-4ac1-8e5a-1908624938a4",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7886,7 +7886,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-1c2c6e43-62bf-4267-a943-cfbbf99b2a20",
+       "action_id": "opt-44567f64-5707-45f6-a5df-2df1cfb296e7",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7905,7 +7905,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-b5abd92f-b909-4282-a8ee-0456cb85da7a",
+       "action_id": "opt-81af860a-56cc-48e8-be3c-548065b77551",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7924,7 +7924,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-282e7c2a-0992-4665-bd79-ee41cfe0e64c",
+       "action_id": "opt-d6b53f76-9bbd-4778-8ba6-c39b779faf90",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7943,7 +7943,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-4a82ce4a-55c8-438f-99dd-b9dcf1f27870",
+       "action_id": "opt-6675d762-7bc9-4043-be45-f66d1ab0ec2b",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7962,7 +7962,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-9e5f73f3-0567-439d-b421-67e3f8a93600",
+       "action_id": "opt-3355422e-16bf-4427-ad83-06d93502d809",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -7981,7 +7981,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-b2f966fc-ee9e-4bde-9297-2bae3ea0838e",
+       "action_id": "opt-25e9308f-a1dd-4ca3-bebf-140843f6e032",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -8000,7 +8000,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-8a12e396-57ea-4fc0-9e7b-0f30e1bde77b",
+       "action_id": "opt-a4245933-6124-42b3-a390-e6d4e321b30a",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -8019,26 +8019,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-3b1b40d2-df0c-4ca0-b0c4-74723e5e955e",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 9
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-9084f262-4d46-4ed7-bf6f-451942b03fb3",
+       "action_id": "opt-079bace5-747d-44ae-abba-fa968103ca0d",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -8054,6 +8035,25 @@
        "semantic_fingerprint": "ee1fe41f18e603dbb5d39b846cdace653010ed102fd79f7f182703488ab4285e",
        "semantic_key": "forge:priority/1|p1|cast_spell|Rograkh, Son of Rohgahh [cast_spell] ({0})|Rograkh, Son of Rohgahh|ee1fe41f18e6",
        "source_object_id": "Rograkh, Son of Rohgahh",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-66842581-8c64-45de-a211-1085af6d7b2a",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 9
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
        "target_ids": []
       }
      ],
@@ -8358,7 +8358,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-mp-elim-prio-3-3ff5ec71",
+       "game_id": "fsl-ws05-mp-elim-prio-3-fcecdd50",
        "player_count": 3,
        "rng": {
         "explicit_seed": true,
@@ -8384,9 +8384,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "2c226bee-fa62-43e3-8886-f9a6f7e47ec0",
+      "request_id": "51c339a2-0209-4506-a80f-f89bb3f62eac",
       "result": {
-       "game_id": "fsl-ws05-mp-elim-prio-3-3ff5ec71",
+       "game_id": "fsl-ws05-mp-elim-prio-3-fcecdd50",
        "player_count": 3,
        "rng": {
         "explicit_seed": true,
@@ -8413,7 +8413,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:58.260382741Z",
+      "timestamp": "2026-10-01T21:37:36.989723449Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -8439,7 +8439,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-mp-elim-prio-3-3ff5ec71"
+    "game_id": "fsl-ws05-mp-elim-prio-3-fcecdd50"
    }
   },
   {
@@ -8675,14 +8675,14 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-7f4d8425-c28b-4c5f-97bc-6482291be4ce",
+     "chosen_option_id": "opt-15b80e82-5886-41ac-a970-f1099d40ff6c",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-7f4d8425-c28b-4c5f-97bc-6482291be4ce",
-      "opt-08e64eee-abe3-42a8-8ce9-a0e5761438cc",
-      "opt-f372a0e4-fdb2-4a6b-bf22-b4070a3cf35e",
-      "opt-c9de48a6-7fd1-486d-9313-28ea69415772",
-      "opt-4c1a3216-f042-45fb-9469-2491c3de1ef0"
+      "opt-15b80e82-5886-41ac-a970-f1099d40ff6c",
+      "opt-0780ed7d-87ad-4fb1-84fd-1958f72bbe23",
+      "opt-550dcdee-f326-41fc-a46e-da57fb253bd8",
+      "opt-b5e0f653-4374-4650-bd04-f7fdd66a4fff",
+      "opt-9096caf6-e7d8-4a70-aa84-b174a94c59f0"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -8692,8 +8692,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-8c9db5cf-4b84-4a36-98b4-525db6f8d57f",
-      "opt-57cef508-506d-4650-bde8-332b15402716"
+      "opt-4996f377-f006-4c84-9b13-c0454dcdf1aa",
+      "opt-e298a17e-a07f-4fd0-be93-6a31be49107e"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -8703,8 +8703,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-96b5f567-aa80-4b28-ad43-ca90b2fc890d",
-      "opt-37015dbb-8965-40a7-9081-97617efb8126"
+      "opt-5c81e928-530d-49fa-99d4-0464b3531e17",
+      "opt-570c8a8c-0e7c-4202-a042-b8c402fdfcfb"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -8714,8 +8714,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-aef7da75-7ed6-4373-82ba-5d9ad5dee749",
-      "opt-8d1692ea-84a4-413c-9103-8961c6b1ac21"
+      "opt-0b0d566a-c6be-4b98-a170-c5a2395ae63f",
+      "opt-e82e67dd-eff4-42ba-bb6e-3cc07acbf4a3"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -8725,8 +8725,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-002d363c-0ea6-4d53-b132-93a03de203f0",
-      "opt-6e3bbb90-3dc0-4666-8eb3-8e111614cfdb"
+      "opt-5b7d7458-566e-4189-9204-b43f767f8b64",
+      "opt-4c5153de-9b30-4f51-8431-05309a268ed2"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -8736,140 +8736,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-ba659d5f-3d4f-42b1-98ad-171074af16e3",
-      "opt-e92710f0-0618-4056-bbce-40ed5074c89b"
+      "opt-3b9d0a75-84bf-4635-9de7-5b6030d9aa72",
+      "opt-b0670c58-6fdd-40e2-87fa-89e82a49e40a"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-845e039b-d1db-455a-8e95-59ab335a7513",
+     "chosen_option_id": "opt-45f2d580-296f-47f6-bc2f-6b732e458859",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-845e039b-d1db-455a-8e95-59ab335a7513",
-      "opt-d31edc7b-ad7b-4c6a-b0a2-df51ed68bbd1"
+      "opt-45f2d580-296f-47f6-bc2f-6b732e458859",
+      "opt-12ed1232-3fa9-433e-bf3e-45c1f7421c45"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-ec0c4be3-a6a5-4f39-9fb6-94542b74816f",
+     "chosen_option_id": "opt-1ac59e0d-aa7b-4e5a-b75a-3b0e84b2c894",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-ec0c4be3-a6a5-4f39-9fb6-94542b74816f",
-      "opt-20da5aea-619f-4b41-825b-e621ecf5af6e"
+      "opt-1ac59e0d-aa7b-4e5a-b75a-3b0e84b2c894",
+      "opt-c81dc86a-0cb6-44ec-8d0a-4316ac383aeb"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-d5451740-fdf2-438a-a1a1-02956401b3a8",
+     "chosen_option_id": "opt-6b2466f6-fac0-4a9a-a5bb-e56f4a3a1cc8",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d5451740-fdf2-438a-a1a1-02956401b3a8",
-      "opt-4b9e849d-3a1b-40ea-ae55-91319f9a175d"
+      "opt-6b2466f6-fac0-4a9a-a5bb-e56f4a3a1cc8",
+      "opt-a126666d-909a-41d5-b2ba-57250146d027"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p5",
-     "chosen_option_id": "opt-b25f4db6-e108-4475-9f4c-0b6f1723364e",
+     "chosen_option_id": "opt-86541857-e516-4b27-998f-1d44541fc1fe",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b25f4db6-e108-4475-9f4c-0b6f1723364e",
-      "opt-3dcb9f93-dfee-4c81-9e4f-95869030b52a"
+      "opt-86541857-e516-4b27-998f-1d44541fc1fe",
+      "opt-4789deed-fc9c-4818-80d9-55af72dbf991"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-1d2b269b-8f23-4ed3-be61-d04cc94f2b17",
+     "chosen_option_id": "opt-2c84c33c-95c5-461a-aa50-6096bd11ccfb",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-1d2b269b-8f23-4ed3-be61-d04cc94f2b17",
-      "opt-995444d8-1eba-4f45-9f9e-51973fa5eab0"
+      "opt-2c84c33c-95c5-461a-aa50-6096bd11ccfb",
+      "opt-e99f1c25-69f2-4678-abfa-3024a3be69ff"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-8b37a72a-07f5-4119-a570-57ea43e5900a",
+     "chosen_option_id": "opt-bd362e52-4130-4619-b953-4f151848f80e",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-8b37a72a-07f5-4119-a570-57ea43e5900a",
-      "opt-8c83b341-1d08-4e0e-9302-d14ab0bc3fdd"
+      "opt-bd362e52-4130-4619-b953-4f151848f80e",
+      "opt-d29893b2-c22a-456c-8a54-5524344efb7e"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-f3838c4f-0778-4189-8f92-60fc9c7b3492",
+     "chosen_option_id": "opt-f63f52b7-83e7-4475-860d-d3d8fc9f9a8b",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-f3838c4f-0778-4189-8f92-60fc9c7b3492",
-      "opt-d8cb2cb5-f566-45ae-88c8-7c8a22185be3"
+      "opt-f63f52b7-83e7-4475-860d-d3d8fc9f9a8b",
+      "opt-cb2e2ccb-23cd-4ec8-8ad6-04692bf9749c"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p5",
-     "chosen_option_id": "opt-8b2be717-0f55-4e82-9c1f-9e49acbd5f00",
+     "chosen_option_id": "opt-a2e851b0-160e-4b6d-bc1e-3a6d820d729b",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-8b2be717-0f55-4e82-9c1f-9e49acbd5f00",
-      "opt-14d4ba32-556d-44ef-a20a-308549beb289"
+      "opt-a2e851b0-160e-4b6d-bc1e-3a6d820d729b",
+      "opt-0934ac22-62ae-49ed-8143-f3ea11726137"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-2e57de57-225b-4151-bb9e-81d630d399f0",
+     "chosen_option_id": "opt-4179f936-249d-47a6-851a-c3d574076420",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-2e57de57-225b-4151-bb9e-81d630d399f0",
-      "opt-7f0ebeff-9dfc-4f50-ab46-2bc85b008820"
+      "opt-4179f936-249d-47a6-851a-c3d574076420",
+      "opt-51c2a98d-fdb0-4467-858d-397447b08c33"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-5787961e-5b11-4285-bf9b-538488c17991",
+     "chosen_option_id": "opt-1daa5bf0-c407-4b7d-92f4-03c3e0fcabd5",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5787961e-5b11-4285-bf9b-538488c17991",
-      "opt-93ba3932-9b15-4388-98f6-b2268a9af6ff"
+      "opt-1daa5bf0-c407-4b7d-92f4-03c3e0fcabd5",
+      "opt-f45c1908-decb-4240-9982-23a3ebcaf511"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-b862f4a3-fb6d-4e7c-9ccf-146ef38971d5",
+     "chosen_option_id": "opt-1805ab7d-8b7d-4882-84e1-905df3a93824",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b862f4a3-fb6d-4e7c-9ccf-146ef38971d5",
-      "opt-dd1784bc-5202-47b8-a2d5-d7180f138314"
+      "opt-1805ab7d-8b7d-4882-84e1-905df3a93824",
+      "opt-b6ffaf76-fa7a-4ff7-9b6d-1e7e62ba4f64"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p5",
-     "chosen_option_id": "opt-8e409928-844f-48a6-b94c-6bf70693cf85",
+     "chosen_option_id": "opt-e2b676cb-721b-4649-93b5-3300a4d66b6c",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-8e409928-844f-48a6-b94c-6bf70693cf85",
-      "opt-bd9b7212-6651-4398-bfef-ab53eb0d17e3"
+      "opt-e2b676cb-721b-4649-93b5-3300a4d66b6c",
+      "opt-bfa4cfe5-fd31-4020-8d03-2486e8441c73"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -8879,9 +8879,9 @@
    "fixture_identity": "WS05-MP-ELIM-5",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -8889,7 +8889,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-mp-elim-5-1a742e03",
+      "game_id": "fsl-ws05-mp-elim-5-743e48d1",
       "player_count": 5,
       "rng": {
        "explicit_seed": true,
@@ -8925,9 +8925,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "09687e54-416c-4090-b614-67edb71e3b40",
+     "request_id": "23a6b935-c188-4fa8-839c-05387b3aa0fb",
      "result": {
-      "game_id": "fsl-ws05-mp-elim-5-1a742e03",
+      "game_id": "fsl-ws05-mp-elim-5-743e48d1",
       "player_count": 5,
       "rng": {
        "explicit_seed": true,
@@ -8964,7 +8964,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T20:59:59.521506803Z",
+     "timestamp": "2026-10-01T21:37:38.264148995Z",
      "warnings": []
     },
     "failure": null,
@@ -8993,8 +8993,8 @@
     "actor": "p5",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-8e409928-844f-48a6-b94c-6bf70693cf85",
-     "opt-bd9b7212-6651-4398-bfef-ab53eb0d17e3"
+     "opt-e2b676cb-721b-4649-93b5-3300a4d66b6c",
+     "opt-bfa4cfe5-fd31-4020-8d03-2486e8441c73"
     ],
     "revision": 18
    },
@@ -9004,10 +9004,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 67,
      "event_sequence": 67,
-     "game_id": "fsl-ws05-mp-elim-5-1a742e03",
+     "game_id": "fsl-ws05-mp-elim-5-743e48d1",
      "legal_actions": [
       {
-       "action_id": "opt-aaefb5d7-e2bc-42f6-99a7-9fc55b67d9cd",
+       "action_id": "opt-cb34b2a8-2022-4337-98bd-bc037c3d3f78",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9026,7 +9026,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-2ae5ed53-3db2-4176-80ee-b94e83d37171",
+       "action_id": "opt-3049b39e-eada-4828-9349-4ef42c7e45dd",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9045,7 +9045,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-ee5e04b8-fb76-4dfd-9865-848fe08e0279",
+       "action_id": "opt-2e85b842-b009-4526-8f7a-2d0717964916",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9064,7 +9064,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-6acf4d63-1c50-459f-b957-e07bd1c15b76",
+       "action_id": "opt-36b10af0-1f42-4519-81b9-ac89e2cb6762",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9083,7 +9083,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-da394903-aeee-46ff-8d1f-1fea9c1bbe60",
+       "action_id": "opt-095c9627-9853-4f52-97c7-e4aa6d0b4b71",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9102,7 +9102,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-faeffbd5-7d75-427e-bcab-81b15d979c6b",
+       "action_id": "opt-53f961d1-a184-484f-8e15-871e9ea767a0",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9121,7 +9121,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-8b316baf-10f5-4b37-b910-03acf145d393",
+       "action_id": "opt-0ea303b4-d61b-44ef-8dc9-15c1280e0314",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9140,7 +9140,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-fd5d906a-d513-43d6-ba57-c1ac60fe085d",
+       "action_id": "opt-22fa5c8a-736c-4a34-9b6a-111750729b43",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9159,7 +9159,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-2f9d92ce-a831-48e2-9867-074ff9793d02",
+       "action_id": "opt-e2dfc4d8-580f-4f51-9ec2-5fdcec1764ab",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9178,7 +9178,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-f1b410ae-4bb0-4790-be24-c077f74f99a3",
+       "action_id": "opt-ff727622-c24e-4ffe-9f80-fc6bdb080cb4",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9197,7 +9197,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-467c242e-a236-4b54-881c-670744fb62e7",
+       "action_id": "opt-f88af64d-c26c-481e-97d6-f287049f333c",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -9654,7 +9654,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-mp-elim-5-1a742e03",
+       "game_id": "fsl-ws05-mp-elim-5-743e48d1",
        "player_count": 5,
        "rng": {
         "explicit_seed": true,
@@ -9690,9 +9690,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "09687e54-416c-4090-b614-67edb71e3b40",
+      "request_id": "23a6b935-c188-4fa8-839c-05387b3aa0fb",
       "result": {
-       "game_id": "fsl-ws05-mp-elim-5-1a742e03",
+       "game_id": "fsl-ws05-mp-elim-5-743e48d1",
        "player_count": 5,
        "rng": {
         "explicit_seed": true,
@@ -9729,7 +9729,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T20:59:59.521506803Z",
+      "timestamp": "2026-10-01T21:37:38.264148995Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -9757,7 +9757,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-mp-elim-5-1a742e03"
+    "game_id": "fsl-ws05-mp-elim-5-743e48d1"
    }
   },
   {
@@ -9981,13 +9981,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-5f7ae1e9-37de-4f7a-8065-0981e592333d",
+     "chosen_option_id": "opt-da0ba807-7ea9-4b46-95f6-6972d14f1fe9",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-5f7ae1e9-37de-4f7a-8065-0981e592333d",
-      "opt-13654789-33d6-40d0-af0b-9c1dd76d946a",
-      "opt-36c3d1b9-42f0-4123-8429-82a49667e0f6",
-      "opt-cfb3b915-0b8c-4d4f-ac2d-bf5fa5938f71"
+      "opt-da0ba807-7ea9-4b46-95f6-6972d14f1fe9",
+      "opt-9d523515-186c-45cb-8b86-d9b0ad9cd61e",
+      "opt-69a4a95a-9735-4f96-8860-7186bd11e680",
+      "opt-01646a50-d3b9-4b26-857b-bab3b5253fb4"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -9997,8 +9997,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-fba024a6-3be3-4cfa-b6af-8e52be84a99a",
-      "opt-e5f5be1a-9717-4548-91d6-c6526b429c42"
+      "opt-dd04b928-067f-459d-99b0-20e970acc7ad",
+      "opt-5cb489b2-abe9-49ec-b426-3ae7cefcad31"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -10008,8 +10008,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-32023f6b-be6b-42c7-a428-c682abc69db1",
-      "opt-0f29d941-3c48-453f-9cd8-2258502ec182"
+      "opt-00de1cca-4bad-4e13-aa86-2af795ffbf5f",
+      "opt-f5ba158f-6cc9-4bc6-b04c-e40ad580143c"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -10019,8 +10019,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-c7e96671-a86c-4650-95e5-e6addfd4fde7",
-      "opt-0408cca7-efa1-42e8-8b49-2c5cf6977ef1"
+      "opt-7e0b279c-7d52-4a99-9a16-7788f6b9326a",
+      "opt-8d46028a-e802-4d47-9fa5-580a7d87f0ff"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -10030,140 +10030,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-efc42302-8b02-436d-a1a6-318cd2e52049",
-      "opt-230e22e7-e853-4da6-b530-c23da7e8cb18"
+      "opt-2b31dc36-5f63-4ee6-b10f-525c07f73a81",
+      "opt-edc7f311-56aa-4c25-82a6-44801dc6af54"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-97cc6b27-82ec-46bb-9ce9-65656665373b",
+     "chosen_option_id": "opt-90fff1ae-c78e-49c5-8adf-6b59a55e1f11",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-97cc6b27-82ec-46bb-9ce9-65656665373b",
-      "opt-5d9af4cc-5801-4674-bc9f-955672922d54"
+      "opt-90fff1ae-c78e-49c5-8adf-6b59a55e1f11",
+      "opt-afae14eb-1e07-41ef-978c-0cbd0ae1f2fd"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-5f3588f6-5fae-42ac-b4d3-2d9894f813db",
+     "chosen_option_id": "opt-8a79ca68-7ee7-4a39-8d76-a8aff9641f45",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5f3588f6-5fae-42ac-b4d3-2d9894f813db",
-      "opt-bbe4d079-0fc2-4d73-a136-9fbf0a890dff"
+      "opt-8a79ca68-7ee7-4a39-8d76-a8aff9641f45",
+      "opt-fcc0f44a-f6a7-43a4-bced-0939fb5471a3"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-e365f4ad-b71f-4c16-816c-864d58924bcb",
+     "chosen_option_id": "opt-e717ce06-dd08-4db2-a496-110477ba0346",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e365f4ad-b71f-4c16-816c-864d58924bcb",
-      "opt-37a713df-2907-4fcb-832e-850bb91c47d5"
+      "opt-e717ce06-dd08-4db2-a496-110477ba0346",
+      "opt-9b78d410-e603-47c9-b5fa-e2b57b953e02"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-4db728f3-51f2-4677-910c-c052bf954eb8",
+     "chosen_option_id": "opt-1e1000b2-6a09-48a8-97b1-8e8b58d1f235",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-4db728f3-51f2-4677-910c-c052bf954eb8",
-      "opt-8eb7b3fc-cabd-45e5-9766-c59ee726e569"
+      "opt-1e1000b2-6a09-48a8-97b1-8e8b58d1f235",
+      "opt-c52bf8c8-457d-4944-a925-fc853e0b71ae"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-1f480f69-776d-439f-af3d-a5d3f0c4a3f9",
+     "chosen_option_id": "opt-a6388cdf-1cea-48bd-be7e-38e961d52ad0",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-1f480f69-776d-439f-af3d-a5d3f0c4a3f9",
-      "opt-2701acde-f033-45f0-9830-2e2063b00b4d"
+      "opt-a6388cdf-1cea-48bd-be7e-38e961d52ad0",
+      "opt-4c617c1a-13c2-4fd5-a009-0badbdc76a4d"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-71215edb-158e-4def-89a0-86a778e25b4b",
+     "chosen_option_id": "opt-74871bbc-d28e-4bb8-af11-8647e9db512a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-71215edb-158e-4def-89a0-86a778e25b4b",
-      "opt-0d8fbd9c-3caf-418d-88ef-34ba4cf59710"
+      "opt-74871bbc-d28e-4bb8-af11-8647e9db512a",
+      "opt-a926cca8-96b5-4d5c-a624-8d76623a7dce"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-390cf24c-b9f0-445f-9505-bb7b7891612b",
+     "chosen_option_id": "opt-586f87f1-b9d6-4f1c-b1ae-244ae7363955",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-390cf24c-b9f0-445f-9505-bb7b7891612b",
-      "opt-bef0fc88-caa7-4855-83f8-bb863f2213e1"
+      "opt-586f87f1-b9d6-4f1c-b1ae-244ae7363955",
+      "opt-d8153d2f-6e2c-44bc-8431-1b7ed44d78a5"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-e3de9f11-8f3b-484d-a3e0-ee683ad337c1",
+     "chosen_option_id": "opt-41acbc98-3484-491e-98dc-4faee7f8bfa6",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e3de9f11-8f3b-484d-a3e0-ee683ad337c1",
-      "opt-9661cf5e-ca59-4326-9d28-82a613ef8788"
+      "opt-41acbc98-3484-491e-98dc-4faee7f8bfa6",
+      "opt-497b0318-9f46-41e4-baea-43252b8c51de"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-15432f68-8b6e-4dc2-83ad-790fb29c3d66",
+     "chosen_option_id": "opt-c47a6333-f8ae-43ff-9c62-9d304f56d8df",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-15432f68-8b6e-4dc2-83ad-790fb29c3d66",
-      "opt-63b335cb-a4aa-44fe-a801-60611fbd109e"
+      "opt-c47a6333-f8ae-43ff-9c62-9d304f56d8df",
+      "opt-76ee1f91-2722-4552-bc11-c16656af861a"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-57a52389-228f-4e60-b951-4ab11e7044a6",
+     "chosen_option_id": "opt-4c4acc57-2807-47fa-9d50-0203e0ff94ae",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-57a52389-228f-4e60-b951-4ab11e7044a6",
-      "opt-15b43d12-c4e8-4d26-b7ce-693f96b65374"
+      "opt-4c4acc57-2807-47fa-9d50-0203e0ff94ae",
+      "opt-22c8dc61-21b9-4fad-a238-33193dcff782"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-5dd822d4-f4c1-40eb-ae3b-088f57cc14a3",
+     "chosen_option_id": "opt-aa26efd9-2090-4781-afdd-e4455d919c4e",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5dd822d4-f4c1-40eb-ae3b-088f57cc14a3",
-      "opt-91d4fe73-d58d-4204-8c56-af0712a33569"
+      "opt-aa26efd9-2090-4781-afdd-e4455d919c4e",
+      "opt-52a136fa-aa63-4f51-a0e4-08a57802d94b"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-2541a58e-38ed-46a5-b7f5-e316e5c7a62a",
+     "chosen_option_id": "opt-e78ee3df-0f66-4c26-ba26-c73b8283d396",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-2541a58e-38ed-46a5-b7f5-e316e5c7a62a",
-      "opt-533aafc2-b847-48d1-8165-dba917e768cc"
+      "opt-e78ee3df-0f66-4c26-ba26-c73b8283d396",
+      "opt-9894329a-535a-47c3-8414-5c6678b9b1a5"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -10173,9 +10173,9 @@
    "fixture_identity": "WS05-CMD-DMG-SPLIT",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -10183,7 +10183,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-cmd-dmg-split-17b3a23c",
+      "game_id": "fsl-ws05-cmd-dmg-split-ef775547",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -10214,9 +10214,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "267ce05d-d7ed-49f4-8262-89b7b5aad1c3",
+     "request_id": "35105bf2-8d7a-44cd-aad6-16fd3828bafb",
      "result": {
-      "game_id": "fsl-ws05-cmd-dmg-split-17b3a23c",
+      "game_id": "fsl-ws05-cmd-dmg-split-ef775547",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -10248,7 +10248,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T21:00:01.109497139Z",
+     "timestamp": "2026-10-01T21:37:39.842486951Z",
      "warnings": []
     },
     "failure": null,
@@ -10276,8 +10276,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-2541a58e-38ed-46a5-b7f5-e316e5c7a62a",
-     "opt-533aafc2-b847-48d1-8165-dba917e768cc"
+     "opt-e78ee3df-0f66-4c26-ba26-c73b8283d396",
+     "opt-9894329a-535a-47c3-8414-5c6678b9b1a5"
     ],
     "revision": 17
    },
@@ -10287,10 +10287,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 64,
      "event_sequence": 64,
-     "game_id": "fsl-ws05-cmd-dmg-split-17b3a23c",
+     "game_id": "fsl-ws05-cmd-dmg-split-ef775547",
      "legal_actions": [
       {
-       "action_id": "opt-3d14584d-3349-4a90-981e-33f17ee68527",
+       "action_id": "opt-317c62b9-1b00-4e53-a644-11701ed12a99",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10309,7 +10309,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-0ce1359a-f76c-496f-b7cb-a0641716d9bd",
+       "action_id": "opt-7208aa43-610f-4030-83e1-ebf82c6e6ba1",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10328,26 +10328,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-5b774231-0d92-4009-a236-73e12268c347",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-12640de9-fcba-498d-b291-3581d9ff748c",
+       "action_id": "opt-0b59a9aa-99b8-4168-97e9-715868e13524",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10366,7 +10347,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-5ac83aa0-4ad0-49c1-9f55-1c1c33a0fe58",
+       "action_id": "opt-643e7552-0504-4d5e-bc0b-1516f553715a",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10385,7 +10366,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-d4d291d8-3375-4e0a-a052-e0eb354f7013",
+       "action_id": "opt-8196efae-87d1-42e4-8da9-9753def038ec",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10404,7 +10385,102 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-f5743b67-69c7-43e5-8293-a852c6b2c7c1",
+       "action_id": "opt-e5f6b94b-616a-49c2-bb7c-414b8cc7b67c",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-32320ae4-1342-4661-b1a0-65db7867997a",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-06a7c623-b955-4b52-8a9e-1d4e4388f5a8",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-0a7d2abf-ba1f-4e02-9656-4f1bf3770c7e",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-a5607350-b567-4ae1-94f7-c3e3e6c6d335",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-90d6c9e2-08a9-4aef-8af1-b5195eaab9bb",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10423,83 +10499,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-a08224d4-522f-479c-880f-88bfe58503be",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-b2687c06-0357-44ef-8950-c1f1dae9e4c9",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-8ef2b033-61c0-42ea-8ad0-0a49093dfb5b",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-ce4e6e0b-f117-4780-865f-5071d6627879",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-b7196304-388f-4252-9c9d-c35e8800ff0f",
+       "action_id": "opt-3940ed5f-67c3-4f15-929a-3b56144e4820",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -10923,7 +10923,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-cmd-dmg-split-17b3a23c",
+       "game_id": "fsl-ws05-cmd-dmg-split-ef775547",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -10954,9 +10954,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "267ce05d-d7ed-49f4-8262-89b7b5aad1c3",
+      "request_id": "35105bf2-8d7a-44cd-aad6-16fd3828bafb",
       "result": {
-       "game_id": "fsl-ws05-cmd-dmg-split-17b3a23c",
+       "game_id": "fsl-ws05-cmd-dmg-split-ef775547",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -10988,7 +10988,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T21:00:01.109497139Z",
+      "timestamp": "2026-10-01T21:37:39.842486951Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -11008,7 +11008,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-cmd-dmg-split-17b3a23c"
+    "game_id": "fsl-ws05-cmd-dmg-split-ef775547"
    }
   },
   {
@@ -11232,13 +11232,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-057e118d-7af6-4756-b6aa-e8f739a63ff9",
+     "chosen_option_id": "opt-7313b230-3eb6-45c7-8170-a9467fc7afa2",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-057e118d-7af6-4756-b6aa-e8f739a63ff9",
-      "opt-7dda790c-954c-42ce-99c7-cf3a88f9ef84",
-      "opt-3fba8984-70fd-4a5b-8d18-0b83564d5bcb",
-      "opt-e0ad9cd4-c9f1-407c-918a-1cc82215f95e"
+      "opt-7313b230-3eb6-45c7-8170-a9467fc7afa2",
+      "opt-6ea2cf80-1f2f-4cad-982a-1f6e067b2065",
+      "opt-5ed259f6-16e7-436e-bba7-8043aa1f1bca",
+      "opt-34d544f6-7ee8-4c97-a776-04436780cbda"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -11248,8 +11248,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-05d2ce9c-8cf8-4489-8060-0caa0867c807",
-      "opt-3f92d3b3-536e-4515-96da-5e1e402122da"
+      "opt-44d6eb87-ad33-475f-b533-e43bf4b0f6fc",
+      "opt-a5a94107-d6cd-47e7-ba93-332899f6e55b"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -11259,8 +11259,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-7c40514c-4cd7-47a8-82fa-0ed1cee626e2",
-      "opt-0e21382f-5c86-4916-bf11-2bb293ac21a3"
+      "opt-f1983a10-bce9-4d4f-82e7-d13bfadfef26",
+      "opt-68b4ec1f-417e-404f-ade9-9a289b270de8"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -11270,8 +11270,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-9faaa757-09ee-40cc-a8a1-50888d26a2f9",
-      "opt-54c43d6b-16f3-4dd6-bab7-b1326d65bf18"
+      "opt-2269c42a-e629-4da3-80f4-20f14821213c",
+      "opt-872d45df-ad57-49fa-a397-9adae89fc71d"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -11281,140 +11281,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-a69f6d89-0ebd-4ef1-8380-84589306ddb6",
-      "opt-0eabe0a8-077f-42b6-b7f7-3a21babf6946"
+      "opt-39a0189b-e2a5-4d58-a5a4-b6ce9c947969",
+      "opt-a03ec2aa-6a35-4e87-afce-609c6df10c78"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-e8592bb4-49bc-43cc-8165-ce8a03c2d1a0",
+     "chosen_option_id": "opt-4861675c-df64-4b31-9791-c20e7b48b2f6",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e8592bb4-49bc-43cc-8165-ce8a03c2d1a0",
-      "opt-03c10c33-da93-46d6-b592-a9a44bbd3e39"
+      "opt-4861675c-df64-4b31-9791-c20e7b48b2f6",
+      "opt-afddaa84-a3b7-4e72-acad-009a837e5bdc"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-7f4d688a-5ac4-43f3-996a-dbde25e2080b",
+     "chosen_option_id": "opt-d1cbedad-05d3-478b-87f1-3c457ec4930f",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-7f4d688a-5ac4-43f3-996a-dbde25e2080b",
-      "opt-75bf7a3b-9f71-4fc0-83f8-8bd93aef3fb2"
+      "opt-d1cbedad-05d3-478b-87f1-3c457ec4930f",
+      "opt-9f173354-f43e-436f-acf8-21697174673d"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-9de437cd-38e4-45e1-9c9f-5c0384ed7e3b",
+     "chosen_option_id": "opt-fd1bfb55-bc3c-4120-b217-33b7b1d37ba0",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-9de437cd-38e4-45e1-9c9f-5c0384ed7e3b",
-      "opt-ba5d23e1-a7dc-4a20-b875-a313cb5d6af2"
+      "opt-fd1bfb55-bc3c-4120-b217-33b7b1d37ba0",
+      "opt-c0144142-6a56-4950-8cc2-1a4de137b366"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-caabef00-36de-4932-bf86-ed87c07fb770",
+     "chosen_option_id": "opt-213661aa-6ea8-4786-8265-89f1d0e75dd9",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-caabef00-36de-4932-bf86-ed87c07fb770",
-      "opt-f6718522-b68d-4665-825f-7208ce083ebe"
+      "opt-213661aa-6ea8-4786-8265-89f1d0e75dd9",
+      "opt-890c6aac-b1b3-4135-a69b-8e36249d1efe"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-d166a26e-3c1d-4ebf-a3e9-0d3cbaae9459",
+     "chosen_option_id": "opt-f2c49b38-9d2c-4054-a21c-567f74c6d463",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-d166a26e-3c1d-4ebf-a3e9-0d3cbaae9459",
-      "opt-72eb6a90-1b52-41c6-bc9d-584eb75d0641"
+      "opt-f2c49b38-9d2c-4054-a21c-567f74c6d463",
+      "opt-c76208f5-20bb-4f3b-a82f-1fc5b22c9b35"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-0ca80509-439d-43ae-927a-4df7eebf2afc",
+     "chosen_option_id": "opt-1c6efff5-daaf-4324-b9c9-8f6e5e71183c",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-0ca80509-439d-43ae-927a-4df7eebf2afc",
-      "opt-82868ebb-a1c6-4ac1-97f4-73acef3a5e08"
+      "opt-1c6efff5-daaf-4324-b9c9-8f6e5e71183c",
+      "opt-c02e359f-3144-47b3-9a42-6112397a2c69"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-afd2719e-89f6-45f6-8d9e-b807e390434b",
+     "chosen_option_id": "opt-76721f7a-437c-4526-b673-495b096fdfa4",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-afd2719e-89f6-45f6-8d9e-b807e390434b",
-      "opt-d6e0f626-da78-4b7e-bb84-39f1f9dc8269"
+      "opt-76721f7a-437c-4526-b673-495b096fdfa4",
+      "opt-8c755d39-8c85-4b22-b0b1-05e1c7cac1e3"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-b5652b5d-7726-485e-8eea-ae76deb70ca3",
+     "chosen_option_id": "opt-03ac4c74-530a-4f08-9598-835d52adae35",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b5652b5d-7726-485e-8eea-ae76deb70ca3",
-      "opt-5329ca8f-246b-4310-b9d9-b88a3f3f9933"
+      "opt-03ac4c74-530a-4f08-9598-835d52adae35",
+      "opt-5cf54d6a-df8d-4f98-ac52-7b1b74be98d7"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-15ead811-cda7-449b-afdb-f1ab7e66512e",
+     "chosen_option_id": "opt-9296f871-e3e9-4fce-bf05-3e978d650316",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-15ead811-cda7-449b-afdb-f1ab7e66512e",
-      "opt-e4ff53f5-8cf2-47d1-80f6-15cdfb32d0fc"
+      "opt-9296f871-e3e9-4fce-bf05-3e978d650316",
+      "opt-2dada98f-9a18-4f39-bed5-aa36f396cee8"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-fbcaff0c-c54b-436c-b0b6-342849af2767",
+     "chosen_option_id": "opt-0f6aafb6-f9a7-4624-b350-8c7a07fc1146",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-fbcaff0c-c54b-436c-b0b6-342849af2767",
-      "opt-ab2ec84f-6996-4f38-b054-93e8e88f6c33"
+      "opt-0f6aafb6-f9a7-4624-b350-8c7a07fc1146",
+      "opt-6a94720b-c30b-4809-b1ff-4be1734ef248"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-54e35ea6-5c1e-4d90-806b-b034d5d8bc00",
+     "chosen_option_id": "opt-94a43d4c-9a65-400e-a337-d7a30b0036ca",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-54e35ea6-5c1e-4d90-806b-b034d5d8bc00",
-      "opt-c2d2f269-c7aa-47e5-aed2-0496f972afdb"
+      "opt-94a43d4c-9a65-400e-a337-d7a30b0036ca",
+      "opt-7c5945d5-49f1-41ae-8a8a-264f1620ae8f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-aee0453f-18d1-42a6-a62c-ac4a422bd34a",
+     "chosen_option_id": "opt-72922d49-0137-4ade-90c8-af49337a4708",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-aee0453f-18d1-42a6-a62c-ac4a422bd34a",
-      "opt-cd8f9a79-ec4c-42f6-abb4-4eb0c5e02468"
+      "opt-72922d49-0137-4ade-90c8-af49337a4708",
+      "opt-bb64b2ff-49e9-4552-a8ba-d2da4d0a826a"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -11424,9 +11424,9 @@
    "fixture_identity": "WS05-CMD-PARTNER-DMG",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -11434,7 +11434,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-cmd-partner-dmg-de989569",
+      "game_id": "fsl-ws05-cmd-partner-dmg-bb1b6068",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -11465,9 +11465,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "0f03cb1a-e896-4c5b-92cf-672fbeb378c6",
+     "request_id": "da26a7d3-985e-4909-87f4-0b13e962063f",
      "result": {
-      "game_id": "fsl-ws05-cmd-partner-dmg-de989569",
+      "game_id": "fsl-ws05-cmd-partner-dmg-bb1b6068",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -11499,7 +11499,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T21:00:02.655922113Z",
+     "timestamp": "2026-10-01T21:37:41.384961706Z",
      "warnings": []
     },
     "failure": null,
@@ -11525,8 +11525,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-aee0453f-18d1-42a6-a62c-ac4a422bd34a",
-     "opt-cd8f9a79-ec4c-42f6-abb4-4eb0c5e02468"
+     "opt-72922d49-0137-4ade-90c8-af49337a4708",
+     "opt-bb64b2ff-49e9-4552-a8ba-d2da4d0a826a"
     ],
     "revision": 17
    },
@@ -11536,10 +11536,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 64,
      "event_sequence": 64,
-     "game_id": "fsl-ws05-cmd-partner-dmg-de989569",
+     "game_id": "fsl-ws05-cmd-partner-dmg-bb1b6068",
      "legal_actions": [
       {
-       "action_id": "opt-7833b2db-430c-4895-9903-288513d38df5",
+       "action_id": "opt-b71528fb-1225-486b-9131-944e7d53de10",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11558,7 +11558,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-e0616270-39c5-4ef2-9666-7637f53e706f",
+       "action_id": "opt-4e2fb6d8-7634-42bf-8908-ec20f34c87ba",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11577,7 +11577,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-55b3de91-56ca-4c7d-9623-e5ecbbb5fa6c",
+       "action_id": "opt-7b282984-8678-4eb5-9acf-5af9900dd64f",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11596,7 +11596,83 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-4d8f6eec-f018-46da-9f37-f2d21b21fd7a",
+       "action_id": "opt-2030b260-757c-4a95-ab8c-488486cf2eaa",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-7ea35d00-077b-43a9-891b-a479f59a51d8",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-e48d10c3-7055-4691-b080-433f85f7b793",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-29b605ed-d7a1-41b7-a788-3234dfdb3755",
+       "action_type": "cast_spell",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Kediss, Emberclaw Familiar [cast_spell] ({1}{R})",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "a0e41b9d6cdfd9506376f4445d9fa3d5964533986e5d9afb1aa9f143d8106120",
+       "semantic_key": "forge:priority/1|p1|cast_spell|Kediss, Emberclaw Familiar [cast_spell] ({1}{R})|Kediss, Emberclaw Familiar|a0e41b9d6cdf",
+       "source_object_id": "Kediss, Emberclaw Familiar",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-a769347c-889f-4432-971b-b5f81f40bf5d",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11615,7 +11691,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-48d6efa4-3c27-4d3f-8fbd-e8cfa7eeff71",
+       "action_id": "opt-02e39672-daf3-40ee-89d6-042cb42bbcb5",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11634,7 +11710,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-41d55101-cdfe-4f29-8e67-b09cdef3376a",
+       "action_id": "opt-f2b063f9-34ce-49d8-9056-a44f75680378",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11653,7 +11729,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-52dad619-03c3-4e56-8ee1-c124fad46af6",
+       "action_id": "opt-50aeb33b-3145-4b64-a21a-7455995cae8e",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11672,7 +11748,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-9254a612-28cd-45ae-a6c6-0312188b8310",
+       "action_id": "opt-f2f1755a-e948-4f7d-ba6a-fcfaaf759d79",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -11688,82 +11764,6 @@
        "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
        "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
        "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-8aecba95-c8ab-48c8-a7b9-b63d7cd31365",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-149407b6-a954-498d-b182-580bff5ff5e1",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-94e3e23a-b263-4814-8e6a-98b229d2c3e9",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-c2778a5d-a1bd-456f-93dd-be88ed56e65e",
-       "action_type": "cast_spell",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Kediss, Emberclaw Familiar [cast_spell] ({1}{R})",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "a0e41b9d6cdfd9506376f4445d9fa3d5964533986e5d9afb1aa9f143d8106120",
-       "semantic_key": "forge:priority/1|p1|cast_spell|Kediss, Emberclaw Familiar [cast_spell] ({1}{R})|Kediss, Emberclaw Familiar|a0e41b9d6cdf",
-       "source_object_id": "Kediss, Emberclaw Familiar",
        "target_ids": []
       }
      ],
@@ -12172,7 +12172,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-cmd-partner-dmg-de989569",
+       "game_id": "fsl-ws05-cmd-partner-dmg-bb1b6068",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -12203,9 +12203,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "0f03cb1a-e896-4c5b-92cf-672fbeb378c6",
+      "request_id": "da26a7d3-985e-4909-87f4-0b13e962063f",
       "result": {
-       "game_id": "fsl-ws05-cmd-partner-dmg-de989569",
+       "game_id": "fsl-ws05-cmd-partner-dmg-bb1b6068",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -12237,7 +12237,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T21:00:02.655922113Z",
+      "timestamp": "2026-10-01T21:37:41.384961706Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -12257,7 +12257,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-cmd-partner-dmg-de989569"
+    "game_id": "fsl-ws05-cmd-partner-dmg-bb1b6068"
    }
   },
   {
@@ -12479,13 +12479,13 @@
    "external_decision_selection": [
     {
      "actor": "p3",
-     "chosen_option_id": "opt-f168904b-90fc-4848-a4a7-c0d6327cb8f1",
+     "chosen_option_id": "opt-ed5c39a2-e540-475b-b5c4-2d38234f6a59",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-f168904b-90fc-4848-a4a7-c0d6327cb8f1",
-      "opt-d75db4b2-fa5a-4155-a012-c3a880488cd3",
-      "opt-4c368f91-ba20-4550-ac1d-39305ad97981",
-      "opt-ba99d355-9477-4f5e-9aa7-eca3720129e2"
+      "opt-ed5c39a2-e540-475b-b5c4-2d38234f6a59",
+      "opt-ed1c1407-75fb-4cc5-b91b-9ee8559a5433",
+      "opt-37ac3720-37da-43d8-854c-52d4cdcdf8fa",
+      "opt-af98c4ba-4473-4141-b500-b2b8e637f989"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -12495,8 +12495,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-34b58874-8bad-43b4-847f-f4d50f2e89a9",
-      "opt-f03bc293-d95b-4cf1-b5db-7b1343e68e41"
+      "opt-317947ef-6aec-4554-8532-199510fa863f",
+      "opt-b7fd6c0b-c13f-4746-8d2a-7d512017ae2e"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -12506,8 +12506,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-e4ebde5f-a1b9-41a2-8a6b-3361c2eea5b0",
-      "opt-429ea6b9-279c-4459-815b-39f3a7c318f3"
+      "opt-e5546ae3-2d38-4512-a36e-d4fd97757278",
+      "opt-ea679cdf-d105-4d9a-8fb2-06895f9ee208"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -12517,8 +12517,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-c80edf21-dd34-469f-8c8b-66ccf6cacbbc",
-      "opt-afc1d8e3-ce9e-48af-921e-198c5d265d4a"
+      "opt-5aec8c27-9539-4ca8-8c99-b47d76b07423",
+      "opt-08140209-2b05-494a-9891-c1a48fc6a374"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -12528,140 +12528,140 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-94a6cce9-4eb4-4a95-b1ea-b7a70006f1c5",
-      "opt-1a72a3a8-99fe-46c6-83cf-d4c66a3a7a3f"
+      "opt-84620bcd-5555-4f58-881d-aa4c0856653b",
+      "opt-7d6b73ee-dd8b-4d90-a4a9-57fbc1508b2a"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-5ddcca68-72fb-4c22-b95c-0df8f34105e3",
+     "chosen_option_id": "opt-7eef1944-6ea0-44e5-9df6-04540086aeb6",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-5ddcca68-72fb-4c22-b95c-0df8f34105e3",
-      "opt-cefbedde-3be0-4937-a3e9-6389bd175442"
+      "opt-7eef1944-6ea0-44e5-9df6-04540086aeb6",
+      "opt-52c30c78-49ef-4c1a-8575-8d1241ecba1f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-eca30770-8cee-4b16-b837-08acede2db69",
+     "chosen_option_id": "opt-7100d9a8-df02-4f28-8fbb-8b60a5a839fe",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-eca30770-8cee-4b16-b837-08acede2db69",
-      "opt-66599a71-bd7a-4db1-a65d-70acaa899073"
+      "opt-7100d9a8-df02-4f28-8fbb-8b60a5a839fe",
+      "opt-603239f3-5dec-4d95-81b8-d714be14bf59"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-188abf31-e972-4617-ae19-bf503eb55bcb",
+     "chosen_option_id": "opt-34b619bb-fc4f-41b4-89d8-3c308bccd0ab",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-188abf31-e972-4617-ae19-bf503eb55bcb",
-      "opt-0a511296-0ce8-43b5-bd04-eada8ba8bfd1"
+      "opt-34b619bb-fc4f-41b4-89d8-3c308bccd0ab",
+      "opt-7479b52a-c7c8-4fbb-986d-a875b9fea425"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-1ea4388a-f706-42bf-9647-c59ef8e4f8f7",
+     "chosen_option_id": "opt-cebd3cec-4e10-4b82-a3a5-8ddf63bc6cb9",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-1ea4388a-f706-42bf-9647-c59ef8e4f8f7",
-      "opt-c85a4b17-8be7-446a-9451-061adefc7ed1"
+      "opt-cebd3cec-4e10-4b82-a3a5-8ddf63bc6cb9",
+      "opt-db0c82f7-405e-4cc9-a2a1-23d4eebdea9e"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-291a47d6-5828-4352-aa54-f5b4cd33ca9a",
+     "chosen_option_id": "opt-bc57a1ff-04b7-4ff4-b531-fcf00276591a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-291a47d6-5828-4352-aa54-f5b4cd33ca9a",
-      "opt-4e9072a8-8387-43c9-a82b-ef88e19f45c2"
+      "opt-bc57a1ff-04b7-4ff4-b531-fcf00276591a",
+      "opt-9037dd4f-58bd-42b0-b2c1-8f34af241d85"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-186e63cb-397d-4480-a17f-f1efd91d7c5c",
+     "chosen_option_id": "opt-423184dc-4f5a-47f6-9e99-4b65cc4fdaec",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-186e63cb-397d-4480-a17f-f1efd91d7c5c",
-      "opt-177fbb3c-972f-48b6-a88e-e42f7e0c4f63"
+      "opt-423184dc-4f5a-47f6-9e99-4b65cc4fdaec",
+      "opt-257f42cf-4c88-4c34-9dea-e87644b934fb"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-51fae84e-0afe-4709-87ce-d72bfb84797f",
+     "chosen_option_id": "opt-0eec1f7d-abe9-43c7-a454-f8fce42cf991",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-51fae84e-0afe-4709-87ce-d72bfb84797f",
-      "opt-98e02dc3-a423-4982-9bdc-488127ac1b9c"
+      "opt-0eec1f7d-abe9-43c7-a454-f8fce42cf991",
+      "opt-e1d0d7b4-ade9-425b-8f35-958a7cef6f2e"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-a75da806-ced3-4478-9419-1692e171dd01",
+     "chosen_option_id": "opt-c0005e30-6475-40f2-9bf8-ae20465fc693",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-a75da806-ced3-4478-9419-1692e171dd01",
-      "opt-3e168381-20ad-45d2-ad5c-b9a8b092c52a"
+      "opt-c0005e30-6475-40f2-9bf8-ae20465fc693",
+      "opt-916ae923-2f48-462d-ae43-5c019a55ec74"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-c00e6797-12d8-4118-ae76-62538021cbd2",
+     "chosen_option_id": "opt-3b296e48-1918-44bb-a680-98c832a41c8a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-c00e6797-12d8-4118-ae76-62538021cbd2",
-      "opt-2a8f86a7-5571-4f54-b538-471afec4aa49"
+      "opt-3b296e48-1918-44bb-a680-98c832a41c8a",
+      "opt-02d5b2de-9d73-40c1-984b-e608acaaee9a"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-959dfb25-d9ef-4948-8645-842b449d59a6",
+     "chosen_option_id": "opt-908b4dd9-a29b-4d9b-846b-b831c0d6fd56",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-959dfb25-d9ef-4948-8645-842b449d59a6",
-      "opt-34324661-7a90-4c24-9510-8b5e489c095a"
+      "opt-908b4dd9-a29b-4d9b-846b-b831c0d6fd56",
+      "opt-110eb95a-35a2-439b-9abe-cc207a89e3bc"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-93103be7-2ea6-4c07-9a8b-51f1fd1f5277",
+     "chosen_option_id": "opt-6e6fe269-fe6e-4168-a200-c77211453549",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-93103be7-2ea6-4c07-9a8b-51f1fd1f5277",
-      "opt-e662bed6-d666-478e-a34b-06c010929bd6"
+      "opt-6e6fe269-fe6e-4168-a200-c77211453549",
+      "opt-ed4d79c0-5c56-4fde-9312-1899f47095fe"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p4",
-     "chosen_option_id": "opt-7a881b58-ff5a-42a0-80a3-9be973b26b11",
+     "chosen_option_id": "opt-ebc34f54-9c53-4b3f-9a3d-d5b5a43e3f76",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-7a881b58-ff5a-42a0-80a3-9be973b26b11",
-      "opt-bfa51fa7-cb69-4734-b4fe-281a5d78cb57"
+      "opt-ebc34f54-9c53-4b3f-9a3d-d5b5a43e3f76",
+      "opt-b28f7500-bb63-41a9-870b-6e5872c37711"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -12671,9 +12671,9 @@
    "fixture_identity": "WS05-CMD-PARTNER-ZONE",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -12681,7 +12681,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-cmd-partner-zone-766b9166",
+      "game_id": "fsl-ws05-cmd-partner-zone-0d95f0af",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -12712,9 +12712,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "4daf75e2-2bf0-4da7-98cd-f379de1467e7",
+     "request_id": "228ea325-4a6a-46da-be7c-36d13b5fd253",
      "result": {
-      "game_id": "fsl-ws05-cmd-partner-zone-766b9166",
+      "game_id": "fsl-ws05-cmd-partner-zone-0d95f0af",
       "player_count": 4,
       "rng": {
        "explicit_seed": true,
@@ -12746,7 +12746,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T21:00:04.195938171Z",
+     "timestamp": "2026-10-01T21:37:42.898539305Z",
      "warnings": []
     },
     "failure": null,
@@ -12775,8 +12775,8 @@
     "actor": "p4",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-7a881b58-ff5a-42a0-80a3-9be973b26b11",
-     "opt-bfa51fa7-cb69-4734-b4fe-281a5d78cb57"
+     "opt-ebc34f54-9c53-4b3f-9a3d-d5b5a43e3f76",
+     "opt-b28f7500-bb63-41a9-870b-6e5872c37711"
     ],
     "revision": 17
    },
@@ -12786,10 +12786,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 62,
      "event_sequence": 62,
-     "game_id": "fsl-ws05-cmd-partner-zone-766b9166",
+     "game_id": "fsl-ws05-cmd-partner-zone-0d95f0af",
      "legal_actions": [
       {
-       "action_id": "opt-1d3a7aaf-b1b1-4d0f-a6b5-b1454c961a38",
+       "action_id": "opt-ab37d65d-2a8f-4161-889c-0b270f2789b0",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12808,7 +12808,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-ffc3435b-91ee-45c4-bad1-560bf72074d8",
+       "action_id": "opt-3940b535-495b-481b-a57d-b1bbc015f6dd",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12827,26 +12827,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-b5107a33-c0f2-4c96-90f1-b403388f7fe3",
-       "action_type": "cast_spell",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Kediss, Emberclaw Familiar [cast_spell] ({1}{R})",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "a0e41b9d6cdfd9506376f4445d9fa3d5964533986e5d9afb1aa9f143d8106120",
-       "semantic_key": "forge:priority/1|p1|cast_spell|Kediss, Emberclaw Familiar [cast_spell] ({1}{R})|Kediss, Emberclaw Familiar|a0e41b9d6cdf",
-       "source_object_id": "Kediss, Emberclaw Familiar",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-288401b9-e168-42a4-9e84-cdc610bb760b",
+       "action_id": "opt-7da42f0b-c429-4512-ad76-a0a3382de3cc",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12865,7 +12846,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-0c0572f7-8066-4d36-90ad-2592164865c2",
+       "action_id": "opt-f9f6490b-f434-4a2b-bf86-ccfa998c312b",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12884,7 +12865,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-ee5174e0-f127-4a56-a92a-78967c9e593c",
+       "action_id": "opt-e7659f60-8c51-4226-9e71-3aee950e4eb1",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12903,7 +12884,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-6b8f508d-e759-42c4-ad38-2062c9f2fcb9",
+       "action_id": "opt-656067cc-a29f-4df5-9f37-f3f81a8890a0",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12922,7 +12903,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-32bf279c-795e-4395-bb7a-4af638c0b982",
+       "action_id": "opt-10aa3613-5e89-465b-bf76-dfc4c260d3ea",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12941,7 +12922,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-3d0796c5-b860-448e-8b5f-536bca6cb9ad",
+       "action_id": "opt-988d3835-6f6f-4cb2-8c4e-b193d97c4846",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12960,26 +12941,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-0d9e7056-521b-4c45-980a-740e8193ef88",
-       "action_type": "play_land",
-       "actor_id": "p1",
-       "allowed_target_ids": [],
-       "choices_schema": {},
-       "cost": {},
-       "decision_class": "forge:priority/1",
-       "metadata": {
-        "frame_kind": "PRIORITY",
-        "label": "Mountain [play_land] (no cost)",
-        "revision": 18
-       },
-       "modes": [],
-       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
-       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
-       "source_object_id": "Mountain",
-       "target_ids": []
-      },
-      {
-       "action_id": "opt-65daced7-9811-4377-9cdb-feb2ecc81e92",
+       "action_id": "opt-7fdd27ff-e3af-4ec8-bfa6-f7f8faa8f3fa",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -12998,7 +12960,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-4705078c-7a66-4dc0-a0ab-a79b909f978f",
+       "action_id": "opt-f6d4998c-87b0-48d3-b816-2769110f763b",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13014,6 +12976,44 @@
        "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
        "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
        "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-52ecf80d-86d4-4577-af26-ce24c261f8aa",
+       "action_type": "play_land",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Mountain [play_land] (no cost)",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "ffe9664f5e690f294fced59705f9257393702a74c52143015b5be5ba38a055d0",
+       "semantic_key": "forge:priority/1|p1|play_land|Mountain [play_land] (no cost)|Mountain|ffe9664f5e69",
+       "source_object_id": "Mountain",
+       "target_ids": []
+      },
+      {
+       "action_id": "opt-3fc63585-86a4-4725-abed-090efa827cbd",
+       "action_type": "cast_spell",
+       "actor_id": "p1",
+       "allowed_target_ids": [],
+       "choices_schema": {},
+       "cost": {},
+       "decision_class": "forge:priority/1",
+       "metadata": {
+        "frame_kind": "PRIORITY",
+        "label": "Kediss, Emberclaw Familiar [cast_spell] ({1}{R})",
+        "revision": 18
+       },
+       "modes": [],
+       "semantic_fingerprint": "a0e41b9d6cdfd9506376f4445d9fa3d5964533986e5d9afb1aa9f143d8106120",
+       "semantic_key": "forge:priority/1|p1|cast_spell|Kediss, Emberclaw Familiar [cast_spell] ({1}{R})|Kediss, Emberclaw Familiar|a0e41b9d6cdf",
+       "source_object_id": "Kediss, Emberclaw Familiar",
        "target_ids": []
       }
      ],
@@ -13414,7 +13414,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-cmd-partner-zone-766b9166",
+       "game_id": "fsl-ws05-cmd-partner-zone-0d95f0af",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -13445,9 +13445,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "4daf75e2-2bf0-4da7-98cd-f379de1467e7",
+      "request_id": "228ea325-4a6a-46da-be7c-36d13b5fd253",
       "result": {
-       "game_id": "fsl-ws05-cmd-partner-zone-766b9166",
+       "game_id": "fsl-ws05-cmd-partner-zone-0d95f0af",
        "player_count": 4,
        "rng": {
         "explicit_seed": true,
@@ -13479,7 +13479,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T21:00:04.195938171Z",
+      "timestamp": "2026-10-01T21:37:42.898539305Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -13537,7 +13537,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-cmd-partner-zone-766b9166"
+    "game_id": "fsl-ws05-cmd-partner-zone-0d95f0af"
    }
   },
   {
@@ -13666,11 +13666,11 @@
    "external_decision_selection": [
     {
      "actor": "p1",
-     "chosen_option_id": "opt-15075b9b-e6ea-4e44-8e14-a3cc6b0468eb",
+     "chosen_option_id": "opt-d35b74e4-c58e-4f07-b58a-654064a59950",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-15075b9b-e6ea-4e44-8e14-a3cc6b0468eb",
-      "opt-6f9a0574-55b6-43ab-8ad6-448e44d49842"
+      "opt-d35b74e4-c58e-4f07-b58a-654064a59950",
+      "opt-16a046f7-2185-4da9-bc27-c65c8a9b206e"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -13680,8 +13680,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-cc3d4495-8a28-49d2-a4e3-0817f05401ba",
-      "opt-4b7b85c6-c02f-4690-a118-0471ae753203"
+      "opt-602567bc-947f-457a-85f3-990596180a2c",
+      "opt-b86335f3-a674-4912-8c30-3211e80f4ade"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -13691,52 +13691,52 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-36bc6424-620c-4a77-a4a3-e02f4b431fa0",
-      "opt-5fba4602-2142-469e-9bff-505ce785dfea"
+      "opt-a1eeda49-b47d-46bc-be25-c241b16e10f4",
+      "opt-970f3d38-e897-4aba-ac10-d4bda7e8c362"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-c36eca24-e753-4ee2-963c-4b780a39d363",
+     "chosen_option_id": "opt-0060792c-ca79-4770-8b67-ce4be633ec8a",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-c36eca24-e753-4ee2-963c-4b780a39d363",
-      "opt-31777669-1b52-4b85-8ae2-ecd0a52e9ee8"
+      "opt-0060792c-ca79-4770-8b67-ce4be633ec8a",
+      "opt-8facf43c-6a08-4f90-b714-17ca56482cdc"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-f1939806-e374-437c-ade9-1cb41a956fb1",
+     "chosen_option_id": "opt-c3479062-e739-433c-a611-f81496e764b5",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-f1939806-e374-437c-ade9-1cb41a956fb1",
-      "opt-ed88694e-cb13-45ff-ad85-438788554daf"
+      "opt-c3479062-e739-433c-a611-f81496e764b5",
+      "opt-5cbc1a4d-e7f3-493e-b2b0-02ee800624b6"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-e8a178d6-81f4-47de-8c83-91d4b68989d0",
+     "chosen_option_id": "opt-7374172a-ded5-4ce7-acf7-5216c3de1ccb",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-e8a178d6-81f4-47de-8c83-91d4b68989d0",
-      "opt-e40cf491-2215-43b1-8f3d-84887951bee6"
+      "opt-7374172a-ded5-4ce7-acf7-5216c3de1ccb",
+      "opt-31b0c376-756b-470a-827a-9f1c3a2b672b"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-9af944bb-afdd-4634-8dc2-d05e4c84ff02",
+     "chosen_option_id": "opt-87b0c60b-63bc-4bef-94f2-c39dfcda28c8",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-9af944bb-afdd-4634-8dc2-d05e4c84ff02",
-      "opt-8d2ad468-f93e-403b-8c6a-1d4d0b7d0c7b"
+      "opt-87b0c60b-63bc-4bef-94f2-c39dfcda28c8",
+      "opt-8ffb0316-b183-429f-9e2b-bd23ab9f7c3f"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -13746,9 +13746,9 @@
    "fixture_identity": "WS05-CMD-START-2",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -13756,7 +13756,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-cmd-start-2-1b432976",
+      "game_id": "fsl-ws05-cmd-start-2-9585ea3f",
       "player_count": 2,
       "rng": {
        "explicit_seed": true,
@@ -13777,9 +13777,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "81767ee5-a872-4a57-ad98-15e9dfa16ed2",
+     "request_id": "4aab7c54-1715-48f6-a1dc-0cff0fe8d7b2",
      "result": {
-      "game_id": "fsl-ws05-cmd-start-2-1b432976",
+      "game_id": "fsl-ws05-cmd-start-2-9585ea3f",
       "player_count": 2,
       "rng": {
        "explicit_seed": true,
@@ -13801,7 +13801,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T21:00:05.726950875Z",
+     "timestamp": "2026-10-01T21:37:44.427243179Z",
      "warnings": []
     },
     "failure": null,
@@ -13830,8 +13830,8 @@
     "actor": "p2",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-9af944bb-afdd-4634-8dc2-d05e4c84ff02",
-     "opt-8d2ad468-f93e-403b-8c6a-1d4d0b7d0c7b"
+     "opt-87b0c60b-63bc-4bef-94f2-c39dfcda28c8",
+     "opt-8ffb0316-b183-429f-9e2b-bd23ab9f7c3f"
     ],
     "revision": 7
    },
@@ -13841,10 +13841,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 30,
      "event_sequence": 30,
-     "game_id": "fsl-ws05-cmd-start-2-1b432976",
+     "game_id": "fsl-ws05-cmd-start-2-9585ea3f",
      "legal_actions": [
       {
-       "action_id": "opt-05a274d0-a4bb-4e5e-8b3c-861325b6f2e9",
+       "action_id": "opt-672d39fc-d0f2-49be-8e2b-1f9e6550e561",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13863,7 +13863,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-013b7ec2-983a-4959-9751-698ee9ded069",
+       "action_id": "opt-ef7e6d7f-3295-4573-ac9f-8d30c3c90514",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13882,7 +13882,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-980da395-7625-4449-9240-90919b10b950",
+       "action_id": "opt-29ec2465-0eca-4a91-b694-a1c92f6a4e36",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13901,7 +13901,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-4a82e7ae-cda8-4ca8-bcd1-3cd54fc31200",
+       "action_id": "opt-268fb250-549b-4521-8879-ebb14764aea4",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13920,7 +13920,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-dbe15b4d-733c-4153-a0fa-40d4215e2bea",
+       "action_id": "opt-b46177f1-8469-4a3b-a650-654cb493ca7c",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13939,7 +13939,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-bc25cf7b-44d8-405d-98eb-83a05c96fda8",
+       "action_id": "opt-b8b20c3b-b1eb-49f9-bd23-1e18cd665097",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13958,7 +13958,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-e4a83bcb-d68c-41f8-909b-f616b1e19f87",
+       "action_id": "opt-cd5bac26-c703-4c5b-a9f1-02ea89e5b429",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13977,7 +13977,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-d9be8840-85eb-4b9b-ac98-bf6029b47100",
+       "action_id": "opt-da8aa268-2dc5-4f06-bc57-874e0ed78720",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -13996,7 +13996,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-2e46b2b8-90c6-4616-9f9b-d5efab0ea468",
+       "action_id": "opt-c0b212a5-b0f9-449d-8ca6-76fcdd3863a1",
        "action_type": "cast_spell",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -14015,7 +14015,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-954064a2-64be-46dd-bb16-68bf5c626f15",
+       "action_id": "opt-ac007f32-61ed-4fc8-a5a3-7d6d13cf38b3",
        "action_type": "play_land",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -14286,7 +14286,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-cmd-start-2-1b432976",
+       "game_id": "fsl-ws05-cmd-start-2-9585ea3f",
        "player_count": 2,
        "rng": {
         "explicit_seed": true,
@@ -14307,9 +14307,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "81767ee5-a872-4a57-ad98-15e9dfa16ed2",
+      "request_id": "4aab7c54-1715-48f6-a1dc-0cff0fe8d7b2",
       "result": {
-       "game_id": "fsl-ws05-cmd-start-2-1b432976",
+       "game_id": "fsl-ws05-cmd-start-2-9585ea3f",
        "player_count": 2,
        "rng": {
         "explicit_seed": true,
@@ -14331,7 +14331,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T21:00:05.726950875Z",
+      "timestamp": "2026-10-01T21:37:44.427243179Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -14346,7 +14346,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-cmd-start-2-1b432976"
+    "game_id": "fsl-ws05-cmd-start-2-9585ea3f"
    }
   },
   {
@@ -14515,12 +14515,12 @@
    "external_decision_selection": [
     {
      "actor": "p2",
-     "chosen_option_id": "opt-3650f13a-62f4-4253-be12-d33070c017eb",
+     "chosen_option_id": "opt-7d558571-457c-4297-af53-ad72cf1dd303",
      "kind": "STARTING_PLAYER",
      "offered_option_ids": [
-      "opt-3650f13a-62f4-4253-be12-d33070c017eb",
-      "opt-9abe3322-747f-41d5-84a9-25ba93dfdf32",
-      "opt-6df68b12-8a7a-41b1-bf4e-cb6c9d6ad5a2"
+      "opt-7d558571-457c-4297-af53-ad72cf1dd303",
+      "opt-feca9655-7ddc-4435-95ff-4d606f28447e",
+      "opt-7d8e3bf8-979c-4b53-afc1-598550890edd"
      ],
      "policy": "requested_starting_seat",
      "step": "starting_player"
@@ -14530,8 +14530,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-100c74dd-4314-49b7-9c7d-3b4def9cb9de",
-      "opt-13fc6f0d-4a48-42e1-a6cc-89919df92f96"
+      "opt-096ff65c-4e5e-4249-85a6-5a38b4c8dff5",
+      "opt-3967b634-7e18-4416-ba57-0682e0573a26"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -14541,8 +14541,8 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-074ec9de-d5ee-41e8-acdc-2cfb4c9a3dd3",
-      "opt-9f72688e-044f-48f4-b8d3-d4901e4c6951"
+      "opt-635282bc-487f-4619-a726-ad4564e7a04f",
+      "opt-5254e8de-6b9c-4d37-8cce-b495337a0422"
      ],
      "policy": "keep_all",
      "step": "mulligan"
@@ -14552,74 +14552,74 @@
      "chosen_option_id": null,
      "kind": "MULLIGAN",
      "offered_option_ids": [
-      "opt-098e6f5d-92ca-4267-9f68-8a41a16cf194",
-      "opt-048e358c-c58a-4d2c-81d0-d71cedf82c9b"
+      "opt-3a3a34ee-29e8-4e58-a0b0-ece3dde3d2f7",
+      "opt-0375717f-a0fe-42c0-a8ad-29810d3bd946"
      ],
      "policy": "keep_all",
      "step": "mulligan"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-9f499d7b-39af-4933-ba8c-3610a3bd4999",
+     "chosen_option_id": "opt-c099d879-e80e-452f-a329-fd565834a3a2",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-9f499d7b-39af-4933-ba8c-3610a3bd4999",
-      "opt-0360ee8c-caed-4333-8e5f-e888eb857ad1"
+      "opt-c099d879-e80e-452f-a329-fd565834a3a2",
+      "opt-8b93b2ff-023c-426d-ae20-658564383b7d"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-b07c30fb-6d8f-4509-9262-06230216f28f",
+     "chosen_option_id": "opt-c1a15db0-722a-4f50-97f0-237098da48f7",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-b07c30fb-6d8f-4509-9262-06230216f28f",
-      "opt-73cb54bb-9872-4272-a964-e5f1b8a2bc5c"
+      "opt-c1a15db0-722a-4f50-97f0-237098da48f7",
+      "opt-4cc99387-ead4-4c5d-89ac-d023b8884c37"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-7206ada4-f4ce-40f1-b319-850b5b43e2a2",
+     "chosen_option_id": "opt-99065026-181e-4d8d-bb88-b0d18fa3d131",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-7206ada4-f4ce-40f1-b319-850b5b43e2a2",
-      "opt-33c2dc67-be9a-4bc7-a979-224193a205de"
+      "opt-99065026-181e-4d8d-bb88-b0d18fa3d131",
+      "opt-6d1db9dd-54f9-4847-8a3f-35b8bce3b1b0"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p1",
-     "chosen_option_id": "opt-6433f5df-6b53-41fe-b7f2-3ef677cf8534",
+     "chosen_option_id": "opt-1deb111d-5bbd-4d45-ad5a-6a4c93f3e30e",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-6433f5df-6b53-41fe-b7f2-3ef677cf8534",
-      "opt-2cc86d91-d051-45f7-ad58-f48094a472f3"
+      "opt-1deb111d-5bbd-4d45-ad5a-6a4c93f3e30e",
+      "opt-bf411fee-68c4-40f5-9f3d-5838a80c8fe7"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p2",
-     "chosen_option_id": "opt-a18771be-3375-4244-a74c-2ff1cb443529",
+     "chosen_option_id": "opt-88d54a38-58ae-4663-8057-7cae66053b80",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-a18771be-3375-4244-a74c-2ff1cb443529",
-      "opt-6faa7815-ca2c-46c7-bf05-d4731d15a177"
+      "opt-88d54a38-58ae-4663-8057-7cae66053b80",
+      "opt-15a8a9e0-07b0-47d0-a434-6c7443ce3827"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
     },
     {
      "actor": "p3",
-     "chosen_option_id": "opt-fd5f67a1-f2b3-45b8-8b7e-a62bdf663ff9",
+     "chosen_option_id": "opt-d90162a1-d262-4840-afe7-3168bcd9da4d",
      "kind": "PRIORITY",
      "offered_option_ids": [
-      "opt-fd5f67a1-f2b3-45b8-8b7e-a62bdf663ff9",
-      "opt-afac73ba-5317-4fa4-89d3-ed4a9c84c1bf"
+      "opt-d90162a1-d262-4840-afe7-3168bcd9da4d",
+      "opt-8ba28f5d-f21a-4055-8be4-31d2744bc8f5"
      ],
      "policy": "pass_when_offered",
      "step": "priority"
@@ -14629,9 +14629,9 @@
    "fixture_identity": "WS05-CMD-START-3",
    "lab_source_identity": {
     "branch": "hardening/forge-scenario-lane-20261001",
-    "commit": "5771838ab1cd3a35bde76d82fff1e91f45f451c0",
+    "commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
     "repository": "moeendres-png/commander-playtest-lab",
-    "tree": "19f558700d0cd1c0ba87f81621541aede9f053f3"
+    "tree": "2881907affdc471e04e12775eabdafc983088175"
    },
    "native_bootstrap": {
     "applied": true,
@@ -14639,7 +14639,7 @@
      "engine_event_offset": 2,
      "ok": true,
      "payload": {
-      "game_id": "fsl-ws05-cmd-start-3-1e64fcb7",
+      "game_id": "fsl-ws05-cmd-start-3-026075eb",
       "player_count": 3,
       "rng": {
        "explicit_seed": true,
@@ -14665,9 +14665,9 @@
       "status": "created"
      },
      "protocol_version": "2.0.0",
-     "request_id": "41fe71dc-6dbc-43c0-adde-8ed6acdc41ce",
+     "request_id": "90047444-561e-4744-91ea-fdef0ae6dada",
      "result": {
-      "game_id": "fsl-ws05-cmd-start-3-1e64fcb7",
+      "game_id": "fsl-ws05-cmd-start-3-026075eb",
       "player_count": 3,
       "rng": {
        "explicit_seed": true,
@@ -14694,7 +14694,7 @@
      },
      "status": "ok",
      "success": true,
-     "timestamp": "2026-10-01T21:00:06.947673049Z",
+     "timestamp": "2026-10-01T21:37:45.644868778Z",
      "warnings": []
     },
     "failure": null,
@@ -14723,8 +14723,8 @@
     "actor": "p3",
     "kind": "PRIORITY",
     "offered_option_ids": [
-     "opt-fd5f67a1-f2b3-45b8-8b7e-a62bdf663ff9",
-     "opt-afac73ba-5317-4fa4-89d3-ed4a9c84c1bf"
+     "opt-d90162a1-d262-4840-afe7-3168bcd9da4d",
+     "opt-8ba28f5d-f21a-4055-8be4-31d2744bc8f5"
     ],
     "revision": 10
    },
@@ -14734,10 +14734,10 @@
      "decision_protocol_version": "forge-decision-protocol/1.0.0",
      "event_offset": 40,
      "event_sequence": 40,
-     "game_id": "fsl-ws05-cmd-start-3-1e64fcb7",
+     "game_id": "fsl-ws05-cmd-start-3-026075eb",
      "legal_actions": [
       {
-       "action_id": "opt-429a2e2a-a524-4078-b7bb-74dab88ff1fa",
+       "action_id": "opt-0d1b04cd-1390-49a5-b34a-dea173373ef5",
        "action_type": "pass_priority",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -14756,7 +14756,7 @@
        "target_ids": []
       },
       {
-       "action_id": "opt-22733446-feda-42f3-bbe3-e55c0404fb1c",
+       "action_id": "opt-75dfdccf-fd12-4662-91f2-806d0a6a0bca",
        "action_type": "concede",
        "actor_id": "p1",
        "allowed_target_ids": [],
@@ -15096,7 +15096,7 @@
       "engine_event_offset": 2,
       "ok": true,
       "payload": {
-       "game_id": "fsl-ws05-cmd-start-3-1e64fcb7",
+       "game_id": "fsl-ws05-cmd-start-3-026075eb",
        "player_count": 3,
        "rng": {
         "explicit_seed": true,
@@ -15122,9 +15122,9 @@
        "status": "created"
       },
       "protocol_version": "2.0.0",
-      "request_id": "41fe71dc-6dbc-43c0-adde-8ed6acdc41ce",
+      "request_id": "90047444-561e-4744-91ea-fdef0ae6dada",
       "result": {
-       "game_id": "fsl-ws05-cmd-start-3-1e64fcb7",
+       "game_id": "fsl-ws05-cmd-start-3-026075eb",
        "player_count": 3,
        "rng": {
         "explicit_seed": true,
@@ -15151,7 +15151,7 @@
       },
       "status": "ok",
       "success": true,
-      "timestamp": "2026-10-01T21:00:06.947673049Z",
+      "timestamp": "2026-10-01T21:37:45.644868778Z",
       "warnings": []
      },
      "provider_seed_supported": true
@@ -15166,7 +15166,7 @@
    },
    "transport": {
     "attempted": true,
-    "game_id": "fsl-ws05-cmd-start-3-1e64fcb7"
+    "game_id": "fsl-ws05-cmd-start-3-026075eb"
    }
   }
  ],
@@ -15215,7 +15215,7 @@
     }
    },
    "protocol_version": "2.0.0",
-   "request_id": "12a507bf-c047-4ea0-99a2-b1c38e50c466",
+   "request_id": "18c78cd2-2e3e-40e6-9c41-b5d5bb6df8a9",
    "result": {
     "capabilities": {
      "action_submission_supported": false,
@@ -15258,7 +15258,7 @@
    },
    "status": "ok",
    "success": true,
-   "timestamp": "2026-10-01T20:59:46.081519874Z",
+   "timestamp": "2026-10-01T21:37:24.924008555Z",
    "warnings": []
   },
   "launch_plan": {
@@ -15294,7 +15294,7 @@
     "release": "2.0.14"
    },
    "protocol_version": "2.0.0",
-   "request_id": "f0a19019-6714-480f-b1ba-b2ea19fb93ca",
+   "request_id": "01693f0f-ff8e-4ab4-ba69-56156561b463",
    "result": {
     "bridge_name": "forge-protocol2-bridge",
     "bridge_version": "2.0.14-ws-a1d-h4f",
@@ -15312,7 +15312,7 @@
    },
    "status": "ok",
    "success": true,
-   "timestamp": "2026-10-01T20:59:46.080985183Z",
+   "timestamp": "2026-10-01T21:37:24.923554003Z",
    "warnings": []
   },
   "start_engine": {
@@ -15325,7 +15325,7 @@
     "status": "started"
    },
    "protocol_version": "2.0.0",
-   "request_id": "b353a285-7906-41aa-85f5-07cd9bfdd6cb",
+   "request_id": "4933123b-9e20-4154-b74c-01399f9ccadf",
    "result": {
     "already_started": false,
     "engine": "forge",
@@ -15334,7 +15334,7 @@
    },
    "status": "ok",
    "success": true,
-   "timestamp": "2026-10-01T20:59:46.075417817Z",
+   "timestamp": "2026-10-01T21:37:24.918603579Z",
    "warnings": []
   }
  },

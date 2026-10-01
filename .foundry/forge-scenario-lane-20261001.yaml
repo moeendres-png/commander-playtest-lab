@@ -7,13 +7,13 @@ audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
 main_merged_at_start: a91590842b3a3c96336bf3e6296eb80db606926b
 merge_commit_at_start: a60ee60048ebed27be49bd81af444ef67c9b2014
 state_written_against_head: cc18d84aeba4f6edaf16f8aff2cd67cf53f1c5d1
-validated_head: 5771838ab1cd3a35bde76d82fff1e91f45f451c0
+validated_head: ffa0e9107b6e7b946e48f255aada3fa0ed13a24a
 reproduced_on_committed_head: >-
-  5771838a: the full 16-row runtime batch was re-executed on the committed lane
-  source (including the exact-unique-option fix required by the first-option
-  ratchet gate) and reproduced {UNSUPPORTED_DIMENSION: 7,
-  OBLIGATION_NOT_OBSERVABLE: 3, EXECUTED_OBLIGATION_OBSERVED: 6}; the persisted
-  EXECUTION_RECEIPT.json is bound to Lab commit 5771838a.
+  ffa0e910: the full 16-row runtime batch was re-executed on the committed lane
+  source (exact-unique-option fix plus ruff-format/mypy-strict repairs) and
+  reproduced {UNSUPPORTED_DIMENSION: 7, OBLIGATION_NOT_OBSERVABLE: 3,
+  EXECUTED_OBLIGATION_OBSERVED: 6}; the persisted EXECUTION_RECEIPT.json is
+  bound to Lab commit ffa0e910.
 observed_origin_main_drift:
   origin_main_at_final_check: 6ae06efcdd2a894596d4c48d14b32632a6950c60
   content: >-
@@ -152,7 +152,7 @@ outputs:
   pull_request_url: https://github.com/moeendres-png/commander-playtest-lab/pull/464
   pull_request_state: DRAFT_OPEN
   branch_pushed_at: e9e5087f1e3d9d1b0e8b593693a715294ef1b7d6
-  evidence_source_commit: 5771838ab1cd3a35bde76d82fff1e91f45f451c0
+  evidence_source_commit: ffa0e9107b6e7b946e48f255aada3fa0ed13a24a
 
 remaining_scope:
   - Phase 2 integration into the shared current-boundary evidence chain, gated on #450 terminal
