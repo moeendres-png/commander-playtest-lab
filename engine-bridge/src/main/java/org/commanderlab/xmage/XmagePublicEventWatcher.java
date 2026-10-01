@@ -99,6 +99,13 @@ final class XmagePublicEventWatcher extends Watcher {
             record.addProperty("combat", damaged.isCombatDamage());
         }
         record.addProperty("public_identity", publicIdentity);
+        if (!(event instanceof ZoneChangeEvent)) {
+            // Any other event may name an object whose identity is hidden right
+            // now (a face-down permanent, a card in a hidden zone): it is named
+            // by neither its card name nor the semantic object it was requested as.
+            record.addProperty("target_hidden", hiddenObject(event.getTargetId(), game));
+            record.addProperty("source_hidden", hiddenObject(event.getSourceId(), game));
+        }
         if (publicIdentity) {
             // A zone change was public before or after the move; any other event
             // names only objects that are in a public zone now.
@@ -128,6 +135,18 @@ final class XmagePublicEventWatcher extends Watcher {
         if (id != null) {
             record.addProperty(key, id.toString());
         }
+    }
+
+    private static boolean hiddenObject(java.util.UUID id, Game game) {
+        if (id == null || game.getPlayer(id) != null) {
+            return false;
+        }
+        Permanent permanent = game.getPermanentOrLKIBattlefield(id);
+        if (permanent != null && permanent.isFaceDown(game)) {
+            return true;
+        }
+        Zone zone = game.getState().getZone(id);
+        return zone != null && !PUBLIC_ZONES.contains(zone);
     }
 
     private static void putName(
