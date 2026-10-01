@@ -509,6 +509,7 @@ class PostconditionProof:
         if self.event_token is not None:
             return {"postcondition": self.postcondition, "event_token": self.event_token}
         check = self.terminal_check
+        assert check is not None  # guaranteed by __post_init__
         return {
             "postcondition": self.postcondition,
             "terminal_check": {
@@ -833,7 +834,9 @@ def plan_proof_status(row: CardRow, execution: Mapping[str, Any]) -> list[dict[s
                 }
             )
         else:
-            description = proof.terminal_check.describe()
+            check = proof.terminal_check
+            assert check is not None  # guaranteed by PostconditionProof.__post_init__
+            description = check.describe()
             held = bool(terminal_facts.get(description))
             statuses.append(
                 {
@@ -1333,8 +1336,8 @@ def build_matrix(
     """The machine-readable 29-row ledger. Every frozen identity appears."""
     measurements = measurements or {}
     rows: list[dict[str, Any]] = []
-    for row in corpus.rows:
-        evaluation = dict(evaluations.get(row.fixture_id) or {})
+    for card_row in corpus.rows:
+        evaluation = dict(evaluations.get(card_row.fixture_id) or {})
         if not evaluation:
             evaluation = {
                 "outcome": OUTCOME_UNKNOWN,
@@ -1344,30 +1347,32 @@ def build_matrix(
                 "blocker_detail": "the row was not executed in this campaign run",
                 "direct_receipt_eligible": False,
             }
-        rows.append(matrix_row(row, evaluation, measurements.get(row.fixture_id)))
-    outcomes = [str(row["verdict"].get("outcome")) for row in rows]
+        rows.append(matrix_row(card_row, evaluation, measurements.get(card_row.fixture_id)))
+    outcomes = [str(entry["verdict"].get("outcome")) for entry in rows]
     classes = [
-        str(row["verdict"].get("blocker_class"))
-        for row in rows
-        if row["verdict"].get("blocker_class")
+        str(entry["verdict"].get("blocker_class"))
+        for entry in rows
+        if entry["verdict"].get("blocker_class")
     ]
     direct: list[str] = []
     inconsistent: list[str] = []
-    for row in rows:
-        verdict = row["verdict"]
+    for entry in rows:
+        verdict = entry["verdict"]
         if verdict.get("outcome") != OUTCOME_DIRECT_PASS:
             continue
         if verdict.get("direct_receipt_eligible") is True:
-            direct.append(row["fixture_id"])
+            direct.append(str(entry["fixture_id"]))
         else:
-            inconsistent.append(row["fixture_id"])
+            inconsistent.append(str(entry["fixture_id"]))
     if inconsistent:
         raise ActualCardCampaignError(
             "a DIRECT_PASS row carries no receipt eligibility; the matrix refuses to "
             f"report a pass it cannot receipt: {inconsistent}"
         )
     receipt_eligible = [
-        row["fixture_id"] for row in rows if row["verdict"].get("direct_receipt_eligible")
+        str(entry["fixture_id"])
+        for entry in rows
+        if entry["verdict"].get("direct_receipt_eligible")
     ]
     if len(rows) != CORPUS_COUNT:
         raise ActualCardCampaignError(
