@@ -1,8 +1,10 @@
-"""Successor guard for the 2026-09-30 XMage multiplayer-candidate repin (v2).
+"""Successor guard for the 2026-10-01 XMage multiplayer-candidate repin (v3).
 
-The live XMage pin is the candidate branch advanced by F-22/F-23, F-28/F-29 and
-F-34. The prior pin (f79e4168, successor lock v1) and the frozen WSR22
-current-boundary identity (b19596980f27) stay historical: this repin opens a new
+The live XMage pin is the candidate branch advanced by the Rules-Core fixes for
+F-43 (a departed combat-damage assigner must not deal cached damage, mage#29) and
+F-44 (a player who leaves while ordering its triggers puts none on the stack,
+mage#33), both CR 800.4a. The prior pin (9375f35a, successor lock v2) and the
+frozen WSR22 current-boundary identity stay historical: this repin opens a new
 successor epoch, it does not relabel earlier evidence.
 """
 
@@ -11,18 +13,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-CURRENT_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
-CURRENT_TREE = "0fb7c2f9a038e471de3a6e56419244482a645218"
-PRIOR_PIN = "f79e4168902e65063034b21be6f4585397fd43b3"
+CURRENT_PIN = "4e59e8b9087878816b37728055eb61757a2fbf07"
+CURRENT_TREE = "97951fd7c84b49c20cbaa975b7f2b5d669df9262"
+PRIOR_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
 WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
-SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
+SUCCESSOR_LOCK = "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
 
-# Consumers that cannot read the manifest (workflow YAML env, Java constants)
-# or are the deliberate pin-authority guards. Every other consumer resolves
-# the pin from config/rules_engines.json (G1), so a repin edits only these.
 ACTIVE_LITERAL_CONSUMERS = (
     "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java",
     "engine-bridge/src/test/java/org/commanderlab/xmage/JsonlBridgeTest.java",
@@ -58,17 +55,6 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
 
 
-# This file proves the 2026-09-30 repin EVENT. Its current-pin assertions hold only while
-# this repin's pin is live; after the forward repin v3 (F-43/F-44) they are superseded by
-# tests/qualification/test_xmage_mp_candidate_repin_v3_20261001.py and skipped, never
-# rewritten. Its historical assertions stay active.
-superseded_by_later_repin = pytest.mark.skipif(
-    _manifest()["primary_engine"]["commit"] != CURRENT_PIN,
-    reason="superseded: live XMage pin moved forward (see test_xmage_mp_candidate_repin_v3_20261001.py)",
-)
-
-
-@superseded_by_later_repin
 def test_live_pin_is_the_successor_candidate() -> None:
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
@@ -83,23 +69,25 @@ def test_selection_truth_unchanged() -> None:
     assert cfg["current_runtime"]["production_provider"] is None
 
 
-@superseded_by_later_repin
 def test_successor_lock_binds_the_candidate_its_donors_and_the_prior_pin() -> None:
     lock = _lock()
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
     assert lock["new_live_pin"]["tree"] == CURRENT_TREE
     assert lock["new_live_pin"]["source_archive"] == _manifest()["primary_engine"]["source_archive"]
     assert lock["prior_live_pin"]["commit"] == PRIOR_PIN
-    findings = {donor["finding"] for donor in lock["donors"]}
-    assert findings == {"F-22", "F-23", "F-28", "F-29", "F-34"}
+    assert {donor["finding"] for donor in lock["donors"]} == {"F-43", "F-44"}
     for donor in lock["donors"]:
         assert len(donor["head"]) == 40, donor
     assert lock["native_qualification"]["full_mage_tests"]["failures"] == 0
+    assert lock["native_qualification"]["full_mage_tests"]["errors"] == 0
     assert lock["native_qualification"]["full_mage_tests"]["commit"] == CURRENT_PIN
+    assert lock["rules_core_change_against_prior_pin"]["main_source_files"] == [
+        "Mage/src/main/java/mage/game/GameImpl.java",
+        "Mage/src/main/java/mage/game/combat/CombatGroup.java",
+    ]
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "ARCHITECTURE_FREEZE"}
 
 
-@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
@@ -115,14 +103,14 @@ def test_manifest_pin_readers_restate_no_pin() -> None:
         assert "canonical_xmage_engine_pin" in text or "--provider xmage" in text, rel
 
 
-@superseded_by_later_repin
-def test_prior_lock_and_wsr22_boundary_stay_historical() -> None:
+def test_prior_locks_and_wsr22_boundary_stay_historical() -> None:
     from commander_lab.qualification.current_boundary import source_lock
 
     assert source_lock.XMAGE_CANDIDATE_COMMIT == WSR22_PIN
     prior = json.loads(
         (
-            REPO_ROOT / "qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json"
+            REPO_ROOT
+            / "qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json"
         ).read_text()
     )
     assert prior["new_live_pin"]["commit"] == PRIOR_PIN

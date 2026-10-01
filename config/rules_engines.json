@@ -2,7 +2,7 @@
  "authority_note": {
   "documentation_rule": "Human-readable pin statements elsewhere (integrations/*/README.md, docs/engine_setup.md) must cite this file and must not restate commits. On any disagreement, this file wins.",
   "dual_identity": "R-1 current Forge authority keeps Rules-Core candidate identity and bridge/materialization identity distinct. secondary_engine.commit is the exact admitted #11/#12 candidate source. secondary_engine.bridge_source is the separately bound integrated Forge #16 source combining source-frozen #13 and #15; rules_core_base_commit points back to the admitted candidate. Historical evidence identities are never relabelled.",
-  "known_stale_pointers": "docker/forge/Dockerfile, docker/xmage/Dockerfile and src/commander_lab/engine/rules/phase85.py (Phase-8.5 output template) carry older pins. They are NOT authority. Re-pinning container flows requires a dedicated re-pin workstream with requalification (Authority Gate PIN_DIVERGENCE_DOCKERFILES); see docs/RETENTION_AND_LIFECYCLE_POLICY.md, Appendix G (recorded Authority Gates). WS88 addendum: since WS-A1D both Dockerfiles declare required build args without pin defaults and resolve identity from this manifest at build time, so they are pin-free by design; phase85.py remains frozen historical provenance. Prior canonical xmage pin db134b9737e951367d65ef5806ad986319cc73ab is retained only in sealed historical evidence from WS213 and descendants. Prior canonical xmage pin b19596980f2734496ea1896504253e1bdd2756dd (the cumulative M1-M4 Mage residual candidate: RG-02, RG-07, RG-08, RG-06A) remains the identity of the frozen WSR22 current-boundary evidence (src/commander_lab/qualification/current_boundary/source_lock.py, not repinned). Prior canonical xmage pin f79e4168902e65063034b21be6f4585397fd43b3 (multiplayer candidate F-18..F-21; successor source lock qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json) is historical. Canonical xmage pin is now 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326, the same candidate branch advanced by F-22 battle protector + F-23 current-opponent semantics (Mage PR #26), F-28 forced-block 802.4a + F-29 APNAP block order (Mage PRs #27, #28) and F-34 turn control on leave; successor source lock v2: qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json. Architecture Freeze remains NOT CLAIMED and Production Provider remains NOT SELECTED. R-1 owner adjudication 2026-09-30 supersedes the former pristine-upstream Forge candidate pin and PB-09 OPEN wording: current Forge exact-source qualification uses the Commander-Lab-maintained fork lineage; historical source locks/evidence keep their original identities.",
+  "known_stale_pointers": "docker/forge/Dockerfile, docker/xmage/Dockerfile and src/commander_lab/engine/rules/phase85.py (Phase-8.5 output template) carry older pins. They are NOT authority. Re-pinning container flows requires a dedicated re-pin workstream with requalification (Authority Gate PIN_DIVERGENCE_DOCKERFILES); see docs/RETENTION_AND_LIFECYCLE_POLICY.md, Appendix G (recorded Authority Gates). WS88 addendum: since WS-A1D both Dockerfiles declare required build args without pin defaults and resolve identity from this manifest at build time, so they are pin-free by design; phase85.py remains frozen historical provenance. Prior canonical xmage pin db134b9737e951367d65ef5806ad986319cc73ab is retained only in sealed historical evidence from WS213 and descendants. Prior canonical xmage pin b19596980f2734496ea1896504253e1bdd2756dd (the cumulative M1-M4 Mage residual candidate: RG-02, RG-07, RG-08, RG-06A) remains the identity of the frozen WSR22 current-boundary evidence (src/commander_lab/qualification/current_boundary/source_lock.py, not repinned). Prior canonical xmage pin f79e4168902e65063034b21be6f4585397fd43b3 (multiplayer candidate F-18..F-21; successor source lock qualification/xmage-mp-candidate-repin-20260929/SUCCESSOR_SOURCE_LOCK.json) is historical. Canonical xmage pin was 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326, the same candidate branch advanced by F-22 battle protector + F-23 current-opponent semantics (Mage PR #26), F-28 forced-block 802.4a + F-29 APNAP block order (Mage PRs #27, #28) and F-34 turn control on leave; successor source lock v2: qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json. Architecture Freeze remains NOT CLAIMED and Production Provider remains NOT SELECTED. R-1 owner adjudication 2026-09-30 supersedes the former pristine-upstream Forge candidate pin and PB-09 OPEN wording: current Forge exact-source qualification uses the Commander-Lab-maintained fork lineage; historical source locks/evidence keep their original identities. Prior canonical xmage pin 9375f35ac7c9a540ebcb8b262b8645b8c6b1b326 (candidate repin v2) is retained in the v2 successor lock and in evidence produced before 2026-10-01. Canonical xmage pin is now 4e59e8b9087878816b37728055eb61757a2fbf07 (candidate repin v3: F-43 combat-damage source revalidation and F-44 leaver trigger ordering, CR 800.4a).",
   "pin_authority": "This file (config/rules_engines.json) is the sole machine-readable authority for current engine pins: primary_engine.commit and secondary_engine.commit.",
   "role_terminology": {
    "primary_engine": "Engine under active integration (validated B4-D bridge surface). NOT a selected architecture leader and NOT a Production Provider.",
@@ -44,7 +44,7 @@
   "version": "3.9.16"
  },
  "primary_engine": {
-  "commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
   "license": "MIT",
   "missing_required_capabilities": [
    "legal_actions_supported",
@@ -56,7 +56,7 @@
   "release": "compatibility-fork-unreleased",
   "repository": "https://github.com/moeendres-png/mage.git",
   "role": "real pinned XMage B4-D bounded bridge for deck import, Commander game start, live state observation, current-priority legal-action handoff, fail-closed targetless/nonmodal action submission, external audit event export and explicit per-game lifecycle cleanup; complete external game control remains incomplete",
-  "source_archive": "https://github.com/moeendres-png/mage/archive/9375f35ac7c9a540ebcb8b262b8645b8c6b1b326.tar.gz",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/4e59e8b9087878816b37728055eb61757a2fbf07.tar.gz",
   "status": "B4D_EVENT_LOG_LIFECYCLE_VALIDATED_DEGRADED",
   "validated_capabilities": [
    "commander_supported",
@@ -100,10 +100,10 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
+   "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
    "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after merging the bridge-only R-3/AF01 child #13 (merge commit; tree identical to the #13 head). forge#15/#16 are not part of this identity: their exact-head Test build failed. rules_core_base_commit binds it back to the admitted #11/#12 candidate."
+   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after the bridge-only children #13 (R-3/AF01) and #16 (#15 no-default hardening plus structured cost-order projection) were integrated by fast-forward; rules_core_base_commit binds it back to the admitted #11/#12 candidate."
   },
   "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
   "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. Forge #16 is bound separately as the integrated bridge/materialization successor combining #13 and #15 and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
@@ -125,12 +125,12 @@
     "is_current_candidate": false
    },
    "bridge_source": {
-    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head with the bridge-only #13 merged; separately source-bound from the #11 Rules-Core candidate.",
+    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head with the bridge-only #13 and #16 integrated; separately source-bound from the #11 Rules-Core candidate.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "e8b8aec60720aee218338754224721597b8c6ec5",
-    "tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
+    "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "tree": "000066890decca5ed7b1b889be0ea46d77903aee",
     "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-    "pull_request": 13
+    "pull_request": 16
    },
    "upstream_baseline": {
     "role": "REFERENCE BASELINE / DONOR EVIDENCE ONLY. Not the current candidate and not the engine under current qualification.",

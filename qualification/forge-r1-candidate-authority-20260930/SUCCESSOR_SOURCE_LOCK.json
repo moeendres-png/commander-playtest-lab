@@ -31,26 +31,43 @@
     "candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
     "candidate_pr": 11,
     "includes_admitted_pr": 12,
-    "bridge_commit": "e8b8aec60720aee218338754224721597b8c6ec5",
-    "bridge_tree": "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea",
-    "bridge_pr": 13,
+    "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+    "bridge_pr": 16,
     "bridge_rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
     "lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
     "lineage_base_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
     "upstream_reference_repository": "https://github.com/Card-Forge/forge.git",
     "upstream_reference_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
-    "bridge_integration": "forge#13 merged into the #11 qualification branch (merge commit e8b8aec6); forge#15/#16 not integrated: their exact-head Test build failed (runs #213, #220: 16 bridge test failures)"
+    "bridge_integration": "forge#13 merged into #11 (e8b8aec6); forge#16 (#13 + #15 no-default hardening + structured cost-order projection) fast-forwards #11 to 20e3e1f7 after its exact-head Test build and iOS gates"
   },
   "directly_verified_relations": {
     "bridge_vs_candidate": {
-      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..e8b8aec60720aee218338754224721597b8c6ec5",
+      "comparison": "bb0a740d2bef725194798383c2452213ecdd0b37..20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
       "changed_files": [
         "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
-        "forge-protocol2-bridge/src/test/java/forge/bridge/Af01UnsupportedDecisionClassTest.java"
+        "forge-protocol2-bridge/src/main/java/forge/bridge/DecisionFrame.java",
+        "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
+        "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/Af01UnsupportedDecisionClassTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeTestSupport.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/CostOrderProjectionTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/DecisionDefaultHardeningTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/NonManaCostPartsTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/TapTypeCostTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WS202ExecutableSurfaceTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WS216GapClosureTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WS234S3BridgeTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WsR10MagmaBridgeFamilyTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WsR24Pb06HiddenChannelTest.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WsR24Pb08ReplayTwinChild.java",
+        "forge-protocol2-bridge/src/test/java/forge/bridge/WsR9RetargetBridgeFamilyTest.java"
       ],
       "rules_core_main_source_changes": 0,
       "card_data_changes": 0,
-      "disposition": "BRIDGE_ONLY_R3_AF01_SUCCESSOR"
+      "disposition": "BRIDGE_ONLY_INTEGRATED_SUCCESSOR"
     }
   },
   "frozen_wsr22": {
