@@ -1,0 +1,169 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-f43-f44-f45-repin-v3-20261001",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+  "tree": "0fb7c2f9a038e471de3a6e56419244482a645218",
+  "role": "prior live XMage pin (F-22/F-23, F-28/F-29, F-34); its successor lock qualification/xmage-mp-candidate-repin-v2-20260930/SUCCESSOR_SOURCE_LOCK.json stays historical",
+  "current_boundary_epoch": "qualification/current-boundary-epochs/4cad91897216-a43e80d96595",
+  "current_boundary_epoch_role": "R-5 final epoch produced by Lab main 4cad9189 against this pin; stays historical evidence about this pin and is NOT relabelled",
+  "wsr22_source_lock": "src/commander_lab/qualification/current_boundary/source_lock.py#XMAGE_CANDIDATE_COMMIT stays b19596980f27 (NOT repinned)"
+ },
+ "lineage": {
+  "old_lab_pin": {
+   "commit": "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326",
+   "tree": "0fb7c2f9a038e471de3a6e56419244482a645218"
+  },
+  "intermediate_candidate": {
+   "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+   "tree": "97951fd7c84b49c20cbaa975b7f2b5d669df9262",
+   "content": "F-43 + F-44"
+  },
+  "f45_fix_head": {
+   "commit": "9dbda865f91fe7bba1791c9398f0607f5e791606",
+   "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+   "parent": "4e59e8b9087878816b37728055eb61757a2fbf07"
+  },
+  "final_integrated_candidate": {
+   "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+   "content": "F-43 + F-44 + F-45"
+  },
+  "identity_rule": "each runtime receipt is bound to the commit it ran on. 9dbda865 and 37e4df6c share a tree; that is supporting impact evidence only. The native and bridge runs for the final pin were executed on exact 37e4df6c, and no receipt of 9375f35a, 4e59e8b9 or 9dbda865 is relabelled."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+  "parents": [
+   "4e59e8b9087878816b37728055eb61757a2fbf07",
+   "9dbda865f91fe7bba1791c9398f0607f5e791606"
+  ],
+  "committed_at": "2026-10-01T09:35:17+02:00",
+  "ancestry": "prior pin 9375f35a and intermediate candidate 4e59e8b9 are ancestors; 4e59e8b9..37e4df6c changes exactly Mage/src/main/java/mage/players/PlayerImpl.java (F-45) and SuddenSetbackCopyTest; tree equals the F-45 donor head tree",
+  "candidate_branch_head_at_lock": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "tested_code_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/37e4df6c914f1e189e24f0ef59fa91734c922436.tar.gz",
+  "target_identity_rule": "the owner gate on Lab #444 (comment 5926695737) held the repin until F-45 was integrated; the lock binds the candidate head after that integration, re-read immediately before this lock"
+ },
+ "donors": [
+  {
+   "finding": "F-44",
+   "tracker": "docs/multiplayer_findings/F-42_LEAVER_OWN_MAY_CHOICE.md (follow-up 2: trigger_order engine-side note)",
+   "pr": "moeendres-png/mage#33",
+   "head": "aac1bcedc3a4e1793b167532781392d48971d35f",
+   "integration": "merged into the candidate (merge commit 9367341d574b0a42bb2b4e1ec16a6889b0bb8758, tree 14c23c3e)"
+  },
+  {
+   "finding": "F-43",
+   "tracker": "docs/multiplayer_findings/F-42_LEAVER_OWN_MAY_CHOICE.md (follow-ups 3 and 4); Lab #430",
+   "pr": "moeendres-png/mage#29",
+   "head": "3fba145b258e9b4d12541c4a6c46d4a5e3509f23",
+   "head_tree": "a9ad38fcd03b9d6476aae05be6cd3c9b8829a5f4",
+   "integration": "merged into the candidate (merge commit 4e59e8b9087878816b37728055eb61757a2fbf07); exact-head CI run 36823663089: Mage.Tests SUCCESS; local red control on the merge tree without the CombatGroup change: CombatDamageSourceLeaves4PTest 3/5 and 5PTest 3/5 fail"
+  },
+  {
+   "finding": "F-45",
+   "tracker": "Lab #442; R1 master fix moeendres-png/mage#34 (8e84aabf)",
+   "pr": "moeendres-png/mage#35",
+   "head": "9dbda865f91fe7bba1791c9398f0607f5e791606",
+   "head_tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+   "integration": "merged into the candidate (merge commit 37e4df6c914f1e189e24f0ef59fa91734c922436); red control mage#36 692cb867 (candidate + regression only): Mage.Tests 7034 run / 1 failure (SuddenSetbackCopyTest.suddenSetbackOnACopyRemovesTheCopyAndGoesToTheGraveyard); exact donor head run 36825867998: Mage.Tests 7034 / 0 / 0 / 125, workflow red only in the Mage.Verify data baseline"
+  }
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929 (mvn test, JDK 17, release 8)",
+   "run_id": 36831202247,
+   "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "run": 7034,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "baseline_at_intermediate_candidate": "7032 run / 125 skipped (run 36825505981 on 4e59e8b9); +2 F-45 native tests",
+   "donor_regressions_in_run": "SuddenSetbackCopyTest (F-45), TriggerOrderLeaver4PTest (F-44), CombatDamageSourceLeaves4PTest and 5PTest (F-43)"
+  },
+  "mage_verify": {
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData 3 set errors and test_verifyCards 15 errors in 91085 cards; identical at the untouched prior pin (run 36778620482), at the intermediate candidate (run 36825505981) and on mage master; card/set data drift, not an engine change"
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "scratchpad m2-xmage-candidate-37e4df6c (all groups symlinked to ~/.m2 except a real copy of org/mage; candidate Mage + Mage.Sets installed there from exact 37e4df6c; shared ~/.m2 untouched)",
+  "installed_artifacts_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+   "org.mage:mage-sets:1.4.61": "sha256 d2add85438eea6a02ce8d207d6a027f1509644a60258231b016bbfc8333ed8b9"
+  },
+  "bridge_suite": {
+   "command": "cd engine-bridge && rm -rf target && mvn -o -Dmaven.repo.local=<isolated> test",
+   "run": 903,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)"
+  },
+  "f43_integration_guard": {
+   "test": "XmageMultiplayerLeaverDecisionClassTest#combatDamageAssignmentOfALeaverDealsNoDamage (4P, 5P) and XmageCombatDamageLeaverUnwindQualificationTest",
+   "green_on_new_pin": "14/14 and 3/3 against exact 37e4df6c: P1 concedes at its own Craw Wurm damage assignment; the game goes on, both blockers survive with 0 damage, the Wurm left with P1, every other player at 40",
+   "control_on_prior_pin": "same bridge code against an isolated repository with exact 9375f35a core: the engine asks the departed player again and the lane fails closed (PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount); no damage is chosen for it; the F-43 binding check fails (bridge code unchanged since that control)",
+   "scope": "only CombatGroup combat damage dialogues; every other multi_amount of a departed player stays fail-closed"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; runtime fingerprint carries F-43 CombatGroup.revalidateCombatDamageSource; F-44 and F-45 have no structural signature (native TriggerOrderLeaver4PTest and SuddenSetbackCopyTest in the run above)",
+  "fingerprint": "XmageCandidateEngineFingerprintTest 5/5 against exact 37e4df6c"
+ },
+ "intermediate_candidate": {
+  "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+  "tree": "97951fd7c84b49c20cbaa975b7f2b5d669df9262",
+  "live": false,
+  "role": "candidate after F-44 + F-43, before F-45; the first v3 retarget on Lab #444 bound it, then the owner gate held the repin for F-45. Its evidence below is about this commit only and is not relabelled as evidence for new_live_pin.",
+  "native_qualification": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929 (mvn test, JDK 17, release 8)",
+   "run_id": 36825505981,
+   "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+   "run": 7032,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "baseline_at_prior_pin": "7020 run / 125 skipped (run 36778620482); +10 F-43 and +2 F-44 native tests",
+   "mage_verify": "FAIL (pre-existing, baseline-attributed)"
+  },
+  "lab_runtime_qualification": {
+   "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
+   "isolated_maven_repository": "scratchpad m2-xmage-candidate-4e59e8b9 (all groups symlinked to ~/.m2 except a real copy of org/mage; candidate Mage + Mage.Sets installed there from exact 4e59e8b9; shared ~/.m2 untouched)",
+   "installed_artifacts": {
+    "org.mage:mage:1.4.61": "sha256 fcb93665b61654ff234d1cf8d0ddb5b05d3fc003fb8b87e04901e19213115b2b",
+    "org.mage:mage-sets:1.4.61": "sha256 d2add85438eea6a02ce8d207d6a027f1509644a60258231b016bbfc8333ed8b9"
+   },
+   "bridge_suite": {
+    "command": "cd engine-bridge && mvn -o -Dmaven.repo.local=<isolated> test",
+    "run": 903,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)"
+   },
+   "f43_integration_guard": {
+    "test": "XmageMultiplayerLeaverDecisionClassTest#combatDamageAssignmentOfALeaverDealsNoDamage (4P, 5P) and XmageCombatDamageLeaverUnwindQualificationTest",
+    "green_on_new_pin": "14/14 and 3/3: P1 concedes at its own Craw Wurm damage assignment; the game goes on, both blockers survive with 0 damage, the Wurm left with P1, every other player at 40",
+    "control_on_prior_pin": "same bridge code against an isolated repository with exact 9375f35a core: the engine asks the departed player again and the lane fails closed (PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount); no damage is chosen for it; the F-43 binding check fails",
+    "scope": "only CombatGroup combat damage dialogues; every other multi_amount of a departed player stays fail-closed"
+   }
+  }
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch like #439; until then no FULL107/AF credit is claimed for this pin"
+ }
+}

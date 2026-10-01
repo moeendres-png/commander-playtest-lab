@@ -28,11 +28,11 @@ def _live_pin() -> str:
 
 # This file proves the 2026-09-30 repin EVENT. Its current-pin assertions hold only while
 # this repin's pin is live; after a later forward repin they are superseded by that repin's
-# successor guard (tests/qualification/test_xmage_f43_f44_repin_v3_20261001.py) and are
+# successor guard (tests/qualification/test_xmage_f43_f44_f45_repin_v3_20261001.py) and are
 # skipped, never rewritten. Its historical assertions stay active.
 superseded_by_later_repin = pytest.mark.skipif(
     _live_pin() != CURRENT_PIN,
-    reason="superseded: live XMage pin moved forward (see test_xmage_f43_f44_repin_v3_20261001.py)",
+    reason="superseded: live XMage pin moved forward (see test_xmage_f43_f44_f45_repin_v3_20261001.py)",
 )
 
 # Consumers that cannot read the manifest (workflow YAML env, Java constants)

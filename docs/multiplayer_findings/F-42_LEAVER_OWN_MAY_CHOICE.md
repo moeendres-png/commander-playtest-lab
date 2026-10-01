@@ -138,7 +138,7 @@ The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-close
 
 ## Follow-up 4 — `multi_amount` for combat damage, requalified at pin `4e59e8b9` (F-43, 2026-10-01)
 
-**What changed in the engine.** Follow-up 3 needed an engine-side fix. F-43 (mage#29) delivers it: after each player callback, `CombatGroup` re-resolves the exact damage source. When the source left with its controller, it deals no cached damage, gets no retry and gets no default vector. The repin v3 takes the Lab pin to that candidate (`4e59e8b9`, which also carries F-44).
+**What changed in the engine.** Follow-up 3 needed an engine-side fix. F-43 (mage#29) delivers it: after each player callback, `CombatGroup` re-resolves the exact damage source. When the source left with its controller, it deals no cached damage, gets no retry and gets no default vector. It was first measured at the candidate `4e59e8b9` (F-44 + F-43). The repin v3 lands on `37e4df6c`, which adds F-45 (mage#35); the measurement was repeated there.
 
 **Bridge change, deliberately narrow.**
 - `XmageFullGamePlayer` marks a `multi_amount` frame as qualified for a departed-player unwind **only** when its dialogue is one of CombatGroup's three combat damage titles (`Assign combat damage`, `… (with trample)`, `Assign blocker combat damage`).
@@ -152,7 +152,8 @@ The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-close
 
 | | 4P and 5P result |
 |---|---|
-| Pin `4e59e8b9` | The game goes on. Both blockers survive with 0 damage, the Wurm left with P1, and every other player is at 40 (`combatDamageAssignmentOfALeaverDealsNoDamage`). |
+| Live pin `37e4df6c` (repin v3) | Same as at `4e59e8b9`: 14/14 and 3/3 green (bridge suite 903 / 0 / 0 / 1). |
+| Intermediate candidate `4e59e8b9` | The game goes on. Both blockers survive with 0 damage, the Wurm left with P1, and every other player is at 40 (`combatDamageAssignmentOfALeaverDealsNoDamage`). |
 | The same bridge code on exact `9375f35a` | The engine asks the departed player again and the lane fails closed; nothing is dealt for P1. |
 
 **Still fail-closed:** `replacement_effect`; non-combat `multi_amount`.

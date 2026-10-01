@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "4e59e8b9087878816b37728055eb61757a2fbf07";
+    static final String CANDIDATE = "37e4df6c914f1e189e24f0ef59fa91734c922436";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -69,8 +69,10 @@ class XmageCandidateEngineFingerprintTest {
     /**
      * Successor v3 (2026-10-01): the loaded engine carries F-43's combat-damage
      * source revalidation (mage#29). F-44 (mage#33) changes behaviour inside
-     * GameImpl.checkTriggered only and has no structural signature; its native
-     * regression TriggerOrderLeaver4PTest runs in the candidate's Mage.Tests.
+     * GameImpl.checkTriggered only and F-45 (mage#35) inside
+     * PlayerImpl.moveObjectToLibrary only; neither has a structural signature.
+     * Their native regressions TriggerOrderLeaver4PTest and SuddenSetbackCopyTest
+     * run in the candidate's Mage.Tests.
      */
     @Test
     void loadedEngineCarriesTheF43Revalidation() throws Exception {
