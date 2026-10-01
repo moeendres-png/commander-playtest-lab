@@ -16,8 +16,15 @@ import pytest
 from commander_lab.qualification.current_boundary import actual_card_campaign as campaign
 from commander_lab.qualification.current_boundary import midgame_rows as midgame_rows_mod
 from commander_lab.qualification.current_boundary import receipts as receipt_mod
+from commander_lab.qualification.current_boundary.bridge_launcher import (
+    canonical_xmage_engine_pin,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# The live pin is resolved from config/rules_engines.json, never restated: the
+# repository ratchet forbids a second literal copy.
+PIN = canonical_xmage_engine_pin()
 
 
 # --------------------------------------------------------------------------- #
@@ -78,7 +85,7 @@ def _measurement(
     missing_tokens: tuple[str, ...] = (),
     token_evidence: dict[str, Any] | None = None,
     terminal_facts: dict[str, Any] | None = None,
-    engine_commit: str | None = "37e4df6c914f1e189e24f0ef59fa91734c922436",
+    engine_commit: str | None = PIN,
     creation_errors: list[dict[str, Any]] | None = None,
 ) -> campaign.RowMeasurement:
     return campaign.RowMeasurement(
@@ -103,9 +110,6 @@ def _measurement(
             else None
         ),
     )
-
-
-PIN = "37e4df6c914f1e189e24f0ef59fa91734c922436"
 
 
 # --------------------------------------------------------------------------- #
