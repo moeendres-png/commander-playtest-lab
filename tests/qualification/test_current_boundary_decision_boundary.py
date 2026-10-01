@@ -351,9 +351,9 @@ def test_a_cost_order_frame_is_measured_and_an_unanswered_one_fails_closed() -> 
     order_frames[0]["chosen_option_id"] = "order-9"
     mutated = _derive(document, af01, identity)
     assert mutated["verdict"] == "FAIL"
-    assert any(
-        "order-9" in item["detail"] for item in mutated["contradictions"]
-    ), mutated["contradictions"]
+    assert any("order-9" in item["detail"] for item in mutated["contradictions"]), mutated[
+        "contradictions"
+    ]
 
 
 def test_a_chosen_option_outside_the_offered_set_is_fail() -> None:

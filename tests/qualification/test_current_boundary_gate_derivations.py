@@ -142,9 +142,7 @@ def test_af05_demonstrated_leak_is_fail() -> None:
 
 
 def test_af05_without_a_denominator_is_unknown_not_pass() -> None:
-    gate = g.af05_hidden_information(
-        "forge", {}, {"principal_scoping": CREDIBLE_SCOPING}
-    )
+    gate = g.af05_hidden_information("forge", {}, {"principal_scoping": CREDIBLE_SCOPING})
     assert gate["verdict"] == "UNKNOWN"
 
 
@@ -214,9 +212,7 @@ def test_af07_incomplete_corpus_is_unknown_and_names_the_missing_identities() ->
     rows = {first_fixture: _row("PASS")}
     gate = g.af07_actual_card("forge", rows, COMPLETE_CORPUS)
     assert gate["verdict"] == "UNKNOWN"
-    missing_line = next(
-        item for item in gate["nonblocking_limitations"] if "unexecuted" in item
-    )
+    missing_line = next(item for item in gate["nonblocking_limitations"] if "unexecuted" in item)
     # The named identities come from the frozen corpus, not from the artifact.
     assert any(identity in missing_line for identity in corpus)
 
@@ -276,7 +272,10 @@ def test_af09_a_bare_verified_flag_is_not_twin_evidence() -> None:
     document = {**ACK_SEED, "clean_process_twin": {"verified": True}}
     gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, document)
     assert gate["verdict"] == "UNKNOWN"
-    assert any("does not carry the required twin evidence" in item for item in gate["nonblocking_limitations"])
+    assert any(
+        "does not carry the required twin evidence" in item
+        for item in gate["nonblocking_limitations"]
+    )
 
 
 @pytest.mark.parametrize(

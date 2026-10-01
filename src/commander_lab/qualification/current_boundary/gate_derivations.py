@@ -192,9 +192,7 @@ def actual_card_corpus(repo_root: Any | None = None) -> tuple[dict[str, str], tu
         )
     )
     domain = json.loads(
-        (root / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json").read_text(
-            encoding="utf-8"
-        )
+        (root / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json").read_text(encoding="utf-8")
     )
     mapping = {
         str(fixture["fixture_id"]): str(fixture["card_identity"])
@@ -468,9 +466,7 @@ def af09_rng_replay(
         if twin.get("verified") is not True:
             twin_missing.append("verified")
         twin_missing.extend(
-            key
-            for key in twin_requirements
-            if not twin.get(key) or twin.get(key) == []
+            key for key in twin_requirements if not twin.get(key) or twin.get(key) == []
         )
     if twin_missing:
         limitations.append(

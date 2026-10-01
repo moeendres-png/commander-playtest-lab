@@ -188,9 +188,7 @@ def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_doma
         # against the historical base record, not against the patch the resolver
         # just applied (which would be tautological).
         base_record = next(
-            item
-            for item in base_bundle["records"]
-            if item["fixture_id"] == fixture_id
+            item for item in base_bundle["records"] if item["fixture_id"] == fixture_id
         )
         assert record["decision_script"][1:] == base_record["decision_script"]
         assert base_record["decision_script"][0]["decision_family"] != "priority"
