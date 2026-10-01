@@ -105,6 +105,20 @@ def af05_hidden_information(
                 "the demonstrated leak is a candidate defect and is never masked"
             ],
         }
+    failed = sorted(fixture for fixture, state in hidden_states.items() if state == "FAIL")
+    if failed:
+        # A HIDDEN_* row that executed and failed demonstrates a violated
+        # knowledge boundary; reporting the gate as merely unproven would mask it.
+        return {
+            "gate": "AF05",
+            "name": "HIDDEN_INFORMATION",
+            "verdict": "FAIL",
+            "evidence": [*evidence, f"demonstrated hidden-information failures: {failed}"],
+            "blocking_rows": failed,
+            "nonblocking_limitations": [
+                "a demonstrated hidden-information failure is never masked as UNKNOWN"
+            ],
+        }
     if hidden_document is None:
         limitations.append("no HIDDEN_INFO artifact exists for this candidate in this epoch")
     elif not scoping.get("credible_as_principal_scoped_evidence"):

@@ -12,15 +12,28 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_8.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
+)
+V106_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
 )
-# The successor contract now carries the adjudicated fixture errata from
-# #255/441 section C: the rows whose script began inside a cast, plus the
-# MICRO_COSTS CR 307.1 fixture-defect correction, alongside the CR 103.8a
-# START-2 successor.
+# The SLOT-04 lossless hidden-state errata (#255 comment 5925956587) for the six
+# construct-and-project HIDDEN rows.
+HIDDEN_ERRATA_IDS = [
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL",
+]
+# The successor contract carries the adjudicated fixture errata from #255/441
+# section C (the rows whose script began inside a cast, plus the MICRO_COSTS
+# CR 307.1 fixture-defect correction), the CR 103.8a START-2 successor, and the
+# SLOT-04 HIDDEN errata.
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -31,6 +44,7 @@ CHANGED_FIXTURE_IDS = [
     "PILOT_TARGET_AMOUNT",
     "PILOT_MULTI_AMOUNT",
     "MICRO_COSTS",
+    *HIDDEN_ERRATA_IDS,
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
@@ -40,7 +54,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_7_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_8_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -73,8 +87,12 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_8.json"
     )
+    for fixture_id in HIDDEN_ERRATA_IDS:
+        assert authority["full107"]["evidence_survival"][fixture_id] == (
+            "REQUALIFICATION_REQUIRED_LOSSLESS_HIDDEN_STATE_ERRATUM_SLOT04"
+        )
     # Every changed fixture needs requalification; none may inherit credit.
     for fixture_id in CHANGED_FIXTURE_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id].startswith(
@@ -137,19 +155,22 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_6.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_7.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
     )
-    # The CR 103.8a patch is carried over unchanged, including its digest.
-    carried = next(
+    # Every 1.0.7 overlay is carried over unchanged, in order, digests included.
+    carried = contract["record_successors"][: len(predecessor["record_successors"])]
+    assert carried == predecessor["record_successors"]
+    # The CR 103.8a patch still equals the 1.0.6 original.
+    start2 = next(
         patch
         for patch in contract["record_successors"]
         if patch["fixture_id"] == "WS05-CMD-START-2"
     )
-    original = predecessor["record_successors"][0]
-    assert carried == {**original, "correction_class": "OFFICIAL_RULES_AUTHORITY_CORRECTION"}
+    original = _json(V106_CONTRACT_PATH)["record_successors"][0]
+    assert start2 == {**original, "correction_class": "OFFICIAL_RULES_AUTHORITY_CORRECTION"}
 
 
 def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_domain() -> None:
@@ -292,7 +313,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.7-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.8-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -304,9 +325,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.7-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.8-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.7-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.8-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -591,3 +612,143 @@ def test_historical_full107_runtime_credit_is_not_automatically_promoted() -> No
         migration["common_comparison_runtime_credit"]
         == "FRESH_CURRENT_BOUNDARY_EXECUTION_REQUIRED_ALL_107"
     )
+
+
+def test_slot04_hidden_errata_make_the_hidden_state_lossless_without_changing_the_obligation() -> (
+    None
+):
+    """#255 comment 5925956587: a partial library and an untyped face-down state
+    fail closed, so the HIDDEN records are corrected and versioned.
+
+    Each corrected record keeps every predecessor object and obligation; it gains
+    exactly a typed face-down state and a complete checkpoint library and hands.
+    """
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    errata = {
+        patch["fixture_id"]: patch
+        for patch in contract["record_successors"]
+        if patch.get("correction_class") == "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04"
+    }
+    assert sorted(errata) == sorted(HIDDEN_ERRATA_IDS)
+    for fixture_id in HIDDEN_ERRATA_IDS:
+        record = resolver.effective_record(fixture_id)
+        predecessor = base[fixture_id]
+        # The obligation is untouched: its digest is the predecessor's.
+        assert record["obligation_digest"] == predecessor["obligation_digest"]
+        assert record["expected_events"] == predecessor["expected_events"]
+        assert record["terminal_postconditions"] == predecessor["terminal_postconditions"]
+        assert (
+            record["knowledge_state"]["viewer_states"]
+            == predecessor["knowledge_state"]["viewer_states"]
+        )
+        # The requested state changed, so its digest moved and lineage survives.
+        assert record["requested_state_digest"] != predecessor["requested_state_digest"]
+        assert record["requested_state_digest"] == resolver.requested_state_digest(record)
+        assert record["supersedes_record_digest"] == predecessor["materialization_digest"]
+        assert record["historical_digests"]["obligation_digest"] == predecessor["obligation_digest"]
+        # Objects: exactly the predecessor's, the face-down one now typed.
+        typed = [o for o in record["semantic_objects"] if o.get("face_down_type")]
+        assert [(o["semantic_id"], o["face_down_type"]) for o in typed] == [
+            ("obj:facedown", "MANIFESTED")
+        ]
+        untyped = [
+            {k: v for k, v in o.items() if k != "face_down_type"}
+            for o in record["semantic_objects"]
+        ]
+        assert untyped == predecessor["semantic_objects"]
+        # Deck state: one complete entry per player, template remainder exact.
+        decks = {deck["player_id"]: deck for deck in record["deck_state"]}
+        assert sorted(decks) == ["P1", "P2", "P3", "P4"]
+        hands = {pid: deck["checkpoint_hand"]["template_count"] for pid, deck in decks.items()}
+        # P1 is the active player of a four-player table: rule 103.8a skips the
+        # first draw only in a two-player game, so P1 holds 7 + 1.
+        assert hands == {"P1": 8, "P2": 7, "P3": 7, "P4": 7}
+        for deck in decks.values():
+            assert deck["library_template"] == {"card_identity": "Mountain", "count": 99}
+            assert deck["checkpoint_hand"]["completeness"] == "COMPLETE"
+        library = decks["P2"]["checkpoint_library"]
+        assert library["completeness"] == "COMPLETE_TOP_TO_BOTTOM"
+        assert library["runs"] == [
+            {"semantic_id": "obj:hidden-lib-0"},
+            {"card_identity": "Mountain", "count": 99 - hands["P2"]},
+        ]
+        # No other player's library is declared: it holds template cards only.
+        assert all("checkpoint_library" not in decks[pid] for pid in ("P1", "P3", "P4"))
+        assert record["repair_provenance"]["correction_class"] == (
+            "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04"
+        )
+        erratum = record["native_procedure"][-1]
+        assert erratum["operation"] == "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
+        assert erratum["details"]["obligation_changed"] is False
+        assert erratum["details"]["provider_semantics_used"] is False
+        assert errata[fixture_id]["predecessor_invalidity"]["untyped_face_down_objects"] == [
+            "obj:facedown"
+        ]
+        assert errata[fixture_id]["predecessor_invalidity"]["partial_library_objects"] == [
+            "obj:hidden-lib-0"
+        ]
+
+
+def test_the_other_hidden_records_keep_their_predecessor_bytes() -> None:
+    """HIDDEN_05-18 need event-driven script errata of their own; this successor
+    leaves them untouched, so they still fail closed on the lossless lane."""
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    for index in range(5, 19):
+        fixture_id = f"HIDDEN_{index:02d}"
+        assert fixture_id not in CHANGED_FIXTURE_IDS
+        record = resolver.effective_record(fixture_id)
+        assert record == base[fixture_id]
+        assert "deck_state" not in record
+        assert not any(o.get("face_down_type") for o in record["semantic_objects"])
+
+
+def test_the_successor_schema_types_the_face_down_state_and_the_deck_state() -> None:
+    schema = _json(MATERIALIZATION_SCHEMA_PATH)
+    Draft202012Validator.check_schema(schema)
+    effective = _resolver().load_effective_materialization()
+    validator = Draft202012Validator(schema)
+    validator.validate(effective)
+
+    def mutated(fixture_id: str, mutate) -> dict:  # type: ignore[no-untyped-def]
+        candidate = json.loads(json.dumps(effective))
+        record = next(r for r in candidate["records"] if r["fixture_id"] == fixture_id)
+        mutate(record)
+        return candidate
+
+    def manual(record: dict) -> None:
+        next(o for o in record["semantic_objects"] if o.get("face_down"))["face_down_type"] = (
+            "MANUAL"
+        )
+
+    def typed_face_up(record: dict) -> None:
+        exile = next(o for o in record["semantic_objects"] if o["zone"] == "exile")
+        exile["face_down_type"] = "MANIFESTED"
+
+    def partial(record: dict) -> None:
+        deck = next(d for d in record["deck_state"] if "checkpoint_library" in d)
+        deck["checkpoint_library"]["completeness"] = "PARTIAL"
+
+    for mutation in (manual, typed_face_up, partial):
+        with pytest.raises(ValidationError):
+            validator.validate(mutated("HIDDEN_04", mutation))
+    # The predecessor schema does not know the lossless shapes at all.
+    with pytest.raises(ValidationError):
+        Draft202012Validator(
+            _json(
+                REPO_ROOT
+                / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_7_SUCCESSOR.json"
+            )
+        ).validate(effective)
