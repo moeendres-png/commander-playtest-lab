@@ -4,9 +4,9 @@
 
 | | Before | After |
 |---|---|---|
-| Lab `main` | `42f19dd1` (after #443 and the parallel #446) | the merge commit of this PR |
+| Lab `main` | `77f99951` (after #443 and the parallel #446/#447) | the merge commit of this PR |
 | XMage pin | `9375f35a` (tree `0fb7c2f9`) | `37e4df6c914f1e189e24f0ef59fa91734c922436` (tree `dac695ab`), branch `claude/xmage-mp-candidate-20260929` |
-| Intermediate candidate (live on main only between #446 and this PR) | — | `4e59e8b9` (tree `97951fd7`, F-44 + F-43 only), kept in the lock with its own evidence |
+| Intermediate candidate (live on main only from #446 to #447) | — | `4e59e8b9` (tree `97951fd7`, F-44 + F-43 only), kept in the lock with its own evidence |
 
 **Ownership.** No active lane owned the repin:
 - `origin/sol/xmage-f43-f44-repin-20261001` points at the then-current `main` with no commits;

@@ -128,11 +128,11 @@
   "tree": "97951fd7c84b49c20cbaa975b7f2b5d669df9262",
   "live": {
    "on_lab_main_from": "42f19dd1d3231911f02d3a27a94260541a17f8fb (#446)",
-   "until": "the merge commit of this repin (#444)",
+   "until": "77f99951c (#447, repin to 37e4df6c)",
    "current_boundary_epoch_persisted": false,
-   "its_own_successor_lock": "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
+   "lock_that_bound_it": "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json (#446; moved to 37e4df6c in place by #447)"
   },
-  "role": "candidate after F-44 + F-43, before F-45. The first v3 retarget on Lab #444 bound it; the owner then gated the repin on F-45. A parallel lane made it live on Lab main through #446 (42f19dd1) before this repin landed. Its evidence below (and #446's own lock) is about this commit only and is not relabelled as evidence for new_live_pin.",
+  "role": "candidate after F-44 + F-43, before F-45. The first v3 retarget on Lab #444 bound it; the owner then gated the repin on F-45. A parallel lane made it live on Lab main through #446 (42f19dd1) and moved main to 37e4df6c through #447 (77f99951). Its evidence below (and #446's own lock) is about this commit only and is not relabelled as evidence for new_live_pin.",
   "native_qualification": {
    "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929 (mvn test, JDK 17, release 8)",
    "run_id": 36825505981,
@@ -170,5 +170,10 @@
  "current_boundary": {
   "status": "REQUALIFICATION_REQUIRED",
   "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch like #439; until then no FULL107/AF credit is claimed for this pin"
+ },
+ "parallel_lock": {
+  "path": "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json",
+  "binds": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "relation": "same live pin; #444 corrected its native_qualification.full_mage_tests to the exact-commit run 36831202247 (it had carried run 36825867998 on the tree-identical 9dbda865, now kept as tree_identical_donor_run)"
  }
 }

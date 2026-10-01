@@ -20,10 +20,10 @@
  "new_live_pin": {
   "repository": "https://github.com/moeendres-png/mage.git",
   "branch": "claude/xmage-mp-candidate-20260929",
-  "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
-  "tree": "97951fd7c84b49c20cbaa975b7f2b5d669df9262",
-  "tested_code_commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
-  "source_archive": "https://github.com/moeendres-png/mage/archive/4e59e8b9087878816b37728055eb61757a2fbf07.tar.gz"
+  "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+  "tested_code_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436 (native run 36831202247); 9dbda865 is tree-identical supporting evidence only",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/37e4df6c914f1e189e24f0ef59fa91734c922436.tar.gz"
  },
  "donors": [
   {
@@ -39,22 +39,45 @@
    "pr": "moeendres-png/mage#33",
    "head": "aac1bcedc3a4e1793b167532781392d48971d35f",
    "integration": "merged (merge commit 9367341d574b0a42bb2b4e1ec16a6889b0bb8758)"
+  },
+  {
+   "finding": "F-45",
+   "tracker": "moeendres-png/commander-playtest-lab#442",
+   "pr": "moeendres-png/mage#35",
+   "head": "9dbda865f91fe7bba1791c9398f0607f5e791606",
+   "integration": "merged (merge commit 37e4df6c914f1e189e24f0ef59fa91734c922436; tree identical to the head)"
   }
  ],
  "rules_core_change_against_prior_pin": {
   "main_source_files": [
    "Mage/src/main/java/mage/game/GameImpl.java",
-   "Mage/src/main/java/mage/game/combat/CombatGroup.java"
+   "Mage/src/main/java/mage/game/combat/CombatGroup.java",
+   "Mage/src/main/java/mage/players/PlayerImpl.java"
   ],
   "test_files": [
    "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/CombatDamageSourceLeaves4PTest.java",
    "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/CombatDamageSourceLeaves5PTest.java",
-   "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/TriggerOrderLeaver4PTest.java"
+   "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/TriggerOrderLeaver4PTest.java",
+   "Mage.Tests/src/test/java/org/mage/test/cards/single/mh2/SuddenSetbackCopyTest.java"
   ],
-  "rule": "CR 800.4a"
+  "rule": "CR 800.4a (F-43, F-44); CR 707.10 / 608.2 copied-spell handling (F-45)"
  },
  "native_qualification": {
   "full_mage_tests": {
+   "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "tested_tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+   "run": "moeendres-png/mage Actions run 36831202247 (maven.yml workflow_dispatch on claude/xmage-mp-candidate-20260929, head_sha 37e4df6c)",
+   "tests": 7034,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "donor_regressions_in_run": "SuddenSetbackCopyTest (F-45), TriggerOrderLeaver4PTest (F-44), CombatDamageSourceLeaves4PTest and 5PTest (F-43)",
+   "mage_verify": "VerifyCardDataTest.test_verifyCards (15 card errors) and test_checkMissingSetData (3 set errors): the same pre-existing card/set-data baseline as at 9375f35a (run 36778620482) and 4e59e8b9 (runs 36824664749, 36825505981), not attributed to F-43/F-44/F-45",
+   "red_control": "run 36825857656 on 692cb867 (4e59e8b9 + SuddenSetbackCopyTest only): exactly that test fails",
+   "evidence_class": "DIRECTLY_VERIFIED",
+   "correction": "Lab #444: this entry first carried run 36825867998, which ran on 9dbda865; tree identity is not exact-commit identity, so that run is kept under tree_identical_donor_run and the exact run on 37e4df6c is bound here"
+  },
+  "intermediate_local_run_4e59e8b9": {
    "commit": "4e59e8b9087878816b37728055eb61757a2fbf07",
    "modules": "Mage,Mage.Tests",
    "tests": 7032,
@@ -63,6 +86,19 @@
    "skipped": 125,
    "environment": "local, offline, isolated Maven repository (never the shared ~/.m2)",
    "evidence_class": "DIRECTLY_VERIFIED"
+  },
+  "tree_identical_donor_run": {
+   "commit": "9dbda865f91fe7bba1791c9398f0607f5e791606",
+   "run": "moeendres-png/mage Actions run 36825867998 on 9dbda865 (tree identical to the candidate merge)",
+   "tests": 7034,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "mage_verify": "VerifyCardDataTest.test_verifyCards (15 card errors) and test_checkMissingSetData (3 set errors) fail identically on the prior candidate 4e59e8b9 (run 36824664749): pre-existing card-data baseline drift, not attributed to F-43/F-44/F-45",
+   "red_control": "run 36825857656 on 692cb867 (4e59e8b9 + SuddenSetbackCopyTest only): exactly that test fails",
+   "evidence_class": "DIRECTLY_VERIFIED (for 9dbda865)",
+   "role": "F-45 donor head run on a tree identical to the candidate merge; supporting impact evidence only, not exact-commit evidence for 37e4df6c",
+   "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e"
   }
  },
  "evidence_transfer": "No result observed on 9375f35a is credited to 4e59e8b9; current-boundary credit requires a fresh epoch on the new pin."

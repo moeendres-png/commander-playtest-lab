@@ -88,15 +88,25 @@ def test_intermediate_candidate_evidence_keeps_its_own_identity() -> None:
     # Live on main only between #446 and this repin; no epoch was persisted for it.
     assert intermediate["live"]["on_lab_main_from"].startswith("42f19dd1")
     assert intermediate["live"]["current_boundary_epoch_persisted"] is False
+    assert intermediate["native_qualification"]["commit"] == INTERMEDIATE
+    assert intermediate["lab_runtime_qualification"]["commit"] == INTERMEDIATE
+
+
+def test_parallel_lock_binds_the_same_pin_with_exact_commit_evidence() -> None:
     parallel = json.loads(
         (
             REPO_ROOT
             / "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
         ).read_text()
     )
-    assert parallel["new_live_pin"]["commit"] == INTERMEDIATE
-    assert intermediate["native_qualification"]["commit"] == INTERMEDIATE
-    assert intermediate["lab_runtime_qualification"]["commit"] == INTERMEDIATE
+    assert parallel["new_live_pin"]["commit"] == CURRENT_PIN
+    native = parallel["native_qualification"]
+    # Tree identity is not commit identity: the exact run binds the pin, the
+    # F-45 donor head's run is supporting evidence under its own commit.
+    assert "36831202247" in native["full_mage_tests"]["run"]
+    assert "36825867998" not in native["full_mage_tests"]["run"]
+    assert native["full_mage_tests"]["commit"] == CURRENT_PIN
+    assert native["tree_identical_donor_run"]["commit"] == F45_HEAD
 
 
 def test_lineage_binds_each_identity_once() -> None:
