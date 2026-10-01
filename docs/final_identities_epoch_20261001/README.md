@@ -28,7 +28,9 @@ All 19 changed files are under `forge-protocol2-bridge/`. Exact-head Test build 
 
 **Run:** PB-03 `workflow_dispatch` **36840176563** on `77f99951`, artifact `11152063287` (sha256 `735196d65a5fd56c2c469e8ee679b9f2709fb05a968b23c6f8c3f47a06e8b093`). All 60 entries of the epoch's `CURRENT_BOUNDARY_SHA256SUMS` verified after download.
 
-Lab #444 (merge `3af638b6`) landed on `main` after this run. It adds the parallel lane's v3 lineage lock and Forge bridge gate lock and rewords the authority notes. It leaves `primary_engine.commit`, `secondary_engine.commit` and `secondary_engine.bridge_source` unchanged, so the engine identities above are still the live pins. The epoch stays bound to its producer commit `77f99951`.
+Lab #444 (merge `3af638b6`) landed on `main` after this run. It adds the parallel lane's v3 lineage lock and Forge bridge gate lock, and rewords the authority notes. It leaves `primary_engine.commit`, `secondary_engine.commit` and `secondary_engine.bridge_source` unchanged, so the engine identities above are still the live pins.
+
+#444 does change Lab producer code. In `XmageFullGameDecisionController` and `XmageFullGamePlayer`, the frame of a departed player's combat damage assignment (F-43 Lab integration) may now unwind natively instead of ending the lane fail-closed. This epoch therefore does **not** cover the bridge on `3af638b6`. PB-03 run 36845107390 on `3af638b6` is the fresh check for that commit. The epoch stays bound to its producer commit `77f99951`.
 
 ## Result
 
