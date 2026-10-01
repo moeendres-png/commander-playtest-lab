@@ -9,8 +9,11 @@ RULES_COMMIT=""
 
 case "$PROVIDER" in
   xmage)
-    REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-https://github.com/moeendres-png/mage.git}"
-    COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-9375f35ac7c9a540ebcb8b262b8645b8c6b1b326}"
+    # G1: the default pin comes from config/rules_engines.json (sole authority).
+    command -v python3 >/dev/null || { echo "ERROR: python3 is required to resolve XMage pin authority" >&2; exit 3; }
+    PIN_JSON="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider xmage --format json)"
+    REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-$(python3 -c 'import json,sys; print(json.load(sys.stdin)["repository"])' <<<"$PIN_JSON")}"
+    COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-$(python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"])' <<<"$PIN_JSON")}"
     RULES_COMMIT="$COMMIT"
     REQUIRED_JAVA_MIN=8
     ;;

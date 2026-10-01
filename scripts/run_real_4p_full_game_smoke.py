@@ -17,10 +17,12 @@ from commander_lab.engine.rules.full_game import (
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 from commander_lab.storage import sha256_value
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+# G1: the live pin is read from config/rules_engines.json, never restated here.
+XMAGE_COMMIT = canonical_xmage_engine_pin()
 SCENARIO_ID = "real-existing-decks-4p-technical-smoke-v1"
 SEED = 20260923
 DEFAULT_SMOKE_DECISIONS = 40
