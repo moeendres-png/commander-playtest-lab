@@ -34,7 +34,7 @@ from commander_lab.models import (
 from commander_lab.semantic_replay.gate import run_semantic_tape_replay
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+XMAGE_COMMIT = "4e59e8b9087878816b37728055eb61757a2fbf07"
 GATE_LABEL = "REAL_CARD_TECHNICAL_USABILITY_GATE"
 
 # Seat plan: two verified decks, each fielded twice (only two distinct

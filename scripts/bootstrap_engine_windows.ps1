@@ -4,7 +4,7 @@ $Provider = if ($env:ENGINE_PROVIDER) { $env:ENGINE_PROVIDER } else { "xmage" }
 $RulesCommit = $null
 if ($Provider -eq "xmage") {
   $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { "https://github.com/moeendres-png/mage.git" }
-  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326" }
+  $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "4e59e8b9087878816b37728055eb61757a2fbf07" }
   $RulesCommit = $Commit
 } elseif ($Provider -eq "forge") {
   $Python = Get-Command python -ErrorAction SilentlyContinue

@@ -41,7 +41,7 @@ from commander_lab.engine.rules.full_game import (
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
-XMAGE_COMMIT = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
+XMAGE_COMMIT = "4e59e8b9087878816b37728055eb61757a2fbf07"
 WORKFLOW_REL = ".github/workflows/xmage-full-game-conformance.yml"
 
 
