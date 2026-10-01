@@ -1,0 +1,44 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/lab-af09-replay-twins-20261001
+branch: hardening/af09-replay-twins-20261001
+audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
+audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
+state_written_against_head: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
+validated_head: null
+
+objective: >-
+  Implement and qualify clean-process semantic replay twins for AF09
+  without inventing harness-side Rules state or overlapping active writers.
+
+in_scope:
+  - clean-process twin producer
+  - decision tape comparison
+  - Rules RNG binding
+  - semantic event comparison
+  - checkpoint state hash comparison
+  - terminal outcome comparison
+  - normalization falsification tests
+
+out_of_scope:
+  - PR 450 owned surfaces
+  - PR 452 owned surfaces
+  - bridge production mutation while foreign writers are active
+  - current runner or assembler while foreign writers are active
+  - provider selection
+  - AF11
+  - Architecture Freeze
+
+ownership: AF09-CLEAN-PROCESS-REPLAY-TWINS-20261001
+
+status: ACTIVE
+
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+
+exact_next_action: >-
+  Fetch current source truth, reread issue 454 and coordinator comment
+  5936731960, inventory active writer paths, then implement the isolated
+  replay-twin producer and adversarial contract.
