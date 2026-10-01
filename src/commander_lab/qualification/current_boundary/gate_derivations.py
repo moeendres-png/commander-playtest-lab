@@ -20,10 +20,14 @@ missing mechanism, which is the intended honest outcome.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from .full107 import summarize  # noqa: F401  (re-exported for callers/tests)
 from .lifecycle import cardinality_verdict
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 HIDDEN_PREFIX = "HIDDEN_"
 REPLAY_PREFIXES = ("REPLAY_", "RNG_")
@@ -56,6 +60,20 @@ def af05_hidden_information(
     """AF05 HIDDEN_INFORMATION, derived from the scoping audit and HIDDEN rows."""
     hidden_states = _states(rows, lambda fixture: fixture.startswith(HIDDEN_PREFIX))
     residuals = _residual_lines(hidden_states)
+    if not hidden_states:
+        # A gate with no rows to measure would otherwise pass vacuously: PASS
+        # requires that the mandatory hidden-channel denominator exists at all.
+        return {
+            "gate": "AF05",
+            "name": "HIDDEN_INFORMATION",
+            "verdict": "UNKNOWN",
+            "evidence": ["no HIDDEN_* obligation exists in this candidate's denominator"],
+            "blocking_rows": [],
+            "nonblocking_limitations": [
+                "the mandatory hidden-information denominator is absent, so no hidden channel "
+                "is measured"
+            ],
+        }
     evidence: list[str] = [
         f"{sum(1 for state in hidden_states.values() if state == 'PASS')} of "
         f"{len(hidden_states)} HIDDEN_* rows PASS in this epoch",
@@ -118,6 +136,15 @@ def af06_general_rules(
     candidate: str, rows: dict[str, dict[str, Any]], counts: dict[str, int]
 ) -> dict[str, Any]:
     """AF06 GENERAL_RULES_CORRECTNESS: the effective micro-rules surface."""
+    if not rows:
+        return {
+            "gate": "AF06",
+            "name": "GENERAL_RULES_CORRECTNESS",
+            "verdict": "UNKNOWN",
+            "evidence": ["no denominator rows exist to measure"],
+            "blocking_rows": [],
+            "nonblocking_limitations": ["an empty denominator proves nothing"],
+        }
     non_pass = {
         fixture: str(row.get("exit_state"))
         for fixture, row in rows.items()
@@ -151,24 +178,92 @@ def af06_general_rules(
     }
 
 
+def actual_card_corpus(repo_root: Any | None = None) -> tuple[dict[str, str], tuple[str, ...]]:
+    """The mandatory CARD_ fixture -> card identity map and the frozen 29 corpus.
+
+    Both are read from the frozen manifests, never restated locally: the
+    coverage question is "does this identity's OWN mandatory row pass", and only
+    the manifest can answer which fixture owns which identity.
+    """
+    root = Path(repo_root) if repo_root is not None else REPO_ROOT
+    common = json.loads(
+        (root / "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    domain = json.loads(
+        (root / "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    mapping = {
+        str(fixture["fixture_id"]): str(fixture["card_identity"])
+        for fixture in common["fixtures"]
+        if str(fixture.get("fixture_id") or "").startswith(CARD_PREFIX)
+        and fixture.get("card_identity")
+    }
+    corpus = tuple(str(name) for name in domain["regression_corpus_29"])
+    if not mapping or not corpus:
+        raise ValueError("the actual-card manifests assign no corpus; AF07 cannot be measured")
+    return mapping, corpus
+
+
 def af07_actual_card(
     candidate: str,
     rows: dict[str, dict[str, Any]],
     actual_card_document: dict[str, Any] | None,
+    repo_root: Any | None = None,
 ) -> dict[str, Any]:
-    """AF07 ACTUAL_CARD_BEHAVIOR, derived from the mandatory 29-card corpus."""
+    """AF07 ACTUAL_CARD_BEHAVIOR, derived from the mandatory 29-card corpus.
+
+    Coverage is derived from the ROW STATES plus the frozen fixture->identity
+    map, not from the artifact's own summary. The runner writes that summary
+    before the mid-game lane executes, so its ``behaviorally_executed_count``
+    under-reports; trusting a self-reported flag would be a wrong-reason PASS
+    (and, in the other direction, a wrong-reason residual).
+    """
     corpus = (actual_card_document or {}).get("required_29_card_corpus") or {}
     card_states = _states(rows, lambda fixture: fixture.startswith(CARD_PREFIX))
+    if not card_states:
+        return {
+            "gate": "AF07",
+            "name": "ACTUAL_CARD_BEHAVIOR",
+            "verdict": "UNKNOWN",
+            "evidence": ["no CARD_* obligation exists in this denominator"],
+            "blocking_rows": [],
+            "nonblocking_limitations": [
+                "the actual-card denominator is absent, so no card behaviour is measured"
+            ],
+        }
+    try:
+        fixture_identities, frozen_corpus = actual_card_corpus(repo_root)
+    except (OSError, ValueError, KeyError) as exc:
+        return {
+            "gate": "AF07",
+            "name": "ACTUAL_CARD_BEHAVIOR",
+            "verdict": "UNKNOWN",
+            "evidence": [f"the frozen corpus manifests are unreadable: {exc}"],
+            "blocking_rows": sorted(card_states),
+            "nonblocking_limitations": [
+                "without the fixture->identity map, corpus coverage cannot be derived"
+            ],
+        }
     failed = {fixture: state for fixture, state in card_states.items() if state in _FAIL_STATES}
-    required = corpus.get("required_count")
-    executed = corpus.get("behaviorally_executed_count")
-    missing = list(corpus.get("missing_identities") or [])
+    covered = {
+        identity
+        for fixture_id, identity in fixture_identities.items()
+        if card_states.get(fixture_id) == "PASS"
+    }
+    missing = sorted(set(frozen_corpus) - covered)
     evidence = [
+        f"{len(covered)} of {len(frozen_corpus)} frozen corpus identities have their own "
+        "mandatory CARD_* row PASS in this epoch",
         (
             "no actual-card artifact exists for this candidate"
             if actual_card_document is None
-            else f"{executed} of {required} frozen corpus identities have their own mandatory "
-            "fixture row passing"
+            else "the artifact's own summary reports "
+            f"{corpus.get('behaviorally_executed_count')} of {corpus.get('required_count')} "
+            "(written before the mid-game lane runs; the row states above are authoritative)"
         ),
     ]
     if failed:
@@ -183,7 +278,7 @@ def af07_actual_card(
                 "adjudication before it can be credited"
             ],
         }
-    if actual_card_document is not None and corpus.get("complete") is True:
+    if not missing:
         return {
             "gate": "AF07",
             "name": "ACTUAL_CARD_BEHAVIOR",
@@ -199,13 +294,10 @@ def af07_actual_card(
     limitations = [
         "the effective 29-card actual-card corpus is not fully executed on this boundary; "
         "import/construction is not behaviour proof",
+        f"{len(missing)} corpus identities are unexecuted: "
+        + ", ".join(missing[:10])
+        + ("" if len(missing) <= 10 else f" and {len(missing) - 10} more"),
     ]
-    if missing:
-        limitations.append(
-            f"{len(missing)} corpus identities are unexecuted: "
-            + ", ".join(missing[:10])
-            + ("" if len(missing) <= 10 else f" and {len(missing) - 10} more")
-        )
     return {
         "gate": "AF07",
         "name": "ACTUAL_CARD_BEHAVIOR",
@@ -225,6 +317,18 @@ def af08_multiplayer(
 ) -> dict[str, Any]:
     """AF08 MULTIPLAYER_COMMANDER, from the WS05 rows and the cardinality run."""
     ws05 = _states(rows, lambda fixture: fixture.startswith(WS05_PREFIX))
+    if not ws05:
+        return {
+            "gate": "AF08",
+            "name": "MULTIPLAYER_COMMANDER",
+            "verdict": "UNKNOWN",
+            "evidence": ["no WS05 multiplayer obligation exists in this denominator"],
+            "blocking_rows": [],
+            "nonblocking_limitations": [
+                "the multiplayer/Commander denominator is absent, so no multiplayer obligation "
+                "is measured"
+            ],
+        }
     failed = {fixture: state for fixture, state in ws05.items() if state in _FAIL_STATES}
     assessment = (
         cardinality_verdict((cardinality_document or {}).get("results") or {})
@@ -344,14 +448,35 @@ def af09_rng_replay(
         )
     # Current-boundary replay PASS requires a clean-process twin bound to the
     # candidate, fixture, externally supplied decisions, Rules RNG, semantic
-    # events, checkpoint hashes and terminal outcome. The document must actually
-    # carry that evidence; a promise to run twins is not evidence.
+    # events, checkpoint hashes and terminal outcome. A bare {"verified": true}
+    # is a self-report, not that evidence: every named element must be present
+    # and non-empty, or the twin is unproven.
     twin = (replay_document or {}).get("clean_process_twin")
-    if not isinstance(twin, dict) or twin.get("verified") is not True:
+    twin_requirements = (
+        "fixture_identity",
+        "process_identity",
+        "decisions",
+        "rules_rng",
+        "semantic_events",
+        "checkpoint_state_hashes",
+        "terminal_outcome",
+    )
+    twin_missing: list[str] = []
+    if not isinstance(twin, dict):
+        twin_missing = list(twin_requirements)
+    else:
+        if twin.get("verified") is not True:
+            twin_missing.append("verified")
+        twin_missing.extend(
+            key
+            for key in twin_requirements
+            if not twin.get(key) or twin.get(key) == []
+        )
+    if twin_missing:
         limitations.append(
             "the clean-process semantic replay twin is not proven for this candidate: the "
-            "artifact carries no verified clean-process twin block binding fixture, decisions, "
-            "Rules RNG, semantic events, checkpoint state hashes and terminal outcome"
+            "artifact does not carry the required twin evidence "
+            f"({', '.join(twin_missing)})"
         )
     if residuals:
         limitations.append(

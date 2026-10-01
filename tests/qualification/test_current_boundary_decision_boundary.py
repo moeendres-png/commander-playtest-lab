@@ -26,7 +26,14 @@ import pytest
 from commander_lab.qualification.current_boundary import decision_boundary as db
 
 REPO = Path(__file__).resolve().parents[2]
-EPOCH = REPO / "qualification/current-boundary-epochs/4cad91897216-a43e80d96595"
+# The predecessor epoch (main-produced) and the successor epoch produced by this
+# workstream. Both are committed, and the AF04 derivation must hold on both: a
+# test that only read the predecessor would not cover the epoch #255 consumes.
+EPOCHS = (
+    REPO / "qualification/current-boundary-epochs/4cad91897216-a43e80d96595",
+    REPO / "qualification/current-boundary-epochs/fac12a9b73b1-3234e300d699",
+)
+EPOCH = EPOCHS[0]
 
 
 # --------------------------------------------------------------------------- #
@@ -333,9 +340,20 @@ def test_a_cost_order_frame_is_measured_and_an_unanswered_one_fails_closed() -> 
     assert _derive(document, af01, identity)["verdict"] == "PASS"
 
     # A cost-order frame answered with an option the engine never offered is a
-    # contradiction, exactly as for every other class.
-    document["results"]["2P"]["decision_tape"][0]["chosen_option_id"] = "order-9"
-    assert _derive(document, af01, identity)["verdict"] == "FAIL"
+    # contradiction, exactly as for every other class. The mutation must target
+    # the ORDER_CHOICE entry itself, or it would test a different frame.
+    order_frames = [
+        entry
+        for entry in document["results"]["2P"]["decision_tape"]
+        if entry["kind"] == "ORDER_CHOICE"
+    ]
+    assert len(order_frames) == 1
+    order_frames[0]["chosen_option_id"] = "order-9"
+    mutated = _derive(document, af01, identity)
+    assert mutated["verdict"] == "FAIL"
+    assert any(
+        "order-9" in item["detail"] for item in mutated["contradictions"]
+    ), mutated["contradictions"]
 
 
 def test_a_chosen_option_outside_the_offered_set_is_fail() -> None:
@@ -487,6 +505,14 @@ def test_non_monotonic_mulligan_revisions_are_fail() -> None:
     result = _derive(document, af01, identity)
     assert result["verdict"] == "FAIL"
     assert any("strictly increasing" in item["detail"] for item in result["contradictions"])
+
+
+def test_a_foreign_candidate_artifact_cannot_derive_this_candidate() -> None:
+    document, af01, identity = _synthetic()
+    document["candidate"] = "some-other-engine"
+    result = _derive(document, af01, identity)
+    assert result["verdict"] == "FAIL"
+    assert any("not 'forge'" in item["detail"] for item in result["contradictions"])
 
 
 def test_a_stale_engine_identity_is_fail() -> None:

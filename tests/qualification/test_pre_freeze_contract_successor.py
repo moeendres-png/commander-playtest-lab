@@ -155,6 +155,9 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_domain() -> None:
     contract = _json(SUCCESSOR_PATH)
     resolver = _resolver()
+    base_bundle = _json(
+        REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+    )
     errata = {
         patch["fixture_id"]: patch
         for patch in contract["record_successors"]
@@ -181,7 +184,16 @@ def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_doma
         assert selection["semantic_value"]["action"] == "cast"
         assert selection["matches_only_provider_offered_legal_options"] is True
         assert selection["on_zero_match"] == "FAIL_CLOSED"
-        assert record["decision_script"][1] == patch["replace"]["decision_script"][1]
+        # The predecessor's own inside-cast step must survive at index 1. Compare
+        # against the historical base record, not against the patch the resolver
+        # just applied (which would be tautological).
+        base_record = next(
+            item
+            for item in base_bundle["records"]
+            if item["fixture_id"] == fixture_id
+        )
+        assert record["decision_script"][1:] == base_record["decision_script"]
+        assert base_record["decision_script"][0]["decision_family"] != "priority"
         # The cast is payable only from the record's own explicit sources.
         assert record["action_cost_state"], fixture_id
         assert record["action_cost_state"][0]["payable"] is True
@@ -263,6 +275,26 @@ def test_lane_rows_bound_to_corrected_fixtures_agree_with_the_records() -> None:
             target = step["selection"]["semantic_value"].get("object")
             if target is not None:
                 assert target in semantic_ids, (fixture_id, target)
+
+
+def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
+    """The receipt must agree with the authority, not with a hard-coded default.
+
+    The effective manifest #255 reads advertised one corrected fixture while
+    nine were in effect, because the receipt fell back to a literal whenever the
+    bundle carried no changed set. The authority is the sole source.
+    """
+
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    authority = _json(AUTHORITY_PATH)
+    materialization = load_effective_materialization(REPO_ROOT)
+    receipt = materialization.receipt()
+    assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
+    assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.7-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:

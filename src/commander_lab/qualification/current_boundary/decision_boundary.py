@@ -448,6 +448,30 @@ def derive_decision_boundary(
         )
         return _document(candidate, "UNKNOWN", frame_proofs, contradictions, gaps, {})
 
+    recorded_candidate = cardinality_document.get("candidate")
+    if not recorded_candidate:
+        gaps.append(
+            Finding(
+                "GAP",
+                "-",
+                "IDENTITY",
+                None,
+                "the cardinality artifact does not name its candidate, so it cannot be "
+                "attributed to this one",
+            )
+        )
+    elif str(recorded_candidate) != candidate:
+        contradictions.append(
+            Finding(
+                "CONTRADICTION",
+                "-",
+                "IDENTITY",
+                None,
+                f"the cardinality artifact names candidate {recorded_candidate!r}, not "
+                f"{candidate!r}; a foreign artifact can never derive this candidate's "
+                "decision boundary",
+            )
+        )
     cardinality_identity = cardinality_document.get("runtime_identity") or {}
     if not isinstance(expected_runtime_identity, dict) or not expected_runtime_identity:
         gaps.append(
@@ -617,7 +641,27 @@ def derive_decision_boundary(
     verdict = (
         "PASS" if not contradictions and not gaps else ("FAIL" if contradictions else "UNKNOWN")
     )
-    return _document(candidate, verdict, frame_proofs, contradictions, gaps, required_frame_counts)
+    limitations: list[Finding] = []
+    if verdict == "PASS" and candidate == "forge":
+        # Forge's decision responses do not echo the executed actor, so the
+        # actor binding rests on the frame-supplied actor/revision plus the
+        # engine's own stale-revision and wrong-actor rejection rather than on a
+        # response-side identity. Recorded as a non-blocking limitation so the
+        # PASS is not read as more than the evidence shows.
+        limitations.append(
+            Finding(
+                "NOTE",
+                "-",
+                "ACTOR_BINDING",
+                None,
+                "Forge responses carry no executed-actor field; the actor binding rests on the "
+                "frame-supplied actor/revision plus the engine's stale-revision and wrong-actor "
+                "rejection, not on a response-side identity",
+            )
+        )
+    return _document(
+        candidate, verdict, frame_proofs, contradictions, gaps, required_frame_counts, limitations
+    )
 
 
 def _document(
@@ -627,6 +671,7 @@ def _document(
     contradictions: list[Finding],
     gaps: list[Finding],
     required_frame_counts: dict[str, int],
+    limitations: list[Finding] | None = None,
 ) -> dict[str, Any]:
     verified_classes = sorted(
         {
@@ -651,6 +696,7 @@ def _document(
         "frames": [proof.document() for proof in frame_proofs],
         "contradictions": [finding.document() for finding in contradictions],
         "gaps": [finding.document() for finding in gaps],
+        "limitations": [finding.document() for finding in (limitations or [])],
         "statement": (
             "every recorded external decision frame in this epoch was answered from the "
             "engine-offered option domain, was accepted by the engine, and binds its actor "

@@ -1479,6 +1479,16 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 # verdicts.
                 "engine_validated": af03_evidence,
                 "required_29_card_corpus": {
+                    # This summary is written before the mid-game lane executes,
+                    # so it UNDER-reports rows that lane verifies. The
+                    # authoritative coverage is derived from the row states in
+                    # FULL107_<CANDIDATE>_RESULTS.json plus the frozen
+                    # fixture->identity map; AF07 uses that, never this flag.
+                    "coverage_source": "ROWS_EXECUTED_BEFORE_THE_MID_GAME_LANE",
+                    "coverage_authoritative_source": (
+                        "FULL107_<CANDIDATE>_RESULTS.json row states + "
+                        "COMMON_FIXTURE_MANIFEST_v1.json card_identity mapping"
+                    ),
                     "required_count": len(frozen_corpus),
                     "required_identities_source": ACTUAL_CARD_DOMAIN_MANIFEST.name,
                     "declared_in_this_artifact": len(ACTUAL_CARD_NAMES),

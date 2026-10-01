@@ -27,10 +27,12 @@
 3. **C — fixture errata (CLOSED as versioned records)** — successor contract 1.0.7
    carries the seven inside-cast script errata and the MICRO_COSTS CR 307.1 fixture
    correction; digests recomputed; lineage preserved.
-4. **D — typed unsupported-decision refusal (CLOSED)** — explicit control-plane
-   refusal implemented and exercised: the four NEGATIVE_* rows are now PASS with
-   well-formed refusals (`UNSUPPORTED_DISCRETIONARY_DECISION`, no submission, no
-   state mutation), never timeouts.
+4. **D — typed unsupported-decision refusal (CLOSED on XMage)** — explicit
+   control-plane refusal implemented and exercised: on XMage the four NEGATIVE_*
+   rows are now PASS (24 PASS total) with well-formed refusals
+   (`UNSUPPORTED_DISCRETIONARY_DECISION`, no submission, no state mutation),
+   never timeouts. Forge has no mid-game lane, so its NEGATIVE_* rows remain
+   UNKNOWN and its refusal path is not exercised on that candidate.
 5. **AF05–AF09 gate derivations** — the remaining hard-coded gate literals were
    replaced by derivations; AF04 now also measures the `ORDER_CHOICE` class added by
    the merged #443 policy.
@@ -44,10 +46,13 @@
   cardinality artifact answers STARTING_PLAYER, MULLIGAN and PRIORITY externally
   at 2P–6P with engine-recorded acceptance. The residual was an assembler literal,
   not missing evidence.
-- **The corrected MICRO_COSTS fixture is now executable up to the decision.** The
-  engine offers `Hex — Cast Hex` for P2 on the corrected checkpoint (it offered no
-  cast under the CR 307.1-illegal predecessor), so the predecessor record was a
-  fixture defect, exactly as the Coordinator ruled.
+- **The corrected MICRO_COSTS fixture reaches the decision (MODELED, local
+  development observation, non-credit).** On a machine-local XMage artifact the
+  engine offered `Hex — Cast Hex` for P2 on the corrected checkpoint and parked on
+  the target frame; the committed epoch records the row as BLOCKED because the
+  lane's multi-target selector is not implemented. The observation supports the
+  Coordinator's CR 307.1 fixture-defect ruling but is not current-boundary
+  credit.
 - **Two Lab-lane selectors are the only residual on three corrected rows**: the
   divided-damage `target_amount` frame is a multi-select `choose_targets` offer
   (`Select targets (selected 0 of 4) (damage)`) followed by the engine's assignment
@@ -89,7 +94,7 @@
 | `DIRECTLY_VERIFIED` | AF04 PASS for both candidates (30 / 25 proven frames) |
 | `DIRECTLY_VERIFIED` | `python3 -m pytest tests -m "not external"` → 2953 passed, 11 skipped |
 | `CODE_DERIVED` | AF05–AF09 residuals derived from the epoch artifacts |
-| `MODELED` (non-credit) | local development runs against a machine-local XMage artifact, used only to validate lane mechanics before CI |
+| `MODELED` (non-credit) | local development runs against a machine-local XMage artifact, used only to validate lane mechanics before CI; the only place the corrected MICRO_COSTS/inside-cast casts were driven to their frames |
 | `UNKNOWN` | AF05–AF09 on both candidates; see below |
 
 ## PASS / FAIL / UNKNOWN
@@ -126,9 +131,11 @@ Denominator 107 unchanged. No crash/timeout/protocol failure. No ranking.
    and the generic lane exposes no per-scenario channel instrumentation. The
    fixtures are typed (`face_down` objects carry explicit types); the missing piece
    is the lane observation channel plus the `knowledge_projection:*` verifiers.
-2. **AF07 (both candidates)**: 29 actual-card identities have no passing mandatory
-   CARD_* row. The mid-game lane currently verifies 1 of them (CARD_02); the other
-   28 need the same causal placement lane extended per card.
+2. **AF07 (both candidates)**: 1 of the 29 frozen corpus identities (CARD_02,
+   Rograkh) has a passing mandatory row on XMage and none on Forge; the other 28
+   identities need the same causal placement lane extended per card. The epoch's
+   `ACTUAL_CARD_*.json` summary under-reports because it is written before the
+   mid-game lane runs; AF07 derives coverage from the row states instead.
 3. **AF09 (both candidates)**: `export_replay` is refused by both engines
    (XMage `unsupported_message`, Forge `unknown_message`). The obligation is a
    fresh-process twin with same-provider semantic tape/checkpoint equality; no

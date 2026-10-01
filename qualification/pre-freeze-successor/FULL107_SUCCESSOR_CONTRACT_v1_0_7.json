@@ -39,7 +39,7 @@
   "successor_contract_creation_is_runtime_credit": false,
   "xmage_predecessor_start2_blocker_is_historical_provenance": true
  },
- "materialization_schema_version_note": "the record shape is unchanged from the 1.0.6 successor schema; only the overlay content advanced, so materialization_version stays commander-lab.semantic-fixture-materialization/1.0.6-successor",
+ "materialization_schema_version_note": "the record SHAPE is unchanged from the 1.0.6 successor schema, but the materialization identity moved to commander-lab.semantic-fixture-materialization/1.0.7-successor so the version names the overlay content that produced it; the 1.0.6 contract and schema remain byte-for-byte historical provenance",
  "predecessor": {
   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
   "record_count": 1,
