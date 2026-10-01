@@ -406,8 +406,16 @@ final class XmageLosslessHiddenPlan {
         List<XmageHiddenStateRestoration.LibraryOrder> libraries = new ArrayList<>();
         for (PlayerDeck deck : decks) {
             if (deck.libraryOrder() != null) {
+                // Each requested object holds its own position, even where the
+                // template card shares its identity.
+                Map<Integer, UUID> pinned = new HashMap<>();
+                for (LibraryObject object : libraryObjects) {
+                    if (object.owner().equals(deck.playerId())) {
+                        pinned.put(object.position(), restoration.injectedObjectId(object.semanticId()));
+                    }
+                }
                 libraries.add(new XmageHiddenStateRestoration.LibraryOrder(
-                        deck.playerId(), deck.libraryOrder()));
+                        deck.playerId(), deck.libraryOrder(), Map.copyOf(pinned)));
             }
         }
         if (libraries.isEmpty()) {

@@ -1,0 +1,161 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "creation_errors": [],
+  "elapsed_s": 7.688,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "ALLOWED_VARIANCE",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "declare_attacker",
+        "decision_id": "d3f423efaee194e3956fa03cab07e591ab118f3d912340bd17ae7f978b3384f8",
+        "numeric": null,
+        "offered_labels": [
+          "Do not attack with Bruse Tarl, Boorish Herder",
+          "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
+          "Bruse Tarl, Boorish Herder attacks Full Game Seat 3",
+          "Bruse Tarl, Boorish Herder attacks Full Game Seat 4"
+        ],
+        "principal": "P1",
+        "prompt": "Choose attack for Bruse Tarl, Boorish Herder",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
+        "selected_option_ids": [
+          "5fe908b68ea39bcfd99493059d0a62238b893b113cc1a33f07843316082a4670"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "declare_attacker",
+        "decision_id": "e5928a11ea85624f6c1704f53805a373bbcc07c7c1961800888e12c6448675ea",
+        "numeric": null,
+        "offered_labels": [
+          "Do not attack with Kediss, Emberclaw Familiar",
+          "Kediss, Emberclaw Familiar attacks Full Game Seat 2",
+          "Kediss, Emberclaw Familiar attacks Full Game Seat 3",
+          "Kediss, Emberclaw Familiar attacks Full Game Seat 4"
+        ],
+        "principal": "P1",
+        "prompt": "Choose attack for Kediss, Emberclaw Familiar",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Do not attack with Kediss, Emberclaw Familiar",
+        "selected_option_ids": [
+          "867347127500e729d155042dbc90f200d5ba9ab4d4695da31564e91e56662134"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "addability",
+          "required": true,
+          "target_description": "target creature you control",
+          "target_name": "creature you control",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "218ca471f259ad794a94e40a368a6318908aa6b695bfe4000fad2a64a99193db",
+        "numeric": null,
+        "offered_labels": [
+          "Bruse Tarl, Boorish Herder",
+          "Kediss, Emberclaw Familiar"
+        ],
+        "principal": "P1",
+        "prompt": "Select a creature you control",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "unscripted target for P1: the row stops unverified",
+    "fixture_id": "CARD_04",
+    "missing_tokens": [
+      "commander_combat_damage:P2:3",
+      "Kediss_trigger",
+      "noncombat_damage:P3:3",
+      "noncombat_damage:P4:3"
+    ],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "DECLARE_ATTACKERS",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "ATTACKER_DECLARED"
+      }
+    ],
+    "terminal_facts": {},
+    "token_evidence": {},
+    "verified": false
+  },
+  "fixture_id": "CARD_04",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

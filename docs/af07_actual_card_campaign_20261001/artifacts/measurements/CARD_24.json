@@ -1,0 +1,484 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 8.069,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3192a27dca3a2fab6c5ac926fda2ccfd0e38a38682efec59959d0ef7a33ccd8c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Grizzly Bears \u2014 Cast Grizzly Bears",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears \u2014 Cast Grizzly Bears",
+        "selected_option_ids": [
+          "061d8ee57e3adec12d8c3fc3ebb7790f9231e3a6aae0dc42076e99125660cb81"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "9feff4ff-8b0e-49b1-8174-ef5997138880"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "66a91ce822f41721fd69d1bebb7fd98747d9d27838592a6c44341a2d81af1158",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='9feff4ff-8b0e-49b1-8174-ef5997138880'>Grizzly Bears</font> [9fe]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "c35974362a869d9dedb9353444313fe53b6eb97c7eb397704749b8016d2a3834"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "ab4eb9107474e39ea30e07223406e0729eda5cdfeb90737eb7249ca954a6e017",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='9feff4ff-8b0e-49b1-8174-ef5997138880'>Grizzly Bears</font> [9fe]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "248fed5d567fbf6a18dc38e995139227f841a9219abe87dcdf87c3ae153d9e63",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='9feff4ff-8b0e-49b1-8174-ef5997138880'>Grizzly Bears</font> [9fe]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "a2184756a13e597524689993b482ab99d3a2ad012c0d204550f19f8d1a38d073"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "2bf534c71a4fcfd36a5c0f018ac21ca3109b185e991b35088b276dc561972d47",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='9feff4ff-8b0e-49b1-8174-ef5997138880'>Grizzly Bears</font> [9fe]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "642e6c91aa480f44f1d64a5bdf9895139c82704afe075d3caa7b44663b6d2135",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "00bda66b10136222968d453f3fa9df7a4a358901bd19c92668b933c4fac21420",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "1ce25e1cd8fc23fc4c9fd286947c6ebdc7f2c1a476b2de94e9aa480e444246b4",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "809ab2ece6ff1bb2c52fb7f312bf597ead62d7cdb74fd99ce8f943e8d7635327",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "damage",
+          "required": true,
+          "target_description": "any target",
+          "target_name": "any target",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "464e81ccf6a7e88cc60a7f5d37de63d0e23cfc2af4e0c29094fad17b5855e55d",
+        "numeric": null,
+        "offered_labels": [
+          "Full Game Seat 1",
+          "Full Game Seat 2",
+          "Full Game Seat 3",
+          "Full Game Seat 4",
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select any target",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Full Game Seat 2",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "fe3529c79808c926789462e89d234b35b39fa1f16b4becf513e77bc6cad6ad2f",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e5c47a04c972905767330075e6ba78660fc645a951fe03b6f322f773b7712b84",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3365310c31454df747df551d7744958204b8f8ac4cd1d0a0dffbdf4022f423a5",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b64ee88c418934ae71cb6d66d974089ff0bf26269396e68c53c91b9afb3d7211",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_24",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card24-enter",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card24-enter",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card24-enter",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card24-enter",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card24-enter",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Warstorm Surge",
+        "source_object": "obj:card_24-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (Whenever a creature you control enters, it deals damage equal to its power to any target.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 2,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Warstorm Surge",
+        "source_object": "obj:card_24-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 2,
+        "combat": false,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card24-enter",
+        "step": "PRECOMBAT_MAIN",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      }
+    ],
+    "terminal_facts": {
+      "P2 is at 18 life": true
+    },
+    "token_evidence": {
+      "Warstorm_trigger": {
+        "events": [
+          10
+        ]
+      },
+      "creature_enters": {
+        "events": [
+          9
+        ]
+      },
+      "entering_creature_damage:P2:2": {
+        "events": [
+          12
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_24",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

@@ -195,8 +195,28 @@ final class XmageNativeStateRestoration {
             TurnPhase phase,
             PhaseStep step,
             String activePlayer,
-            String priorityPlayer
+            String priorityPlayer,
+            Map<String, Map<String, Integer>> objectCounters
     ) {
+        /** Backward-compatible constructor for plans with no requested counters. */
+        Plan(
+                String planId,
+                int playerCount,
+                long seed,
+                List<RequestedPlayer> players,
+                List<RequestedCommander> commanders,
+                List<RequestedCommanderDamage> commanderDamage,
+                List<RequestedObject> objects,
+                int turnNumber,
+                TurnPhase phase,
+                PhaseStep step,
+                String activePlayer,
+                String priorityPlayer
+        ) {
+            this(planId, playerCount, seed, players, commanders, commanderDamage, objects,
+                    turnNumber, phase, step, activePlayer, priorityPlayer, Map.of());
+        }
+
         /** Backward-compatible constructor for plans with no Commander-damage history. */
         Plan(
                 String planId,
@@ -212,7 +232,7 @@ final class XmageNativeStateRestoration {
                 String priorityPlayer
         ) {
             this(planId, playerCount, seed, players, commanders, List.of(), objects,
-                    turnNumber, phase, step, activePlayer, priorityPlayer);
+                    turnNumber, phase, step, activePlayer, priorityPlayer, Map.of());
         }
     }
 
@@ -232,6 +252,7 @@ final class XmageNativeStateRestoration {
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
     private boolean arrivalRestored;
+    private boolean losslessLibrariesApplied;
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -325,7 +346,21 @@ final class XmageNativeStateRestoration {
      */
     XmageLosslessHiddenPlan.Verification losslessHiddenVerification(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
-        return losslessHidden.verify(game, playersByPid, this);
+        if (!losslessLibrariesApplied && requestsCheckpointState()) {
+            // Before the checkpoint the requested libraries, tapped state and
+            // counters are not placed yet. One coded mismatch, never per object:
+            // naming a requested library object here would tell the requester
+            // that such a hidden card was requested.
+            return new XmageLosslessHiddenPlan.Verification(
+                    List.of(), List.of("checkpoint_state: the requested checkpoint was not reached"));
+        }
+        XmageLosslessHiddenPlan.Verification hidden = losslessHidden.verify(game, playersByPid, this);
+        XmageLosslessHiddenPlan.Verification permanents = checkpointPermanentVerification(game);
+        List<String> checks = new ArrayList<>(hidden.checks());
+        checks.addAll(permanents.checks());
+        List<String> mismatches = new ArrayList<>(hidden.mismatches());
+        mismatches.addAll(permanents.mismatches());
+        return new XmageLosslessHiddenPlan.Verification(checks, mismatches);
     }
 
     UUID injectedObjectId(String semanticId) {
@@ -422,6 +457,7 @@ final class XmageNativeStateRestoration {
             }
         }
         List<RequestedObject> objects = new ArrayList<>();
+        Map<String, Map<String, Integer>> objectCounters = new TreeMap<>();
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
             JsonObject object = element.getAsJsonObject();
             String semanticId = object.has("semantic_id") && !object.get("semantic_id").isJsonNull()
@@ -433,7 +469,25 @@ final class XmageNativeStateRestoration {
             }
             if (object.has("counters") && !object.get("counters").isJsonNull()
                     && hasNonZeroCounter(object.getAsJsonObject("counters"))) {
-                throw new RestorationException("UNSUPPORTED_COUNTERS", fixtureId + " " + semanticId);
+                // Checkpoint counters on a battlefield permanent, of a type this
+                // lane restores; anything else still fails closed.
+                if (!"battlefield".equals(object.get("zone").getAsString())
+                        || (object.has("commander_id") && !object.get("commander_id").isJsonNull())) {
+                    throw new RestorationException("UNSUPPORTED_COUNTERS", fixtureId + " " + semanticId);
+                }
+                Map<String, Integer> counts = new TreeMap<>();
+                for (Map.Entry<String, JsonElement> counter
+                        : object.getAsJsonObject("counters").entrySet()) {
+                    int amount = counter.getValue().getAsInt();
+                    if (amount < 0 || counterType(counter.getKey()) == null) {
+                        throw new RestorationException(
+                                "UNSUPPORTED_COUNTERS", fixtureId + " " + semanticId);
+                    }
+                    if (amount > 0) {
+                        counts.put(counter.getKey(), amount);
+                    }
+                }
+                objectCounters.put(semanticId, Map.copyOf(counts));
             }
             if (object.has("attachments") && !object.get("attachments").isJsonNull()
                     && !object.getAsJsonArray("attachments").isEmpty()) {
@@ -509,7 +563,7 @@ final class XmageNativeStateRestoration {
                     && object.get("tapped").getAsBoolean();
             objects.add(new RequestedObject(
                     semanticId,
-                    object.get("card_identity").getAsString(),
+                    canonicalCardIdentity(object.get("card_identity").getAsString()),
                     object.get("owner").getAsString(),
                     object.get("controller").getAsString(),
                     zone,
@@ -538,7 +592,42 @@ final class XmageNativeStateRestoration {
                 phase,
                 step,
                 temporal.get("active_player").getAsString(),
-                temporal.get("priority_player").getAsString());
+                temporal.get("priority_player").getAsString(),
+                Map.copyOf(objectCounters));
+    }
+
+    /**
+     * The engine's name for a requested card identity. A transforming
+     * double-faced card is requested as "Front // Back" but is the card named
+     * after its front face; it resolves to that name only when the engine card
+     * of that front name has exactly that back face. A split card keeps its
+     * full "A // B" name, which is the engine's own. Anything else is returned
+     * unchanged and fails closed at vehicle construction as before.
+     */
+    static String canonicalCardIdentity(String identity) {
+        if (identity == null || !identity.contains(" // ")) {
+            return identity;
+        }
+        CardInfo whole = CardRepository.instance.findCard(identity.trim(), true);
+        if (whole != null && identity.trim().equals(whole.getName())) {
+            return identity;
+        }
+        String[] faces = identity.split(" // ", 2);
+        CardInfo front = CardRepository.instance.findCard(faces[0].trim(), true);
+        if (front != null && faces[0].trim().equals(front.getName())
+                && faces[1].trim().equals(front.getSecondSideName())) {
+            return front.getName();
+        }
+        return identity;
+    }
+
+    /** The native counter type a record counter name restores, or null. */
+    static mage.counters.CounterType counterType(String name) {
+        return switch (name) {
+            case "+1/+1" -> mage.counters.CounterType.P1P1;
+            case "-1/-1" -> mage.counters.CounterType.M1M1;
+            default -> null;
+        };
     }
 
     private static TurnPhase parsePhase(String phase, String fixtureId) {
@@ -733,9 +822,9 @@ final class XmageNativeStateRestoration {
                                 + " (engine layers re-derive control; divergence needs"
                                 + " resolved control-change effects)");
             }
-            if (object.tapped()) {
+            if (object.tapped() && object.zone() != Zone.BATTLEFIELD) {
                 throw new RestorationException(
-                        "UNSUPPORTED_TAPPED", object.semanticId() + "; v1 assembles untapped only");
+                        "UNSUPPORTED_TAPPED", object.semanticId() + "; only a permanent can be tapped");
             }
             if (object.cardIdentity() == null || object.cardIdentity().isBlank()) {
                 throw new RestorationException("INVALID_CARD_IDENTITY", object.semanticId());
@@ -871,6 +960,7 @@ final class XmageNativeStateRestoration {
             // Completion is queried again after the game moved on (the causal
             // route, every arrival readback). Re-applying cast counts, damage,
             // placement or life then would overwrite real engine history.
+            applyLosslessLibrariesAtCheckpoint(game, playersByPid);
             return;
         }
 
@@ -938,11 +1028,99 @@ final class XmageNativeStateRestoration {
 
         placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
         restoreStartingLife(game, playersByPid);
-        // SLOT-04: requested library cards and the complete library order, after
-        // the opening hands, through the native game-load API. The face-down
-        // object was already turned face down before game start.
-        losslessHidden.applyAfterArrival(game, playersByPid, this);
         arrivalRestored = true;
+        applyLosslessLibrariesAtCheckpoint(game, playersByPid);
+    }
+
+    /**
+     * SLOT-04: requested library cards and the complete library order, through
+     * the native game-load API, once the game stands at the requested
+     * checkpoint. A requested library is the library AT the checkpoint: the
+     * arrival is completed at earlier priorities too (an upkeep before the
+     * first-turn draw), and placing it there would let the active player's
+     * draw take the requested top card. The face-down object was already
+     * turned face down before game start.
+     */
+    private void applyLosslessLibrariesAtCheckpoint(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        if (losslessLibrariesApplied || !atRequestedCheckpoint(game)) {
+            return;
+        }
+        losslessHidden.applyAfterArrival(game, playersByPid, this);
+        applyCheckpointPermanentState(game);
+        losslessLibrariesApplied = true;
+    }
+
+    /**
+     * Tapped state and counters are checkpoint state too: a permanent placed
+     * tapped before game start would be untapped by its controller's first
+     * untap step. Both are set silently through the game-load path once the
+     * game stands at the checkpoint (no tap or counter event is fabricated,
+     * as no placement event is), and verified engine-direct by
+     * {@link #checkpointPermanentVerification}.
+     */
+    private void applyCheckpointPermanentState(GameCommanderImpl game) {
+        for (RequestedObject object : plan.objects()) {
+            Map<String, Integer> counters = plan.objectCounters().getOrDefault(object.semanticId(), Map.of());
+            if (!object.tapped() && counters.isEmpty()) {
+                continue;
+            }
+            Permanent permanent = game.getPermanent(injectedObjectId(object.semanticId()));
+            if (permanent == null) {
+                throw new RestorationException("CHECKPOINT_PERMANENT_MISSING", object.semanticId());
+            }
+            if (object.tapped()) {
+                permanent.setTapped(true);
+            }
+            for (Map.Entry<String, Integer> counter : counters.entrySet()) {
+                permanent.getCounters(game).addCounter(
+                        counterType(counter.getKey()).createInstance(counter.getValue()));
+            }
+        }
+    }
+
+    /** Engine-direct verification of the requested checkpoint tapped state and counters. */
+    XmageLosslessHiddenPlan.Verification checkpointPermanentVerification(GameCommanderImpl game) {
+        List<String> checks = new ArrayList<>();
+        List<String> mismatches = new ArrayList<>();
+        for (RequestedObject object : plan.objects()) {
+            Map<String, Integer> counters = plan.objectCounters().getOrDefault(object.semanticId(), Map.of());
+            if (object.zone() != Zone.BATTLEFIELD || (!object.tapped() && counters.isEmpty())) {
+                continue;
+            }
+            Permanent permanent = game.getPermanent(injectedObjectId(object.semanticId()));
+            if (object.tapped()) {
+                checks.add("tapped:" + object.semanticId());
+                if (permanent == null || !permanent.isTapped()) {
+                    mismatches.add("tapped " + object.semanticId() + ": not tapped");
+                }
+            }
+            if (!counters.isEmpty()) {
+                checks.add("counters:" + object.semanticId());
+                for (Map.Entry<String, Integer> counter : counters.entrySet()) {
+                    int observed = permanent == null ? 0
+                            : permanent.getCounters(game).getCount(counterType(counter.getKey()));
+                    if (observed != counter.getValue()) {
+                        mismatches.add("counters " + object.semanticId() + " " + counter.getKey()
+                                + ": requested " + counter.getValue() + " observed " + observed);
+                    }
+                }
+            }
+        }
+        return new XmageLosslessHiddenPlan.Verification(checks, mismatches);
+    }
+
+    private boolean requestsCheckpointState() {
+        if (!losslessHidden.isEmpty() || !plan.objectCounters().isEmpty()) {
+            return true;
+        }
+        return plan.objects().stream().anyMatch(RequestedObject::tapped);
+    }
+
+    private boolean atRequestedCheckpoint(GameCommanderImpl game) {
+        return game.getTurnNum() == plan.turnNumber()
+                && game.getTurnPhaseType() == plan.phase()
+                && game.getTurnStepType() == plan.step();
     }
 
     /**
@@ -1426,6 +1604,9 @@ final class XmageNativeStateRestoration {
         supported.add("frozen requested_state_digest equality for constructed states "
                 + "in the v1 subset (canonical projection per the recovered spec, "
                 + "verified per fixture; see requestedDigest/constructedDigest)");
+        supported.add("tapped permanents and +1/+1 or -1/-1 counters on requested battlefield "
+                + "permanents, set at the requested checkpoint through the game-load path and "
+                + "verified engine-direct");
         supported.addAll(XmageLosslessHiddenPlan.supportedDescriptor());
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
@@ -1434,8 +1615,9 @@ final class XmageNativeStateRestoration {
         unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
         unsupported.add("revealed-zone restoration");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
-        unsupported.add("attachments and counters");
-        unsupported.add("tapped permanents (unqualified dimension)");
+        unsupported.add("attachments (aura/equipment attachment relations)");
+        unsupported.add("counters other than +1/+1 and -1/-1, and counters on commanders or "
+                + "on objects off the battlefield");
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
         unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
