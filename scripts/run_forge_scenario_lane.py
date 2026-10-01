@@ -73,12 +73,8 @@ def structural_census(materialization) -> dict[str, object]:
                 "construction_eligible": model.construction_eligible,
                 "credit_eligible": model.credit_eligible,
                 "temporal_reachable": temporal_reachable(model),
-                "unsupported_dimensions": [
-                    item.to_document() for item in model.hard_unsupported
-                ],
-                "unobservable_dimensions": [
-                    item.to_document() for item in model.unobservable
-                ],
+                "unsupported_dimensions": [item.to_document() for item in model.hard_unsupported],
+                "unobservable_dimensions": [item.to_document() for item in model.unobservable],
                 "requested_temporal_state": model.temporal_state,
                 "neutral_initial_state": model.neutral_initial_state,
             }

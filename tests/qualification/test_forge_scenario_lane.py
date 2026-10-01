@@ -430,9 +430,7 @@ def _supported_model() -> fsl.RequestedStateModel:
             "multiple_commander_relations": [],
         },
     )
-    record["semantic_objects"].append(
-        _object("obj:P2-bears", "Grizzly Bears", "battlefield", "P2")
-    )
+    record["semantic_objects"].append(_object("obj:P2-bears", "Grizzly Bears", "battlefield", "P2"))
     return fsl.model_requested_state(record)
 
 
@@ -451,9 +449,7 @@ def _exact_observations() -> dict[str, dict]:
             "p2",
             life=40,
             battlefield=["Grizzly Bears"],
-            battlefield_details=[
-                {"name": "Grizzly Bears", "tapped": False, "counters": {}}
-            ],
+            battlefield_details=[{"name": "Grizzly Bears", "tapped": False, "counters": {}}],
             command=["Rograkh, Son of Rohgahh", "Commander Effect"],
             commander_damage={"Rograkh, Son of Rohgahh": 11, "Kediss, Emberclaw Familiar": 10},
         ),
@@ -631,13 +627,18 @@ def _frame(kind: str, actor: str, revision: int, actions: list[dict] | None = No
 
 def _run_probe(monkeypatch, *, model, observations, create_success=True):
     frames = [
-        _frame("STARTING_PLAYER", "p1", 1, [
-            {
-                "action_id": "opt-start",
-                "action_type": "structural_decision",
-                "source_object_id": "p1",
-            }
-        ]),
+        _frame(
+            "STARTING_PLAYER",
+            "p1",
+            1,
+            [
+                {
+                    "action_id": "opt-start",
+                    "action_type": "structural_decision",
+                    "source_object_id": "p1",
+                }
+            ],
+        ),
         _frame("PRIORITY", "p1", 2, [{"action_id": "opt-pass", "action_type": "pass_priority"}]),
     ]
     queue = list(frames)
@@ -662,9 +663,7 @@ def _run_probe(monkeypatch, *, model, observations, create_success=True):
 
 def test_control_positive_executes_and_credits(monkeypatch):
     model = _supported_model()
-    model.record["expected_events"]["required_events"] = [
-        "commander_damage_checked_per_commander"
-    ]
+    model.record["expected_events"]["required_events"] = ["commander_damage_checked_per_commander"]
     observations = _exact_observations()
     evidence = _run_probe(monkeypatch, model=model, observations=observations)
     classification = evidence.fields["classification"]
@@ -677,9 +676,7 @@ def test_control_successful_construction_alone_cannot_pass(monkeypatch):
     # no commander damage was requested or observed, so the declared behavior is
     # unobserved even though every compared checkpoint field matches.
     model = _supported_model()
-    model.record["expected_events"]["required_events"] = [
-        "commander_damage_checked_per_commander"
-    ]
+    model.record["expected_events"]["required_events"] = ["commander_damage_checked_per_commander"]
     model.record["commander_state"]["commander_damage_matrix"] = []
     model.commander_damage_by_player = {}
     observations = _exact_observations()
@@ -717,16 +714,14 @@ def test_control_transport_only_cannot_pass(monkeypatch):
 def test_control_unsupported_field_fails_closed_in_probe(monkeypatch):
     model = fsl.model_requested_state(
         _record(
-            stack_state=[
-                {"source_semantic_id": "obj:x", "controller": "P1", "targets": ["P2"]}
-            ]
+            stack_state=[{"source_semantic_id": "obj:x", "controller": "P1", "targets": ["P2"]}]
         )
     )
 
     def fake_poll(proc, game_id, *, seat_count, candidate):
-        return _frame("PRIORITY", "p1", 1, [
-            {"action_id": "opt-pass", "action_type": "pass_priority"}
-        ])
+        return _frame(
+            "PRIORITY", "p1", 1, [{"action_id": "opt-pass", "action_type": "pass_priority"}]
+        )
 
     monkeypatch.setattr(fsl, "poll_decision", fake_poll)
     monkeypatch.setattr(fsl, "observe_seat_state", lambda *a, **k: _observation([]))
@@ -796,13 +791,16 @@ def test_bridge_identity_mismatch_invalidates_credit(monkeypatch, tmp_path):
         "bridge_tree": repo["base_tree"],
     }
     monkeypatch.setattr(fsl, "canonical_forge_authority", lambda: authority)
-    monkeypatch.setattr(
-        fsl.receipt_mod, "FORGE_RULES_CORE_MODULE_ROOTS", ("forge-game",)
-    )
+    monkeypatch.setattr(fsl.receipt_mod, "FORGE_RULES_CORE_MODULE_ROOTS", ("forge-game",))
     monkeypatch.setattr(
         fsl.receipt_mod,
         "engine_tree_equivalence",
-        lambda *a, **k: {"engine_equivalent": True, "modules": [], "differing_modules": [], "one_sided_modules": []},
+        lambda *a, **k: {
+            "engine_equivalent": True,
+            "modules": [],
+            "differing_modules": [],
+            "one_sided_modules": [],
+        },
     )
     with pytest.raises(fsl.ScenarioLaneError):
         fsl.bind_forge_scenario_source(repo["repo"])
@@ -817,10 +815,14 @@ def test_dirty_checkout_is_refused(monkeypatch, tmp_path):
         lambda: {
             "repository": "https://github.com/moeendres-png/forge.git",
             "rules_core_commit": repo["bridge"],
-            "rules_core_tree": _git(["rev-parse", f"{repo['bridge']}^{{tree}}"], Path(repo["repo"])).strip(),
+            "rules_core_tree": _git(
+                ["rev-parse", f"{repo['bridge']}^{{tree}}"], Path(repo["repo"])
+            ).strip(),
             "bridge_repository": "https://github.com/moeendres-png/forge.git",
             "bridge_commit": repo["bridge"],
-            "bridge_tree": _git(["rev-parse", f"{repo['bridge']}^{{tree}}"], Path(repo["repo"])).strip(),
+            "bridge_tree": _git(
+                ["rev-parse", f"{repo['bridge']}^{{tree}}"], Path(repo["repo"])
+            ).strip(),
         },
     )
     with pytest.raises(fsl.ScenarioLaneError, match="uncommitted"):
@@ -846,7 +848,7 @@ def test_fail_before_current_runner_has_no_scenario_seam():
         / "current_boundary"
         / "forge_scenario_lane.py"
     ).read_text(encoding="utf-8")
-    assert 'neutral_initial_state' in lane_source
+    assert "neutral_initial_state" in lane_source
 
 
 def test_fail_before_shared_runner_blocks_the_wave(monkeypatch):
@@ -858,9 +860,12 @@ def test_fail_before_shared_runner_blocks_the_wave(monkeypatch):
     spec.loader.exec_module(runner)
     materialization = runner.load_effective_materialization(REPO)
     identity = {"starting_state_injection_supported": True}
-    rows = {row.fixture_id: row for row in runner.classify_remaining(
-        materialization, set(), candidate="forge", identity=identity
-    )}
+    rows = {
+        row.fixture_id: row
+        for row in runner.classify_remaining(
+            materialization, set(), candidate="forge", identity=identity
+        )
+    }
     wave = (
         "MICRO_COPY",
         "MICRO_COSTS",
