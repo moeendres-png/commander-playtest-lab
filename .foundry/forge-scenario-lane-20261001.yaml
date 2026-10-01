@@ -152,7 +152,8 @@ remaining_scope:
   - optional: observation contracts for MICRO_LAYERS layer events and START-3 draw evidence
   - optional: execute remaining constructible-not-observable rows once owner/attachment/graveyard projection exists
 
-status: PHASE1_COMPLETE
+status: ACTIVE
+phase: PHASE1_COMPLETE_PHASE2_GATED
 
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
