@@ -84,8 +84,13 @@ Unchanged by this ruling:
   start-trigger expectation changes from 32 to 39 life per opponent. Only the
   turn-1 draw triggers; that draw is a real draw on a turn on which the Crawler is
   on the battlefield (CR 103.8c).
-- **CARD_07 and CARD_16** are re-measured under the new placement. CARD_16's
-  independent hand-composition blocker is unaffected by this ruling.
+- **CARD_07 and CARD_16** are re-measured under the new placement. CARD_07 passes
+  with its lossless checks run. CARD_16's hand-composition blocker is independent
+  of this ruling; it is closed by `CARD16_OBLIGATION_ERRATUM.md`.
+- **F-40 starting life.** A recorded starting life is setup (CR 103.4), so it is
+  now set whenever the player's life is untouched since game start. A current
+  life the arrival caused (a restored Crawler seeing the turn-1 draw) is compared,
+  never set.
 
 Implementation: `engine-bridge/src/main/java/org/commanderlab/xmage/XmageFirstTurnPlacementWatcher.java`
 and `XmageNativeStateRestoration.applyPreStart`. A deferred permanent still outside

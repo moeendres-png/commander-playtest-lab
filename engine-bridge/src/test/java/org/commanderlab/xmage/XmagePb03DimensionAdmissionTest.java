@@ -85,14 +85,28 @@ class XmagePb03DimensionAdmissionTest {
 
     @Test
     void controlDivergenceRowsFailClosed() {
-        // Divergence is rejected in validatePlan (constructor phase), after
-        // planFromFrozenRecord parses: route through restorationFor so the
-        // verdict matches the production construction path exactly.
+        // Both rows also attach Control Magic, a second unsupported dimension
+        // that parsing refuses first. Each mechanism is checked on its own: the
+        // full record fails closed on the attachment, and without it on the
+        // divergence, which validatePlan (constructor phase) rejects after
+        // planFromFrozenRecord parses, so it is routed through restorationFor
+        // to match the production construction path exactly.
         for (String fixture : List.of("MICRO_CONTROL", "WS05-MP-ELIM-CONTROL-3")) {
+            JsonObject record = XmageNativeStateRestorationTest.frozenRecord(fixture).deepCopy();
+            try {
+                XmageNativeStateRestoration.planFromFrozenRecord(
+                        record, "pb03-admit-attached-" + fixture, SEED);
+                fail(fixture + " requests an attachment and must fail closed");
+            } catch (XmageNativeStateRestoration.RestorationException exc) {
+                assertTrue(exc.getMessage().startsWith("UNSUPPORTED_ATTACHMENTS"),
+                        fixture + " must name UNSUPPORTED_ATTACHMENTS, got: " + exc.getMessage());
+            }
+            for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+                element.getAsJsonObject().remove("attached_to");
+            }
             XmageNativeStateRestoration.Plan plan =
                     XmageNativeStateRestoration.planFromFrozenRecord(
-                            XmageNativeStateRestorationTest.frozenRecord(fixture),
-                            "pb03-admit-" + fixture, SEED);
+                            record, "pb03-admit-" + fixture, SEED);
             try {
                 XmageNativeStateRestorationTest.restorationFor(plan);
                 fail(fixture + " carries owner/controller divergence and must fail closed");

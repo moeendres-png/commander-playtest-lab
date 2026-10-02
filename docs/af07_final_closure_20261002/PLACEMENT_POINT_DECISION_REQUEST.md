@@ -1,6 +1,6 @@
 # Restoration placement point: decision request (AF07, #453)
 
-Status: OPEN, a Rules/Coordinator decision. Nothing here is applied to the bridge.
+Status: ADJUDICATED 2026-10-02, Option 2 (see `PLACEMENT_POINT_ADJUDICATION.md`). The question below is kept as it was asked.
 `PRODUCTION_PROVIDER = NOT_SELECTED`, `ARCHITECTURE_FREEZE = NOT_CLAIMED`.
 
 ## The question
