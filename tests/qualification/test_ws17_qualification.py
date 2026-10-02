@@ -263,9 +263,7 @@ def _load_ws17_harness():
 def _canonical_sha256(value):
     import hashlib
 
-    encoded = json.dumps(
-        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-    ).encode()
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
     return hashlib.sha256(encoded).hexdigest()
 
 
@@ -394,6 +392,7 @@ def test_dq01_missing_fixture_id_fails_closed(monkeypatch):
 
 def test_dq01_wrong_or_missing_request_correlation_fails_closed(monkeypatch):
     for mode in ("wrong", "missing"):
+
         def response(request, mode=mode):
             document = _bound_provider_response(request)
             if mode == "wrong":
@@ -408,6 +407,7 @@ def test_dq01_wrong_or_missing_request_correlation_fails_closed(monkeypatch):
 
 def test_dq01_wrong_or_missing_session_correlation_fails_closed(monkeypatch):
     for mode in ("wrong", "missing"):
+
         def response(request, mode=mode):
             document = _bound_provider_response(request)
             if mode == "wrong":
@@ -483,6 +483,7 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
         "wrong-binding",
         "wrong-evidence",
     ):
+
         def response(request, mode=mode):
             document = _bound_provider_response(request)
             if mode == "missing":
@@ -500,8 +501,8 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
                     for key, value in document["payload"].items()
                     if key != "artifact_hashes"
                 }
-                document["payload"]["artifact_hashes"]["fixture_result_sha256"] = (
-                    _canonical_sha256(result_payload)
+                document["payload"]["artifact_hashes"]["fixture_result_sha256"] = _canonical_sha256(
+                    result_payload
                 )
             elif mode == "unknown-artifact":
                 document["payload"]["artifact_hashes"]["unverifiable_sha256"] = "1" * 64
