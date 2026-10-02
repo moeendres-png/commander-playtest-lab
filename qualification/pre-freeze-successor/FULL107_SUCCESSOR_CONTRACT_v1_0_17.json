@@ -94,7 +94,7 @@
    "HIDDEN_12": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
   },
   "provider_semantics_used_to_define_successor": false,
-  "unchanged_provider_denominator_rows": 64
+  "unchanged_provider_denominator_rows": 78
  },
  "contract_id": "commander-lab.full107/1.0.17-successor",
  "effective_materialization_version": "commander-lab.semantic-fixture-materialization/1.0.17-successor",
