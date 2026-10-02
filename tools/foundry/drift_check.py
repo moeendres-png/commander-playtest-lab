@@ -12,7 +12,7 @@ Answers, for a target worktree under a repo profile:
 Classifications per surface: CURRENT_REACHABLE, HISTORICAL_NONREACHABLE,
 AMBIGUOUS, SUPERSEDED_BUT_REACHABLE. Any SUPERSEDED_BUT_REACHABLE or AMBIGUOUS
 root surface fails the check: the launcher must not start an unattended
-session where Muse could receive contradictory authority. Historical files
+session where an unauthorized executor could receive contradictory authority. Historical files
 under research/handoffs/docs nests are reported, never deleted.
 
 Read-only. Never modifies any tree.
