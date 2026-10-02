@@ -597,3 +597,38 @@ def test_critical_command_or_success_masking_is_not_enforcing() -> None:
     assert not guard._matching_command_is_enforcing(
         "pytest -q || exit 0", guard.CATEGORY_PATTERNS["pytest"]
     )
+
+
+
+def test_general_test_definition_change_requires_review(
+    repository: tuple[Path, str],
+) -> None:
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: write(root, "tests/unit/test_new_gate_signal.py", "def test_signal(): assert True\n"),
+        "change quality test definition",
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert any(
+        item["impact"] == "quality_test_definition"
+        for item in report["changed_protected_surfaces"]
+    )
+
+
+@pytest.mark.parametrize(
+    "run",
+    [
+        "pytest -q || true",
+        "pytest -q || exit 0",
+        "pytest -q || echo PASS",
+        "pytest -q; true",
+        "pytest -q; exit 0",
+    ],
+)
+def test_critical_command_success_masking_is_not_enforcing(run: str) -> None:
+    assert not guard._matching_command_is_enforcing(
+        run, guard.CATEGORY_PATTERNS["pytest"]
+    )
