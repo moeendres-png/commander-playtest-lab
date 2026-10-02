@@ -219,6 +219,199 @@ class XmageMidgameKnowledgeProjectionTest {
         return lane;
     }
 
+    /**
+     * Fail-before for the public event tape: an event that is not a zone change
+     * (here damage dealt to the face-down permanent) used to count as public, so
+     * the tape resolved its face-down target to the semantic object the record
+     * requested, which the record binds to the hidden identity.
+     */
+    @Test
+    void thePublicEventTapeNeverResolvesAFaceDownPermanentToItsRequestedObject() {
+        JsonObject record = successorRecord("HIDDEN_04");
+        JsonObject pyromancer = new JsonObject();
+        pyromancer.addProperty("semantic_id", "obj:test-pyromancer");
+        pyromancer.addProperty("card_identity", "Prodigal Pyromancer");
+        pyromancer.addProperty("card_lineage_id", "line:obj:test-pyromancer");
+        pyromancer.addProperty("owner", "P1");
+        pyromancer.addProperty("controller", "P1");
+        pyromancer.addProperty("zone", "battlefield");
+        pyromancer.addProperty("tapped", false);
+        pyromancer.addProperty("face_down", false);
+        pyromancer.add("counters", new JsonObject());
+        record.getAsJsonArray("semantic_objects").add(pyromancer);
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject created = lane.ok("create_midgame_game", createRequest("kp-event-face-down", record));
+        String faceDown = created.getAsJsonObject("placed_objects").get("obj:facedown").getAsString();
+        lane.ok("start_midgame_game", null);
+        arrive(lane, frame -> { });
+
+        JsonObject priority = pendingDecision(lane);
+        String activation = null;
+        for (JsonElement element : priority.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            if (option.get("label").getAsString().startsWith("Prodigal Pyromancer")) {
+                activation = option.get("option_id").getAsString();
+            }
+        }
+        submit(lane, priority, activation);
+        JsonObject target = pendingDecision(lane);
+        assertEquals("target", target.get("decision_class").getAsString());
+        submit(lane, target, faceDown);
+
+        String events = "";
+        for (int step = 0; step < 12 && !events.contains("DAMAGED_PERMANENT"); step++) {
+            JsonObject decision = pendingDecision(lane);
+            assertNotNull(decision);
+            submit(lane, decision, option(decision, "pass_priority", null));
+            JsonObject query = new JsonObject();
+            query.addProperty("after_offset", 0);
+            events = lane.raw("get_midgame_events", query);
+        }
+        assertTrue(events.contains("DAMAGED_PERMANENT"), "the damage event must be recorded");
+        for (String forbidden : List.of("obj:facedown", FACE_DOWN_SECRET)) {
+            assertFalse(events.contains(forbidden), "the public event tape names " + forbidden);
+        }
+        // Positive control: a public source is still resolved to its object.
+        assertTrue(events.contains("obj:test-pyromancer"), "the public source must stay named");
+    }
+
+    private static JsonObject testObject(String semanticId, String identity, String player, String zone) {
+        JsonObject object = new JsonObject();
+        object.addProperty("semantic_id", semanticId);
+        object.addProperty("card_identity", identity);
+        object.addProperty("card_lineage_id", "line:" + semanticId);
+        object.addProperty("owner", player);
+        object.addProperty("controller", player);
+        object.addProperty("zone", zone);
+        object.addProperty("tapped", false);
+        object.addProperty("face_down", false);
+        object.add("counters", new JsonObject());
+        return object;
+    }
+
+    private static String optionContaining(JsonObject decision, String optionType, String label) {
+        for (JsonElement element : decision.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            if ((optionType == null || optionType.equals(option.get("option_type").getAsString()))
+                    && option.get("label").getAsString().contains(label)) {
+                return option.get("option_id").getAsString();
+            }
+        }
+        return null;
+    }
+
+    private static String publicEvents(Lane lane) {
+        JsonObject query = new JsonObject();
+        query.addProperty("after_offset", 0);
+        return lane.raw("get_midgame_events", query);
+    }
+
+    /**
+     * Casts the named spell from P1's hand on the arrived lane, pays it with the
+     * named basic land, answers its target with P2 and its card choice with the
+     * named card, and passes until the stack is empty again. Returns the public
+     * event tape every principal receives.
+     */
+    private static String castAndResolve(Lane lane, String spell, String land, String chosenCard) {
+        JsonObject priority = pendingDecision(lane);
+        submit(lane, priority, optionContaining(priority, null, spell));
+        for (int step = 0; step < 40; step++) {
+            JsonObject decision = pendingDecision(lane);
+            assertNotNull(decision, "the engine stopped offering decisions");
+            String decisionClass = decision.get("decision_class").getAsString();
+            if ("mana_payment".equals(decisionClass)) {
+                String spend = optionContaining(decision, "mana_pool", "");
+                submit(lane, decision, spend != null ? spend : optionContaining(decision, "mana_ability", land));
+            } else if ("target".equals(decisionClass)) {
+                submit(lane, decision, option(decision, null, "Full Game Seat 2"));
+            } else if ("choose_object".equals(decisionClass)) {
+                submit(lane, decision, optionContaining(decision, null, chosenCard));
+            } else if ("priority".equals(decisionClass)) {
+                JsonArray stack = decision.getAsJsonObject("pilot_state").getAsJsonArray("stack");
+                if (stack.isEmpty()) {
+                    return publicEvents(lane);
+                }
+                submit(lane, decision, option(decision, "pass_priority", null));
+            } else {
+                fail("unexpected decision while resolving " + spell + ": " + decisionClass);
+            }
+        }
+        fail(spell + " never resolved");
+        return null;
+    }
+
+    /**
+     * Fail-before for the public event tape: a move from a hidden zone into
+     * exile counted as public, because exile is a public zone. Gonti, Lord of
+     * Luxury exiles P2's library card face down, and XMage turns the card face
+     * down only right after the move, so every principal's tape named the card
+     * (and the semantic object the record requested) at the instant of the
+     * event. A card exiled face down is public to nobody (CR 406.3).
+     */
+    @Test
+    void thePublicEventTapeNeverNamesACardExiledFaceDownFromALibrary() {
+        JsonObject record = successorRecord("HIDDEN_04");
+        JsonArray objects = record.getAsJsonArray("semantic_objects");
+        objects.add(testObject("obj:test-gonti", "Gonti, Lord of Luxury", "P1", "hand"));
+        for (int index = 1; index <= 4; index++) {
+            objects.add(testObject("obj:test-swamp-" + index, "Swamp", "P1", "battlefield"));
+        }
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        lane.ok("create_midgame_game", createRequest("kp-event-face-down-exile", record));
+        lane.ok("start_midgame_game", null);
+        arrive(lane, frame -> { });
+
+        String events = castAndResolve(lane, "Gonti", "Swamp", LIBRARY_SECRET);
+        assertTrue(events.contains("\"from\":\"LIBRARY\",\"to\":\"EXILED\""),
+                "the face-down exile must be recorded: " + events);
+        for (String forbidden : List.of(LIBRARY_SECRET, "obj:hidden-lib-0")) {
+            assertFalse(events.contains(forbidden), "the public event tape names " + forbidden);
+        }
+        // Positive controls: the public source of the move stays named, and P1,
+        // whom Gonti lets look at the card, still sees it in P2's exile.
+        assertTrue(events.contains("obj:test-gonti"), "the public source must stay named");
+        String projection = lane.raw("get_midgame_projection", actorRequest("P1"));
+        assertTrue(projection.contains(LIBRARY_SECRET), "P1 may look at the card it exiled");
+        for (String opponent : List.of("P2", "P3", "P4")) {
+            String other = lane.raw("get_midgame_projection", actorRequest(opponent));
+            assertFalse(other.contains(LIBRARY_SECRET), opponent + " sees the face-down exiled card");
+        }
+    }
+
+    /**
+     * The other side of the same rule: a card exiled face up from a hidden zone
+     * (Act on Impulse exiles P1's top three cards face up) is public, so once
+     * the effect has finished the tape names it.
+     */
+    @Test
+    void thePublicEventTapeNamesACardExiledFaceUpFromALibrary() {
+        JsonObject record = successorRecord("HIDDEN_04");
+        JsonArray objects = record.getAsJsonArray("semantic_objects");
+        objects.add(testObject("obj:test-impulse", "Act on Impulse", "P1", "hand"));
+        for (int index = 1; index <= 3; index++) {
+            objects.add(testObject("obj:test-mountain-" + index, "Mountain", "P1", "battlefield"));
+        }
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        lane.ok("create_midgame_game", createRequest("kp-event-face-up-exile", record));
+        lane.ok("start_midgame_game", null);
+        arrive(lane, frame -> { });
+
+        String events = castAndResolve(lane, "Act on Impulse", "Mountain", "");
+        JsonArray tape = JsonParser.parseString(events).getAsJsonObject()
+                .getAsJsonObject("payload").getAsJsonArray("events");
+        int named = 0;
+        for (JsonElement element : tape) {
+            JsonObject event = element.getAsJsonObject();
+            if ("LIBRARY".equals(event.has("from") ? event.get("from").getAsString() : null)
+                    && "EXILED".equals(event.has("to") ? event.get("to").getAsString() : null)) {
+                assertTrue(event.get("public_identity").getAsBoolean(), "a face-up exile is public: " + event);
+                assertEquals("Mountain", event.get("target_name").getAsString());
+                named++;
+            }
+        }
+        assertEquals(3, named, "every face-up exiled card is named: " + events);
+    }
+
     @Test
     void theLosslessSuccessorConstructsExactlyAndCountsEveryCheckWithoutNamingIt() {
         Lane lane = arrivedLane("kp-exact", frame -> { });

@@ -201,10 +201,18 @@ class XmageMidgameLaneTest {
         unsupported.forEach(element -> unsupportedText.add(element.getAsString()));
         assertTrue(unsupportedText.stream().anyMatch(text -> text.contains("attachments")),
                 "attachments must remain an explicit unsupported dimension");
-        assertTrue(unsupportedText.stream().anyMatch(text -> text.contains("counters")),
-                "counters must remain an explicit unsupported dimension");
-        assertTrue(unsupportedText.stream().anyMatch(text -> text.contains("tapped")),
-                "tapped permanents must remain an explicit unsupported dimension");
+        assertTrue(unsupportedText.stream().anyMatch(
+                        text -> text.contains("counters other than +1/+1 and -1/-1")),
+                "every counter type the lane does not restore must remain explicitly unsupported");
+        assertTrue(unsupportedText.stream().anyMatch(text -> text.contains("stack spells")),
+                "stack spells must remain an explicit unsupported dimension");
+        // Tapped state and +1/+1 / -1/-1 counters are restored at the checkpoint
+        // and verified engine-direct; the manifest says exactly that.
+        List<String> supportedText = new ArrayList<>();
+        supported.forEach(element -> supportedText.add(element.getAsString()));
+        assertTrue(supportedText.stream().anyMatch(text -> text.contains("tapped permanents")
+                        && text.contains("+1/+1 or -1/-1 counters") && text.contains("checkpoint")),
+                "checkpoint tapped state and counters must be declared with their scope");
 
         JsonObject laneBlock = payload.getAsJsonObject("midgame_lane");
         assertEquals("xmage_midgame_native_starting_state", laneBlock.get("lane").getAsString());
@@ -245,9 +253,9 @@ class XmageMidgameLaneTest {
 
     /**
      * A requested dimension the engine seam does not support must be rejected
-     * with a coded reason, before any game exists. Tapped permanents are one of
-     * the manifest's explicit rejections, so this is a manifest-consistency
-     * proof as well as a fail-closed proof.
+     * with a coded reason, before any game exists. A loyalty counter is one of
+     * the manifest's explicit rejections (counters other than +1/+1 and -1/-1),
+     * so this is a manifest-consistency proof as well as a fail-closed proof.
      */
     @Test
     void unsupportedDimensionIsRejectedWithCodedReason() {
@@ -257,11 +265,13 @@ class XmageMidgameLaneTest {
             JsonObject object = element.getAsJsonObject();
             if ("battlefield".equals(object.get("zone").getAsString())
                     && "P1".equals(object.get("owner").getAsString())) {
-                object.addProperty("tapped", true);
+                JsonObject counters = new JsonObject();
+                counters.addProperty("loyalty", 3);
+                object.add("counters", counters);
             }
         }
         JsonObject request = new JsonObject();
-        request.addProperty("game_id", "midgame-tapped");
+        request.addProperty("game_id", "midgame-loyalty");
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", record);
         JsonObject response = lane.rejected("create_midgame_game", request);

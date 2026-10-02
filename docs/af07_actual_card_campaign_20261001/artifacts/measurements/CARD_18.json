@@ -1,0 +1,670 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 9.759,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "aba06296ae76a95750e64f036eceed74372186a54ee15ed22665261fc805401d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Shriekmaw \u2014 Cast Shriekmaw",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Shriekmaw \u2014 Cast Shriekmaw",
+        "selected_option_ids": [
+          "d892e5df27bc6a336ff11dae8ab1c517d7b311c0d48d56b46c18bfe666f1311e"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "c386fb4f-f642-45ed-bb09-9dfe7fae06cb"
+      },
+      {
+        "context": {
+          "outcome": "benefit"
+        },
+        "decision_class": "choice",
+        "decision_id": "a5f4d7f3d4ee5a9f66ba69714a0e75e52839ccfc9f3f53b0fc2a7cf038e162b9",
+        "numeric": null,
+        "offered_labels": [
+          "Cast with Evoke alternative cost: {1}{B} (source: <font color='#696969' object_id='#'>Shriekmaw</font> [#])",
+          "Cast with no alternative cost: {4}{B}"
+        ],
+        "principal": "P1",
+        "prompt": "You may choose an alternative cost for casting <font color='#696969' object_id='#'>Shriekmaw</font> [#]",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "evoke",
+        "selected_label": "Cast with Evoke alternative cost: {1}{B} (source: <font color='#696969' object_id='#'>Shriekmaw</font> [#])",
+        "selected_option_ids": [
+          "3c00ef146168d73cc514ba14e84f9786d0b79ffce4dd1eaf6bdd768683ba1e4c"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "9f039e9e3d9ae42189773af0ee28a27fd9bbccb1717a9e4c9be3399995e7303f",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='c386fb4f-f642-45ed-bb09-9dfe7fae06cb'>Shriekmaw</font> [c38]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "3306157cd2544f6611a824d2f7fa57311e1eca3a4972f9ed5f7fec54f5f2b4d4"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "ecb6d2d91a522e0818df262809ce1ecb4fd003ab8d2a47cd8028d244f6a46285",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='c386fb4f-f642-45ed-bb09-9dfe7fae06cb'>Shriekmaw</font> [c38]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "0f116a3e39fab4daa535f2842500e82497f6cf1c8a7a664d7166c8ef4ef4aec4",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='c386fb4f-f642-45ed-bb09-9dfe7fae06cb'>Shriekmaw</font> [c38]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Swamp \u2014 {T}: Add {B}.",
+        "selected_option_ids": [
+          "3eac7266d842a7eb1fb089eb5026234aaf856585fb103b73f3366bf076cef448"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "ca63b1091e319e4658ff0a09c6cb2a2652514b0dfa20e96363b99ee6750ea8ee",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend black mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='c386fb4f-f642-45ed-bb09-9dfe7fae06cb'>Shriekmaw</font> [c38]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend black mana from pool",
+        "selected_option_ids": [
+          "99a3b9b103bd666996933dfc62456791de2c5f4342ab9c421a8bbcae367513bb"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "29240b27efcde584b2ba32808e0c0563db79e1f38e1f5cd91a283628036a050d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "a2257aeeb44f138ebac4560d5bfc5eab86b42fc28d2f883f95bb334b91f70ab7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d0f72fd4736631aa66a0ba5a7e610588485b96dda355d1c9b687e2bc4551148c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "5f22a07f41f36755d84162772c0622df7faddcc2952a829ef0368fec22899850",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "trigger_order",
+        "decision_id": "c320d1d8557353d86ce5e3ed9ec120fa5d8691e57313cf02279a6e7911eb078d",
+        "numeric": null,
+        "offered_labels": [
+          "Shriekmaw \u2014 When this permanent enters, if its evoke cost was paid, its controller sacrifices it.",
+          "Shriekmaw \u2014 When {this} enters, destroy target nonartifact, nonblack creature."
+        ],
+        "principal": "P1",
+        "prompt": "Choose next triggered ability",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "trigger:Shriekmaw|destroy target",
+        "selected_label": "Shriekmaw \u2014 When {this} enters, destroy target nonartifact, nonblack creature.",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": "c386fb4f-f642-45ed-bb09-9dfe7fae06cb"
+      },
+      {
+        "context": {
+          "outcome": "destroypermanent",
+          "required": true,
+          "target_description": "target nonartifact, nonblack creature",
+          "target_name": "nonartifact, nonblack creature",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "fb4d97f3e3af01e26bfdf2c4f0fe52b6542de1d6fe236808a2ac4d7b95bf6e5d",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select a nonartifact, nonblack creature",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "afd134f86b6abd0dfb287092c01e367d552a58c77b3cf095313cdd16923e6b24",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d67d5ad439a6ee6097899986fbae08968825886b495c91e5f20261cc488c14e8",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "86d3f4d3ad7eefc071dc48fe314628d4910ba9f74501da9c8e8c8cee14bd7b3a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "66d285cc6e0799e76783bf62b8206b3f517c70d45d2f624e2eb4c9e5c268e593",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "db23d088f7ddb349e41b7a13949f5d81546e512314fa25c2598cb40aa5899e23",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "51bf0bbca4d66dec31679e558d0f29ad64fc64ff0e3f7e8731626dc36f5292a3",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "54e5aee4d76e51efa84bcdc019738aab801c144dc177a592427de8c061dbb894",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d52e0742dedc6012887bf315a2c41b51605064ae0d4dbafcf2284e1457265871",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_18",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Shriekmaw",
+        "target_object": "obj:card_18-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Shriekmaw",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Shriekmaw",
+        "target_object": "obj:card_18-subject",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (When {this} enters, destroy target nonartifact, nonblack creature.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (When this permanent enters, if its evoke cost was paid, its controller sacrifices it.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Shriekmaw",
+        "target_object": "obj:card_18-subject",
+        "turn": 1,
+        "type": "SACRIFICED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Shriekmaw",
+        "target_object": "obj:card_18-subject",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card18-target",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 15,
+        "source_name": "Shriekmaw",
+        "source_object": "obj:card_18-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card18-target",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card18-target": true,
+      "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject": true,
+      "no Grizzly Bears is on P2's battlefield": true,
+      "no Shriekmaw is on P1's battlefield": true
+    },
+    "token_evidence": {
+      "Shriekmaw_enters": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card_18-subject, from=STACK, to=BATTLEFIELD",
+        "events": [
+          9
+        ]
+      },
+      "destroy_target": {
+        "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card18-target",
+        "events": [
+          14
+        ]
+      },
+      "destroy_trigger": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_18-subject, target_name~=stack ability (When {this} enters, destroy target",
+        "events": [
+          10
+        ]
+      },
+      "evoke_cast": {
+        "binding": "a scripted choice frame selected an engine offer naming 'evoke alternative cost'",
+        "decision_frames": [
+          1
+        ]
+      },
+      "evoke_sacrifice_trigger": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_18-subject, target_name~=stack ability (When this permanent enters, if its evoke",
+        "events": [
+          11
+        ]
+      },
+      "sacrifice_Shriekmaw": {
+        "binding": "at least one SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject",
+        "events": [
+          12
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_18",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

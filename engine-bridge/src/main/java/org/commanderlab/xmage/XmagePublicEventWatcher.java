@@ -3,6 +3,7 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mage.MageObject;
+import mage.cards.Card;
 import mage.constants.WatcherScope;
 import mage.constants.Zone;
 import mage.game.Game;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The public semantic event tape of one restored game.
@@ -28,8 +30,10 @@ import java.util.Set;
  *
  * <p>Hidden information never enters the tape: a zone change whose origin and
  * destination are both hidden (a draw, a card put into a library) records
- * only its owner and zones, never the card's identity. Every other recorded
- * object is public at the time of the event.</p>
+ * only its owner and zones, never the card's identity. A card moved from a
+ * hidden zone into exile is named only once it is known to have stayed face up
+ * there (see {@link #settle}). Every other recorded object is public at the
+ * time of the event.</p>
  */
 final class XmagePublicEventWatcher extends Watcher {
 
@@ -65,6 +69,20 @@ final class XmagePublicEventWatcher extends Watcher {
 
     private List<String> events = new ArrayList<>();
 
+    /**
+     * Zone changes from a hidden zone into exile whose card identity is not yet
+     * decided, as {@code "index|cardId|zoneChangeCounter"}.
+     *
+     * <p>XMage effects that exile a card face down (Gonti, Lord of Luxury; Kheru
+     * Mind-Eater; Bane Alley Broker) move the card and turn it face down only
+     * after the move, so at the instant of the event the card still reads face
+     * up. A card exiled face down is shown to nobody but the players an effect
+     * lets look at it (CR 406.3), so such a move stays unnamed until the card
+     * is known to have stayed face up in that exile. Strings keep the list
+     * copyable with the rest of the game state.</p>
+     */
+    private List<String> pendingExile = new ArrayList<>();
+
     XmagePublicEventWatcher() {
         super(WatcherScope.GAME);
     }
@@ -87,6 +105,7 @@ final class XmagePublicEventWatcher extends Watcher {
             record.addProperty("data", event.getData());
         }
         boolean publicIdentity = true;
+        boolean pending = false;
         if (event instanceof ZoneChangeEvent zoneChange) {
             record.addProperty("from", zoneChange.getFromZone().name());
             record.addProperty("to", zoneChange.getToZone().name());
@@ -94,19 +113,84 @@ final class XmagePublicEventWatcher extends Watcher {
             publicIdentity = !faceDown
                     && (PUBLIC_ZONES.contains(zoneChange.getFromZone())
                     || PUBLIC_ZONES.contains(zoneChange.getToZone()));
+            // A card leaving a hidden zone for exile may be turned face down by
+            // the moving effect right after this event: its identity is decided
+            // once that effect has finished (settle).
+            if (publicIdentity && zoneChange.getToZone() == Zone.EXILED
+                    && !PUBLIC_ZONES.contains(zoneChange.getFromZone())) {
+                publicIdentity = false;
+                pending = true;
+            }
         }
         if (event instanceof DamagedEvent damaged) {
             record.addProperty("combat", damaged.isCombatDamage());
         }
         record.addProperty("public_identity", publicIdentity);
+        boolean sourceIsTarget = event.getSourceId() != null && event.getSourceId().equals(event.getTargetId());
+        if (event instanceof ZoneChangeEvent) {
+            // The moved card is named only with a public identity. The effect's
+            // source is another object, named whenever it is public itself; a
+            // card that moves itself shares the moved card's identity.
+            record.addProperty("target_hidden", !publicIdentity);
+            record.addProperty("source_hidden",
+                    sourceIsTarget ? !publicIdentity : hiddenObject(event.getSourceId(), game));
+        } else {
+            // Any other event may name an object whose identity is hidden right
+            // now (a face-down permanent, a card in a hidden zone): it is named
+            // by neither its card name nor the semantic object it was requested as.
+            record.addProperty("target_hidden", hiddenObject(event.getTargetId(), game));
+            record.addProperty("source_hidden", hiddenObject(event.getSourceId(), game));
+        }
         if (publicIdentity) {
             // A zone change was public before or after the move; any other event
             // names only objects that are in a public zone now.
             boolean requirePublicZone = !(event instanceof ZoneChangeEvent);
             putName(record, "target_name", event.getTargetId(), game, requirePublicZone);
             putName(record, "source_name", event.getSourceId(), game, true);
+        } else if (event instanceof ZoneChangeEvent && !sourceIsTarget) {
+            putName(record, "source_name", event.getSourceId(), game, true);
         }
         events.add(record.toString());
+        if (pending) {
+            Card card = game.getCard(event.getTargetId());
+            pendingExile.add((events.size() - 1) + "|" + event.getTargetId() + "|"
+                    + (card == null ? -1 : card.getZoneChangeCounter(game)));
+        }
+    }
+
+    /**
+     * Decides the identity of every pending move into exile from the current
+     * state.
+     *
+     * <p>The lane calls this when the tape is read, which happens between
+     * engine decisions, after the effect that made the move has finished. A
+     * card that stayed face up in that exile is public and is named. A card that
+     * is face down there, or that has left that exile since, stays unnamed:
+     * nothing shows it was ever public.</p>
+     */
+    void settle(Game game) {
+        for (String entry : pendingExile) {
+            String[] parts = entry.split("\\|");
+            int index = Integer.parseInt(parts[0]);
+            UUID cardId = UUID.fromString(parts[1]);
+            int zoneChangeCounter = Integer.parseInt(parts[2]);
+            Card card = game.getCard(cardId);
+            if (card == null || card.isFaceDown(game)
+                    || game.getState().getZone(cardId) != Zone.EXILED
+                    || card.getZoneChangeCounter(game) != zoneChangeCounter) {
+                continue;
+            }
+            JsonObject record = JsonParser.parseString(events.get(index)).getAsJsonObject();
+            record.addProperty("public_identity", true);
+            record.addProperty("target_hidden", false);
+            putName(record, "target_name", cardId, game, false);
+            if (record.has("source") && cardId.toString().equals(record.get("source").getAsString())) {
+                record.addProperty("source_hidden", false);
+                putName(record, "source_name", cardId, game, true);
+            }
+            events.set(index, record.toString());
+        }
+        pendingExile.clear();
     }
 
     int size() {
@@ -130,6 +214,30 @@ final class XmagePublicEventWatcher extends Watcher {
         }
     }
 
+    private static boolean hiddenObject(java.util.UUID id, Game game) {
+        if (id == null || game.getPlayer(id) != null) {
+            return false;
+        }
+        Permanent permanent = game.getPermanentOrLKIBattlefield(id);
+        if (permanent != null && permanent.isFaceDown(game)) {
+            return true;
+        }
+        Zone zone = game.getState().getZone(id);
+        if (faceDownInExile(id, zone, game)) {
+            return true;
+        }
+        return zone != null && !PUBLIC_ZONES.contains(zone);
+    }
+
+    /** Exile is a public zone, but a card exiled face down is not public (CR 406.3). */
+    private static boolean faceDownInExile(java.util.UUID id, Zone zone, Game game) {
+        if (zone != Zone.EXILED) {
+            return false;
+        }
+        Card card = game.getCard(id);
+        return card != null && card.isFaceDown(game);
+    }
+
     private static void putName(
             JsonObject record, String key, java.util.UUID id, Game game, boolean requirePublicZone) {
         if (id == null || game.getPlayer(id) != null) {
@@ -137,6 +245,9 @@ final class XmagePublicEventWatcher extends Watcher {
         }
         Zone zone = game.getState().getZone(id);
         if (requirePublicZone && zone != null && !PUBLIC_ZONES.contains(zone)) {
+            return;
+        }
+        if (faceDownInExile(id, zone, game)) {
             return;
         }
         MageObject object = game.getObject(id);

@@ -1,0 +1,161 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
+branch: hardening/midgame-multiselect-amount-closure-20261001
+audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
+audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df
+state_written_against_head: 33d4a541c3712bac4d84faa777ec5c09c280da88
+validated_head: 33d4a541c3712bac4d84faa777ec5c09c280da88
+
+objective: >-
+  Close the current Lab mid-game decision-lane gaps for MICRO_COSTS,
+  PILOT_TARGET_AMOUNT and PILOT_MULTI_AMOUNT using only engine-authored
+  decision domains, direct source-bound evidence and wrong-reason-resistant
+  validation.
+
+in_scope:
+  - engine-authored multi-select target selection (semantic_objects)
+  - divided-damage amount_assignment selection and verification
+  - MICRO_COSTS engine-determined cost-charge verification
+  - live wrong-reason controls on the production executor
+  - direct re-execution of MICRO_COSTS
+  - direct re-execution of PILOT_TARGET_AMOUNT
+  - direct re-execution of PILOT_MULTI_AMOUNT
+  - impacted current-boundary receipt and evidence reassembly
+  - CI, independent review and merge adjudication
+
+out_of_scope:
+  - AF05 hidden-information knowledge projection
+  - AF07 actual-card corpus expansion
+  - AF09 semantic replay twins
+  - Forge mid-game lane creation
+  - Production Provider selection
+  - AF11
+  - Architecture Freeze
+  - unrelated Rules-engine remediation
+  - Foundry routing changes
+
+ownership: MIDGAME-LANE-MULTISELECT-AMOUNT-CLOSURE-20261001
+
+dependencies:
+  - '#255 Coordinator comment 5931735894'
+  - '#449 workstream contract'
+  - '#449 ownership reservation comment 5931753920'
+  - 'commander-lab.full107/1.0.7-successor'
+  - 'current source-bound epoch 2b60482af250-d0fc69bb4022'
+
+hard_gates:
+  - Rules Core remains sole legality authority
+  - use only engine-authored pending decision domains
+  - no historical PASS transfer
+  - direct credit requires exact current obligation execution
+  - wrong-reason controls required
+  - unsupported or ambiguous mapping fails closed
+  - UNKNOWN is not PASS
+  - no provider selection
+  - no Architecture Freeze
+
+forbidden_shortcuts:
+  - first option
+  - random option
+  - inferred target
+  - default yes/no
+  - internal engine AI fallback
+  - GUI default
+  - silent skip
+  - prose-derived legal action
+  - requested-option legality reconstruction
+  - fabricated legal action
+  - manual outcome injection
+  - implicit equal damage split
+
+validated_gates:
+  - 'unit: tests/qualification/test_current_boundary_midgame_rows.py 85 passed'
+  - 'unit: tests/qualification 822 passed / 13 skipped'
+  - 'dev-runtime: three rows verified locally via execute_and_persist (MODELED, non-credit)'
+  - 'dev-control: three live wrong-reason controls stop unverified with the obligation token missing'
+failed_gates: []
+invalidated_gates: []
+do_not_rerun: []
+
+failure_class: NONE
+root_cause_class: NONE
+current_failure: >-
+  none in scope; the pre-change selector gap is remediated and the remaining
+  requirement is at-pin CI credit for the three rows.
+
+first_failing_boundary: >-
+  selector dispatch in _scripted_answer: 'semantic_objects' (MICRO_COSTS) and
+  'amount_assignment' (PILOT_TARGET_AMOUNT / PILOT_MULTI_AMOUNT); reproduced
+  before the change, now implemented.
+
+files_modified:
+  - src/commander_lab/qualification/current_boundary/midgame_rows.py
+  - scripts/run_midgame_capability_probe.py
+  - tests/qualification/test_current_boundary_midgame_rows.py
+  - docs/midgame_multiselect_amount_closure_20261001/
+
+tests_run:
+  - 'python3 -m pytest -q tests/qualification/test_current_boundary_midgame_rows.py -> 87 passed'
+  - 'python3 -m pytest -q tests/qualification on bb59fe47 -> 824 passed, 13 skipped'
+  - 'python3 -m pytest tests -m "not external" -q on bb59fe47 -> 3010 passed, 15 skipped, 2 deselected'
+  - 'python3 -m pytest tests -m "not external" -q on merged 840f9313 -> 3042 passed, 15 skipped, 2 deselected'
+  - 'python3 -m pytest -q tests/qualification/test_current_boundary_midgame_rows.py tests/qualification/test_pre_freeze_contract_successor.py on 840f9313 -> 107 passed'
+  - 'python3 -m pytest tests -m "not external" -q on merged 9ca93860/d77d5eca (contract 1.0.9) -> 3047 passed, 15 skipped, 2 deselected'
+  - 'python3 -m pytest -q midgame_rows + pre_freeze_contract_successor + knowledge_projection on d77d5eca -> 138 passed'
+  - 'python3 -m ruff check + ruff format --check on modified files -> clean'
+  - 'mypy 1.20.2 strict on midgame_rows.py -> no errors in the modified module (pre- and post-merge)'
+
+evidence:
+  - 'fail-before: three rows stop at the missing selector with EXACT construction'
+  - 'engine frames reproduced: target_amount per-leg frames (numeric bounds + amount_remaining), target 6-of-6 frame, target 2-of-2 frame, mana_payment {7}{B}{B}'
+  - 'dev positive: MICRO_COSTS cost evidence charged_mana=9, determined {7}{B}{B}, 18 engine decision ids'
+  - 'dev positive: PILOT_TARGET_AMOUNT and PILOT_MULTI_AMOUNT amount_assignment:2+2 with engine decision ids and engine_amount_remaining=4'
+  - 'dev controls: MICRO_COSTS without payment -> cost token missing; Magma Opus with one leg -> amount_assignment:2+2 missing'
+  - 'dev runner+assembler on 577390fb (local artifact e04062d2, NON-CREDIT): 22/22 midgame rows verified, xmage PASS 24 -> 27, the three rows PASS with fresh current-boundary receipts; the local epoch was moved out of the worktree and is deliberately not committed'
+  - 'independent fresh-context review: PASS, no P1/P2; P3 advisories addressed (multi-select option ids persisted on the frame, doc precision, three added negative tests) except the local-epoch hygiene item which is resolved by discarding it'
+  - 'main drift 1: #451 (AF05) merged as bcd903f2; merge 497743d6 clean, no file overlap; contract 1.0.8; three fixtures unchanged; requalified locally on 840f9313'
+  - 'main drift 2: #452 (AF05 M2) merged as a9159084; merge 9ca93860 clean, no file overlap; contract 1.0.9 adds only HIDDEN_07/08; the three fixtures replace payloads, successor digests, correction classes and effective requested/obligation digests are unchanged; source_lock.py and knowledge_projection.py changed, which are runner-digest inputs, so REQUALIFICATION_REQUIRED for current-source credit'
+  - 'post-1.0.9 requalification on d77d5eca: full suite 3047 passed / 15 skipped; focused 138 passed; ruff/mypy clean; the three rows verify again locally (MODELED)'
+  - 'pre-drift PB-03 epoch 00cad32010ca-1e5764089ab5 was green (22/22 midgame rows, xmage 33 PASS) but is superseded by drift 2; preserved outside the worktree, not committed'
+  - 'main drift 3: #460 (AF05 M2 batch 2) merged as 6ae06efc; contract 1.0.10 adds HIDDEN_09/14/18 and a face-down event-tape Java fix; merge 9778d87e clean; the three fixtures again byte-identical (replace payloads and successor digests); focused suite 146 passed and the three rows verify locally (MODELED) on the merged head'
+  - 'authoritative PB-03 run 36916800598 on merge ref 1710cac9 (tree 210d2ade): SUCCESS; epoch 1710cac9d2eb-210d2adeeac1 with 80/80 digests verified, midgame 22/22, XMage FULL107 38 PASS / 0 FAIL, the three rows PASS FRESH_CURRENT_BOUNDARY_RUNTIME with current receipts at runner digest 10d3fd2c..., engine artifact 004c84e1... at candidate 37e4df6c'
+  - 'main drift 4: #462 (AF05 M2 batch 3) merged as 7784fba6 (contract 1.0.11, HIDDEN_17); merging it produced a generated-manifest conflict resolved by regeneration; the resolved head 33d4a541 was requalified end-to-end by PB-03 run 36924534689 on merge ref b2e2ca31: SUCCESS, epoch b2e2ca316049-57f121f50e27 with 81/81 digests, midgame 22/22, xmage 39 PASS, the three rows PASS with current receipts'
+  - 'local validation on the resolved head 33d4a541: focused 173 passed; full suite 3057 passed / 15 skipped; the three rows verify locally (MODELED)'
+  - 'multi-writer convergence note: AF05 batches and AF07/AF09 are active concurrently; this workstream requalified across the 1.0.8/1.0.9/1.0.10/1.0.11 drifts and sealed the epoch of the resolved head immediately before merging'
+
+artifacts:
+  - docs/midgame_multiselect_amount_closure_20261001/SELECTOR_DESIGN.md
+  - docs/midgame_multiselect_amount_closure_20261001/FAIL_BEFORE_AND_CONTROLS.md
+
+remaining_scope:
+  - commit and push the sealed evidence epoch
+  - re-verify the non-PB-03 checks on the seal head
+  - mark PR #450 ready and merge normally
+  - verify terminal main HEAD/tree and update #449 / #255
+
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+hypotheses_rejected:
+  - 'the two Magma Opus rows need the tap-target multi-select frame before the assignment obligation is observable: false; the assignment completes first and the record scripts no tap targets'
+  - 'the divided-damage amount is a separate engine frame class after target selection: false; each target_amount frame carries the target and its share together'
+  - 'the MICRO_COSTS cost increase is visible in the priority action metadata before targets: false; the engine determines {7}{B}{B} only in the payment frame after targets'
+technical_decisions:
+  - 'semantic_objects is a generic ordered-identity selector with the engine frame cardinality as authority'
+  - 'amount_assignment consumes one engine target_amount frame per declared leg and submits target + numeric_choice'
+  - 'the amount_assignment verifier binds each leg to a scripted frame with the engine decision id and the engine amount_remaining total'
+  - 'cost_determined:base_plus_N_generic compares the engine unpaid_mana vector and the actually charged pool spends to the row-declared base and total'
+  - 'the two Magma Opus rows verify at the assignment obligation and stop before the unscripted tap frame instead of inventing targets'
+authority_gates: []
+
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+
+exact_next_action: >-
+  Commit the sealed epoch 1710cac9d2eb-210d2adeeac1 with the regenerated hash
+  manifests, final handoff, validation record and state; push; confirm the
+  non-PB-03 exact-head checks on the seal commit; mark PR #450 ready and merge
+  normally; then verify main and update #449 and #255.

@@ -1068,6 +1068,12 @@ final class XmageMidgameJsonlBridge {
             Map<String, String> seatByPlayer = new HashMap<>();
             current.restorationSeats().forEach((label, player) -> seatByPlayer.put(player.getId().toString(), label));
             JsonArray events = new JsonArray();
+            // A move into exile is named only once its face is known, and only
+            // while the engine thread is parked on a decision: then no effect is
+            // half done (a card exiled and not yet turned face down).
+            if (current.parkedDecisionClass() != null) {
+                watcher.settle(current.restorationGame());
+            }
             for (JsonObject raw : watcher.eventsAfter(afterOffset)) {
                 events.add(publicEvent(raw, seatByPlayer));
             }
@@ -1099,7 +1105,7 @@ final class XmageMidgameJsonlBridge {
             String seat = seatByPlayer.get(nativeId);
             if (seat != null) {
                 event.addProperty(key + "_player", seat);
-            } else if (publicIdentity && !"player".equals(key)) {
+            } else if (!"player".equals(key) && !hiddenOnTape(raw, key, publicIdentity)) {
                 String semanticId = restoration.semanticIdOf(UUID.fromString(nativeId));
                 if (semanticId != null) {
                     event.addProperty(key + "_object", semanticId);
@@ -1107,6 +1113,15 @@ final class XmageMidgameJsonlBridge {
             }
         }
         return event;
+    }
+
+    /**
+     * Whether the tape withholds this object: its own recorded flag decides, and
+     * an event recorded without one names its objects only with a public identity.
+     */
+    private static boolean hiddenOnTape(JsonObject raw, String key, boolean publicIdentity) {
+        String flag = key + "_hidden";
+        return raw.has(flag) ? raw.get(flag).getAsBoolean() : !publicIdentity;
     }
 
     /**

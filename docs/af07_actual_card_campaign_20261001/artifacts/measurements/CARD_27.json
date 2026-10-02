@@ -1,0 +1,557 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 9.685,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e69d5780ddc1aff32c49095c8c861ceca4e8f497d970912cede67e603a9b9e12",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Path of Ancestry \u2014 {T}: Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. <i>(Look at the top card of your library. You may put that card on the bottom of your library.)</i>",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Keldon Marauders \u2014 Cast Keldon Marauders",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Path of Ancestry \u2014 {T}: Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. <i>(Look at the top card of your library. You may put that card on the bottom of your library.)</i>",
+        "selected_option_ids": [
+          "3c92452a0d5a18904f4ff89233b46f04cfa637804d8983725a758c609c97f936"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "fbd8877f-a7ed-4cf2-896a-244c468b5fd7"
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "167c9bcc8444cffe80eb4db0b4bad86874276636641f72b0e7eddf781d7d9fb7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Keldon Marauders \u2014 Cast Keldon Marauders",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Keldon Marauders \u2014 Cast Keldon Marauders",
+        "selected_option_ids": [
+          "89e1a90c211d9ee6493a5f4deb375ca90aa36ff55c538f4f40a2a1797521a0cc"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "7d40cc66-a8e3-4207-a99b-f36b034c4276"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "098036e0e61acddb46ae74d5f54a25254568899efdb546aa465f62a0962d0ba1",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='7d40cc66-a8e3-4207-a99b-f36b034c4276'>Keldon Marauders</font> [7d4]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "b749b109f3327567d7f11205f6ff5c61e42b95a6532c4b01ddc5113129554f51",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='7d40cc66-a8e3-4207-a99b-f36b034c4276'>Keldon Marauders</font> [7d4]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "865c68abc3ba70c13105a90d0ea47ff179947a99f080ab23cba7c82ac65feabc"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "64931c92934aae1703da29b3520cf4cc9256e6ffa83950761dc5150df2cc56aa",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='7d40cc66-a8e3-4207-a99b-f36b034c4276'>Keldon Marauders</font> [7d4]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "90d60d80c090e9a03e642285afcfe613d243c3e63371f08fdacf0d6a7e4b95ee",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "95f624afd8ce2b3126b444d1f0393d7bf3b7e2407da2494809bacb170ef178b3",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b48fb1e7d9caff196bf3892e9d571acd2f192ee2f48cbe781adab1c79ad50c50",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b078e2e4c83216a5212727f4974abf00976c4a08ee40c044778e8cc473dcb5b0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "benefit",
+          "required": true,
+          "target_description": "up to one target card to PUT on the BOTTOM of your library (Scry)",
+          "target_name": "card to PUT on the BOTTOM of your library (Scry)",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "1beeb3ce57de4d8445815b322dd79df614623fe979bd763af8c40ffa7904da27",
+        "numeric": null,
+        "offered_labels": [
+          "Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Select up to one card to PUT on the BOTTOM of your library (Scry)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "none",
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "ff339a5113317ebd4c99af2d94fc8b9a70141ad242b14ccad8744afb6e9628c5",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "62fecafb100402b93db74300d999aa4ac7e2526afed8a9e7d2b71633ad2abb41",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "508adc0eadca625970a821804d8dfcca21853448cb6e20ff6011ab47f076ca6a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "52f39a59935ef0be130063c6bb4aa270ca9426354d3e5ff8434de693345d7e6a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "damage",
+          "required": true,
+          "target_description": "target player or planeswalker",
+          "target_name": "player or planeswalker",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "4f904a8435ffb859342739b4e43bd6a0c2f30ed5c9ec6b82e1eba4d88da9145a",
+        "numeric": null,
+        "offered_labels": [
+          "Full Game Seat 1",
+          "Full Game Seat 2",
+          "Full Game Seat 3",
+          "Full Game Seat 4"
+        ],
+        "principal": "P1",
+        "prompt": "Select a player or planeswalker",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Full Game Seat 2",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_27",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Keldon Marauders",
+        "source_object": "obj:card27-warrior",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Keldon Marauders",
+        "target_object": "obj:card27-warrior",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Keldon Marauders",
+        "source_object": "obj:card27-warrior",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Keldon Marauders",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Path of Ancestry",
+        "source_object": "obj:card_27-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. <i>(Look at the top card of your library. You may put that card on the bottom of your library.)</i>)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 10,
+        "step": "PRECOMBAT_MAIN",
+        "to": "LIBRARY",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 1,
+        "data": "time",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Keldon Marauders",
+        "source_object": "obj:card27-warrior",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Keldon Marauders",
+        "target_object": "obj:card27-warrior",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 1,
+        "data": "time",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Keldon Marauders",
+        "source_object": "obj:card27-warrior",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Keldon Marauders",
+        "target_object": "obj:card27-warrior",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Keldon Marauders",
+        "source_object": "obj:card27-warrior",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Keldon Marauders",
+        "target_object": "obj:card27-warrior",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Keldon Marauders",
+        "source_object": "obj:card27-warrior",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (When {this} enters or leaves the battlefield, it deals 1 damage to target player or planeswalker.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject": true,
+      "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'": true
+    },
+    "token_evidence": {
+      "mana_ability:red": {
+        "binding": [
+          "a scripted priority frame selected an engine offer naming 'Path of Ancestry \u2014 {T}: Add one mana'",
+          "a mana payment spent red mana from the pool"
+        ],
+        "parts": [
+          {
+            "binding": "a scripted priority frame selected an engine offer naming 'Path of Ancestry \u2014 {T}: Add one mana'",
+            "decision_frames": [
+              0
+            ]
+          },
+          {
+            "binding": "a mana payment spent red mana from the pool",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "mana_spent_on_shared_type_creature": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject, target_name~=stack ability (When that mana is spent to cast a creature",
+        "events": [
+          9
+        ]
+      },
+      "scry:1": {
+        "binding": "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'",
+        "observation": "engine terminal observation"
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_27",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

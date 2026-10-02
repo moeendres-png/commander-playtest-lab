@@ -1,0 +1,781 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 9.091,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "ebe9bd07d576936ec0e084e59ea28b7bc88161fc97b783a6b79ed79691b42008",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Makeshift Mannequin \u2014 Cast Makeshift Mannequin",
+          "Lightning Bolt \u2014 Cast Lightning Bolt",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Makeshift Mannequin \u2014 Cast Makeshift Mannequin",
+        "selected_option_ids": [
+          "fe6d5e0277b2c021f90721843235cbdfa09eeb1fb22bf4d217078c6bb0f3b758"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "85a1450b-0720-4e1d-93d3-a58c0781b96f"
+      },
+      {
+        "context": {
+          "outcome": "putcreatureinplay",
+          "required": false,
+          "target_description": "target creature card from your graveyard",
+          "target_name": "creature card from your graveyard",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "5f2cfb87bd68fc8001e89e4cc4755b7a840ba4111bbeef6c636b782755b3fe4d",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select a creature card from your graveyard",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "ede065037304a79a55e2e6b8563c9b42055848bfd28618fb5f9a98eb157a88c7",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "709c52e9b886e1311cd62ac001169efb68944dec370dfa1d34b6b27e279751e8"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "13ff584907f6c6c6d2dda0ecf9505a3b754f1275fe03f68e85758135fb8ca8f0",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "e8dcfbb25686baafb96913a41ead1659680b9578b9423a8f1eff72fbfe4e2035",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "3d16953bd336cd2e7ee49ed11c41225b7dcd9bf2749aa2242341ad2ffd43af18"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "84c86ac7d24830cdf58a459a67a9c5b087198bf7f5a3f30adc1bf49be65218c4",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "f9ddf5f5bae37ee499987582485543c1eef6f6a3016db7921d49e0840d267ad7",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "1137ca5b0f61699d2478fde6817184846da894ef0a8608f468669d145b3803dc"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "4b2c794dc4b26de97f38b7393c4eb24a9642b24fb5250363a08a6d123419111b",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a12f8903badda867e10175ad432c2f55e43e4e615f6f5ab7169a0c99fa4e9c12",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "06ef62e906722055e16e4629fd6afaa00139169b1456e44dfe511af785b0a32d"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "7c218856a030000752c6fc9d482ccd56dc1bff3514c64bbe22467ee5780ddd9d",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Swamp \u2014 {T}: Add {B}.",
+        "selected_option_ids": [
+          "5f27837f4ab8133223337268d62d5bc5457a2000b49971bffe27323f53c9570c"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "c6984e106cb501dd29fbc37b4da609929e7feafeb45f61959ce07898022d9994",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend black mana from pool",
+          "Spend red mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend black mana from pool",
+        "selected_option_ids": [
+          "99a3b9b103bd666996933dfc62456791de2c5f4342ab9c421a8bbcae367513bb"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "ad697f7d3e3f6110644568575783d509ecac7b514a2fe479afd03a18d0665f32",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Lightning Bolt \u2014 Cast Lightning Bolt"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "cc354020f2f4f5f00d11de7ccefc8fcf979a5c069b5505b2cd8d59edff5076f8",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "a1b7ea7171d543fea2d5225d8bd9c66bf78686f8a260b1879b286b0dbc98848f",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "7c89782e44cee86e27ddf773946a38af9c43f5eaf6377beb628676fb4f7d0cc1",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d712844f528f43e7bc1421d59d026e78f904bb1eeab9b1c8c2878ff393fe46e2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Lightning Bolt \u2014 Cast Lightning Bolt",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+        "selected_option_ids": [
+          "e3aa077b2a32dc4691f2e8f96f076f46b1e5618c3c057ed738a4771649b3f8d8"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "4b04a225-583d-4b1e-af29-6728f6f296a2"
+      },
+      {
+        "context": {
+          "outcome": "damage",
+          "required": false,
+          "target_description": "any target",
+          "target_name": "any target",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "e3fb9eaef199c12a5011482446f82878f66d5686f378df2f4c45333e977e0808",
+        "numeric": null,
+        "offered_labels": [
+          "Full Game Seat 1",
+          "Full Game Seat 2",
+          "Full Game Seat 3",
+          "Full Game Seat 4",
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select any target",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "2970d9717f2f36544a6d2bbb3e71a8b19b6d762e9963d2bc0e7f02feb685ddb4",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='4b04a225-583d-4b1e-af29-6728f6f296a2'>Lightning Bolt</font> [4b0]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d72b2620bfaa9f56b210587f57372127595782ae0c7d9e32e4b8c7d099d4cbba",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "ff8fe2c8f7d1e2d18535ea11c1b437b992b14b420c9c828151fa6a3e68ccc566",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "5dbfcdffab7cb464b1099223e655f414c80dd864ecd06bd90c46dd9ac5780751",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "28fda98c567caf05cfaf0c98421f2ee88a7a0ee2b403e7f55b58399ce04fe350",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_23",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Makeshift Mannequin",
+        "source_object": "obj:card_23-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Makeshift Mannequin",
+        "target_object": "obj:card_23-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Makeshift Mannequin",
+        "source_object": "obj:card_23-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Makeshift Mannequin",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 1,
+        "data": "mannequin",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Makeshift Mannequin",
+        "source_object": "obj:card_23-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card23-creature",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "GRAVEYARD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Makeshift Mannequin",
+        "source_object": "obj:card_23-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card23-creature",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Makeshift Mannequin",
+        "source_object": "obj:card_23-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Makeshift Mannequin",
+        "target_object": "obj:card_23-subject",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Lightning Bolt",
+        "source_object": "obj:card23-bolt",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Lightning Bolt",
+        "target_object": "obj:card23-bolt",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card23-creature",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (When {this} becomes the target of a spell or ability, sacrifice it.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Lightning Bolt",
+        "source_object": "obj:card23-bolt",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Lightning Bolt",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 15,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card23-creature",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card23-creature",
+        "turn": 1,
+        "type": "SACRIFICED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 16,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card23-creature",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card23-creature",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature": true,
+      "no Grizzly Bears is on P1's battlefield": true
+    },
+    "token_evidence": {
+      "creature_becomes_target": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card23-creature, target_name~=stack ability (When {this} becomes the target",
+        "events": [
+          13
+        ]
+      },
+      "granted_trigger": {
+        "binding": "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card23-creature",
+        "events": [
+          13
+        ]
+      },
+      "return_creature_with_mannequin_counter": {
+        "binding": "at least one COUNTER_ADDED event(s) with target_object=obj:card23-creature, data=mannequin, amount=1",
+        "events": [
+          9
+        ]
+      },
+      "sacrifice_returned_creature": {
+        "binding": "at least one SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature",
+        "events": [
+          15
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_23",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

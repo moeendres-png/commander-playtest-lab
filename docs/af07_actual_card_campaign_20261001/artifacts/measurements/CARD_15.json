@@ -1,0 +1,1800 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 10.282,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "279cc6e027fc3a7c3029598eda1baef641eb2d6247fb638a3cc74e82a98457f7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Finale of Revelation \u2014 Cast Finale of Revelation",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Finale of Revelation \u2014 Cast Finale of Revelation",
+        "selected_option_ids": [
+          "798f5c67b0f26e03086a8ba823222fce245b217c9dbab61be3be30b61da7a813"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d"
+      },
+      {
+        "context": {
+          "numeric_max": 2147483647,
+          "numeric_min": 0
+        },
+        "decision_class": "announce_x",
+        "decision_id": "0015455904c3f23eedfd80416c394054212deec3f1c5fba5f8c2811382ef07fb",
+        "numeric": 10,
+        "offered_labels": [
+          "Provide numeric choice"
+        ],
+        "principal": "P1",
+        "prompt": "Announce the value for {X}",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Provide numeric choice",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{10}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "7d40519911a68daf986edde8bc11692655a2f30f5869406b24bc320f42fdc0ce",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{10}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "6255c0c3613dd1dfd54759a0fdda3767b9abf47cc05cca2df87dc6468e249024"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{10}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "f113b571a6b3b3b92e6aee12698a3228981f2dd83fb65691ab9fd249defa6835",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{10}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{9}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "482875c631747307e5e66f53df72507c87a3c870690598ee98efe7daf9e31fb8",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{9}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "1524f74305fcbf8a73dd3a04e762a0a4b3f6878a51b067b386157660406fdacb"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{9}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a8510631cedfd1d2a3ec739580d17fa31c161d43b597f3bf96865150cc26cbb0",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{9}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{8}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "b049fb24b231f2947a49427a4aa420cd66a766ba71642a461a54950605968e5f",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{8}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "9e0be15c32ecc14c0b7ed96537db7d766a1a8aab5992d59bcc9c41b85a028451"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{8}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "c5644b9e6316419080147b74008d6b2b141ed1d0554f0c31eac98e3228769485",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{8}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{7}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "677775887a2c5e0823e1518527b937913c71b2bfc5f2304dff70062caab8e4b8",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{7}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "d08a9d15040d8a740ef3332576c37d4c9e870eb76cbce08a7da9c1a9f8cf335d"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{7}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "61c2ab296990c3af45d5c51a7db226ddb77872e0bd66ecfc967fad24493a1d3a",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{7}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{6}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "d2cacd36a68aedad744693a8fd5daf3959793cc9b9edc4a95f3764c253b89f29",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{6}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "7b97d8beb238a2a25ab335a1cf6c08b9e985884b3f6610533d468d34b53faf62"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{6}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "b886296e7e5a1d1a9551f016acd54d160e615404af9b4a4783c89eef05750676",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{6}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{5}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "1e627db6558362fea1829ee960bc0ca22748c3d090bbd99a98d260688a14f71c",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{5}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "e81df4e025cf0334fc05e5995b4129d137837d8c3007e926e1910a1eef6d2245"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{5}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "86f31446b88e15223049831d0811ea1e66e9ba79ace952607556179025ccc67b",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{5}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{4}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "8e05ac0646536958dfed4848994296763267ba9f88ca58206d652a23daa25c54",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{4}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "93d357aa90b608dcd6787d1eae98e2639fbbd4db8106044708b23cd2dfbbb744"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{4}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "0bfbac7cee3b21e37299c6adf3cce6f02d5a4ccdd4e0b22072cad4c2fac64169",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{4}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{3}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a49b61d998021f09b528b6d03c223d8d20ff5d594fc69dabb4ce46244f59293c",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{3}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "dea8ebb68aba4ecabeee1f928a5f7c1d9145c855fdfb430886dbc723f09da0df"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{3}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "17ae953b541a4364b8f17b2dd5d48fa69af79fe4342fcf2a09c8da89df6da348",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{3}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "50277446fa48f9984608e13ffe6acc0937ef0ffccec99792b2247f70fb15f867",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{2}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "6a398bb11717ab4db48d5319ee0c490b964c0421072ccc19066377cd9de95308"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "dd72ef03d0213f3d4b58c74138ef0fa0a8a8f67c5b7014e1b39af3d04160d157",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{2}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "1519926377e8ff46e19ae65f6fd59750afb96f5749736f02bb9150ed13de9c3f",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{1}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "e84d33b16669447bb08d6efddf4d1ba6e982e81c6535738c056d884b873893eb"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "99c7dd778f6263eab37dfd7f0c98edac00cfca97d2594394fe8d41b4d702dde6",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}{1}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "f60069e921f4a737176c47953c3d2298821c71c1c1149e9b439a0d07779fc1b2",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Island \u2014 {T}: Add {U}.",
+        "selected_option_ids": [
+          "759c87eac715a11e8a289d0b2fb15c4a69c68c42efde2c4449ed010ea7db6bb7"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "edf51e5ed67ce401d5ad11c7fc9db7788ad3a5aeb734489024cdf8f9376731cc",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend blue mana from pool",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend blue mana from pool",
+        "selected_option_ids": [
+          "dbdec347cd4f2112d9f40fce5f0fdc80218bee7d96734f208ee0d3615cfabd39"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "71a733ff3df5c4748d1082cef697117a3de03f1c6fd7569232d8213fb1e6b453",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Island \u2014 {T}: Add {U}.",
+        "selected_option_ids": [
+          "c63311f1ec1cb4054d2fcf63404d2e542cbf896b1967402c9ddabd89c4725b7e"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "e06eb8db38fcf2450cd07cbfc6e519019f108fc78dbaefa0b58689ddb80c152f",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend blue mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='d6d5c989-c8d5-41f3-bccc-1c2d1ae4f43d'>Finale of Revelation</font> [d6d]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend blue mana from pool",
+        "selected_option_ids": [
+          "dbdec347cd4f2112d9f40fce5f0fdc80218bee7d96734f208ee0d3615cfabd39"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "98eae84d7d5928eba29de99a13f7720643a8ecd2a36e42bca1354f5e1ad85378",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "7e01e0aa10b40f837559207cd8a8a459e5ead44651d1dde7456ec37818fd55f9",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "400f489ae4bd3a8e68dfcccfdd989d739588f0f7b8991415ee5bc0d9e9f3d89a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6eaaf52714792c398a07c5f570c39293e0df2d4c0d9787403d2935bf30ab2954",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "untap",
+          "required": true,
+          "target_description": "up to five land(s) to untap",
+          "target_name": "land(s) to untap",
+          "targeted": false
+        },
+        "decision_class": "choose_object",
+        "decision_id": "c89ca56eec65e21d5bdc597a21cae293584d950a297e276ec025144c87903583",
+        "numeric": null,
+        "offered_labels": [
+          "Island",
+          "Island",
+          "Island",
+          "Island",
+          "Island",
+          "Island",
+          "Island",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain",
+          "Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Select land(s) to untap (selected 0 of 5)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Island",
+        "selected_option_ids": [
+          "89a9686b-9568-4772-9666-37263d928540",
+          "df98ed9c-890c-4103-b959-667062592abb",
+          "afcd2cfb-2fe9-41ca-97aa-474a37245226",
+          "c4b9b9b6-ffed-4f25-8289-86823f4f0de6",
+          "8cdf7015-a5d0-4df3-94ce-79a4c47986f8"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b75eb4473a20f491b13470bcc2a417d7f585f7cd71c9e82d05572107bda3cb82",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e24bfc76219587cc3ddffcc2fad705ffa609b9e2547969b41f1cd77f33a123c2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "5c23e27fbd0ec5e5e68cadb1f070fe4f8e637d3b641cb62028c7985f378454b2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e7b1953ac579f57301e2522d9b435332755176563cf8882935d942a6a2eb2fc8",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "1c66bd30c42442ba629855a3cf5b0cf7c5f26db4412862e8d4a5b20457f0a658",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d7d912f4741004cfa2f6428441959c3b833f3755b2287774827d9c5e7fdf7403",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "60b4f1756de58d61110c688eacd0510a6f9261eab4beffac7eb128371a0d9a9d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "2ad6a86b7d03ba4403ed7ce4bb31185ccdd39fb99267f4388c31ae7ff36df656",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3e5e6587bd66303be17ec46674175627f5512d7672065e67f2dab101391b6b05",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e5381ef80624fdad0aa1c77234debb7ca4a4b3c3fa7bedfefe7d3b9ff538ef85",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "c489f840964b3fd5c7633925d4db6e94528a8fd9278d77eb811dbc269485fe07",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "c37b2a6ea9f0a3c7b436f8ec08d09daa3dcb74fa59a0a46b0e568b31c3552e70",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "357646cc8b625d56063f6c9da1f0716e77da2731e8675392803fb8e2b4373533",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "bbb562b72ce19d9b4570337d153ab631b880ffd87e4afd945731205ef8a9f563",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "aeb5284ee93e6784245bb9aec0d0244f31e4b78f89bc2b757ed9edb7d4338a01",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "245c22e859bba3fcbefa017696fc28e4fd45520a6b98e1486e84d3f102c9a0f3",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "9af56f714d774692691b4f156c917288d8f195c69fa0bc21b9b8d057e094a6be",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f78be82e23efafdfaad65aed29a395e1fd539328b52118bdf43ebcda3f1da29b",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "8aefbc9cd3bcf75e76e085f4e186659a92342c0095d3b911f98be05a5317c04e",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "799f1eee9c86dead5da0097acba99ed3071dd3c06e03ca6c10e960b4dd0a0af2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "845e83e39e695ae3a4867dbedd4b42989b8e076db66761a1e5b9c19734029dc4",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}.",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b7f6f408899ffa2b2599d775f7ec30c74fe204ba39158965fc4bcc2819d628e0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "0fcfe8a1b3b914cbd8c982801431c8a85e044f73798e2a1ba66f5636a81dc3b7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f30b3269ae68c5fe7d9bdcc0238ee5756eb7fdf0d6bef793f79480d9a59ce9fa",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_15",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Finale of Revelation",
+        "target_object": "obj:card_15-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Finale of Revelation",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_player": "P1",
+        "turn": 1,
+        "type": "LIBRARY_SHUFFLED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "GRAVEYARD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Mountain",
+        "target_object": "obj:card15-gy-1",
+        "to": "LIBRARY",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "GRAVEYARD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Mountain",
+        "target_object": "obj:card15-gy-2",
+        "to": "LIBRARY",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "GRAVEYARD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Mountain",
+        "target_object": "obj:card15-gy-0",
+        "to": "LIBRARY",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 13,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 14,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 15,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 16,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 17,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 18,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 19,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 20,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 21,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 22,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 23,
+        "source_name": "Finale of Revelation",
+        "source_object": "obj:card_15-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Finale of Revelation",
+        "target_object": "obj:card_15-subject",
+        "to": "EXILED",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 24,
+        "step": null,
+        "turn": 2,
+        "type": "BEGIN_TURN"
+      }
+    ],
+    "terminal_facts": {
+      "P1 holds at least 8 cards": true,
+      "P1 moved exactly 10 card(s) from library to hand": true,
+      "at least one BEGIN_TURN event(s) with turn=2": true,
+      "every LIBRARY_SHUFFLED event with source_object=obj:card_15-subject precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1": true,
+      "every ZONE_CHANGE event with source_object=obj:card_15-subject, from=GRAVEYARD precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1": true,
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED": true,
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY": true,
+      "exactly 5 Island on P1's battlefield are untapped": true,
+      "the engine asked no choose_object decision of P1 about 'discard'": true
+    },
+    "token_evidence": {
+      "draw:10": {
+        "binding": "P1 moved exactly 10 card(s) from library to hand",
+        "observation": "engine terminal observation"
+      },
+      "exile_Finale": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED",
+        "events": [
+          23
+        ]
+      },
+      "grant_no_max_hand_size": {
+        "binding": [
+          "at least one BEGIN_TURN event(s) with turn=2",
+          "P1 holds at least 8 cards",
+          "the engine asked no choose_object decision of P1 about 'discard'"
+        ],
+        "parts": [
+          {
+            "binding": "at least one BEGIN_TURN event(s) with turn=2",
+            "events": [
+              24
+            ]
+          },
+          {
+            "binding": "P1 holds at least 8 cards",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine asked no choose_object decision of P1 about 'discard'",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "shuffle_graveyard_into_library": {
+        "binding": [
+          "at least one LIBRARY_SHUFFLED event(s) with source_object=obj:card_15-subject",
+          "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY"
+        ],
+        "parts": [
+          {
+            "binding": "at least one LIBRARY_SHUFFLED event(s) with source_object=obj:card_15-subject",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY",
+            "events": [
+              10,
+              11,
+              12
+            ]
+          }
+        ]
+      },
+      "untap_lands:5": {
+        "binding": "exactly 5 Island on P1's battlefield are untapped",
+        "observation": "engine terminal observation"
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_15",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

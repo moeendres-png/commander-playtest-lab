@@ -1,0 +1,558 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 9.236,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "30f28b5c8d6644e8020f8e887a79ddcd85047d0c0302cd827ff921a20bc59cb7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Boseiju Reaches Skyward \u2014 Cast Boseiju Reaches Skyward",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Boseiju Reaches Skyward \u2014 Cast Boseiju Reaches Skyward",
+        "selected_option_ids": [
+          "1a084f165b9bd3b291aecc805bb473f94bc146c6af123471db69e1730c9a90ad"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "18be11a0-5c2a-48cc-aa7b-63c78bc9343f"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "fded82c92771ca918055f99e68f735acbe76069eaba0b825f3aeadbfa7567c74",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "db6536b4483835162ab4fd1ca985f4357edecbdcd9db51dbfc14dae26c2089db"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "d7e411a98e04d7b275c21d116768805ecd9fa85a44dcb6c5f143217fcafc267f",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "376a0335913841dc758fb8f3f82a5e2c8141a58e10cadc4a4d3d14db7d296b03",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "3459d47cd96585878a6f0e583aa4ee8c40354f5dbefbd7a6b816d84e541d2e98"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "30877fb852f1a7c169b22f832e0d5a98358239025ac7590ced3fa60858e502d0",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "2898bf42bd62097f4e2582d4e65966ef4e49b0b8ce2e919d23527660fb8aff4d",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "41296d6f36d0e0efc5f640c7bbd1d58c11b815d39be1722ff7188269d8baaa96"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "e1e50935b55c6ba81ebbe210eaaf8998ee801563a92436fd3eb700a14901c0c3",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "eb11ecb6a0df7ecb577ad2e111af5c095ed2ae5ad77b6c66ba87ced586c89353",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "f8d7ad719713e7885df7a028b19e50c8058229674f43df7a23b9be94e51a26a1"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "3bb5a2e5ce480cb809134398ab37498bdf10010d5540fc0bf90b2f658338dd50",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='18be11a0-5c2a-48cc-aa7b-63c78bc9343f'>Boseiju Reaches Skyward</font> [18b]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "1992cdf4afc03dd66a3e002c76ac465294719e6729f47d28eca23eeec9552904",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d71c978b700ff5e968ee62a3839f5b891606e9ffd4273c72dbb1829ed0b1ccc0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "defa8b22c579f84ea982f7a82bc85de8291d9307893c9b59ca1030ad29dad67e",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "40ec5775281de66b5bbb775a6472674adf359090eb50a8a60fd04915e895eec5",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "cfc68555ca3b907be3dc6ed09cd84e3c1f573c1938588a852f2be9140d076035",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "67c38a79dd92876a95603f8d60237638f57c8f64e2514b980cdf6aab05570d99",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "7ef6cb50119eb812c2eec6dbddd2f3545c736135450a5aed56681fa26e5d63b0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "04760212bb3d09e4498b471a7f542ad523895fc07b72573a0906cfc937e03277",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "neutral",
+          "required": false,
+          "target_description": "up to two basic Forest cards",
+          "target_name": "basic Forest cards",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "6338268059c241f2e4060b0bffede4d86a6bdaee9b05075992fa5305dbf0f966",
+        "numeric": null,
+        "offered_labels": [
+          "Forest",
+          "Forest"
+        ],
+        "principal": "P1",
+        "prompt": "Select basic Forest cards (selected 0 of 2)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "unscripted target for P1: the row stops unverified",
+    "fixture_id": "CARD_29",
+    "missing_tokens": [
+      "Saga_I",
+      "Saga_II",
+      "Saga_III",
+      "exile_Saga",
+      "return_transformed:Branch_of_Boseiju"
+    ],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Boseiju Reaches Skyward",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Boseiju Reaches Skyward",
+        "target_object": "obj:card_29-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Boseiju Reaches Skyward",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Boseiju Reaches Skyward",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 1,
+        "data": "lore",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Boseiju Reaches Skyward",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Boseiju Reaches Skyward",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Boseiju Reaches Skyward",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Boseiju Reaches Skyward",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Boseiju Reaches Skyward",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (I - Search your library for up to two basic Forest cards, reveal them, put them into your hand, then shuffle.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      }
+    ],
+    "terminal_facts": {},
+    "token_evidence": {},
+    "verified": false
+  },
+  "fixture_id": "CARD_29",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}
