@@ -1074,6 +1074,50 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Gratuitous Violence: the 3-power Hill Giant's combat damage to P2 is
+    # doubled to 6 by the replacement effect; P2 (40 life) ends at 34.
+    "CARD_21": ObligationPlan(
+        fixture_id="CARD_21",
+        proofs=(
+            PostconditionProof(
+                "P2 is dealt 6 damage, not 3.",
+                terminal_check=_events(
+                    "DAMAGED_PLAYER",
+                    ("target_player", "P2"),
+                    ("source_object", "obj:card21-creature"),
+                    ("amount", 6),
+                    count=1,
+                ),
+                also=(
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("target_player", "P2"),
+                        ("amount", 3),
+                        count=0,
+                    ),
+                    _life("P2", 34),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "damage_would_be:3",
+                _permanent("power_toughness", "P1", "Hill Giant", (3, 3)),
+            ),
+            (
+                "replacement_effect",
+                (
+                    _permanent("power_toughness", "P1", "Hill Giant", (3, 3)),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card21-creature"),
+                        ("combat", True),
+                        ("amount", 6),
+                    ),
+                ),
+            ),
+        ),
+    ),
     # Wear // Tear fused: the engine's own offer names the fused cast; both
     # halves destroy their targets, which are then in P2's graveyard.
     "CARD_11": ObligationPlan(
