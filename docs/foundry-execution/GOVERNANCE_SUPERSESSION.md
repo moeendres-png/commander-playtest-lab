@@ -1,7 +1,9 @@
-> **Current routing authority update — 2026-09-27:** Historical HIGH/XHIGH
-> adjudications below are provenance only. Current active-work routing is Space Bunny
-> MAX by default/preference and Muse XHIGH only; Muse HIGH is no longer an active lane.
-> See `ROUTING_AND_EFFORT.md` and `COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`.
+> **Current routing authority update — 2026-10-02:** Historical executor/model
+> adjudications below are provenance only. Current OpenCode routing is exactly DeepSeek
+> v4.1 Flash MAX as default/primary and Space Bunny MAX as explicit secondary, with no
+> automatic fallback. Historical references to any other executor are not migration targets
+> and must not create new routing work without a new direct user instruction.
+> See `ROUTING_AND_EFFORT.md` and `../CURRENT_EXECUTION_AUTHORITY.md`.
 
 # Governance Supersession — PR #161, #166, #167
 

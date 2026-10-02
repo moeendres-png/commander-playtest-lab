@@ -116,8 +116,8 @@ requalification.
   `deepseek`: `opencode-go/deepseek-v4.1-flash` at native `max` for the main model,
   small model, primary implementer, and reachable project agents. Space Bunny is an
   explicit secondary only: `opencode-go/space-bunny-free` at native `max`, for bounded,
-  mechanical, token-heavy, bulk and background work. Muse and GLM are inactive: they are
-  not reachable through the canonical launcher or config. Executor selection is explicit
+  mechanical, token-heavy, bulk and background work. No other OpenCode execution profile is
+  authorized or reachable through the canonical launcher/config. Executor selection is explicit
   per run, recorded, never inferred from quota or failure, and never falls back silently.
 - Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the
   session prompt declares the campaign objective and writable ownership surface. Claude
@@ -142,8 +142,10 @@ Active OpenCode Foundry execution has exactly two allowed launcher identities:
   token-heavy, bulk and background work, and for deliberately authorized cross-model
   checks.
 
-Muse and GLM are inactive and are not selectable executors. There is no active-work
-`high`, `medium`, `low`, `minimal`, `none`, or `off` native lane. The project-level
+No other OpenCode executor is selectable under current authority. Historical model references
+are provenance only, are not migration targets, and must not generate routing/governance work
+without a new direct user instruction. There is no active-work `high`, `medium`, `low`,
+`minimal`, `none`, or `off` native lane. The project-level
 `--effort` field describes task and authority routing only and never lowers either
 executor below its native level. Do not relabel DeepSeek MAX or Space Bunny MAX as
 XHIGH; record the actual native identity.
@@ -179,7 +181,7 @@ inconsistencies exposed by authoritative evidence and repair them systemically w
 so is necessary to complete the contracted objective. It must not stop merely because the
 first plan or implementation failed. Sol High is an authority and gate tier, not a routine
 engineering micro-manager; the current delegation is recorded in
-`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`.
+`docs/CURRENT_EXECUTION_AUTHORITY.md`.
 
 ### Autonomous tool use
 

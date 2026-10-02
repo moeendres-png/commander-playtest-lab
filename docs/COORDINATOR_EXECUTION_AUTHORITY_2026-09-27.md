@@ -1,3 +1,10 @@
+> **SUPERSEDED FOR CURRENT EXECUTION ROUTING — 2026-10-02.** This dated document is
+> retained as historical provenance. Current OpenCode execution authority is defined by
+> `docs/CURRENT_EXECUTION_AUTHORITY.md`: DeepSeek v4.1 Flash MAX primary/default and
+> Space Bunny MAX explicit secondary only. Historical references below to other executors
+> are not migration targets and must not create routing/governance work without a new
+> direct user instruction.
+
 # Commander Simulator Next — Coordinator and OpenCode Execution Authority
 
 POLICY = ACTIVE

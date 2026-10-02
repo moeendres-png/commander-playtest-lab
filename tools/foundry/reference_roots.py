@@ -18,7 +18,7 @@ sibling-worktree probing. A declared reference binds exactly:
 
 Bootstrap verifies every declared reference before launch and fails
 closed on the first mismatch. The launcher exposes the verified list to
-Muse (no secrets: every field is a path/identity, never a credential)
+the selected executor (no secrets: every field is a path/identity, never a credential)
 with the standing rule: use the command CWD inside the reference root
 plus ordinary read-only git commands; never mutate reference sources.
 """

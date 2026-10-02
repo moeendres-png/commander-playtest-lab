@@ -999,9 +999,9 @@ def test_ws190_execution_identity(
     assert (canon / "opencode.json").read_bytes() == before
 
 
-@pytest.mark.parametrize("profile", ["muse", "glm", "muse-free-zen", "openai", "other", ""])
+@pytest.mark.parametrize("profile", ["glm", "openai", "other", "invalid", ""])
 def test_inactive_or_unknown_executor_profiles_are_refused(target, canon, profile):
-    """Muse and GLM are inactive; anything outside the two-profile set is refused."""
+    """Anything outside the exact two-profile set is refused."""
     plan = _plan(target, canon, execution_profile=profile)
     assert plan["verdict"] == "LAUNCH_REFUSED", plan
     assert "unknown execution profile" in plan["error"]
@@ -1102,7 +1102,7 @@ def test_ws190_end_telemetry_failure_still_releases(target, canon, monkeypatch):
 
 
 def test_ws190_cli_refuses_retired_zen_provider_override(target, canon, capsys):
-    """The Zen Muse provider override is retired and always fails closed."""
+    """The legacy provider override is retired and always fails closed."""
     rc = launcher_mod.main(
         [
             "init",
@@ -1231,7 +1231,7 @@ def test_no_executor_runs_below_its_native_max(target, canon):
             assert entry["variants"] == {"max": {}}
 
 
-@pytest.mark.parametrize("retired_name", ["muse-spark", "muse-free-zen", "glm-5"])
+@pytest.mark.parametrize("retired_name", ["unauthorized-model", "legacy-zen", "glm-5"])
 def test_inactive_executors_absent_from_every_profile_bundle(target, canon, retired_name):
     for profile in launcher_mod.EXECUTION_PROFILES:
         plan = _plan(target, canon, execution_profile=profile)
@@ -1354,8 +1354,8 @@ def test_main_small_and_default_model_configuration_is_internally_consistent():
 def test_nested_launch_overwrites_ambient_native_variant(target, canon, monkeypatch):
     """A nested launch must never inherit an outer session's native variant.
 
-    Migrated from the pre-migration Muse form of this test. Every reachable
-    profile now pins native `max`, so the enforceable property is that the
+    Every reachable profile now pins native `max`, so the enforceable
+    property is that the
     selected profile's OWN value overwrites any ambient identity rather than an
     unauthorized or retired level leaking through from an outer session.
     """

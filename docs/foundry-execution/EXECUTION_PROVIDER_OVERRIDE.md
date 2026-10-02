@@ -53,17 +53,15 @@ exit 0 on 2026-09-29. Use it for bounded, mechanical, token-heavy, bulk and back
 where a workstream contract explicitly selects it. There is no silent fallback between DeepSeek MAX
 and Space Bunny MAX in either direction.
 
-## Inactive executors
+## Non-authorized executors
 
-Muse (`opencode-go/muse-spark-1.3-contributor`) and GLM (`opencode-go/glm-5.3`) are inactive. They
-are not reachable through the canonical launcher or `opencode.json`:
+The current OpenCode authority contains exactly two execution profiles: `deepseek` and
+`space-bunny`, both at native `max`. Any other profile or provider override is rejected.
 
-- `--execution-profile muse` and `--execution-profile glm` are rejected as unknown profiles;
-- the retired `--execution-provider zen` override (which resolved to
-  `opencode/muse-spark-1.3-contributor-free`) is always refused.
-
-Historical Muse and GLM records remain valid provenance of their own runs. They are not authority
-for new work and are not rewritten merely because they name a retired executor.
+Historical receipts that name earlier executor experiments remain valid provenance of their
+own runs. They do not authorize future routing changes, are not migration targets, and must
+not by themselves trigger a new governance/routing issue. Expanding or replacing the active
+two-profile allowlist requires a new direct user instruction.
 
 ## Effort resolution
 
