@@ -124,9 +124,7 @@ def _validate_commit(repo: Path, revision: str) -> str:
 def _changed_paths(repo: Path, base: str, head: str) -> list[str]:
     payload = _git(repo, "diff", "--name-only", "-z", base, head, "--")
     return sorted(
-        item.decode("utf-8", errors="surrogateescape")
-        for item in payload.split(b"\0")
-        if item
+        item.decode("utf-8", errors="surrogateescape") for item in payload.split(b"\0") if item
     )
 
 
@@ -205,9 +203,7 @@ def _masked_line(line: str) -> bool:
     stripped = line.strip()
     if re.search(r"\|\|\s*(?:true|:)(?:\s|$)", stripped):
         return True
-    if re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped):
-        return True
-    return False
+    return bool(re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped))
 
 
 def _run_lines(run: str) -> list[str]:
@@ -218,23 +214,31 @@ def _run_lines(run: str) -> list[str]:
     ]
 
 
+def _command_segments(run: str) -> list[str]:
+    segments: list[str] = []
+    for line in _run_lines(run):
+        segments.extend(part.strip() for part in line.split("&&") if part.strip())
+    return segments
+
+
 def _matching_command_is_enforcing(run: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
     matches = [
-        line
-        for line in _run_lines(run)
-        if any(pattern.search(line) for pattern in patterns)
+        line for line in _command_segments(run) if any(pattern.search(line) for pattern in patterns)
     ]
     if not matches:
         return False
     for line in matches:
         if _masked_line(line):
             continue
-        if "|" in line and "||" not in line:
-            if "set -o pipefail" not in run and "set -euo pipefail" not in run:
-                continue
-        if "set +e" in run:
-            if "rc=$?" not in run or 'exit "$rc"' not in run:
-                continue
+        if (
+            "|" in line
+            and "||" not in line
+            and "set -o pipefail" not in run
+            and "set -euo pipefail" not in run
+        ):
+            continue
+        if "set +e" in run and ("rc=$?" not in run or 'exit "$rc"' not in run):
+            continue
         return True
     return False
 
@@ -282,9 +286,7 @@ def _category_status(category: str, steps: list[dict[str, Any]]) -> tuple[str, s
     for step in steps:
         run = step.get("run")
         if not isinstance(run, str) or not any(
-            pattern.search(line)
-            for line in _run_lines(run)
-            for pattern in patterns
+            pattern.search(line) for line in _command_segments(run) for pattern in patterns
         ):
             continue
         condition_status, condition_reason = _step_condition(step)
@@ -661,14 +663,10 @@ def inspect_required_check_definitions(repo: Path, base: str, head: str) -> dict
     reasons: list[str] = []
     if "FAIL" in statuses:
         overall = "FAIL"
-        reasons.extend(
-            item["reason"] for item in invariant_results if item["status"] == "FAIL"
-        )
+        reasons.extend(item["reason"] for item in invariant_results if item["status"] == "FAIL")
     elif "UNKNOWN" in statuses:
         overall = "UNKNOWN"
-        reasons.extend(
-            item["reason"] for item in invariant_results if item["status"] == "UNKNOWN"
-        )
+        reasons.extend(item["reason"] for item in invariant_results if item["status"] == "UNKNOWN")
     elif review_reasons:
         overall = "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
         reasons.extend(sorted(set(review_reasons)))
