@@ -1089,6 +1089,76 @@ def test_late_hidden_event_errata_add_a_scry_and_a_pile_split() -> None:
     ]
 
 
+def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_obligation() -> None:
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == BATCH6_HIDDEN_EVENT_ERRATA_IDS
+
+    patch = added[0]
+    assert patch["fixture_id"] == "HIDDEN_11"
+    assert patch["correction_class"] == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+    assert patch["authority_overlay"]["comprehensive_rules_rule"] == "701.24a"
+    assert patch["successor_requested_state_digest"] == (
+        "d2310a2be374a3a6db5703d879a92dae3cfc9b7cd290183efb2ac2b288f4f5e6"
+    )
+
+    record = resolver.effective_record("HIDDEN_11")
+    old = base["HIDDEN_11"]
+    assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["expected_events"] == old["expected_events"]
+    assert record["terminal_postconditions"] == old["terminal_postconditions"]
+    assert record["repair_provenance"]["correction_class"] == (
+        "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+    )
+
+    viewer = record["knowledge_state"]["viewer_states"][0]
+    assert viewer["obligation"] == "shuffle invalidates order knowledge"
+    assert viewer["invalidation_conditions"] == ["P2 library shuffled"]
+    assert viewer["known_library_ranges"] == [
+        {
+            "before_event": "shuffle",
+            "count": 3,
+            "ordered": True,
+            "player": "P2",
+            "start": 0,
+            "viewer": "P1",
+        }
+    ]
+
+    assert [step["causal_step_id"] for step in record["decision_script"]] == [
+        "spy-look",
+        "spy-target-p2",
+        "elixir-shuffle",
+    ]
+    for step in record["decision_script"]:
+        selection = step["selection"]
+        assert selection["matches_only_provider_offered_legal_options"] is True
+        assert selection["on_zero_match"] == selection["on_multiple_match"] == "FAIL_CLOSED"
+
+    objects = {obj["semantic_id"]: obj for obj in record["semantic_objects"]}
+    assert objects["obj:hidden11-spy"]["card_identity"] == "Orcish Spy"
+    assert objects["obj:hidden11-elixir"]["card_identity"] == "Elixir of Immortality"
+    assert [objects[f"obj:hidden11-lib-{i}"]["zone_position"] for i in (1, 2)] == [1, 2]
+
+    p2 = next(deck for deck in record["deck_state"] if deck["player_id"] == "P2")
+    assert p2["checkpoint_library"]["completeness"] == "COMPLETE_TOP_TO_BOTTOM"
+    runs = p2["checkpoint_library"]["runs"]
+    assert [run.get("semantic_id") for run in runs[:3]] == [
+        "obj:hidden-lib-0",
+        "obj:hidden11-lib-1",
+        "obj:hidden11-lib-2",
+    ]
+
+
 def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
     """HIDDEN_05 (a persistent look at a face-down exiled card), HIDDEN_15 (source
     metadata) and HIDDEN_16 (ability metadata) name a hidden exile, source or
