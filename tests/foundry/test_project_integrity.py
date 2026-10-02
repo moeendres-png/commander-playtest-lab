@@ -54,8 +54,8 @@ def test_launcher_exposes_exactly_the_two_routed_executors():
         "deepseek": "opencode-go/deepseek-v4.1-flash",
         "space-bunny": "opencode-go/space-bunny-free",
     }
-    assert not hasattr(launcher, "ZEN_MODEL"), "retired Zen Muse model must be fully removed"
-    for retired in ("muse", "muse-free-zen", "glm"):
+    assert not hasattr(launcher, "ZEN_MODEL"), "retired provider override must stay removed"
+    for retired in ("glm", "openai", "other"):
         with pytest.raises(ValueError, match="unknown execution profile"):
             launcher.execution_identity(None, "high", retired)
     with pytest.raises(ValueError, match="retired"):
@@ -104,39 +104,24 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
     # this audit; historical reports and explicit prohibitions remain readable.
     for name in ("README.md", "EXECUTION_PROVIDER_OVERRIDE.md"):
         text = (ROOT / "docs/foundry-execution" / name).read_text()
-        assert "Muse-only by default" not in text
         assert "Primary long-running worker (HIGH)" not in text
-    authority = (ROOT / "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md").read_text()
-    assert "- HIGH for ordinary bounded engineering" not in authority
+    authority = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
+    assert "DeepSeek v4.1 Flash MAX" in authority
+    assert "Space Bunny MAX" in authority
+    assert "requires a new direct user instruction" in authority
 
 
-def test_inactive_executors_are_declared_inactive_in_canonical_docs():
-    """Muse/GLM must be described as inactive, never as an active or alternate executor."""
-    for rel in (
-        "AGENTS.md",
-        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
-        "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
-        "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
-        # The canonical Foundry index. It was left behind by the routing migration in
-        # PR #350 and nothing caught it, because the loop above did not cover it.
-        "docs/foundry-execution/README.md",
-    ):
-        text = (ROOT / rel).read_text()
-        for phrase in (
-            "preferred and alternate",
-            "explicit alternate only",
-            "Muse is an explicit alternate",
-            "supported alternate / continuation executor",
-        ):
-            assert phrase not in text, f"{rel}: stale active-executor claim {phrase!r}"
+def test_current_executor_authority_is_exactly_two_profiles():
+    """Canonical active docs must expose only the authorized DeepSeek/Space Bunny pair."""
     agents = (ROOT / "AGENTS.md").read_text()
+    current = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
+    routing = (ROOT / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text()
     assert "opencode-go/deepseek-v4.1-flash" in agents
-    assert "Muse and GLM are inactive" in agents
-    # The index must name the current default executor positively, and must not still
-    # name the previous default as one. The phrase loop above does NOT match the
-    # wording the index actually used when PR #350 left it stale ("Space Bunny MAX
-    # default, Muse XHIGH alternate"), so without these two assertions the loop
-    # extension would be a false guarantee.
+    assert "opencode-go/space-bunny-free" in agents
+    assert "No other OpenCode executor is selectable" in agents
+    assert "No other OpenCode model/profile is currently authorized" in current
+    assert "must not generate a" in routing
+    assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
     assert "DeepSeek MAX default" in index, "Foundry index omits the current default executor"
     assert "Space Bunny MAX default" not in index, "Foundry index still names a retired default"

@@ -5,7 +5,7 @@
     "CLAUDE.md",
     "docs/PROJECT_MISSION.md",
     "docs/foundry-execution/ROUTING_AND_EFFORT.md",
-    "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+    "docs/CURRENT_EXECUTION_AUTHORITY.md",
     "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md",
     "opencode.json"
   ],
@@ -20,7 +20,7 @@
     "docs/foundry-execution/**",
     "docs/qualification/**"
   ],
-  "notes": "Canonical dual-executor Foundry control plane. Runtime on main remains Space Bunny MAX + Muse XHIGH until the active launcher owner releases launcher.py/test_launcher.py and four-profile integration is qualified. WSR27 prepares a model-neutral four-profile registry containing exact model identities, highest authorized native efforts, runtime status and no-fallback/provenance invariants only. Task selection and model choice remain operator/prompt decisions; repository policy does not assign task classes or usage frequency to models.",
+  "notes": "Canonical two-executor Foundry control plane. Current OpenCode authority is exactly DeepSeek v4.1 Flash MAX as default/primary and Space Bunny MAX as explicit secondary, with no automatic fallback. Historical model references are provenance only and are not migration targets; changing this allowlist requires a new direct user instruction.",
   "profile": "cpl",
   "qualification_conventions": [
     "source lock + WORKSTREAM_STATE + sealed evidence; contract-required tests override impact optimization"
@@ -31,5 +31,5 @@
   ],
   "stale_markers": [],
   "executor_profile_registry": ".foundry/executor-profiles.json",
-  "multimodel_runtime_status": "PREPARED_NOT_ACTIVE"
+  "multimodel_runtime_status": "ACTIVE_TWO_PROFILE_ONLY"
 }

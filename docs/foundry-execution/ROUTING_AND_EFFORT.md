@@ -19,7 +19,7 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
    - explicit secondary only: `space-bunny` =
      `opencode-go/space-bunny-free` at native `max`, for bounded, mechanical,
      token-heavy, bulk and background work.
-   Muse and GLM are inactive and are not selectable executors.
+   No other OpenCode executor is selectable under current authority.
 3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
    session declares its campaign objective and writable ownership surface(s). It may own
    long autonomous campaigns and continuous in-objective task selection under the same
@@ -34,8 +34,10 @@ profile may resume the same workstream from the same branch + explicit state + e
 Concurrent writers on the same worktree, branch, or semantic surface remain forbidden;
 parallel profiles require independent worktrees/ownership.
 
-The legacy Zen Muse override is retired and always refused; historical receipts remain
-provenance. See `EXECUTION_PROVIDER_OVERRIDE.md`.
+Legacy provider overrides are retired and always refused. Historical executor/model
+receipts remain provenance only. They are not migration targets and must not generate a
+routing/governance issue by themselves. Changing the two-profile allowlist requires a new
+direct user instruction. See `EXECUTION_PROVIDER_OVERRIDE.md`.
 
 ## Execution identity policy
 
@@ -60,7 +62,7 @@ fallback occurs on quota, auth, catalog or child failure.
 ## Technical decision authority
 
 Authoritative model:
-`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`. Summary:
+`docs/CURRENT_EXECUTION_AUTHORITY.md`. Summary:
 
 - DeepSeek MAX: preferred new-work execution profile. Autonomous implementation,
   debugging, qualification, evidence generation, tool use and technical decisions

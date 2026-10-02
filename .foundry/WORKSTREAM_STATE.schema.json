@@ -245,13 +245,10 @@
       ],
       "enum": [
         "deepseek",
-        "muse",
-        "glm",
         "space-bunny",
-        "muse-free-zen",
         null
       ],
-      "description": "Explicit Foundry executor profile for the run. Null preserves historical state compatibility."
+      "description": "Explicit currently authorized Foundry executor profile for the run. Null preserves historical state compatibility; historical executor names remain free-form provenance only in executor_model/hand-off evidence, not selectable profiles."
     },
     "executor_model": {
       "type": [
@@ -266,11 +263,10 @@
         "null"
       ],
       "enum": [
-        "xhigh",
         "max",
         null
       ],
-      "description": "Provider-native reasoning variant pinned by the selected profile. Null is retained for legacy/unverified-provider runs only."
+      "description": "Provider-native reasoning variant pinned by the currently authorized profiles. Both active OpenCode profiles run at native max; null is retained for legacy/unverified provenance only."
     },
     "variant_resolution": {
       "type": [
