@@ -17,6 +17,7 @@ on:
       - "tests/unit/test_xmage_variable_player.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
+      - "scripts/seal_xmage_full_game_artifacts.py"
       - ".github/workflows/xmage-full-game-conformance.yml"
   workflow_dispatch:
 
@@ -66,6 +67,7 @@ jobs:
             tests/unit/test_xmage_variable_player.py
             scripts/generate_full_game_contract_artifacts.py
             scripts/run_external_full_game_conformance.py
+            scripts/seal_xmage_full_game_artifacts.py
             .github/workflows/xmage-full-game-conformance.yml
             src/commander_lab/__init__.py
             src/commander_lab/candidates/**
