@@ -947,3 +947,62 @@ def test_campaign_receipts_never_share_the_full107_receipt_directory() -> None:
     # CARD_02 is produced by both the midgame denominator lane and the campaign;
     # one directory would let either producer overwrite the other's evidence.
     assert campaign.RECEIPT_SUBDIR != receipt_mod.POSITIVE_RECEIPT_SUBDIR
+
+
+# --------------------------------------------------------------------------- #
+# Demonstrated failure
+# --------------------------------------------------------------------------- #
+
+
+def _evaluated_facts(row: campaign.CardRow, *, held: bool) -> dict[str, bool]:
+    plan = campaign.plan_for(row.fixture_id)
+    assert plan is not None
+    return {
+        check.describe(): held
+        for proof in plan.proofs
+        if proof.event_token is None
+        for check in proof.checks
+    }
+
+
+def _executed(row: campaign.CardRow, facts: dict[str, bool], **execution: Any) -> Any:
+    measurement = _measurement(row.fixture_id, verified=False, terminal_facts=facts)
+    assert measurement.execution is not None
+    measurement.execution = {**measurement.execution, "script_consumed": True, **execution}
+    return measurement
+
+
+def test_an_evaluated_contradiction_after_the_whole_script_is_fail() -> None:
+    row = _receipt_row()
+    measurement = _executed(row, _evaluated_facts(row, held=False))
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
+    )
+    assert evaluation["outcome"] == campaign.OUTCOME_FAIL
+    assert evaluation["blocker_class"] == campaign.BLOCKER_ENGINE_DEFECT
+    assert evaluation["direct_receipt_eligible"] is False
+
+
+@pytest.mark.parametrize(
+    "variant",
+    ["unevaluated_check", "script_unfinished", "missing_token", "foreign_build"],
+)
+def test_an_absence_of_evidence_is_never_fail(variant: str) -> None:
+    row = _receipt_row()
+    facts = _evaluated_facts(row, held=False)
+    execution: dict[str, Any] = {}
+    commit = PIN
+    if variant == "unevaluated_check":
+        facts = {}
+    elif variant == "script_unfinished":
+        execution["script_consumed"] = False
+    elif variant == "missing_token":
+        execution["missing_tokens"] = ["entering_creature_damage:P2:2"]
+    else:
+        commit = "0" * 40
+    measurement = _executed(row, facts, **execution)
+    measurement.engine_commit = commit
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
+    )
+    assert evaluation["outcome"] != campaign.OUTCOME_FAIL
