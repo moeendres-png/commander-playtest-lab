@@ -324,6 +324,30 @@ def forbidden_tokens(
             {"object": str(obj["semantic_id"]), "permission": "look", "viewer": viewer_label}
             for viewer_label, obj in known_range_objects(record)
         ]
+        # A controlled-player permission is explicit contract data, not inferred
+        # legality. Once the real Rules-Core effect has happened, the named
+        # controller may receive the controlled player's hand identities. The
+        # permission deliberately grants no library or unrelated-player data.
+        for relation in state.get("temporary_permissions") or ():
+            if not isinstance(relation, dict):
+                continue
+            controlled = relation.get("controlled_player")
+            controller = relation.get("controller")
+            if (
+                relation.get("permission")
+                == "only information P1 is entitled to while making P2 decisions under rules"
+                and controller == viewer
+                and controlled
+            ):
+                temporary += [
+                    {
+                        "object": str(obj["semantic_id"]),
+                        "permission": "look",
+                        "viewer": viewer,
+                    }
+                    for obj in _objects(record)
+                    if obj.get("zone") == "hand" and obj.get("owner") == controlled
+                ]
     visible: set[str] = set()
     hidden: dict[str, str] = {}
     texts = ability_text_bindings(record)
