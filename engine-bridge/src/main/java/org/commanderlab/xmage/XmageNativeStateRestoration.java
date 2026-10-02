@@ -608,6 +608,10 @@ final class XmageNativeStateRestoration {
         if (identity == null || !identity.contains(" // ")) {
             return identity;
         }
+        // The repository must be loaded before it is asked: on a fresh runtime
+        // directory (every CI runner) an unloaded repository answers nothing,
+        // and the name would fall through unresolved and be refused later.
+        XmageDeckImporter.ensureRepositoryReady();
         CardInfo whole = CardRepository.instance.findCard(identity.trim(), true);
         if (whole != null && identity.trim().equals(whole.getName())) {
             return identity;

@@ -1,11 +1,20 @@
 # AF07 final actual-card closure: resumable workstream state (#453, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wt-af07 (session-local git worktree of the canonical clone)
+branch: hardening/af07-final-closure-20261002
+audit_base_sha: 38647c1153e01da5837671de53bf3b0e4c2fab0d
+audit_base_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
+state_written_against_head: 6ca77e4417565fe9a4b4300271dd92c572f904a2
+validated_head: 6ca77e4417565fe9a4b4300271dd92c572f904a2
 workstream: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002
 issue: 453
 parent: 255
-branch: hardening/af07-final-closure-20261002
-base:
-  main: 38647c1153e01da5837671de53bf3b0e4c2fab0d
-  main_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
+pull_request: 484
+objective: >-
+  Bring AF07 ACTUAL_CARD_BEHAVIOR to a terminal, decision-grade state on the
+  29-card corpus: close or terminally classify every residual XMage identity,
+  then the Forge lane, without changing the 107-row provider denominator.
 candidates:
   xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
   forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
@@ -13,8 +22,9 @@ candidates:
 contract: commander-lab.full107/1.0.18-successor
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
-
-owned_surfaces:
+status: ACTIVE
+ownership: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002 (Claude lane)
+in_scope:
   - src/commander_lab/qualification/current_boundary/actual_card_campaign.py
   - src/commander_lab/qualification/current_boundary/midgame_rows.py
   - engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
@@ -23,23 +33,53 @@ owned_surfaces:
   - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
   - qualification/SHA256SUMS
   - WS17_SHA256SUMS
-
+out_of_scope:
+  - provider denominator change
+  - provider selection
+  - AF11
+  - Architecture Freeze
+  - historical epoch rewrites
+forbidden_shortcuts:
+  - first/random/default option selection
+  - legality reconstruction or fabricated legal actions
+  - manual outcome or counter injection
+  - card-name hacks in generic selector logic
+  - credit from import, construction or native tests alone
 xmage_residuals_at_start: [CARD_03, CARD_06, CARD_07, CARD_10, CARD_12, CARD_13, CARD_16, CARD_20, CARD_22, CARD_25, CARD_26, CARD_29]
-
 milestones:
   - id: M1
-    status: LOCAL_RUNTIME_PASS
     rows: [CARD_06, CARD_26]
+    result: DIRECT_PASS on the official campaign script (local runner)
     summary: >-
-      CARD_06 versioned obligation erratum (1.0.18, Oracle conflict: Docent of
-      Perfection is not a Wizard) and CARD_26 token triggered-ability readback.
-      Both DIRECT_PASS on a local run of the official campaign script; exact-head
-      PB-03 still required.
-    open_item: >-
-      CARD_06 official Oracle receipt is pending (Scryfall/Gatherer unreachable
-      from this runner); provider cross-check recorded in the erratum.
-
+      CARD_06 versioned obligation erratum (Oracle conflict: Docent of
+      Perfection is not a Wizard); CARD_26 token triggered-ability readback.
+  - id: M2
+    rows: [CARD_03]
+    result: DIRECT_PASS on the official campaign script (local runner)
+    summary: >-
+      Decision-script erratum (cast, divided damage, tap targets) and the
+      engine-verified cost vocabulary binding (unpaid {9}{U}{R}, 11 charged).
+  - id: M3
+    rows: [CARD_12]
+    result: DIRECT_PASS on the official campaign script (local runner)
+    summary: >-
+      Delve on the engine's own payment frames, library objects bound to
+      engine ids at first sight, ordered object sets.
+  - id: M4
+    rows: [CARD_29]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      Three-turn Saga progression with one Spellbook per player; the bridge
+      now loads the card repository before resolving a double-faced name
+      (a fresh runtime directory refused it before).
+open_items:
+  - CARD_06 official Oracle receipt pending (Scryfall/Gatherer unreachable from this runner).
+  - Exact-head PB-03 does not yet run the AF07 campaign; the same-epoch credit route is still to integrate.
+remaining_scope:
+  - CARD_25 token plus equipment attachment route
+  - stack/causal rows CARD_07, CARD_10, CARD_13, CARD_16, CARD_20, CARD_22
+  - Forge 29-card lane through the merged ScenarioBootstrap lane
+  - AF07 same-epoch credit route
 exact_next_action: >-
-  Next XMage residuals: CARD_03 announce_cast/cost-increase, CARD_12
-  delve/look vocabulary, CARD_25 token route, CARD_29 Saga progression, then
-  the stack/causal rows CARD_07/10/13/16/20/22. Then the Forge 29-card lane.
+  Push the schema-2.0 state file and the repository-ready fix; on green
+  exact-head CI continue with CARD_25 and the stack/causal rows.
