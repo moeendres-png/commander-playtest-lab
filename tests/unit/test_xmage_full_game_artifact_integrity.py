@@ -84,7 +84,9 @@ def test_missing_required_evidence_fails_seal_without_leaving_manifest(
     root = _complete_root(integrity, tmp_path)
     (root / integrity.REQUIRED_EVIDENCE[-1]).unlink()
 
-    with pytest.raises(integrity.ArtifactIntegrityError, match="required full-game evidence missing"):
+    with pytest.raises(
+        integrity.ArtifactIntegrityError, match="required full-game evidence missing"
+    ):
         integrity.seal(root)
     assert not (root / integrity.MANIFEST_NAME).exists()
 
