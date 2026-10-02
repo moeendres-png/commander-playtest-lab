@@ -458,21 +458,33 @@ def test_shadow_workflow_executes_trusted_base_only() -> None:
     trigger = document.get("on", document.get(True))
     assert isinstance(trigger, dict)
     assert set(trigger) == {"pull_request_target"}
+    pr_target = trigger["pull_request_target"]
+    assert pr_target["branches"] == ["main"]
+    assert set(pr_target["types"]) == {
+        "opened",
+        "synchronize",
+        "reopened",
+        "ready_for_review",
+        "edited",
+    }
     assert document["permissions"] == {"contents": "read"}
 
     steps = document["jobs"]["ci-definition-integrity-shadow"]["steps"]
     checkouts = [step for step in steps if "actions/checkout@" in step.get("uses", "")]
     assert len(checkouts) == 1
     checkout = checkouts[0]
-    assert checkout["with"]["ref"] == "${{ github.event.pull_request.base.sha }}"
+    assert checkout["with"]["ref"] == "${{ github.sha }}"
     assert checkout["with"]["persist-credentials"] is False
 
     inspect = next(step for step in steps if step.get("id") == "inspect")
-    assert inspect["env"]["BASE_SHA"] == "${{ github.event.pull_request.base.sha }}"
+    assert inspect["env"]["BASE_SHA"] == "${{ github.sha }}"
+    assert inspect["env"]["BASE_REF"] == "${{ github.event.pull_request.base.ref }}"
     assert inspect["env"]["CANDIDATE_SHA"] == "${{ github.event.pull_request.head.sha }}"
     assert inspect["env"]["PR_NUMBER"] == "${{ github.event.pull_request.number }}"
     assert 'git fetch --no-tags --depth=1 origin "refs/pull/$PR_NUMBER/head"' in inspect["run"]
+    assert 'test "$BASE_REF" = "main"' in inspect["run"]
     assert 'test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"' in inspect["run"]
+    assert "github.event.pull_request.base.sha" not in WORKFLOW.read_text(encoding="utf-8")
     assert "git checkout" not in inspect["run"]
     assert "git switch" not in inspect["run"]
 
