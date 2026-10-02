@@ -385,3 +385,16 @@ Regression on the same tree:
 - FULL107 midgame rows: 22/22 verified.
 
 AF07 stays **UNKNOWN**: 12 identities are not directly proven, and the Coordinator's credit route (#453) is still open.
+
+### Blocker: CARD_29 (multi-turn Saga)
+
+After #467, Boseiju Reaches Skyward casts and its chapter I search can be scripted. The obligation still needs chapters II and III, which arrive on P1's next two turns: about nine table turns in a four-player game.
+
+- At each cleanup a player above seven cards must discard. That is a discretionary decision the record does not script, made over indistinguishable template cards.
+- Smaller checkpoint hands would avoid the discards, but the adapter rejects them (`LOSSLESS_HIDDEN_STATE_REJECTED: INCOMPLETE_LIBRARY_ORDER`): a checkpoint hand cannot be smaller than the opening hand already drawn.
+
+Closing the row needs one of two things:
+- an adapter route that places a smaller checkpoint hand losslessly (returning the excess to the library in a declared order); or
+- record discard steps over template cards, which needs a selector for interchangeable template instances.
+
+Either is a design step, not a script fix.

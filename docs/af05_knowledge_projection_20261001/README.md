@@ -280,3 +280,41 @@ Verifier additions:
   Nothing else becomes public with it, and a test covers both directions.
 
 Local end to end on `37e4df6c`: 12/12 rows verified.
+
+## M2 batch 4: HIDDEN_10 (scry) and HIDDEN_13 (piles), contract 1.0.15
+
+Both records come from the 1.0.5 base. Each declares an obligation, but its decision script is empty, so no event ever causes the obligated state. The erratum class is `HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04`. It sits on the lossless base and leaves the obligation unchanged. Both rows are in the provider denominator, so the unchanged-row count drops from 86 to 84. The denominator itself is unchanged.
+
+| Row | Scenario | Verifier |
+|---|---|---|
+| HIDDEN_10 | <ul><li>P1 casts Magma Jet at P2 and scries 2.</li><li>The top of P1's library is requested as complete runs: Counterspell, then Brainstorm, then 91 template Mountains.</li><li>P1 keeps both cards on top: an empty selection on the engine's scry frame, which its own minimum of zero allows.</li><li>P1 orders them so Counterspell stays on top.</li></ul> | `scry_knowledge` |
+| HIDDEN_13 | <ul><li>P1 casts Fact or Fiction. It reveals P1's top five cards (Counterspell, Brainstorm, Ponder, Preordain, Opt) to every player.</li><li>P2 splits them into piles.</li><li>P1 chooses pile 1.</li><li>The erratum declares the cast's legal reveal of the five cards as reveal permissions.</li></ul> | `pile_metadata` |
+
+**`scry_knowledge`**
+- The range comes from the record's own `known_library_ranges`.
+- The range's cards entitle its viewer, and nobody else, only after the event (`known_range_objects`, `forbidden_tokens(after_event=True)`).
+- The viewer's own frame must offer exactly the range's cards.
+- The cards must return to the library: the engine reports two library-to-library moves.
+- Every other principal receives no library offer and no range identity.
+- Frames without options count as unmeasured, never as denied.
+
+**`pile_metadata`**
+- The reveal is checked as a reveal audience: every principal's reveal log names the five cards.
+- Every principal's pile frames (P2's split, P1's choice) are scanned for identities, semantic ids and sentinels that principal is not entitled to after the event.
+- At least two pile frames must have reached the table.
+
+**Lane executor additions** (`knowledge_projection.run_script`)
+- An empty selection is accepted only where the engine frame's minimum is zero.
+- A set of library objects (a pile split) is matched by checkpoint position and identity, each fail-closed, within the frame's own bounds.
+- `pile_label` selects the pile the record names by its engine label. A positional selector is barred by the schema.
+
+**Finding: the projection keeps no state memory of a scry.** After the scry, P1's current-state projection carries no granted library entry and no `looked_at` entry. P1's knowledge is evidenced by the frames P1 received during the event.
+- This is the same history-versus-state question as HIDDEN_11 (#441): a projection serves current state, and knowledge lives in what the viewer was shown.
+- The verifier asserts what was shown and to whom. It does not claim that the projection remembers the range.
+
+**Result.** The local run on this tree verifies 14 of 14 rows: the 12 earlier HIDDEN rows plus HIDDEN_10 and HIDDEN_13, each with its honey scan and controls. The unit controls cover:
+- a range offered to P2 (leak);
+- the wrong range shown to P1 (not verified);
+- a private identity in a pile label (leak);
+- piles that never reached the table (unmeasured);
+- the pile selector.
