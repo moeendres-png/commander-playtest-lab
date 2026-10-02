@@ -979,6 +979,7 @@ def run_script(
                 if snapshot_before_action is not None:
                     snapshot_before_action(str(step.get("causal_step_id") or ""), position)
                 value = (step.get("selection") or {}).get("semantic_value") or {}
+                action: dict[str, Any] | None
                 if value.get("action") == "activate":
                     native = placed.get(str(value.get("object")))
                     if native is None:
@@ -992,6 +993,8 @@ def run_script(
                         action = midgame_rows_mod._scripted_priority_action(
                             legal, step, placed, commanders
                         )
+                if action is None:
+                    raise ml.MidgameLaneError("the scripted action matched no engine offer")
                 probe.submit_proposal(client, legal, action, f"knowledge-{len(trace)}")
                 trace.append({"decision_class": decision_class, "step": position})
                 position += 1
@@ -2586,7 +2589,7 @@ def _controlled_player_authority(
     try:
         controller, controlled = _controlled_relationship(record)
     except ml.MidgameLaneError as exc:
-        return checks + [Check("controlled_relationship_declared", False, str(exc))]
+        return [*checks, Check("controlled_relationship_declared", False, str(exc))]
     checks.append(
         Check(
             "controlled_relationship_declared",
