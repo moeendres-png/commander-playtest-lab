@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 9.363,
+  "elapsed_s": 9.067,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "a067b6555c29c4e61ebb0351d1205a770ac2fddb1b8e2377524403cce4327910",
+        "decision_id": "7f11d156d59794ed577dc2e4b0d0084cf90f40b05db5b3154fc35fa344be01b8",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -42,17 +42,17 @@
         "selected_key": null,
         "selected_label": "Dig Through Time \u2014 Cast Dig Through Time",
         "selected_option_ids": [
-          "e8e044b072872cf9f167ab5f0834ef12a55b3e20cb108c3ca39437bbb150e99b"
+          "e9eecb419404906e4b850d1730b913ee522e3614ecc61c1c26fa363fcac33950"
         ],
         "selected_option_type": null,
-        "selected_source_object": "c9d8b71c-9e17-42cc-9d25-d97c63eb195e"
+        "selected_source_object": "55061631-e652-4873-a6ba-fb93f5214198"
       },
       {
         "context": {
           "unpaid_mana": "{6}{U}{U}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "0fb2d70af3dce95690c26f2164c32c7806e26ebc454ff91baefe21099cb082d5",
+        "decision_id": "bf243587863d7c72d563f8505c6b63d69f7108c3109d680bd489b317b1951671",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -61,14 +61,14 @@
           "Dig Through Time \u2014 Exile a card from your graveyard: Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)"
         ],
         "principal": "P1",
-        "prompt": "{6}{U}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='c9d8b71c-9e17-42cc-9d25-d97c63eb195e'>Dig Through Time</font> [c9d]</div>",
+        "prompt": "{6}{U}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='55061631-e652-4873-a6ba-fb93f5214198'>Dig Through Time</font> [550]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Island \u2014 {T}: Add {U}.",
         "selected_option_ids": [
-          "525b452368eda9761703352e45fb718c26d2c9338a2700a1bc343236c11f6c03"
+          "4e5af6c716dd1a877e381f1aae7edadb07904cbcee96ff37e136c72d7f3db230"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -78,7 +78,7 @@
           "unpaid_mana": "{6}{U}{U}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "0d31416fc301c94fde9c656175a9676c9d136c7ee22d92f3f929114c5cf8013f",
+        "decision_id": "14b0b2b47326778bc82d7e269f623679b59012b92a901606aaac173d1d7e4d89",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -87,7 +87,7 @@
           "Dig Through Time \u2014 Exile a card from your graveyard: Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)"
         ],
         "principal": "P1",
-        "prompt": "{6}{U}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='c9d8b71c-9e17-42cc-9d25-d97c63eb195e'>Dig Through Time</font> [c9d]</div>",
+        "prompt": "{6}{U}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='55061631-e652-4873-a6ba-fb93f5214198'>Dig Through Time</font> [550]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -104,7 +104,7 @@
           "unpaid_mana": "{6}{U}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "a2e79fa2a9c44c77230606e7a5b3628a874ce2423f0e6f8d367401137c683cb4",
+        "decision_id": "a96a8cd1615233dccc37a4ccf9c61647a25d1d5d20a6a9f8cce117c36e480358",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -112,14 +112,14 @@
           "Dig Through Time \u2014 Exile a card from your graveyard: Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)"
         ],
         "principal": "P1",
-        "prompt": "{6}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='c9d8b71c-9e17-42cc-9d25-d97c63eb195e'>Dig Through Time</font> [c9d]</div>",
+        "prompt": "{6}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='55061631-e652-4873-a6ba-fb93f5214198'>Dig Through Time</font> [550]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Island \u2014 {T}: Add {U}.",
         "selected_option_ids": [
-          "f013adfd80698c3fc61caa8c4e5040b0a2a3ffd682d821e23f147aeb396e747f"
+          "0486460885f386e7f1cdbd3593148678b120d4cd4b8bbaecdbe2cdc3d3715775"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -129,7 +129,7 @@
           "unpaid_mana": "{6}{U}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "367da953dc032c13cda6600201d75e2ff6776a8cd79923d1ad7821af9be57487",
+        "decision_id": "948e9f92e9ba8605a83cde011c3329ef7333733e70a9f03f6e507500a38beb26",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -137,7 +137,7 @@
           "Dig Through Time \u2014 Exile a card from your graveyard: Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)"
         ],
         "principal": "P1",
-        "prompt": "{6}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='c9d8b71c-9e17-42cc-9d25-d97c63eb195e'>Dig Through Time</font> [c9d]</div>",
+        "prompt": "{6}{U}<div style='font-size:11pt'><font color='#87CEFA' object_id='55061631-e652-4873-a6ba-fb93f5214198'>Dig Through Time</font> [550]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -154,14 +154,14 @@
           "unpaid_mana": "{6}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "77860fc0125bd5e630b3c1c017d09c74285610c1c38245a022e2f3fb85b87404",
+        "decision_id": "1db8d28259ae5fec0db70235e604f7de15024db5f42a36971e772a46cde94628",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Dig Through Time \u2014 Exile a card from your graveyard: Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)"
         ],
         "principal": "P1",
-        "prompt": "{6}<div style='font-size:11pt'><font color='#87CEFA' object_id='c9d8b71c-9e17-42cc-9d25-d97c63eb195e'>Dig Through Time</font> [c9d]</div>",
+        "prompt": "{6}<div style='font-size:11pt'><font color='#87CEFA' object_id='55061631-e652-4873-a6ba-fb93f5214198'>Dig Through Time</font> [550]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,

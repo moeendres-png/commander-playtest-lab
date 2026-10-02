@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "ALLOWED_VARIANCE",
   "creation_errors": [],
-  "elapsed_s": 8.898,
+  "elapsed_s": 9.333,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "declare_attacker",
-        "decision_id": "80553e3505cd170279993c7300cb0a37afcb490156d7778531c1ad8a83035167",
+        "decision_id": "ed5fcff827e23d43b3eef90c10b8bce8f302ba2cecb328b2f2b981413cfdba0f",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Bruse Tarl, Boorish Herder",
@@ -33,7 +33,7 @@
         "selected_key": null,
         "selected_label": "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
         "selected_option_ids": [
-          "53a9b2778b8db83e7e2aa98e43dab040027bf024b7529a6f642554c4b3abec62"
+          "9233784efc8d711926847924a77ba2c080dbe88c3b7b0cecb78ec2153b2f2435"
         ],
         "selected_option_type": null,
         "selected_source_object": null
@@ -41,7 +41,7 @@
       {
         "context": {},
         "decision_class": "declare_attacker",
-        "decision_id": "1180792e9ef79f1bed05e357409211bdba707e0b244ec03796be7eee1dd234d2",
+        "decision_id": "d072235200c2cfcf6e9e6678e6670593f7b449aff17ad59e0c00b72df1316e7f",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Kediss, Emberclaw Familiar",
@@ -57,7 +57,7 @@
         "selected_key": null,
         "selected_label": "Do not attack with Kediss, Emberclaw Familiar",
         "selected_option_ids": [
-          "294ad39cc5f50483ae7f67dbde3f63b96ed8e7121d64991d62b8374d461e4334"
+          "4750a9f41029c08f1e05987be6855774c0b374f3fc04970168969688658e4347"
         ],
         "selected_option_type": null,
         "selected_source_object": null
@@ -71,7 +71,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "6cb84df1ee8c5fd92e4c2a92f1b78afa614c890de9a2d1901ce2354b6d0f13b0",
+        "decision_id": "a64007ae63e7efc227d2e4a9ca65d917da2121fb6a522a799d259cfac078d08b",
         "numeric": null,
         "offered_labels": [
           "Bruse Tarl, Boorish Herder",
@@ -91,7 +91,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "be36256a70931cfaa01037530a8f123363b17997e669a8ec9bc63f822e701488",
+        "decision_id": "cfa5c4bc38894d4be48cf63c69e4ff38951a9f92fddae85102d901ead115ed52",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -110,7 +110,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6e9d88e9ac9e5f34cf76954c980f97b18fd5e6e7e801248fe447b73577098575",
+        "decision_id": "54260c47ff44d324780bdfe05a105cc54f2d953725421c036fd4ec5c11b509ed",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -129,7 +129,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1caba4a7f5338559363199cb8e26c04750632576e66b741f6a4e7bb83dbc23ff",
+        "decision_id": "b4ed28657a492415606f393bbbe6cd4ba78e817b4534678060f60025972c6a74",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -148,7 +148,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "476001f64fdf6990281ec4526d93a228e25beebbfff9cdc79ef0b68398b5988b",
+        "decision_id": "420e7b3022cf55f32e7a985dc04bf4d3a1e8fd161c5c71da5cf3d9dc45ba373e",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -167,7 +167,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6fc9bb36bdff13008897c8d19201b5147f947e1794298c35d8d03146252f65c6",
+        "decision_id": "19460728e2a0e6275585c90a4ee5e3d40641faa0424369ba1c82cefadada152d",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -186,7 +186,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "52de263de3645af4904654296a1f17799d4808d6d903f478ff6d54d85b2b8a34",
+        "decision_id": "d41c4a67cf2fc8882cf0310ae54a096f521559adebddc6244b49afdafa738c9c",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -205,7 +205,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "8481de1d9397eea655278a7c369418c285c8c7be65842a3dec6ccf5c9e907bb7",
+        "decision_id": "4cbfc65760aa5f4bf2afdbae76d34cc18feba8a371cd9d25160dd1ecbad63874",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -224,7 +224,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "b03e6c238b8686a8cc67bf2a7e7f885aa3c961b4f7cbc143280c8849605e0bca",
+        "decision_id": "bf756f66a5e8e85aa14a03d1798575e1710d3cb30fae42c9d74ba46425959acc",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -243,7 +243,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "57c16090070213f9f4cdb9aad4fba40841952db5be931a24bc2bebfc03e2187d",
+        "decision_id": "14dd23d56fae053bf381ed41955fa2fbfe891f8e5886feaed6c5cfacba9e29e0",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -262,7 +262,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "321f987659e63558044770e1f15381204fbabe5cfe8290007d1debefa5a31a16",
+        "decision_id": "040fb98fd690acec028d365163a053ee19f5ba815d2b2cf02a10053b398ba4d4",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -281,7 +281,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "f7689417638eef63e22e927a28759d745cac034722c3a639ede6626662ff0a8d",
+        "decision_id": "0f225516b60413f167fb185376325a993875a6ff84c744f579837b01aab65966",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -300,7 +300,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "478855d2599f3aafc509c0df46cf54c828556473bab0ee453636fa471c25ea84",
+        "decision_id": "382439a22db86598117482f1270df48a9d7c6a06eec367b952ace570fff3912d",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -319,7 +319,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "222a260a2e24bf582325f059a48ca7ad1ed02597d20d67c461d5a1c888c62be4",
+        "decision_id": "702608f523089a6577fec6c7dd165dad73a4641380dcae597f928a2aa773b6fa",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -338,7 +338,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "80c1cbf29df1a6ba867b0eb193a862ef925889280bce6db605cc353513d9fb13",
+        "decision_id": "8e5369d387828e449da8133b36847774482ec8705ea14d06a168610890fdd9bb",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -357,7 +357,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "a8166969f41e9d91d0d53b4e09470d2ca0f93d3fe710be6650678b62cb56e1c7",
+        "decision_id": "abf78a3ade12e453a1f9c827f8c0e36df95b967adb2076ddb83b1f10eea785e8",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -376,7 +376,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "2fbd9a3e80de82fdc7b3dbd997cd1ce806eb400f19037073d0cf69148baac998",
+        "decision_id": "652cc9a6f2ddfc191633a97a03fc4797ccafae58c1915eaf4477cdbdb91e3bc9",
         "numeric": null,
         "offered_labels": [
           "Pass priority"

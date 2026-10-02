@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.975,
+  "elapsed_s": 9.408,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "2f913b34ad8052081aef2cec15e703b7327fb3c3ae5041c02078f764e87c5e46",
+        "decision_id": "62ab04d07acc466ff9b52c115d6c2807728ae6749b68c3bdf808548efbdd4508",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -42,17 +42,17 @@
         "selected_key": null,
         "selected_label": "Grizzly Bears \u2014 Cast Grizzly Bears",
         "selected_option_ids": [
-          "13994d667ce3d2ca091aea1ea8180d5d54634dcf6201eeb084825af21a732873"
+          "e3b4e56b68f469505988bbcca9f01b6888789833e417c030bbd3364baa9dd4b2"
         ],
         "selected_option_type": null,
-        "selected_source_object": "3f4216d0-7099-43f8-be0b-82861aa47c48"
+        "selected_source_object": "1a168759-8057-42ea-90f4-762a6e788e33"
       },
       {
         "context": {
           "unpaid_mana": "{1}{G}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "fdaff8b4911293d5aa2fd92fff52bc7f4dc054225c853542bae3a0b024f614aa",
+        "decision_id": "fe99a05420db52cb1b4443a7c5b4db76f8ee808c9e1b4adb8c6bf09a97288f3a",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -60,14 +60,14 @@
           "Forest \u2014 {T}: Add {G}."
         ],
         "principal": "P1",
-        "prompt": "{1}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='3f4216d0-7099-43f8-be0b-82861aa47c48'>Grizzly Bears</font> [3f4]</div>",
+        "prompt": "{1}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='1a168759-8057-42ea-90f4-762a6e788e33'>Grizzly Bears</font> [1a1]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Forest \u2014 {T}: Add {G}.",
         "selected_option_ids": [
-          "3ec81a6d137c77fbec38c91291f2a6883329cc96021097126fe1009da434b364"
+          "5d3e61fed44d457484435b4901cc4af66364c02c04812dc3203fa180ed915fc4"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -77,7 +77,7 @@
           "unpaid_mana": "{1}{G}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "41f5711600966d8a1c251d63a5e1e140957510f5f967af7f685913fcb74ce42e",
+        "decision_id": "bba49268e9fa06869ebdf810a87a616b2c7e06dc204c92fb74e2cecc8ce1f444",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -85,7 +85,7 @@
           "Forest \u2014 {T}: Add {G}."
         ],
         "principal": "P1",
-        "prompt": "{1}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='3f4216d0-7099-43f8-be0b-82861aa47c48'>Grizzly Bears</font> [3f4]</div>",
+        "prompt": "{1}{G}<div style='font-size:11pt'><font color='#90EE90' object_id='1a168759-8057-42ea-90f4-762a6e788e33'>Grizzly Bears</font> [1a1]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -102,21 +102,21 @@
           "unpaid_mana": "{1}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "59c46459d29af8e8e33fd8b73f374a2a6f6e6693b3d956f8143a2015db51f346",
+        "decision_id": "0b34b6934492669db1acfc32e29cb823a9f00f9e1d03c5fb05267efb514f2ccf",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Forest \u2014 {T}: Add {G}."
         ],
         "principal": "P1",
-        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='3f4216d0-7099-43f8-be0b-82861aa47c48'>Grizzly Bears</font> [3f4]</div>",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='1a168759-8057-42ea-90f4-762a6e788e33'>Grizzly Bears</font> [1a1]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Forest \u2014 {T}: Add {G}.",
         "selected_option_ids": [
-          "b0da13d0f70fac01b490081bcc081dcd0f1b06ed8b0397525f355d5117700677"
+          "6cfacbe631b5eb6a11e3acde6871c7ca1518745bfcdce2863a71d1d427e41d9f"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -126,14 +126,14 @@
           "unpaid_mana": "{1}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "6316829ce2fc34b541e87ae8ba58dbbe1fc3f4732c83655b0f03f006d3dccfed",
+        "decision_id": "e04a7f1d4e5b79827fededad2edb0583a6c2315f74d32b5ff34d1dae3d0ef048",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Spend green mana from pool"
         ],
         "principal": "P1",
-        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='3f4216d0-7099-43f8-be0b-82861aa47c48'>Grizzly Bears</font> [3f4]</div>",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#90EE90' object_id='1a168759-8057-42ea-90f4-762a6e788e33'>Grizzly Bears</font> [1a1]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -148,7 +148,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "4512e46c7eb83f49c9a5e634dba6995e1c879b0e7997cd910673d916b8248021",
+        "decision_id": "bc39bb6283aaa3b788c6023796a7397013b38efec994e04d5e449adb246cb33f",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -167,7 +167,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "3a0e91fc354792ad88c7552c1a9e44b3af210fe2d29c43ad77d1cb99962de85e",
+        "decision_id": "8fd5f3f331bd88d0b9b43d1e4d9580fda6492268f87000d265d4d7b987174645",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -186,7 +186,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "8eca373e146d2ba54f26c7a7703be56a8cf5ad74c8c2e5ff2f8a9f39525ab852",
+        "decision_id": "de0f239c6e3ca1ed38533bb1e086ce9b3ff95e2e3e69627ed98f837c1ec0f705",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -205,7 +205,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "fd299e4d456a5327a3ad929a1fa73cb1fb22d6193fd93d8405f9a13e3323b334",
+        "decision_id": "91c3da745c0830feb254343a99783f9628d3b46ef18f5dde4b931497adba2841",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -230,7 +230,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "139a1edceb7c7810d3adb1b6d01960d78666fda254d22a150347f3a286e49f1c",
+        "decision_id": "e2220627dae746e1b09fa747e0f5fd16543af3c79c11cd58a4be1cc7c82f3ff8",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -253,7 +253,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "8f8e8167e939dd2aa157faa4233d9f6de1f0b8ffd2329cce0a049791ad761ad1",
+        "decision_id": "9ceb20f9528bd1538699be34fa8e4b088280c1568d4073684e84f7a4bd95c188",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -272,7 +272,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "009c9bd5f823e9b0ab347414fd06734ec509afbf2c4c004b9fb32c126631e7ac",
+        "decision_id": "bb8e0f172ec610263dc5f012ff3f67114295bcad2d94289dcb29da12fb52c06b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -291,7 +291,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "660294e00126427cbd5995a0a7cefceb76f65cc94062bd0ce6a7adebe6a197ae",
+        "decision_id": "924aae681cd86652d2f8e9901eb6c9d325bcad021ee0a13f163bf3f68fbb713b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -310,7 +310,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "c528edbe14a1a583941d06311327a3a360145023547c18bc0634ac437a2f2a6e",
+        "decision_id": "073d675cd4a4448fc3a311c3171450d9b529559d6b0d4b165f283641a7d66438",
         "numeric": null,
         "offered_labels": [
           "Pass priority"

@@ -39,13 +39,13 @@
       "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
       "size": 7113924
     },
-    "engine_runtime_directory": "/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/af07rt2",
+    "engine_runtime_directory": "/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/af07rt3",
     "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
-    "matrix_digest": "ff525d5265739e1180222b5b1c4d7b16ef654975eefc1659081285bdfa0422cd",
+    "matrix_digest": "6e2cb87daf6a7dcbb62ff4affa9cd29c0e57f4e4cf87e2093901ce69eba61eb8",
     "runner": {
       "branch": "claude/optimistic-bohr-6asye6",
-      "built_utc": "2026-10-02T00:40:57+00:00",
-      "commit": "814234ea0c8ddb14def49abecab3c4f03c6b2949",
+      "built_utc": "2026-10-02T02:07:30+00:00",
+      "commit": "064d45a98ae0786a42907fb34b0a259cf65753de",
       "dirty": false,
       "dirty_paths": [],
       "input_digests": {
@@ -67,7 +67,7 @@
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java": "a60a53ac074afe652efee98d1bf191b0b2e3c33dafa9ae08ef7246f6c7596da0",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "c3437f213d44860ffa4f5e640a563812b4571610321bfa42e2564f4e76e7f950",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java": "4140fcc352296e9704f4e8656b92116db6deeb6fc2376f0dd74406cd4ae46f97",
-        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "d336df17c40c46aeaf4d1771a6c3a2c9102ce0799487468504cb5a0266183929",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "687c77d60bf53f417ff6a396391320b155d09a8fcb1cbcd75a98487f9bcce5af",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "6ba4f7325b833fd9a1ea09803c661e87c562463b604fb396a2e1e414836cc921",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameStateRedactor.java": "be8a044c11b0c412664529c71970114d38464465482079029b184649c51f4802",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "9c78134b5f1fb9b222eb7c399d92a7100f70d1c79794f40c486790d442ed2023",
@@ -99,7 +99,7 @@
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalEliminationReconstructionTest.java": "88cb1863353826f1056336b377c974bae6c8cf4b0631a7e7e18df535fb2e7a1b",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalStackMechanicsTest.java": "a56b501a31c424e6b1c964515ef03f69120e0d3c8767e7073d7d18a98df76199",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalStackReconstructionTest.java": "944a7b912a38986e7600c44f4fbe4c7cf472f373d57a094e8ffc33850887f105",
-        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCheckpointStateRestorationTest.java": "4bca8219b587d804fd29ba92bbca870a01e47c4d03002e81b0fe707324708b94",
+        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCheckpointStateRestorationTest.java": "ea6ba6678fd774ec259b3728b57a0ede01b0cf4380f5b72da856e46361c09fff",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCombatDamageLeaverUnwindQualificationTest.java": "2a3bba032a5768a268fb41131c636388ea5472ec04eb460123caea31eee5f6eb",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCommanderDamageRestorationTest.java": "34737a28bb077870bbd23f8012ba1c7e40d5ff4b1d21faca4592c60c6b9f82e5",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageControlDivergenceReconstructionTest.java": "89b8850c2007248b4c54c27565ebaf3709a6886ef27ccc5da134f34eb3376e1c",
@@ -267,7 +267,7 @@
         "src/commander_lab/engine/rules/tactical.py": "6613ad25a2de36233eec1acff73b859c7ce35777087465a1f46075b0ffed8024",
         "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b684300d229e503b6a0e977ae39dd263464656053c4d4cb145ad1",
         "src/commander_lab/qualification/current_boundary/__init__.py": "0a214758505a910970e01984efa392c5bc99d85306a713ee04e81ed38284776c",
-        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "43533c2a99393c4afc3dcc06487fa9c1fffc3e8c472fdb4a71e7ec8285ba3b0b",
+        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "3833a7ab4d5510f7751e0ffcc24e861a3594d7d881e85e305d49053037224299",
         "src/commander_lab/qualification/current_boundary/af01.py": "df6b97a516ae8ea5f92367cfa5af97e712108ae4ee5a07ccf4ba7d4e53cfff80",
         "src/commander_lab/qualification/current_boundary/af03.py": "ba6fd0d50be08cbaad81121862679958ca2736f00470ca11eb10c61e74431b60",
         "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "fa0d03e09759b63c1514dc94a790c7dfbb4e3ad5179d4198ddac794771208263",
@@ -277,26 +277,26 @@
         "src/commander_lab/qualification/current_boundary/full107.py": "4cb67c0937051b87794e9644e95b7738a332da4a4267e06efe5e9fc5bd1585e6",
         "src/commander_lab/qualification/current_boundary/game_driver.py": "d8889fc69f3386d27bc7fb3f722df97f3e84cb1c1d27840560dac7488cd349aa",
         "src/commander_lab/qualification/current_boundary/gate_derivations.py": "265bc2904bbddb74058ca757e978cbaeaa04cb146af0720715a885a5504d4811",
-        "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "b100ac70d763fe51b3ca95918fa035c998a13c4eb6a3d12ab66b41574b8ed73e",
+        "src/commander_lab/qualification/current_boundary/knowledge_projection.py": "a6e976728f2305304d8660c220c19cd9ebb163dbc9d1cfc72d8e238a9c78e4c7",
         "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
         "src/commander_lab/qualification/current_boundary/materialization.py": "dd329bc1365a40538bde393ac54d9800062b637648e8ada7ea02577aa57f5693",
         "src/commander_lab/qualification/current_boundary/midgame_lane.py": "73c4b4a6b3278c0105fb8d0402491416539d791b06bee2c795fe4ee3f9df5b4c",
-        "src/commander_lab/qualification/current_boundary/midgame_rows.py": "0fd2bc10c9d6b16fffe74a84d1a05db1b01f6a858ffb2f48c1f16e01b09a0f84",
+        "src/commander_lab/qualification/current_boundary/midgame_rows.py": "7cdcfe4054ad7223aea124c5475f86f186dfdf36691586db918af0c89586e4c7",
         "src/commander_lab/qualification/current_boundary/pb03_runtime.py": "e842387d179cb6b10c2d5848c596812ebcbc0d1bfd80239d6afd9d99867fff0d",
         "src/commander_lab/qualification/current_boundary/receipts.py": "db518c6c34d6ff03867b46a97043c9fb3a133c97b6129f8255907483d54b6522",
         "src/commander_lab/qualification/current_boundary/refusal.py": "7677ae55d23f2fd49c5903794d7e3099ff610741716a1f618611c4762674fdc0",
         "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
         "src/commander_lab/qualification/current_boundary/shortcut_campaign.py": "a4f80471aa67cea5a55a7f5ae0d2fa186a63a15bfc5782da0f6b1cbff0f1013f",
-        "src/commander_lab/qualification/current_boundary/source_lock.py": "30861b9eb9a934fa33239c397320c8e0e96d3333a97386a6611b434c1b946d03"
+        "src/commander_lab/qualification/current_boundary/source_lock.py": "dc6d03254e38dd74d539a6315894520ce1b311803a1e4cffec4e42894a03baad"
       },
       "repository": "https://github.com/moeendres-png/commander-playtest-lab",
       "run_output_prefixes": [
         "qualification/current-boundary-epochs/"
       ],
       "schema_version": "commander-lab.runner-identity/1.0.0",
-      "tree": "f21790ccdc4222a672821116a32caf93d742264e"
+      "tree": "20d729be7110116ce1880564b16f6c268b16c45d"
     },
-    "runner_digest": "3054fdac7bcf34ab9a18df83866ea803918fe34e63e9747ea0580f469e26633f",
+    "runner_digest": "1f3f9673a20ed174feb2982d4d38fc4f0a82f022de6ae89a35849eee70d5009c",
     "seed": 424242,
     "selected_rows": [
       "CARD_01",
@@ -406,7 +406,7 @@
     ],
     "identities_source": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json",
     "materialization": {
-      "canonical_bundle_digest": "238bbeffe951ad6e367906bd6e9f0c61ceeadb6af748df12c5949117c42801a6",
+      "canonical_bundle_digest": "8813d63ee45cdc06b17aab4fa3358939c4ba630808a04b5496a89f645e6b18ab",
       "changed_fixture_ids": [
         "WS05-CMD-START-2",
         "MICRO_MODES",
@@ -439,9 +439,12 @@
         "CARD_05",
         "CARD_18",
         "CARD_23",
-        "CARD_26"
+        "CARD_26",
+        "CARD_08",
+        "CARD_11",
+        "CARD_21"
       ],
-      "contract_id": "commander-lab.full107/1.0.13-successor",
+      "contract_id": "commander-lab.full107/1.0.14-successor",
       "frozen_full107_source": "5a2e4f462fd45bba25f2271153212aab9faf09f5",
       "materialization_record_count": 135,
       "provider_denominator_count": 107,
@@ -451,7 +454,7 @@
         "receipt_path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
         "rule": "103.8a"
       },
-      "schema_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor"
+      "schema_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor"
     },
     "required_count": 29
   },
@@ -548,7 +551,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 31.373,
+        "elapsed_s": 32.11,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -583,7 +586,7 @@
           }
         }
       },
-      "receipt_digest": "ddcb46110944f9694263e6ffd0c82668312527c98ad551585330194ff8302f0f",
+      "receipt_digest": "067f483bca140e7369dc80f7c07d6a11676eebb488410f8feb8028d0dc20665b",
       "record": {
         "card_identity": "Ishai, Ojutai Dragonspeaker",
         "excluded_by_frozen_denominator": true,
@@ -591,8 +594,8 @@
         "fixture_id": "CARD_01",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "debaeebc57ea5cadb2f1e56e8bde633f2e1c3d13489ac1edd6a3f99eb9e56444",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "d5d8272ec717759a8f9ef385578658c10d40744d0b7e99216522e8d60e0bf521",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "a84169db6afcd5cebf7d9d06ebe7d2ed7e3f8ccd4b4f88e0a2057c7e2f3cdf5b",
         "requested_state_digest": "019e0f0ad7b10bf360fc3ebd49bf26db750e09ec5169bdfb4cb4bebee546d356",
         "required_events": [
@@ -691,7 +694,7 @@
             "postcondition": "obj:card01-ishai has exactly one +1/+1 counter."
           }
         ],
-        "receipt_digest": "ddcb46110944f9694263e6ffd0c82668312527c98ad551585330194ff8302f0f"
+        "receipt_digest": "067f483bca140e7369dc80f7c07d6a11676eebb488410f8feb8028d0dc20665b"
       }
     },
     {
@@ -749,7 +752,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.988,
+        "elapsed_s": 9.022,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -784,7 +787,7 @@
           }
         }
       },
-      "receipt_digest": "b177882230169b287016c26e625f7c03189b8feb84f34aad506f47a86183e386",
+      "receipt_digest": "f7b49265ef4a66d46ed6ec73d528d7f5afb07e6bbf10c01fbd322ae8b8d8255c",
       "record": {
         "card_identity": "Rograkh, Son of Rohgahh",
         "excluded_by_frozen_denominator": false,
@@ -878,7 +881,7 @@
             "postcondition": "No commander-tax increment was charged."
           }
         ],
-        "receipt_digest": "b177882230169b287016c26e625f7c03189b8feb84f34aad506f47a86183e386"
+        "receipt_digest": "f7b49265ef4a66d46ed6ec73d528d7f5afb07e6bbf10c01fbd322ae8b8d8255c"
       }
     },
     {
@@ -917,7 +920,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.233,
+        "elapsed_s": 8.866,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1151,7 +1154,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.898,
+        "elapsed_s": 9.333,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1195,7 +1198,7 @@
           }
         }
       },
-      "receipt_digest": "b27a3a530afdb3114ddc442571d7e27a567f751d1e0a39c0cf88e0291284836e",
+      "receipt_digest": "c0490bda931e7e061a94637679130ef8530acb1d08157565767d3b4a9e819a81",
       "record": {
         "card_identity": "Kediss, Emberclaw Familiar",
         "excluded_by_frozen_denominator": true,
@@ -1203,8 +1206,8 @@
         "fixture_id": "CARD_04",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "be6d040ebbad32ed795c856c60110d056cc76034d7e02be86aec10eba3160a88",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "5b398d670615c730beaf082c5fa7c9dcc452624bc6573ed0b5b9622f89d188fc",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "84b7066117ce3d7fa4f31af3579acba06e437470f0135d53c77dc0544ec9ed59",
         "requested_state_digest": "3060c23e121d29bfd645334e90d6d9bf2ea7f9ab2ec2685ded90efe50ce079cc",
         "required_events": [
@@ -1365,7 +1368,7 @@
             "postcondition": "Only P2 gained commander combat damage; Kediss damage does not retrigger Kediss."
           }
         ],
-        "receipt_digest": "b27a3a530afdb3114ddc442571d7e27a567f751d1e0a39c0cf88e0291284836e"
+        "receipt_digest": "c0490bda931e7e061a94637679130ef8530acb1d08157565767d3b4a9e819a81"
       }
     },
     {
@@ -1493,7 +1496,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.948,
+        "elapsed_s": 8.631,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1531,7 +1534,7 @@
           }
         }
       },
-      "receipt_digest": "efaade91c3e05e60856ada3f4a4505853f02ab0c2fcb710c25cf87190d08336b",
+      "receipt_digest": "9a35dc9ab5e82666323dea34145318f333f07d3e7bd04bb25f4be079d1573a35",
       "record": {
         "card_identity": "Veyran, Voice of Duality",
         "excluded_by_frozen_denominator": true,
@@ -1539,8 +1542,8 @@
         "fixture_id": "CARD_05",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "88e0db57dfe1b8ce726122542d93eb25e3e8743ad01e235e3a8dd8edbaacffe7",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "6c2698c805b4b5f9304cf41986bdbee0819fe8a8381e42e864515eb60bd860e0",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "d6040c5c5fd7987943949b3f93bd4fa719870af0af68d3d464a12a3db4483684",
         "requested_state_digest": "13a258b73064c86def48b27fcc6aa3b419f4d5298fd588d83fc228273b031b3b",
         "required_events": [
@@ -1650,7 +1653,7 @@
             "postcondition": "After both triggers resolve Veyran has +2/+2 until end of turn."
           }
         ],
-        "receipt_digest": "efaade91c3e05e60856ada3f4a4505853f02ab0c2fcb710c25cf87190d08336b"
+        "receipt_digest": "9a35dc9ab5e82666323dea34145318f333f07d3e7bd04bb25f4be079d1573a35"
       }
     },
     {
@@ -1687,7 +1690,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.328,
+        "elapsed_s": 8.598,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1763,7 +1766,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.183,
+        "elapsed_s": 0.194,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1821,7 +1824,9 @@
       "card_identity": "Jeska, Thrice Reborn",
       "derived_requirements": {
         "executor_requirements": [
-          "selector:semantic_ability_key",
+          "priority_action:cast",
+          "priority_action:activate",
+          "selector:semantic_object",
           "selector:attacker_assignment",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_CAST_AND_RESOLVE_JESKA_WITH_EXPLICIT_PRIORITY_PASSES",
@@ -1831,7 +1836,8 @@
           "native_op:NATIVE_ENTER_DECLARE_ATTACKERS_AND_REQUEST_DECLARATION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -1842,6 +1848,62 @@
           {
             "decision_class": "priority",
             "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
             "principal": "P1",
             "refused": false,
             "scripted": false,
@@ -1873,7 +1935,87 @@
           },
           {
             "decision_class": "priority",
-            "offered_labels": 4,
+            "offered_labels": 11,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 9,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
             "principal": "P1",
             "refused": false,
             "scripted": false,
@@ -1908,11 +2050,75 @@
             "offered_labels": 4,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.336,
+        "elapsed_s": 9.234,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1920,18 +2126,50 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted declare_attacker for P1: the row stops unverified",
-        "missing_tokens": [
-          "Jeska_enters_loyalty:2",
-          "loyalty_ability:0",
-          "combat_damage_replaced:2->6"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "every COUNTER_ADDED event with target_object=obj:card_08-subject, data=loyalty precedes the first ZONE_CHANGE event with target_object=obj:card_08-subject, from=STACK, to=BATTLEFIELD": true,
+          "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, amount=6, combat=True, source_object=obj:card08-attacker": true,
+          "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty": true
+        },
+        "token_evidence": {
+          "Jeska_enters_loyalty:2": {
+            "binding": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty",
+            "events": [
+              9,
+              10
+            ]
+          },
+          "combat_damage_replaced:2->6": {
+            "binding": [
+              "every Grizzly Bears on P1's battlefield is 2/2",
+              "at least one DAMAGED_PLAYER event(s) with amount=6, combat=True, source_object=obj:card08-attacker"
+            ],
+            "parts": [
+              {
+                "binding": "every Grizzly Bears on P1's battlefield is 2/2",
+                "observation": "engine terminal observation"
+              },
+              {
+                "binding": "at least one DAMAGED_PLAYER event(s) with amount=6, combat=True, source_object=obj:card08-attacker",
+                "events": [
+                  14
+                ]
+              }
+            ]
+          },
+          "loyalty_ability:0": {
+            "binding": "a scripted priority frame selected an engine offer naming '0: Choose target creature'",
+            "decision_frames": [
+              11
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "3a082d95e44d22763531979ba59ee5c8d415cff34cb033c02258b9f96223fcdb",
       "record": {
         "card_identity": "Jeska, Thrice Reborn",
         "excluded_by_frozen_denominator": true,
@@ -1939,8 +2177,8 @@
         "fixture_id": "CARD_08",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "e2b202dad65abaf0173141df9c4827395b3a0b735bd9e76d52bfcbd295f89a05",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "114923b67e1a2b25dd435aa9502624aab84bcfc99ef4bcb67fb694ab05cebc45",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "4a6c0c081897f63dcf709d2895fea4fb7d3e2a386502a6af7b94aca2df260bfa",
         "requested_state_digest": "623291ae8d6b621df1ed6f8dad797a8ee721dbb9e47119da0d424af19f3000ef",
         "required_events": [
@@ -1954,20 +2192,200 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the engine offered a decision the generic production executor cannot answer from the record's declared script: unscripted declare_attacker for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_surface": null,
         "card_identity": "Jeska, Thrice Reborn",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_08",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_08",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "COUNTER_ADDED",
+                  "kind": "events_precede",
+                  "principal": null,
+                  "source_name": null,
+                  "value": [
+                    "ZONE_CHANGE",
+                    [
+                      [
+                        "target_object",
+                        "obj:card_08-subject"
+                      ],
+                      [
+                        "from",
+                        "STACK"
+                      ],
+                      [
+                        "to",
+                        "BATTLEFIELD"
+                      ]
+                    ]
+                  ],
+                  "where": [
+                    [
+                      "target_object",
+                      "obj:card_08-subject"
+                    ],
+                    [
+                      "data",
+                      "loyalty"
+                    ]
+                  ]
+                }
+              ],
+              "postcondition": "Jeska enters with two loyalty counters.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "COUNTER_ADDED",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 2,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card_08-subject"
+                  ],
+                  [
+                    "data",
+                    "loyalty"
+                  ]
+                ]
+              }
+            },
+            {
+              "postcondition": "P2 is dealt 6 combat damage by the affected creature.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "DAMAGED_PLAYER",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "target_player",
+                    "P2"
+                  ],
+                  [
+                    "amount",
+                    6
+                  ],
+                  [
+                    "combat",
+                    true
+                  ],
+                  [
+                    "source_object",
+                    "obj:card08-attacker"
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "COUNTER_ADDED",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 2,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card_08-subject"
+                  ],
+                  [
+                    "data",
+                    "loyalty"
+                  ]
+                ]
+              },
+              "token": "Jeska_enters_loyalty:2"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "selected_frame",
+                "label": "0: Choose target creature",
+                "principal": null,
+                "source_name": null,
+                "value": "priority"
+              },
+              "token": "loyalty_ability:0"
+            },
+            {
+              "check": [
+                {
+                  "card_identity": "Grizzly Bears",
+                  "kind": "power_toughness",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": [
+                    2,
+                    2
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "DAMAGED_PLAYER",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": null,
+                  "where": [
+                    [
+                      "amount",
+                      6
+                    ],
+                    [
+                      "combat",
+                      true
+                    ],
+                    [
+                      "source_object",
+                      "obj:card08-attacker"
+                    ]
+                  ]
+                }
+              ],
+              "token": "combat_damage_replaced:2->6"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "every COUNTER_ADDED event with target_object=obj:card_08-subject, data=loyalty precedes the first ZONE_CHANGE event with target_object=obj:card_08-subject, from=STACK, to=BATTLEFIELD"
+            ],
+            "check": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Jeska enters with two loyalty counters."
+          },
+          {
+            "check": "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, amount=6, combat=True, source_object=obj:card08-attacker",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2 is dealt 6 combat damage by the affected creature."
+          }
+        ],
+        "receipt_digest": "3a082d95e44d22763531979ba59ee5c8d415cff34cb033c02258b9f96223fcdb"
       }
     },
     {
@@ -2192,7 +2610,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 9.465,
+        "elapsed_s": 9.917,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2243,7 +2661,7 @@
           }
         }
       },
-      "receipt_digest": "1a5a98abb05d3e0fc3c3defa2485397454c7f7e3ce69665657784a29e30491eb",
+      "receipt_digest": "97c18607983ab51d91dd68b8eb4d0a54ee0ef97a50f94202c75acd39fb0d79a6",
       "record": {
         "card_identity": "Magma Opus",
         "excluded_by_frozen_denominator": true,
@@ -2251,8 +2669,8 @@
         "fixture_id": "CARD_09",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "eabdb5570b5ad15a854aedf208d77dd371cff4701cc0694162da5b17f8671acb",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "b464c3ba046042c997bc080d23c7d0edcfdf9818649b205accc57b822a219e6f",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "af9732d8434b07f79e321c13ae094b0f138a305e08aa24e9d1f3ccb22d34d838",
         "requested_state_digest": "78cb4f05911e88466bf873bd5e913fccc206d28874c77ce97b8f26e4d3af86ca",
         "required_events": [
@@ -2448,7 +2866,7 @@
             "postcondition": "P1 controls one new 4/4 blue/red Elemental and drew two cards."
           }
         ],
-        "receipt_digest": "1a5a98abb05d3e0fc3c3defa2485397454c7f7e3ce69665657784a29e30491eb"
+        "receipt_digest": "97c18607983ab51d91dd68b8eb4d0a54ee0ef97a50f94202c75acd39fb0d79a6"
       }
     },
     {
@@ -2476,7 +2894,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.207,
+        "elapsed_s": 0.219,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2534,12 +2952,14 @@
       "derived_requirements": {
         "executor_requirements": [
           "priority_action:cast_fused",
-          "inline_target",
+          "selector:semantic_object",
+          "selector:semantic_object",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -2552,11 +2972,107 @@
             "offered_labels": 16,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 2,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 9.727,
+        "elapsed_s": 8.987,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2564,18 +3080,36 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "execution failed closed: scripted priority action 'cast_fused' is not executed by this lane",
-        "missing_tokens": [
-          "fused_split_spell_cast",
-          "destroy_artifact",
-          "destroy_enchantment"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "Glorious Anthem is in P2's graveyard": true,
+          "Sol Ring is in P2's graveyard": true
+        },
+        "token_evidence": {
+          "destroy_artifact": {
+            "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card11-artifact",
+            "events": [
+              9
+            ]
+          },
+          "destroy_enchantment": {
+            "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card11-enchantment",
+            "events": [
+              11
+            ]
+          },
+          "fused_split_spell_cast": {
+            "binding": "a scripted priority frame selected an engine offer naming 'cast fused'",
+            "decision_frames": [
+              0
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "2d88d03c7669ae10f3a0c10eba38031946e4a3014e3b8f8feceac8ad6d064d72",
       "record": {
         "card_identity": "Wear // Tear",
         "excluded_by_frozen_denominator": true,
@@ -2583,8 +3117,8 @@
         "fixture_id": "CARD_11",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "4ac89cb1c8e1fa19b4188a3fd8bee9dba682165ac844111836360eeb074f9dad",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "c6c9e2177d1a6f77819a587218f948f6ff7f4dbd341ac42feaeaa6e87ed3fbf9",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "1c9c4ac9b9150afd3a843f483c8666a9120c2d5c7473c45ebe8714e9d96f4483",
         "requested_state_digest": "ea9101917793bde3ce6ed0d39ff963fd256839f0406a3eddc695a7fa3265231a",
         "required_events": [
@@ -2597,20 +3131,103 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'cast_fused' is not executed by this lane",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_surface": null,
         "card_identity": "Wear // Tear",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_11",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_11",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": "Glorious Anthem",
+                  "kind": "in_graveyard",
+                  "principal": "P2",
+                  "source_name": null,
+                  "value": null
+                }
+              ],
+              "postcondition": "Both target permanents are in P2 graveyard.",
+              "terminal_check": {
+                "card_identity": "Sol Ring",
+                "kind": "in_graveyard",
+                "principal": "P2",
+                "source_name": null,
+                "value": null
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "selected_frame",
+                "label": "cast fused",
+                "principal": null,
+                "source_name": null,
+                "value": "priority"
+              },
+              "token": "fused_split_spell_cast"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "DESTROYED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card11-artifact"
+                  ]
+                ]
+              },
+              "token": "destroy_artifact"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "DESTROYED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card11-enchantment"
+                  ]
+                ]
+              },
+              "token": "destroy_enchantment"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "Glorious Anthem is in P2's graveyard"
+            ],
+            "check": "Sol Ring is in P2's graveyard",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Both target permanents are in P2 graveyard."
+          }
+        ],
+        "receipt_digest": "2d88d03c7669ae10f3a0c10eba38031946e4a3014e3b8f8feceac8ad6d064d72"
       }
     },
     {
@@ -2692,7 +3309,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 9.363,
+        "elapsed_s": 9.067,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2721,8 +3338,8 @@
         "fixture_id": "CARD_12",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "fc039d70dc7ec3e5e62adb1fc7081d51b1ec0ef9642b01b47b53fcdee1c32567",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "af81fcbb74e3823b820fdb2281f4fdf8c9c5fd1feec8f5e0620e7a24b7d79846",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "92de1a2dc0cea02e20f5cf598782491a8e60f109cbad85e9f647d9499865892f",
         "requested_state_digest": "0525062f779f0ed802ad00f58d9f0c736b3094118f670a2688b2f982d2e7e919",
         "required_events": [
@@ -2782,7 +3399,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.19,
+        "elapsed_s": 0.235,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2975,7 +3592,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 9.283,
+        "elapsed_s": 9.389,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3011,7 +3628,7 @@
           }
         }
       },
-      "receipt_digest": "e923c66a9bfa10071a41213c306f031f30d11f69190e9a45d4324866a38cb837",
+      "receipt_digest": "5ad2da74b14f1a3655b2c3c182f184c14c20c4b1f7f03a3ea3bd674637a589ee",
       "record": {
         "card_identity": "Vandalblast",
         "excluded_by_frozen_denominator": true,
@@ -3153,17 +3770,16 @@
             "postcondition": "The overloaded spell has no targets."
           }
         ],
-        "receipt_digest": "e923c66a9bfa10071a41213c306f031f30d11f69190e9a45d4324866a38cb837"
+        "receipt_digest": "5ad2da74b14f1a3655b2c3c182f184c14c20c4b1f7f03a3ea3bd674637a589ee"
       }
     },
     {
       "card_identity": "Finale of Revelation",
       "derived_requirements": {
         "executor_requirements": [
-          "selector:integer",
           "priority_action:cast",
-          "inline_x",
-          "selector:semantic_object_set",
+          "selector:integer",
+          "selector:semantic_objects",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_BEGIN_CAST_TO_X_ANNOUNCEMENT",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
@@ -3175,6 +3791,7 @@
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
           "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
           "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
@@ -3191,36 +3808,204 @@
             "offered_labels": 28,
             "principal": "P1",
             "refused": false,
-            "scripted": false,
+            "scripted": true,
             "selected_key": null
           },
           {
-            "decision_class": "priority",
+            "decision_class": "announce_x",
             "offered_labels": 1,
-            "principal": "P2",
+            "principal": "P1",
             "refused": false,
-            "scripted": false,
+            "scripted": true,
             "selected_key": null
           },
           {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
+            "decision_class": "mana_payment",
             "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 13,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 12,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 12,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 11,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 11,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 10,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 10,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 9,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 9,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 8,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 8,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 7,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 7,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
             "principal": "P1",
             "refused": false,
             "scripted": false,
@@ -3229,126 +4014,6 @@
           {
             "decision_class": "priority",
             "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 13,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 13,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 23,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 13,
             "principal": "P1",
             "refused": false,
             "scripted": false,
@@ -3380,14 +4045,206 @@
           },
           {
             "decision_class": "choose_object",
-            "offered_labels": 9,
+            "offered_labels": 17,
             "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 25,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 25,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
             "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.67,
+        "elapsed_s": 10.282,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3395,20 +4252,84 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted choose_object for P1: the row stops unverified",
-        "missing_tokens": [
-          "shuffle_graveyard_into_library",
-          "draw:10",
-          "untap_lands:5",
-          "grant_no_max_hand_size",
-          "exile_Finale"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "P1 holds at least 8 cards": true,
+          "P1 moved exactly 10 card(s) from library to hand": true,
+          "at least one BEGIN_TURN event(s) with turn=2": true,
+          "every LIBRARY_SHUFFLED event with source_object=obj:card_15-subject precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1": true,
+          "every ZONE_CHANGE event with source_object=obj:card_15-subject, from=GRAVEYARD precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1": true,
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED": true,
+          "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY": true,
+          "exactly 5 Island on P1's battlefield are untapped": true,
+          "the engine asked no choose_object decision of P1 about 'discard'": true
+        },
+        "token_evidence": {
+          "draw:10": {
+            "binding": "P1 moved exactly 10 card(s) from library to hand",
+            "observation": "engine terminal observation"
+          },
+          "exile_Finale": {
+            "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED",
+            "events": [
+              23
+            ]
+          },
+          "grant_no_max_hand_size": {
+            "binding": [
+              "at least one BEGIN_TURN event(s) with turn=2",
+              "P1 holds at least 8 cards",
+              "the engine asked no choose_object decision of P1 about 'discard'"
+            ],
+            "parts": [
+              {
+                "binding": "at least one BEGIN_TURN event(s) with turn=2",
+                "events": [
+                  24
+                ]
+              },
+              {
+                "binding": "P1 holds at least 8 cards",
+                "observation": "engine terminal observation"
+              },
+              {
+                "binding": "the engine asked no choose_object decision of P1 about 'discard'",
+                "observation": "engine terminal observation"
+              }
+            ]
+          },
+          "shuffle_graveyard_into_library": {
+            "binding": [
+              "at least one LIBRARY_SHUFFLED event(s) with source_object=obj:card_15-subject",
+              "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY"
+            ],
+            "parts": [
+              {
+                "binding": "at least one LIBRARY_SHUFFLED event(s) with source_object=obj:card_15-subject",
+                "events": [
+                  9
+                ]
+              },
+              {
+                "binding": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY",
+                "events": [
+                  10,
+                  11,
+                  12
+                ]
+              }
+            ]
+          },
+          "untap_lands:5": {
+            "binding": "exactly 5 Island on P1's battlefield are untapped",
+            "observation": "engine terminal observation"
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "88e011ef9ad61a0aef4ea704a39b9d72f101cf9eff44efe68979e8acfc7084bd",
       "record": {
         "card_identity": "Finale of Revelation",
         "excluded_by_frozen_denominator": true,
@@ -3416,8 +4337,8 @@
         "fixture_id": "CARD_15",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "d463483f43da7f19d7ba6aaa759b7ed6d34019f780c2a2d8c3b0b206959dbc03",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "f15d1724e14fcd4f2e886f74c3cb6615244a2a5ab75c028f23a0bb9ce5b51f6b",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "c0fbfe7a3b4b7121f1a9219605c7f12b2611cb61e3b86d2a22446e52f7582c02",
         "requested_state_digest": "b38d3134ef6213d0dcca5bdf490651c60584dc7f21cceb7a4c0afc167129376d",
         "required_events": [
@@ -3433,20 +4354,334 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the engine offered a decision the generic production executor cannot answer from the record's declared script: unscripted choose_object for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_surface": null,
         "card_identity": "Finale of Revelation",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_15",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_15",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "LIBRARY_SHUFFLED",
+                  "kind": "events_precede",
+                  "principal": null,
+                  "source_name": null,
+                  "value": [
+                    "ZONE_CHANGE",
+                    [
+                      [
+                        "from",
+                        "LIBRARY"
+                      ],
+                      [
+                        "to",
+                        "HAND"
+                      ],
+                      [
+                        "player_player",
+                        "P1"
+                      ]
+                    ]
+                  ],
+                  "where": [
+                    [
+                      "source_object",
+                      "obj:card_15-subject"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "ZONE_CHANGE",
+                  "kind": "events_precede",
+                  "principal": null,
+                  "source_name": null,
+                  "value": [
+                    "ZONE_CHANGE",
+                    [
+                      [
+                        "from",
+                        "LIBRARY"
+                      ],
+                      [
+                        "to",
+                        "HAND"
+                      ],
+                      [
+                        "player_player",
+                        "P1"
+                      ]
+                    ]
+                  ],
+                  "where": [
+                    [
+                      "source_object",
+                      "obj:card_15-subject"
+                    ],
+                    [
+                      "from",
+                      "GRAVEYARD"
+                    ]
+                  ]
+                }
+              ],
+              "postcondition": "Pre-resolution graveyard cards were shuffled before draws.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "ZONE_CHANGE",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 3,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_15-subject"
+                  ],
+                  [
+                    "from",
+                    "GRAVEYARD"
+                  ],
+                  [
+                    "to",
+                    "LIBRARY"
+                  ]
+                ]
+              }
+            },
+            {
+              "also": [
+                {
+                  "card_identity": "Island",
+                  "kind": "untapped_count",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": 5
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "BEGIN_TURN",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": null,
+                  "where": [
+                    [
+                      "turn",
+                      2
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "kind": "hand_count_min",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": 8
+                },
+                {
+                  "card_identity": null,
+                  "kind": "no_frame",
+                  "label": "discard",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": "choose_object"
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "ZONE_CHANGE",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 1,
+                  "where": [
+                    [
+                      "target_object",
+                      "obj:card_15-subject"
+                    ],
+                    [
+                      "from",
+                      "STACK"
+                    ],
+                    [
+                      "to",
+                      "EXILED"
+                    ]
+                  ]
+                }
+              ],
+              "postcondition": "P1 drew 10, five lands untapped, no maximum hand size for rest of game, Finale exiled.",
+              "terminal_check": {
+                "card_identity": null,
+                "kind": "draws",
+                "principal": "P1",
+                "source_name": null,
+                "value": 10
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": [
+                {
+                  "card_identity": null,
+                  "event_type": "LIBRARY_SHUFFLED",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": null,
+                  "where": [
+                    [
+                      "source_object",
+                      "obj:card_15-subject"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "ZONE_CHANGE",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 3,
+                  "where": [
+                    [
+                      "source_object",
+                      "obj:card_15-subject"
+                    ],
+                    [
+                      "from",
+                      "GRAVEYARD"
+                    ],
+                    [
+                      "to",
+                      "LIBRARY"
+                    ]
+                  ]
+                }
+              ],
+              "token": "shuffle_graveyard_into_library"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "draws",
+                "principal": "P1",
+                "source_name": null,
+                "value": 10
+              },
+              "token": "draw:10"
+            },
+            {
+              "check": {
+                "card_identity": "Island",
+                "kind": "untapped_count",
+                "principal": "P1",
+                "source_name": null,
+                "value": 5
+              },
+              "token": "untap_lands:5"
+            },
+            {
+              "check": [
+                {
+                  "card_identity": null,
+                  "event_type": "BEGIN_TURN",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": null,
+                  "where": [
+                    [
+                      "turn",
+                      2
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "kind": "hand_count_min",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": 8
+                },
+                {
+                  "card_identity": null,
+                  "kind": "no_frame",
+                  "label": "discard",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": "choose_object"
+                }
+              ],
+              "token": "grant_no_max_hand_size"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "ZONE_CHANGE",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card_15-subject"
+                  ],
+                  [
+                    "from",
+                    "STACK"
+                  ],
+                  [
+                    "to",
+                    "EXILED"
+                  ]
+                ]
+              },
+              "token": "exile_Finale"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "every LIBRARY_SHUFFLED event with source_object=obj:card_15-subject precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1",
+              "every ZONE_CHANGE event with source_object=obj:card_15-subject, from=GRAVEYARD precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1"
+            ],
+            "check": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Pre-resolution graveyard cards were shuffled before draws."
+          },
+          {
+            "also": [
+              "exactly 5 Island on P1's battlefield are untapped",
+              "at least one BEGIN_TURN event(s) with turn=2",
+              "P1 holds at least 8 cards",
+              "the engine asked no choose_object decision of P1 about 'discard'",
+              "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED"
+            ],
+            "check": "P1 moved exactly 10 card(s) from library to hand",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P1 drew 10, five lands untapped, no maximum hand size for rest of game, Finale exiled."
+          }
+        ],
+        "receipt_digest": "88e011ef9ad61a0aef4ea704a39b9d72f101cf9eff44efe68979e8acfc7084bd"
       }
     },
     {
@@ -3470,7 +4705,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.205,
+        "elapsed_s": 0.218,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3659,7 +4894,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.738,
+        "elapsed_s": 9.267,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3691,7 +4926,7 @@
           }
         }
       },
-      "receipt_digest": "22a297f30e545327d6542b873b9477d5f530afac64bc794c7184e4262518418a",
+      "receipt_digest": "1f6a0f94338d103ee37bbffdfa53981707ee3ecf3f3f27e86888c24e908d4c86",
       "record": {
         "card_identity": "Kaervek the Merciless",
         "excluded_by_frozen_denominator": true,
@@ -3763,7 +4998,7 @@
             "token": "damage:P2:4"
           }
         ],
-        "receipt_digest": "22a297f30e545327d6542b873b9477d5f530afac64bc794c7184e4262518418a"
+        "receipt_digest": "1f6a0f94338d103ee37bbffdfa53981707ee3ecf3f3f27e86888c24e908d4c86"
       }
     },
     {
@@ -3954,7 +5189,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 9.105,
+        "elapsed_s": 9.759,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4011,7 +5246,7 @@
           }
         }
       },
-      "receipt_digest": "54c2016059824942e20bd94fa5ab55b137d34a17b7dcba7f10d08f8f431057fe",
+      "receipt_digest": "859fdc49ae2a5a26aa5b2e4644c92ab72b44600211b5ceef45eb202867815a6c",
       "record": {
         "card_identity": "Shriekmaw",
         "excluded_by_frozen_denominator": true,
@@ -4019,8 +5254,8 @@
         "fixture_id": "CARD_18",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "fdb114bfe895e73b87b0c7f065d54fac9995f34515160aa861349d01a192601d",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "e85821f593dfb86f176c1420c8d0b56c531a856f74ef188d584974200cabba9f",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "61dca100726d9987f06dee27d66ee9e3030c847a7bd817c8d1904ff86d99c95c",
         "requested_state_digest": "0179ce9d4b117528deeb8e7f104d106c45b19deead511d9ca7bca85838973678",
         "required_events": [
@@ -4229,7 +5464,7 @@
             "postcondition": "Grizzly Bears is destroyed and Shriekmaw is sacrificed."
           }
         ],
-        "receipt_digest": "54c2016059824942e20bd94fa5ab55b137d34a17b7dcba7f10d08f8f431057fe"
+        "receipt_digest": "859fdc49ae2a5a26aa5b2e4644c92ab72b44600211b5ceef45eb202867815a6c"
       }
     },
     {
@@ -4266,11 +5501,75 @@
             "offered_labels": 11,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "choose_object",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": "sacrifice:obj:card19-p1-other"
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
             "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "choose_object",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "choose_object",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "choose_object",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": true,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.721,
+        "elapsed_s": 9.273,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4278,19 +5577,42 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "execution failed closed: scripted priority action 'activate' is not executed by this lane",
-        "missing_tokens": [
-          "P1_creature_dies",
-          "Butcher_trigger",
-          "opponents_choose_sacrifices",
-          "simultaneous_sacrifices"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P2": true,
+          "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P3": true,
+          "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P4": true
+        },
+        "token_evidence": {
+          "Butcher_trigger": {
+            "events": [
+              9
+            ]
+          },
+          "P1_creature_dies": {
+            "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card19-p1-other, from=BATTLEFIELD, to=GRAVEYARD",
+            "events": [
+              8
+            ]
+          },
+          "opponents_choose_sacrifices": {
+            "binding": "exactly 3 SACRIFICED_PERMANENT event(s) with source_object=obj:card_19-subject",
+            "events": [
+              10,
+              11,
+              12
+            ]
+          },
+          "simultaneous_sacrifices": {
+            "binding": "every SACRIFICED_PERMANENT event with source_object=obj:card_19-subject precedes the first ZONE_CHANGE event with source_object=obj:card_19-subject, from=BATTLEFIELD, to=GRAVEYARD",
+            "observation": "engine terminal observation"
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "8a83925d50c9e6f53112a3f69841d51de9b1372e38f9ada1450d41f772e6c73a",
       "record": {
         "card_identity": "Butcher of Malakir",
         "excluded_by_frozen_denominator": true,
@@ -4313,20 +5635,162 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'activate' is not executed by this lane",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_surface": null,
         "card_identity": "Butcher of Malakir",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_19",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_19",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "SACRIFICED_PERMANENT",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 1,
+                  "where": [
+                    [
+                      "player_player",
+                      "P3"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "SACRIFICED_PERMANENT",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 1,
+                  "where": [
+                    [
+                      "player_player",
+                      "P4"
+                    ]
+                  ]
+                }
+              ],
+              "postcondition": "P2/P3/P4 each sacrificed exactly one creature.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "SACRIFICED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "player_player",
+                    "P2"
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "ZONE_CHANGE",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card19-p1-other"
+                  ],
+                  [
+                    "from",
+                    "BATTLEFIELD"
+                  ],
+                  [
+                    "to",
+                    "GRAVEYARD"
+                  ]
+                ]
+              },
+              "token": "P1_creature_dies"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SACRIFICED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 3,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_19-subject"
+                  ]
+                ]
+              },
+              "token": "opponents_choose_sacrifices"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SACRIFICED_PERMANENT",
+                "kind": "events_precede",
+                "principal": null,
+                "source_name": null,
+                "value": [
+                  "ZONE_CHANGE",
+                  [
+                    [
+                      "source_object",
+                      "obj:card_19-subject"
+                    ],
+                    [
+                      "from",
+                      "BATTLEFIELD"
+                    ],
+                    [
+                      "to",
+                      "GRAVEYARD"
+                    ]
+                  ]
+                ],
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_19-subject"
+                  ]
+                ]
+              },
+              "token": "simultaneous_sacrifices"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P3",
+              "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P4"
+            ],
+            "check": "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P2",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2/P3/P4 each sacrificed exactly one creature."
+          }
+        ],
+        "receipt_digest": "8a83925d50c9e6f53112a3f69841d51de9b1372e38f9ada1450d41f772e6c73a"
       }
     },
     {
@@ -4361,7 +5825,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.193,
+        "elapsed_s": 0.209,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4419,16 +5883,155 @@
       "card_identity": "Gratuitous Violence",
       "derived_requirements": {
         "executor_requirements": [
+          "selector:attacker_assignment",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
-          "native_op:NATIVE_EXECUTE_DECLARED_CARD_ACTION_SEQUENCE_TO_EXPECTED_EVENTS"
+          "native_op:NATIVE_EXECUTE_DECLARED_CARD_ACTION_SEQUENCE_TO_EXPECTED_EVENTS",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
       "fixture_id": "CARD_21",
       "measurement": {
         "creation_errors": [],
-        "decision_trace": [],
-        "elapsed_s": 8.352,
+        "decision_trace": [
+          {
+            "decision_class": "priority",
+            "offered_labels": 10,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "declare_attacker",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          }
+        ],
+        "elapsed_s": 8.733,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4436,14 +6039,46 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "arrival failed closed: the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
+        "execution_detail": "obligation observed",
         "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "P2 is at 34 life": true,
+          "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2, amount=3": true,
+          "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, source_object=obj:card21-creature, amount=6": true
+        },
+        "token_evidence": {
+          "damage:P2:6": {
+            "events": [
+              9
+            ]
+          },
+          "damage_would_be:3": {
+            "binding": "every Hill Giant on P1's battlefield is 3/3",
+            "observation": "engine terminal observation"
+          },
+          "replacement_effect": {
+            "binding": [
+              "every Hill Giant on P1's battlefield is 3/3",
+              "at least one DAMAGED_PLAYER event(s) with source_object=obj:card21-creature, combat=True, amount=6"
+            ],
+            "parts": [
+              {
+                "binding": "every Hill Giant on P1's battlefield is 3/3",
+                "observation": "engine terminal observation"
+              },
+              {
+                "binding": "at least one DAMAGED_PLAYER event(s) with source_object=obj:card21-creature, combat=True, amount=6",
+                "events": [
+                  9
+                ]
+              }
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "20b265c9e3897aa719d271966507d61d643f48b0d55f7ea3aef07e36b3167e57",
       "record": {
         "card_identity": "Gratuitous Violence",
         "excluded_by_frozen_denominator": true,
@@ -4451,10 +6086,10 @@
         "fixture_id": "CARD_21",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "f3315f24d0df0ed647d1da4c97801c2055e2cec814726a209318d55a7b9ffb3d",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "51f973eff392e0f782034a9b17fb0d0daad8d710b22fae3c88e4abedb9f140b2",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "2e328a02530bb1d67e1ee289a61ed94d7e1342236f6276edbfd36f021cd379b3",
-        "requested_state_digest": "58209756f30dae9a5b72eb4697886e15e35542e8c4e2cbdbd9a60cd96fe85894",
+        "requested_state_digest": "dc1d71a1dcdc6770b5c2f18d364add2058a1b152c923993fd1911ec08b191c3c",
         "required_events": [
           "damage_would_be:3",
           "replacement_effect",
@@ -4465,20 +6100,142 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the record-aware arrival driver refused the row: arrival failed closed: the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "scripts/run_midgame_capability_probe.py",
+        "blocker_surface": null,
         "card_identity": "Gratuitous Violence",
-        "construction_verdict": null,
+        "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_21",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_21",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "DAMAGED_PLAYER",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 0,
+                  "where": [
+                    [
+                      "target_player",
+                      "P2"
+                    ],
+                    [
+                      "amount",
+                      3
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "kind": "life",
+                  "principal": "P2",
+                  "source_name": null,
+                  "value": 34
+                }
+              ],
+              "postcondition": "P2 is dealt 6 damage, not 3.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "DAMAGED_PLAYER",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "target_player",
+                    "P2"
+                  ],
+                  [
+                    "source_object",
+                    "obj:card21-creature"
+                  ],
+                  [
+                    "amount",
+                    6
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": "Hill Giant",
+                "kind": "power_toughness",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  3,
+                  3
+                ]
+              },
+              "token": "damage_would_be:3"
+            },
+            {
+              "check": [
+                {
+                  "card_identity": "Hill Giant",
+                  "kind": "power_toughness",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": [
+                    3,
+                    3
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "DAMAGED_PLAYER",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": null,
+                  "where": [
+                    [
+                      "source_object",
+                      "obj:card21-creature"
+                    ],
+                    [
+                      "combat",
+                      true
+                    ],
+                    [
+                      "amount",
+                      6
+                    ]
+                  ]
+                }
+              ],
+              "token": "replacement_effect"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2, amount=3",
+              "P2 is at 34 life"
+            ],
+            "check": "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, source_object=obj:card21-creature, amount=6",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2 is dealt 6 damage, not 3."
+          }
+        ],
+        "receipt_digest": "20b265c9e3897aa719d271966507d61d643f48b0d55f7ea3aef07e36b3167e57"
       }
     },
     {
@@ -4511,7 +6268,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.246,
+        "elapsed_s": 0.288,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4765,7 +6522,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.725,
+        "elapsed_s": 9.091,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4808,7 +6565,7 @@
           }
         }
       },
-      "receipt_digest": "bf96c99712401c43bb465ee85f1870134cf5a7c30b6b6a93143898decc0583c6",
+      "receipt_digest": "2864118fc02e769b96e2f2ff458c70c55b634c98f2a512498a0d4e793d6511ea",
       "record": {
         "card_identity": "Makeshift Mannequin",
         "excluded_by_frozen_denominator": true,
@@ -4816,8 +6573,8 @@
         "fixture_id": "CARD_23",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "7ee49da834d8d7ef35b30c6d050c9434b1d6b9fca7dcb4bcfd1c3e3f82089865",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "62395b1e60a5ed25eb511efa065637f0f6f49fd02eefeadd261bd3e75b8478ea",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "8e9af38d9aa08ce98f9e5adcd54f016075292562d8456577403761df2f0d3fdc",
         "requested_state_digest": "4babe9dd8c053ad1095071322db50b9c5d813eb3ebbae5dafd5041c75901765b",
         "required_events": [
@@ -4969,7 +6726,7 @@
             "postcondition": "Returned creature is sacrificed when granted trigger resolves before Lightning Bolt would resolve if no responses intervene."
           }
         ],
-        "receipt_digest": "bf96c99712401c43bb465ee85f1870134cf5a7c30b6b6a93143898decc0583c6"
+        "receipt_digest": "2864118fc02e769b96e2f2ff458c70c55b634c98f2a512498a0d4e793d6511ea"
       }
     },
     {
@@ -5106,7 +6863,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.975,
+        "elapsed_s": 9.408,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -5139,7 +6896,7 @@
           }
         }
       },
-      "receipt_digest": "af43d93fd92dbc87ffec56fe26dca88f56c23a82df6a3c6572e01cac5134e40b",
+      "receipt_digest": "861c270b86038e117a4d442b6a9eb248367701e1c5209666ad46b67443097023",
       "record": {
         "card_identity": "Warstorm Surge",
         "excluded_by_frozen_denominator": true,
@@ -5199,7 +6956,7 @@
             "postcondition": "P2 is at 18 life after trigger resolves."
           }
         ],
-        "receipt_digest": "af43d93fd92dbc87ffec56fe26dca88f56c23a82df6a3c6572e01cac5134e40b"
+        "receipt_digest": "861c270b86038e117a4d442b6a9eb248367701e1c5209666ad46b67443097023"
       }
     },
     {
@@ -5230,7 +6987,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 8.166,
+        "elapsed_s": 8.365,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -5321,7 +7078,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.496,
+        "elapsed_s": 8.925,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -5348,8 +7105,8 @@
         "fixture_id": "CARD_26",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "c92bb5533afbdce8416200b83c9e510737123f3d8bcc4d34ba855b95af0cdf80",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "32f765db342971c1ef33576d8fec39d165a1fc3060b5d2bed9a002ada6524f8d",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "f178f302a617cf1a2e58c0b1c0f34cd4b53acebf8af7585743e4aeaaa883d960",
         "requested_state_digest": "3f3bb5ab48fcf812725d59d04a219175bca3535ea3d2809e58c6de9991ef3878",
         "required_events": [
@@ -5384,7 +7141,8 @@
         "executor_requirements": [
           "priority_action:activate_mana",
           "priority_action:cast",
-          "selector:boolean",
+          "selector:semantic_objects",
+          "selector:semantic_player",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
@@ -5396,6 +7154,7 @@
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
           "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
           "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
@@ -5411,11 +7170,123 @@
             "offered_labels": 13,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 12,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
             "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": "none"
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.589,
+        "elapsed_s": 9.685,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -5423,18 +7294,46 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "execution failed closed: scripted priority action 'activate_mana' is not executed by this lane",
-        "missing_tokens": [
-          "mana_ability:red",
-          "mana_spent_on_shared_type_creature",
-          "scry:1"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject": true,
+          "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'": true
+        },
+        "token_evidence": {
+          "mana_ability:red": {
+            "binding": [
+              "a scripted priority frame selected an engine offer naming 'Path of Ancestry \u2014 {T}: Add one mana'",
+              "a mana payment spent red mana from the pool"
+            ],
+            "parts": [
+              {
+                "binding": "a scripted priority frame selected an engine offer naming 'Path of Ancestry \u2014 {T}: Add one mana'",
+                "decision_frames": [
+                  0
+                ]
+              },
+              {
+                "binding": "a mana payment spent red mana from the pool",
+                "observation": "engine terminal observation"
+              }
+            ]
+          },
+          "mana_spent_on_shared_type_creature": {
+            "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject, target_name~=stack ability (When that mana is spent to cast a creature",
+            "events": [
+              9
+            ]
+          },
+          "scry:1": {
+            "binding": "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'",
+            "observation": "engine terminal observation"
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "969678aabb690f971d88b2a7c39fbf3801897cf1576287518fb18e4a7525ab2d",
       "record": {
         "card_identity": "Path of Ancestry",
         "excluded_by_frozen_denominator": true,
@@ -5442,8 +7341,8 @@
         "fixture_id": "CARD_27",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "6c2044eb92d4d338bf33958891d2fdfa6f00a738535a7c26147066f7a37f6c43",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "c42be612b06b5c8c6e9ac9cfa1106e753c17919a3963fab090d32e1f1585b103",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "1dfbe0a6ff7205d57c91862814ea4016a116162e3aacd05f0333d5f3bbe838b2",
         "requested_state_digest": "9b8819389687dcffd70042368b089696719fcfe43a8fc3aef95b0fa317587732",
         "required_events": [
@@ -5456,20 +7355,124 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'activate_mana' is not executed by this lane",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_surface": null,
         "card_identity": "Path of Ancestry",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_27",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_27",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "TRIGGERED_ABILITY",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 1,
+                  "where": [
+                    [
+                      "source_object",
+                      "obj:card_27-subject"
+                    ]
+                  ]
+                }
+              ],
+              "postcondition": "P1 performs exactly one scry 1 from this mana expenditure.",
+              "terminal_check": {
+                "card_identity": null,
+                "kind": "frame_count",
+                "label": "(Scry)",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  "target",
+                  1
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": [
+                {
+                  "card_identity": null,
+                  "kind": "selected_frame",
+                  "label": "Path of Ancestry \u2014 {T}: Add one mana",
+                  "principal": null,
+                  "source_name": null,
+                  "value": "priority"
+                },
+                {
+                  "card_identity": null,
+                  "kind": "pool_spend",
+                  "principal": null,
+                  "source_name": null,
+                  "value": "red"
+                }
+              ],
+              "token": "mana_ability:red"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_27-subject"
+                  ],
+                  [
+                    "target_name~",
+                    "stack ability (When that mana is spent to cast a creature"
+                  ]
+                ]
+              },
+              "token": "mana_spent_on_shared_type_creature"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "frame_count",
+                "label": "(Scry)",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  "target",
+                  1
+                ]
+              },
+              "token": "scry:1"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject"
+            ],
+            "check": "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P1 performs exactly one scry 1 from this mana expenditure."
+          }
+        ],
+        "receipt_digest": "969678aabb690f971d88b2a7c39fbf3801897cf1576287518fb18e4a7525ab2d"
       }
     },
     {
@@ -5500,11 +7503,147 @@
             "offered_labels": 18,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 7,
+            "principal": "P1",
+            "refused": false,
             "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 7,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "choose_object",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.495,
+        "elapsed_s": 9.582,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -5512,19 +7651,44 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "execution failed closed: scripted priority action 'cast_split_half' is not executed by this lane",
-        "missing_tokens": [
-          "cast_split_half:Finality",
-          "put_+1/+1_counters:2",
-          "continuous_-4/-4_all_creatures",
-          "state_based_actions"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "every Grizzly Bears on P1's battlefield is 1/1": true,
+          "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:card28-p2-creature": true,
+          "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:card28-p2-creature": true,
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD": true,
+          "no Hill Giant is on P2's battlefield": true
+        },
+        "token_evidence": {
+          "cast_split_half:Finality": {
+            "binding": "a scripted priority frame selected an engine offer naming 'Cast Finality'",
+            "decision_frames": [
+              0
+            ]
+          },
+          "continuous_-4/-4_all_creatures": {
+            "binding": "every Grizzly Bears on P1's battlefield is 1/1",
+            "observation": "engine terminal observation"
+          },
+          "put_+1/+1_counters:2": {
+            "binding": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card28-p1-creature, data=+1/+1",
+            "events": [
+              9,
+              10
+            ]
+          },
+          "state_based_actions": {
+            "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD",
+            "events": [
+              12
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "7b590c444483093758a70085a2bc4296f22bbe4a1aafa15ff3f92315f01fa659",
       "record": {
         "card_identity": "Find // Finality",
         "excluded_by_frozen_denominator": true,
@@ -5548,20 +7712,192 @@
         ]
       },
       "verdict": {
-        "blocker_class": "HARNESS_DEFECT",
-        "blocker_detail": "the generic production executor cannot express the record's scripted step: execution failed closed: scripted priority action 'cast_split_half' is not executed by this lane",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
+        "blocker_surface": null,
         "card_identity": "Find // Finality",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_28",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_28",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "postcondition": "P1 creature is 1/1 for remainder of turn absent other effects.",
+              "terminal_check": {
+                "card_identity": "Grizzly Bears",
+                "kind": "power_toughness",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  1,
+                  1
+                ]
+              }
+            },
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "DESTROYED_PERMANENT",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 0,
+                  "where": [
+                    [
+                      "target_object",
+                      "obj:card28-p2-creature"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "event_type": "DAMAGED_PERMANENT",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 0,
+                  "where": [
+                    [
+                      "target_object",
+                      "obj:card28-p2-creature"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": "Hill Giant",
+                  "kind": "not_on_battlefield",
+                  "principal": "P2",
+                  "source_name": null,
+                  "value": null
+                }
+              ],
+              "postcondition": "P2 4/4 becomes 0/0 and is put into graveyard as SBA.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "ZONE_CHANGE",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card28-p2-creature"
+                  ],
+                  [
+                    "from",
+                    "BATTLEFIELD"
+                  ],
+                  [
+                    "to",
+                    "GRAVEYARD"
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "selected_frame",
+                "label": "Cast Finality",
+                "principal": null,
+                "source_name": null,
+                "value": "priority"
+              },
+              "token": "cast_split_half:Finality"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "COUNTER_ADDED",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 2,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card28-p1-creature"
+                  ],
+                  [
+                    "data",
+                    "+1/+1"
+                  ]
+                ]
+              },
+              "token": "put_+1/+1_counters:2"
+            },
+            {
+              "check": {
+                "card_identity": "Grizzly Bears",
+                "kind": "power_toughness",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  1,
+                  1
+                ]
+              },
+              "token": "continuous_-4/-4_all_creatures"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "ZONE_CHANGE",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card28-p2-creature"
+                  ],
+                  [
+                    "from",
+                    "BATTLEFIELD"
+                  ],
+                  [
+                    "to",
+                    "GRAVEYARD"
+                  ]
+                ]
+              },
+              "token": "state_based_actions"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "check": "every Grizzly Bears on P1's battlefield is 1/1",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P1 creature is 1/1 for remainder of turn absent other effects."
+          },
+          {
+            "also": [
+              "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:card28-p2-creature",
+              "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:card28-p2-creature",
+              "no Hill Giant is on P2's battlefield"
+            ],
+            "check": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2 4/4 becomes 0/0 and is put into graveyard as SBA."
+          }
+        ],
+        "receipt_digest": "7b590c444483093758a70085a2bc4296f22bbe4a1aafa15ff3f92315f01fa659"
       }
     },
     {
@@ -5598,11 +7934,147 @@
             "offered_labels": 15,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.087,
+        "elapsed_s": 9.236,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -5610,7 +8082,7 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "execution failed closed: the engine did not offer the scripted cast of {'action': 'cast', 'object': 'obj:card_29-subject'}",
+        "execution_detail": "unscripted target for P1: the row stops unverified",
         "missing_tokens": [
           "Saga_I",
           "Saga_II",
@@ -5631,8 +8103,8 @@
         "fixture_id": "CARD_29",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "84565bf97dd570b21648c0ab882a747a18d7e4d412ac5a37ad6a0cc707ce8450",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
+        "materialization_digest": "7c193a91772fa9510cd285ca3db4c5edb7119734ed37d9f30ad6286e2c42b7b3",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.14-successor",
         "obligation_digest": "5ee2f43029bfeedcb45321511bdeed019cc9df5d15b35e3d5a319319b6d94ce2",
         "requested_state_digest": "2e7dc8f28ab285c9f9d962da3bc7fa795cd944235cc874b8ea9010c379cbc578",
         "required_events": [
@@ -5647,10 +8119,10 @@
         ]
       },
       "verdict": {
-        "blocker_class": "UNKNOWN",
-        "blocker_detail": "the required event tokens were not positively observed and no plan-declared proof covers them: ['Saga_I', 'Saga_II', 'Saga_III', 'exile_Saga', 'return_transformed:Branch_of_Boseiju']",
+        "blocker_class": "HARNESS_DEFECT",
+        "blocker_detail": "the engine offered a decision the generic production executor cannot answer from the record's declared script: unscripted target for P1: the row stops unverified",
         "blocker_owner": null,
-        "blocker_surface": null,
+        "blocker_surface": "src/commander_lab/qualification/current_boundary/midgame_rows.py",
         "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
@@ -5668,33 +8140,47 @@
   "summary": {
     "blockers": {
       "FIXTURE_DEFECT": 1,
-      "HARNESS_DEFECT": 10,
+      "HARNESS_DEFECT": 4,
       "PROVIDER_ADAPTER_DEFECT": 5,
-      "UNKNOWN": 3
+      "UNKNOWN": 2
     },
     "direct_pass": [
       "CARD_01",
       "CARD_02",
       "CARD_04",
       "CARD_05",
+      "CARD_08",
       "CARD_09",
+      "CARD_11",
       "CARD_14",
+      "CARD_15",
       "CARD_17",
       "CARD_18",
+      "CARD_19",
+      "CARD_21",
       "CARD_23",
-      "CARD_24"
+      "CARD_24",
+      "CARD_27",
+      "CARD_28"
     ],
     "direct_receipt_eligible": [
       "CARD_01",
       "CARD_02",
       "CARD_04",
       "CARD_05",
+      "CARD_08",
       "CARD_09",
+      "CARD_11",
       "CARD_14",
+      "CARD_15",
       "CARD_17",
       "CARD_18",
+      "CARD_19",
+      "CARD_21",
       "CARD_23",
-      "CARD_24"
+      "CARD_24",
+      "CARD_27",
+      "CARD_28"
     ],
     "excluded_by_frozen_denominator": [
       "CARD_01",
@@ -5730,8 +8216,8 @@
       "CARD_02"
     ],
     "outcomes": {
-      "BLOCKED": 19,
-      "DIRECT_PASS": 10
+      "BLOCKED": 12,
+      "DIRECT_PASS": 17
     },
     "row_count": 29
   }

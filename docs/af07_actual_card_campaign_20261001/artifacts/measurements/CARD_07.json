@@ -8,7 +8,7 @@
       "message": "RestorationException: UNSUPPORTED_ZONE: CARD_07 obj:card07-draw requests stack"
     }
   ],
-  "elapsed_s": 0.183,
+  "elapsed_s": 0.194,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",

@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.328,
+  "elapsed_s": 8.598,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "90c5e9eae77d0923ba7897c75e38ec045581c20d931ea4d45fb069bbd8779d24",
+        "decision_id": "c504d01e4ee9ca81f6bd540e2e4f5152ed70f4702e00c7dbf57722ce183d0acb",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -41,10 +41,10 @@
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
         "selected_option_ids": [
-          "d3f4ac5ffd73ec9dbb9d49c3d48a765836338083afde3a6a35c280214805d0c9"
+          "c145f795466c5f22863807b7fc5b5d4ecc0662ea579ee17267f284e346c65511"
         ],
         "selected_option_type": null,
-        "selected_source_object": "1a2f3f99-3ec3-450a-88e8-0d8dc3293e44"
+        "selected_source_object": "cf4d1e0e-6bcc-4d33-b37b-6426c60aa828"
       },
       {
         "context": {
@@ -55,7 +55,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "631a907feef0023f8405d2a64b7c66ddfb5a1b0ae8f45cbd1bdb0ea70290e74d",
+        "decision_id": "858f45a78f98bbb9245798bf35618e0e832a5c69ce5cbca96969502d6a1c39d1",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",

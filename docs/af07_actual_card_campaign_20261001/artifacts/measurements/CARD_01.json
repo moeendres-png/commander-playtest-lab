@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "ALLOWED_VARIANCE",
   "creation_errors": [],
-  "elapsed_s": 31.373,
+  "elapsed_s": 32.11,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "595b687f22cd42c25930c5bf85fbfd40098161c02c5870d05c4959954a77d37d",
+        "decision_id": "2980e9c64d77ad0bfa54e33c372c492a287ec5f0e7d474394bba3021b2d0a7b6",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -45,7 +45,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "ed7333729057e7663a936b96fe32f17e17d1eddbb5cdcb3ed59e87571304d53a",
+        "decision_id": "99be7962bdf155ab9672fbbfb24b26cabaef7a6132f0d82ce172cc8ccb7113fc",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -60,10 +60,10 @@
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
         "selected_option_ids": [
-          "3b7846998714d0c131508aa885d69d50584dcb99e3b131eb09b3e6913fd0d8d9"
+          "5295d3a97d043eb10b1d7da6cbef77ce91dcbc8c270cb666d47df9b13f79fe7d"
         ],
         "selected_option_type": null,
-        "selected_source_object": "982bdb05-83d4-427f-b93f-f83ab8f557e7"
+        "selected_source_object": "8679835c-5377-49d1-bfaa-f0cc04ec32c9"
       },
       {
         "context": {
@@ -74,7 +74,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "d95edc1a15f23b21463cdc225024f5f43d5db76487da538c1f2d3913776491a1",
+        "decision_id": "954c92af74e6af028dbc96c7db9476f8bdf9d438f352caa085210ad0f441cc93",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -99,21 +99,21 @@
           "unpaid_mana": "{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "3055b91914070ecb7b75cbcd20209d2af1a3c83cbd4a7f251a92de4a3444eb25",
+        "decision_id": "3a9f2d0c75f859c0438b97ddf99d76bf51ab5e8c82fa65a121e413a46250c27a",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Mountain \u2014 {T}: Add {R}."
         ],
         "principal": "P2",
-        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='982bdb05-83d4-427f-b93f-f83ab8f557e7'>Lightning Bolt</font> [982]</div>",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='8679835c-5377-49d1-bfaa-f0cc04ec32c9'>Lightning Bolt</font> [867]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "c05100a75cfef8a4e097e341fbd927480d219b6cc124c91347933463e301bb32"
+          "60287c8fc95ac3f1eee9c45afdba316a212f66638fcd62da70631380fb2e1ce6"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -123,14 +123,14 @@
           "unpaid_mana": "{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "8fca58204968299446dccbd09ddcc37704f5b90b075462c5f6c41174ddd24861",
+        "decision_id": "8ab1090a3baf3d73604c3af996df7752d922c1d1cbc1538a35e510b48a0b34f1",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Spend red mana from pool"
         ],
         "principal": "P2",
-        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='982bdb05-83d4-427f-b93f-f83ab8f557e7'>Lightning Bolt</font> [982]</div>",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='8679835c-5377-49d1-bfaa-f0cc04ec32c9'>Lightning Bolt</font> [867]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -145,7 +145,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "57293741e19511c67df9916c70b92a8ab3384bb0e45fd79fa89633e45fdd8047",
+        "decision_id": "3c05a7b75a04901139d8d4e02dbdd14e44e8e4ffa2d53412acd9d20c2d42fd14",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -164,7 +164,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "b0ea863fc90c43fc4b130336d317990a378092963ac3ed6597feaf7a0ff48dd8",
+        "decision_id": "07767beed37548e51e18355ef5cbf5dfbe81cf20f8d3733dd16e1dcf137686f1",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -183,7 +183,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6bf26f16c2829490660794d7bc9d8977f636ae1aabb5ef54a03d68e91fd1de31",
+        "decision_id": "3784238d2724d9ad2779901b43dd8a2510244541bf73de16ce16029b153583c8",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -202,7 +202,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "0983bab3fe55ef15e1703939ac74c7bfc21d6d9437c4ee08dbb63739a437232c",
+        "decision_id": "baeb281f92ee15917222ec129cb2cf42efcf0376c7117cbab0abce1a7cf4c2e1",
         "numeric": null,
         "offered_labels": [
           "Pass priority"

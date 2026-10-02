@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.495,
+  "elapsed_s": 9.582,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "dcebd1052f7727016bdbbfcd58c0ab1b5c9a8af4df58ad98374f73e1a3dc55d1",
+        "decision_id": "ddf4ef6954d2f7d367a6370c04ef405ceaee6892f2600c04a8f14a606f5119d0",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -43,27 +43,554 @@
         "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Finality \u2014 Cast Finality",
+        "selected_option_ids": [
+          "6c5e2d3a776454ec8da693ee4fa9e9a88b71c97d0ae80667f9bf96def06f46e8"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "d773e839-a023-4aca-8784-c29f9010fddb"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "5aedfa8403b622e41c6d41cd0bba26525d87614d5bd2fe22c7e034d16b88d5bf",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "df72a65458b7d27e92afd2934c4cded0b1b0a85e5a22b2ea4b486bff24639d46"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "b14056dd97c4faa20fff397b2b3a4a469a2b5714edc80011559575fea3338bfe",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "df913d5e72dd17564c95b924c884b136f50a3e2c6d518414523ed924295d71d7",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "d2fad9a70272ad34748e6cbd09cf5587770e2baee371fc81977c88dfe63905cf"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "6d94f5329ecca59dd2e6d3683aa3ec919a7ba824295d629c363a63644c190e21",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "e182c37c233118308f35b1e7e47fede8cf5ec198fc03dd5ec81a14bc963740f7",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "5e82196c0e7645c58eab0585c1127b94bb948729ede4077c72d09044baed8b4a"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "d0734def55baeb6d63d75c94e4464d59a23de9b679edbbe3911aa9b81c6d2470",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "bb3fb35a1c96d714a4e6a32790accb1a533b0d6447d0ad4289592ce75b0021c2",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "26be45277724741ee8cb02b603bbdeb9cca3f39baa6cd070fea281bde7753b02"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "6a488a0bac8a069157853e025926feeb1201681a062374e42e1b12524df289df",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Forest \u2014 {T}: Add {G}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "405ed1a1ed4722c9679a5950458a20ba8f3bc090891425a860c1f7324c5319dc",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}.",
+          "Swamp \u2014 {T}: Add {B}."
+        ],
+        "principal": "P1",
+        "prompt": "{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Swamp \u2014 {T}: Add {B}.",
+        "selected_option_ids": [
+          "b07f3b04df24dedbf4e1bac111cc1ddaec4f4c9d138589b7cbd9d4cabc7e3692"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{B}{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "06af50294dd286b6fa2960d26aa73e3585bd3b40a30affb02b1da246f29170d1",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend black mana from pool",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{B}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend black mana from pool",
+        "selected_option_ids": [
+          "99a3b9b103bd666996933dfc62456791de2c5f4342ab9c421a8bbcae367513bb"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "bab51b113c3947d957cb5110d52c51c84a305860377a9dd3b9c5392d8dac8812",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Forest \u2014 {T}: Add {G}."
+        ],
+        "principal": "P1",
+        "prompt": "{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Forest \u2014 {T}: Add {G}.",
+        "selected_option_ids": [
+          "e628d095746153ae9a236e0d53d44947983aa78fb3494ba17a8c042298ea3e15"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{G}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "79a51d0bfb2fe47e4e5c8132694dd832c5a1b2446f992fcf4713eb8355e2c331",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend green mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{G}<div style='font-size:11pt'><font color='#DAA520' object_id='d773e839-a023-4aca-8784-c29f9010fddb'>Finality</font> [d77]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend green mana from pool",
+        "selected_option_ids": [
+          "54074f7332cc868c7f56dab0127cdf43d4c44e6a22dfd6dc4ef1e069730f873f"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "c7f706f5e69a9453949d31967ed686d1391a463ce1723e12afa58b25fe44267c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
         "selected_option_ids": [],
         "selected_option_type": null,
         "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "df13d9b558e95afb058cbd5adf998baf5a87383bc9446be8b071942cd833048a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "c090b613d310803f9fdcc95ec48346625a55a45e71b892fb0ce440c09b6e8b52",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "fd8a50e97fc2e8f66f8cb494882fcf91689515fcb75c9552b4efdcb7310af2fc",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "boostcreature",
+          "required": true,
+          "target_description": "up to one creature you control",
+          "target_name": "creature you control",
+          "targeted": false
+        },
+        "decision_class": "choose_object",
+        "decision_id": "21a21ac55487d3735ac9118ee67c83bf3a6ca77b90f6c7dc8ec3c0309db655f6",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select up to one creature you control",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
-    "detail": "execution failed closed: scripted priority action 'cast_split_half' is not executed by this lane",
+    "detail": "obligation observed",
     "fixture_id": "CARD_28",
-    "missing_tokens": [
-      "cast_split_half:Finality",
-      "put_+1/+1_counters:2",
-      "continuous_-4/-4_all_creatures",
-      "state_based_actions"
-    ],
+    "missing_tokens": [],
     "refusals": [],
-    "tape": [],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Find // Finality",
+        "target_object": "obj:card_28-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Finality",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 1,
+        "data": "+1/+1",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card28-p1-creature",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 1,
+        "data": "+1/+1",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card28-p1-creature",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Finality",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Find // Finality",
+        "target_object": "obj:card_28-subject",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 12,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Hill Giant",
+        "target_object": "obj:card28-p2-creature",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
+    "terminal_facts": {
+      "every Grizzly Bears on P1's battlefield is 1/1": true,
+      "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:card28-p2-creature": true,
+      "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:card28-p2-creature": true,
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD": true,
+      "no Hill Giant is on P2's battlefield": true
+    },
+    "token_evidence": {
+      "cast_split_half:Finality": {
+        "binding": "a scripted priority frame selected an engine offer naming 'Cast Finality'",
+        "decision_frames": [
+          0
+        ]
+      },
+      "continuous_-4/-4_all_creatures": {
+        "binding": "every Grizzly Bears on P1's battlefield is 1/1",
+        "observation": "engine terminal observation"
+      },
+      "put_+1/+1_counters:2": {
+        "binding": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card28-p1-creature, data=+1/+1",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "state_based_actions": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD",
+        "events": [
+          12
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_28",
   "phase": "EXECUTED",

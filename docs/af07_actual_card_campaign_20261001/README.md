@@ -330,3 +330,58 @@ Every DIRECT_PASS holds a runner-bound positive receipt in `artifacts/receipts/p
 - "each with printed death trigger" names an ability the readback does not expose, so no plan is onboarded and the row earns no credit.
 
 AF07 stays **UNKNOWN**. 19 identities are not directly proven, and the CARD rows outside the denominator still need the Coordinator's credit route (#453).
+
+## Phase 2c: card parts, activations, cost choices (contract 1.0.14)
+
+### Fixture errata (contract 1.0.14)
+
+The class is `ACTUAL_CARD_DECISION_SCRIPT_ERRATUM`. All rows are outside the denominator and their obligation digests are unchanged.
+
+| Row | Defect | Correction |
+|---|---|---|
+| CARD_08 | Jeska stays in hand; the script starts with her loyalty ability and declares no payment. | Cast her with the three placed Mountains, then activate her 0 ability once she resolved, target the Bears, attack P2. |
+| CARD_11 | The fused cast folds both targets into the cast action. | Each half's target is its own step, in the engine's order. |
+| CARD_15 | X is announced before the cast that asks for it (CR 601.2b), and the untap is named with an unsupported set selector. | Cast, then X=10, then the engine's multi-select untap frame. The lossless-library overlay is carried. |
+| CARD_21 | The checkpoint sits inside combat damage, but no attack is declared, and an attacking creature cannot be loaded. | Start at precombat main and script the attack on P2. |
+| CARD_27 | The scry is a select-up-to-one frame, not a yes/no; Keldon Marauders' own enter trigger asks a target. | Empty scry selection, Marauders targets P2. The lossless-library overlay is carried. |
+
+CARD_19 and CARD_28 need no erratum. Their scripts were already correct; they needed executor actions.
+
+### Executor and adapter
+
+- **Card parts.** The Lab adapter's option metadata now names `source_parent_object_id` for a part of a card: a split half, an adventure, or a modal face. A Java test covers it.
+  - `cast_split_half` selects the placed card's part by the half's name.
+  - `cast_fused` selects the engine's fused offer.
+  - A plain cast of such a card fails closed, because the record must say which part to cast.
+- **Activations.** `activate` and `activate_mana` select by source and a fragment of the ability's rules text. `activate_mana` must hit a mana ability.
+- **Owed cost choices.** The record's own step names them: `sacrifice_cost` (an object) and `color` (a mana color). Each is answered on the engine's own frame.
+- **Empty selection.** `semantic_objects: []` is accepted only when the engine frame's own minimum is 0.
+- **New checks:**
+  - `events_precede` (simultaneity and ordering);
+  - `in_graveyard`;
+  - `frame_count`;
+  - `pool_spend`;
+  - `untapped_count`;
+  - `hand_count_min`;
+  - `no_frame` filtered by principal and prompt.
+
+  A token may also bind to several checks, all of which must hold.
+- **Observable no maximum hand size (CARD_15).** P1 reaches turn 2 holding at least 8 cards, and the engine never asked P1 to discard.
+
+### Result: 29-row run on `064d45a9` (clean tree, XMage `37e4df6c`)
+
+Matrix digest `6e2cb87daf6a7dcbb62ff4affa9cd29c0e57f4e4cf87e2093901ce69eba61eb8`.
+
+| Outcome | Rows |
+|---|---|
+| DIRECT_PASS (17) | CARD_01, 02, 04, 05, 08, 09, 11, 14, 15, 17, 18, 19, 21, 23, 24, 27, 28 |
+| FIXTURE_DEFECT (1) | CARD_06 (obligation conflicts with the card; Coordinator question on #453) |
+| HARNESS_DEFECT (4) | <ul><li>CARD_03: `announce_cast` with a cost-increase obligation. Probing it raised a bridge "concurrent pending decision".</li><li>CARD_13, CARD_20: causal stack entries.</li><li>CARD_29: the cast now executes; the Saga chapter target is still unscripted.</li></ul> |
+| PROVIDER_ADAPTER_DEFECT (5) | CARD_07, 16, 22 (stack spells); CARD_10 (commander spell on the stack); CARD_25 (token object) |
+| UNKNOWN (2) | CARD_12 (delve and look tokens); CARD_26 (printed death trigger not observable) |
+
+Regression on the same tree:
+- AF05 HIDDEN rows: 12/12 verified.
+- FULL107 midgame rows: 22/22 verified.
+
+AF07 stays **UNKNOWN**: 12 identities are not directly proven, and the Coordinator's credit route (#453) is still open.
