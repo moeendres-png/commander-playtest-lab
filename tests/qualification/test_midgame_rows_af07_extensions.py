@@ -18,6 +18,7 @@ from typing import Any
 
 import pytest
 
+from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import midgame_rows as mr
 
 
@@ -875,3 +876,75 @@ def test_only_state_reading_checks_ask_the_engine_for_a_readback() -> None:
     assert not mr.needs_observation((events, frame))
     for kind in ("power_toughness", "keyword", "token_count", "graveyard_mana_value"):
         assert mr.needs_observation(mr.TerminalCheck(kind, principal="P1"))
+
+
+# --------------------------------------------------------------------------- #
+# Block declarations (blocker_assignment)
+# --------------------------------------------------------------------------- #
+
+
+def _block_frame(blocker: str, attackers: list[str], minimum: int = 0) -> dict[str, Any]:
+    return {
+        "decision": {"minimum_selections": minimum, "maximum_selections": len(attackers)},
+        "actions": [
+            {
+                "metadata": {
+                    "option_type": "declare_blocker",
+                    "label": f"{blocker} blocks {attacker}",
+                    "xmage_option_metadata": {"blocker_id": blocker, "attacker_id": attacker},
+                }
+            }
+            for attacker in attackers
+        ],
+    }
+
+
+_BLOCK_STEP = {
+    "actor": "P2",
+    "decision_family": "declare_blocker",
+    "selection": {
+        "selector_kind": "blocker_assignment",
+        "semantic_value": {"obj:blocker": "obj:attacker-b"},
+    },
+}
+_BLOCK_PLACED = {
+    "obj:blocker": "n-blocker",
+    "obj:other": "n-other",
+    "obj:attacker-a": "n-attacker-a",
+    "obj:attacker-b": "n-attacker-b",
+}
+_BLOCK_BY_NATIVE = {native: semantic for semantic, native in _BLOCK_PLACED.items()}
+
+
+def test_a_listed_blocker_blocks_exactly_its_named_attacker() -> None:
+    legal = _block_frame("n-blocker", ["n-attacker-a", "n-attacker-b"])
+    blocker, offer = mr._blocker_answer(legal, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
+    assert blocker == "obj:blocker"
+    assert offer is not None
+    assert offer["metadata"]["xmage_option_metadata"]["attacker_id"] == "n-attacker-b"
+
+
+def test_an_unlisted_blocker_blocks_nothing_only_on_an_optional_frame() -> None:
+    optional = _block_frame("n-other", ["n-attacker-b"], minimum=0)
+    assert mr._blocker_answer(optional, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE) == (
+        "obj:other",
+        None,
+    )
+    forced = _block_frame("n-other", ["n-attacker-b"], minimum=1)
+    with pytest.raises(ml.MidgameLaneError, match="requires"):
+        mr._blocker_answer(forced, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
+
+
+def test_a_named_attacker_the_engine_does_not_offer_fails_closed() -> None:
+    # The engine did not offer the record's attacker for this blocker (it cannot
+    # legally block it): no other attacker is chosen in its place.
+    legal = _block_frame("n-blocker", ["n-attacker-a"])
+    with pytest.raises(ml.MidgameLaneError, match="matched 0"):
+        mr._blocker_answer(legal, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
+
+
+def test_a_frame_naming_several_blockers_fails_closed() -> None:
+    legal = _block_frame("n-blocker", ["n-attacker-b"])
+    legal["actions"] += _block_frame("n-other", ["n-attacker-b"])["actions"]
+    with pytest.raises(ml.MidgameLaneError, match="2 blockers"):
+        mr._blocker_answer(legal, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
