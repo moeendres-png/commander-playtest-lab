@@ -319,6 +319,7 @@ def _bound_provider_response(
         "evidence_class": evidence_class,
         "provider_identity": provider_identity,
         "reason": "DQ-01 fully bound positive control",
+        "events": [{"event_type": "DQ01_BOUND_EVIDENCE", "sequence": 0}],
         "artifact_hashes": {},
     }
     fixture_result_sha256 = _canonical_sha256(
@@ -327,6 +328,7 @@ def _bound_provider_response(
     payload["artifact_hashes"] = {
         "fixture_result_sha256": fixture_result_sha256,
         "qualification_binding_sha256": binding_sha256,
+        "events_sha256": _canonical_sha256(payload["events"]),
     }
     if artifact_hashes_overrides:
         payload["artifact_hashes"].update(artifact_hashes_overrides)
@@ -405,6 +407,31 @@ def test_dq01_wrong_or_missing_request_correlation_fails_closed(monkeypatch):
         _assert_provider_response_rejected(results)
 
 
+def test_dq01_wrong_or_missing_session_correlation_fails_closed(monkeypatch):
+    for mode in ("wrong", "missing"):
+
+        def response(request, mode=mode):
+            document = _bound_provider_response(request)
+            if mode == "wrong":
+                document["session_id"] = "unexpected-session"
+            else:
+                del document["session_id"]
+            return document
+
+        _mod, results = _execute_with_response(monkeypatch, response)
+        _assert_provider_response_rejected(results)
+
+
+def test_dq01_wrong_protocol_message_type_fails_closed(monkeypatch):
+    def response(request):
+        document = _bound_provider_response(request)
+        document["message_type"] = "HELLO_RESPONSE"
+        return document
+
+    _mod, results = _execute_with_response(monkeypatch, response)
+    _assert_provider_response_rejected(results)
+
+
 def test_dq01_missing_provider_identity_fails_closed(monkeypatch):
     def response(request):
         document = _bound_provider_response(request)
@@ -448,7 +475,14 @@ def test_dq01_non_runtime_evidence_class_cannot_earn_pass(monkeypatch):
 
 
 def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
-    for mode in ("missing", "empty", "wrong-result", "wrong-binding"):
+    for mode in (
+        "missing",
+        "empty",
+        "missing-evidence",
+        "wrong-result",
+        "wrong-binding",
+        "wrong-evidence",
+    ):
 
         def response(request, mode=mode):
             document = _bound_provider_response(request)
@@ -456,10 +490,15 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
                 del document["payload"]["artifact_hashes"]
             elif mode == "empty":
                 document["payload"]["artifact_hashes"] = {}
+            elif mode == "missing-evidence":
+                del document["payload"]["events"]
+                document["payload"]["artifact_hashes"].pop("events_sha256")
             elif mode == "wrong-result":
                 document["payload"]["artifact_hashes"]["fixture_result_sha256"] = "0" * 64
-            else:
+            elif mode == "wrong-binding":
                 document["payload"]["artifact_hashes"]["qualification_binding_sha256"] = "0" * 64
+            else:
+                document["payload"]["artifact_hashes"]["events_sha256"] = "0" * 64
             return document
 
         _mod, results = _execute_with_response(monkeypatch, response)
