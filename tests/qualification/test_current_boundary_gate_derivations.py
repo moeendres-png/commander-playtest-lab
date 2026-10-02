@@ -539,3 +539,38 @@ def test_af09_carries_the_established_refusal_and_seed_wording() -> None:
     gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, ACK_SEED, described=described)
     assert any("refused by the engine" in item for item in gate["evidence"])
     assert any("not semantic replay proof" in item for item in gate["nonblocking_limitations"])
+
+
+def _process(pid: int) -> dict:
+    return {"pid": pid, "start_ticks": 100 + pid, "boot_id": "boot", "observed": True}
+
+
+def test_af09_an_embedded_tape_that_taped_nothing_is_not_twin_evidence() -> None:
+    twin = {**TWIN["clean_process_twin"], "decisions": {"count": 0, "entries": []}}
+    assert "decisions" in g.clean_process_twin_missing(twin)
+
+
+def test_af09_the_twin_must_name_two_distinct_processes() -> None:
+    base = TWIN["clean_process_twin"]
+    assert "distinct_process_identities" in g.clean_process_twin_missing(
+        {**base, "process_identity": [_process(1)]}
+    )
+    assert "distinct_process_identities" in g.clean_process_twin_missing(
+        {**base, "process_identity": [_process(1), _process(1)]}
+    )
+    assert (
+        g.clean_process_twin_missing({**base, "process_identity": [_process(1), _process(2)]}) == []
+    )
+
+
+def test_af09_one_rule_selects_the_twin() -> None:
+    proven = TWIN["clean_process_twin"]
+    midgame = {"clean_process_twin": proven}
+    assert g.select_clean_process_twin({**ACK_SEED, **TWIN}, midgame) == (proven, "RNG_REPLAY")
+    assert g.select_clean_process_twin(ACK_SEED, midgame) == (
+        proven,
+        "MIDGAME_REPLAY_TWIN_EXECUTIONS",
+    )
+    unproven = {"verified": True}
+    assert g.select_clean_process_twin({"clean_process_twin": unproven}, None) == (unproven, None)
+    assert g.select_clean_process_twin(None, {"clean_process_twin": unproven}) == (None, None)

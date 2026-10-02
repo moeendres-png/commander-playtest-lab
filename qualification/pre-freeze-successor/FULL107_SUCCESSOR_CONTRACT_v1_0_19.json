@@ -13709,7 +13709,10 @@
       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "rules_rng_channel": "the start-of-game library shuffle (CR 103.2) is the record's NATIVE_LIBRARY_SHUFFLE Rules RNG operation; the complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle, so the shuffle stays the engine's own seeded operation",
+      "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused. The step is realized by the engine's own start-of-game shuffle of P1's library (CR 103.2): the record's NATIVE_LIBRARY_SHUFFLE channel and its required event rules_rng:library_shuffle:P1. Its result is taped as the permutation digest the engine reports (get_rules_rng_tape), which the clean replay must reproduce and a different seed must change. The complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle",
+      "native_procedure_step_realized_by": {
+       "rules-shuffle": "ENGINE_START_OF_GAME_LIBRARY_SHUFFLE_CR_103_2"
+      },
       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -13728,7 +13731,7 @@
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "reason": "Only deck_state changes (complete checkpoint hands and P1's complete library), so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -13864,7 +13867,10 @@
       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "rules_rng_channel": "the start-of-game library shuffle (CR 103.2) is the record's NATIVE_LIBRARY_SHUFFLE Rules RNG operation; the complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle, so the shuffle stays the engine's own seeded operation",
+      "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused. The step is realized by the engine's own start-of-game shuffle of P1's library (CR 103.2): the record's NATIVE_LIBRARY_SHUFFLE channel and its required event rules_rng:library_shuffle:P1. Its result is taped as the permutation digest the engine reports (get_rules_rng_tape), which the clean replay must reproduce and a different seed must change. The complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle",
+      "native_procedure_step_realized_by": {
+       "rules-shuffle": "ENGINE_START_OF_GAME_LIBRARY_SHUFFLE_CR_103_2"
+      },
       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -13883,7 +13889,7 @@
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "reason": "Only deck_state changes (complete checkpoint hands and P1's complete library), so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -14019,7 +14025,10 @@
       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "rules_rng_channel": "the start-of-game library shuffle (CR 103.2) is the record's NATIVE_LIBRARY_SHUFFLE Rules RNG operation; the complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle, so the shuffle stays the engine's own seeded operation",
+      "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused. The step is realized by the engine's own start-of-game shuffle of P1's library (CR 103.2): the record's NATIVE_LIBRARY_SHUFFLE channel and its required event rules_rng:library_shuffle:P1. Its result is taped as the permutation digest the engine reports (get_rules_rng_tape), which the clean replay must reproduce and a different seed must change. The complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle",
+      "native_procedure_step_realized_by": {
+       "rules-shuffle": "ENGINE_START_OF_GAME_LIBRARY_SHUFFLE_CR_103_2"
+      },
       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -14038,7 +14047,7 @@
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "reason": "Only deck_state changes (complete checkpoint hands and P1's complete library), so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -14174,7 +14183,10 @@
       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "rules_rng_channel": "the start-of-game library shuffle (CR 103.2) is the record's NATIVE_LIBRARY_SHUFFLE Rules RNG operation; the complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle, so the shuffle stays the engine's own seeded operation",
+      "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused. The step is realized by the engine's own start-of-game shuffle of P1's library (CR 103.2): the record's NATIVE_LIBRARY_SHUFFLE channel and its required event rules_rng:library_shuffle:P1. Its result is taped as the permutation digest the engine reports (get_rules_rng_tape), which the clean replay must reproduce and a different seed must change. The complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle",
+      "native_procedure_step_realized_by": {
+       "rules-shuffle": "ENGINE_START_OF_GAME_LIBRARY_SHUFFLE_CR_103_2"
+      },
       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -14193,7 +14205,7 @@
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "reason": "Only deck_state changes (complete checkpoint hands and P1's complete library), so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -14329,7 +14341,10 @@
       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "rules_rng_channel": "the start-of-game library shuffle (CR 103.2) is the record's NATIVE_LIBRARY_SHUFFLE Rules RNG operation; the complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle, so the shuffle stays the engine's own seeded operation",
+      "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused. The step is realized by the engine's own start-of-game shuffle of P1's library (CR 103.2): the record's NATIVE_LIBRARY_SHUFFLE channel and its required event rules_rng:library_shuffle:P1. Its result is taped as the permutation digest the engine reports (get_rules_rng_tape), which the clean replay must reproduce and a different seed must change. The complete library declared here is the library AT the checkpoint, applied through the native game-load seam after that shuffle",
+      "native_procedure_step_realized_by": {
+       "rules-shuffle": "ENGINE_START_OF_GAME_LIBRARY_SHUFFLE_CR_103_2"
+      },
       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -14348,7 +14363,7 @@
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "reason": "Only deck_state changes (complete checkpoint hands and P1's complete library), so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",

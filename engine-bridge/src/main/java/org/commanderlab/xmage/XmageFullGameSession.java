@@ -479,6 +479,87 @@ final class XmageFullGameSession {
     }
 
     /**
+     * AF09 orchestration channel: the engine's Rules-RNG results and a
+     * privileged state digest, digests only. The privileged digest covers every
+     * player's zones in seating order (library order included) through
+     * process-independent tokens: a requested object's semantic id, a deck
+     * card's first-seen library position, otherwise the object's name. No
+     * native id and no card identity leaves the engine; no principal receives
+     * this channel.
+     */
+    synchronized JsonObject rulesRngTapePayload() {
+        ensureStarted();
+        JsonObject payload = new JsonObject();
+        payload.addProperty("rules_random_calls", game.getRulesRandomCalls());
+        payload.add("rules_rng_results", XmageRulesRngResultTape.results(game));
+        payload.addProperty("privileged_state_digest", privilegedStateDigest());
+        payload.addProperty("observation_scope", "orchestration_only_digests");
+        return payload;
+    }
+
+    private String privilegedStateDigest() {
+        List<String> lines = new ArrayList<>();
+        for (UUID playerId : game.getState().getPlayerList()) {
+            Player player = game.getPlayer(playerId);
+            if (player == null) {
+                continue;
+            }
+            lines.add("seat:" + XmageRulesRngResultTape.seatIndex(game, playerId)
+                    + " life:" + player.getLife() + " in_game:" + player.isInGame());
+            lines.add("library:" + String.join(",", tokens(playerId, player.getLibrary().getCardList(), false)));
+            lines.add("hand:" + String.join(",", tokens(playerId, new ArrayList<>(player.getHand()), true)));
+            lines.add("graveyard:" + String.join(",", tokens(playerId, new ArrayList<>(player.getGraveyard()), false)));
+            List<UUID> exiled = new ArrayList<>();
+            for (mage.cards.Card card : game.getExile().getAllCards(game)) {
+                if (playerId.equals(card.getOwnerId())) {
+                    exiled.add(card.getId());
+                }
+            }
+            lines.add("exile:" + String.join(",", tokens(playerId, exiled, true)));
+            List<String> permanents = new ArrayList<>();
+            for (mage.game.permanent.Permanent permanent
+                    : game.getBattlefield().getAllActivePermanents(playerId)) {
+                List<String> counters = new ArrayList<>();
+                for (mage.counters.Counter counter : permanent.getCounters(game).values()) {
+                    counters.add(counter.getName() + "=" + counter.getCount());
+                }
+                Collections.sort(counters);
+                permanents.add(token(permanent.getOwnerId(), permanent.getId(), permanent.getName())
+                        + (permanent.isTapped() ? "|tapped" : "") + "|" + String.join(";", counters));
+            }
+            Collections.sort(permanents);
+            lines.add("battlefield:" + String.join(",", permanents));
+        }
+        List<String> stack = new ArrayList<>();
+        for (mage.game.stack.StackObject object : game.getStack()) {
+            stack.add(object.getName());
+        }
+        lines.add("stack:" + String.join(",", stack));
+        return XmageRulesRngResultTape.digest(lines);
+    }
+
+    private List<String> tokens(UUID ownerId, List<UUID> ids, boolean sorted) {
+        List<String> out = new ArrayList<>(ids.size());
+        for (UUID id : ids) {
+            mage.cards.Card card = game.getCard(id);
+            out.add(token(ownerId, id, card == null ? "?" : card.getName()));
+        }
+        if (sorted) {
+            Collections.sort(out);
+        }
+        return out;
+    }
+
+    private String token(UUID ownerId, UUID id, String name) {
+        String semantic = restoration == null ? null : restoration.semanticIdOf(id);
+        if (semantic != null) {
+            return "s:" + semantic;
+        }
+        String deck = XmageRulesRngResultTape.token(game, ownerId, id);
+        return deck.startsWith("d") ? deck : "n:" + name;
+    }
+
+    /**
      * WS213 authoritative concession offer (WS211 engine contract).
      *
      * <p>Availability originates exclusively in {@code

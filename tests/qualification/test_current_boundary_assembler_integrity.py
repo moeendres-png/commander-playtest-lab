@@ -423,7 +423,19 @@ def test_af09_a_proven_twin_states_the_distinctions_without_blocking() -> None:
     assert "is not semantic replay proof" in joined
 
 
+REPLAY_ROWS = (
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_STATE_HASHES",
+    "RNG_RULES_TAPE",
+)
+
+
 def _bound_twin_document(**overrides: object) -> dict:
+    from commander_lab.qualification.current_boundary import replay_twins
+
+    twin = overrides.pop("clean_process_twin", {"candidate_build": {"engine_commit": "c" * 40}})
     document = {
         "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
         "candidate": "xmage",
@@ -431,10 +443,51 @@ def _bound_twin_document(**overrides: object) -> dict:
         "runner_digest": "r" * 64,
         "rows_declared": 5,
         "rows_verified": 5,
-        "clean_process_twin": {"candidate_build": {"engine_commit": "c" * 40}},
+        "rows": {
+            fixture: {"verified": True, "twin_digest": replay_twins.sha256_json(twin)}
+            for fixture in REPLAY_ROWS
+        },
+        "clean_process_twin": twin,
     }
     document.update(overrides)
     return document
+
+
+def test_the_midgame_twin_stands_only_for_a_fully_verified_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    asm = _assembler_module()
+    monkeypatch.setattr(asm, "OUT", tmp_path)
+    partial = _bound_twin_document()
+    partial["rows"]["RNG_RULES_TAPE"]["verified"] = False
+    missing = _bound_twin_document()
+    missing["rows"].pop("REPLAY_EVENT_TAPE")
+    foreign = _bound_twin_document()
+    foreign["clean_process_twin"] = {
+        "candidate_build": {"engine_commit": "c" * 40},
+        "decisions": "not one of the rows' twins",
+    }
+    for document in (partial, missing, foreign):
+        (tmp_path / "MIDGAME_REPLAY_TWIN_EXECUTIONS.json").write_text(json.dumps(document))
+        assert asm.midgame_replay_twin_document("xmage", _fresh_column(), "r" * 64) is None
+
+
+def test_replay_twin_receipts_credit_only_through_the_bound_document() -> None:
+    source = _source(ASSEMBLER)
+    helper = source[source.index("def native_bindings(") :]
+    helper = helper[: helper.index("\ndef ")]
+    assert "midgame_replay_twin_mod.bound_receipt_digests(" in helper
+    assert "not bound to this epoch's replay-twin document" in helper
+    assert helper.index("bound_receipt_digests(") < helper.index("positive_fixture_credit(")
+
+
+def test_a_demonstrated_replay_divergence_is_recorded_as_fail() -> None:
+    source = _source(ASSEMBLER)
+    call = source.index("midgame_replay_twin_mod.demonstrated_failures(")
+    window = source[call : call + 1400]
+    assert "runner_digest=assembly_runner_digest" in window
+    assert 'row["exit_state"] = "FAIL"' in window
+    assert call < source.index("for fixture, per in bindings.items():")
 
 
 def _fresh_column(commit: str = "c" * 40) -> dict:

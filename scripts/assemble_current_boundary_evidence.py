@@ -49,6 +49,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     pb03_runtime as pb03_runtime_mod,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    replay_twins as replay_twins_mod,
+)
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 # The runtime evidence epoch resolved from the same source identity the runner
@@ -106,6 +109,32 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
     positive, positive_rejected = receipt_mod.collect_positive_fixture_receipts(
         RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR
     )
+    identity = {
+        c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
+        for c in ("xmage", "forge")
+    }
+    runner_digest = live_runner_digest()
+    # AF09: a replay-twin receipt credits only through the bound document of
+    # the run that wrote it, which must declare every replay/RNG row.
+    twin_path = OUT / "MIDGAME_REPLAY_TWIN_EXECUTIONS.json"
+    twin_receipts = midgame_replay_twin_mod.bound_receipt_digests(
+        load(twin_path) if twin_path.is_file() else None,
+        candidate_commit=str(identity["xmage"].get("engine_candidate_commit", "")),
+        runner_digest=runner_digest,
+    )
+    unbound = [
+        receipt
+        for receipt in positive
+        if str(receipt.get("test_identity", "")).startswith(
+            midgame_replay_twin_mod.TEST_IDENTITY_PREFIX
+        )
+        and twin_receipts.get(str(receipt.get("fixture_id"))) != receipt.get("receipt_digest")
+    ]
+    positive = [receipt for receipt in positive if receipt not in unbound]
+    positive_rejected = positive_rejected + [
+        f"{receipt.get('test_identity')}: not bound to this epoch's replay-twin document"
+        for receipt in unbound
+    ]
     receipts = receipts + positive
     rejected = rejected + positive_rejected
     if rejected:
@@ -113,12 +142,7 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
             print(f"native receipt rejected: {reason}")
     if not receipts:
         print("no valid native receipts: no native credit is possible this assembly")
-    identity = {
-        c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
-        for c in ("xmage", "forge")
-    }
     out: dict[str, dict[str, list[str]]] = {}
-    runner_digest = live_runner_digest()
     for candidate in ("xmage", "forge"):
         commit = identity[candidate].get("engine_candidate_commit", "")
         credited = receipt_mod.positive_fixture_credit(
@@ -671,6 +695,8 @@ def midgame_replay_twin_document(
     document = load(path)
     commit = str(data["results_runtime_identity"].get("engine_candidate_commit", ""))
     twin = document.get("clean_process_twin") or {}
+    rows = document.get("rows") or {}
+    twin_digests = {str(row.get("twin_digest")) for row in rows.values() if row.get("verified")}
     if (
         document.get("execution_mode") != midgame_replay_twin_mod.EXECUTION_MODE
         or document.get("candidate") != candidate
@@ -678,6 +704,11 @@ def midgame_replay_twin_document(
         or document.get("candidate_commit") != commit
         or document.get("runner_digest") != runner_digest
         or (twin.get("candidate_build") or {}).get("engine_commit") != commit
+        # The twin stands for the replay obligation only when every row's own
+        # twin verified in this run, and it is one of those twins.
+        or set(rows) != set(midgame_replay_twin_mod.ROWS)
+        or not all(row.get("verified") for row in rows.values())
+        or replay_twins_mod.sha256_json(twin) not in twin_digests
     ):
         print("midgame replay-twin document rejected: not bound to this column and runner")
         return None
@@ -756,6 +787,32 @@ def assemble() -> None:
                 ),
                 runner_digest=assembly_runner_digest,
             )
+        # AF09: a replay twin that demonstrated a violation (the engine answered
+        # the same inputs and seed differently) is a FAIL, never an UNKNOWN.
+        if candidate == "xmage" and not carried_forward:
+            twin_path = OUT / "MIDGAME_REPLAY_TWIN_EXECUTIONS.json"
+            replay_failures = midgame_replay_twin_mod.demonstrated_failures(
+                load(twin_path) if twin_path.is_file() else None,
+                candidate_commit=str(
+                    results["runtime_identity"].get("engine_candidate_commit", "")
+                ),
+                runner_digest=assembly_runner_digest,
+            )
+            for fixture, finding in replay_failures.items():
+                if fixture not in rows:
+                    continue
+                row = rows[fixture]
+                row["pre_replay_twin_exit_state"] = row["exit_state"]
+                row["exit_state"] = "FAIL"
+                row["execution_mode"] = midgame_replay_twin_mod.EXECUTION_MODE
+                row["failure_reason"] = (
+                    f"{finding['classification']}: the clean-process replay twin on the "
+                    "production midgame lane answered the same inputs and seed differently "
+                    "(MIDGAME_REPLAY_TWIN_EXECUTIONS.json)"
+                )
+                row["reason"] = row["failure_reason"]
+                row["evidence_class"] = "FRESH_CURRENT_BOUNDARY_RUNTIME"
+                row["replay_twin_divergence"] = finding
         for fixture, finding in demonstrated.items():
             if fixture not in rows:
                 continue
@@ -855,9 +912,10 @@ def assemble() -> None:
                     f"({', '.join(receipt_ids)}): the record's scenario ran from its "
                     "decision script with engine-offered options only, a fresh process "
                     "replayed it from the taped external inputs alone, and the decision "
-                    "tape, canonical event tape, Rules RNG coordinates, checkpoint digests "
-                    "and terminal facts compared equal with every adversarial control "
-                    "detected; the row's own replay property held on those tapes"
+                    "tape, canonical event tape, Rules RNG coordinates and results, "
+                    "public, actor and privileged checkpoint digests and each process's "
+                    "own terminal observation compared equal with every adversarial "
+                    "control detected; the row's own replay property held on those tapes"
                 )
             elif all(
                 name.startswith(forge_scenario_mod.FORGE_SCENARIO_TEST_IDENTITY_PREFIX)
@@ -1060,10 +1118,10 @@ def assemble() -> None:
             _describe_replay_evidence(
                 document,
                 cand,
-                twin_proven=not gate_derivations_mod.clean_process_twin_missing(
-                    document.get("clean_process_twin")
-                    or (midgame_twin_by_candidate[cand] or {}).get("clean_process_twin")
-                ),
+                twin_proven=gate_derivations_mod.select_clean_process_twin(
+                    document, midgame_twin_by_candidate[cand]
+                )[1]
+                is not None,
             )
             if (document := _load_replay_document(cand)) is not None
             else {

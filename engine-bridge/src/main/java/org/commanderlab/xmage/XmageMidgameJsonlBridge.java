@@ -113,6 +113,7 @@ final class XmageMidgameJsonlBridge {
             case "complete_causal_reconstruction" ->
                     completeCausalReconstruction(requestId, request);
             case "get_midgame_state" -> getState(requestId, request);
+            case "get_rules_rng_tape" -> getRulesRngTape(requestId);
             case "get_midgame_projection" -> getProjection(requestId, request);
             case "get_midgame_events" -> getEvents(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId);
@@ -994,6 +995,19 @@ final class XmageMidgameJsonlBridge {
         }
     }
 
+    /**
+     * AF09: the engine's Rules-RNG results and a privileged state digest for the
+     * clean-process replay twin. Digests only, for the orchestration; it is never
+     * a principal's observation and carries no card identity or native id.
+     */
+    private Result getRulesRngTape(String requestId) {
+        try {
+            return success(requestId, requireSession().rulesRngTapePayload(), false);
+        } catch (Exception exc) {
+            return error(requestId, "rules_rng_tape_failed", exceptionMessage(exc), false);
+        }
+    }
+
     private Result getState(String requestId, JsonObject request) {
         try {
             JsonObject payload = requireObjectPayload(request, "GET_MIDGAME_STATE requires payload");
@@ -1329,6 +1343,7 @@ final class XmageMidgameJsonlBridge {
         observationScopes.addProperty("get_midgame_decision", "acting_principal_frame");
         observationScopes.addProperty("get_legal_actions", "acting_principal_frame");
         observationScopes.addProperty("get_midgame_events", "public_semantic_event_tape");
+        observationScopes.addProperty("get_rules_rng_tape", "orchestration_only_digests");
         observationScopes.addProperty("complete_midgame_arrival",
                 "principal_scoped_or_principal_neutral_opponent_hands_counts_only");
         capabilities.add("observation_scopes", observationScopes);

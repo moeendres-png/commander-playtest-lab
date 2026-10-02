@@ -493,17 +493,58 @@ TWIN_REQUIREMENTS = (
 )
 
 
+def _empty(value: Any) -> bool:
+    if not value or value == []:
+        return True
+    # An embedded tape block ({"count": n, "entries": [...]}) that taped nothing.
+    return isinstance(value, dict) and "count" in value and not value.get("count")
+
+
 def clean_process_twin_missing(twin: Any) -> list[str]:
     """The named twin elements a ``clean_process_twin`` block does not prove.
 
     A bare ``{"verified": true}`` is a self-report, not evidence: every named
-    element must be present and non-empty, or the twin is unproven.
+    element must be present and non-empty (an embedded tape must have taped
+    something), and at least two distinct process identities must be named,
+    or the twin is unproven.
     """
     if not isinstance(twin, dict):
         return list(TWIN_REQUIREMENTS)
     missing = [] if twin.get("verified") is True else ["verified"]
-    missing.extend(key for key in TWIN_REQUIREMENTS if not twin.get(key) or twin.get(key) == [])
+    missing.extend(key for key in TWIN_REQUIREMENTS if _empty(twin.get(key)))
+    processes = twin.get("process_identity")
+    if "process_identity" not in missing:
+        identities = (
+            {
+                (item.get("pid"), item.get("start_ticks"), item.get("boot_id"))
+                for item in processes
+                if isinstance(item, dict)
+            }
+            if isinstance(processes, list)
+            else set()
+        )
+        if isinstance(processes, list) and len(identities) < 2:
+            missing.append("distinct_process_identities")
     return missing
+
+
+def select_clean_process_twin(
+    replay_document: dict[str, Any] | None, midgame_twin: dict[str, Any] | None
+) -> tuple[Any, str | None]:
+    """The twin AF09 rests on and where it came from.
+
+    The replay artifact's own twin when it is proven; otherwise the bound
+    midgame lane document's twin; otherwise the artifact's (unproven) twin.
+    The assembler and the gate use this one rule.
+    """
+    own = (replay_document or {}).get("clean_process_twin")
+    if not clean_process_twin_missing(own):
+        return own, "RNG_REPLAY"
+    if midgame_twin is not None and not clean_process_twin_missing(
+        midgame_twin.get("clean_process_twin")
+    ):
+        return midgame_twin.get("clean_process_twin"), "MIDGAME_REPLAY_TWIN_EXECUTIONS"
+    return own, None
 
 
 def af09_rng_replay(
@@ -583,9 +624,8 @@ def af09_rng_replay(
     # Current-boundary replay PASS requires a clean-process twin bound to the
     # candidate, fixture, externally supplied decisions, Rules RNG, semantic
     # events, checkpoint hashes and terminal outcome.
-    twin = (replay_document or {}).get("clean_process_twin")
-    if clean_process_twin_missing(twin) and midgame_twin is not None:
-        twin = midgame_twin.get("clean_process_twin")
+    twin, source = select_clean_process_twin(replay_document, midgame_twin)
+    if source == "MIDGAME_REPLAY_TWIN_EXECUTIONS" and midgame_twin is not None:
         evidence.append(
             "clean-process twin taken from the production midgame lane "
             "(MIDGAME_REPLAY_TWIN_EXECUTIONS.json: "

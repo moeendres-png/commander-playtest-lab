@@ -4,9 +4,16 @@ The five replay/RNG obligations of the provider denominator
 (``REPLAY_CLEAN_PROCESS``, ``REPLAY_DECISION_TAPE``, ``REPLAY_EVENT_TAPE``,
 ``REPLAY_STATE_HASHES``, ``RNG_RULES_TAPE``) are one scenario: P1 casts Burn Down
 the House, chooses the Devil mode and three Devil tokens enter; the start-of-game
-library shuffle is the Rules RNG operation. Each row then asks one property of a
-clean replay of that scenario. This module produces the twin on the production
-midgame lane and maps it to each row's own property.
+library shuffle (CR 103.2) is the Rules RNG operation. Each row then asks one
+property of a clean replay of that scenario. This module produces the twin on
+the production midgame lane and maps it to each row's own property.
+
+The Rules RNG is taped with its *results*, not only call counts: the engine
+reports each library shuffle's result as a digest of the permutation it left
+the library in, relative to the deck's own first-seen order
+(``get_rules_rng_tape``, an orchestration channel of digests only). The same
+seed reproduces it in every process; a live control in a third process proves
+that a different seed changes it.
 
 Record and replay
 -----------------
@@ -14,10 +21,9 @@ Record and replay
 * **Record** (process A): the row's own decision script runs on the generic
   production executor (:func:`midgame_rows.execute_row`). Every distinct engine
   decision the process meets is taped with the engine's live Rules-RNG
-  coordinate (``rules_random_calls`` from the orchestration-scoped
-  ``get_midgame_state``), the qualified WS218 canonical digests of the
-  decider's own observation, and the WS218 semantic fingerprints of what was
-  selected. Every state-changing request the process sent (decision answers and
+  coordinate and results and a privileged state digest (``get_rules_rng_tape``),
+  the qualified WS218 canonical digests of the decider's own observation, and
+  the WS218 semantic fingerprints of what was selected. Every state-changing request the process sent (decision answers and
   arrival completions) is kept in order: that is the external input stream.
 * **Replay** (process B, a fresh JVM): the record is constructed again with the
   same seed, and the external input stream is re-issued *from the tape alone*.
@@ -28,10 +34,16 @@ Record and replay
 The two runs are compared by :func:`replay_twins.compare_twin_runs` (the AF09
 twin contract): fixture, build, Lab source, distinct observed processes, Rules
 RNG binding and coordinates, the decision tape, the canonical event tape, the
-checkpoint digest chain and the terminal facts. Process-local identifiers (the
-game id, decision ids and native object ids) are recorded separately and never
-compared; that they DIFFER between the processes while every digest is equal is
-the evidence that the digests exclude process-local identity.
+checkpoint digest chain and each process's own terminal observation (the
+replay's terminal is read from its own engine, never copied from the record).
+Process-local identifiers (decision ids and native object ids) are recorded
+separately and never compared; that they DIFFER between the processes while
+every digest is equal is the evidence that the digests exclude process-local
+identity. The game id is deliberately the same in both processes.
+
+A replay whose engine offers a different frame for the same inputs and seed, or
+whose tapes compare unequal, is a demonstrated replay violation (FAIL), never an
+unexecuted row.
 
 Nothing here computes legality, mutates engine state outside the two recorded
 request kinds, or decides a Rules question.
@@ -80,6 +92,23 @@ class ReplayTwinRowError(RuntimeError):
     """The row cannot be twinned; the message names the exact reason."""
 
 
+class ReplayDivergence(ReplayTwinRowError):
+    """The engine answered the same inputs and seed differently: a demonstrated violation."""
+
+
+def rules_rng_tape(client: ml.MidgameLaneClient) -> dict[str, Any]:
+    """The engine's Rules-RNG results and privileged state digest (digests only)."""
+    response = client.request("get_rules_rng_tape", None)
+    if not response.get("success"):
+        raise ReplayTwinRowError(f"get_rules_rng_tape failed closed: {response.get('errors')}")
+    payload = dict(response.get("payload") or {})
+    if not isinstance(payload.get("rules_random_calls"), int) or not payload.get(
+        "privileged_state_digest"
+    ):
+        raise ReplayTwinRowError("get_rules_rng_tape returned no RNG coordinate or digest")
+    return payload
+
+
 def row_spec(fixture_id: str) -> midgame_rows_mod.RowSpec:
     """The executor spec of the replay scenario, bound to the record's own tokens.
 
@@ -120,10 +149,10 @@ def row_spec(fixture_id: str) -> midgame_rows_mod.RowSpec:
 class TapingLaneClient(ml.MidgameLaneClient):
     """A production lane client that also tapes each distinct pending decision.
 
-    The only additional request is the orchestration-scoped
-    ``get_midgame_state`` read, issued once per distinct decision, whose seed
-    binding carries the engine's live ``rules_random_calls``. It changes no
-    engine state.
+    The only additional request is the orchestration channel
+    ``get_rules_rng_tape``, issued once per distinct decision: the engine's
+    live ``rules_random_calls``, its Rules-RNG results and a privileged state
+    digest. It changes no engine state.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -140,15 +169,15 @@ class TapingLaneClient(ml.MidgameLaneClient):
         decision_id = str(decision.get("decision_id") or "")
         if decision_id and decision_id not in self._seen:
             self._seen.add(decision_id)
-            state = self.request("get_midgame_state", {"actor_id": decision.get("actor_id")})
-            if not state.get("success"):
-                raise ml.MidgameLaneError("get_midgame_state failed closed while taping")
-            binding = (state.get("payload") or {}).get("seed_binding") or {}
+            try:
+                tape = rules_rng_tape(self)
+            except ReplayTwinRowError as exc:
+                raise ml.MidgameLaneError(str(exc)) from exc
             self.checkpoints.append(
                 {
                     "decision": decision,
-                    "rules_random_calls": binding.get("rules_random_calls"),
-                    "seed_binding": dict(binding),
+                    "rules_random_calls": tape["rules_random_calls"],
+                    "privileged_state_digest": tape["privileged_state_digest"],
                 }
             )
         return decision
@@ -215,15 +244,23 @@ def _fingerprints_by_option(
 
 
 def decision_identity(decision: Mapping[str, Any]) -> dict[str, Any]:
-    """The process-independent identity of one engine decision frame."""
+    """The process-independent identity of one engine decision frame.
+
+    A frame without the decider's observation has no public or actor digest;
+    it fails closed instead of hashing an empty state.
+    """
     pilot_state = decision.get("pilot_state")
-    state = pilot_state if isinstance(pilot_state, dict) else {}
+    if not isinstance(pilot_state, dict) or not pilot_state:
+        raise ReplayTwinRowError(
+            f"decision {str(decision.get('decision_id'))[:12]} carries no pilot_state"
+        )
+    state = pilot_state
     return {
         "decision_class": decision.get("decision_class"),
         "seat": decision.get("seat"),
         "minimum_selections": decision.get("minimum_selections"),
         "maximum_selections": decision.get("maximum_selections"),
-        "legal_set_digest": legal_set_digest(_options(decision), state or None),
+        "legal_set_digest": legal_set_digest(_options(decision), state),
         "public_state_digest": public_state_digest(state),
         "observation_digest": principal_observation_digest(state),
     }
@@ -297,6 +334,7 @@ def input_stream(
                 "selected_fingerprints": sorted(prints[option] for option in selected),
                 "numeric_choice": numeric,
                 "rules_random_calls": checkpoint.get("rules_random_calls"),
+                "privileged_state_digest": checkpoint.get("privileged_state_digest"),
             }
         )
     return stream
@@ -343,6 +381,7 @@ class ProcessRun:
     execution: dict[str, Any] | None = None
     stream: list[dict[str, Any]] = field(default_factory=list)
     native_object_ids: dict[str, str] = field(default_factory=dict)
+    divergence: bool = False
 
 
 def _semantic_by_native(created: Mapping[str, Any]) -> dict[str, str]:
@@ -385,14 +424,20 @@ def _create(
 
 
 def _rules_rng(
-    created: Mapping[str, Any], seed: int, stream: Sequence[Mapping[str, Any]], terminal_calls: Any
+    created: Mapping[str, Any],
+    seed: int,
+    stream: Sequence[Mapping[str, Any]],
+    terminal_calls: Any,
+    results: Sequence[Mapping[str, Any]] = (),
 ) -> dict[str, Any]:
-    """The Rules RNG binding and its coordinates, in the AF09 twin contract's shape.
+    """The Rules RNG binding, its operations with results, and its coordinates.
 
-    One coordinate per answered decision: the engine's ``rules_random_calls``
-    when the decision was asked (``before``) and when the next one was asked or
-    the run ended (``after``), so a coordinate is the Rules randomness the
-    answer let the engine consume.
+    First every Rules-RNG operation the engine reported, in engine order, each
+    with its own ``before``/``after`` call coordinates and its result digest.
+    Then one coordinate per answered decision: the engine's
+    ``rules_random_calls`` when the decision was asked (``before``) and when
+    the next one was asked or the run ended (``after``), so a coordinate is the
+    Rules randomness the answer let the engine consume.
     """
     binding = dict(created.get("rules_seed_binding") or {})
     acknowledged = (
@@ -401,13 +446,28 @@ def _rules_rng(
         else None
     )
     calls = [entry.get("rules_random_calls") for entry in stream if entry.get("kind") == "decision"]
-    coordinates = [
+    operations = [
         {
-            "sequence": index,
-            "before": before,
-            "after": calls[index + 1] if index + 1 < len(calls) else terminal_calls,
+            "operation": str(entry.get("operation")),
+            "sequence": entry.get("sequence"),
+            "seat": entry.get("seat"),
+            "before": entry.get("before"),
+            "after": entry.get("after"),
+            "library_size": entry.get("library_size"),
+            "result_digest": entry.get("result_digest"),
         }
-        for index, before in enumerate(calls)
+        for entry in results
+    ]
+    coordinates = [
+        *operations,
+        *(
+            {
+                "sequence": index,
+                "before": before,
+                "after": calls[index + 1] if index + 1 < len(calls) else terminal_calls,
+            }
+            for index, before in enumerate(calls)
+        ),
     ]
     return {
         "requested_seed": seed,
@@ -420,27 +480,41 @@ def _rules_rng(
     }
 
 
-def _final_readback(client: TapingLaneClient) -> tuple[dict[str, Any], list[dict[str, Any]], Any]:
-    """Pure reads of the parked engine after the last input (none is taped)."""
+def _final_readback(
+    client: TapingLaneClient,
+) -> tuple[dict[str, Any], list[dict[str, Any]], int, list[dict[str, Any]], str]:
+    """Pure reads of the parked engine after the last input (none is taped).
+
+    Returns the observation, the public event tape, the final Rules-RNG call
+    count, every Rules-RNG result and the final privileged state digest; an
+    unreadable RNG tape fails closed.
+    """
     client.pending_decision(attempts=5)
     observation = client.complete_arrival().get("observation") or {}
     events = client.events(0).get("events") or []
-    calls = None
-    if client.checkpoints:
-        actor = client.checkpoints[-1]["decision"].get("actor_id")
-        state = client.request("get_midgame_state", {"actor_id": actor})
-        calls = ((state.get("payload") or {}).get("seed_binding") or {}).get("rules_random_calls")
-    return dict(observation), [dict(event) for event in events], calls
+    tape = rules_rng_tape(client)
+    results = [dict(entry) for entry in tape.get("rules_rng_results") or ()]
+    return (
+        dict(observation),
+        [dict(event) for event in events],
+        int(tape["rules_random_calls"]),
+        results,
+        str(tape["privileged_state_digest"]),
+    )
 
 
-def _terminal(
-    observation: Mapping[str, Any], execution: Mapping[str, Any] | None
-) -> dict[str, Any]:
+def _terminal(observation: Mapping[str, Any], privileged_state_digest: str) -> dict[str, Any]:
+    """This process's own terminal: its observation and its privileged state.
+
+    Nothing is taken from the other process: the record's evaluated terminal
+    facts stay in its execution document and are never part of the compared
+    terminal.
+    """
     return {
         "complete": True,
         "kind": "OBLIGATION_TERMINAL",
-        "terminal_facts": dict((execution or {}).get("terminal_facts") or {}),
         "observation_digest": twins.sha256_json(_strip_ids(observation)),
+        "privileged_state_digest": privileged_state_digest,
     }
 
 
@@ -466,7 +540,8 @@ def _twin_run(
     events: list[dict[str, Any]],
     observation: Mapping[str, Any],
     terminal_calls: Any,
-    execution: Mapping[str, Any] | None,
+    results: Sequence[Mapping[str, Any]],
+    terminal_privileged_digest: str,
 ) -> twins.TwinRun:
     decisions = [
         {
@@ -484,6 +559,7 @@ def _twin_run(
             "public_state_digest": entry["frame"]["public_state_digest"],
             "observation_digest": entry["frame"]["observation_digest"],
             "legal_set_digest": entry["frame"]["legal_set_digest"],
+            "privileged_state_digest": entry["privileged_state_digest"],
             "rules_random_calls": entry["rules_random_calls"],
         }
         for index, (position, entry) in enumerate(
@@ -506,11 +582,11 @@ def _twin_run(
         candidate_build=dict(build),
         lab_source=dict(lab_source),
         process=_process_identity(client, role),
-        rules_rng=_rules_rng(created, seed, stream, terminal_calls),
+        rules_rng=_rules_rng(created, seed, stream, terminal_calls, results),
         decisions=decisions,
         semantic_events=canonical_events(events),
         checkpoint_state_hashes=checkpoints,
-        terminal=_terminal(observation, execution),
+        terminal=_terminal(observation, terminal_privileged_digest),
         process_local_identifiers={
             "game_id": created.get("game_id"),
             "native_object_ids": dict(sorted((created.get("placed_objects") or {}).items())),
@@ -544,7 +620,7 @@ def record_process(
             client, dict(record), created, row_spec(str(record["fixture_id"]))
         )
         stream = input_stream(client.tape, client.checkpoints, semantic_by_native)
-        observation, events, calls = _final_readback(client)
+        observation, events, calls, results, privileged = _final_readback(client)
         document = execution.document()
         twin = _twin_run(
             role="RECORD",
@@ -558,7 +634,8 @@ def record_process(
             events=events,
             observation=observation,
             terminal_calls=calls,
-            execution=document,
+            results=results,
+            terminal_privileged_digest=privileged,
         )
         return ProcessRun(
             "RECORD",
@@ -599,10 +676,12 @@ def _submit(
         return
     probe = midgame_rows_mod.probe_module()
     legal = probe.legal_actions(client)
+    decision_id = str(decision.get("decision_id") or "")
     actions = [
         action
         for action in legal.get("actions") or ()
-        if str(action.get("action_id") or "").partition(":")[2] in option_ids
+        if str(action.get("action_id") or "").partition(":")[0] == decision_id
+        and str(action.get("action_id") or "").partition(":")[2] in option_ids
     ]
     if len(actions) != 1:
         raise ReplayTwinRowError(f"a replayed proposal matched {len(actions)} engine actions")
@@ -631,28 +710,33 @@ def replay_process(
         created = _create(client, record, seed, "REPLAY")
         semantic_by_native = _semantic_by_native(created)
         failure: str | None = None
+        divergence = False
         try:
             for position, entry in enumerate(recorded.stream):
                 if entry["kind"] == "complete_midgame_arrival":
+                    # As the record did: the engine parks on a decision first.
+                    client.pending_decision(attempts=5)
                     client.complete_arrival()
                     continue
                 decision = client.pending_decision()
                 if decision is None:
-                    raise ReplayTwinRowError(f"the engine went terminal before input {position}")
+                    raise ReplayDivergence(f"the engine went terminal before input {position}")
                 if entry.get("numeric_choice") is not None:
                     raise ReplayTwinRowError(
                         "a recorded numeric answer is outside this replay consumer"
                     )
                 if decision_identity(decision) != entry["frame"]:
-                    # The comparison reports the divergence from the tapes; the
-                    # replay never answers a frame it did not record.
-                    raise ReplayTwinRowError(f"the engine frame at input {position} diverged")
+                    # The replay never answers a frame it did not record.
+                    raise ReplayDivergence(f"the engine frame at input {position} diverged")
                 option_ids = _resolve(decision, entry["selected_fingerprints"], semantic_by_native)
                 _submit(client, decision, option_ids, str(entry["via"]))
+        except ReplayDivergence as exc:
+            failure = str(exc)
+            divergence = True
         except (ReplayTwinRowError, ml.MidgameLaneError) as exc:
             failure = str(exc)
         stream = input_stream(client.tape, client.checkpoints, semantic_by_native)
-        observation, events, calls = _final_readback(client)
+        observation, events, calls, results, privileged = _final_readback(client)
         twin = _twin_run(
             role="REPLAY",
             record=record,
@@ -665,7 +749,8 @@ def replay_process(
             events=events,
             observation=observation,
             terminal_calls=calls,
-            execution=recorded.execution,
+            results=results,
+            terminal_privileged_digest=privileged,
         )
         twin.failure = failure
         if failure is not None:
@@ -675,6 +760,7 @@ def replay_process(
             twin,
             stream=stream,
             native_object_ids=dict(created.get("placed_objects") or {}),
+            divergence=divergence,
         )
 
 
@@ -683,13 +769,46 @@ def replay_process(
 # --------------------------------------------------------------------------- #
 
 
+def p1_seat(record: Mapping[str, Any]) -> int:
+    """P1's seat index in the engine's seating order (the record's seat order)."""
+    seated = sorted(record.get("players") or (), key=lambda player: player.get("seat", 0))
+    for index, player in enumerate(seated):
+        if player.get("player_id") == "P1":
+            return index
+    raise ReplayTwinRowError("the record seats no P1")
+
+
+def _shuffle_results(run: ProcessRun) -> list[dict[str, Any]]:
+    return [
+        dict(entry)
+        for entry in run.twin.rules_rng.get("rng_call_coordinates") or ()
+        if entry.get("operation") == "LIBRARY_SHUFFLE"
+    ]
+
+
+def first_shuffle_digest(results: Sequence[Mapping[str, Any]], seat: int) -> str | None:
+    """The result digest of the first library shuffle of ``seat``, if any."""
+    for entry in results:
+        if entry.get("operation") == "LIBRARY_SHUFFLE" and entry.get("seat") == seat:
+            digest = entry.get("result_digest")
+            return str(digest) if digest else None
+    return None
+
+
 def row_properties(
-    fixture_id: str, record_run: ProcessRun, replay_run: ProcessRun, verified_twin: bool
+    fixture_id: str,
+    record_run: ProcessRun,
+    replay_run: ProcessRun,
+    verified_twin: bool,
+    *,
+    seat: int = 0,
+    seed_control: Mapping[str, Any] | None = None,
 ) -> dict[str, bool]:
     """The row's own property of the clean replay, each a check on the tapes.
 
     Every row also needs the scenario obligation (the record's script verified on
-    the engine) and a verified twin.
+    the engine) and a verified twin. ``seat`` is P1's seat; ``seed_control`` is
+    the live different-seed control (required by ``RNG_RULES_TAPE``).
     """
     execution = record_run.execution or {}
     decisions = record_run.twin.decisions
@@ -735,19 +854,36 @@ def row_properties(
                 entry["public_state_digest"] and entry["observation_digest"]
                 for entry in record_run.twin.checkpoint_state_hashes
             ),
+            "privileged_hashes_recorded": bool(record_run.twin.checkpoint_state_hashes)
+            and all(
+                entry.get("privileged_state_digest")
+                for entry in record_run.twin.checkpoint_state_hashes
+            )
+            and bool(record_run.twin.terminal.get("privileged_state_digest")),
         }
     elif fixture_id == "RNG_RULES_TAPE":
-        coordinates = record_run.twin.rules_rng.get("rng_call_coordinates") or []
+        shuffles = _shuffle_results(record_run)
+        p1 = [entry for entry in shuffles if entry.get("seat") == seat]
+        control = seed_control or {}
         own = {
-            "rules_rng_coordinates_recorded": bool(coordinates)
+            # Every Rules-RNG operation is taped with the randomness it consumed
+            # and its result.
+            "rules_rng_results_recorded": bool(shuffles)
             and all(
-                isinstance(entry.get("before"), int) and isinstance(entry.get("after"), int)
-                for entry in coordinates
+                isinstance(entry.get("before"), int)
+                and isinstance(entry.get("after"), int)
+                and entry["after"] > entry["before"]
+                and entry.get("result_digest")
+                for entry in shuffles
             ),
-            "library_shuffle_taped": any(
+            "p1_library_shuffle_result_taped": bool(p1)
+            and any(
                 event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == "P1"
                 for event in events
             ),
+            # The replay reproduced every result (the twin compares them); a
+            # different seed in a third fresh process changed P1's result.
+            "rng_result_depends_on_seed": control.get("detected") is True,
             "rng_tape_separate_from_decisions": all(
                 "rules_random_calls" not in decision for decision in decisions
             ),
@@ -813,6 +949,109 @@ def positive_receipt(
     return receipt
 
 
+def seed_control(
+    workspace: Path,
+    record: Mapping[str, Any],
+    recorded: ProcessRun,
+    *,
+    seed: int,
+    client_factory: Any = open_taping_client,
+) -> dict[str, Any]:
+    """Live negative control: a different seed must change P1's shuffle result.
+
+    A third fresh process constructs the same record with ``seed + 1`` and
+    reads the engine's Rules-RNG results once the game reached its first
+    decision. If the result digest did not change, the taped result does not
+    depend on the Rules RNG and is no replay evidence.
+    """
+    seat = p1_seat(record)
+    recorded_digest = first_shuffle_digest(_shuffle_results(recorded), seat)
+    control_seed = seed + 1
+    with client_factory(workspace) as client:
+        _create(client, record, control_seed, "SEED_CONTROL")
+        if client.pending_decision() is None:
+            raise ReplayTwinRowError("the seed control reached no decision")
+        tape = rules_rng_tape(client)
+    control_digest = first_shuffle_digest(tape.get("rules_rng_results") or (), seat)
+    return {
+        "control": "DIFFERENT_SEED_CHANGES_RULES_RNG_RESULT",
+        "seat": seat,
+        "seed": seed,
+        "control_seed": control_seed,
+        "recorded_result_digest": recorded_digest,
+        "control_result_digest": control_digest,
+        "detected": bool(recorded_digest)
+        and bool(control_digest)
+        and recorded_digest != control_digest,
+    }
+
+
+#: The comparison checks that bind identity and preconditions. A twin whose
+#: failures are only outside this set compared the same build, source,
+#: fixture and seed in distinct observed processes, and the engine still
+#: answered differently: a demonstrated replay violation.
+_PRECONDITION_CHECKS = frozenset(
+    {
+        "fixture_identity",
+        "candidate_build",
+        "lab_source",
+        "process_identity_present",
+        "process_identity_distinct",
+        "rules_rng_acknowledged",
+    }
+)
+
+
+def demonstrated_divergence(
+    comparison: twins.TwinComparison, recorded: ProcessRun, replayed: ProcessRun
+) -> dict[str, Any] | None:
+    """The demonstrated replay violation of a twin, or None.
+
+    Only when the record's own obligation was verified, every identity and
+    precondition check passed, and either the engine offered a different
+    frame for the same inputs (the replay failed closed on it) or a semantic
+    tape compared unequal. A harness refusal (an ambiguous fingerprint, a
+    missing observation) is never a demonstrated violation.
+    """
+    if not (recorded.execution or {}).get("verified"):
+        return None
+    failed = {check["check"] for check in comparison.checks if not check["passed"]}
+    if failed & _PRECONDITION_CHECKS or any(
+        name.startswith("required_section:") and name != "required_section:terminal_outcome"
+        for name in failed
+    ):
+        return None
+    semantic = sorted(
+        failed
+        & {
+            "rules_rng",
+            "decisions",
+            "semantic_events",
+            "checkpoint_state_hashes",
+            "terminal_outcome",
+        }
+    )
+    if replayed.divergence:
+        return {
+            "classification": "REPLAY_FRAME_DIVERGENCE",
+            "detail": replayed.twin.failure,
+            "differing_checks": semantic,
+        }
+    if replayed.twin.failure is not None:
+        # The replay stopped on a harness refusal; its tapes are truncated, so
+        # an unequal tape demonstrates nothing about the engine.
+        return None
+    if semantic:
+        return {
+            "classification": "REPLAY_TAPE_DIVERGENCE",
+            "detail": [item for item in comparison.divergences if item.get("check") in semantic][
+                :3
+            ],
+            "differing_checks": semantic,
+        }
+    return None
+
+
 def twin_row(
     workspace: Path,
     record: Mapping[str, Any],
@@ -837,6 +1076,18 @@ def twin_row(
         )
     except (ReplayTwinRowError, ml.MidgameLaneError) as exc:
         return {"fixture_id": fixture_id, "verified": False, "detail": f"twin failed closed: {exc}"}
+    control: dict[str, Any] | None = None
+    if fixture_id == "RNG_RULES_TAPE":
+        try:
+            control = seed_control(
+                workspace, record, recorded, seed=seed, client_factory=client_factory
+            )
+        except (ReplayTwinRowError, ml.MidgameLaneError) as exc:
+            control = {
+                "control": "DIFFERENT_SEED_CHANGES_RULES_RNG_RESULT",
+                "detected": False,
+                "detail": f"seed control failed closed: {exc}",
+            }
     comparison = twins.compare_twin_runs(recorded.twin, replayed.twin)
     controls = twins.run_adversarial_controls(recorded.twin, replayed.twin)
     controls_ok = all(
@@ -849,7 +1100,15 @@ def twin_row(
         adversarial_controls=controls,
     )
     verified_twin = bool(twin_document["verified"]) and controls_ok
-    properties = row_properties(fixture_id, recorded, replayed, verified_twin)
+    properties = row_properties(
+        fixture_id,
+        recorded,
+        replayed,
+        verified_twin,
+        seat=p1_seat(record),
+        seed_control=control,
+    )
+    divergence = demonstrated_divergence(comparison, recorded, replayed)
     document = {
         "schema_version": DOCUMENT_SCHEMA,
         "fixture_id": fixture_id,
@@ -857,6 +1116,8 @@ def twin_row(
         "clean_process_twin": twin_document,
         "adversarial_controls_all_detected": controls_ok,
         "row_properties": properties,
+        "seed_control": control,
+        "demonstrated_divergence": divergence,
         "record_execution": recorded.execution,
         "replay_failure": replayed.twin.failure,
         "process_local_identifiers": {
@@ -871,6 +1132,9 @@ def twin_row(
         if document["verified"]
         else "not verified: " + ", ".join(name for name, held in properties.items() if not held)
     )
+    if divergence is not None:
+        document["verified"] = False
+        document["detail"] = f"demonstrated replay violation: {divergence['classification']}"
     return document
 
 
@@ -893,7 +1157,9 @@ def execute_and_persist(
     """
     selected = tuple(ROWS if fixtures is None else fixtures)
     out_dir.mkdir(parents=True, exist_ok=True)
-    for fixture_id in selected:
+    # Every earlier replay-twin receipt goes, not only the selected rows': a
+    # receipt credits only through the document of the run that wrote it.
+    for fixture_id in ROWS:
         (out_dir / f"{TEST_IDENTITY_PREFIX.rstrip('#')}-{fixture_id}.json").unlink(missing_ok=True)
     lab_source = lab_source_identity(lab_root)
     rows: dict[str, Any] = {}
@@ -903,11 +1169,15 @@ def execute_and_persist(
             workspace, record, seed=seed, lab_source=lab_source, client_factory=client_factory
         )
         build = (document.get("clean_process_twin") or {}).get("candidate_build") or {}
-        if document.get("verified") and build.get("engine_commit") != candidate_commit:
+        if build.get("engine_commit") != candidate_commit:
+            # Nothing a foreign build did is credited or demonstrated here.
+            if document.get("verified") or document.get("demonstrated_divergence"):
+                document["detail"] = (
+                    f"engine reported {build.get('engine_commit')}, "
+                    f"not the candidate {candidate_commit}"
+                )
             document["verified"] = False
-            document["detail"] = (
-                f"engine reported {build.get('engine_commit')}, not the candidate {candidate_commit}"
-            )
+            document["demonstrated_divergence"] = None
         if document.get("verified"):
             receipt = positive_receipt(
                 fixture_id,
@@ -935,4 +1205,54 @@ def execute_and_persist(
         "rows_verified": sum(1 for document in rows.values() if document.get("verified")),
         "rows": rows,
         "clean_process_twin": (first_verified or {}).get("clean_process_twin"),
+    }
+
+
+def bound_receipt_digests(
+    document: Mapping[str, Any] | None, *, candidate_commit: str, runner_digest: str
+) -> dict[str, str]:
+    """The receipt digest each row's credit must match, from a bound document.
+
+    Empty unless the document is this lane's, names the candidate commit and
+    the runner, and declares every replay/RNG row: a partial rerun, a foreign
+    document or a stale receipt earns nothing.
+    """
+    if not document or document.get("execution_mode") != EXECUTION_MODE:
+        return {}
+    if (
+        not candidate_commit
+        or document.get("candidate_commit") != candidate_commit
+        or document.get("runner_digest") != runner_digest
+        or set((document.get("rows") or {}).keys()) != set(ROWS)
+    ):
+        return {}
+    return {
+        fixture_id: str(row["receipt_digest"])
+        for fixture_id, row in (document.get("rows") or {}).items()
+        if row.get("verified") and row.get("receipt_digest")
+    }
+
+
+def demonstrated_failures(
+    document: Mapping[str, Any] | None, *, candidate_commit: str, runner_digest: str
+) -> dict[str, dict[str, Any]]:
+    """Rows whose twin demonstrated a replay violation, from a bound document.
+
+    A frame or tape divergence under the same build, source, fixture, seed and
+    inputs in distinct observed processes is a FAIL with its finding, never an
+    unexecuted row. Only a document bound to the candidate commit and runner
+    demonstrates anything.
+    """
+    if not document or document.get("execution_mode") != EXECUTION_MODE:
+        return {}
+    if (
+        not candidate_commit
+        or document.get("candidate_commit") != candidate_commit
+        or document.get("runner_digest") != runner_digest
+    ):
+        return {}
+    return {
+        fixture_id: dict(row["demonstrated_divergence"])
+        for fixture_id, row in (document.get("rows") or {}).items()
+        if fixture_id in ROWS and row.get("demonstrated_divergence")
     }
