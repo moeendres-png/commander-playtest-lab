@@ -622,6 +622,26 @@ final class XmageNativeStateRestoration {
     }
 
     /** The native counter type a record counter name restores, or null. */
+    /** Evergreen keyword abilities the readback reports, by rules name. */
+    static final Map<String, Class<? extends Ability>> KEYWORDS = keywordClasses();
+
+    private static Map<String, Class<? extends Ability>> keywordClasses() {
+        Map<String, Class<? extends Ability>> keywords = new TreeMap<>();
+        keywords.put("deathtouch", mage.abilities.keyword.DeathtouchAbility.class);
+        keywords.put("double strike", mage.abilities.keyword.DoubleStrikeAbility.class);
+        keywords.put("first strike", mage.abilities.keyword.FirstStrikeAbility.class);
+        keywords.put("flying", mage.abilities.keyword.FlyingAbility.class);
+        keywords.put("haste", mage.abilities.keyword.HasteAbility.class);
+        keywords.put("hexproof", mage.abilities.keyword.HexproofAbility.class);
+        keywords.put("indestructible", mage.abilities.keyword.IndestructibleAbility.class);
+        keywords.put("lifelink", mage.abilities.keyword.LifelinkAbility.class);
+        keywords.put("menace", mage.abilities.keyword.MenaceAbility.class);
+        keywords.put("reach", mage.abilities.keyword.ReachAbility.class);
+        keywords.put("trample", mage.abilities.keyword.TrampleAbility.class);
+        keywords.put("vigilance", mage.abilities.keyword.VigilanceAbility.class);
+        return Collections.unmodifiableMap(keywords);
+    }
+
     static mage.counters.CounterType counterType(String name) {
         return switch (name) {
             case "+1/+1" -> mage.counters.CounterType.P1P1;
@@ -1365,6 +1385,47 @@ final class XmageNativeStateRestoration {
                 entry.addProperty("tapped", permanent.isTapped());
                 entry.addProperty("power", intOr(permanent.getPower(), -1));
                 entry.addProperty("toughness", intOr(permanent.getToughness(), -1));
+                // Counters and evergreen keywords are public permanent state.
+                // Each is reported only when present, so a permanent without
+                // them reads back exactly as before.
+                JsonObject counters = new JsonObject();
+                for (mage.counters.Counter counter : permanent.getCounters(game).values()) {
+                    if (counter.getCount() > 0) {
+                        counters.addProperty(counter.getName(), counter.getCount());
+                    }
+                }
+                if (counters.size() > 0) {
+                    entry.add("counters", counters);
+                }
+                JsonArray keywords = new JsonArray();
+                for (Map.Entry<String, Class<? extends Ability>> keyword : KEYWORDS.entrySet()) {
+                    if (permanent.getAbilities(game).containsClass(keyword.getValue())) {
+                        keywords.add(keyword.getKey());
+                    }
+                }
+                if (keywords.size() > 0) {
+                    entry.add("keywords", keywords);
+                }
+                mage.ObjectColor color = permanent.getColor(game);
+                JsonArray colors = new JsonArray();
+                if (color.isWhite()) {
+                    colors.add("white");
+                }
+                if (color.isBlue()) {
+                    colors.add("blue");
+                }
+                if (color.isBlack()) {
+                    colors.add("black");
+                }
+                if (color.isRed()) {
+                    colors.add("red");
+                }
+                if (color.isGreen()) {
+                    colors.add("green");
+                }
+                if (colors.size() > 0) {
+                    entry.add("colors", colors);
+                }
                 battlefield.add(entry);
             }
             sortObjectsBy(battlefield, "card_identity");
