@@ -1,0 +1,45 @@
+# AF07 final actual-card closure: resumable workstream state (#453, parent #255).
+workstream: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002
+issue: 453
+parent: 255
+branch: hardening/af07-final-closure-20261002
+base:
+  main: 38647c1153e01da5837671de53bf3b0e4c2fab0d
+  main_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
+candidates:
+  xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
+  forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
+  forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+contract: commander-lab.full107/1.0.18-successor
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+
+owned_surfaces:
+  - src/commander_lab/qualification/current_boundary/actual_card_campaign.py
+  - src/commander_lab/qualification/current_boundary/midgame_rows.py
+  - engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
+  - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json
+  - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json
+  - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
+  - qualification/SHA256SUMS
+  - WS17_SHA256SUMS
+
+xmage_residuals_at_start: [CARD_03, CARD_06, CARD_07, CARD_10, CARD_12, CARD_13, CARD_16, CARD_20, CARD_22, CARD_25, CARD_26, CARD_29]
+
+milestones:
+  - id: M1
+    status: LOCAL_RUNTIME_PASS
+    rows: [CARD_06, CARD_26]
+    summary: >-
+      CARD_06 versioned obligation erratum (1.0.18, Oracle conflict: Docent of
+      Perfection is not a Wizard) and CARD_26 token triggered-ability readback.
+      Both DIRECT_PASS on a local run of the official campaign script; exact-head
+      PB-03 still required.
+    open_item: >-
+      CARD_06 official Oracle receipt is pending (Scryfall/Gatherer unreachable
+      from this runner); provider cross-check recorded in the erratum.
+
+exact_next_action: >-
+  Next XMage residuals: CARD_03 announce_cast/cost-increase, CARD_12
+  delve/look vocabulary, CARD_25 token route, CARD_29 Saga progression, then
+  the stack/causal rows CARD_07/10/13/16/20/22. Then the Forge 29-card lane.

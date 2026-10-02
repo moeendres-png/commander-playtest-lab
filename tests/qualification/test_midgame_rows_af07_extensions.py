@@ -558,3 +558,68 @@ def test_a_token_bound_to_several_checks_needs_every_one() -> None:
     both = mr.bound_token_evidence((cast, cast), {}, TAPE, [])
     assert both is not None and len(both["parts"]) == 2
     assert mr.bound_token_evidence((cast, absent), {}, TAPE, []) is None
+
+
+_DIES = {
+    "trigger": "DiesSourceTriggeredAbility",
+    "effects": ["DamageTargetEffect"],
+    "rule": "When this creature dies, it deals 1 damage to any target.",
+}
+
+
+def _devil(**overrides: Any) -> dict[str, Any]:
+    devil = {
+        "card_identity": "Devil Token",
+        "power": 1,
+        "toughness": 1,
+        "token": True,
+        "keywords": ["haste"],
+        "colors": ["red"],
+        "triggered_abilities": [dict(_DIES)],
+    }
+    devil.update(overrides)
+    return {key: value for key, value in devil.items() if value is not None}
+
+
+def _p1(*battlefield: dict[str, Any]) -> dict[str, Any]:
+    return {"seats": [{"player_id": "P1", "battlefield": list(battlefield)}]}
+
+
+DIES_DAMAGE = ("DiesSourceTriggeredAbility", "DamageTargetEffect")
+
+
+def test_a_triggered_ability_check_reads_the_engine_classes_on_every_permanent() -> None:
+    three = _p1(_devil(), _devil(), _devil())
+    assert mr.check_terminal(_state("triggered_ability", "Devil Token", DIES_DAMAGE), three, [], [])
+    assert mr.check_terminal(_state("token_count", "Devil Token", 3), three, [], [])
+    # Wrong reason: a hasty red 1/1 token without the death trigger.
+    missing = _p1(_devil(), _devil(), _devil(triggered_abilities=None))
+    assert not mr.check_terminal(
+        _state("triggered_ability", "Devil Token", DIES_DAMAGE), missing, [], []
+    )
+    # Wrong reason: the right event with another effect, or the right effect on
+    # another event; the rules text alone never satisfies the check.
+    other_effect = _p1(_devil(triggered_abilities=[dict(_DIES, effects=["GainLifeEffect"])]))
+    other_event = _p1(
+        _devil(triggered_abilities=[dict(_DIES, trigger="EntersBattlefieldTriggeredAbility")])
+    )
+    text_only = _p1(_devil(triggered_abilities=[{"rule": _DIES["rule"]}]))
+    for observation in (other_effect, other_event, text_only):
+        assert not mr.check_terminal(
+            _state("triggered_ability", "Devil Token", DIES_DAMAGE), observation, [], []
+        )
+    assert not mr.check_terminal(
+        _state("triggered_ability", "Grizzly Bears", DIES_DAMAGE), three, [], []
+    )
+
+
+def test_a_token_count_counts_only_engine_tokens_of_the_identity() -> None:
+    assert not mr.check_terminal(
+        _state("token_count", "Devil Token", 3), _p1(_devil(), _devil()), [], []
+    )
+    four = _p1(_devil(), _devil(), _devil(), _devil())
+    assert not mr.check_terminal(_state("token_count", "Devil Token", 3), four, [], [])
+    # A same-named permanent that is not an engine token never stands in for one.
+    card = _p1(_devil(), _devil(), _devil(token=None))
+    assert not mr.check_terminal(_state("token_count", "Devil Token", 3), card, [], [])
+    assert not mr.check_terminal(_state("token_count", "Devil Token", 0), {"seats": []}, [], [])
