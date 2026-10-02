@@ -1,0 +1,39 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-PRIO-3",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "89735aabd886bf07e06f5c9157e93e29fd67290f9e98c0626bbd8fd7fedcc98c",
+    "requested_state_digest": "d16603d115f0d2b396fb317bf4b415764be5be7574269958635b3defbf0493b0",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_postconditions": [
+      "After P2 leaves, priority ring excludes P2 and next eligible live player is selected."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_variance_source": "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared terminal_postconditions; the cause transition is declared by the frozen fixture, not invented by this lane",
+    "checkpoint_verdict": "ALLOWED_VARIANCE",
+    "engine_authored_decision_count": 8,
+    "external_decision_selection_sha256": "cd308b8a20ec610b1044af675c1f5b55f9c669bd3e55d81891b96f3a5cc332e6",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "player_leaves_multiplayer_cleanup",
+    "row_document_sha256": "00ab6dc29294311c6ddbcb3d38209b1aabcdbab9c678f3c1d4d25475e6851bfe",
+    "semantic_events": [
+      "player_leaves:p2"
+    ],
+    "terminal_facts_sha256": "1392a35a171900266ad9bc693a766a5205f75d55416846a4ea349952b4fb3e4d"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "dbf0a57d65e14c3b8c2fd9097b88674773dff56d9c836cf05c9f08aa43409197",
+  "runner_digest": "226faaf2a90c093ebd8242faf47cee964a3b3c089ff26c9ed3e99789758a61aa",
+  "runtime_receipt_digest": "00ab6dc29294311c6ddbcb3d38209b1aabcdbab9c678f3c1d4d25475e6851bfe",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-PRIO-3"
+}

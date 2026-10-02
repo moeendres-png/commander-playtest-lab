@@ -1,0 +1,15 @@
+{
+  "authority": "operational evidence identity, not a qualification verdict: it names which source produced the bytes in this epoch",
+  "created_utc": "2026-10-02T06:46:36+00:00",
+  "epoch_id": "1d8d857e86cb-7dd120b2e765",
+  "epoch_root": "qualification/current-boundary-epochs/1d8d857e86cb-7dd120b2e765",
+  "predecessor_epoch": "qualification/final-current-boundary-20260927",
+  "predecessor_is_read_only": true,
+  "producing_source": {
+    "branch": "hardening/forge-scenario-lane-20261001",
+    "commit": "1d8d857e86cb27a04607458d4f0202b5b8e5e6de",
+    "repository": "https://github.com/moeendres-png/commander-playtest-lab.git",
+    "tree": "7dd120b2e765eaeb9ad6666aca2675111ce99947"
+  },
+  "schema_version": "commander-lab.current-boundary-epoch-identity/1.0.0"
+}

@@ -1,0 +1,777 @@
+{
+ "changed_row_count": 6,
+ "current_epoch": {
+  "canonical_bundle_digest": "eaec10239d908acb7c61ac7aa0492fd652048b3c7e717e9d9c3888c39a17e014",
+  "contract_id": "commander-lab.full107/1.0.15-successor",
+  "counts": {
+   "CONSTRUCTIBLE_NOT_OBSERVABLE": 4,
+   "CREDIT_ELIGIBLE": 9,
+   "UNSUPPORTED_DIMENSION": 94
+  },
+  "denominator": 107,
+  "producing_lab_commit": "3d9d14e3f8979deaea4a96240883eefc12d5c72b"
+ },
+ "old_epoch": {
+  "canonical_bundle_digest": "ad9840b8aa1bf745acd8ea8eae36b347526ca1cf2d8b61de4397991c67b5c498",
+  "contract_id": "commander-lab.full107/1.0.9-successor",
+  "counts": {
+   "CONSTRUCTIBLE_NOT_OBSERVABLE": 4,
+   "CREDIT_ELIGIBLE": 9,
+   "UNSUPPORTED_DIMENSION": 94
+  },
+  "denominator": 107,
+  "producing_lab_commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a"
+ },
+ "rows": [
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "CARD_02",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_01",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_02",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_03",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_04",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_05",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_06",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_07",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_08",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": true,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "unsupported ['knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw'] -> ['action_cost_state', 'decision_execution.priority.semantic_action', 'decision_execution.target.semantic_object', 'knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw']; requested neutral state changed",
+   "fixture_id": "HIDDEN_09",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": true,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "unsupported ['knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw'] -> ['action_cost_state', 'decision_execution.choose_object.semantic_object', 'decision_execution.priority.semantic_action', 'decision_execution.target.semantic_objects', 'decision_execution.target.semantic_player', 'knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw']; requested neutral state changed",
+   "fixture_id": "HIDDEN_10",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_11",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_12",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": true,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "unsupported ['semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw'] -> ['action_cost_state', 'decision_execution.choose_object.semantic_objects', 'decision_execution.pile.pile_label', 'decision_execution.priority.semantic_action', 'decision_execution.target.semantic_player', 'knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw']; requested neutral state changed",
+   "fixture_id": "HIDDEN_13",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": true,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "unsupported ['semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw'] -> ['action_cost_state', 'decision_execution.priority.semantic_action', 'decision_execution.target.semantic_face_down_permanent', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw']; requested neutral state changed",
+   "fixture_id": "HIDDEN_14",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_15",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_16",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": true,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "unsupported ['semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw'] -> ['action_cost_state', 'decision_execution.choose_object.semantic_face_down_permanent', 'decision_execution.choose_use.boolean', 'decision_execution.priority.semantic_action', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw']; requested neutral state changed",
+   "fixture_id": "HIDDEN_17",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": true,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "unsupported ['knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw'] -> ['action_cost_state', 'decision_execution.priority.semantic_action', 'decision_execution.target.semantic_player', 'knowledge_state', 'semantic_objects.face_down', 'temporal_checkpoint.exact_hand_after_draw']; requested neutral state changed",
+   "fixture_id": "HIDDEN_18",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_19",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_COMBAT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CONSTRUCTIBLE_NOT_OBSERVABLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_CONTROL",
+   "old_class": "CONSTRUCTIBLE_NOT_OBSERVABLE"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_COPY",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_COSTS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_LAYERS",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_MODES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_PREVENTION",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_PRIORITY",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_STACK",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_TARGETS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_TRIGGERS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_INTERNAL_AI",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_CHOICE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_CHOOSE_ABILITY",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_CHOOSE_OBJECT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_CHOOSE_USE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_MANA_PAYMENT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_MULLIGAN",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_PILE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_PRIORITY",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_TARGET",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PLAYER_COUNT_2P",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PLAYER_COUNT_3P",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PLAYER_COUNT_4P",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "PLAYER_COUNT_5P",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "RNG_RULES_TAPE",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-MULL-2",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-MULL-4",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-START-2",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-START-3",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-TAX-2",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-TAX-4",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-ELIM-5",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "CONSTRUCTIBLE_NOT_OBSERVABLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "old_class": "CONSTRUCTIBLE_NOT_OBSERVABLE"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "CREDIT_ELIGIBLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "old_class": "CREDIT_ELIGIBLE"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-PRIO-3",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-PRIO-5",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-TRIG-3",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "UNSUPPORTED_DIMENSION",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-TRIG-5",
+   "old_class": "UNSUPPORTED_DIMENSION"
+  },
+  {
+   "changed": false,
+   "current_class": "CONSTRUCTIBLE_NOT_OBSERVABLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-TURN-3",
+   "old_class": "CONSTRUCTIBLE_NOT_OBSERVABLE"
+  },
+  {
+   "changed": false,
+   "current_class": "CONSTRUCTIBLE_NOT_OBSERVABLE",
+   "exact_reason": "no classification or requested-state change",
+   "fixture_id": "WS05-MP-TURN-5",
+   "old_class": "CONSTRUCTIBLE_NOT_OBSERVABLE"
+  }
+ ],
+ "schema_version": "commander-lab.forge-scenario-lane/1.0.0.census-diff"
+}

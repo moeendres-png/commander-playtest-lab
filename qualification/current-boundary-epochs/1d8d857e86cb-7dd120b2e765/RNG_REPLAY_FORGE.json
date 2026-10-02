@@ -1,0 +1,150 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "event_log": {},
+ "harness_injected_outcomes": false,
+ "rules_rng_binding": {
+  "acknowledged_seed": 424242,
+  "acknowledgement_source": "create_commander_game_response",
+  "classification": "ACKNOWLEDGED_ENGINE_SEED",
+  "controlled": true,
+  "requested_seed": 424242,
+  "rng_credit": true,
+  "schema_version": "commander-lab.seed-binding/1.0.0"
+ },
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "adapter_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "bridge_identity": {
+   "actual_bridge_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+   "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+   "bridge_module": "forge-protocol2-bridge",
+   "detail": "the executing checkout's forge-protocol2-bridge module tree is identical to the bound bridge/evidence commit's, so the bridge that executes is the bridge the evidence is about; the Rules Core is bound separately by tree equivalence",
+   "expected_bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+   "expected_bridge_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+   "expected_bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+   "identical": true,
+   "justification": "EXACT_BRIDGE_COMMIT",
+   "recorded_commit_tree": "000066890decca5ed7b1b889be0ea46d77903aee"
+  },
+  "bridge_source_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "bridge_source_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": true,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 6,
+   "min_players": 2,
+   "mode_selection_supported": true,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms, priority concession, and complete attack/block declarations (each whole declaration validated by CombatUtil.validateAttackers/validateBlocks, including multi-block; more than four candidate attackers or blockers fail closed); multi-target/divided, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+    "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": true,
+   "seed_supported": true,
+   "stack_visible": true,
+   "starting_state_injection_supported": true,
+   "target_selection_supported": true,
+   "trigger_order_supported": true
+  },
+  "engine_candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "engine_candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "evidence_epoch": {
+   "epoch_id": "1d8d857e86cb-7dd120b2e765",
+   "epoch_root": "qualification/current-boundary-epochs/1d8d857e86cb-7dd120b2e765",
+   "predecessor_epoch": "qualification/final-current-boundary-20260927",
+   "predecessor_is_read_only": true,
+   "writes_historical_epoch": false
+  },
+  "forge_workspace": "/home/moeen/code/claude-forge-r5-integration-20260930",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "rules_core_identity": {
+   "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+   "compared_module_roots": [
+    "forge-game",
+    "forge-core",
+    "forge-ai",
+    "forge-gui",
+    "forge-gui-desktop",
+    "adventure-editor"
+   ],
+   "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+   "differing_modules": [],
+   "engine_equivalent": true,
+   "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+   "modules": {
+    "adventure-editor": {
+     "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+     "identical": true,
+     "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+    },
+    "forge-ai": {
+     "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+     "identical": true,
+     "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+    },
+    "forge-core": {
+     "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+     "identical": true,
+     "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+    },
+    "forge-game": {
+     "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+     "identical": true,
+     "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+    },
+    "forge-gui": {
+     "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+     "identical": true,
+     "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+    },
+    "forge-gui-desktop": {
+     "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+     "identical": true,
+     "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+    }
+   },
+   "one_sided_modules": [],
+   "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+  },
+  "runner_commit": "1d8d857e86cb27a04607458d4f0202b5b8e5e6de",
+  "runner_tree": "7dd120b2e765eaeb9ad6666aca2675111ce99947",
+  "scenario_injection_supported": true,
+  "seed_supported": true,
+  "starting_state_injection_supported": true
+ },
+ "same_seed_twin": "see comparison packet; twin runs are executed per candidate",
+ "schema_version": "wsr22.rng-replay/1.0.0",
+ "semantic_replay": {
+  "error": [
+   {
+    "code": "unknown_message",
+    "details": {},
+    "message": "export_replay is not supported: deterministic replay is not claimed",
+    "retryable": false
+   }
+  ]
+ }
+}
