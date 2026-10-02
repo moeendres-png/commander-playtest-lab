@@ -14,15 +14,28 @@ reproduced_on_committed_head: >-
   reproduced {UNSUPPORTED_DIMENSION: 7, OBLIGATION_NOT_OBSERVABLE: 3,
   EXECUTED_OBLIGATION_OBSERVED: 6}; the persisted EXECUTION_RECEIPT.json is
   bound to Lab commit ffa0e910.
-observed_origin_main_drift:
-  origin_main_at_final_check: 6ae06efcdd2a894596d4c48d14b32632a6950c60
-  content: >-
-    PR 460 (AF05 M2 batch 2, contract 1.0.10) merged after this lane's evidence
-    epoch; it touches qualification/source_lock.py, the successor contract and
-    SHA manifests. The lane loads the effective materialization at runtime, so a
-    Phase 2 run re-derives automatically; Phase 1 receipts stay bound to
-    a60ee600 / contract 1.0.9 and are not relabelled.
-  foreign_writer_450: OPEN at f76c6cefebe65952d654424c4e59152252cdf2fa (still active)
+phase2_reconciliation:
+  merged_main: 99a5ecd012d5a9c22d700464e41cd18328d94451
+  merge_commit: 3d9d14e3f8979deaea4a96240883eefc12d5c72b
+  merge_tree: 0780e31530aeb8800fc10e441932ff3f6d4aaa8b
+  contract_at_resume: commander-lab.full107/1.0.15-successor
+  canonical_bundle_digest: eaec10239d908acb7c61ac7aa0492fd652048b3c7e717e9d9c3888c39a17e014
+  foreign_writers_terminal:
+    - PR 450 MERGED
+    - PR 452 MERGED
+    - PR 460 MERGED
+    - PR 462 MERGED
+    - PR 468 MERGED
+  rederived_census:
+    counts: {UNSUPPORTED_DIMENSION: 94, CONSTRUCTIBLE_NOT_OBSERVABLE: 4, CREDIT_ELIGIBLE: 9}
+    denominator: 107
+    changed_rows: [HIDDEN_09, HIDDEN_10, HIDDEN_13, HIDDEN_14, HIDDEN_17, HIDDEN_18]
+    changed_rows_reason: AF05 M2 fixture rewrites (action_cost_state and decision_execution blockers replace knowledge/face-down/post-draw blockers)
+  runtime_reproduced:
+    counts: {EXECUTED_OBLIGATION_OBSERVED: 6, OBLIGATION_NOT_OBSERVABLE: 3, UNSUPPORTED_DIMENSION: 7}
+    receipted_rows: [WS05-CMD-DMG-SPLIT, WS05-CMD-PARTNER-DMG, WS05-CMD-PARTNER-ZONE, WS05-MP-ELIM-5, WS05-MP-ELIM-OWNED-3, WS05-MP-ELIM-PRIO-3]
+  impact_adjudication_receipt: docs/forge_scenario_lane_20261001/receipts/PHASE2_IMPACT_ADJUDICATION.json
+  census_diff_receipt: docs/forge_scenario_lane_20261001/receipts/PHASE2_CENSUS_DIFF.json
 
 objective: >-
   Build and qualify the smallest Lab-side Forge current-boundary scenario
@@ -38,16 +51,13 @@ in_scope:
   - fail-before and wrong-reason controls
   - per-row blocker classification
   - dedicated source-bound receipts
+  - integration into the shared current-boundary runner/assembler now that foreign writers are terminal
 
 out_of_scope:
   - Forge Rules-Core modifications
   - Forge bridge modifications
-  - PR 450 owned files while active
-  - PR 452 owned files while active
-  - shared current-boundary runner while foreign writers are active
-  - shared current-boundary assembler while foreign writers are active
-  - successor contract mutation while foreign writers are active
-  - global SHA manifest mutation while foreign writers are active
+  - successor contract mutation
+  - global SHA manifest mutation
   - AF05
   - AF07
   - AF09
@@ -110,7 +120,25 @@ validated_gates:
     evidence: 6 rows EXECUTED_OBLIGATION_OBSERVED (3 EXACT, 3 fixture-declared cause variance)
   - id: FAIL_BEFORE
     state: PASS
-    evidence: shared runner classifies the wave BLOCKED with no scenario seam; tests assert it
+    evidence: shared runner classifies the wave BLOCKED before the producer runs; tests assert it
+  - id: PHASE2_REDERIVE
+    state: PASS
+    evidence: >-
+      census re-derived from current effective materialization (contract
+      1.0.15-successor, digest eaec1023): 94/4/9 reproduced; exact old->current
+      row diff persisted (6 HIDDEN rows changed by AF05 M2 fixture rewrites)
+  - id: PHASE2_IMPACT_ADJUDICATION
+    state: PASS
+    evidence: >-
+      each Phase-1 receipt classified with exact reason; no historical receipt
+      promoted to current credit
+  - id: SHARED_CHAIN_INTEGRATION
+    state: PASS
+    evidence: >-
+      forge_scenario_lane.execute_and_persist wired into the canonical runner
+      after the clean runner identity; canonical positive receipts credited by
+      the canonical assembler; smoke run on pinned engine wrote 6 valid
+      receipts, all credited (3 EXACT, 3 labelled fixture-declared variance)
 failed_gates: []
 invalidated_gates: []
 do_not_rerun: []
@@ -161,7 +189,7 @@ remaining_scope:
   - optional: execute remaining constructible-not-observable rows once owner/attachment/graveyard projection exists
 
 status: ACTIVE
-phase: PHASE1_COMPLETE_PHASE2_GATED
+phase: PHASE2_INTEGRATED_AWAITING_CURRENT_BOUNDARY_EPOCH
 
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
@@ -187,9 +215,25 @@ decisions:
       and fail closed.
   - id: DEC-4
     decision: >-
-      Phase 2 not entered: PR 450 is still open and origin/main advanced to
-      contract 1.0.10 after this epoch's evidence; integration requires a fresh
-      rebind and impact adjudication.
+      SUPERSEDED by the Coordinator resume gate (issue #455 comment 5946447167):
+      PR 450 and all foreign writers are terminal; Phase 2 is entered. The
+      historical statement is preserved as the Phase-1 gate record.
+  - id: DEC-5
+    decision: >-
+      The scenario lane is the Forge-candidate producer on the canonical R-4
+      positive-receipt contract. It is wired into the shared current-boundary
+      runner after the clean runner identity is captured and credited by the
+      canonical assembler; no second assembler, selector, or Rules engine is
+      created. Only an engine-observed obligation writes a receipt; the
+      fixture-declared NATIVE_CAUSE_DECLARED_PLAYER_LOSS variance is labelled
+      per receipt and never relabelled EXACT.
+  - id: DEC-6
+    decision: >-
+      The seven-row wave keeps its blocker classes split explicitly into
+      STATE_CONSTRUCTION_BLOCKER / DECISION_EXECUTION_BLOCKER /
+      OBSERVATION_BLOCKER. Selector improvements in the shared lane do not
+      remove a ScenarioBootstrap state-construction limitation; rows owned by
+      the shared selector surface are not re-implemented here.
 
 execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
@@ -197,8 +241,9 @@ native_variant: max
 variant_resolution: native_max
 
 exact_next_action: >-
-  Phase 2 gate check: confirm PR 450 terminal, fetch origin/main, merge normally
-  into hardening/forge-scenario-lane-20261001, re-derive the capability matrix
-  and structural census against contract 1.0.10 (the lane loads the effective
-  materialization at runtime), impact-adjudicate this epoch's receipts, and only
-  then integrate the producer into the shared current-boundary evidence chain.
+  Phase 2 integration is code-complete and validated by focused tests plus a
+  live smoke run. Next: run the canonical current-boundary qualification at a
+  clean committed head (FORGE_WORKSPACE at the pinned bridge checkout,
+  --candidate all), run the canonical assembler, persist the new epoch, run
+  PB-03 on that exact head, then fresh-context review and PR #464 ready/merge
+  if every gate holds.

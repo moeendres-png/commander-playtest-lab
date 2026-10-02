@@ -1,0 +1,86 @@
+{
+ "schema_version": "commander-lab.forge-scenario-lane/1.0.0.impact-adjudication",
+ "phase1_epoch": {
+  "lab_commit": "ffa0e9107b6e7b946e48f255aada3fa0ed13a24a",
+  "contract_id": "commander-lab.full107/1.0.9-successor",
+  "canonical_bundle_digest": "ad9840b8aa1bf745acd8ea8eae36b347526ca1cf2d8b61de4397991c67b5c498"
+ },
+ "phase2_epoch": {
+  "source_merge_commit": "3d9d14e3f8979deaea4a96240883eefc12d5c72b",
+  "contract_id": "commander-lab.full107/1.0.15-successor",
+  "canonical_bundle_digest": "eaec10239d908acb7c61ac7aa0492fd652048b3c7e717e9d9c3888c39a17e014"
+ },
+ "forge_identity": {
+  "rules_core_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "rules_core_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "scenario_source_sha256": "9ae04d53dba447b6ecb7eee01c28a0f2a73f5bc8172a6547b1921b5b68fc39b1"
+ },
+ "receipts": [
+  {
+   "path": "docs/forge_scenario_lane_20261001/receipts/SCENARIO_CAPABILITY_MATRIX.json",
+   "classification": "UNCHANGED_VALID",
+   "reason": "Derived from the pinned bridge source blob, which is unchanged (20e3e1f7 bridge commit; ScenarioBootstrap blob sha256 9ae04d53dba4). Re-derived this epoch with identical assertions; no capability changed."
+  },
+  {
+   "path": "docs/forge_scenario_lane_20261001/receipts/LIVE_REJECTION_PROBE.json",
+   "classification": "UNCHANGED_VALID",
+   "reason": "Engine identities unchanged; a fresh live probe rejects stack and decision_script injection with game_creation_failed and the same messages."
+  },
+  {
+   "path": "docs/forge_scenario_lane_20261001/receipts/STRUCTURAL_CENSUS.json",
+   "classification": "SUPERSEDED_BY_STRONGER_EVIDENCE",
+   "reason": "Contract advanced 1.0.9 to 1.0.15; the canonical bundle digest changed. Re-derived from current effective materialization: denominator 107, counts 94 UNSUPPORTED / 4 CONSTRUCTIBLE_NOT_OBSERVABLE / 9 CREDIT_ELIGIBLE. Row-level diff: 101 rows identical, 6 HIDDEN rows changed (REQUALIFICATION_REQUIRED). Historical file preserved."
+  },
+  {
+   "path": "docs/forge_scenario_lane_20261001/receipts/EXECUTION_RECEIPT.json",
+   "classification": "REEXECUTION_REQUIRED_THEN_REPLACED",
+   "reason": "All 16 rows were re-executed on merged head at the current effective contract and reproduced the same disposition; the Phase-1 bytes remain historical provenance only. The new epoch's FORGE_SCENARIO_EXECUTIONS.json and canonical positive receipts are the current credit evidence."
+  }
+ ],
+ "rows": {
+  "summaries": {
+   "unchanged_material_inputs": 13,
+   "metadata_only_changes": 3,
+   "semantic_changes": 0,
+   "note": "metadata-only rows: MICRO_COSTS, MICRO_MODES, WS05-CMD-START-2 (materialization_digest/version changed; requested-state digest, obligation digest, decision script and every semantic field identical)."
+  },
+  "runtime_disposition_reproduced": {
+   "EXECUTED_OBLIGATION_OBSERVED": 6,
+   "OBLIGATION_NOT_OBSERVABLE": 3,
+   "UNSUPPORTED_DIMENSION": 7
+  }
+ },
+ "wave_revisit": {
+  "MICRO_COPY": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER"],
+   "blockers": ["stack_state (engine rejects injection)", "semantic_objects.zone:stack"]
+  },
+  "MICRO_COSTS": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER", "OBSERVATION_BLOCKER"],
+   "blockers": ["action_cost_state", "temporal_state.active_player", "decision_execution.priority.semantic_action", "decision_execution.target.semantic_objects", "semantic_objects.controlled_since_turn_began"]
+  },
+  "MICRO_MODES": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER"],
+   "blockers": ["action_cost_state", "temporal_checkpoint.exact_hand_after_draw", "decision_execution.priority.semantic_action", "decision_execution.choose_mode.semantic_mode_key"]
+  },
+  "MICRO_REPLACEMENT": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "OBSERVATION_BLOCKER"],
+   "blockers": ["combat_state", "temporal_state.combat_step", "semantic_objects.controlled_since_turn_began"]
+  },
+  "MICRO_ZONE_CHANGES": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER"],
+   "blockers": ["stack_state (engine rejects injection)", "semantic_objects.zone:stack"]
+  },
+  "WS05-MP-BLOCK-4": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER"],
+   "blockers": ["combat_state", "temporal_state.combat_step", "decision_execution.declare_blocker.blocker_assignment"]
+  },
+  "WS05-MP-COMBAT-4": {
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER", "OBSERVATION_BLOCKER"],
+   "blockers": ["combat_state", "temporal_state.combat_step", "decision_execution.declare_attacker.attacker_assignment", "semantic_objects.controlled_since_turn_began"]
+  },
+  "conclusion": "No blocker was reinterpreted as fixed because selector support improved. Each wave row retains at least one ScenarioBootstrap state-construction or observation blocker on this seam; decision-execution blockers are owned by the shared selector surface and are not re-implemented here."
+ }
+}

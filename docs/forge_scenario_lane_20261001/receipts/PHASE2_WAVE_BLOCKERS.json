@@ -1,0 +1,110 @@
+{
+ "schema_version": "commander-lab.forge-scenario-lane/1.0.0.wave-blockers",
+ "source": {
+  "lab_commit": "3d9d14e3f8979deaea4a96240883eefc12d5c72b",
+  "contract_id": "commander-lab.full107/1.0.15-successor",
+  "canonical_bundle_digest": "eaec10239d908acb7c61ac7aa0492fd652048b3c7e717e9d9c3888c39a17e014",
+  "forge_rules_core_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "forge_bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "scenario_source_sha256": "9ae04d53dba447b6ecb7eee01c28a0f2a73f5bc8172a6547b1921b5b68fc39b1"
+ },
+ "commitment": "The decision-execution blockers are the shared selector surface's obligation, not this lane's. No row was reclassified as fixed merely because selectors improved; every row retains at least one ScenarioBootstrap state-construction or observation blocker.",
+ "rows": [
+  {
+   "fixture_id": "MICRO_COPY",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "stack_state", "detail": "non-empty stack_state requires stack injection, which the bootstrap rejects", "live_probe": "create_commander_game -> game_creation_failed 'scenario must not inject stack'"},
+    {"dimension": "semantic_objects.zone:stack", "detail": "the bootstrap rejects stack injection and has no stack field"}
+   ],
+   "decision_execution_blockers": [],
+   "observation_blockers": []
+  },
+  {
+   "fixture_id": "MICRO_COSTS",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER", "OBSERVATION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "action_cost_state", "detail": "mid-cast cost/payment state has no bootstrap field"},
+    {"dimension": "temporal_state.active_player", "detail": "the bootstrap hook establishes the starting player's first turn; a different active player cannot be constructed"}
+   ],
+   "decision_execution_blockers": [
+    {"dimension": "decision_execution.priority.semantic_action"},
+    {"dimension": "decision_execution.target.semantic_objects"}
+   ],
+   "observation_blockers": [
+    {"dimension": "semantic_objects.controlled_since_turn_began", "detail": "no bootstrap field; attack eligibility is engine-derived"}
+   ],
+   "shared_lane_owner": "midgame_rows.ROWS[MICRO_COSTS] (XMage candidate)"
+  },
+  {
+   "fixture_id": "MICRO_MODES",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "action_cost_state", "detail": "mid-cast cost/payment state has no bootstrap field"},
+    {"dimension": "temporal_checkpoint.exact_hand_after_draw", "detail": "the requested explicit hand must survive the natural first-turn draw step; the bootstrap cannot hold library order or suppress the draw"}
+   ],
+   "decision_execution_blockers": [
+    {"dimension": "decision_execution.priority.semantic_action"},
+    {"dimension": "decision_execution.choose_mode.semantic_mode_key"}
+   ],
+   "observation_blockers": [],
+   "shared_lane_owner": "midgame_rows.ROWS[MICRO_MODES] (XMage candidate)"
+  },
+  {
+   "fixture_id": "MICRO_REPLACEMENT",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "OBSERVATION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "combat_state", "detail": "combat declaration state has no bootstrap field"},
+    {"dimension": "temporal_state.combat_step", "detail": "the requested combat step is unreachable from the bootstrap checkpoint: no combat-state field and bootstrap-placed attackers are summoning-sick on their first turn"}
+   ],
+   "decision_execution_blockers": [],
+   "observation_blockers": [
+    {"dimension": "semantic_objects.controlled_since_turn_began", "detail": "no bootstrap field; attack eligibility is engine-derived"}
+   ]
+  },
+  {
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "stack_state", "detail": "non-empty stack_state requires stack injection, which the bootstrap rejects", "live_probe": "create_commander_game -> game_creation_failed 'scenario must not inject stack'"},
+    {"dimension": "semantic_objects.zone:stack", "detail": "the bootstrap rejects stack injection and has no stack field"}
+   ],
+   "decision_execution_blockers": [],
+   "observation_blockers": []
+  },
+  {
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "combat_state", "detail": "combat declaration state has no bootstrap field"},
+    {"dimension": "temporal_state.combat_step", "detail": "the requested combat step is unreachable from the bootstrap checkpoint"}
+   ],
+   "decision_execution_blockers": [
+    {"dimension": "decision_execution.declare_blocker.blocker_assignment"}
+   ],
+   "observation_blockers": []
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "classification": "UNSUPPORTED_DIMENSION",
+   "classes": ["STATE_CONSTRUCTION_BLOCKER", "DECISION_EXECUTION_BLOCKER", "OBSERVATION_BLOCKER"],
+   "state_construction_blockers": [
+    {"dimension": "combat_state", "detail": "combat declaration state has no bootstrap field"},
+    {"dimension": "temporal_state.combat_step", "detail": "the requested combat step is unreachable from the bootstrap checkpoint"}
+   ],
+   "decision_execution_blockers": [
+    {"dimension": "decision_execution.declare_attacker.attacker_assignment"}
+   ],
+   "observation_blockers": [
+    {"dimension": "semantic_objects.controlled_since_turn_began", "detail": "no bootstrap field; attack eligibility is engine-derived"}
+   ],
+   "shared_lane_owner": "midgame_rows.ROWS[WS05-MP-COMBAT-4] (XMage candidate)"
+  }
+ ]
+}
