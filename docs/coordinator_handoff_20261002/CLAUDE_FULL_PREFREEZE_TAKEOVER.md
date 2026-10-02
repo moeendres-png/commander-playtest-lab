@@ -380,10 +380,10 @@ SUCCESS:
 - XMage Real 4P Technical Smoke `37001349036`
 - Core Workflow Acceptance `37001349001`
 - CI `37001349022`
-
-Still in progress at the last refresh:
-- PB-03 `37001349038`
 - XMage Full Game Conformance `37001348992`
+
+Still in progress at the final persistence refresh:
+- PB-03 `37001349038`
 - H4 Docker Materialization `37001349095`
 
 No submitted reviews or review threads were present.
@@ -1058,10 +1058,10 @@ Do not start with a broad inventory.
 
 1. Fresh-fetch Lab main.
 2. Fresh-fetch PR #473 and exact head.
-3. Poll exact-head runs:
+3. Poll the remaining exact-head runs:
    - PB-03 `37001349038`
-   - XMage Full Game Conformance `37001348992`
    - H4 Docker Materialization `37001349095`
+   XMage Full Game Conformance `37001348992` was already SUCCESS at the final persistence refresh.
 4. If the PR head moved, bind to the new head and do not reuse old runs as exact-head proof.
 5. If all required exact-head workflows are green, inspect the PB-03 artifact and HIDDEN_06/HIDDEN_11/HIDDEN_12 receipts before any write.
 6. Complete/merge #473 if all gates hold.
