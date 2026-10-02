@@ -495,7 +495,11 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
             capture.script_trace = run_script(
                 client,
                 record,
-                snapshot_before_action=snapshot_before_action,
+                snapshot_before_action=(
+                    snapshot_before_action
+                    if record.get("fixture_id") == "HIDDEN_11"
+                    else None
+                ),
             )
             capture.script_complete = True
         except ml.MidgameLaneError as exc:
