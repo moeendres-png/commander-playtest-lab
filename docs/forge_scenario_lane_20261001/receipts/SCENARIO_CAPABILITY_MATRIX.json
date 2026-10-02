@@ -1,0 +1,207 @@
+{
+ "hook": {
+  "hook_apply": {
+   "assertions": [
+    "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
+    "ScenarioBootstrap.apply(self, capturedGame, capturedPlan);"
+   ],
+   "status": "PRESENT"
+  },
+  "hook_placement": {
+   "assertions": [
+    "capturedMatch.startGame(capturedGame, () -> {"
+   ],
+   "status": "PRESENT"
+  },
+  "hook_plan_set_once_at_creation": {
+   "assertions": [
+    "public synchronized void setScenarioPlan(ScenarioBootstrap.Plan plan)"
+   ],
+   "status": "PRESENT"
+  }
+ },
+ "note": "capability matrix derived from the exact pinned bridge source blob; a source change that removes any asserted fragment raises ScenarioCapabilityDrift and no row credit can be produced until the matrix is re-derived and reviewed",
+ "rejected": {
+  "decision_script": {
+   "assertion": "scenario must not inject decisions",
+   "enforced_at": "ScenarioBootstrap.parse -> BridgeEngine create_commander_game",
+   "engine_error_code": "game_creation_failed",
+   "status": "UNSUPPORTED"
+  },
+  "stack": {
+   "assertion": "scenario must not inject stack",
+   "enforced_at": "ScenarioBootstrap.parse -> BridgeEngine create_commander_game",
+   "engine_error_code": "game_creation_failed",
+   "status": "UNSUPPORTED"
+  }
+ },
+ "schema_version": "commander-lab.forge-scenario-lane/1.0.0.capability-matrix",
+ "source": {
+  "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "scenario_source_path": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+  "scenario_source_sha256": "9ae04d53dba447b6ecb7eee01c28a0f2a73f5bc8172a6547b1921b5b68fc39b1",
+  "session_source_path": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeSession.java",
+  "session_source_sha256": "404c034af7fb8f8a190149cc33d5efdbf424571de880310b3a848240e1f999fe"
+ },
+ "source_identity": {
+  "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "actual_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "bridge_identity": {
+   "actual_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+   "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+   "bridge_commit_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+   "bridge_module": "forge-protocol2-bridge",
+   "expected_module_tree": "b1dbfc3decbdcf0ff1a3cf52a64dbe5f1787586a",
+   "identical": true
+  },
+  "bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "rules_core_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "rules_core_identity": {
+   "actual_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+   "compared_module_roots": [
+    "forge-game",
+    "forge-core",
+    "forge-ai",
+    "forge-gui",
+    "forge-gui-desktop",
+    "adventure-editor"
+   ],
+   "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+   "differing_modules": [],
+   "engine_equivalent": true,
+   "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+   "modules": {
+    "adventure-editor": {
+     "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+     "identical": true,
+     "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+    },
+    "forge-ai": {
+     "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+     "identical": true,
+     "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+    },
+    "forge-core": {
+     "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+     "identical": true,
+     "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+    },
+    "forge-game": {
+     "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+     "identical": true,
+     "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+    },
+    "forge-gui": {
+     "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+     "identical": true,
+     "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+    },
+    "forge-gui-desktop": {
+     "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+     "identical": true,
+     "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+    }
+   },
+   "one_sided_modules": [],
+   "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+  },
+  "rules_core_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "scenario_source_path": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+  "scenario_source_sha256": "9ae04d53dba447b6ecb7eee01c28a0f2a73f5bc8172a6547b1921b5b68fc39b1",
+  "session_source_sha256": "404c034af7fb8f8a190149cc33d5efdbf424571de880310b3a848240e1f999fe",
+  "workspace": "/home/moeen/code/claude-forge-r5-integration-20260930"
+ },
+ "supported": {
+  "battlefield": {
+   "assertions": [
+    "neutral.has(\"battlefield\")",
+    "optString(entry, \"card\", \"\")",
+    "battlefield entry missing controller",
+    "takeCommander(owner, placement.cardName)",
+    "takeFromLibrary(owner, placement.cardName)",
+    "Card.fromPaperCard(paper, owner)"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "battlefield.attached_to": {
+   "assertions": [
+    "entry.has(\"attached_to\")",
+    "attach host not on battlefield: ",
+    "aura.attachToEntity(host, null)"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "battlefield.counters": {
+   "assertions": [
+    "entry.has(\"counters\")",
+    "counters must be an object",
+    "counter amounts must be integers",
+    "CounterEnumType.valueOf(counter.getKey())"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "battlefield.tapped": {
+   "assertions": [
+    "entry.has(\"tapped\")",
+    "tapped must be a boolean"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "commander_damage": {
+   "assertions": [
+    "\"commander_damage_taken\"",
+    "scenario_commander_damage"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "continuous_effects_present_informational_only": {
+   "assertions": [
+    "continuous_effects_present"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "hands": {
+   "assertions": [
+    "neutral.has(\"hands\")",
+    "scenario_placed_hand"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  },
+  "life": {
+   "assertions": [
+    "neutral.has(\"life\")",
+    "scenario_set_life"
+   ],
+   "evidence": "exact code fragment present in the pinned bridge source blob",
+   "status": "SUPPORTED"
+  }
+ },
+ "unobservable_record_dimensions": {
+  "attachments": "the generic readback exposes no attachment relation",
+  "controlled_since_turn_began": "no bootstrap field; attack eligibility is engine-derived",
+  "exile": "exile is exposed as names only, with no semantic identity mapping",
+  "face_down": "face-down state has no bootstrap field and no generic projection",
+  "graveyard": "graveyard is exposed as names only, with no semantic identity mapping",
+  "library": "library contents/order are never exposed; only library_size",
+  "owner": "the generic readback exposes controller rows, not card owner",
+  "prior_command_zone_cast_count": "no bootstrap field for command-zone cast counts",
+  "revealed": "revealed zones have no generic projection",
+  "temporal_state": "the bootstrap hook runs at the first-turn untap; other checkpoints are reachable only by native progression"
+ },
+ "unsupported_record_dimensions": {
+  "action_cost_state": "mid-cast cost/payment state has no bootstrap field",
+  "combat_state": "combat declaration state has no bootstrap field",
+  "knowledge_state": "knowledge permissions have no bootstrap field",
+  "rules_randomness.predetermined_semantic_draws": "predetermined draws have no bootstrap field",
+  "stack_state": "non-empty stack_state requires stack injection, which the bootstrap rejects"
+ }
+}
