@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.618,
+  "elapsed_s": 8.948,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "ec45404179d743e539c0bf9c9e8ef8084ff82dd37289b04557677ceac4c6a768",
+        "decision_id": "759bb5a6a262da5ae487f78c5cf3fb660eb2bf1eac71cbfed705beba1e8b23df",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -41,10 +41,10 @@
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
         "selected_option_ids": [
-          "660e20d66e6f15114c26ad092fb5443eac77b2c91e0dda5dc95c4294c3e7e5b8"
+          "a852bfbc34e8955df9ebb22a294fe414af55ce6cb290e899c6dcfbabb3c2f8cd"
         ],
         "selected_option_type": null,
-        "selected_source_object": "59390086-218c-481e-a3e1-e359ee4a9d66"
+        "selected_source_object": "6ad5ab4e-2310-4639-82c0-95ea1594181a"
       },
       {
         "context": {
@@ -55,7 +55,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "d493cc189e5cce71e856011d939997bdd01686b8e773e8c4b1329146392cbe98",
+        "decision_id": "0072d4d6a5cd5693737578342035c9d8d91838e75ff4cbbf54da6e9a69ede55d",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -68,6 +68,226 @@
         "prompt": "Select any target",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Full Game Seat 2",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "8494ba020983ee29b0dbf88c7d5238d3536d9b5d0be3595f5df1674f727a10d6",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='6ad5ab4e-2310-4639-82c0-95ea1594181a'>Lightning Bolt</font> [6ad]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "05a64498d4378034981bd2035ff7924363c65570858db3ca3cfcc7cc734eb043"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "8a25ad6b3a9d55807f0b7117c486e52ef301f46806eb416615abd5d0e756399c",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='6ad5ab4e-2310-4639-82c0-95ea1594181a'>Lightning Bolt</font> [6ad]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "trigger_order",
+        "decision_id": "2dedf69b0722252c347276a528b0fbfea776328405ed1a50c574ba485f27bce0",
+        "numeric": null,
+        "offered_labels": [
+          "Veyran, Voice of Duality \u2014 <i>Magecraft</i> &mdash; Whenever you cast or copy an instant or sorcery spell, {this} gets +1/+1 until end of turn.",
+          "Veyran, Voice of Duality \u2014 <i>Magecraft</i> &mdash; Whenever you cast or copy an instant or sorcery spell, {this} gets +1/+1 until end of turn."
+        ],
+        "principal": "P1",
+        "prompt": "Choose next triggered ability",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "trigger:Veyran,_Voice_of_Duality",
+        "selected_label": "Veyran, Voice of Duality \u2014 <i>Magecraft</i> &mdash; Whenever you cast or copy an instant or sorcery spell, {this} gets +1/+1 until end of turn.",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": "2d052b87-24c9-43d4-9f40-ed14c55ed7e5"
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "46e9bf48a63524bdf925b41373e574b36bd2d5a59fe133fbddd93c05e98ac7b7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "c4faf4ab1f76e6434afc3df3a2f023838dcafaa626a5f08d19cc712169cfda15",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "fa282bd4e4ce7633dcea07777e19d261d97aa8a6fa0dbda5f2b92b66381fb4de",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "5deb02b6d2cdacee9a0b839587159298ece60c80c573c720c1f46c6cdfdfad6f",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "a662829d71e4b7336597b2e9238605c3c2aaf6234140fc8560254aa17571198c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "98f0becd911af13032542d53393bccc0db377d2ef64291e85a855af514f7ec94",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "327c180c20f0ac936cdbe43b0762c0afee0cf01f5cb3d8c7ffebd50f5ca09b64",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "22cc58a73e795d8442be411b1cb570ffb5066f40a100fc21ef87e774b73a2aad",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
@@ -76,13 +296,9 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted target for P1: the row stops unverified",
+    "detail": "obligation observed",
     "fixture_id": "CARD_05",
-    "missing_tokens": [
-      "instant_cast",
-      "Veyran_magecraft_trigger",
-      "Veyran_additional_trigger"
-    ],
+    "missing_tokens": [],
     "refusals": [],
     "tape": [
       {
@@ -100,11 +316,73 @@
         "to": "STACK",
         "turn": 1,
         "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Lightning Bolt",
+        "source_object": "obj:card05-bolt",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Lightning Bolt",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Veyran, Voice of Duality",
+        "source_object": "obj:card_05-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (<i>Magecraft</i> &mdash; Whenever you cast or copy an instant or sorcery spell, {this} gets +1/+1 until end of turn.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Veyran, Voice of Duality",
+        "source_object": "obj:card_05-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (<i>Magecraft</i> &mdash; Whenever you cast or copy an instant or sorcery spell, {this} gets +1/+1 until end of turn.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
       }
     ],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "terminal_facts": {
+      "every Veyran, Voice of Duality on P1's battlefield is 4/4": true
+    },
+    "token_evidence": {
+      "Veyran_additional_trigger": {
+        "binding": "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card_05-subject",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "Veyran_magecraft_trigger": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_05-subject, target_name~=stack ability (<i>Magecraft</i>",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "instant_cast": {
+        "binding": "at least one SPELL_CAST event(s) with source_object=obj:card05-bolt",
+        "events": [
+          8
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_05",
   "phase": "EXECUTED",

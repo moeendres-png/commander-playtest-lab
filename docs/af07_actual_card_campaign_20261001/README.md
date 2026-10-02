@@ -266,3 +266,67 @@ outside the denominator still need the Coordinator's credit route.
    route, not a load.
 4. **Coordinator.** Decide the AF07 credit route for CARD rows outside the 107-row
    denominator. Changing the denominator is a Coordinator gate.
+
+## Phase 2b: decision-script errata, executor and plan vocabulary
+
+### Fixture errata (contract 1.0.13)
+
+The new class `ACTUAL_CARD_DECISION_SCRIPT_ERRATUM` applies to rows outside the
+denominator, with the obligation digests unchanged. Each erratum adds, reorders
+or retypes only the steps that answer a discretionary decision the Rules Core
+itself asks. The probe of each row showed which decision that was.
+
+| Row | Defect | Correction |
+|---|---|---|
+| CARD_01 | The Bolt's target was unscripted. | P2 targets P3. Targeting Ishai would kill the observed permanent. |
+| CARD_04 | Bruse Tarl's own attack trigger was unscripted. The record also had a P2 block step the engine never offers, because P2 has no creature. | The trigger targets Kediss, which does not attack. Targeting Bruse Tarl would give double strike and change the obligated 3 damage. The block step is dropped. |
+| CARD_05 | The Bolt target and the order of two identical magecraft instances were unscripted. | Target P2. The order step lists the ability once per instance. |
+| CARD_09 | "Tap two target permanents" was scripted as an untargeted object set. | It is now scripted as the targeted multi-select it is (CR 601.2c). The 1.0.12 lossless-library overlay is carried inside the erratum. |
+| CARD_18 | The trigger order is asked before the destroy target (CR 603.3b/d). The abilities were named by free text. | The steps follow the engine's order. Each trigger is named by its source plus a fragment of its rules text. The stack order is unchanged. |
+| CARD_23 | Targets were folded into the cast actions, and the Bolt could be cast while Mannequin was still on the stack. | Explicit target steps. The Bolt carries `timing: empty_stack`. |
+| CARD_26 | The note says P1 casts Burn Down the House, but the script held only the mode, and no payment was declared. | Cast step plus the five placed Mountains as explicit payment. |
+
+### Executor (`midgame_rows.py`)
+
+- **Ambiguous casts.** When the engine offers several casts of one card (normal and overload, an adventure, a split half), the row now fails closed unless the record names the alternative cost. The old path took the first spell offer, a hidden first-option pick. A named cost matches the engine's own alternative offer or its later cost choice ("Cast with Evoke alternative cost").
+- **Timing.** `timing: empty_stack` makes a scripted cast start its own event. It passes priority until the stack has resolved. Steps without a timing behave as before.
+- **Trigger order.** Identical instances of one ability of one source are accepted only when the record lists them once per instance. `trigger:<source>|<text>` names one of several abilities of one source. Every other ambiguity fails closed.
+- **Token bindings.** An obligation plan binds each free-text record token, per fixture, to an explicit check:
+  - an engine event pattern (exact fields, name prefix, exact or minimum count);
+  - a scripted engine-offer label;
+  - an engine-observed permanent state.
+
+  An unbound unknown token stays unobserved.
+- **New terminal checks:**
+  - `events`, `selected_frame`, `no_frame`;
+  - `not_on_battlefield` (needs the observed seat);
+  - `power_toughness`, `counters`, `keyword`, `colors`, each holding for every permanent of the identity.
+
+### Lab adapter readback
+
+Battlefield permanents now read back their counters, evergreen keywords and colors. Each field appears only when present, so other permanents read back unchanged. A Java test (`XmageCheckpointStateRestorationTest`) covers this.
+
+### Result: 29-row run on `814234ea` (clean tree, XMage `37e4df6c`)
+
+Matrix digest `ff525d5265739e1180222b5b1c4d7b16ef654975eefc1659081285bdfa0422cd`.
+
+| Outcome | Rows |
+|---|---|
+| DIRECT_PASS (10) | CARD_01, 02, 04, 05, 09, 14, 17, 18, 23, 24 |
+| FIXTURE_DEFECT (1) | CARD_06 (see below) |
+| HARNESS_DEFECT (10) | CARD_03, 08, 11, 13, 15, 19, 20, 21, 27, 28: executor actions (`announce_cast`, `cast_fused`, `activate`, `activate_mana`, `cast_split_half`), combat arrival, causal entries |
+| PROVIDER_ADAPTER_DEFECT (5) | CARD_07, 16, 22 (stack spells); CARD_10 (commander spell on the stack); CARD_25 (token object) |
+| UNKNOWN (3) | CARD_12, CARD_29 (token vocabulary and plan); CARD_26 (see below) |
+
+Every DIRECT_PASS holds a runner-bound positive receipt in `artifacts/receipts/positive/`.
+
+**CARD_06: the obligation conflicts with the card (Coordinator question).**
+- The postcondition is "exactly two Docent of Perfection trigger instances". Harmonic Prodigy doubles triggered abilities of Shamans and other Wizards. Docent of Perfection is an Insect Horror, so its trigger is not doubled.
+- The engine correctly puts one Docent trigger and one Prodigy prowess trigger on the stack.
+- Scripting this row would demonstrate the obligation false, not prove it. A fixture whose doubled trigger belongs to a Wizard (for example Talrand, Sky Summoner) changes the obligation text, so it needs a Coordinator decision.
+
+**CARD_26: one postcondition fact is not observable.**
+- The cast, the Devil mode, the three red 1/1 Devil tokens and their haste all execute.
+- "each with printed death trigger" names an ability the readback does not expose, so no plan is onboarded and the row earns no credit.
+
+AF07 stays **UNKNOWN**. 19 identities are not directly proven, and the CARD rows outside the denominator still need the Coordinator's credit route (#453).

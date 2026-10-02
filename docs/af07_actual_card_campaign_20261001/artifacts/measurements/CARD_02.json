@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.769,
+  "elapsed_s": 7.988,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "874f79544787a16cb0f6a31c943cbcad978076f6e91d6c04294104a90154500e",
+        "decision_id": "f764f3d5f98fe565f6a550ee5245d6dae1cf50c2676377e3f33ea72f552bd88b",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -39,15 +39,15 @@
         "selected_key": null,
         "selected_label": "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
         "selected_option_ids": [
-          "8c24d5ae68ddf0b97330a6560cdfd28da3c05784e8f0d8b1d5dfa66f88f7ac1a"
+          "d8b181d5a7fe9a447f3c72493d050fc87f7104b1deb3ee24fb5ec83c842e54af"
         ],
         "selected_option_type": null,
-        "selected_source_object": "d53d017a-23a6-464c-b2b6-d0650626eece"
+        "selected_source_object": "5f6f03e6-033b-4be1-a052-a384a8cb2892"
       },
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "728ee132590be0d64a2593d78448ba7f1848e683a49336726d1d5237bd02d62b",
+        "decision_id": "14ce6e17b136833076dcfd1832e69d349a7224f2a315281d07263178dc302d33",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -66,7 +66,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6b15f0a2b1a846069939ea6dd876d72ccd427d7433c3d0d0da69839bf4ddbd27",
+        "decision_id": "fe6d8a3f84b77da8351d87a983b66be2763d67c26e0326e3b30cd55efa853f04",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -85,7 +85,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "09b6cd6ed15049423d5bd50934aa49d2b3645db3dc2693ef0e9a981a12685fbd",
+        "decision_id": "4d8c85441770167497c0a9bef35351d2a681855e6db6804f14cff88798123fdd",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -104,7 +104,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "101852b302af7d763849c3a475bab5744ba61d8244b060c71ed4c588b5e05b12",
+        "decision_id": "41951b8f3523b382b54e8371cb17c1cbca0b22c43d85bf46c696fefddafaa420",
         "numeric": null,
         "offered_labels": [
           "Pass priority"

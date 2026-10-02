@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.395,
+  "elapsed_s": 8.67,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "de84feb455cf43eef2b75e11d979577ee5d8fa1b6ae0066df277fbcbf3a56614",
+        "decision_id": "4dd011a7dbfe2b8e6f05887f137b32e52769878814816b20b32a0c898c8edc63",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -63,7 +63,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "bef1a6cb4c068cb6bb2561d358cf471b9420a8e4a770a21c94e747abed14e5d8",
+        "decision_id": "2800dde18ba848e84c1886204b5f5cafc7dd56bb797fe91b91e37638f7651d8a",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -82,7 +82,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "ec622f151e76436e9bb5ad30cc05656b624f728db2b7fb58cca304dacd1bc0b9",
+        "decision_id": "7e376f8d08e481982aac76df270cf5b0c22a7d883e6e1027155e0ab934b7e220",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -101,7 +101,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "532b2a0cac84de2e8f82cf5af3d4913eae5193b3ef5020b5fbdae6c111619ff7",
+        "decision_id": "ed16ad6d131fd4960b585d14eb920048fafffe177c58925259b9fbb935c19f84",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -120,7 +120,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "9b7e7b0caa03990effe21141c43e4fada4f1150d9bb9ba5abeb8c6d6b99d69f0",
+        "decision_id": "dd136ebecfae0436baa8e82303b5a1ae5721a7078bf1cdb3202a53231273be15",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -151,7 +151,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "3f3464da120977528e3155727d77abf8bbf67267743fa3171088eef31ecfd2f9",
+        "decision_id": "04eaeab6a59755547d0f1e47372665e78054e1d9e9f8ec6e40deb62d84bd89f1",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -170,7 +170,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "50eeb4aa35d424b384b6bf4e66e39f453308c1c9683737da0dc5c512a9a5533d",
+        "decision_id": "db6b88f7ff08cfe40e9d2f5902ae1ef6ed64dd73be3b5587bda9b394b2f1c312",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -189,7 +189,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "965088460620a2d42b4485c2c238e437c3893cee529f5341b6c5493c41559e1e",
+        "decision_id": "03eeb29f4000eb1330c6fa0477c874487887c8286f70d46db83c2cbe017a06b4",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -208,7 +208,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "57f99b1d1873036f0a5dc60345881ba3dfe75347df28fe4448c6d7edb1fef96d",
+        "decision_id": "5e03b0fa4c690e266e48839df64926ec20a5e8c09c475298c4dcc670cca37373",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -239,7 +239,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "9d21c75b1bb9c81f0d7e8470c875476d48f7ce0af207b45b5483fe15ca58ed62",
+        "decision_id": "23a19f7f9b8e63d51f5412c55c6d6f752ea9a7baca27aa12dbc674b132c7ab4b",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -258,7 +258,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6046f13cc447193f1f11063cf2eb32275e4640abd92d995ada6da14a0d9838c8",
+        "decision_id": "7284dcdb851122deccfed43e5548c6976f356c1de7ca841500dc645548f0f2f3",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -277,7 +277,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "a056c08f5631753dfe5531b054e2967acf7a7f89be4e7d72ff35bd6ef2f85188",
+        "decision_id": "c4d90ae10acf4877532aa978b96725ee010b967188cd90b665fbdd045c1e12ae",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -296,7 +296,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "b7668e784025201902da8d0b19aac31a8c8fdd50a3c588ba07213e3dc4d00e6c",
+        "decision_id": "cc97a793c0dfd992d434883f9e23bd03195f7b4e1dde5f16e217cca90342b767",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -327,7 +327,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "22dc0917c30077cccac5ceb4b31250a2786b682e0287aedb0612c127608bab90",
+        "decision_id": "18195887fd9f2a41fb36b8f3c1c614b599db0ad85fbab56f836e4eb11f4d02cf",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -346,7 +346,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "97706c861f74a4d82aab9796cd1486389ed9fa693630f4c2817eee4cb14acddc",
+        "decision_id": "881b3ff16b87b9bfca8dff262eb4f74f357b1e1ddd6beeae445a92f49165f9e0",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -365,7 +365,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "aa369b3faf48cb491e875525e639b3713c262adb00c3b469fdd3941e92fa926f",
+        "decision_id": "04bf837b988f6736ff39f78e1efc31ee109e5ab7f6415b82298e7f015fe2952f",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -384,7 +384,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "f6488183dc6cc4bcc03e32f71800602afa402bb6eaa13d15f5d99b87f1ef5ff8",
+        "decision_id": "c233da19793c26257c3ad82fd0ff90987f681937ff7b438fb6f8d44a16737756",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -425,7 +425,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "c7dfbd92f31e7124353f798bad4bf4e36f427aab789b0c526253570ec9c555ea",
+        "decision_id": "a4021cf5362bbde2508a00e26c1feada53a37aaa6b3196a4ff194d935edf12eb",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -444,7 +444,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "e5f932b359901d255c349189aac7c43a4463f702def5fe6686bfd1a73c0de5d5",
+        "decision_id": "b378bda05412b87ccbb91cf291aa9cea664d030ae46d9f29af0af59862f3f7aa",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -463,7 +463,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1be2b2d99291a9f7fddc8dac8008f48405784f79b9595336a695857c88c9e5c5",
+        "decision_id": "aaf302ee995ba6102096372a663e39f52b04e19fa50cc86171fba027927ee023",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -482,7 +482,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6ec045ce0e2e6562eb3ea2ace8084566fcfd0ba6aabf73a76a05e8f420bc65f3",
+        "decision_id": "6122dc6c632b1c03e5d3c85355a4182544a8d6d6cacc60421aaf65d61b3e7035",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -513,7 +513,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1e39b38a2dd8f9180377b82eb76b8bcf196afda0d29b75a0cc1424225da226b8",
+        "decision_id": "0e56f61a6f536d97756a187839780186e26a38c7ae8d4fd01cbe55d0812507ec",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -532,7 +532,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "ace38c495a8fcc93da1e12fad13d5dd9997428bf6e54be2e25ef11cdf9cfc4b4",
+        "decision_id": "474f3f4ec42d28a80f6132c45535513e5281da2cf53fe916042e92368c66e12f",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -551,7 +551,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "2d09a451fac74aeadf310dec088f1e5f942b524aa414f5390f8e9a494251565a",
+        "decision_id": "9a0ed9ea7b040e5ac6659b89f1d1521fabac35f0ba5e8c7380aa044369106d8f",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -576,7 +576,7 @@
           "targeted": false
         },
         "decision_class": "choose_object",
-        "decision_id": "4c548562980878f5570d5c924fb162b739f1b112285062053fbeb5bbf8bea072",
+        "decision_id": "f55e16dae3da7cfe92970022d2e7d3e7b1842d788f79ea7a1efd878416486886",
         "numeric": null,
         "offered_labels": [
           "Mountain",

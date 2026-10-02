@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "ALLOWED_VARIANCE",
   "creation_errors": [],
-  "elapsed_s": 7.688,
+  "elapsed_s": 8.898,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "declare_attacker",
-        "decision_id": "d3f423efaee194e3956fa03cab07e591ab118f3d912340bd17ae7f978b3384f8",
+        "decision_id": "80553e3505cd170279993c7300cb0a37afcb490156d7778531c1ad8a83035167",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Bruse Tarl, Boorish Herder",
@@ -33,7 +33,7 @@
         "selected_key": null,
         "selected_label": "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
         "selected_option_ids": [
-          "5fe908b68ea39bcfd99493059d0a62238b893b113cc1a33f07843316082a4670"
+          "53a9b2778b8db83e7e2aa98e43dab040027bf024b7529a6f642554c4b3abec62"
         ],
         "selected_option_type": null,
         "selected_source_object": null
@@ -41,7 +41,7 @@
       {
         "context": {},
         "decision_class": "declare_attacker",
-        "decision_id": "e5928a11ea85624f6c1704f53805a373bbcc07c7c1961800888e12c6448675ea",
+        "decision_id": "1180792e9ef79f1bed05e357409211bdba707e0b244ec03796be7eee1dd234d2",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Kediss, Emberclaw Familiar",
@@ -57,7 +57,7 @@
         "selected_key": null,
         "selected_label": "Do not attack with Kediss, Emberclaw Familiar",
         "selected_option_ids": [
-          "867347127500e729d155042dbc90f200d5ba9ab4d4695da31564e91e56662134"
+          "294ad39cc5f50483ae7f67dbde3f63b96ed8e7121d64991d62b8374d461e4334"
         ],
         "selected_option_type": null,
         "selected_source_object": null
@@ -71,7 +71,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "218ca471f259ad794a94e40a368a6318908aa6b695bfe4000fad2a64a99193db",
+        "decision_id": "6cb84df1ee8c5fd92e4c2a92f1b78afa614c890de9a2d1901ce2354b6d0f13b0",
         "numeric": null,
         "offered_labels": [
           "Bruse Tarl, Boorish Herder",
@@ -79,6 +79,310 @@
         ],
         "principal": "P1",
         "prompt": "Select a creature you control",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Kediss, Emberclaw Familiar",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "be36256a70931cfaa01037530a8f123363b17997e669a8ec9bc63f822e701488",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6e9d88e9ac9e5f34cf76954c980f97b18fd5e6e7e801248fe447b73577098575",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "1caba4a7f5338559363199cb8e26c04750632576e66b741f6a4e7bb83dbc23ff",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "476001f64fdf6990281ec4526d93a228e25beebbfff9cdc79ef0b68398b5988b",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6fc9bb36bdff13008897c8d19201b5147f947e1794298c35d8d03146252f65c6",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "52de263de3645af4904654296a1f17799d4808d6d903f478ff6d54d85b2b8a34",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "8481de1d9397eea655278a7c369418c285c8c7be65842a3dec6ccf5c9e907bb7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b03e6c238b8686a8cc67bf2a7e7f885aa3c961b4f7cbc143280c8849605e0bca",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "57c16090070213f9f4cdb9aad4fba40841952db5be931a24bc2bebfc03e2187d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "321f987659e63558044770e1f15381204fbabe5cfe8290007d1debefa5a31a16",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f7689417638eef63e22e927a28759d745cac034722c3a639ede6626662ff0a8d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "478855d2599f3aafc509c0df46cf54c828556473bab0ee453636fa471c25ea84",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "222a260a2e24bf582325f059a48ca7ad1ed02597d20d67c461d5a1c888c62be4",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "80c1cbf29df1a6ba867b0eb193a862ef925889280bce6db605cc353513d9fb13",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "a8166969f41e9d91d0d53b4e09470d2ca0f93d3fe710be6650678b62cb56e1c7",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "2fbd9a3e80de82fdc7b3dbd997cd1ce806eb400f19037073d0cf69148baac998",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -89,14 +393,9 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted target for P1: the row stops unverified",
+    "detail": "obligation observed",
     "fixture_id": "CARD_04",
-    "missing_tokens": [
-      "commander_combat_damage:P2:3",
-      "Kediss_trigger",
-      "noncombat_damage:P3:3",
-      "noncombat_damage:P4:3"
-    ],
+    "missing_tokens": [],
     "refusals": [],
     "tape": [
       {
@@ -111,11 +410,145 @@
         "target_player": "P2",
         "turn": 1,
         "type": "ATTACKER_DECLARED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "DECLARE_ATTACKERS",
+        "target_name": "stack ability (Whenever {this} enters or attacks, target creature you control gains double strike and lifelink until end of turn.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 3,
+        "flag": true,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 9,
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 3,
+        "combat": true,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Kediss, Emberclaw Familiar",
+        "source_object": "obj:card_04-subject",
+        "step": "COMBAT_DAMAGE",
+        "target_name": "stack ability (Whenever a commander you control deals combat damage to an opponent, it deals that much damage to each other opponent.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 3,
+        "flag": false,
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Kediss, Emberclaw Familiar",
+        "source_object": "obj:card_04-subject",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P4",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 3,
+        "combat": false,
+        "flag": false,
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P4",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      },
+      {
+        "amount": 3,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Kediss, Emberclaw Familiar",
+        "source_object": "obj:card_04-subject",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P3",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 3,
+        "combat": false,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 15,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P3",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
       }
     ],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "terminal_facts": {
+      "Kediss, Emberclaw Familiar triggered exactly 1 time(s)": true,
+      "P2 is at 17 life": true,
+      "P3 is at 17 life": true,
+      "P4 is at 17 life": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker": true
+    },
+    "token_evidence": {
+      "Kediss_trigger": {
+        "events": [
+          11
+        ]
+      },
+      "commander_combat_damage:P2:3": {
+        "binding": "at least one DAMAGED_PLAYER event(s) with target_player=P2, amount=3, combat=True, source_object=obj:card04-attacker",
+        "events": [
+          10
+        ]
+      },
+      "noncombat_damage:P3:3": {
+        "events": [
+          15
+        ]
+      },
+      "noncombat_damage:P4:3": {
+        "events": [
+          13
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_04",
   "phase": "EXECUTED",

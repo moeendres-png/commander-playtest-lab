@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.811,
+  "elapsed_s": 8.589,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1519bf20c1cad0a493f803dd8f8a42ea8994b2dc2b6cdf017f529e31c55cea2b",
+        "decision_id": "12f2a4ad9dcad5163499954c28fe6d69ba259edabd326961c2b8722cb013a2a3",
         "numeric": null,
         "offered_labels": [
           "Pass priority",

@@ -39,13 +39,13 @@
       "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
       "size": 7113924
     },
-    "engine_runtime_directory": "/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/af07run/rt",
+    "engine_runtime_directory": "/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/af07rt2",
     "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
-    "matrix_digest": "6cea86ace54bf0318a90f64d664dfaabc8ce18738ae7764968093e5ded655774",
+    "matrix_digest": "ff525d5265739e1180222b5b1c4d7b16ef654975eefc1659081285bdfa0422cd",
     "runner": {
       "branch": "claude/optimistic-bohr-6asye6",
-      "built_utc": "2026-10-01T22:31:12+00:00",
-      "commit": "83c32903fc0a43cc7d66e8c544fc204a78bf3bfb",
+      "built_utc": "2026-10-02T00:40:57+00:00",
+      "commit": "814234ea0c8ddb14def49abecab3c4f03c6b2949",
       "dirty": false,
       "dirty_paths": [],
       "input_digests": {
@@ -75,7 +75,7 @@
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageLosslessHiddenPlan.java": "72af659b71a7b97d9395cffa66fb047021ed794d3ecee1797c4c570fa76d58b8",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameCausalBridge.java": "e23d41e89de6851758862a1327ca7f2f1a9be23fa85e15efbd836f45f09f38f6",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java": "e1cf2f9e41f6750cd9a9f61e6b01b8858148a1d66bd97e75ebe904dd87fc2946",
-        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "8a31a3d44b9d5353838ccd05dc4a6d3016159ff9a138b1ad5f7b6a3562a2d8ac",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java": "4351bb008557e313c25bddf5eb663a6147a4522e61bbfe0d6ed0ad205ef0565d",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java": "2d47ad94162066b42bcecff94bf9b882bb883cbf5bb086c7efcbb69e4b486e1d",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmagePublicEventWatcher.java": "7743b5307228b90d88e144e83c7b3094f2501623732013c5ce5f99e62f24c2f8",
         "engine-bridge/src/main/java/org/commanderlab/xmage/XmageRulesSeedBinding.java": "831658759dc3e53b695b5e78fb600085cb504f42114343ed4175ca689aa8de50",
@@ -99,7 +99,7 @@
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalEliminationReconstructionTest.java": "88cb1863353826f1056336b377c974bae6c8cf4b0631a7e7e18df535fb2e7a1b",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalStackMechanicsTest.java": "a56b501a31c424e6b1c964515ef03f69120e0d3c8767e7073d7d18a98df76199",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCausalStackReconstructionTest.java": "944a7b912a38986e7600c44f4fbe4c7cf472f373d57a094e8ffc33850887f105",
-        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCheckpointStateRestorationTest.java": "73eb07b923962002068b1cc2a6cfeb2847d663edee33899ec07fb1e06afbafc7",
+        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCheckpointStateRestorationTest.java": "4bca8219b587d804fd29ba92bbca870a01e47c4d03002e81b0fe707324708b94",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCombatDamageLeaverUnwindQualificationTest.java": "2a3bba032a5768a268fb41131c636388ea5472ec04eb460123caea31eee5f6eb",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCommanderDamageRestorationTest.java": "34737a28bb077870bbd23f8012ba1c7e40d5ff4b1d21faca4592c60c6b9f82e5",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageControlDivergenceReconstructionTest.java": "89b8850c2007248b4c54c27565ebaf3709a6886ef27ccc5da134f34eb3376e1c",
@@ -267,7 +267,7 @@
         "src/commander_lab/engine/rules/tactical.py": "6613ad25a2de36233eec1acff73b859c7ce35777087465a1f46075b0ffed8024",
         "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b684300d229e503b6a0e977ae39dd263464656053c4d4cb145ad1",
         "src/commander_lab/qualification/current_boundary/__init__.py": "0a214758505a910970e01984efa392c5bc99d85306a713ee04e81ed38284776c",
-        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "06f663dd47673c23108b58abab2adced7599d7fc139a97cb412c7d97ad503788",
+        "src/commander_lab/qualification/current_boundary/actual_card_campaign.py": "43533c2a99393c4afc3dcc06487fa9c1fffc3e8c472fdb4a71e7ec8285ba3b0b",
         "src/commander_lab/qualification/current_boundary/af01.py": "df6b97a516ae8ea5f92367cfa5af97e712108ae4ee5a07ccf4ba7d4e53cfff80",
         "src/commander_lab/qualification/current_boundary/af03.py": "ba6fd0d50be08cbaad81121862679958ca2736f00470ca11eb10c61e74431b60",
         "src/commander_lab/qualification/current_boundary/bridge_launcher.py": "fa0d03e09759b63c1514dc94a790c7dfbb4e3ad5179d4198ddac794771208263",
@@ -281,22 +281,22 @@
         "src/commander_lab/qualification/current_boundary/lifecycle.py": "23f960d8fb034debaf761c766b8e41d550c813439c1b8eccecdcdb5c6037c0aa",
         "src/commander_lab/qualification/current_boundary/materialization.py": "dd329bc1365a40538bde393ac54d9800062b637648e8ada7ea02577aa57f5693",
         "src/commander_lab/qualification/current_boundary/midgame_lane.py": "73c4b4a6b3278c0105fb8d0402491416539d791b06bee2c795fe4ee3f9df5b4c",
-        "src/commander_lab/qualification/current_boundary/midgame_rows.py": "dd21941295f3124117f9e6041e87c1521145201749436c15f6208eaa1f928dc0",
+        "src/commander_lab/qualification/current_boundary/midgame_rows.py": "0fd2bc10c9d6b16fffe74a84d1a05db1b01f6a858ffb2f48c1f16e01b09a0f84",
         "src/commander_lab/qualification/current_boundary/pb03_runtime.py": "e842387d179cb6b10c2d5848c596812ebcbc0d1bfd80239d6afd9d99867fff0d",
         "src/commander_lab/qualification/current_boundary/receipts.py": "db518c6c34d6ff03867b46a97043c9fb3a133c97b6129f8255907483d54b6522",
         "src/commander_lab/qualification/current_boundary/refusal.py": "7677ae55d23f2fd49c5903794d7e3099ff610741716a1f618611c4762674fdc0",
         "src/commander_lab/qualification/current_boundary/semantic.py": "573dc9a1c84308bbc86c32bc3b9da04d6890b50c401ad7e3c5ca63318b187200",
         "src/commander_lab/qualification/current_boundary/shortcut_campaign.py": "a4f80471aa67cea5a55a7f5ae0d2fa186a63a15bfc5782da0f6b1cbff0f1013f",
-        "src/commander_lab/qualification/current_boundary/source_lock.py": "8b687a43289b14804df39c4ae3be87ea63c9759ff8ff702b265156c1f3c2013f"
+        "src/commander_lab/qualification/current_boundary/source_lock.py": "30861b9eb9a934fa33239c397320c8e0e96d3333a97386a6611b434c1b946d03"
       },
       "repository": "https://github.com/moeendres-png/commander-playtest-lab",
       "run_output_prefixes": [
         "qualification/current-boundary-epochs/"
       ],
       "schema_version": "commander-lab.runner-identity/1.0.0",
-      "tree": "7ca449995c074b745a2aa63fa012b9139f953eb1"
+      "tree": "f21790ccdc4222a672821116a32caf93d742264e"
     },
-    "runner_digest": "749a7fe3564aa2d30d151f90b05fd52d92a97f4568ce7feef57f22459cf18627",
+    "runner_digest": "3054fdac7bcf34ab9a18df83866ea803918fe34e63e9747ea0580f469e26633f",
     "seed": 424242,
     "selected_rows": [
       "CARD_01",
@@ -406,7 +406,7 @@
     ],
     "identities_source": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json",
     "materialization": {
-      "canonical_bundle_digest": "7fe0671a2d9fb0b807cd2b173cf59fcc3ebd6822d2e44d4cf7032ac3dbe8835c",
+      "canonical_bundle_digest": "238bbeffe951ad6e367906bd6e9f0c61ceeadb6af748df12c5949117c42801a6",
       "changed_fixture_ids": [
         "WS05-CMD-START-2",
         "MICRO_MODES",
@@ -433,9 +433,15 @@
         "CARD_12",
         "CARD_15",
         "CARD_27",
-        "CARD_29"
+        "CARD_29",
+        "CARD_01",
+        "CARD_04",
+        "CARD_05",
+        "CARD_18",
+        "CARD_23",
+        "CARD_26"
       ],
-      "contract_id": "commander-lab.full107/1.0.12-successor",
+      "contract_id": "commander-lab.full107/1.0.13-successor",
       "frozen_full107_source": "5a2e4f462fd45bba25f2271153212aab9faf09f5",
       "materialization_record_count": 135,
       "provider_denominator_count": 107,
@@ -445,7 +451,7 @@
         "receipt_path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
         "rule": "103.8a"
       },
-      "schema_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor"
+      "schema_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor"
     },
     "required_count": 29
   },
@@ -455,11 +461,13 @@
       "derived_requirements": {
         "executor_requirements": [
           "priority_action:cast",
+          "selector:semantic_player",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -488,11 +496,59 @@
             "offered_labels": 5,
             "principal": "P2",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 29.303,
+        "elapsed_s": 31.373,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -500,18 +556,34 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted target for P2: the row stops unverified",
-        "missing_tokens": [
-          "spell_cast:P2",
-          "trigger:Ishai",
-          "counter_change:+1/+1:+1"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}": true
+        },
+        "token_evidence": {
+          "counter_change:+1/+1:+1": {
+            "binding": "exactly 1 COUNTER_ADDED event(s) with target_object=obj:card01-ishai, data=+1/+1, amount=1",
+            "events": [
+              10
+            ]
+          },
+          "spell_cast:P2": {
+            "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+            "events": [
+              8
+            ]
+          },
+          "trigger:Ishai": {
+            "events": [
+              9
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "ddcb46110944f9694263e6ffd0c82668312527c98ad551585330194ff8302f0f",
       "record": {
         "card_identity": "Ishai, Ojutai Dragonspeaker",
         "excluded_by_frozen_denominator": true,
@@ -519,8 +591,8 @@
         "fixture_id": "CARD_01",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "2e898f16594b47b0cc5b10761a679e210bd3544b12e56e3557889c651f6eaa43",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "debaeebc57ea5cadb2f1e56e8bde633f2e1c3d13489ac1edd6a3f99eb9e56444",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "a84169db6afcd5cebf7d9d06ebe7d2ed7e3f8ccd4b4f88e0a2057c7e2f3cdf5b",
         "requested_state_digest": "019e0f0ad7b10bf360fc3ebd49bf26db750e09ec5169bdfb4cb4bebee546d356",
         "required_events": [
@@ -533,20 +605,93 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P2: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Ishai, Ojutai Dragonspeaker",
         "construction_verdict": "ALLOWED_VARIANCE",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_01",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_01",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "postcondition": "obj:card01-ishai has exactly one +1/+1 counter.",
+              "terminal_check": {
+                "card_identity": "Ishai, Ojutai Dragonspeaker",
+                "kind": "counters",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  [
+                    "+1/+1",
+                    1
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SPELL_CAST",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "player_player",
+                    "P2"
+                  ]
+                ]
+              },
+              "token": "spell_cast:P2"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "COUNTER_ADDED",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card01-ishai"
+                  ],
+                  [
+                    "data",
+                    "+1/+1"
+                  ],
+                  [
+                    "amount",
+                    1
+                  ]
+                ]
+              },
+              "token": "counter_change:+1/+1:+1"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "check": "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "obj:card01-ishai has exactly one +1/+1 counter."
+          }
+        ],
+        "receipt_digest": "ddcb46110944f9694263e6ffd0c82668312527c98ad551585330194ff8302f0f"
       }
     },
     {
@@ -604,7 +749,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.769,
+        "elapsed_s": 7.988,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -639,7 +784,7 @@
           }
         }
       },
-      "receipt_digest": "3fc3fe9869a9eb4a8d12421b86409abd3323dd672f9353bba1471106d53f09c4",
+      "receipt_digest": "b177882230169b287016c26e625f7c03189b8feb84f34aad506f47a86183e386",
       "record": {
         "card_identity": "Rograkh, Son of Rohgahh",
         "excluded_by_frozen_denominator": false,
@@ -709,7 +854,8 @@
                 "value": null
               }
             }
-          ]
+          ],
+          "token_bindings": []
         },
         "plan_stale_reasons": [],
         "postcondition_proofs": [
@@ -732,7 +878,7 @@
             "postcondition": "No commander-tax increment was charged."
           }
         ],
-        "receipt_digest": "3fc3fe9869a9eb4a8d12421b86409abd3323dd672f9353bba1471106d53f09c4"
+        "receipt_digest": "b177882230169b287016c26e625f7c03189b8feb84f34aad506f47a86183e386"
       }
     },
     {
@@ -771,7 +917,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.251,
+        "elapsed_s": 8.233,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -833,7 +979,7 @@
       "derived_requirements": {
         "executor_requirements": [
           "selector:attacker_assignment",
-          "selector:blocker_assignment",
+          "selector:semantic_object",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_ENTER_DECLARE_ATTACKERS_AND_REQUEST_DECLARATION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
@@ -841,7 +987,8 @@
           "native_op:NATIVE_ENTER_DECLARE_BLOCKERS_AND_REQUEST_DECLARATION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
           "commander_relations"
@@ -872,11 +1019,139 @@
             "offered_labels": 2,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.688,
+        "elapsed_s": 8.898,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -884,19 +1159,43 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted target for P1: the row stops unverified",
-        "missing_tokens": [
-          "commander_combat_damage:P2:3",
-          "Kediss_trigger",
-          "noncombat_damage:P3:3",
-          "noncombat_damage:P4:3"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "Kediss, Emberclaw Familiar triggered exactly 1 time(s)": true,
+          "P2 is at 17 life": true,
+          "P3 is at 17 life": true,
+          "P4 is at 17 life": true,
+          "exactly 1 DAMAGED_PLAYER event(s) with combat=True": true,
+          "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker": true
+        },
+        "token_evidence": {
+          "Kediss_trigger": {
+            "events": [
+              11
+            ]
+          },
+          "commander_combat_damage:P2:3": {
+            "binding": "at least one DAMAGED_PLAYER event(s) with target_player=P2, amount=3, combat=True, source_object=obj:card04-attacker",
+            "events": [
+              10
+            ]
+          },
+          "noncombat_damage:P3:3": {
+            "events": [
+              15
+            ]
+          },
+          "noncombat_damage:P4:3": {
+            "events": [
+              13
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "b27a3a530afdb3114ddc442571d7e27a567f751d1e0a39c0cf88e0291284836e",
       "record": {
         "card_identity": "Kediss, Emberclaw Familiar",
         "excluded_by_frozen_denominator": true,
@@ -904,8 +1203,8 @@
         "fixture_id": "CARD_04",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "009fdb08f62363439fef97920cfe64b8a88673ac39c96aeab93be658ec74e9fb",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "be6d040ebbad32ed795c856c60110d056cc76034d7e02be86aec10eba3160a88",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "84b7066117ce3d7fa4f31af3579acba06e437470f0135d53c77dc0544ec9ed59",
         "requested_state_digest": "3060c23e121d29bfd645334e90d6d9bf2ea7f9ab2ec2685ded90efe50ce079cc",
         "required_events": [
@@ -920,20 +1219,153 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['declare_attacker', 'declare_blocker']); recorded by the engine as: unscripted target for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Kediss, Emberclaw Familiar",
         "construction_verdict": "ALLOWED_VARIANCE",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_04",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_04",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "kind": "life",
+                  "principal": "P3",
+                  "source_name": null,
+                  "value": 17
+                },
+                {
+                  "card_identity": null,
+                  "kind": "life",
+                  "principal": "P4",
+                  "source_name": null,
+                  "value": 17
+                }
+              ],
+              "postcondition": "P2=P3=P4=17 life.",
+              "terminal_check": {
+                "card_identity": null,
+                "kind": "life",
+                "principal": "P2",
+                "source_name": null,
+                "value": 17
+              }
+            },
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "DAMAGED_PLAYER",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 1,
+                  "where": [
+                    [
+                      "combat",
+                      true
+                    ],
+                    [
+                      "target_player",
+                      "P2"
+                    ],
+                    [
+                      "source_object",
+                      "obj:card04-attacker"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "kind": "trigger_count",
+                  "principal": null,
+                  "source_name": "Kediss, Emberclaw Familiar",
+                  "value": 1
+                }
+              ],
+              "postcondition": "Only P2 gained commander combat damage; Kediss damage does not retrigger Kediss.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "DAMAGED_PLAYER",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "combat",
+                    true
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "DAMAGED_PLAYER",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_player",
+                    "P2"
+                  ],
+                  [
+                    "amount",
+                    3
+                  ],
+                  [
+                    "combat",
+                    true
+                  ],
+                  [
+                    "source_object",
+                    "obj:card04-attacker"
+                  ]
+                ]
+              },
+              "token": "commander_combat_damage:P2:3"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "P3 is at 17 life",
+              "P4 is at 17 life"
+            ],
+            "check": "P2 is at 17 life",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2=P3=P4=17 life."
+          },
+          {
+            "also": [
+              "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker",
+              "Kediss, Emberclaw Familiar triggered exactly 1 time(s)"
+            ],
+            "check": "exactly 1 DAMAGED_PLAYER event(s) with combat=True",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Only P2 gained commander combat damage; Kediss damage does not retrigger Kediss."
+          }
+        ],
+        "receipt_digest": "b27a3a530afdb3114ddc442571d7e27a567f751d1e0a39c0cf88e0291284836e"
       }
     },
     {
@@ -941,11 +1373,14 @@
       "derived_requirements": {
         "executor_requirements": [
           "priority_action:cast",
+          "selector:semantic_player",
+          "selector:order",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -966,11 +1401,99 @@
             "offered_labels": 5,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "trigger_order",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": "trigger:Veyran,_Voice_of_Duality"
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.618,
+        "elapsed_s": 8.948,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -978,18 +1501,37 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted target for P1: the row stops unverified",
-        "missing_tokens": [
-          "instant_cast",
-          "Veyran_magecraft_trigger",
-          "Veyran_additional_trigger"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "every Veyran, Voice of Duality on P1's battlefield is 4/4": true
+        },
+        "token_evidence": {
+          "Veyran_additional_trigger": {
+            "binding": "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card_05-subject",
+            "events": [
+              9,
+              10
+            ]
+          },
+          "Veyran_magecraft_trigger": {
+            "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_05-subject, target_name~=stack ability (<i>Magecraft</i>",
+            "events": [
+              9,
+              10
+            ]
+          },
+          "instant_cast": {
+            "binding": "at least one SPELL_CAST event(s) with source_object=obj:card05-bolt",
+            "events": [
+              8
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "efaade91c3e05e60856ada3f4a4505853f02ab0c2fcb710c25cf87190d08336b",
       "record": {
         "card_identity": "Veyran, Voice of Duality",
         "excluded_by_frozen_denominator": true,
@@ -997,8 +1539,8 @@
         "fixture_id": "CARD_05",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "085725a8463e6f8136284d973910b61d79ecb0baaef99e10b80a6407f742bff9",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "88e0db57dfe1b8ce726122542d93eb25e3e8743ad01e235e3a8dd8edbaacffe7",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "d6040c5c5fd7987943949b3f93bd4fa719870af0af68d3d464a12a3db4483684",
         "requested_state_digest": "13a258b73064c86def48b27fcc6aa3b419f4d5298fd588d83fc228273b031b3b",
         "required_events": [
@@ -1011,20 +1553,104 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Veyran, Voice of Duality",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_05",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_05",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "postcondition": "After both triggers resolve Veyran has +2/+2 until end of turn.",
+              "terminal_check": {
+                "card_identity": "Veyran, Voice of Duality",
+                "kind": "power_toughness",
+                "principal": "P1",
+                "source_name": null,
+                "value": [
+                  4,
+                  4
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SPELL_CAST",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card05-bolt"
+                  ]
+                ]
+              },
+              "token": "instant_cast"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_05-subject"
+                  ],
+                  [
+                    "target_name~",
+                    "stack ability (<i>Magecraft</i>"
+                  ]
+                ]
+              },
+              "token": "Veyran_magecraft_trigger"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 2,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_05-subject"
+                  ]
+                ]
+              },
+              "token": "Veyran_additional_trigger"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "check": "every Veyran, Voice of Duality on P1's battlefield is 4/4",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "After both triggers resolve Veyran has +2/+2 until end of turn."
+          }
+        ],
+        "receipt_digest": "efaade91c3e05e60856ada3f4a4505853f02ab0c2fcb710c25cf87190d08336b"
       }
     },
     {
@@ -1061,7 +1687,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.603,
+        "elapsed_s": 8.328,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1137,7 +1763,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.224,
+        "elapsed_s": 0.183,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1286,7 +1912,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.259,
+        "elapsed_s": 8.336,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1350,7 +1976,7 @@
         "executor_requirements": [
           "priority_action:cast",
           "selector:amount_assignment",
-          "selector:semantic_object_set",
+          "selector:semantic_objects",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
@@ -1362,6 +1988,7 @@
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
           "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
           "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": [
@@ -1401,11 +2028,171 @@
             "offered_labels": 11,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 9,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 9,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 8,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 8,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 7,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 7,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 3,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.933,
+        "elapsed_s": 9.465,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1413,21 +2200,50 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted target for P1: the row stops unverified",
-        "missing_tokens": [
-          "damage:P2:2",
-          "damage:obj:card09-p3-creature:2",
-          "tap:obj:card09-p4-a",
-          "tap:obj:card09-p4-b",
-          "token_created:4/4_Elemental",
-          "draw:P1:2"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "Mountain on P4's battlefield is tapped=True": true,
+          "P1 moved exactly 2 card(s) from library to hand": true,
+          "P2 is at 38 life": true,
+          "Sol Ring on P4's battlefield is tapped=True": true,
+          "every Elemental Token on P1's battlefield is 4/4": true,
+          "every Elemental Token on P1's battlefield is blue/red": true,
+          "exactly 1 Elemental Token token(s) were created": true
+        },
+        "token_evidence": {
+          "damage:P2:2": {
+            "events": [
+              10
+            ]
+          },
+          "damage:obj:card09-p3-creature:2": {
+            "binding": "at least one DAMAGED_PERMANENT event(s) with target_object=obj:card09-p3-creature, amount=2",
+            "events": [
+              11
+            ]
+          },
+          "draw:P1:2": {
+            "binding": "P1 moved exactly 2 card(s) from library to hand",
+            "observation": "engine terminal observation"
+          },
+          "tap:obj:card09-p4-a": {
+            "binding": "Sol Ring on P4's battlefield is tapped=True",
+            "observation": "engine terminal observation"
+          },
+          "tap:obj:card09-p4-b": {
+            "binding": "Mountain on P4's battlefield is tapped=True",
+            "observation": "engine terminal observation"
+          },
+          "token_created:4/4_Elemental": {
+            "binding": "exactly 1 Elemental Token token(s) were created",
+            "observation": "engine terminal observation"
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "1a5a98abb05d3e0fc3c3defa2485397454c7f7e3ce69665657784a29e30491eb",
       "record": {
         "card_identity": "Magma Opus",
         "excluded_by_frozen_denominator": true,
@@ -1435,8 +2251,8 @@
         "fixture_id": "CARD_09",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "cd6ea212ab24e1fe74a06d7fc7e720905b4ce973149b178c341bd00ffd07294a",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
+        "materialization_digest": "eabdb5570b5ad15a854aedf208d77dd371cff4701cc0694162da5b17f8671acb",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "af9732d8434b07f79e321c13ae094b0f138a305e08aa24e9d1f3ccb22d34d838",
         "requested_state_digest": "78cb4f05911e88466bf873bd5e913fccc206d28874c77ce97b8f26e4d3af86ca",
         "required_events": [
@@ -1454,20 +2270,185 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['choose_object', 'priority', 'target_amount']); recorded by the engine as: unscripted target for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Magma Opus",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_09",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_09",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "postcondition": "P2 lost 2 life.",
+              "terminal_check": {
+                "card_identity": null,
+                "kind": "life",
+                "principal": "P2",
+                "source_name": null,
+                "value": 38
+              }
+            },
+            {
+              "also": [
+                {
+                  "card_identity": "Mountain",
+                  "kind": "tapped",
+                  "principal": "P4",
+                  "source_name": null,
+                  "value": true
+                }
+              ],
+              "postcondition": "Both selected P4 permanents are tapped.",
+              "terminal_check": {
+                "card_identity": "Sol Ring",
+                "kind": "tapped",
+                "principal": "P4",
+                "source_name": null,
+                "value": true
+              }
+            },
+            {
+              "also": [
+                {
+                  "card_identity": "Elemental Token",
+                  "kind": "power_toughness",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": [
+                    4,
+                    4
+                  ]
+                },
+                {
+                  "card_identity": "Elemental Token",
+                  "kind": "colors",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": [
+                    "blue",
+                    "red"
+                  ]
+                },
+                {
+                  "card_identity": null,
+                  "kind": "draws",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": 2
+                }
+              ],
+              "postcondition": "P1 controls one new 4/4 blue/red Elemental and drew two cards.",
+              "terminal_check": {
+                "card_identity": "Elemental Token",
+                "kind": "tokens_created",
+                "principal": null,
+                "source_name": null,
+                "value": 1
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "DAMAGED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card09-p3-creature"
+                  ],
+                  [
+                    "amount",
+                    2
+                  ]
+                ]
+              },
+              "token": "damage:obj:card09-p3-creature:2"
+            },
+            {
+              "check": {
+                "card_identity": "Sol Ring",
+                "kind": "tapped",
+                "principal": "P4",
+                "source_name": null,
+                "value": true
+              },
+              "token": "tap:obj:card09-p4-a"
+            },
+            {
+              "check": {
+                "card_identity": "Mountain",
+                "kind": "tapped",
+                "principal": "P4",
+                "source_name": null,
+                "value": true
+              },
+              "token": "tap:obj:card09-p4-b"
+            },
+            {
+              "check": {
+                "card_identity": "Elemental Token",
+                "kind": "tokens_created",
+                "principal": null,
+                "source_name": null,
+                "value": 1
+              },
+              "token": "token_created:4/4_Elemental"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "draws",
+                "principal": "P1",
+                "source_name": null,
+                "value": 2
+              },
+              "token": "draw:P1:2"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "check": "P2 is at 38 life",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2 lost 2 life."
+          },
+          {
+            "also": [
+              "Mountain on P4's battlefield is tapped=True"
+            ],
+            "check": "Sol Ring on P4's battlefield is tapped=True",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Both selected P4 permanents are tapped."
+          },
+          {
+            "also": [
+              "every Elemental Token on P1's battlefield is 4/4",
+              "every Elemental Token on P1's battlefield is blue/red",
+              "P1 moved exactly 2 card(s) from library to hand"
+            ],
+            "check": "exactly 1 Elemental Token token(s) were created",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P1 controls one new 4/4 blue/red Elemental and drew two cards."
+          }
+        ],
+        "receipt_digest": "1a5a98abb05d3e0fc3c3defa2485397454c7f7e3ce69665657784a29e30491eb"
       }
     },
     {
@@ -1495,7 +2476,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.208,
+        "elapsed_s": 0.207,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1575,7 +2556,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.872,
+        "elapsed_s": 9.727,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1711,7 +2692,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.072,
+        "elapsed_s": 9.363,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1740,8 +2721,8 @@
         "fixture_id": "CARD_12",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "ebe84ef0d006698bcc9aa75680efb181a8ab8d643de2d683f47c1bdbc0a0637f",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
+        "materialization_digest": "fc039d70dc7ec3e5e62adb1fc7081d51b1ec0ef9642b01b47b53fcdee1c32567",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "92de1a2dc0cea02e20f5cf598782491a8e60f109cbad85e9f647d9499865892f",
         "requested_state_digest": "0525062f779f0ed802ad00f58d9f0c736b3094118f670a2688b2f982d2e7e919",
         "required_events": [
@@ -1801,7 +2782,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.196,
+        "elapsed_s": 0.19,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -1992,209 +2973,9 @@
             "refused": false,
             "scripted": false,
             "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 11,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 2,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 2,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 2,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 11,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 2,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "choose_object",
-            "offered_labels": 8,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
           }
         ],
-        "elapsed_s": 8.7,
+        "elapsed_s": 9.283,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2202,17 +2983,35 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted choose_object for P1: the row stops unverified",
-        "missing_tokens": [
-          "overload_cast",
-          "destroy_each_opponent_artifact"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "Sol Ring is on P1's battlefield": true,
+          "no Sol Ring is on P2's battlefield": true,
+          "no Sol Ring is on P3's battlefield": true,
+          "no Sol Ring is on P4's battlefield": true,
+          "the engine asked no target decision": true
+        },
+        "token_evidence": {
+          "destroy_each_opponent_artifact": {
+            "binding": "exactly 3 DESTROYED_PERMANENT event(s) with source_object=obj:card_14-subject",
+            "events": [
+              9,
+              10,
+              11
+            ]
+          },
+          "overload_cast": {
+            "binding": "a scripted priority frame selected an engine offer naming 'with overload'",
+            "decision_frames": [
+              0
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "e923c66a9bfa10071a41213c306f031f30d11f69190e9a45d4324866a38cb837",
       "record": {
         "card_identity": "Vandalblast",
         "excluded_by_frozen_denominator": true,
@@ -2235,20 +3034,126 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choose_object'; the record scripts ['priority']); recorded by the engine as: unscripted choose_object for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Vandalblast",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_14",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_14",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": "Sol Ring",
+                  "kind": "not_on_battlefield",
+                  "principal": "P3",
+                  "source_name": null,
+                  "value": null
+                },
+                {
+                  "card_identity": "Sol Ring",
+                  "kind": "not_on_battlefield",
+                  "principal": "P4",
+                  "source_name": null,
+                  "value": null
+                }
+              ],
+              "postcondition": "P2/P3/P4 artifacts are destroyed.",
+              "terminal_check": {
+                "card_identity": "Sol Ring",
+                "kind": "not_on_battlefield",
+                "principal": "P2",
+                "source_name": null,
+                "value": null
+              }
+            },
+            {
+              "postcondition": "P1 Sol Ring remains.",
+              "terminal_check": {
+                "card_identity": "Sol Ring",
+                "kind": "on_battlefield",
+                "principal": "P1",
+                "source_name": null,
+                "value": null
+              }
+            },
+            {
+              "postcondition": "The overloaded spell has no targets.",
+              "terminal_check": {
+                "card_identity": null,
+                "kind": "no_frame",
+                "principal": null,
+                "source_name": null,
+                "value": "target"
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "selected_frame",
+                "label": "with overload",
+                "principal": null,
+                "source_name": null,
+                "value": "priority"
+              },
+              "token": "overload_cast"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "DESTROYED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 3,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_14-subject"
+                  ]
+                ]
+              },
+              "token": "destroy_each_opponent_artifact"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "no Sol Ring is on P3's battlefield",
+              "no Sol Ring is on P4's battlefield"
+            ],
+            "check": "no Sol Ring is on P2's battlefield",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P2/P3/P4 artifacts are destroyed."
+          },
+          {
+            "check": "Sol Ring is on P1's battlefield",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "P1 Sol Ring remains."
+          },
+          {
+            "check": "the engine asked no target decision",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "The overloaded spell has no targets."
+          }
+        ],
+        "receipt_digest": "e923c66a9bfa10071a41213c306f031f30d11f69190e9a45d4324866a38cb837"
       }
     },
     {
@@ -2482,7 +3387,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.395,
+        "elapsed_s": 8.67,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2511,8 +3416,8 @@
         "fixture_id": "CARD_15",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "bff7dc414fbcc136e9589ffcfcea03b4c32b6db9405cbe8c358b917e26937204",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
+        "materialization_digest": "d463483f43da7f19d7ba6aaa759b7ed6d34019f780c2a2d8c3b0b206959dbc03",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "c0fbfe7a3b4b7121f1a9219605c7f12b2611cb61e3b86d2a22446e52f7582c02",
         "requested_state_digest": "b38d3134ef6213d0dcca5bdf490651c60584dc7f21cceb7a4c0afc167129376d",
         "required_events": [
@@ -2565,7 +3470,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.184,
+        "elapsed_s": 0.205,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2752,241 +3657,9 @@
             "refused": false,
             "scripted": false,
             "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 10,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 10,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "choose_object",
-            "offered_labels": 8,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
           }
         ],
-        "elapsed_s": 8.519,
+        "elapsed_s": 8.738,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -2994,10 +3667,8 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted choose_object for P2: the row stops unverified",
-        "missing_tokens": [
-          "opponent_spell_cast"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
         "terminal_facts": {},
@@ -3011,10 +3682,16 @@
             "events": [
               11
             ]
+          },
+          "opponent_spell_cast": {
+            "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+            "events": [
+              8
+            ]
           }
         }
       },
-      "receipt_digest": null,
+      "receipt_digest": "22a297f30e545327d6542b873b9477d5f530afac64bc794c7184e4262518418a",
       "record": {
         "card_identity": "Kaervek the Merciless",
         "excluded_by_frozen_denominator": true,
@@ -3036,17 +3713,17 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choose_object'; the record scripts ['priority', 'target']); recorded by the engine as: unscripted choose_object for P2: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Kaervek the Merciless",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_17",
-        "outcome": "BLOCKED",
+        "outcome": "DIRECT_PASS",
         "plan": {
           "commander_printed_mana_value": null,
           "fixture_id": "CARD_17",
@@ -3055,6 +3732,25 @@
             {
               "event_token": "damage:P2:4",
               "postcondition": "P2 is dealt 4 damage by Kaervek before the triggering spell resolves if no responses intervene."
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SPELL_CAST",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "player_player",
+                    "P2"
+                  ]
+                ]
+              },
+              "token": "opponent_spell_cast"
             }
           ]
         },
@@ -3066,7 +3762,8 @@
             "postcondition": "P2 is dealt 4 damage by Kaervek before the triggering spell resolves if no responses intervene.",
             "token": "damage:P2:4"
           }
-        ]
+        ],
+        "receipt_digest": "22a297f30e545327d6542b873b9477d5f530afac64bc794c7184e4262518418a"
       }
     },
     {
@@ -3075,8 +3772,8 @@
         "executor_requirements": [
           "priority_action:cast",
           "alternative_cost:evoke",
-          "selector:semantic_object",
           "selector:order",
+          "selector:semantic_object",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
@@ -3087,7 +3784,8 @@
           "native_op:NATIVE_GENERATE_OR_REVEAL_ORDERABLE_OBJECTS_AND_REQUEST_ORDER",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -3108,11 +3806,155 @@
             "offered_labels": 2,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": "evoke"
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "trigger_order",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": "trigger:Shriekmaw|destroy target"
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.77,
+        "elapsed_s": 9.105,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3120,21 +3962,56 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted choice for P1: the row stops unverified",
-        "missing_tokens": [
-          "evoke_cast",
-          "Shriekmaw_enters",
-          "destroy_trigger",
-          "evoke_sacrifice_trigger",
-          "destroy_target",
-          "sacrifice_Shriekmaw"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card18-target": true,
+          "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject": true,
+          "no Grizzly Bears is on P2's battlefield": true,
+          "no Shriekmaw is on P1's battlefield": true
+        },
+        "token_evidence": {
+          "Shriekmaw_enters": {
+            "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card_18-subject, from=STACK, to=BATTLEFIELD",
+            "events": [
+              9
+            ]
+          },
+          "destroy_target": {
+            "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card18-target",
+            "events": [
+              14
+            ]
+          },
+          "destroy_trigger": {
+            "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_18-subject, target_name~=stack ability (When {this} enters, destroy target",
+            "events": [
+              10
+            ]
+          },
+          "evoke_cast": {
+            "binding": "a scripted choice frame selected an engine offer naming 'evoke alternative cost'",
+            "decision_frames": [
+              1
+            ]
+          },
+          "evoke_sacrifice_trigger": {
+            "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_18-subject, target_name~=stack ability (When this permanent enters, if its evoke",
+            "events": [
+              11
+            ]
+          },
+          "sacrifice_Shriekmaw": {
+            "binding": "at least one SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject",
+            "events": [
+              12
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "54c2016059824942e20bd94fa5ab55b137d34a17b7dcba7f10d08f8f431057fe",
       "record": {
         "card_identity": "Shriekmaw",
         "excluded_by_frozen_denominator": true,
@@ -3142,8 +4019,8 @@
         "fixture_id": "CARD_18",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "b3285fee21f776d6a4ce3dd9bbf8d267a5970226a88265e8c4dc1fce55580482",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "fdb114bfe895e73b87b0c7f065d54fac9995f34515160aa861349d01a192601d",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "61dca100726d9987f06dee27d66ee9e3030c847a7bd817c8d1904ff86d99c95c",
         "requested_state_digest": "0179ce9d4b117528deeb8e7f104d106c45b19deead511d9ca7bca85838973678",
         "required_events": [
@@ -3159,20 +4036,200 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choice'; the record scripts ['priority', 'target', 'trigger_order']); recorded by the engine as: unscripted choice for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Shriekmaw",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_18",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_18",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": null,
+                  "event_type": "SACRIFICED_PERMANENT",
+                  "kind": "events",
+                  "principal": null,
+                  "source_name": null,
+                  "value": 1,
+                  "where": [
+                    [
+                      "target_object",
+                      "obj:card_18-subject"
+                    ]
+                  ]
+                },
+                {
+                  "card_identity": "Grizzly Bears",
+                  "kind": "not_on_battlefield",
+                  "principal": "P2",
+                  "source_name": null,
+                  "value": null
+                },
+                {
+                  "card_identity": "Shriekmaw",
+                  "kind": "not_on_battlefield",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": null
+                }
+              ],
+              "postcondition": "Grizzly Bears is destroyed and Shriekmaw is sacrificed.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "DESTROYED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card18-target"
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "kind": "selected_frame",
+                "label": "evoke alternative cost",
+                "principal": null,
+                "source_name": null,
+                "value": "choice"
+              },
+              "token": "evoke_cast"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "ZONE_CHANGE",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card_18-subject"
+                  ],
+                  [
+                    "from",
+                    "STACK"
+                  ],
+                  [
+                    "to",
+                    "BATTLEFIELD"
+                  ]
+                ]
+              },
+              "token": "Shriekmaw_enters"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_18-subject"
+                  ],
+                  [
+                    "target_name~",
+                    "stack ability (When {this} enters, destroy target"
+                  ]
+                ]
+              },
+              "token": "destroy_trigger"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card_18-subject"
+                  ],
+                  [
+                    "target_name~",
+                    "stack ability (When this permanent enters, if its evoke"
+                  ]
+                ]
+              },
+              "token": "evoke_sacrifice_trigger"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "DESTROYED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card18-target"
+                  ]
+                ]
+              },
+              "token": "destroy_target"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SACRIFICED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card_18-subject"
+                  ]
+                ]
+              },
+              "token": "sacrifice_Shriekmaw"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject",
+              "no Grizzly Bears is on P2's battlefield",
+              "no Shriekmaw is on P1's battlefield"
+            ],
+            "check": "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card18-target",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Grizzly Bears is destroyed and Shriekmaw is sacrificed."
+          }
+        ],
+        "receipt_digest": "54c2016059824942e20bd94fa5ab55b137d34a17b7dcba7f10d08f8f431057fe"
       }
     },
     {
@@ -3213,7 +4270,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.673,
+        "elapsed_s": 8.721,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3304,7 +4361,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.197,
+        "elapsed_s": 0.193,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3371,7 +4428,7 @@
       "measurement": {
         "creation_errors": [],
         "decision_trace": [],
-        "elapsed_s": 7.956,
+        "elapsed_s": 8.352,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3454,7 +4511,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 0.302,
+        "elapsed_s": 0.246,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3512,9 +4569,9 @@
       "derived_requirements": {
         "executor_requirements": [
           "priority_action:cast",
-          "inline_target",
+          "selector:semantic_object",
           "priority_action:cast",
-          "inline_target",
+          "selector:semantic_object",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
@@ -3522,7 +4579,8 @@
           "native_op:NATIVE_OFFER_PRIORITY_AND_EXECUTE_SELECTED_ACTION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -3543,11 +4601,171 @@
             "offered_labels": 1,
             "principal": "P1",
             "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 6,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 4,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 3,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 11,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "target",
+            "offered_labels": 5,
+            "principal": "P1",
+            "refused": false,
+            "scripted": true,
+            "selected_key": null
+          },
+          {
+            "decision_class": "mana_payment",
+            "offered_labels": 2,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P1",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P2",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P3",
+            "refused": false,
+            "scripted": false,
+            "selected_key": null
+          },
+          {
+            "decision_class": "priority",
+            "offered_labels": 1,
+            "principal": "P4",
+            "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.215,
+        "elapsed_s": 7.725,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3555,19 +4773,42 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted target for P1: the row stops unverified",
-        "missing_tokens": [
-          "return_creature_with_mannequin_counter",
-          "creature_becomes_target",
-          "granted_trigger",
-          "sacrifice_returned_creature"
-        ],
+        "execution_detail": "obligation observed",
+        "missing_tokens": [],
         "phase": "EXECUTED",
         "start_errors": [],
-        "terminal_facts": {},
-        "token_evidence": {}
+        "terminal_facts": {
+          "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature": true,
+          "no Grizzly Bears is on P1's battlefield": true
+        },
+        "token_evidence": {
+          "creature_becomes_target": {
+            "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card23-creature, target_name~=stack ability (When {this} becomes the target",
+            "events": [
+              13
+            ]
+          },
+          "granted_trigger": {
+            "binding": "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card23-creature",
+            "events": [
+              13
+            ]
+          },
+          "return_creature_with_mannequin_counter": {
+            "binding": "at least one COUNTER_ADDED event(s) with target_object=obj:card23-creature, data=mannequin, amount=1",
+            "events": [
+              9
+            ]
+          },
+          "sacrifice_returned_creature": {
+            "binding": "at least one SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature",
+            "events": [
+              15
+            ]
+          }
+        }
       },
-      "receipt_digest": null,
+      "receipt_digest": "bf96c99712401c43bb465ee85f1870134cf5a7c30b6b6a93143898decc0583c6",
       "record": {
         "card_identity": "Makeshift Mannequin",
         "excluded_by_frozen_denominator": true,
@@ -3575,8 +4816,8 @@
         "fixture_id": "CARD_23",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "6614d43d4b535e6fee76275ca805f0e79049fb68a50a1cb1a02417012ad48a51",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "7ee49da834d8d7ef35b30c6d050c9434b1d6b9fca7dcb4bcfd1c3e3f82089865",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "8e9af38d9aa08ce98f9e5adcd54f016075292562d8456577403761df2f0d3fdc",
         "requested_state_digest": "4babe9dd8c053ad1095071322db50b9c5d813eb3ebbae5dafd5041c75901765b",
         "required_events": [
@@ -3590,20 +4831,145 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('target'; the record scripts ['priority']); recorded by the engine as: unscripted target for P1: the row stops unverified",
+        "blocker_class": null,
+        "blocker_detail": null,
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Makeshift Mannequin",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
-        "direct_receipt_eligible": false,
-        "engine_verified": false,
+        "direct_receipt_eligible": true,
+        "engine_verified": true,
         "fixture_id": "CARD_23",
-        "outcome": "BLOCKED",
-        "plan": null,
+        "outcome": "DIRECT_PASS",
+        "plan": {
+          "commander_printed_mana_value": null,
+          "fixture_id": "CARD_23",
+          "mode_bindings": [],
+          "proofs": [
+            {
+              "also": [
+                {
+                  "card_identity": "Grizzly Bears",
+                  "kind": "not_on_battlefield",
+                  "principal": "P1",
+                  "source_name": null,
+                  "value": null
+                }
+              ],
+              "postcondition": "Returned creature is sacrificed when granted trigger resolves before Lightning Bolt would resolve if no responses intervene.",
+              "terminal_check": {
+                "card_identity": null,
+                "event_type": "SACRIFICED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card23-creature"
+                  ]
+                ]
+              }
+            }
+          ],
+          "token_bindings": [
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "COUNTER_ADDED",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card23-creature"
+                  ],
+                  [
+                    "data",
+                    "mannequin"
+                  ],
+                  [
+                    "amount",
+                    1
+                  ]
+                ]
+              },
+              "token": "return_creature_with_mannequin_counter"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card23-creature"
+                  ],
+                  [
+                    "target_name~",
+                    "stack ability (When {this} becomes the target"
+                  ]
+                ]
+              },
+              "token": "creature_becomes_target"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "TRIGGERED_ABILITY",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": 1,
+                "where": [
+                  [
+                    "source_object",
+                    "obj:card23-creature"
+                  ]
+                ]
+              },
+              "token": "granted_trigger"
+            },
+            {
+              "check": {
+                "card_identity": null,
+                "event_type": "SACRIFICED_PERMANENT",
+                "kind": "events",
+                "principal": null,
+                "source_name": null,
+                "value": null,
+                "where": [
+                  [
+                    "target_object",
+                    "obj:card23-creature"
+                  ]
+                ]
+              },
+              "token": "sacrifice_returned_creature"
+            }
+          ]
+        },
         "plan_stale_reasons": [],
-        "postcondition_proofs": []
+        "postcondition_proofs": [
+          {
+            "also": [
+              "no Grizzly Bears is on P1's battlefield"
+            ],
+            "check": "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature",
+            "held": true,
+            "kind": "terminal_check",
+            "postcondition": "Returned creature is sacrificed when granted trigger resolves before Lightning Bolt would resolve if no responses intervene."
+          }
+        ],
+        "receipt_digest": "bf96c99712401c43bb465ee85f1870134cf5a7c30b6b6a93143898decc0583c6"
       }
     },
     {
@@ -3740,7 +5106,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.069,
+        "elapsed_s": 8.975,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3773,7 +5139,7 @@
           }
         }
       },
-      "receipt_digest": "9b214230ce0f9f3e669f7eae7ad5db27173b645287f1aeb7c8d38f368a1d97a5",
+      "receipt_digest": "af43d93fd92dbc87ffec56fe26dca88f56c23a82df6a3c6572e01cac5134e40b",
       "record": {
         "card_identity": "Warstorm Surge",
         "excluded_by_frozen_denominator": true,
@@ -3821,7 +5187,8 @@
                 "value": 18
               }
             }
-          ]
+          ],
+          "token_bindings": []
         },
         "plan_stale_reasons": [],
         "postcondition_proofs": [
@@ -3832,7 +5199,7 @@
             "postcondition": "P2 is at 18 life after trigger resolves."
           }
         ],
-        "receipt_digest": "9b214230ce0f9f3e669f7eae7ad5db27173b645287f1aeb7c8d38f368a1d97a5"
+        "receipt_digest": "af43d93fd92dbc87ffec56fe26dca88f56c23a82df6a3c6572e01cac5134e40b"
       }
     },
     {
@@ -3863,7 +5230,7 @@
           }
         ],
         "decision_trace": [],
-        "elapsed_s": 7.367,
+        "elapsed_s": 8.166,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -3922,12 +5289,14 @@
       "card_identity": "Burn Down the House",
       "derived_requirements": {
         "executor_requirements": [
+          "priority_action:cast",
           "selector:semantic_mode_key",
           "native_op:NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
           "native_op:NATIVE_BEGIN_OR_CONTINUE_CAST_TO_MODE_DECISION",
           "native_op:EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
           "native_op:NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
-          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT"
+          "native_op:NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+          "native_op:FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
         ],
         "required_state_dimensions": []
       },
@@ -3940,203 +5309,19 @@
             "offered_labels": 16,
             "principal": "P1",
             "refused": false,
-            "scripted": false,
+            "scripted": true,
             "selected_key": null
           },
           {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 6,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 6,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 6,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 16,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 6,
-            "principal": "P1",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P2",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P3",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "priority",
-            "offered_labels": 1,
-            "principal": "P4",
-            "refused": false,
-            "scripted": false,
-            "selected_key": null
-          },
-          {
-            "decision_class": "choose_object",
-            "offered_labels": 9,
+            "decision_class": "mode",
+            "offered_labels": 2,
             "principal": "P1",
             "refused": false,
             "scripted": false,
             "selected_key": null
           }
         ],
-        "elapsed_s": 8.308,
+        "elapsed_s": 8.496,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4144,7 +5329,7 @@
           "size": 7113924
         },
         "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
-        "execution_detail": "unscripted choose_object for P1: the row stops unverified",
+        "execution_detail": "execution failed closed: mode key 'create_devils' has no binding for this row",
         "missing_tokens": [
           "modal_choice:devils",
           "create_Devil_token:3",
@@ -4163,8 +5348,8 @@
         "fixture_id": "CARD_26",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "29e408f95563699bd2d6fd08e654f9e9d1db677afb7347938b07078a0bce3761",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+        "materialization_digest": "c92bb5533afbdce8416200b83c9e510737123f3d8bcc4d34ba855b95af0cdf80",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "f178f302a617cf1a2e58c0b1c0f34cd4b53acebf8af7585743e4aeaaa883d960",
         "requested_state_digest": "3f3bb5ab48fcf812725d59d04a219175bca3535ea3d2809e58c6de9991ef3878",
         "required_events": [
@@ -4177,10 +5362,10 @@
         ]
       },
       "verdict": {
-        "blocker_class": "FIXTURE_DEFECT",
-        "blocker_detail": "the engine offered a discretionary decision class the effective record does not script ('choose_object'; the record scripts ['mode']); recorded by the engine as: unscripted choose_object for P1: the row stops unverified",
+        "blocker_class": "UNKNOWN",
+        "blocker_detail": "the required event tokens were not positively observed and no plan-declared proof covers them: ['modal_choice:devils', 'create_Devil_token:3', 'grant_haste_until_EOT']",
         "blocker_owner": null,
-        "blocker_surface": "qualification/pre-freeze-successor/",
+        "blocker_surface": null,
         "card_identity": "Burn Down the House",
         "construction_verdict": "EXACT",
         "credit_route": "frozen_denominator_exclusion",
@@ -4230,7 +5415,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.811,
+        "elapsed_s": 8.589,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4257,8 +5442,8 @@
         "fixture_id": "CARD_27",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "4edb1e460e55cb929f9eef85605f831d3c2f3fb95e9d0757d11830649e21db21",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
+        "materialization_digest": "6c2044eb92d4d338bf33958891d2fdfa6f00a738535a7c26147066f7a37f6c43",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "1dfbe0a6ff7205d57c91862814ea4016a116162e3aacd05f0333d5f3bbe838b2",
         "requested_state_digest": "9b8819389687dcffd70042368b089696719fcfe43a8fc3aef95b0fa317587732",
         "required_events": [
@@ -4319,7 +5504,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.813,
+        "elapsed_s": 8.495,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4417,7 +5602,7 @@
             "selected_key": null
           }
         ],
-        "elapsed_s": 7.777,
+        "elapsed_s": 8.087,
         "engine_artifact": {
           "kind": "file",
           "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -4446,8 +5631,8 @@
         "fixture_id": "CARD_29",
         "forbidden_events": [],
         "in_effective_denominator": false,
-        "materialization_digest": "5614bda68b2afc1dcbbd46e58f1753bf0b807b28163326183e55de3f8288667f",
-        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.12-successor",
+        "materialization_digest": "84565bf97dd570b21648c0ab882a747a18d7e4d412ac5a37ad6a0cc707ce8450",
+        "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.13-successor",
         "obligation_digest": "5ee2f43029bfeedcb45321511bdeed019cc9df5d15b35e3d5a319319b6d94ce2",
         "requested_state_digest": "2e7dc8f28ab285c9f9d962da3bc7fa795cd944235cc874b8ea9010c379cbc578",
         "required_events": [
@@ -4482,17 +5667,33 @@
   "schema_version": "commander-lab.af07-actual-card-campaign-matrix/1.0.0",
   "summary": {
     "blockers": {
-      "FIXTURE_DEFECT": 10,
+      "FIXTURE_DEFECT": 1,
       "HARNESS_DEFECT": 10,
       "PROVIDER_ADAPTER_DEFECT": 5,
-      "UNKNOWN": 2
+      "UNKNOWN": 3
     },
     "direct_pass": [
+      "CARD_01",
       "CARD_02",
+      "CARD_04",
+      "CARD_05",
+      "CARD_09",
+      "CARD_14",
+      "CARD_17",
+      "CARD_18",
+      "CARD_23",
       "CARD_24"
     ],
     "direct_receipt_eligible": [
+      "CARD_01",
       "CARD_02",
+      "CARD_04",
+      "CARD_05",
+      "CARD_09",
+      "CARD_14",
+      "CARD_17",
+      "CARD_18",
+      "CARD_23",
       "CARD_24"
     ],
     "excluded_by_frozen_denominator": [
@@ -4529,8 +5730,8 @@
       "CARD_02"
     ],
     "outcomes": {
-      "BLOCKED": 27,
-      "DIRECT_PASS": 2
+      "BLOCKED": 19,
+      "DIRECT_PASS": 10
     },
     "row_count": 29
   }

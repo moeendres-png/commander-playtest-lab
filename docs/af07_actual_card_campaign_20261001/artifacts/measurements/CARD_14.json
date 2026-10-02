@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.7,
+  "elapsed_s": 9.283,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "837f130bd8e339030a71861af4416100c342927af31f4634e7cae440a75654a0",
+        "decision_id": "d271b44adb0267a677932ec7a46ef5230e7f2f3d6a0f56ab0a844e4ebba02459",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -47,17 +47,17 @@
         "selected_key": null,
         "selected_label": "Vandalblast \u2014 Cast Vandalblast with overload",
         "selected_option_ids": [
-          "b8721dc19db83569a5c1192c414c50e32ff03122994294efee4d373762b311b3"
+          "64aac545c45e54e91d4253debf8acedf49740f27f218b8db6ec2fe96719148ef"
         ],
         "selected_option_type": null,
-        "selected_source_object": "d52c66e0-e83f-4d60-b22d-2b667714bb20"
+        "selected_source_object": "989f6c4b-786a-4c7d-ae85-6dd46155db0a"
       },
       {
         "context": {
           "unpaid_mana": "{4}{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "b0a022cfb94ca96a9d40da5467ba7b35fee8cc9eb39a929d2794e01f1221d371",
+        "decision_id": "b8de40438ac01992dcc662f73f5c22ca77488d28270d1ec998c956a4b20fc3ef",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -69,14 +69,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "e9e0e656d1879de8ccd288aeab312715255263f45ed643169151522550df1996"
+          "49102f001a569399f007a4ddfe38dea212f79a73d64f4d8965f9634c15a949d2"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -86,7 +86,7 @@
           "unpaid_mana": "{4}{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "e9d93078ee9443393cb159e94566aa928fbdb9a0272c7b79ed310618a5662d86",
+        "decision_id": "16f3ee39a0157f663f437e57b05c4ce91d9c7d0d030c2b3acca8413e9760b51b",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -98,7 +98,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -115,7 +115,7 @@
           "unpaid_mana": "{4}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "d05dae38e943e11eb701c0a189c01728a570ab956c033a4ac188c376392a616b",
+        "decision_id": "213e2f9403aabb813acf1cad042cd12e1bc57a956ce20c36695d4dbbd1e039b7",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -126,14 +126,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "97e71d0730d8e7745d020ce4e26c69f70a416cbeeb99174581fffab1b8d43d4f"
+          "aa558ade4ed33a2e01eaf2f950f04375e2fe15c9534388b0fc2a1b2f579f90b1"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -143,7 +143,7 @@
           "unpaid_mana": "{4}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "b37b29bb325b9a4376d8556590d8c2fd4f2cde2001473fd9987eed2cdadad7d5",
+        "decision_id": "54f4afbe6516faadaa4f12ec983cd63a088e262921af3e22fdec3cd36ce7cd1a",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -154,7 +154,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -171,7 +171,7 @@
           "unpaid_mana": "{3}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "cdb330033f33027e78695066e2867ec054a6bb604b71e4c26005f60aca7b8249",
+        "decision_id": "8946c8f7a9a820f9e88833de34323dfbb2dc95a232e69461abedb1ceb2436713",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -181,14 +181,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "c9e521509b9906a5fd334b5489802256b0f40563b8e453d77316ca83b5a024d5"
+          "e2962b6c4bde23b05a0134b1db09e1a913db38478b589f98b8c9f5638bb8dced"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -198,7 +198,7 @@
           "unpaid_mana": "{3}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "562628270535c5a26a27a67d694ae8485ce8530fe0c0d435409c8e7068b2afc6",
+        "decision_id": "69fcd800d18cf71935ddeb56f8780366d20fbbb360e01694f921407cd0b3c747",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -208,7 +208,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -225,7 +225,7 @@
           "unpaid_mana": "{2}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "78b11c0d2e385545486d7c75d3e1d986be7bab9b38df55d5dc5cc8630b014f24",
+        "decision_id": "a3d614f398df52338044d03d08c73a5e0c44e176fd4b5b9cb16e3aa472e00698",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -234,14 +234,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "ff03dd8266428e97a4f65c6cc17b574920d869cb6a7535e9e2604ae44d574a2a"
+          "ce6d811a025bf6b92240fff724d02c6bbacbd75ebbbdf80d753125b13162a9c5"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -251,7 +251,7 @@
           "unpaid_mana": "{2}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "f7ff41c40774cf80159a45da58f12c5c03bdd037df011d3d338e42f15aecb8b2",
+        "decision_id": "0730492d418208fd5d8008be03abf9102f62f2665c7ae366db56b99c6415ed80",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -260,7 +260,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -277,7 +277,7 @@
           "unpaid_mana": "{1}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "315b3d453b3995a1a7a6ce98b2190bdb4321760a5a40c41e6aeebc19840dc7c2",
+        "decision_id": "ee3253b92a1fb8478aa0febeee8a8f27b042df99c935204778466bb8d9b32509",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -285,14 +285,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "2cd0bda7fdc6b19d6ca090e11903ec1f95dfa41648ffd45fe4d7ce51fd35290e"
+          "49671590b155cbf8174347fab1ba044f81f41d419b28ae973105d634aaab1cd9"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -302,7 +302,7 @@
           "unpaid_mana": "{1}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "3179d2425dc4bce000f6a8f4ad2457f4648105f3f67a1a3af4c8a2868b7c69f1",
+        "decision_id": "fa2b91956c6737ea011a3d919ec26baf48367e8e81afe9ee40cc6ca93e83531d",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -310,7 +310,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='d52c66e0-e83f-4d60-b22d-2b667714bb20'>Vandalblast</font> [d52]</div>",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -325,7 +325,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "0a272b58601a771a8ac880b1f33988360c9e70174195c464b89a4639d3a28c69",
+        "decision_id": "7a0c476bd2f0de2f3472eff3aa89807b111aa8cee2b32488ec7a97a05fc00705",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -345,7 +345,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "20e499cf66b2b4bc96f74ecbcac1fb85f70f619640754ba86080bd38ccff73a0",
+        "decision_id": "8e3967a30afbc14933fa17666d3d0fae5c480485d4df188ffd8f8e7cac5ce889",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -365,7 +365,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "11735c2a70602ae102b5bfad0a92fbfcda00568862bf41bdf2ea33fa1e812cc9",
+        "decision_id": "150743d6bc2eefbc3f6db29a6e31efad7563a1bf90a4e391fdfc3d2a5c97c35a",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -385,7 +385,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "739c346c593438386da831d893aafdc32de71661ea645574dcbde652bfd7b6b4",
+        "decision_id": "da7370a62abefaf9b9ca978b578b5b40095039e24a53cae923c861f908e83cec",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -393,518 +393,6 @@
         ],
         "principal": "P4",
         "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "e3840a8e76e3ce18f87c8dd665278cb816998dccee518d9816e620084caa1bf2",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Sol Ring \u2014 {T}: Add {C}{C}.",
-          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain"
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "8e556a385da77ceaa0b289b39e2afcfe9d4f41ff789cd6275007a4adad725b46",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "e5060772f931a1cb3d757f88d74f73f3425d3e087da1c6585152d692dc353675",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "0b9b408876218238f1d3976223ee0a057276f8c0461c210592ed492cca5faa64",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "1686398458cc1f480d2d73a57825908c355eb2a04e7f6cbdea1bf2215b4fb9f9",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Sol Ring \u2014 {T}: Add {C}{C}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "5bccaf465f734da2f2a0bf941be80657ddcdd041fa129cd66dd154ed669cc65e",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "77839c5e313a240097510aaa64508c93cec1834f7974fdc97751acabbee5b805",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "2f1f864bf1b00a2a79cb61a59209b88800a4c7312b81f0b81d52317c1cb3e21a",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "9f6fb676d122f63d0a222148d39e0cfab4ba5fc2fddcadea4aa5e5b051b5b245",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Sol Ring \u2014 {T}: Add {C}{C}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "b8fec9e51f15bb0d094105ea8326a722b1b511ebccea53f461eefbc2f5656b87",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "974ae1f2dac91e8aea3e5fcbddf7ac09b3ed069a5ac483a24edc1b7bb56005fb",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "014d0a2cf6602fd6dc3df28ab886befc57a92aab0f997dbf61ef2cc1baea77db",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "365cfdf8eab745e5868d189ec3d9da5336814b0275a975a99bcb03456945033e",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Sol Ring \u2014 {T}: Add {C}{C}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "76db80d9c025b899b704db30f2b9788a6f33d423ce74a72cfeeb95bb8bf6d458",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "d54ee8d63e998a5d905b230aa5bc9a943e5c12e1ec4f27d85a69f39ac5223bf1",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "07df210ab8fb56e859cdf44af90bb4579f5ce0fdcd24b0556f307662a007e230",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "147285d00fd2a5a4857f2fa8bafdf9bb9ec261fc8c4f19769915d24095050ba6",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Sol Ring \u2014 {T}: Add {C}{C}.",
-          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain"
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "9a2ee5323f4a5954cce70e2fada8381a387b9d6f9aa589f0e8745f4fa60fd36a",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "73cfec2d0e044afdb8a9dd4600ad3bd045497b194a42ca2226d7089deac2c69b",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "c665893e3220934ce7823dc3841168e000aba35e615e4a5bead8333c0b516320",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "83a3fcc04851b117c8d402105629eeb3bb9434b8f4bda8de7468be3838540d2a",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Sol Ring \u2014 {T}: Add {C}{C}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "523b943b1aea4ab970e23232564c362f6675f5f81ca163c84e840d379664f554",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "ed0aa44ca0eecf0edea75be523ea0ebf1494e80ffdf121b227f585e568589559",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "103983082e048bbf3ed06a2aac69727d69ecd435a0bb892dfd0c7c3b7ae81701",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {
-          "outcome": "discard",
-          "required": true,
-          "target_description": "target card to discard",
-          "target_name": "card to discard",
-          "targeted": false
-        },
-        "decision_class": "choose_object",
-        "decision_id": "51be17c537502e9c1af2be7a15da9e8bcbefc6ed5e3f1c56ab1a1b2dd8c9b31c",
-        "numeric": null,
-        "offered_labels": [
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain"
-        ],
-        "principal": "P1",
-        "prompt": "Select a card to discard",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -915,12 +403,9 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted choose_object for P1: the row stops unverified",
+    "detail": "obligation observed",
     "fixture_id": "CARD_14",
-    "missing_tokens": [
-      "overload_cast",
-      "destroy_each_opponent_artifact"
-    ],
+    "missing_tokens": [],
     "refusals": [],
     "tape": [
       {
@@ -1059,9 +544,30 @@
         "type": "ZONE_CHANGE"
       }
     ],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "terminal_facts": {
+      "Sol Ring is on P1's battlefield": true,
+      "no Sol Ring is on P2's battlefield": true,
+      "no Sol Ring is on P3's battlefield": true,
+      "no Sol Ring is on P4's battlefield": true,
+      "the engine asked no target decision": true
+    },
+    "token_evidence": {
+      "destroy_each_opponent_artifact": {
+        "binding": "exactly 3 DESTROYED_PERMANENT event(s) with source_object=obj:card_14-subject",
+        "events": [
+          9,
+          10,
+          11
+        ]
+      },
+      "overload_cast": {
+        "binding": "a scripted priority frame selected an engine offer naming 'with overload'",
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_14",
   "phase": "EXECUTED",
