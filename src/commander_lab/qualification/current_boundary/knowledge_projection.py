@@ -70,7 +70,9 @@ ROWS: dict[str, str] = {
     "HIDDEN_05": "exile_permission_persists",
     "HIDDEN_15": "source_metadata",
     "HIDDEN_16": "ability_metadata",
+    "HIDDEN_06": "exile_permission_invalidates",
     "HIDDEN_11": "shuffle_invalidates_order",
+    "HIDDEN_12": "controlled_player_authority",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -93,7 +95,9 @@ OBLIGATION_TEXT: dict[str, str] = {
     "exile_permission_persists": "face-down exile actor-specific permission persists",
     "source_metadata": "source metadata does not leak",
     "ability_metadata": "ability metadata does not leak",
+    "exile_permission_invalidates": "face-down exile knowledge invalidates correctly",
     "shuffle_invalidates_order": "shuffle invalidates order knowledge",
+    "controlled_player_authority": "controlled-player authority receives legally visible information",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -431,6 +435,8 @@ class Capture:
     script_trace: list[dict[str, Any]] = field(default_factory=list)
     script_complete: bool = False
     temporal_snapshots: list[dict[str, Any]] = field(default_factory=list)
+    controlled_decision: dict[str, Any] | None = None
+    controlled_submission: dict[str, Any] | None = None
 
 
 def _payload(response: dict[str, Any]) -> dict[str, Any]:
@@ -471,11 +477,14 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
         capture.script_start = len(client.tape)
 
         def snapshot_before_action(causal_step_id: str, position: int) -> None:
-            response = client.request("get_midgame_projection", {"actor_id": viewer})
-            if not response.get("success"):
-                raise ml.MidgameLaneError(
-                    f"temporal snapshot for {viewer} failed closed: {_error_code(response)}"
-                )
+            projections: dict[str, dict[str, Any]] = {}
+            for label in _labels(record):
+                response = client.request("get_midgame_projection", {"actor_id": label})
+                if not response.get("success"):
+                    raise ml.MidgameLaneError(
+                        f"temporal snapshot for {label} failed closed: {_error_code(response)}"
+                    )
+                projections[label] = _payload(response)
             events_response = client.request("get_midgame_events", {"after_offset": 0})
             if not events_response.get("success"):
                 raise ml.MidgameLaneError(
@@ -486,7 +495,9 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
                     "causal_step_id": causal_step_id,
                     "script_position": position,
                     "tape_index": len(client.tape),
-                    "projection": _payload(response),
+                    # Backward-compatible viewer alias used by HIDDEN_11.
+                    "projection": projections[viewer],
+                    "projections": projections,
                     "events": _payload(events_response),
                 }
             )
@@ -497,11 +508,15 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
                 record,
                 snapshot_before_action=(
                     snapshot_before_action
-                    if record.get("fixture_id") == "HIDDEN_11"
+                    if record.get("fixture_id") in {"HIDDEN_06", "HIDDEN_11"}
                     else None
                 ),
             )
             capture.script_complete = True
+            if record.get("fixture_id") == "HIDDEN_12":
+                capture.controlled_decision, capture.controlled_submission = (
+                    advance_to_controlled_decision(client, record)
+                )
         except ml.MidgameLaneError as exc:
             capture.failure = f"the scripted event failed closed: {exc}"
             return capture
@@ -707,6 +722,95 @@ def _boolean_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any
         raise ml.MidgameLaneError(f"the scripted answer {wanted} matched {len(matches)} offers")
     offer: dict[str, Any] = matches[0]
     return offer
+
+
+def _controlled_relationship(record: dict[str, Any]) -> tuple[str, str]:
+    """Return (controller, controlled player) from the record's own permission."""
+    relationships = [
+        item
+        for item in _viewer_state(record).get("temporary_permissions") or ()
+        if isinstance(item, dict)
+        and item.get("controller")
+        and item.get("controlled_player")
+        and item.get("permission")
+        == "only information P1 is entitled to while making P2 decisions under rules"
+    ]
+    if len(relationships) != 1:
+        raise ml.MidgameLaneError(
+            f"controlled-player row declares {len(relationships)} control relationships"
+        )
+    relation = relationships[0]
+    return str(relation["controller"]), str(relation["controlled_player"])
+
+
+def _record_seat_index(record: dict[str, Any], label: str) -> int:
+    matches = [
+        int(player["seat"]) - 1
+        for player in record.get("players") or ()
+        if str(player.get("player_id")) == label
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"record names {len(matches)} seats for {label}")
+    return matches[0]
+
+
+def advance_to_controlled_decision(
+    client: ml.MidgameLaneClient, record: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Advance only by engine-offered priority passes to the controlled turn.
+
+    Mindslaver's effect is already established by the record's explicit script.
+    This observer then accepts no discretionary class except priority. Every
+    transition uses the exact pass option XMage offers. The first frame whose
+    native address says controller acting-for controlled player is itself
+    answered with that frame's exact pass option so actor/decision/option
+    identity is exercised, not merely inspected.
+    """
+    probe = midgame_rows_mod.probe_module()
+    controller, controlled = _controlled_relationship(record)
+    controller_seat = _record_seat_index(record, controller)
+    controlled_seat = _record_seat_index(record, controlled)
+
+    for _ in range(120):
+        decision = client.pending_decision(attempts=5)
+        if decision is None:
+            raise ml.MidgameLaneError("the engine went terminal before the controlled turn")
+        legal = probe.legal_actions(client)
+        principal = probe.decision_principal(decision, legal)
+        acting_for = decision.get("acting_for_seat")
+        if acting_for is not None:
+            if (
+                principal != controller
+                or decision.get("seat") != controller_seat
+                or acting_for != controlled_seat
+            ):
+                raise ml.MidgameLaneError(
+                    "the engine exposed a controlled-player frame for the wrong authority"
+                )
+            passed = probe.option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError(
+                    "the controlled-player authority frame offered no pass_priority option"
+                )
+            observed = json.loads(json.dumps(decision))
+            client.submit_options(decision, [passed])
+            return observed, {
+                "decision_id": str(decision.get("decision_id")),
+                "actor_id": str(decision.get("actor_id")),
+                "selected_option_id": str(passed),
+                "accepted": True,
+            }
+
+        if str(decision.get("decision_class")) != "priority":
+            raise ml.MidgameLaneError(
+                "advancing to the controlled turn encountered unsupported "
+                f"{decision.get('decision_class')}"
+            )
+        passed = probe.option_of_type(decision, "pass_priority")
+        if passed is None:
+            raise ml.MidgameLaneError("the engine offered no pass while advancing turns")
+        client.submit_options(decision, [passed])
+    raise ml.MidgameLaneError("the controlled-player authority frame was not reached")
 
 
 def run_script(
