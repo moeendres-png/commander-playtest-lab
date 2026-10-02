@@ -175,6 +175,34 @@ class XmageCausalStackReconstructionTest {
         assertTrue(error.getMessage().startsWith("UNBOUND_STACK_COMMANDER"));
     }
 
+    @Test
+    void causalPreparationCarriesTheRecordsLosslessDeclarations() {
+        // A requested complete checkpoint hand binds the causal entry as it
+        // binds a placement: it is applied and verified, never dropped.
+        JsonObject record = baseRecord("rg01-lossless", 4);
+        addObject(record, "obj:bolt", "Lightning Bolt", "P1", "P1", "stack");
+        addObject(record, "obj:red", "Mountain", "P1", "P1", "battlefield");
+        addStackFrame(record, "obj:bolt", "P1", List.of("P2"), List.of());
+        JsonArray decks = new JsonArray();
+        JsonObject deck = new JsonObject();
+        deck.addProperty("player_id", "P1");
+        JsonObject template = new JsonObject();
+        template.addProperty("card_identity", "Mountain");
+        template.addProperty("count", 99);
+        deck.add("library_template", template);
+        JsonObject hand = new JsonObject();
+        hand.addProperty("completeness", "COMPLETE");
+        hand.addProperty("template_card_identity", "Mountain");
+        hand.addProperty("template_count", 8);
+        deck.add("checkpoint_hand", hand);
+        decks.add(deck);
+        record.add("deck_state", decks);
+
+        XmageCausalStackReconstruction.Prepared prepared =
+                XmageCausalStackReconstruction.prepare(record, "rg01-lossless", SEED);
+        assertTrue(!prepared.restoration().losslessHidden().isEmpty());
+    }
+
     private static JsonObject lastObject(JsonObject record) {
         JsonArray objects = record.getAsJsonArray("semantic_objects");
         return objects.get(objects.size() - 1).getAsJsonObject();

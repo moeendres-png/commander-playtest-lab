@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 49,
+  "changed_fixture_count": 50,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -51,7 +51,8 @@
    "CARD_22",
    "CARD_13",
    "CARD_10",
-   "CARD_07"
+   "CARD_07",
+   "CARD_16"
   ],
   "historical_predecessor_preserved": true,
   "per_fixture_correction_class": {
@@ -103,7 +104,8 @@
    "CARD_22": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "CARD_13": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "CARD_10": "ACTUAL_CARD_SCENARIO_ERRATUM",
-   "CARD_07": "ACTUAL_CARD_SCENARIO_ERRATUM"
+   "CARD_07": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "CARD_16": "ACTUAL_CARD_SCENARIO_ERRATUM"
   },
   "provider_semantics_used_to_define_successor": false,
   "unchanged_provider_denominator_rows": 78
@@ -12863,6 +12865,168 @@
     ]
    },
    "successor_requested_state_digest": "3635cf1286d5525f9327b7f1451042df0c5f2c6bb7d6e8298f3a94b0536edcbb"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
+      "correction": "the SLOT-04 complete checkpoint: P1's hand is exactly the record's three named Mountains and P1's library is the record's two named cards on top of the template; the other hands are the opening seven; P1 orders the two simultaneous Crawler triggers as the engine asks",
+      "defect": "the record names P1's top library cards but declares no complete library or hand, and under SLOT-04 L7 a partial library request fails closed; its empty decision script leaves the CR 603.3b ordering of the two simultaneous Crawler triggers unscripted, which stops the row",
+      "erratum_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false,
+      "rules_basis": "#255 SLOT-04 (L7 lossless construction); CR 603.3b (simultaneous triggers are ordered by their controller)",
+      "stack_entry": "causal_stack route of the production probe",
+      "includes_lossless_library_erratum": true
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-scenario-card_16"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 actual-card decision script",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "CARD_16",
+   "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "predecessor_values": {
+     "deck_state": null,
+     "decision_script": []
+    },
+    "reason": "the record names P1's top library cards but declares no complete library or hand, and under SLOT-04 L7 a partial library request fails closed; its empty decision script leaves the CR 603.3b ordering of the two simultaneous Crawler triggers unscripted, which stops the row"
+   },
+   "predecessor_requested_state_digest": "679402de5e889a344e8599883d5324b700f64278d7143208f9c892e89f086f4b",
+   "replace": {
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 0
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1",
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:card16-lib-0"
+        },
+        {
+         "semantic_id": "obj:card16-lib-1"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 99
+        }
+       ]
+      }
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "order-crawler-triggers",
+      "decision_family": "trigger_order",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Divination's two draws each trigger Psychosis Crawler; both instances are put on the stack together the next time a player would receive priority (CR 603.3b), so P1 orders them; they are identical, so the record lists the ability once per instance",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "order",
+       "semantic_value": [
+        "trigger:Psychosis_Crawler",
+        "trigger:Psychosis_Crawler"
+       ]
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "15e77b3a632fb58c059e4b3b6c213ee3a4cdb524b213050c5eaf20f597bca862"
   }
  ],
  "rules_authority": {

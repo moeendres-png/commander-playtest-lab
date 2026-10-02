@@ -217,13 +217,33 @@ final class XmageCausalStackReconstruction {
                     "PRESTACK_RESTORATION_UNSUPPORTED", exc.getMessage());
         }
 
-        List<String> identities = plan.objects().stream()
+        // The record's SLOT-04 lossless declarations (complete checkpoint
+        // libraries and hands, face-down objects) bind the pre-stack state as
+        // they bind a placement: applied and verified engine-direct at the
+        // checkpoint, never dropped. Without them a requested complete library
+        // or hand would be neither constructed nor checked.
+        final XmageLosslessHiddenPlan lossless;
+        try {
+            lossless = XmageLosslessHiddenPlan.fromRecord(record);
+            Set<String> requestedPlayers = new LinkedHashSet<>();
+            for (XmageNativeStateRestoration.RequestedPlayer player : plan.players()) {
+                requestedPlayers.add(player.playerId());
+            }
+            lossless.validatePlayers(requestedPlayers);
+        } catch (XmageNativeStateRestoration.RestorationException exc) {
+            throw new ReconstructionException(
+                    "PRESTACK_RESTORATION_UNSUPPORTED", exc.getMessage());
+        }
+        List<String> identities = new ArrayList<>(plan.objects().stream()
                 .map(XmageNativeStateRestoration.RequestedObject::cardIdentity)
-                .toList();
+                .toList());
+        // SLOT-04 library objects are placed after arrival from the same vehicle.
+        identities.addAll(lossless.vehicleIdentities());
         XmageNativeStateRestoration restoration =
                 new XmageNativeStateRestoration(
                         plan,
-                        XmageNativeStateRestoration.materializeCards(identities));
+                        XmageNativeStateRestoration.materializeCards(identities),
+                        lossless);
 
         List<StackFrame> bottomToTop = new ArrayList<>(topToBottom);
         Collections.reverse(bottomToTop);

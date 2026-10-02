@@ -827,7 +827,7 @@ def test_stack_rows_enter_through_the_declared_causal_stack_route() -> None:
     """A record that places spells on the stack is never placed with them: it
     enters through the production probe's declared causal-stack route, whose
     fuel is declared there; a placement row has no causal entry."""
-    for fixture_id in ("CARD_07", "CARD_10", "CARD_13", "CARD_20", "CARD_22"):
+    for fixture_id in ("CARD_07", "CARD_10", "CARD_13", "CARD_16", "CARD_20", "CARD_22"):
         entry = campaign.causal_entry(fixture_id)
         assert entry is not None and entry["entry_mode"] == "causal_stack"
         # Rograkh costs {0}: CARD_10's commander spell is the one fuel-free frame.

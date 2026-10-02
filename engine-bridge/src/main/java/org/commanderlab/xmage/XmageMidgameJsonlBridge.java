@@ -468,7 +468,11 @@ final class XmageMidgameJsonlBridge {
                 XmageMidgameCausalBridge.prepareCausalStack(
                         requestedState, fuel, planTag, seed);
 
-        List<String> handles = importScaffolding(stackPlan.prepared().preStackPlan(), planTag);
+        // A declared lossless deck template must be exactly the scaffolding,
+        // on this entry as on placement.
+        List<String> handles = importScaffolding(
+                stackPlan.prepared().preStackPlan(), planTag,
+                stackPlan.prepared().restoration().losslessHidden());
         this.restoration = stackPlan.prepared().restoration();
         this.planId = planTag;
         this.entryMode = "causal_stack";

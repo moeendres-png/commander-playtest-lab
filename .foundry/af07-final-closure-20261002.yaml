@@ -28,6 +28,9 @@ in_scope:
   - src/commander_lab/qualification/current_boundary/actual_card_campaign.py
   - src/commander_lab/qualification/current_boundary/midgame_rows.py
   - engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
+  - engine-bridge/src/main/java/org/commanderlab/xmage/XmageCausalStackReconstruction.java
+  - engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java
+  - scripts/run_midgame_capability_probe.py
   - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json
   - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json
   - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
@@ -72,14 +75,75 @@ milestones:
       Three-turn Saga progression with one Spellbook per player; the bridge
       now loads the card repository before resolving a double-faced name
       (a fresh runtime directory refused it before).
+  - id: M5
+    rows: [CARD_13, CARD_20, CARD_22]
+    result: DIRECT_PASS (local runner, official campaign script)
+    summary: >-
+      Stack rows enter through the production probe's native causal-stack
+      route (spells cast through the engine and verified on the stack);
+      CARD_13 and CARD_22 carry decision-script errata only.
+  - id: M6
+    rows: [CARD_10]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      Scenario erratum (P2 active, CR 302.1); a commander stack source is
+      prepared in the command zone and cast from there.
+  - id: M7
+    rows: [CARD_07]
+    result: FAIL CLOSED (construction), previous DIRECT_PASS withdrawn
+    summary: >-
+      Scenario erratum (Quick Study for Divination, CR 103.8c/307.1) stays.
+      Found and fixed: the causal-stack route dropped the record's SLOT-04
+      lossless deck_state (neither applied nor verified, yet EXACT), so the
+      earlier CARD_07 pass stood on an unverified construction. With the
+      declarations enforced, Narset placed before game start limits the
+      opponents' opening-hand draws to one card each (no legal game shows a
+      permanent during CR 103), and the requested libraries fail closed
+      (INCOMPLETE_LIBRARY_ORDER). A checkpoint-step placement prototype
+      passes CARD_07 but changes tested vehicle semantics (17 bridge tests,
+      incl. denominator row MICRO_CONTINUOUS_EFFECTS); the placement point is
+      escalated as a Rules/Coordinator decision.
+  - id: M8
+    rows: [CARD_16]
+    result: TERMINAL BLOCKED (provider capability), fails closed
+    summary: >-
+      Scenario erratum declares the complete checkpoint hand (exactly three
+      named cards) and the CR 603.3b trigger order. Two independent blockers:
+      under the current pre-start placement the Crawler triggers on P1's
+      opening draws (the arrival fails closed on trigger_order at turn-1
+      upkeep; see the placement decision request); and a three-card hand in
+      P1's own main phase is below the natural arrival hand (opening seven
+      plus the first draw), with no native hand-composition game-load API
+      (RG-06A restores library order only) and SLOT-04 L7 forbidding a
+      Lab-side hand mutation (with the prototype placement the row fails
+      closed on INCOMPLETE_LIBRARY_ORDER).
+  - id: M10
+    rows: [CARD_01..CARD_29 on Forge]
+    result: 29/29 UNSUPPORTED_DIMENSION (live, local runner); AF07 Forge NOT QUALIFIED
+    summary: >-
+      Forge ScenarioBootstrap lane at bridge 20e3e1f7. 28 rows need scripted
+      decision execution (the shared mid-game selector surface, not buildable
+      in this lane); CARD_07 needs a stack object. Matrix:
+      docs/af07_final_closure_20261002/FORGE_AF07_MATRIX.md.
+  - id: M9
+    rows: [CARD_25]
+    result: TERMINAL BLOCKED (harness capability)
+    summary: >-
+      The attacker is a token controlled since its turn began, equipped with
+      Basilisk Collar. An effect-created token route needs multi-turn causal
+      setup inside the arrival (create the token in an earlier P1 turn through
+      a real effect, equip through a real activation in the checkpoint turn's
+      main phase); the harness has no such route and no fabricated token or
+      attachment state is allowed.
 open_items:
-  - CARD_06 official Oracle receipt pending (Scryfall/Gatherer unreachable from this runner).
+  - CARD_06 and CARD_07 official Oracle receipts pending (Scryfall/Gatherer unreachable from this runner).
   - Exact-head PB-03 does not yet run the AF07 campaign; the same-epoch credit route is still to integrate.
 remaining_scope:
-  - CARD_25 token plus equipment attachment route
-  - stack/causal rows CARD_07, CARD_10, CARD_13, CARD_16, CARD_20, CARD_22
-  - Forge 29-card lane through the merged ScenarioBootstrap lane
+  - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)
   - AF07 same-epoch credit route
+  - restoration placement point (pre-start vs after the start-of-game procedure vs checkpoint step): Rules/Coordinator decision; prototype in docs/af07_final_closure_20261002
+  - CARD_16 native hand-composition API (provider change, Coordinator decision)
+  - CARD_25 multi-turn causal setup route
 exact_next_action: >-
-  Push the schema-2.0 state file and the repository-ready fix; on green
-  exact-head CI continue with CARD_25 and the stack/causal rows.
+  Push the causal lossless fix with the CARD_16 erratum and the Forge 29-card
+  matrix; obtain the placement-point ruling, then requalify CARD_07.

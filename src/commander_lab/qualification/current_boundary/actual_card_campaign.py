@@ -1340,6 +1340,36 @@ PLANS: dict[str, ObligationPlan] = {
             ("draw_disallowed", (_QUICK_STUDY_RESOLVED, _QUICK_STUDY_DRAW)),
         ),
     ),
+    # Psychosis Crawler: the causal-stack entry reconstructs P1's Divination on
+    # the stack with the Crawler on the battlefield. Divination resolves and
+    # P1 draws two cards; each draw triggers the Crawler and each opponent
+    # loses 1 life per trigger. The Crawler's power and toughness are P1's hand
+    # size, so 5/5 is the hand of exactly five cards.
+    "CARD_16": ObligationPlan(
+        fixture_id="CARD_16",
+        proofs=(
+            PostconditionProof(
+                "P1 hand size=5 and Crawler is 5/5 absent other modifiers.",
+                terminal_check=_permanent("power_toughness", "P1", "Psychosis Crawler", (5, 5)),
+                also=(
+                    midgame_rows_mod.TerminalCheck("hand_count_min", principal="P1", value=5),
+                    midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2),
+                ),
+            ),
+            PostconditionProof(
+                "P2/P3/P4 are each at 18 life.",
+                terminal_check=_life("P2", 18),
+                also=(_life("P3", 18), _life("P4", 18)),
+            ),
+        ),
+        token_bindings=(
+            ("draw_card", midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2)),
+            (
+                "Crawler_trigger",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card_16-subject"), count=2),
+            ),
+        ),
+    ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
     # the engine reports exactly two Talrand trigger instances for the one Bolt.
     "CARD_06": ObligationPlan(

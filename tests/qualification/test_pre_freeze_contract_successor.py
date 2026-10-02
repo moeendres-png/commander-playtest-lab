@@ -86,7 +86,7 @@ CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
 FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03", "CARD_22", "CARD_13"]
 # The AF07 scenario errata (1.0.18): a frozen position the Comprehensive Rules
 # make unreachable as recorded; every obligation key is untouched.
-CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07"]
+CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07", "CARD_16"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -1608,3 +1608,43 @@ def test_card07_scenario_erratum_substitutes_only_the_draw_spell() -> None:
     new, before = changed[0]
     assert {**new, "card_identity": before["card_identity"]} == before
     assert record["temporal_state"]["active_player"] == "P1"
+
+
+def test_card16_scenario_erratum_declares_the_complete_hand_and_the_trigger_order() -> None:
+    """The frozen hand size (five after Divination's two draws) needs P1's hand
+    to be exactly its three named cards: the erratum declares that complete
+    checkpoint hand and library (SLOT-04) and scripts the CR 603.3b ordering of
+    the two simultaneous Crawler triggers; the objects, the stack and every
+    obligation key are unchanged."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_16")
+    old = base["CARD_16"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert sorted(patch["replace"]) == ["decision_script", "deck_state"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is False
+    assert "603.3b" in details["rules_basis"]
+    record = resolver.effective_record("CARD_16")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["stack_state"] == old["stack_state"]
+    assert record["semantic_objects"] == old["semantic_objects"]
+    assert record["temporal_state"] == old["temporal_state"]
+    (p1,) = [deck for deck in record["deck_state"] if deck["player_id"] == "P1"]
+    assert p1["checkpoint_hand"]["template_count"] == 0
+    assert p1["checkpoint_library"]["runs"][:2] == [
+        {"semantic_id": "obj:card16-lib-0"},
+        {"semantic_id": "obj:card16-lib-1"},
+    ]
+    (order,) = record["decision_script"]
+    assert order["actor"] == "P1" and order["decision_family"] == "trigger_order"
+    assert order["selection"]["semantic_value"] == [
+        "trigger:Psychosis_Crawler",
+        "trigger:Psychosis_Crawler",
+    ]

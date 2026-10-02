@@ -1,0 +1,254 @@
+diff --git a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
+index 8c7e94c1..98fce42b 100644
+--- a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
++++ b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
+@@ -254,6 +254,8 @@ final class XmageNativeStateRestoration {
+     private boolean arrivalRestored;
+     private boolean losslessLibrariesApplied;
+     private boolean preStartApplied;
++    /** Restored face-up permanents placed at the start of the checkpoint step. */
++    private final List<String> checkpointPlacedSemanticIds = new ArrayList<>();
+ 
+     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
+         this(plan, materializationVehicle, XmageLosslessHiddenPlan.EMPTY);
+@@ -906,8 +908,10 @@ final class XmageNativeStateRestoration {
+     /**
+      * Pre-start assembly in the constructing thread (engine not running):
+      * silent setup placement via the engine's typed setup primitive (setup
+-     * attribution makes owners controllers) and watcher registration.
+-     * Commander cast counts, commanders outside the command zone and starting
++     * attribution makes owners controllers) and watcher registration. Face-up
++     * permanents are loaded here and enter at the start of the checkpoint step
++     * ({@link XmageCheckpointPlacementWatcher}), so they observe neither the
++     * start-of-game procedure nor the arrival turns. Commander cast counts, commanders outside the command zone and starting
+      * life are restored post-arrival ({@link #restoreAfterArrival}), once game
+      * start has created the commanders and derived life.
+      */
+@@ -923,12 +927,16 @@ final class XmageNativeStateRestoration {
+             vehicleByName.computeIfAbsent(card.getName(), name -> new ArrayList<>()).add(card);
+         }
+         Set<Card> consumed = new HashSet<>();
++        List<UUID> deferredCardIds = new ArrayList<>();
++        List<UUID> deferredOwnerIds = new ArrayList<>();
++        List<Boolean> deferredTapped = new ArrayList<>();
+         for (RequestedPlayer requested : plan.players()) {
+             Player player = requirePlayer(playersByPid, requested.playerId());
+             List<PutToBattlefieldInfo> battlefield = new ArrayList<>();
+             List<Card> hand = new ArrayList<>();
+             List<Card> graveyard = new ArrayList<>();
+             List<Card> exile = new ArrayList<>();
++            List<Card> deferred = new ArrayList<>();
+             for (RequestedObject object : plan.objects()) {
+                 if (!object.owner().equals(requested.playerId())) {
+                     continue;
+@@ -939,7 +947,20 @@ final class XmageNativeStateRestoration {
+                             "DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
+                 }
+                 switch (object.zone()) {
+-                    case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
++                    case BATTLEFIELD -> {
++                        // A face-down object turns face down before game start;
++                        // every other permanent enters at the checkpoint step.
++                        if (!losslessHidden.declaresFaceDown(object.semanticId())
++                                && XmageCheckpointPlacementWatcher.deferrable(game, card)) {
++                            deferred.add(card);
++                            deferredCardIds.add(card.getId());
++                            deferredOwnerIds.add(player.getId());
++                            deferredTapped.add(object.tapped());
++                            checkpointPlacedSemanticIds.add(object.semanticId());
++                        } else {
++                            battlefield.add(new PutToBattlefieldInfo(card, false));
++                        }
++                    }
+                     case HAND -> {
+                         hand.add(card);
+                         injectedHandIdsByPlayer
+@@ -958,6 +979,8 @@ final class XmageNativeStateRestoration {
+             // silently corrupt the restored state.
+             game.cheat(player.getId(), List.of(), hand, battlefield, graveyard,
+                     List.of(), exile);
++            // Loaded outside the game (watchers registered), placed later.
++            game.loadCards(new HashSet<>(deferred), player.getId());
+             // Life is not set here: game start re-derives it (initLife). See
+             // restoreStartingLife, which runs after arrival (F-40).
+         }
+@@ -965,6 +988,14 @@ final class XmageNativeStateRestoration {
+         // start and before the public event tape exists, so no observation
+         // ever shows it face up.
+         losslessHidden.applyPreStart(game, this);
++        if (!deferredCardIds.isEmpty()) {
++            game.getState().addWatcher(new XmageCheckpointPlacementWatcher(
++                    plan.turnNumber(),
++                    XmageCheckpointPlacementWatcher.startEventsOf(plan.step()),
++                    deferredCardIds,
++                    deferredOwnerIds,
++                    deferredTapped));
++        }
+         game.getState().addWatcher(new CommanderPlaysCountWatcher());
+         // After placement: the public event tape starts with the game, not the setup.
+         game.getState().addWatcher(new XmagePublicEventWatcher());
+@@ -1070,11 +1101,26 @@ final class XmageNativeStateRestoration {
+         if (losslessLibrariesApplied || !atRequestedCheckpoint(game)) {
+             return;
+         }
++        requireCheckpointPlacement(game);
+         losslessHidden.applyAfterArrival(game, playersByPid, this);
+         applyCheckpointPermanentState(game);
+         losslessLibrariesApplied = true;
+     }
+ 
++    /**
++     * Every permanent deferred to the checkpoint step entered at its start
++     * ({@link XmageCheckpointPlacementWatcher}); one still outside the game
++     * means the engine never opened the requested step, and the restoration
++     * fails closed rather than placing it late.
++     */
++    private void requireCheckpointPlacement(GameCommanderImpl game) {
++        for (String semanticId : checkpointPlacedSemanticIds) {
++            if (game.getState().getZone(injectedObjectId(semanticId)) == Zone.OUTSIDE) {
++                throw new RestorationException("CHECKPOINT_PLACEMENT_MISSED", semanticId);
++            }
++        }
++    }
++
+     /**
+      * Tapped state and counters are checkpoint state too: a permanent placed
+      * tapped before game start would be untapped by its controller's first
+diff --git a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageCheckpointPlacementWatcher.java b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageCheckpointPlacementWatcher.java
+new file mode 100644
+--- /dev/null
++++ b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageCheckpointPlacementWatcher.java
+@@ -0,0 +1,133 @@
++package org.commanderlab.xmage;
++
++import mage.abilities.Ability;
++import mage.abilities.common.SimpleStaticAbility;
++import mage.abilities.effects.common.InfoEffect;
++import mage.cards.Card;
++import mage.constants.PhaseStep;
++import mage.constants.WatcherScope;
++import mage.constants.Zone;
++import mage.game.Game;
++import mage.game.events.GameEvent;
++import mage.game.permanent.Permanent;
++import mage.players.Player;
++import mage.util.CardUtil;
++import mage.watchers.Watcher;
++
++import java.util.ArrayList;
++import java.util.EnumSet;
++import java.util.List;
++import java.util.Set;
++import java.util.UUID;
++
++/**
++ * Places the restored face-up permanents at the start of the requested
++ * checkpoint step.
++ *
++ * <p>The requested state is a checkpoint, not a history. A permanent the engine
++ * held on the battlefield from before game start would observe the vehicle's
++ * own start-of-game procedure and arrival turns (opening-hand draws, the first
++ * draw step), which no legal game can show: the battlefield is empty during the
++ * start-of-game procedure (CR 103). So the cards are loaded before game start
++ * (outside the game, with their watchers registered) and enter the battlefield
++ * at the first event of the checkpoint step: the phase's begin event when the
++ * step opens its phase, otherwise the step's begin event. They are then present
++ * for everything the checkpoint step itself does, beginning-of-step triggers
++ * included, and for nothing before it.</p>
++ *
++ * <p>The placement uses the same primitive as the setup placement
++ * ({@code CardUtil.putCardOntoBattlefieldWithEffects}: no ETB event, no summoning
++ * sickness), and each permanent then stands in its requested tapped state. A
++ * watcher runs before the event's trigger check
++ * ({@code GameState.handleEvent}), so triggers of the checkpoint step's begin
++ * event see the placed permanents. Only cards whose battlefield side is the card
++ * itself are deferred: their permanent shares the card's abilities, so placing
++ * one registers no new watcher while the engine iterates its watchers. The
++ * fields are plain ids, so the engine's state copies carry the watcher.</p>
++ */
++final class XmageCheckpointPlacementWatcher extends Watcher {
++
++    private Integer turnNumber;
++    private Set<GameEvent.EventType> startEvents;
++    private List<UUID> cardIds;
++    private List<UUID> ownerIds;
++    private List<Boolean> tapped;
++    private boolean placed;
++
++    // Boxed: Watcher.copy() constructs with null for every non-boolean
++    // parameter before copying the fields.
++    XmageCheckpointPlacementWatcher(
++            Integer turnNumber,
++            Set<GameEvent.EventType> startEvents,
++            List<UUID> cardIds,
++            List<UUID> ownerIds,
++            List<Boolean> tapped) {
++        super(WatcherScope.GAME);
++        this.turnNumber = turnNumber;
++        this.startEvents = startEvents == null ? null : EnumSet.copyOf(startEvents);
++        this.cardIds = cardIds == null ? null : new ArrayList<>(cardIds);
++        this.ownerIds = ownerIds == null ? null : new ArrayList<>(ownerIds);
++        this.tapped = tapped == null ? null : new ArrayList<>(tapped);
++    }
++
++    /** The events that open {@code step}: its phase's begin event when it opens the phase, then its own. */
++    static Set<GameEvent.EventType> startEventsOf(PhaseStep step) {
++        return switch (step) {
++            case UNTAP -> EnumSet.of(GameEvent.EventType.BEGINNING_PHASE_PRE, GameEvent.EventType.UNTAP_STEP_PRE);
++            case UPKEEP -> EnumSet.of(GameEvent.EventType.UPKEEP_STEP_PRE);
++            case DRAW -> EnumSet.of(GameEvent.EventType.DRAW_STEP_PRE);
++            case PRECOMBAT_MAIN -> EnumSet.of(
++                    GameEvent.EventType.PRECOMBAT_MAIN_PHASE_PRE, GameEvent.EventType.PRECOMBAT_MAIN_STEP_PRE);
++            case BEGIN_COMBAT -> EnumSet.of(
++                    GameEvent.EventType.COMBAT_PHASE_PRE, GameEvent.EventType.BEGIN_COMBAT_STEP_PRE);
++            case DECLARE_ATTACKERS -> EnumSet.of(GameEvent.EventType.DECLARE_ATTACKERS_STEP_PRE);
++            case DECLARE_BLOCKERS -> EnumSet.of(GameEvent.EventType.DECLARE_BLOCKERS_STEP_PRE);
++            case FIRST_COMBAT_DAMAGE, COMBAT_DAMAGE -> EnumSet.of(GameEvent.EventType.COMBAT_DAMAGE_STEP_PRE);
++            case END_COMBAT -> EnumSet.of(GameEvent.EventType.END_COMBAT_STEP_PRE);
++            case POSTCOMBAT_MAIN -> EnumSet.of(
++                    GameEvent.EventType.POSTCOMBAT_MAIN_PHASE_PRE, GameEvent.EventType.POSTCOMBAT_MAIN_STEP_PRE);
++            case END_TURN -> EnumSet.of(GameEvent.EventType.END_PHASE_PRE, GameEvent.EventType.END_TURN_STEP_PRE);
++            case CLEANUP -> EnumSet.of(GameEvent.EventType.CLEANUP_STEP_PRE);
++        };
++    }
++
++    /** True for a card whose battlefield permanent is the card itself (no part or face is chosen). */
++    static boolean deferrable(Game game, Card card) {
++        return CardUtil.getDefaultCardSideForBattlefield(game, card) == card;
++    }
++
++    @Override
++    public void watch(GameEvent event, Game game) {
++        if (placed || game.getTurnNum() != turnNumber.intValue() || !startEvents.contains(event.getType())) {
++            return;
++        }
++        placed = true;
++        for (int index = 0; index < cardIds.size(); index++) {
++            Card card = game.getCard(cardIds.get(index));
++            Player owner = game.getPlayer(ownerIds.get(index));
++            if (card == null || owner == null || game.getState().getZone(card.getId()) != Zone.OUTSIDE) {
++                // Left for the checkpoint verification, which fails closed.
++                continue;
++            }
++            Ability placement = new SimpleStaticAbility(Zone.OUTSIDE, new InfoEffect("restoration placement"));
++            placement.setControllerId(owner.getId());
++            placement.setSourceId(card.getId());
++            CardUtil.putCardOntoBattlefieldWithEffects(placement, game, card, owner, false);
++            // The requested tapped state is checkpoint state: an "enters tapped"
++            // replacement applied by the placement is not, and no untap step
++            // follows inside the checkpoint step to undo it.
++            Permanent permanent = game.getPermanent(card.getId());
++            if (permanent != null) {
++                permanent.setTapped(tapped.get(index));
++            }
++        }
++    }
++
++    boolean placed() {
++        return placed;
++    }
++
++    List<UUID> cardIds() {
++        return List.copyOf(cardIds);
++    }
++}

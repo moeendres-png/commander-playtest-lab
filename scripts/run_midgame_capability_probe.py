@@ -407,6 +407,19 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         ],
         "terminal": "scripted_decision_offered",
     },
+    "CARD_16": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": f"obj:fuel-island-p1-{index}",
+                "card_identity": "Island",
+                "owner": "P1",
+                "zone": "battlefield",
+            }
+            for index in range(3)
+        ],
+        "terminal": "scripted_decision_offered",
+    },
     "CARD_10": {
         "entry_mode": "causal_stack",
         # Rograkh costs {0}: the commander spell needs no fuel.
