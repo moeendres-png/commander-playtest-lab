@@ -1757,7 +1757,7 @@ def test_card25_scenario_erratum_causes_the_attachment_through_the_equip_ability
     activate, target = record["decision_script"][:2]
     assert activate["selection"]["semantic_value"] == {
         "action": "activate",
-        "object": "obj:card_25-subject",
+        "source": "obj:card_25-subject",
     }
     assert target["selection"]["semantic_value"] == "obj:card25-attacker"
     assert record["decision_script"][2:] == old["decision_script"]

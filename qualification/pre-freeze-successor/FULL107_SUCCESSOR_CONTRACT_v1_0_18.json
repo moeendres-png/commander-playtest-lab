@@ -13177,7 +13177,7 @@
        "selector_kind": "semantic_action",
        "semantic_value": {
         "action": "activate",
-        "object": "obj:card_25-subject"
+        "source": "obj:card_25-subject"
        }
       }
      },
