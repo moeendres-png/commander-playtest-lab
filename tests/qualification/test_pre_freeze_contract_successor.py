@@ -12,10 +12,10 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_14.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_15.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_13.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_14.json"
 )
 V106_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
@@ -63,6 +63,8 @@ CARD_SCRIPT_ERRATA_IDS = [
 # decision-script erratum (they keep their place in the patch order).
 CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27"]
 CARD_ERRATA_IDS = [*CARD_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS]
+# The later SLOT-04 event-scenario errata (1.0.15): a scry and a pile split.
+LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -76,6 +78,7 @@ CHANGED_FIXTURE_IDS = [
     *HIDDEN_ERRATA_IDS,
     *HIDDEN_EVENT_ERRATA_IDS,
     *CARD_ERRATA_IDS,
+    *LATE_HIDDEN_EVENT_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -90,7 +93,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_14_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_15_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -125,7 +128,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_14.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_15.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -193,7 +196,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_13.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_14.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -367,7 +370,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.14-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.15-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -379,9 +382,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.14-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.15-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.14-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.15-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -762,7 +765,7 @@ def test_the_other_hidden_records_keep_their_predecessor_bytes() -> None:
     }
     for index in range(5, 19):
         fixture_id = f"HIDDEN_{index:02d}"
-        if fixture_id in HIDDEN_EVENT_ERRATA_IDS:
+        if fixture_id in (*HIDDEN_EVENT_ERRATA_IDS, *LATE_HIDDEN_EVENT_ERRATA_IDS):
             continue
         assert fixture_id not in CHANGED_FIXTURE_IDS
         record = resolver.effective_record(fixture_id)
@@ -828,6 +831,7 @@ def test_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
         patch["fixture_id"]: patch
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+        and patch["fixture_id"] not in LATE_HIDDEN_EVENT_ERRATA_IDS
     }
     assert sorted(errata) == sorted(HIDDEN_EVENT_ERRATA_IDS)
     added = {
@@ -1002,3 +1006,66 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
             for item in named:
                 if isinstance(item, str) and item.startswith("obj:"):
                     assert item in objects, (fixture_id, item)
+
+
+def test_late_hidden_event_errata_add_a_scry_and_a_pile_split() -> None:
+    """HIDDEN_10 (scry knowledge) and HIDDEN_13 (pile metadata) name a scry and
+    piles but no event that makes them. The successor adds Magma Jet (scry 2)
+    and Fact or Fiction on top of the lossless base, with P1's requested
+    library top as complete checkpoint library runs. The obligation is
+    unchanged; HIDDEN_13 declares the cast's legal reveal of the five cards."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    lossless = resolver.effective_record("HIDDEN_01")
+    patches = {
+        patch["fixture_id"]: patch
+        for patch in contract["record_successors"]
+        if patch["fixture_id"] in LATE_HIDDEN_EVENT_ERRATA_IDS
+    }
+    assert sorted(patches) == sorted(LATE_HIDDEN_EVENT_ERRATA_IDS)
+    expected_library = {
+        "HIDDEN_10": ["Counterspell", "Brainstorm"],
+        "HIDDEN_13": ["Counterspell", "Brainstorm", "Ponder", "Preordain", "Opt"],
+    }
+    for fixture_id in LATE_HIDDEN_EVENT_ERRATA_IDS:
+        assert patches[fixture_id]["correction_class"] == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+        record = resolver.effective_record(fixture_id)
+        predecessor = base[fixture_id]
+        assert record["obligation_digest"] == predecessor["obligation_digest"]
+        assert record["expected_events"] == predecessor["expected_events"]
+        assert predecessor["decision_script"] == []
+        objects = {o["semantic_id"]: o for o in record["semantic_objects"]}
+        library = sorted(
+            (o for o in objects.values() if o["zone"] == "library" and o["owner"] == "P1"),
+            key=lambda o: o["zone_position"],
+        )
+        assert [o["card_identity"] for o in library] == expected_library[fixture_id]
+        p1 = next(d for d in record["deck_state"] if d["player_id"] == "P1")
+        runs = p1["checkpoint_library"]["runs"]
+        assert [run.get("semantic_id") for run in runs[:-1]] == [o["semantic_id"] for o in library]
+        assert runs[-1] == {"card_identity": "Mountain", "count": 99 - 8}
+        others = [d for d in record["deck_state"] if d["player_id"] != "P1"]
+        assert others == [d for d in lossless["deck_state"] if d["player_id"] != "P1"]
+        state = record["knowledge_state"]["viewer_states"][0]
+        old_state = predecessor["knowledge_state"]["viewer_states"][0]
+        for key, value in old_state.items():
+            if key != "temporary_permissions":
+                assert state[key] == value, (fixture_id, key)
+        for step in record["decision_script"]:
+            assert step["selection"]["on_multiple_match"] == "FAIL_CLOSED"
+    h13 = resolver.effective_record("HIDDEN_13")["knowledge_state"]["viewer_states"][0]
+    assert h13["temporary_permissions"] == [
+        {"object": f"obj:hidden13-lib-{i}", "permission": "reveal", "viewer": "ALL_PLAYERS"}
+        for i in range(5)
+    ]
+    h10 = resolver.effective_record("HIDDEN_10")["knowledge_state"]["viewer_states"][0]
+    assert h10["temporary_permissions"] == []
+    assert h10["known_library_ranges"] == [
+        {"count": 2, "ordered": True, "player": "P1", "start": 0, "viewer": "P1"}
+    ]

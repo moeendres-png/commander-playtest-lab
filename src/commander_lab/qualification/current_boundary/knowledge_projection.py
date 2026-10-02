@@ -65,6 +65,8 @@ ROWS: dict[str, str] = {
     "HIDDEN_14": "target_metadata",
     "HIDDEN_17": "copy_face_down",
     "HIDDEN_18": "transcript_privacy",
+    "HIDDEN_10": "scry_knowledge",
+    "HIDDEN_13": "pile_metadata",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -82,6 +84,8 @@ OBLIGATION_TEXT: dict[str, str] = {
     "target_metadata": "target option metadata does not leak",
     "copy_face_down": "copy/face-down interactions hide original identity",
     "transcript_privacy": "transcripts omit actor-private state",
+    "scry_knowledge": "scry/surveil top-N actor knowledge",
+    "pile_metadata": "pile metadata does not leak",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -229,6 +233,27 @@ def _scripted_casts(record: dict[str, Any]) -> list[str]:
     return casts
 
 
+def known_range_objects(record: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """(viewer, object) for every requested library object inside a range the
+    record's viewer state says that viewer knows."""
+    state = _viewer_state(record)
+    pairs: list[tuple[str, dict[str, Any]]] = []
+    for known in state.get("known_library_ranges") or ():
+        if not isinstance(known, dict):
+            continue
+        start, count = int(known.get("start", 0)), int(known.get("count", 0))
+        for obj in _objects(record):
+            position = obj.get("zone_position")
+            if (
+                obj.get("zone") == "library"
+                and obj.get("owner") == known.get("player")
+                and isinstance(position, int)
+                and start <= position < start + count
+            ):
+                pairs.append((str(known.get("viewer")), obj))
+    return pairs
+
+
 def forbidden_tokens(
     record: dict[str, Any], viewer: str, *, after_event: bool = False
 ) -> ForbiddenTokens:
@@ -254,6 +279,13 @@ def forbidden_tokens(
         temporary += [
             {"object": cast, "permission": "reveal", "viewer": "ALL_PLAYERS"}
             for cast in _scripted_casts(record)
+        ]
+        # A library range the record says a viewer knows (a scry or surveil of
+        # the top N) entitles that viewer, and only that viewer, to the range's
+        # cards once the event happened.
+        temporary += [
+            {"object": str(obj["semantic_id"]), "permission": "look", "viewer": viewer_label}
+            for viewer_label, obj in known_range_objects(record)
         ]
     visible: set[str] = set()
     hidden: dict[str, str] = {}
@@ -485,6 +517,65 @@ def _library_object_offer(
     return offer
 
 
+def _library_objects_offers(
+    legal: dict[str, Any], step: dict[str, Any], record: dict[str, Any]
+) -> list[dict[str, Any]] | None:
+    """The offers naming a set of requested library objects (a pile, a split
+    of revealed cards), or None for any other selector.
+
+    Each object is matched as ``_library_object_offer`` matches one: by the
+    record's checkpoint position and identity in the engine's own offer. The
+    set's size must be one the engine frame authorizes; any zero, repeated or
+    ambiguous match fails closed.
+    """
+    selection = step.get("selection") or {}
+    value = selection.get("semantic_value")
+    if selection.get("selector_kind") != "semantic_objects" or not isinstance(value, list):
+        return None
+    objects = {str(o.get("semantic_id")): o for o in _objects(record)}
+    requested = [objects.get(str(key)) for key in value]
+    if not requested or any(obj is None or obj.get("zone") != "library" for obj in requested):
+        return None
+    offers: list[dict[str, Any]] = []
+    for obj in requested:
+        assert obj is not None  # checked above
+        single = {
+            "selection": {"selector_kind": "semantic_object", "semantic_value": obj["semantic_id"]}
+        }
+        offer = _library_object_offer(legal, single, record)
+        if offer is None or any(offer is seen for seen in offers):
+            raise ml.MidgameLaneError(f"the scripted library set {value!r} is ambiguous")
+        offers.append(offer)
+    bounds = midgame_rows_mod._engine_selection_bounds(legal)
+    if bounds is None or not bounds[0] <= len(offers) <= bounds[1]:
+        raise ml.MidgameLaneError(
+            f"the record selects {len(offers)} library objects, the engine frame asks {bounds}"
+        )
+    return offers
+
+
+def _pile_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any] | None:
+    """The engine's offer of the pile the record names by its label, or None.
+
+    A pile frame offers its piles by label ("Pile 1", "Pile 2"); the record's
+    ``pile_label`` names one, and exactly one engine offer must carry it.
+    """
+    selection = step.get("selection") or {}
+    if selection.get("selector_kind") != "pile_label":
+        return None
+    label = selection.get("semantic_value")
+    if not isinstance(label, str) or not label:
+        raise ml.MidgameLaneError(f"pile_label carries {label!r}")
+    matches: list[dict[str, Any]] = [
+        action
+        for action in legal.get("actions") or ()
+        if midgame_rows_mod._label_of(action).strip() == label
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"the pile {label!r} matched {len(matches)} engine offers")
+    return matches[0]
+
+
 def face_down_permanents(projection: dict[str, Any], controller: str) -> list[str]:
     """The face-down permanents ``controller`` controls, as one principal's own
     projection shows them (object handles only, never an identity)."""
@@ -635,7 +726,25 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
             and midgame_rows_mod.engine_decision_class(str(step.get("decision_family")))
             == decision_class
         ):
-            chosen = _library_object_offer(legal, step, record) or _boolean_offer(legal, step)
+            pile = _library_objects_offers(legal, step, record)
+            if pile is not None:
+                probe.submit_proposal(
+                    client,
+                    legal,
+                    pile[0],
+                    f"knowledge-{len(trace)}",
+                    selected_option_ids=[
+                        str((offer.get("metadata") or {}).get("option_id")) for offer in pile
+                    ],
+                )
+                trace.append({"decision_class": decision_class, "step": position})
+                position += 1
+                continue
+            chosen = (
+                _library_object_offer(legal, step, record)
+                or _boolean_offer(legal, step)
+                or _pile_offer(legal, step)
+            )
             if chosen is None:
                 chosen = _face_down_target_offer(client, legal, step, principal)
             if chosen is None:
@@ -643,7 +752,12 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
                     legal, step, placed, midgame_rows_mod.RowSpec()
                 ).action
                 if chosen is None:
-                    raise ml.MidgameLaneError("an empty selection is not part of a scripted event")
+                    # The record selects nothing on a frame whose own minimum
+                    # is zero (a scry that keeps every card on top).
+                    client.submit_options(decision, [])
+                    trace.append({"decision_class": decision_class, "step": position})
+                    position += 1
+                    continue
             probe.submit_proposal(client, legal, chosen, f"knowledge-{len(trace)}")
             trace.append({"decision_class": decision_class, "step": position})
             position += 1
@@ -1354,6 +1468,138 @@ def _search_inspection(record: dict[str, Any], capture: Capture, viewer: str) ->
     return checks
 
 
+def _scry_knowledge(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """A scry or surveil of the top N: its viewer alone sees exactly that range.
+
+    The range is the record's own ``known_library_ranges``. The look is
+    evidenced by the viewer's own frame offering exactly the range's cards from
+    the library; the cards return to the library (the engine's own library to
+    library moves); every other principal receives no library offer and no
+    identity of the range.
+    """
+    checks = _event_checks(capture)
+    ranges = [
+        known
+        for known in _viewer_state(record).get("known_library_ranges") or ()
+        if isinstance(known, dict)
+    ]
+    checks.append(Check("known_range_declared", len(ranges) == 1, f"{len(ranges)} declared"))
+    if len(ranges) != 1:
+        return checks
+    known = ranges[0]
+    knower = str(known.get("viewer"))
+    owner = str(known.get("player"))
+    objects = [obj for label, obj in known_range_objects(record) if label == knower]
+    identities = sorted(str(obj["card_identity"]) for obj in objects)
+    checks.append(
+        Check(
+            "known_range_requested_exactly",
+            len(objects) == int(known.get("count", -1)) and len(set(identities)) == len(identities),
+            f"{len(objects)} distinct requested objects for a range of {known.get('count')}",
+        )
+    )
+    frames = _after_event_frames(capture, knower)
+    measured = any(frame.get("legal_options") for frame in frames)
+    # Frames without any options measure nothing: unmeasured, never denied.
+    checks.append(
+        Check(f"knower_frames_observed:{knower}", measured, f"{len(frames)} frames after the event")
+    )
+    offered = [
+        sorted(str((option.get("metadata") or {}).get("name")) for option in _library_options(f))
+        for f in frames
+    ]
+    checks.append(
+        Check(
+            f"range_shown_exactly_to:{knower}",
+            identities in offered,
+            f"library offers shown to {knower}: {offered}",
+            "ENTITLEMENT" if measured else "MEASURED",
+        )
+    )
+    returned = [
+        event
+        for event in (capture.events.get("events") or ())
+        if event.get("type") == "ZONE_CHANGE"
+        and event.get("from") == "LIBRARY"
+        and event.get("to") == "LIBRARY"
+        and event.get("player_player") == owner
+    ]
+    checks.append(
+        Check(
+            "range_returned_to_library",
+            len(returned) == len(objects),
+            f"{len(returned)} library-to-library moves of {owner}'s cards",
+        )
+    )
+    for label in _labels(record):
+        if label == knower:
+            continue
+        leaked = [
+            len(_library_options(frame))
+            for frame in frames_of(principal_documents(capture.tape, label, capture.natives))
+            if _library_options(frame)
+        ]
+        checks.append(
+            Check(
+                f"no_range_offer_to:{label}",
+                not leaked,
+                f"{sum(leaked)} library offers in {len(leaked)} frames",
+                "LEAK",
+            )
+        )
+        if label == viewer:
+            continue
+        hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not hits,
+                f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _pile_frames(frames: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The frames that split cards into piles or choose a pile."""
+    return [
+        frame
+        for frame in frames
+        if frame.get("decision_class") == "pile" or "pile" in str(frame.get("prompt") or "").lower()
+    ]
+
+
+def _pile_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """Piles are made of legally revealed cards, and no pile frame carries more.
+
+    The revealed cards are the record's own reveal permissions (every player);
+    the reveal itself is checked as a reveal audience. Every principal's pile
+    frames (the split, the choice) must exist where the engine asked one and
+    must carry no identity, semantic id or sentinel that principal is not
+    entitled to once the event happened.
+    """
+    checks = _event_audience(record, capture, "reveal_audience")
+    asked = 0
+    for label in _labels(record):
+        frames = _pile_frames(frames_of(principal_documents(capture.tape, label, capture.natives)))
+        asked += len(frames)
+        tokens = forbidden_tokens(record, label, after_event=True)
+        hits = scan([(f"pile_frame:{label}", frame) for frame in frames], tokens.tokens)
+        checks.append(
+            Check(
+                f"pile_frames_carry_only_entitled_identities:{label}",
+                not hits,
+                f"{len(frames)} pile frames, {len(hits)} forbidden occurrences",
+                "LEAK",
+            )
+        )
+    checks.append(
+        Check("pile_frames_observed", asked >= 2, f"{asked} pile frames across the table")
+    )
+    return checks
+
+
 def _target_metadata(
     record: dict[str, Any],
     capture: Capture,
@@ -1731,6 +1977,10 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _event_audience(record, capture, kind)
     elif kind == "search_inspection":
         focus = _search_inspection(record, capture, viewer)
+    elif kind == "scry_knowledge":
+        focus = _scry_knowledge(record, capture, viewer)
+    elif kind == "pile_metadata":
+        focus = _pile_metadata(record, capture, viewer)
     elif kind == "target_metadata":
         focus = _target_metadata(record, capture, viewer)
     elif kind == "copy_face_down":
