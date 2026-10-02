@@ -2295,6 +2295,305 @@ def _exile_permission_persists(
     return checks
 
 
+def _exile_permission_invalidates(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """A face-down exile look ends when the native object leaves exile.
+
+    The pre-cast snapshot must prove that the engine actually established the
+    actor-specific face-down exile view. A later native EXILED -> STACK move of
+    that same card must occur after the snapshot. Final projections may remember
+    a now-public identity through ordinary game history, but no principal may
+    retain the old face-down exile entry or its private exile handle.
+    """
+    checks = _event_checks(capture)
+    permissions = [
+        item
+        for item in _after_event_permissions(record)
+        if isinstance(item, dict)
+        and item.get("permission") == "look_at_face_down_exile"
+        and item.get("viewer") == viewer
+        and item.get("object")
+    ]
+    checks.append(
+        Check(
+            "invalidating_exile_look_declared",
+            len(permissions) == 1
+            and "object changes zone or becomes a new object"
+            in (_viewer_state(record).get("invalidation_conditions") or ()),
+            f"{len(permissions)} look permissions; invalidation="
+            f"{_viewer_state(record).get('invalidation_conditions')}",
+        )
+    )
+    if len(permissions) != 1:
+        return checks
+
+    object_id = str(permissions[0]["object"])
+    obj = next((item for item in _objects(record) if item.get("semantic_id") == object_id), None)
+    checks.append(Check("invalidated_object_declared", obj is not None, object_id))
+    if obj is None:
+        return checks
+    identity = str(obj["card_identity"])
+    owner = str(obj["owner"])
+
+    snapshots = [
+        snapshot
+        for snapshot in capture.temporal_snapshots
+        if snapshot.get("causal_step_id") == "cast-exiled-card"
+    ]
+    checks.append(
+        Check(
+            "pre_zone_change_exile_snapshot_observed",
+            len(snapshots) == 1,
+            f"{len(snapshots)} snapshots immediately before the exile object leaves",
+        )
+    )
+    if len(snapshots) == 1:
+        snapshot = snapshots[0]
+        snapshot_projections = snapshot.get("projections") or {}
+        viewer_projection = snapshot_projections.get(viewer) or snapshot.get("projection") or {}
+        owner_view = _player_entry(viewer_projection, owner) or {}
+        viewer_face_down = [
+            card
+            for card in owner_view.get("exile") or ()
+            if isinstance(card, dict)
+            and card.get("face_down") is True
+            and card.get("name") == identity
+        ]
+        checks.append(
+            Check(
+                "permission_active_before_zone_change",
+                len(viewer_face_down) == 1,
+                f"{len(viewer_face_down)} matching face-down exile entries in {viewer}'s snapshot",
+                "ENTITLEMENT",
+            )
+        )
+        for label in _labels(record):
+            if label == viewer:
+                continue
+            projection = snapshot_projections.get(label) or {}
+            entry = _player_entry(projection, owner) or {}
+            leaked = [
+                card
+                for card in entry.get("exile") or ()
+                if isinstance(card, dict) and card.get("face_down") is True
+            ]
+            checks.append(
+                Check(
+                    f"permission_not_shared_before_zone_change:{label}",
+                    not leaked,
+                    f"{len(leaked)} face-down exile entries shown to {label}",
+                    "LEAK",
+                )
+            )
+
+        pre_events = list((snapshot.get("events") or {}).get("events") or ())
+        grants = [
+            event
+            for event in pre_events
+            if event.get("type") == "ZONE_CHANGE"
+            and event.get("from") in {"LIBRARY", "HAND"}
+            and event.get("to") == "EXILED"
+            and event.get("public_identity") is False
+        ]
+        checks.append(
+            Check(
+                "native_face_down_exile_grant_precedes_snapshot",
+                len(grants) == 1,
+                f"{len(grants)} hidden-zone -> face-down exile moves before snapshot",
+            )
+        )
+        pre_departures = [
+            event
+            for event in pre_events
+            if event.get("type") == "ZONE_CHANGE"
+            and event.get("from") == "EXILED"
+            and event.get("to") == "STACK"
+            and event.get("target_name") == identity
+        ]
+    else:
+        pre_events = []
+        pre_departures = []
+
+    post_events = list(capture.events.get("events") or ())
+    departures = [
+        event
+        for event in post_events
+        if event.get("type") == "ZONE_CHANGE"
+        and event.get("from") == "EXILED"
+        and event.get("to") == "STACK"
+        and event.get("target_name") == identity
+    ]
+    checks.append(
+        Check(
+            "native_exile_zone_change_observed_after_snapshot",
+            len(snapshots) == 1 and len(departures) > len(pre_departures),
+            f"{len(pre_departures)} matching moves before snapshot; "
+            f"{len(departures)} after scripted event",
+        )
+    )
+
+    stale_handles: set[str] = set()
+    if len(snapshots) == 1:
+        pre_projection = (snapshots[0].get("projections") or {}).get(viewer) or {}
+        pre_entry = _player_entry(pre_projection, owner) or {}
+        stale_handles = {
+            str(card.get("object_id"))
+            for card in pre_entry.get("exile") or ()
+            if isinstance(card, dict)
+            and card.get("face_down") is True
+            and card.get("name") == identity
+            and card.get("object_id")
+        }
+
+    for label, projection in capture.projections.items():
+        entry = _player_entry(projection, owner) or {}
+        stale = [
+            card
+            for card in entry.get("exile") or ()
+            if isinstance(card, dict)
+            and (
+                card.get("face_down") is True
+                or card.get("name") == identity
+                or str(card.get("object_id")) in stale_handles
+            )
+        ]
+        checks.append(
+            Check(
+                f"no_stale_face_down_exile_permission:{label}",
+                not stale,
+                f"{len(stale)} stale face-down/private exile entries remain for {label}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _controlled_player_authority(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """The Rules Core, not the harness, determines who makes a controlled turn decision."""
+    checks = _event_checks(capture)
+    try:
+        controller, controlled = _controlled_relationship(record)
+    except ml.MidgameLaneError as exc:
+        return checks + [Check("controlled_relationship_declared", False, str(exc))]
+    checks.append(
+        Check(
+            "controlled_relationship_declared",
+            controller == viewer,
+            f"controller={controller}; controlled={controlled}; viewer={viewer}",
+        )
+    )
+    decision = capture.controlled_decision or {}
+    expected_controller_seat = _record_seat_index(record, controller)
+    expected_controlled_seat = _record_seat_index(record, controlled)
+    checks.append(
+        Check(
+            "engine_addresses_controlled_decision_to_controller",
+            bool(decision)
+            and decision.get("actor_id") == capture.natives.get(controller)
+            and decision.get("seat") == expected_controller_seat
+            and decision.get("acting_for_seat") == expected_controlled_seat,
+            f"actor={decision.get('actor_id')}; seat={decision.get('seat')}; "
+            f"acting_for={decision.get('acting_for_seat')}",
+            "ENTITLEMENT",
+        )
+    )
+
+    pilot_state = decision.get("pilot_state") or {}
+    controlled_row = next(
+        (
+            player
+            for player in pilot_state.get("players") or ()
+            if isinstance(player, dict) and player.get("seat") == expected_controlled_seat
+        ),
+        None,
+    )
+    hand_expected = {
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "hand" and obj.get("owner") == controlled
+    }
+    hand_seen = {
+        str(card.get("name"))
+        for card in (controlled_row or {}).get("hand") or ()
+        if isinstance(card, dict) and card.get("name")
+    }
+    checks.append(
+        Check(
+            "controller_receives_controlled_players_hand",
+            controlled_row is not None and hand_expected <= hand_seen,
+            f"expected controlled hand identities {sorted(hand_expected)}; saw {sorted(hand_seen)}",
+            "ENTITLEMENT",
+        )
+    )
+
+    forbidden_in_frame: set[str] = set()
+    # Controlling another player grants the information that player could see,
+    # not omniscient access to that player's library or unrelated principals.
+    forbidden_in_frame.update(
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "library" and obj.get("owner") == controlled
+    )
+    forbidden_in_frame.update(
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "hand" and obj.get("owner") not in {controller, controlled}
+    )
+    hidden_hits = scan([("controlled_decision", decision)], forbidden_in_frame)
+    checks.append(
+        Check(
+            "controlled_decision_is_not_omniscient",
+            not hidden_hits,
+            f"{len(hidden_hits)} forbidden library/unrelated-hand occurrences",
+            "LEAK",
+        )
+    )
+
+    submission = capture.controlled_submission or {}
+    offered = {
+        str(option.get("option_id"))
+        for option in decision.get("legal_options") or ()
+        if isinstance(option, dict) and option.get("option_id")
+    }
+    selected = str(submission.get("selected_option_id") or "")
+    checks.append(
+        Check(
+            "controlled_decision_submission_uses_exact_engine_identity",
+            bool(decision)
+            and submission.get("accepted") is True
+            and submission.get("decision_id") == decision.get("decision_id")
+            and submission.get("actor_id") == decision.get("actor_id")
+            and selected in offered
+            and len(offered) > 0,
+            f"decision={submission.get('decision_id')}; actor={submission.get('actor_id')}; "
+            f"selected={selected}; offered={sorted(offered)}",
+        )
+    )
+
+    # Decision frames are addressed by their actor. P2/P3/P4 must not receive
+    # the controller's acting-for frame through any response envelope.
+    for label in _labels(record):
+        if label == controller:
+            continue
+        received = [
+            frame
+            for frame in frames_of(principal_documents(capture.tape, label, capture.natives))
+            if frame.get("decision_id") == decision.get("decision_id")
+        ]
+        checks.append(
+            Check(
+                f"controlled_frame_withheld_from:{label}",
+                not received,
+                f"{len(received)} copies of the controlled decision reached {label}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
 def _source_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
     """A decision whose source is a hidden permanent names nothing hidden.
 
@@ -2639,6 +2938,10 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _transcript_privacy(record, capture, viewer)
     elif kind == "exile_permission_persists":
         focus = _exile_permission_persists(record, capture, viewer)
+    elif kind == "exile_permission_invalidates":
+        focus = _exile_permission_invalidates(record, capture, viewer)
+    elif kind == "controlled_player_authority":
+        focus = _controlled_player_authority(record, capture, viewer)
     elif kind == "source_metadata":
         focus = _source_metadata(record, capture, viewer)
     elif kind == "ability_metadata":
