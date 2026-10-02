@@ -659,11 +659,21 @@ def submit_proposal(
     action: dict[str, Any],
     proposal_id: str,
     numeric_choice: int | None = None,
+    selected_option_ids: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Submit one engine-offered action; a numeric answer only where the frame asks one."""
+    """Submit one engine-offered action; a numeric answer only where the frame asks one.
+
+    ``selected_option_ids`` is set only for a multi-select frame the engine
+    authored with more than one required selection: every id in it is an engine
+    offer of the same pending decision, and ``legal_action_id`` stays one of
+    them. The bridge validates membership and the frame's own cardinality, so a
+    selection can never smuggle an option the engine did not offer.
+    """
     choices: dict[str, Any] = {"ordering": []}
     if numeric_choice is not None:
         choices["numeric_choice"] = numeric_choice
+    if selected_option_ids is not None:
+        choices["selected_option_ids"] = list(selected_option_ids)
     proposal = {
         "proposal_id": proposal_id,
         "actor_id": legal["actor_id"],

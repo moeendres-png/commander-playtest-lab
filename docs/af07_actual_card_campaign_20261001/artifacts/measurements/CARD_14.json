@@ -1,0 +1,613 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 9.389,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f79e9535df4561d834e7366ae31a971a4429af9f52ad3aaef16f1c3b6f06426a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Vandalblast \u2014 Cast Vandalblast with overload",
+          "Vandalblast \u2014 Cast Vandalblast",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Vandalblast \u2014 Cast Vandalblast with overload",
+        "selected_option_ids": [
+          "f7f366145718063397f247c40a2c7b17230a46db87f9b70652f102f3b45bb01a"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "037c4133-2093-496e-bac8-55630b39cce5"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "1aef28b24f27f8a61a8f04e9879d9b23dc16ac4821424b7aa22af43d1e127379",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "330752f38aaaf3e65c5b2d2a00131bcb7f2052c0212d43920fde6f0584848dd6"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "bab85fdc408be62fbbb63e42ae15395fedf5b30c9c1251d579db5d1fd305e18e",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "74f89e290acdbcb34a5a477f8163c6212e0268c161ff7bf5868ed1c96dda530d",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "4346d5fc997c1e9854fb3f85d69a14a3b5bb59cc8e7eea28139176b3bcf33305"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "b8353425ba825c79b91c39096a692b886534141910e4408b84a82987e49e8c36",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "83b0163246824e21b1aa7d0656680dc790c027bd8145952726bc003ebac855a0",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "70cf1be764bccc40b09986aa7798b18967ba407bd3b3c7dbf95c96e990bb95e3"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "229aaa6dc83c38cacd8ca4af00810997ca89a59e12cdc27e051cee50f1f44be1",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "5baa5d30c6659f71cd07c260cc64c9cb072cc3a1b09ba5a58bc0378227a33a81",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "7f26d0a808def1b0450495452e2134f27d5c21dbfb83589bece2b3bedd036733"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "e3c4e92a1723e09fbe8d31317675bad26cd73b676dd8245de208d8444617e594",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "508ed210ab0989091fa7c1cc87e1b0df15bbbc95de8c4ba8ec93b73912b3190a",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "57216b4a0acab6db10550090d393bdf9a9d173f989ccc0821cc7b0b69a16bf6d"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "4e8ea42c15063ac88872795b134a5a77b3c33e59a3a435f457345d85820cc133",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "603d3f1221b1e267a60305d57436b4d1255ca8f5306d05f04dea2286db39002c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "64f67be73763d8bad395462c9255c0ec97a02015df21905aae5b30671f0eb654",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "49a5cd6659f6e87a2f7526e9e652760329687c10254e6722685dd29e77cbb57d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e29db7bb2c6350544df5d89e7c9f12b824633b8e44f8ec42162f18340f458892",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_14",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Vandalblast",
+        "target_object": "obj:card_14-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Vandalblast",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card14-p4-artifact",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card14-p2-artifact",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card14-p3-artifact",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card14-p4-artifact",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card14-p2-artifact",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card14-p3-artifact",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 15,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Vandalblast",
+        "target_object": "obj:card_14-subject",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
+    "terminal_facts": {
+      "Sol Ring is on P1's battlefield": true,
+      "no Sol Ring is on P2's battlefield": true,
+      "no Sol Ring is on P3's battlefield": true,
+      "no Sol Ring is on P4's battlefield": true,
+      "the engine asked no target decision": true
+    },
+    "token_evidence": {
+      "destroy_each_opponent_artifact": {
+        "binding": "exactly 3 DESTROYED_PERMANENT event(s) with source_object=obj:card_14-subject",
+        "events": [
+          9,
+          10,
+          11
+        ]
+      },
+      "overload_cast": {
+        "binding": "a scripted priority frame selected an engine offer naming 'with overload'",
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_14",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

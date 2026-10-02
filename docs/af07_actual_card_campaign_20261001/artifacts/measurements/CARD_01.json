@@ -1,0 +1,350 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "creation_errors": [],
+  "elapsed_s": 32.11,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "ALLOWED_VARIANCE",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "2980e9c64d77ad0bfa54e33c372c492a287ec5f0e7d474394bba3021b2d0a7b6",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "99be7962bdf155ab9672fbbfb24b26cabaef7a6132f0d82ce172cc8ccb7113fc",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Lightning Bolt \u2014 Cast Lightning Bolt"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
+        "selected_option_ids": [
+          "5295d3a97d043eb10b1d7da6cbef77ce91dcbc8c270cb666d47df9b13f79fe7d"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "8679835c-5377-49d1-bfaa-f0cc04ec32c9"
+      },
+      {
+        "context": {
+          "outcome": "damage",
+          "required": false,
+          "target_description": "any target",
+          "target_name": "any target",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "954c92af74e6af028dbc96c7db9476f8bdf9d438f352caa085210ad0f441cc93",
+        "numeric": null,
+        "offered_labels": [
+          "Full Game Seat 1",
+          "Full Game Seat 2",
+          "Full Game Seat 3",
+          "Full Game Seat 4",
+          "Ishai, Ojutai Dragonspeaker"
+        ],
+        "principal": "P2",
+        "prompt": "Select any target",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Full Game Seat 3",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "3a9f2d0c75f859c0438b97ddf99d76bf51ab5e8c82fa65a121e413a46250c27a",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P2",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='8679835c-5377-49d1-bfaa-f0cc04ec32c9'>Lightning Bolt</font> [867]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "60287c8fc95ac3f1eee9c45afdba316a212f66638fcd62da70631380fb2e1ce6"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "8ab1090a3baf3d73604c3af996df7752d922c1d1cbc1538a35e510b48a0b34f1",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool"
+        ],
+        "principal": "P2",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='8679835c-5377-49d1-bfaa-f0cc04ec32c9'>Lightning Bolt</font> [867]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3c05a7b75a04901139d8d4e02dbdd14e44e8e4ffa2d53412acd9d20c2d42fd14",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "07767beed37548e51e18355ef5cbf5dfbe81cf20f8d3733dd16e1dcf137686f1",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3784238d2724d9ad2779901b43dd8a2510244541bf73de16ce16029b153583c8",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "baeb281f92ee15917222ec129cb2cf42efcf0376c7117cbab0abce1a7cf4c2e1",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_01",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Lightning Bolt",
+        "source_object": "obj:card01-bolt",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Lightning Bolt",
+        "target_object": "obj:card01-bolt",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Lightning Bolt",
+        "source_object": "obj:card01-bolt",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Lightning Bolt",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Ishai, Ojutai Dragonspeaker",
+        "source_object": "obj:card01-ishai",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (Whenever an opponent casts a spell, put a +1/+1 counter on {this}.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 1,
+        "data": "+1/+1",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Ishai, Ojutai Dragonspeaker",
+        "source_object": "obj:card01-ishai",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Ishai, Ojutai Dragonspeaker",
+        "target_object": "obj:card01-ishai",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      }
+    ],
+    "terminal_facts": {
+      "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}": true
+    },
+    "token_evidence": {
+      "counter_change:+1/+1:+1": {
+        "binding": "exactly 1 COUNTER_ADDED event(s) with target_object=obj:card01-ishai, data=+1/+1, amount=1",
+        "events": [
+          10
+        ]
+      },
+      "spell_cast:P2": {
+        "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+        "events": [
+          8
+        ]
+      },
+      "trigger:Ishai": {
+        "events": [
+          9
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_01",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

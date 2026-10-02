@@ -1,0 +1,82 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_23",
+  "obligation_exercised": {
+    "obligation_digest": "8e9af38d9aa08ce98f9e5adcd54f016075292562d8456577403761df2f0d3fdc",
+    "requested_state_digest": "4babe9dd8c053ad1095071322db50b9c5d813eb3ebbae5dafd5041c75901765b",
+    "required_events": [
+      "return_creature_with_mannequin_counter",
+      "creature_becomes_target",
+      "granted_trigger",
+      "sacrifice_returned_creature"
+    ],
+    "terminal_checks": [
+      "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature",
+      "no Grizzly Bears is on P1's battlefield"
+    ],
+    "terminal_postconditions": [
+      "Returned creature is sacrificed when granted trigger resolves before Lightning Bolt would resolve if no responses intervene."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+      "size": 7113924
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "no Grizzly Bears is on P1's battlefield"
+        ],
+        "check": "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Returned creature is sacrificed when granted trigger resolves before Lightning Bolt would resolve if no responses intervene."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature": true,
+      "no Grizzly Bears is on P1's battlefield": true
+    },
+    "token_evidence": {
+      "creature_becomes_target": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card23-creature, target_name~=stack ability (When {this} becomes the target",
+        "events": [
+          13
+        ]
+      },
+      "granted_trigger": {
+        "binding": "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card23-creature",
+        "events": [
+          13
+        ]
+      },
+      "return_creature_with_mannequin_counter": {
+        "binding": "at least one COUNTER_ADDED event(s) with target_object=obj:card23-creature, data=mannequin, amount=1",
+        "events": [
+          9
+        ]
+      },
+      "sacrifice_returned_creature": {
+        "binding": "at least one SACRIFICED_PERMANENT event(s) with target_object=obj:card23-creature",
+        "events": [
+          15
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "2864118fc02e769b96e2f2ff458c70c55b634c98f2a512498a0d4e793d6511ea",
+  "runner_digest": "1f3f9673a20ed174feb2982d4d38fc4f0a82f022de6ae89a35849eee70d5009c",
+  "runtime_receipt_digest": "1310633c4fcb27b3c082fe0805499891bb41a3f5fe04844ae1d802ef4d3d9e2d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_23"
+}

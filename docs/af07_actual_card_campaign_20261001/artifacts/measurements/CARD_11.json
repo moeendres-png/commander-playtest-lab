@@ -1,0 +1,509 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "EXACT",
+  "creation_errors": [],
+  "elapsed_s": 8.987,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "9f042a49194bc2c9a08d11a94f876610ac5ccd8312a8eddc63e7fa3189ec1519",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Plains \u2014 {T}: Add {W}.",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Tear \u2014 Cast Tear",
+          "Wear \u2014 Cast Wear",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Wear // Tear \u2014 Cast fused Wear // Tear",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Wear // Tear \u2014 Cast fused Wear // Tear",
+        "selected_option_ids": [
+          "2b451d12612fdd6df3d4ca0a969ae087d9edb1883bf0687bdae32761e19c0cf6"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "dcdd8864-6116-4450-bc49-0d6d885d1a81"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{R}{W}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a71316967185c70f649d615dbfecb875aa70c789b61ba8c34e5f136b40af8074",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Plains \u2014 {T}: Add {W}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{R}{W}<div style='font-size:11pt'><font color='#DAA520' object_id='dcdd8864-6116-4450-bc49-0d6d885d1a81'>Wear // Tear</font> [dcd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "c13e7da3bd2e297e9fc667be7b1340eb5e9a5ed7e4ca2b6c88997ad5385dcb38"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{R}{W}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "546843e736639149ee20d383725f798760b3dfe6c397fbda9b50f59f50037fce",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Plains \u2014 {T}: Add {W}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{R}{W}<div style='font-size:11pt'><font color='#DAA520' object_id='dcdd8864-6116-4450-bc49-0d6d885d1a81'>Wear // Tear</font> [dcd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{W}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "f20557c8a98250cd0ecaa0f66ed68c2bce554e3a4abe20b16a24aa7d96734333",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Plains \u2014 {T}: Add {W}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{W}<div style='font-size:11pt'><font color='#DAA520' object_id='dcdd8864-6116-4450-bc49-0d6d885d1a81'>Wear // Tear</font> [dcd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "6da5c7e6dcbe25be543a0dd0ce86967c99dff48bc64cafb007884ebb855ec92e"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{W}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "d6d0301fa76b901b95abe22deea059c166c56db279dd44a28b48c68f1270ae57",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Plains \u2014 {T}: Add {W}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{W}<div style='font-size:11pt'><font color='#DAA520' object_id='dcdd8864-6116-4450-bc49-0d6d885d1a81'>Wear // Tear</font> [dcd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{W}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "0353aa7868d09460b36c2be707906821fbb1f238cd7c4b981caff21ce2e89e80",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Plains \u2014 {T}: Add {W}."
+        ],
+        "principal": "P1",
+        "prompt": "{W}<div style='font-size:11pt'><font color='#DAA520' object_id='dcdd8864-6116-4450-bc49-0d6d885d1a81'>Wear // Tear</font> [dcd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Plains \u2014 {T}: Add {W}.",
+        "selected_option_ids": [
+          "4cfc6528880662fa1c33f49493ef6ff943ac928853f372f2f6258e56f7bc75e3"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{W}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a282814f4962c1ef26b45cc6fae097770783f6b49483103fac96e78255b5021b",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend white mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{W}<div style='font-size:11pt'><font color='#DAA520' object_id='dcdd8864-6116-4450-bc49-0d6d885d1a81'>Wear // Tear</font> [dcd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend white mana from pool",
+        "selected_option_ids": [
+          "829ba9dd01794808c9dd9cfc55e28c3937d9afc03c028cf9b60abbe4f8216835"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "destroypermanent",
+          "required": false,
+          "target_description": "target artifact",
+          "target_name": "artifact",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "60e88e28e4096a2f1d213bcbc98fa4e33530b5bf0a8bfef9082d0bd042342777",
+        "numeric": null,
+        "offered_labels": [
+          "Sol Ring"
+        ],
+        "principal": "P1",
+        "prompt": "Select an artifact",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Sol Ring",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "destroypermanent",
+          "required": false,
+          "target_description": "target enchantment",
+          "target_name": "enchantment",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "e4b3e16e241f03b56424d2486b8b50d3759adcca0bfecc03a532ec9ad947b256",
+        "numeric": null,
+        "offered_labels": [
+          "Glorious Anthem"
+        ],
+        "principal": "P1",
+        "prompt": "Select an enchantment",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Glorious Anthem",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f764cec3a562e77f1807e7a351a5e384bd9849d37d79b859aa1cd60fc4d854ef",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "721d9d47ce1fb2ea825b5418bf9926fcf1d209a19579244eea402589b8660a48",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "142d7bdcca2163291ad1dfd0d4c41419689602dd970ab86ad0b749edca21cbcf",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6c8e9b691c28abeb42bade5c43f252a6f1c01be552eb548f194304c267d7ead4",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_11",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Wear // Tear",
+        "target_object": "obj:card_11-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Wear // Tear",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card11-artifact",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
+        "target_object": "obj:card11-artifact",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Glorious Anthem",
+        "target_object": "obj:card11-enchantment",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Glorious Anthem",
+        "target_object": "obj:card11-enchantment",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Wear // Tear",
+        "source_object": "obj:card_11-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Wear // Tear",
+        "target_object": "obj:card_11-subject",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
+    "terminal_facts": {
+      "Glorious Anthem is in P2's graveyard": true,
+      "Sol Ring is in P2's graveyard": true
+    },
+    "token_evidence": {
+      "destroy_artifact": {
+        "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card11-artifact",
+        "events": [
+          9
+        ]
+      },
+      "destroy_enchantment": {
+        "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card11-enchantment",
+        "events": [
+          11
+        ]
+      },
+      "fused_split_spell_cast": {
+        "binding": "a scripted priority frame selected an engine offer naming 'cast fused'",
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_11",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

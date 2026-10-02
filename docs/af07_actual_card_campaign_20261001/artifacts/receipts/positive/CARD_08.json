@@ -1,0 +1,97 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_08",
+  "obligation_exercised": {
+    "obligation_digest": "4a6c0c081897f63dcf709d2895fea4fb7d3e2a386502a6af7b94aca2df260bfa",
+    "requested_state_digest": "623291ae8d6b621df1ed6f8dad797a8ee721dbb9e47119da0d424af19f3000ef",
+    "required_events": [
+      "Jeska_enters_loyalty:2",
+      "loyalty_ability:0",
+      "combat_damage_replaced:2->6"
+    ],
+    "terminal_checks": [
+      "every COUNTER_ADDED event with target_object=obj:card_08-subject, data=loyalty precedes the first ZONE_CHANGE event with target_object=obj:card_08-subject, from=STACK, to=BATTLEFIELD",
+      "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, amount=6, combat=True, source_object=obj:card08-attacker",
+      "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty"
+    ],
+    "terminal_postconditions": [
+      "Jeska enters with two loyalty counters.",
+      "P2 is dealt 6 combat damage by the affected creature."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+      "size": 7113924
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "every COUNTER_ADDED event with target_object=obj:card_08-subject, data=loyalty precedes the first ZONE_CHANGE event with target_object=obj:card_08-subject, from=STACK, to=BATTLEFIELD"
+        ],
+        "check": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Jeska enters with two loyalty counters."
+      },
+      {
+        "check": "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, amount=6, combat=True, source_object=obj:card08-attacker",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 is dealt 6 combat damage by the affected creature."
+      }
+    ],
+    "terminal_facts": {
+      "every COUNTER_ADDED event with target_object=obj:card_08-subject, data=loyalty precedes the first ZONE_CHANGE event with target_object=obj:card_08-subject, from=STACK, to=BATTLEFIELD": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, amount=6, combat=True, source_object=obj:card08-attacker": true,
+      "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty": true
+    },
+    "token_evidence": {
+      "Jeska_enters_loyalty:2": {
+        "binding": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "combat_damage_replaced:2->6": {
+        "binding": [
+          "every Grizzly Bears on P1's battlefield is 2/2",
+          "at least one DAMAGED_PLAYER event(s) with amount=6, combat=True, source_object=obj:card08-attacker"
+        ],
+        "parts": [
+          {
+            "binding": "every Grizzly Bears on P1's battlefield is 2/2",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "at least one DAMAGED_PLAYER event(s) with amount=6, combat=True, source_object=obj:card08-attacker",
+            "events": [
+              14
+            ]
+          }
+        ]
+      },
+      "loyalty_ability:0": {
+        "binding": "a scripted priority frame selected an engine offer naming '0: Choose target creature'",
+        "decision_frames": [
+          11
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "3a082d95e44d22763531979ba59ee5c8d415cff34cb033c02258b9f96223fcdb",
+  "runner_digest": "1f3f9673a20ed174feb2982d4d38fc4f0a82f022de6ae89a35849eee70d5009c",
+  "runtime_receipt_digest": "db59f15f845bda76b40bfcef1f82c60334fc5d512d3d20b64ca1ec222ab99a0c",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_08"
+}

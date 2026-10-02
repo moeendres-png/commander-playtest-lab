@@ -106,7 +106,10 @@ _ZONE_TOKENS: dict[str, tuple[str, ...]] = {
 # (tapped=false), empty counters and an empty attachment map declare nothing.
 _OWNER_CONTROLLER_DIVERGENCE = "controller/owner divergence"
 _TAPPED_UNQUALIFIED = "tapped permanents"
-_ATTACHMENTS_AND_COUNTERS = "attachments and counters"
+# Counters and attachments are separate dimensions: a manifest that still
+# declares them together ("attachments and counters") matches both tokens.
+_COUNTERS = "counters"
+_ATTACHMENTS = "attachments"
 
 _DECLARED_TOKENS = (
     frozenset(token for _prefix, tokens in _EVENT_TOKENS for token in tokens)
@@ -115,7 +118,8 @@ _DECLARED_TOKENS = (
         {
             _OWNER_CONTROLLER_DIVERGENCE,
             _TAPPED_UNQUALIFIED,
-            _ATTACHMENTS_AND_COUNTERS,
+            _COUNTERS,
+            _ATTACHMENTS,
         }
     )
 )
@@ -183,8 +187,10 @@ def _object_attribute_tokens(record: dict[str, Any]) -> list[str]:
             tokens.add(_OWNER_CONTROLLER_DIVERGENCE)
         if obj.get("tapped") is True:
             tokens.add(_TAPPED_UNQUALIFIED)
-        if obj.get("counters") or obj.get("attached_to"):
-            tokens.add(_ATTACHMENTS_AND_COUNTERS)
+        if obj.get("counters"):
+            tokens.add(_COUNTERS)
+        if obj.get("attached_to"):
+            tokens.add(_ATTACHMENTS)
     return sorted(tokens)
 
 

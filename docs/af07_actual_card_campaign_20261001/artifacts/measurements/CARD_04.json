@@ -1,0 +1,594 @@
+{
+  "arrival_detail": null,
+  "construction_mismatches": [],
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "creation_errors": [],
+  "elapsed_s": 9.333,
+  "engine_artifact": {
+    "kind": "file",
+    "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
+    "sha256": "2476fb114fecc335abf872ec4ba975233309ab4710ba367c8060ec94b9b53ec6",
+    "size": 7113924
+  },
+  "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "execution": {
+    "construction_verdict": "ALLOWED_VARIANCE",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "declare_attacker",
+        "decision_id": "ed5fcff827e23d43b3eef90c10b8bce8f302ba2cecb328b2f2b981413cfdba0f",
+        "numeric": null,
+        "offered_labels": [
+          "Do not attack with Bruse Tarl, Boorish Herder",
+          "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
+          "Bruse Tarl, Boorish Herder attacks Full Game Seat 3",
+          "Bruse Tarl, Boorish Herder attacks Full Game Seat 4"
+        ],
+        "principal": "P1",
+        "prompt": "Choose attack for Bruse Tarl, Boorish Herder",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Bruse Tarl, Boorish Herder attacks Full Game Seat 2",
+        "selected_option_ids": [
+          "9233784efc8d711926847924a77ba2c080dbe88c3b7b0cecb78ec2153b2f2435"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "declare_attacker",
+        "decision_id": "d072235200c2cfcf6e9e6678e6670593f7b449aff17ad59e0c00b72df1316e7f",
+        "numeric": null,
+        "offered_labels": [
+          "Do not attack with Kediss, Emberclaw Familiar",
+          "Kediss, Emberclaw Familiar attacks Full Game Seat 2",
+          "Kediss, Emberclaw Familiar attacks Full Game Seat 3",
+          "Kediss, Emberclaw Familiar attacks Full Game Seat 4"
+        ],
+        "principal": "P1",
+        "prompt": "Choose attack for Kediss, Emberclaw Familiar",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Do not attack with Kediss, Emberclaw Familiar",
+        "selected_option_ids": [
+          "4750a9f41029c08f1e05987be6855774c0b374f3fc04970168969688658e4347"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "addability",
+          "required": true,
+          "target_description": "target creature you control",
+          "target_name": "creature you control",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "a64007ae63e7efc227d2e4a9ca65d917da2121fb6a522a799d259cfac078d08b",
+        "numeric": null,
+        "offered_labels": [
+          "Bruse Tarl, Boorish Herder",
+          "Kediss, Emberclaw Familiar"
+        ],
+        "principal": "P1",
+        "prompt": "Select a creature you control",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Kediss, Emberclaw Familiar",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "cfa5c4bc38894d4be48cf63c69e4ff38951a9f92fddae85102d901ead115ed52",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "54260c47ff44d324780bdfe05a105cc54f2d953725421c036fd4ec5c11b509ed",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b4ed28657a492415606f393bbbe6cd4ba78e817b4534678060f60025972c6a74",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "420e7b3022cf55f32e7a985dc04bf4d3a1e8fd161c5c71da5cf3d9dc45ba373e",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "19460728e2a0e6275585c90a4ee5e3d40641faa0424369ba1c82cefadada152d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d41c4a67cf2fc8882cf0310ae54a096f521559adebddc6244b49afdafa738c9c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "4cbfc65760aa5f4bf2afdbae76d34cc18feba8a371cd9d25160dd1ecbad63874",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "bf756f66a5e8e85aa14a03d1798575e1710d3cb30fae42c9d74ba46425959acc",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "14dd23d56fae053bf381ed41955fa2fbfe891f8e5886feaed6c5cfacba9e29e0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "040fb98fd690acec028d365163a053ee19f5ba815d2b2cf02a10053b398ba4d4",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "0f225516b60413f167fb185376325a993875a6ff84c744f579837b01aab65966",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "382439a22db86598117482f1270df48a9d7c6a06eec367b952ace570fff3912d",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "702608f523089a6577fec6c7dd165dad73a4641380dcae597f928a2aa773b6fa",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "8e5369d387828e449da8133b36847774482ec8705ea14d06a168610890fdd9bb",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "abf78a3ade12e453a1f9c827f8c0e36df95b967adb2076ddb83b1f10eea785e8",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "652cc9a6f2ddfc191633a97a03fc4797ccafae58c1915eaf4477cdbdb91e3bc9",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
+    "fixture_id": "CARD_04",
+    "missing_tokens": [],
+    "refusals": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "DECLARE_ATTACKERS",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "ATTACKER_DECLARED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "DECLARE_ATTACKERS",
+        "target_name": "stack ability (Whenever {this} enters or attacks, target creature you control gains double strike and lifelink until end of turn.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 3,
+        "flag": true,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 9,
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 3,
+        "combat": true,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Kediss, Emberclaw Familiar",
+        "source_object": "obj:card_04-subject",
+        "step": "COMBAT_DAMAGE",
+        "target_name": "stack ability (Whenever a commander you control deals combat damage to an opponent, it deals that much damage to each other opponent.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 3,
+        "flag": false,
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Kediss, Emberclaw Familiar",
+        "source_object": "obj:card_04-subject",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P4",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 3,
+        "combat": false,
+        "flag": false,
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P4",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      },
+      {
+        "amount": 3,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Kediss, Emberclaw Familiar",
+        "source_object": "obj:card_04-subject",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P3",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 3,
+        "combat": false,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 15,
+        "source_name": "Bruse Tarl, Boorish Herder",
+        "source_object": "obj:card04-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P3",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      }
+    ],
+    "terminal_facts": {
+      "Kediss, Emberclaw Familiar triggered exactly 1 time(s)": true,
+      "P2 is at 17 life": true,
+      "P3 is at 17 life": true,
+      "P4 is at 17 life": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker": true
+    },
+    "token_evidence": {
+      "Kediss_trigger": {
+        "events": [
+          11
+        ]
+      },
+      "commander_combat_damage:P2:3": {
+        "binding": "at least one DAMAGED_PLAYER event(s) with target_player=P2, amount=3, combat=True, source_object=obj:card04-attacker",
+        "events": [
+          10
+        ]
+      },
+      "noncombat_damage:P3:3": {
+        "events": [
+          15
+        ]
+      },
+      "noncombat_damage:P4:3": {
+        "events": [
+          13
+        ]
+      }
+    },
+    "verified": true
+  },
+  "fixture_id": "CARD_04",
+  "phase": "EXECUTED",
+  "runtime_error": null,
+  "schema_version": "commander-lab.af07-actual-card-row-measurement/1.0.0",
+  "start_errors": [],
+  "starting_state_dimensions_manifest": {
+    "global_supported": false,
+    "per_dimension_supported": true,
+    "schema_version": "native-state-restoration-dimensions-1.1.0",
+    "supported_dimensions": [
+      "commanders with prior cast counts (native game-load restore path)",
+      "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+      "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+      "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+      "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+      "owner-equals-controller attribution with 1:1 readback",
+      "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+      "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+      "explicit Rules-seed binding with replay determinism",
+      "strict native readback with field-level compare and digests",
+      "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+      "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+      "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+      "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+      "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+      "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+    ],
+    "unsupported_dimensions": [
+      "stack spells (casting requires real costs/timing: executor scope)",
+      "legacy/frozen partial library identity: no complete permutation, fail closed",
+      "legacy/frozen face_down=true without explicit native type: fail closed",
+      "revealed-zone restoration",
+      "controller/owner divergence (engine layers re-derive control)",
+      "attachments (aura/equipment attachment relations)",
+      "counters other than +1/+1 and -1/-1, and counters on commanders or on objects off the battlefield",
+      "commander relations other than validated Partner linkage",
+      "poison counters",
+      "temporal points outside the qualified RG-03 turn-1 checkpoint allow-list",
+      "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+    ]
+  }
+}

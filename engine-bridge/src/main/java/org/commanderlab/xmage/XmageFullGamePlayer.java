@@ -1958,6 +1958,21 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // Leave cost-kind fields absent; pilot treats them as unknown.
         }
         try {
+            // A part of a card (a split half, an adventure, a modal face) is
+            // its own object; name the whole card it belongs to, so a caller
+            // can bind the offer to the card it placed. Absent for whole cards.
+            if (ability.getSourceId() != null && game != null) {
+                mage.cards.Card part = game.getCard(ability.getSourceId());
+                if (part != null && part.getMainCard() != null
+                        && !part.getMainCard().getId().equals(part.getId())) {
+                    metadata.addProperty(
+                            "source_parent_object_id", part.getMainCard().getId().toString());
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Leave the parent field absent; the offer binds to its own source only.
+        }
+        try {
             if (ability.getSourceId() != null && game != null) {
                 Permanent source = game.getPermanent(ability.getSourceId());
                 if (source != null) {

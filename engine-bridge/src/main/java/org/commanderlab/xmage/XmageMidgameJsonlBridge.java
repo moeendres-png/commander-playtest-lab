@@ -1099,7 +1099,8 @@ final class XmageMidgameJsonlBridge {
             String seat = seatByPlayer.get(nativeId);
             if (seat != null) {
                 event.addProperty(key + "_player", seat);
-            } else if (publicIdentity && !"player".equals(key)) {
+            } else if (publicIdentity && !"player".equals(key)
+                    && !(raw.has(key + "_hidden") && raw.get(key + "_hidden").getAsBoolean())) {
                 String semanticId = restoration.semanticIdOf(UUID.fromString(nativeId));
                 if (semanticId != null) {
                     event.addProperty(key + "_object", semanticId);
