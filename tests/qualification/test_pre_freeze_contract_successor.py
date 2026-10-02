@@ -12,12 +12,15 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
+)
+V118_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V117_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
 )
-V117_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
 V116_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
 )
@@ -95,6 +98,16 @@ CARD_VEHICLE_OBLIGATION_ERRATA_IDS = ["CARD_16"]
 # token the Rules Core must cause are reached through the engine's own equip
 # activation on a card; every obligation key is untouched.
 CARD_CAUSAL_SCENARIO_ERRATA_IDS = ["CARD_25"]
+# The SLOT-04 lossless-library errata of the five replay/RNG rows (1.0.19):
+# complete checkpoint hands and P1's complete library; the obligation keys are
+# untouched. These rows are inside the provider denominator.
+REPLAY_LIBRARY_ERRATA_IDS = [
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_STATE_HASHES",
+    "RNG_RULES_TAPE",
+]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -116,6 +129,7 @@ CHANGED_FIXTURE_IDS = [
     *CARD_SCENARIO_ERRATA_IDS,
     *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
     *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
+    *REPLAY_LIBRARY_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -140,7 +154,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_19_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -208,7 +222,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -276,7 +290,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_17.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_18.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -450,7 +464,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.18-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.19-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -462,9 +476,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.18-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.19-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.18-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.19-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -998,8 +1012,11 @@ def test_card_library_errata_complete_the_library_and_keep_the_obligation() -> N
     errata = {
         patch["fixture_id"]: patch
         for patch in contract["record_successors"]
-        if patch.get("correction_class") == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
-        or patch["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
+        if (
+            patch.get("correction_class") == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
+            or patch["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
+        )
+        and patch["fixture_id"] not in REPLAY_LIBRARY_ERRATA_IDS
     }
     assert sorted(errata) == CARD_LIBRARY_ERRATA_IDS
     assert contract["change_accounting"]["unchanged_provider_denominator_rows"] == 107 - len(
@@ -1455,8 +1472,8 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
     of Perfection is an Insect Horror, so the predecessor obligation is impossible.
     The 1.0.18 erratum names a Wizard instead, changes the obligation digest
     explicitly and keeps the predecessor obligation as provenance."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V118_CONTRACT_PATH)
+    predecessor = _json(V117_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -1764,3 +1781,58 @@ def test_card25_scenario_erratum_causes_the_attachment_through_the_equip_ability
     (cost,) = record["action_cost_state"]
     assert cost["decision_index"] == 0 and cost["minimum_mana_or_equivalent"] == 2
     assert cost["explicit_payment_sources"] == added
+
+
+def test_replay_library_errata_complete_the_zones_and_keep_the_obligation() -> None:
+    """1.0.19: the five replay/RNG rows name seven of P1's library cards but
+    declared no complete library, which SLOT-04 L7 refuses on every candidate.
+    Each erratum declares complete checkpoint hands and P1's complete library;
+    the obligation, the objects and the Rules RNG operation are untouched."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    denominator = set(
+        _json(REPO_ROOT / "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json")["fixture_ids"]
+    )
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == REPLAY_LIBRARY_ERRATA_IDS
+    effective = {
+        record["fixture_id"]: record
+        for record in _resolver().load_effective_materialization()["records"]
+    }
+    for patch in added:
+        fixture_id = patch["fixture_id"]
+        old = base[fixture_id]
+        assert fixture_id in denominator
+        assert old.get("deck_state") is None
+        assert patch["correction_class"] == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
+        assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
+        assert patch["predecessor_requested_state_digest"] == old["requested_state_digest"]
+        assert set(patch["replace"]) == {"deck_state"}
+        details = patch["append_native_procedure"][0]["details"]
+        assert details["obligation_changed"] is False
+        assert details["provider_semantics_used"] is False
+        decks = {deck["player_id"]: deck for deck in patch["replace"]["deck_state"]}
+        assert decks["P1"]["checkpoint_hand"]["template_count"] == 8
+        library = decks["P1"]["checkpoint_library"]
+        assert library["completeness"] == "COMPLETE_TOP_TO_BOTTOM"
+        assert library["runs"] == [
+            *({"semantic_id": f"obj:replay-lib-{index}"} for index in range(7)),
+            {"card_identity": "Mountain", "count": 91},
+        ]
+        for seat in ("P2", "P3", "P4"):
+            assert decks[seat]["checkpoint_hand"]["template_count"] == 7
+            assert "checkpoint_library" not in decks[seat]
+        record = effective[fixture_id]
+        # The obligation keys and every object are untouched.
+        assert record["obligation_digest"] == old["obligation_digest"]
+        assert record["semantic_objects"] == old["semantic_objects"]
+        assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+        assert record["requested_state_digest"] == resolver.requested_state_digest(record)
+        assert record["requested_state_digest"] != old["requested_state_digest"]
