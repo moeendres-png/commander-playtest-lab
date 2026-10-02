@@ -93,7 +93,7 @@
    "HIDDEN_18": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
    "HIDDEN_19": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
    "HIDDEN_HONEYCARD_SENTINEL": "LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04",
-   "MICRO_COSTS": "FIXTURE_DEFECT_CORRECTION_CR307_1",
+   "MICRO_COSTS": "FIXTURE_DEFECT_CORRECTION_CR307_1_CR302_6",
    "MICRO_MODES": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "NEGATIVE_FIRST_OPTION": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "NEGATIVE_GUI_DEFAULT": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
@@ -141,7 +141,7 @@
   "record_count": 51,
   "role": "historical successor overlays are preserved; this contract re-applies every current overlay to the same 1.0.5 historical base and adds the replay/RNG lossless errata",
   "schema_version": "commander-lab.full107-successor-contract/1.0.0",
-  "sha256": "b48d9d7952c1c3b12a97f0bc82be165d9cfb834576e2fa96d3f8ec8c4b1d95c4"
+  "sha256": "5c48c0a7864af136a467990b95ec810d8791bca6a10f9127e2ed0619c4718e15"
  },
  "record_successors": [
   {
@@ -1042,6 +1042,46 @@
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
      "step_id": "erratum-micro-costs-active-player"
+    },
+    {
+     "actor": null,
+     "details": {
+      "comprehensive_rules": "302.6",
+      "erratum_class": "FIXTURE_DEFECT_CR_302_6",
+      "corrected_objects": {
+       "obj:P1-commander": {
+        "controller": "P1",
+        "predecessor": true,
+        "successor": false
+       },
+       "obj:cost-a": {
+        "controller": "P1",
+        "predecessor": true,
+        "successor": false
+       },
+       "obj:cost-c": {
+        "controller": "P3",
+        "predecessor": true,
+        "successor": false
+       },
+       "obj:cost-d": {
+        "controller": "P4",
+        "predecessor": true,
+        "successor": false
+       },
+       "obj:micro-cmd-b": {
+        "controller": "P1",
+        "predecessor": true,
+        "successor": false
+       }
+      },
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "reason": "the CR 307.1 erratum made P2 the active player on turn 1 but kept every battlefield permanent controlled since its controller's most recent turn began. P1, P3 and P4 have had no turn in this game, so no legal history gives their permanents that status (CR 302.6). The control-history requests are corrected to the only reachable value; P2's permanents keep theirs. The obligation (Hex's targets, the commander-tax cost event and the postcondition) never depends on summoning sickness and is untouched"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-micro-costs-control-history"
     }
    ],
    "authority_overlay": {
@@ -1051,7 +1091,7 @@
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     "transport_protocol": "2.0.0"
    },
-   "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1",
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1_CR302_6",
    "digest_migration": {
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
     "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity.",
@@ -1069,7 +1109,15 @@
      "priority_player": "P1",
      "step": "main",
      "turn_number": 1
-    }
+    },
+    "controlled_since_turn_began": {
+     "obj:P1-commander": true,
+     "obj:cost-a": true,
+     "obj:cost-c": true,
+     "obj:cost-d": true,
+     "obj:micro-cmd-b": true
+    },
+    "control_history_reason": "with P2 active on turn 1, a permanent of P1, P3 or P4 cannot have been controlled since its controller's most recent turn began (CR 302.6); the requested state is unreachable and the restoration's checkpoint verification refuses it"
    },
    "predecessor_requested_state_digest": "d90d525a43d4c1c09a5b81d327ad8cd50d9f3f85f5ee366bfbc08b8a1f3844aa",
    "replace": {
@@ -1080,9 +1128,262 @@
      "priority_player": "P2",
      "step": "main",
      "turn_number": 1
-    }
+    },
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controlled_since_turn_began": false,
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Esior, Wardwing Familiar",
+      "card_lineage_id": "line:obj:micro-esior",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:micro-esior",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "card_lineage_id": "line:obj:micro-cmd-b",
+      "commander_id": "cmd:P1-B",
+      "controlled_since_turn_began": false,
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:micro-cmd-b",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Hex",
+      "card_lineage_id": "line:obj:micro-spell",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:micro-spell",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:cost-a",
+      "controlled_since_turn_began": false,
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:cost-a",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:cost-b",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-b",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:cost-c",
+      "controlled_since_turn_began": false,
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:cost-c",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:cost-d",
+      "controlled_since_turn_began": false,
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:cost-d",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Hex",
+      "card_lineage_id": "line:obj:micro-hex",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:micro-hex",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-1",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-2",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-3",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-3",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-4",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-4",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-5",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-5",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-6",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-6",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-7",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-7",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-8",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-8",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:cost-swamp-9",
+      "controlled_since_turn_began": true,
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:cost-swamp-9",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
    },
-   "successor_requested_state_digest": "500d01f149295012a72df0216651a5e1461958ab550cc310a5a9fd4dceeec731"
+   "successor_requested_state_digest": "4379ebf8f062938fee0acc09e59834ba10219ab682c3b29565ad63734161d062"
   },
   {
    "append_native_procedure": [

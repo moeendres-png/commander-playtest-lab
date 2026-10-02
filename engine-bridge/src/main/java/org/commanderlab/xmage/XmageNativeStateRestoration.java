@@ -951,9 +951,10 @@ final class XmageNativeStateRestoration {
      * the battlefield is empty during the start-of-game procedure (CR 103), so
      * a restored permanent never observes the vehicle's opening-hand draws or
      * mulligans.
-     * Commander cast counts and commanders outside the command zone are
-     * restored post-arrival ({@link #restoreAfterArrival}), once game start has
-     * created the commanders.
+     * A commander requested on the battlefield leaves the command zone at the
+     * same first-turn point. Commander cast counts are restored post-arrival
+     * ({@link #restoreAfterArrival}), once game start has created the
+     * commanders.
      */
     synchronized void applyPreStart(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
@@ -1037,9 +1038,20 @@ final class XmageNativeStateRestoration {
                 startingLives.add(requested.startingLife());
             }
         }
-        if (!deferredCardIds.isEmpty() || !lifePlayerIds.isEmpty()) {
+        // A commander requested on the battlefield leaves the command zone when
+        // the first turn begins, like every other restored permanent.
+        List<UUID> commanderIds = new ArrayList<>();
+        List<UUID> commanderOwnerIds = new ArrayList<>();
+        for (RequestedCommander requested : plan.commanders()) {
+            if (requested.zone() == Zone.BATTLEFIELD) {
+                commanderIds.add(commanderObjectIdsBySemanticId.get(requested.semanticId()));
+                commanderOwnerIds.add(requirePlayer(playersByPid, requested.owner()).getId());
+            }
+        }
+        if (!deferredCardIds.isEmpty() || !commanderIds.isEmpty() || !lifePlayerIds.isEmpty()) {
             game.getState().addWatcher(new XmageFirstTurnSetupWatcher(
-                    deferredCardIds, deferredOwnerIds, lifePlayerIds, startingLives));
+                    deferredCardIds, deferredOwnerIds, commanderIds, commanderOwnerIds,
+                    lifePlayerIds, startingLives));
         }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         // After placement: the public event tape starts with the game, not the setup.
@@ -1236,6 +1248,22 @@ final class XmageNativeStateRestoration {
                 }
             }
         }
+        // A commander requested on the battlefield is a permanent of its owner
+        // like any other: its requested control history is verified too.
+        for (RequestedCommander commander : plan.commanders()) {
+            Boolean sinceTurnBegan = commander.zone() == Zone.BATTLEFIELD
+                    ? plan.controlledSinceTurnBegan().get(commander.semanticId()) : null;
+            if (sinceTurnBegan == null) {
+                continue;
+            }
+            checks.add("controlled_since_turn_began:" + commander.semanticId());
+            Permanent permanent = game.getPermanent(injectedObjectId(commander.semanticId()));
+            boolean observed = permanent != null && permanent.wasControlledFromStartOfControllerTurn();
+            if (observed != sinceTurnBegan) {
+                mismatches.add("controlled_since_turn_began " + commander.semanticId()
+                        + ": requested " + sinceTurnBegan + " observed " + observed);
+            }
+        }
         return new XmageLosslessHiddenPlan.Verification(checks, mismatches);
     }
 
@@ -1254,12 +1282,13 @@ final class XmageNativeStateRestoration {
     }
 
     /**
-     * F-38: a commander requested on the battlefield is the genuine commander, moved
-     * there silently with the same public primitives the rest of the placement uses:
-     * {@code Card.removeFromZone(COMMAND)} (the engine's own command-object removal)
-     * and {@code CardUtil.putCardOntoBattlefieldWithEffects} (no ETB, as for every
-     * restored permanent). A generic setup copy is never used, because the engine
-     * would not treat it as a commander (no commander zone choice, tax or damage).
+     * F-38: a commander requested on the battlefield is the genuine commander. It
+     * left the command zone when the first turn began, as every restored
+     * permanent entered ({@link XmageFirstTurnSetupWatcher}), never as a generic
+     * setup copy, which the engine would not treat as a commander (no commander
+     * zone choice, tax or damage). Here it is only bound: the engine must report
+     * the commander published before game start, and it must be on the
+     * battlefield, or the restoration fails closed.
      */
     private void placeCommandersOutsideCommandZone(
             GameCommanderImpl game, Map<String, Player> playersByPid, Map<String, UUID> liveCommanderIds) {
@@ -1274,24 +1303,10 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
             }
-            Card card = game.getCard(liveId);
-            Player owner = requirePlayer(playersByPid, requested.owner());
-            if (card == null || game.getState().getZone(liveId) != Zone.COMMAND) {
-                throw new RestorationException(
-                        "COMMANDER_NOT_IN_COMMAND_ZONE", requested.commanderId());
-            }
-            Ability placement = new mage.abilities.common.SimpleStaticAbility(
-                    Zone.OUTSIDE, new mage.abilities.effects.common.InfoEffect("restoration placement"));
-            placement.setControllerId(owner.getId());
-            placement.setSourceId(liveId);
-            if (!card.removeFromZone(game, Zone.COMMAND, placement)) {
-                throw new RestorationException(
-                        "COMMANDER_NOT_IN_COMMAND_ZONE", requested.commanderId());
-            }
-            mage.util.CardUtil.putCardOntoBattlefieldWithEffects(placement, game, card, owner, false);
+            requirePlayer(playersByPid, requested.owner());
             if (game.getPermanent(liveId) == null) {
                 throw new RestorationException(
-                        "COMMANDER_PLACEMENT_FAILED", requested.commanderId());
+                        "FIRST_TURN_PLACEMENT_MISSED", requested.commanderId());
             }
             injectedObjectIdsBySemanticId.put(requested.semanticId(), liveId);
         }

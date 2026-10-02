@@ -52,6 +52,25 @@ class XmageFirstTurnSetupTest {
                 Map.of(), controlledSinceTurnBegan);
     }
 
+    /** P2's commander requested on the battlefield; P1 takes the first turn. */
+    private static XmageNativeStateRestoration.Plan commanderPlan(
+            String planId, Map<String, Boolean> controlledSinceTurnBegan) {
+        return new XmageNativeStateRestoration.Plan(
+                planId, 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0,
+                                Zone.BATTLEFIELD, "obj:p1-commander"),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0,
+                                Zone.BATTLEFIELD, "obj:p2-commander")),
+                List.of(),
+                List.of(),
+                1, TurnPhase.PRECOMBAT_MAIN, PhaseStep.PRECOMBAT_MAIN, "P1", "P1",
+                Map.of(), controlledSinceTurnBegan);
+    }
+
     private static Arrived arrive(XmageNativeStateRestoration.Plan plan) {
         XmageDeckImporter importer = new XmageDeckImporter();
         XmageNativeStateRestoration restoration =
@@ -111,5 +130,38 @@ class XmageFirstTurnSetupTest {
                 verification.mismatches());
         assertFalse(permanent(arrived, "obj:p2-elves").wasControlledFromStartOfControllerTurn(),
                 "the request never sets the history");
+    }
+
+    @Test
+    void aBattlefieldCommanderLeavesTheCommandZoneWhenTheFirstTurnBegins() {
+        Arrived arrived = arrive(commanderPlan("setup-commander", Map.of()));
+        Permanent p1 = permanent(arrived, "obj:p1-commander");
+        Permanent p2 = permanent(arrived, "obj:p2-commander");
+        // The genuine commanders, not setup copies ...
+        assertTrue(arrived.session().restorationGame()
+                .getCommandersIds(arrived.seats().get("P1"),
+                        mage.constants.CommanderCardType.ANY, false).contains(p1.getId()));
+        assertTrue(arrived.session().restorationGame()
+                .getCommandersIds(arrived.seats().get("P2"),
+                        mage.constants.CommanderCardType.ANY, false).contains(p2.getId()));
+        // ... that entered as new objects when the first turn began (CR 302.6):
+        // the first active player's is controlled since its turn began; P2 has
+        // had no turn, so its commander is not.
+        assertTrue(p1.wasControlledFromStartOfControllerTurn());
+        assertFalse(p2.wasControlledFromStartOfControllerTurn());
+        XmageFirstTurnSetupWatcher setup = arrived.session().restorationGame()
+                .getState().getWatcher(XmageFirstTurnSetupWatcher.class);
+        assertTrue(setup.placedIds().containsAll(List.of(p1.getId(), p2.getId())));
+    }
+
+    @Test
+    void aBattlefieldCommandersControlHistoryIsVerifiedNeverSet() {
+        Arrived arrived = arrive(commanderPlan("setup-commander-history", Map.of(
+                "obj:p1-commander", true,
+                "obj:p2-commander", true)));
+        XmageLosslessHiddenPlan.Verification verification = arrived.restoration()
+                .losslessHiddenVerification(arrived.session().restorationGame(), arrived.seats());
+        assertEquals(List.of("controlled_since_turn_began obj:p2-commander: requested true observed false"),
+                verification.mismatches());
     }
 }

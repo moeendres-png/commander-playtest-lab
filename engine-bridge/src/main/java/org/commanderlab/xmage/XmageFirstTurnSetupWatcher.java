@@ -46,6 +46,11 @@ import java.util.UUID;
  * table's starting life; a total the engine already changed is never
  * overwritten and is left to the checkpoint comparison.</p>
  *
+ * <p>A commander requested on the battlefield is the genuine commander. Game
+ * start puts it into the command zone (CR 903.6); it leaves the command zone
+ * and enters here, at the same point and in the same way as every other
+ * restored permanent, so its control history is the engine's too.</p>
+ *
  * <p>Placement mirrors the setup primitive {@code CardUtil.putCardOntoBattlefieldWithEffects}
  * (no enters-the-battlefield event, "enters with counters" and "enters tapped"
  * replacements applied) except that it never removes summoning sickness. The
@@ -61,6 +66,8 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
 
     private List<UUID> cardIds;
     private List<UUID> ownerIds;
+    private List<UUID> commanderIds;
+    private List<UUID> commanderOwnerIds;
     private List<UUID> lifePlayerIds;
     private List<Integer> startingLives;
     private List<UUID> placedIds;
@@ -71,11 +78,15 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
     XmageFirstTurnSetupWatcher(
             List<UUID> cardIds,
             List<UUID> ownerIds,
+            List<UUID> commanderIds,
+            List<UUID> commanderOwnerIds,
             List<UUID> lifePlayerIds,
             List<Integer> startingLives) {
         super(WatcherScope.GAME);
         this.cardIds = cardIds == null ? null : new ArrayList<>(cardIds);
         this.ownerIds = ownerIds == null ? null : new ArrayList<>(ownerIds);
+        this.commanderIds = commanderIds == null ? null : new ArrayList<>(commanderIds);
+        this.commanderOwnerIds = commanderOwnerIds == null ? null : new ArrayList<>(commanderOwnerIds);
         this.lifePlayerIds = lifePlayerIds == null ? null : new ArrayList<>(lifePlayerIds);
         this.startingLives = startingLives == null ? null : new ArrayList<>(startingLives);
         this.placedIds = new ArrayList<>();
@@ -113,6 +124,17 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
                 place(game, card, owner);
                 placedIds.add(card.getId());
             }
+            for (int index = 0; index < commanderIds.size(); index++) {
+                Card card = game.getCard(commanderIds.get(index));
+                Player owner = game.getPlayer(commanderOwnerIds.get(index));
+                if (card == null || owner == null || game.getState().getZone(card.getId()) != Zone.COMMAND
+                        || !card.removeFromZone(game, Zone.COMMAND, source(card, owner))) {
+                    // Left for the checkpoint verification, which fails closed.
+                    continue;
+                }
+                place(game, card, owner);
+                placedIds.add(card.getId());
+            }
         } finally {
             if (tape != null) {
                 tape.mute(false);
@@ -120,10 +142,15 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
         }
     }
 
-    private static void place(Game game, Card card, Player owner) {
+    private static Ability source(Card card, Player owner) {
         Ability source = new SimpleStaticAbility(Zone.OUTSIDE, new InfoEffect("restoration placement"));
         source.setControllerId(owner.getId());
         source.setSourceId(card.getId());
+        return source;
+    }
+
+    private static void place(Game game, Card card, Player owner) {
+        Ability source = source(card, owner);
         card.setZone(Zone.BATTLEFIELD, game);
         card.setOwnerId(owner.getId());
         PermanentCard permanent = new PermanentCard(card, owner.getId(), game);
