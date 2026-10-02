@@ -482,8 +482,8 @@ final class XmageFullGameSession {
      * AF09 orchestration channel: the engine's Rules-RNG results and a
      * privileged state digest, digests only. The privileged digest covers every
      * player's zones in seating order (library order included) through
-     * process-independent tokens: a requested object's semantic id, a deck
-     * card's first-seen library position, otherwise the object's name. No
+     * process-independent tokens: a requested object's semantic id, otherwise
+     * the object's name. No
      * native id and no card identity leaves the engine; no principal receives
      * this channel.
      */
@@ -550,13 +550,17 @@ final class XmageFullGameSession {
         return out;
     }
 
+    /**
+     * A requested object's semantic id, otherwise its name. Two cards of the
+     * same name that the record does not name are the same state: which one
+     * stands where is no Rules fact (the restoration's game-load seam fills a
+     * requested template run with any of them), so the privileged digest never
+     * tells them apart. A shuffle's result is the permutation itself and is
+     * taped separately ({@link XmageRulesRngResultTape}).
+     */
     private String token(UUID ownerId, UUID id, String name) {
         String semantic = restoration == null ? null : restoration.semanticIdOf(id);
-        if (semantic != null) {
-            return "s:" + semantic;
-        }
-        String deck = XmageRulesRngResultTape.token(game, ownerId, id);
-        return deck.startsWith("d") ? deck : "n:" + name;
+        return semantic != null ? "s:" + semantic : "n:" + name;
     }
 
     /**

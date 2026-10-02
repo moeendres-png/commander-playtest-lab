@@ -78,13 +78,16 @@ it; `XmageRulesRngResultTapeTest` pins this, and the live seed control rechecks 
 for every `RNG_RULES_TAPE` run.
 
 The same channel reports a **privileged state digest**: every player's zones in
-seating order, the library order included, written as process-independent tokens:
+seating order, the library order included. Each object is written as its
+requested semantic id, or otherwise its name. Two cards of the same name that the
+record does not name are the same state, so the digest never tells them apart.
+That matters because the restoration's game-load seam fills a requested template
+run with any of them, and which one lands where is no Rules fact. (The first live
+run showed it: deck-position tokens made the digests of two otherwise identical
+processes differ at the checkpoint seam.)
 
-- a requested object's semantic id;
-- a deck card's first-seen position;
-- otherwise the object's name.
-
-The twin records this digest at every decision and at the terminal.
+The twin records this digest at every decision and at the terminal. A shuffle's
+result is the permutation itself, and it is taped separately.
 
 The record's native step `rules-shuffle` (`NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY`)
 names a shuffle after resolution, but nothing in the scenario causes one, and a
