@@ -211,7 +211,7 @@ def _pr_trigger_status(workflow: dict[str, Any]) -> tuple[str, str]:
 
 def _masked_line(line: str) -> bool:
     stripped = line.strip()
-    if re.search(r"\|\|\s*(?:true|:)(?:\s|$)", stripped):
+    if re.search(r"\|\|\s*(?:true|:|exit\s+0|echo\b|printf\b)(?:\s|$)", stripped):
         return True
     return bool(re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped))
 
@@ -249,7 +249,7 @@ def _matching_command_is_enforcing(run: str, patterns: tuple[re.Pattern[str], ..
             continue
         if "set +e" in run:
             has_unconditional_zero_exit = any(
-                re.fullmatch(r"exit\s+0", command) for command in _run_commands(run)
+                re.fullmatch(r"exit\s+0", command) for command in _command_segments(run)
             )
             if (
                 "rc=$?" not in run
@@ -753,8 +753,11 @@ def inspect_required_check_definitions(repo: Path, base: str, head: str) -> dict
             impact = "required_check_entrypoint_or_configuration"
             review_reasons.append(f"required_check_entrypoint_changed:{path}")
         elif path.startswith("tests/qualification/"):
-            impact = "infrastructure_qualification_test_definition"
+            impact = "quality_and_infrastructure_test_definition"
             review_reasons.append(f"qualification_test_definition_changed:{path}")
+        elif path.startswith("tests/"):
+            impact = "quality_test_definition"
+            review_reasons.append(f"quality_test_definition_changed:{path}")
         elif path.startswith(".github/actions/"):
             consumed = any(_is_under(path, root) for root in all_local)
             impact = (
