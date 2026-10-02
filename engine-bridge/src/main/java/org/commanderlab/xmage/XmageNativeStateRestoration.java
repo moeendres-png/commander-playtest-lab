@@ -254,6 +254,8 @@ final class XmageNativeStateRestoration {
     private boolean arrivalRestored;
     private boolean losslessLibrariesApplied;
     private boolean preStartApplied;
+    /** Restored face-up permanents that enter when the first turn begins (CR 103.6). */
+    private final List<String> firstTurnPlacedSemanticIds = new ArrayList<>();
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
         this(plan, materializationVehicle, XmageLosslessHiddenPlan.EMPTY);
@@ -906,7 +908,11 @@ final class XmageNativeStateRestoration {
     /**
      * Pre-start assembly in the constructing thread (engine not running):
      * silent setup placement via the engine's typed setup primitive (setup
-     * attribution makes owners controllers) and watcher registration.
+     * attribution makes owners controllers) and watcher registration. Face-up
+     * permanents are loaded here and enter when the first turn begins
+     * ({@link XmageFirstTurnPlacementWatcher}): the battlefield is empty during
+     * the start-of-game procedure (CR 103), so a restored permanent never
+     * observes the vehicle's opening-hand draws or mulligans.
      * Commander cast counts, commanders outside the command zone and starting
      * life are restored post-arrival ({@link #restoreAfterArrival}), once game
      * start has created the commanders and derived life.
@@ -923,9 +929,12 @@ final class XmageNativeStateRestoration {
             vehicleByName.computeIfAbsent(card.getName(), name -> new ArrayList<>()).add(card);
         }
         Set<Card> consumed = new HashSet<>();
+        List<UUID> deferredCardIds = new ArrayList<>();
+        List<UUID> deferredOwnerIds = new ArrayList<>();
         for (RequestedPlayer requested : plan.players()) {
             Player player = requirePlayer(playersByPid, requested.playerId());
             List<PutToBattlefieldInfo> battlefield = new ArrayList<>();
+            List<Card> deferred = new ArrayList<>();
             List<Card> hand = new ArrayList<>();
             List<Card> graveyard = new ArrayList<>();
             List<Card> exile = new ArrayList<>();
@@ -939,7 +948,21 @@ final class XmageNativeStateRestoration {
                             "DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
                 }
                 switch (object.zone()) {
-                    case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
+                    case BATTLEFIELD -> {
+                        // A face-down object turns face down before game start
+                        // (SLOT-04); a card whose battlefield side is another
+                        // part or face would register new watchers while the
+                        // engine iterates them, so it stays a setup placement.
+                        if (!losslessHidden.declaresFaceDown(object.semanticId())
+                                && XmageFirstTurnPlacementWatcher.deferrable(game, card)) {
+                            deferred.add(card);
+                            deferredCardIds.add(card.getId());
+                            deferredOwnerIds.add(player.getId());
+                            firstTurnPlacedSemanticIds.add(object.semanticId());
+                        } else {
+                            battlefield.add(new PutToBattlefieldInfo(card, false));
+                        }
+                    }
                     case HAND -> {
                         hand.add(card);
                         injectedHandIdsByPlayer
@@ -958,6 +981,8 @@ final class XmageNativeStateRestoration {
             // silently corrupt the restored state.
             game.cheat(player.getId(), List.of(), hand, battlefield, graveyard,
                     List.of(), exile);
+            // Loaded outside the game (watchers registered), placed at turn 1.
+            game.loadCards(new HashSet<>(deferred), player.getId());
             // Life is not set here: game start re-derives it (initLife). See
             // restoreStartingLife, which runs after arrival (F-40).
         }
@@ -965,6 +990,10 @@ final class XmageNativeStateRestoration {
         // start and before the public event tape exists, so no observation
         // ever shows it face up.
         losslessHidden.applyPreStart(game, this);
+        if (!deferredCardIds.isEmpty()) {
+            game.getState().addWatcher(
+                    new XmageFirstTurnPlacementWatcher(deferredCardIds, deferredOwnerIds));
+        }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         // After placement: the public event tape starts with the game, not the setup.
         game.getState().addWatcher(new XmagePublicEventWatcher());
@@ -1070,9 +1099,24 @@ final class XmageNativeStateRestoration {
         if (losslessLibrariesApplied || !atRequestedCheckpoint(game)) {
             return;
         }
+        requireFirstTurnPlacement(game);
         losslessHidden.applyAfterArrival(game, playersByPid, this);
         applyCheckpointPermanentState(game);
         losslessLibrariesApplied = true;
+    }
+
+    /**
+     * Every permanent deferred to the first turn entered when it began
+     * ({@link XmageFirstTurnPlacementWatcher}); one still outside the game
+     * means the engine never began turn 1 under this restoration, and the
+     * restoration fails closed rather than placing it late.
+     */
+    private void requireFirstTurnPlacement(GameCommanderImpl game) {
+        for (String semanticId : firstTurnPlacedSemanticIds) {
+            if (game.getState().getZone(injectedObjectId(semanticId)) == Zone.OUTSIDE) {
+                throw new RestorationException("FIRST_TURN_PLACEMENT_MISSED", semanticId);
+            }
+        }
     }
 
     /**
