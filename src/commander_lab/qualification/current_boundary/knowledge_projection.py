@@ -703,6 +703,79 @@ def _face_down_target_offer(
     return offer
 
 
+def _face_down_exile_cast_offer(
+    client: ml.MidgameLaneClient,
+    legal: dict[str, Any],
+    step: dict[str, Any],
+    record: dict[str, Any],
+    principal: str,
+) -> dict[str, Any] | None:
+    """Match a cast of a currently face-down exiled object from actor-visible state.
+
+    The object started in a hidden library, so no setup/native handle is used.
+    The acting principal's own redacted projection must expose exactly one
+    matching face-down exile object, and exactly one current engine legal action
+    must name that projected handle as its source.
+    """
+    selection = step.get("selection") or {}
+    value = selection.get("semantic_value")
+    if (
+        selection.get("selector_kind") != "semantic_action"
+        or not isinstance(value, dict)
+        or value.get("action") != "cast"
+        or not value.get("object")
+    ):
+        return None
+    object_id = str(value["object"])
+    permission = next(
+        (
+            item
+            for item in _viewer_state(record).get("temporary_permissions") or ()
+            if isinstance(item, dict)
+            and item.get("object") == object_id
+            and item.get("viewer") == principal
+            and item.get("permission") == "look_at_face_down_exile"
+        ),
+        None,
+    )
+    if permission is None:
+        return None
+    obj = next((item for item in _objects(record) if item.get("semantic_id") == object_id), None)
+    if obj is None:
+        raise ml.MidgameLaneError(f"the scripted exile object {object_id} is undeclared")
+    response = client.request("get_midgame_projection", {"actor_id": principal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError("the acting principal's exile projection failed closed")
+    projection = _payload(response)
+    owner = _player_entry(projection, str(obj["owner"])) or {}
+    handles = [
+        str(card.get("object_id"))
+        for card in owner.get("exile") or ()
+        if isinstance(card, dict)
+        and card.get("face_down") is True
+        and card.get("name") == obj.get("card_identity")
+        and card.get("object_id")
+    ]
+    if len(handles) != 1:
+        raise ml.MidgameLaneError(
+            f"the scripted face-down exile cast has {len(handles)} actor-visible handles"
+        )
+    matches = [
+        action
+        for action in legal.get("actions") or ()
+        if ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
+            "source_object_id"
+        )
+        == handles[0]
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the face-down exile handle matched {len(matches)} engine legal actions"
+        )
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
 def _boolean_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any] | None:
     """The yes/no offer the step names, or None for any other selector."""
     selection = step.get("selection") or {}
@@ -880,9 +953,13 @@ def run_script(
                         raise ml.MidgameLaneError("the scripted source was not placed")
                     action = _activation_offer(legal, native)
                 else:
-                    action = midgame_rows_mod._scripted_priority_action(
-                        legal, step, placed, commanders
+                    action = _face_down_exile_cast_offer(
+                        client, legal, step, record, principal
                     )
+                    if action is None:
+                        action = midgame_rows_mod._scripted_priority_action(
+                            legal, step, placed, commanders
+                        )
                 probe.submit_proposal(client, legal, action, f"knowledge-{len(trace)}")
                 trace.append({"decision_class": decision_class, "step": position})
                 position += 1
