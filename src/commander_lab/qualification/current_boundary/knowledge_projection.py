@@ -28,7 +28,7 @@ measure leaves the row unverified, which earns nothing.
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -430,6 +430,7 @@ class Capture:
     script_start: int | None = None
     script_trace: list[dict[str, Any]] = field(default_factory=list)
     script_complete: bool = False
+    temporal_snapshots: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _payload(response: dict[str, Any]) -> dict[str, Any]:
@@ -468,8 +469,34 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
     )
     if record.get("decision_script"):
         capture.script_start = len(client.tape)
+
+        def snapshot_before_action(causal_step_id: str, position: int) -> None:
+            response = client.request("get_midgame_projection", {"actor_id": viewer})
+            if not response.get("success"):
+                raise ml.MidgameLaneError(
+                    f"temporal snapshot for {viewer} failed closed: {_error_code(response)}"
+                )
+            events_response = client.request("get_midgame_events", {"after_offset": 0})
+            if not events_response.get("success"):
+                raise ml.MidgameLaneError(
+                    f"temporal event snapshot failed closed: {_error_code(events_response)}"
+                )
+            capture.temporal_snapshots.append(
+                {
+                    "causal_step_id": causal_step_id,
+                    "script_position": position,
+                    "tape_index": len(client.tape),
+                    "projection": _payload(response),
+                    "events": _payload(events_response),
+                }
+            )
+
         try:
-            capture.script_trace = run_script(client, record)
+            capture.script_trace = run_script(
+                client,
+                record,
+                snapshot_before_action=snapshot_before_action,
+            )
             capture.script_complete = True
         except ml.MidgameLaneError as exc:
             capture.failure = f"the scripted event failed closed: {exc}"
@@ -678,7 +705,12 @@ def _boolean_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any
     return offer
 
 
-def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dict[str, Any]]:
+def run_script(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+    *,
+    snapshot_before_action: Callable[[str, int], None] | None = None,
+) -> list[dict[str, Any]]:
     """Answer the record's decision script from the engine's own offers only.
 
     A scripted priority step casts or activates the named object once the
@@ -731,6 +763,8 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
                 and step.get("decision_family") == "priority"
                 and stack == []
             ):
+                if snapshot_before_action is not None:
+                    snapshot_before_action(str(step.get("causal_step_id") or ""), position)
                 value = (step.get("selection") or {}).get("semantic_value") or {}
                 if value.get("action") == "activate":
                     native = placed.get(str(value.get("object")))
@@ -1650,6 +1684,58 @@ def _shuffle_invalidates_order(
             "known_range_is_losslessly_materialized",
             len(expected_order) == count and count > 0,
             f"{len(expected_order)} requested objects cover declared count {count}",
+        )
+    )
+
+    pre_shuffle = [
+        snapshot
+        for snapshot in capture.temporal_snapshots
+        if snapshot.get("causal_step_id") == "elixir-shuffle"
+    ]
+    checks.append(
+        Check(
+            "pre_shuffle_snapshot_observed",
+            len(pre_shuffle) == 1,
+            f"{len(pre_shuffle)} snapshots captured immediately before the shuffle action",
+        )
+    )
+    pre_events: list[dict[str, Any]] = []
+    if len(pre_shuffle) == 1:
+        pre_projection = pre_shuffle[0].get("projection") or {}
+        pre_view = pre_projection.get("view") or {}
+        pre_observations = [
+            entry
+            for entry in pre_view.get("looked_at") or ()
+            if isinstance(entry, dict) and _logged_card_names(entry) == expected_order
+        ]
+        checks.append(
+            Check(
+                "pre_shuffle_ordered_snapshot_matches_engine_look",
+                len(pre_observations) == 1
+                and pre_observations[0].get("order_invalidated_by_shuffle") is not True,
+                f"{len(pre_observations)} ordered observations exactly match {expected_order}",
+                "ENTITLEMENT",
+            )
+        )
+        pre_events = list((pre_shuffle[0].get("events") or {}).get("events") or ())
+
+    post_events = list(capture.events.get("events") or ())
+    pre_shuffle_events = [
+        event
+        for event in pre_events
+        if event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == owner
+    ]
+    post_shuffle_events = [
+        event
+        for event in post_events
+        if event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == owner
+    ]
+    checks.append(
+        Check(
+            "native_shuffle_observed_after_ordered_snapshot",
+            len(pre_shuffle) == 1 and len(post_shuffle_events) > len(pre_shuffle_events),
+            f"{len(pre_shuffle_events)} {owner} shuffles before snapshot; "
+            f"{len(post_shuffle_events)} after scripted event",
         )
     )
 
