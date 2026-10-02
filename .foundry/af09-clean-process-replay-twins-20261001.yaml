@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/lab-af09-replay-twins-20261001
+worktree: wt-af09 (session-local worktree of the canonical clone; the earlier OpenCode worktree is not in this container)
 branch: hardening/af09-replay-twins-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
@@ -37,6 +37,10 @@ execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 variant_resolution: native_max
+executor_handover: >-
+  Phase 2 is executed by the Claude campaign session as the sole project
+  executor (owner instruction, 2026-10-02); the Phase 1 executor fields above
+  are provenance.
 
 foreign_writer_census_at_start:
   pr_450:
@@ -227,31 +231,37 @@ known_findings:
       the ambiguity when it cannot.
 
 phase2:
-  status: PENDING_PR450_MERGE
+  status: INTEGRATED_LOCALLY
   gate: >-
-    #450 and #452 must both be terminal, then fresh-fetch and merge current
-    main, impact-adjudicate their exact bytes, and integrate the twin artifact
-    into the current-boundary runner/assembler/gate derivation (RNG_REPLAY_*)
-    only if ownership is free.
+    #450 and #452 are merged; AF07 #484 carries the placement ruling and the
+    1.0.18 contract this phase builds on.
   note: >-
-    Phase 1 twin producer and direct per-candidate evidence are complete;
-    the current-boundary RNG_REPLAY evidence chain is untouched. #452 is
-    merged. #450 is out of draft and its mergeStateStatus is CLEAN, but it is
-    still OPEN: merging another writer's PR is outside this workstream's
-    ownership, so Phase 2 waits on its owner's merge action.
-
+    Midgame-lane twins of the five replay/RNG rows, successor contract 1.0.19
+    (their SLOT-04 lossless library errata), PB-03 runner hook, receipt-only
+    row credit in the assembler, and the AF09 export-refusal ruling.
+    docs/af09_midgame_replay_twin_20261002/README.md and
+    EXPORT_REFUSAL_ADJUDICATION.md.
+  milestones:
+    - id: P2-M1
+      status: COMMITTED
+      content: >-
+        midgame_replay_twin.py producer (record process on the generic
+        executor, replay process from the tape alone, fingerprint plus record
+        occurrence identity, CHOSEN_OPTION_AMBIGUOUS fail-closed); contract
+        1.0.19; local run 5/5 verified twins on pinned XMage 37e4df6c.
+    - id: P2-M2
+      status: COMMITTED
+      content: >-
+        PB-03 runner writes MIDGAME_REPLAY_TWIN_EXECUTIONS.json and positive
+        receipts; assembler credits the rows through receipts only and binds
+        the twin document to column, engine commit and runner; AF09 gate takes
+        the bound midgame twin; export refusal recorded, non-blocking under a
+        proven twin. 32 producer tests, gate/assembler tests, contract tests
+        pin 1.0.19.
 exact_next_action: >-
-  Wait for PR #450 to merge (it is CLEAN and out of draft; merging another
-  writer's PR is not this workstream's authority). Then: git fetch origin
-  --prune; record main; merge current main into
-  hardening/af09-replay-twins-20261001; run the test-impact skill on #450's
-  and #452's exact bytes (they touch midgame_rows.py, run_midgame_capability_probe.py,
-  knowledge_projection.py, source_lock.py, the successor contract and SHA
-  manifests; this workstream only consumes repo_root() from source_lock and the
-  current-boundary receipts/bridge_launcher/game_driver surfaces); rerun the 40
-  AF09 tests plus the affected qualification tests; then integrate
-  clean_process_twin into scripts/run_current_boundary_qualification.py's
-  RNG_REPLAY_*.json writer and mark the five REPLAY/RNG rows from the twin
-  verdict if the runner path is owned. Re-run PB-03 for the integrated epoch.
-  If #450 is still open, resume from this state file; nothing else in Phase 1
-  remains.
+  After AF07 #484 merges: merge main into hardening/af09-replay-twins-20261001,
+  rerun the Python suite on a clean tree, push to PR #461, drive the exact-head
+  PB-03 run until AF09 XMage reports the five replay/RNG rows PASS through
+  af09-midgame-replay-twin receipts, run a fresh-context review, and merge.
+  Forge's replay/RNG rows stay UNKNOWN until the Forge scenario lane can
+  execute decisions (#459).
