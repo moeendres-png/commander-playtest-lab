@@ -120,7 +120,8 @@ def test_current_executor_authority_is_exactly_two_profiles():
     assert "opencode-go/space-bunny-free" in agents
     assert "No other OpenCode executor is selectable" in agents
     assert "No other OpenCode model/profile is currently authorized" in current
-    assert "must not by themselves generate a governance/routing issue" in routing
+    assert "must not generate a" in routing
+    assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
     assert "DeepSeek MAX default" in index, "Foundry index omits the current default executor"
     assert "Space Bunny MAX default" not in index, "Foundry index still names a retired default"
