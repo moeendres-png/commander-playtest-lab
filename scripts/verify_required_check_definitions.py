@@ -220,9 +220,7 @@ def _pr_trigger_status(workflow: dict[str, Any]) -> tuple[str, str]:
 
 def _masked_line(line: str) -> bool:
     stripped = line.strip()
-    return "||" in stripped or bool(
-        re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped)
-    )
+    return "||" in stripped or bool(re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped))
 
 
 def _run_lines(run: str) -> list[str]:
@@ -260,11 +258,7 @@ def _matching_command_is_enforcing(run: str, patterns: tuple[re.Pattern[str], ..
             has_unconditional_zero_exit = any(
                 re.fullmatch(r"exit\s+0", command) for command in _command_segments(run)
             )
-            if (
-                "rc=$?" not in run
-                or 'exit "$rc"' not in run
-                or has_unconditional_zero_exit
-            ):
+            if "rc=$?" not in run or 'exit "$rc"' not in run or has_unconditional_zero_exit:
                 continue
         return True
     return False
