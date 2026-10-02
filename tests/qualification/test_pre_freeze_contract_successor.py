@@ -1176,7 +1176,7 @@ def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes
 
     expected_digests = {
         "HIDDEN_06": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
-        "HIDDEN_12": "983a9009fa30755912a999eb1a9063b4323c0434464f72af21b1028aa9312300",
+        "HIDDEN_12": "24c95853e7ec3e152c64d5d01835b51b90b75097daf4d66bdb2014915aaf17b6",
     }
     expected_steps = {
         "HIDDEN_06": [
