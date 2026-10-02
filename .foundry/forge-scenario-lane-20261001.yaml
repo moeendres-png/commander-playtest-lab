@@ -36,6 +36,24 @@ phase2_reconciliation:
     receipted_rows: [WS05-CMD-DMG-SPLIT, WS05-CMD-PARTNER-DMG, WS05-CMD-PARTNER-ZONE, WS05-MP-ELIM-5, WS05-MP-ELIM-OWNED-3, WS05-MP-ELIM-PRIO-3]
   impact_adjudication_receipt: docs/forge_scenario_lane_20261001/receipts/PHASE2_IMPACT_ADJUDICATION.json
   census_diff_receipt: docs/forge_scenario_lane_20261001/receipts/PHASE2_CENSUS_DIFF.json
+  wave_blockers_receipt: docs/forge_scenario_lane_20261001/receipts/PHASE2_WAVE_BLOCKERS.json
+
+current_boundary_epoch:
+  epoch_id: 1d8d857e86cb-7dd120b2e765
+  epoch_root: qualification/current-boundary-epochs/1d8d857e86cb-7dd120b2e765
+  producing_commit: 1d8d857e86cb27a04607458d4f0202b5b8e5e6de
+  producing_tree: 7dd120b2e765eaeb9ad6666aca2675111ce99947
+  sealed_by_commit: a3bf338c
+  forge_full107_counts: {PASS: 11, UNKNOWN: 56, BLOCKED: 40, FAIL: 0, CRASH: 0, TIMEOUT: 0, PROTOCOL_FAILURE: 0}
+  xmage_full107_counts: {PASS: 41, UNKNOWN: 28, BLOCKED: 38, FAIL: 0, CRASH: 0, TIMEOUT: 0, PROTOCOL_FAILURE: 0}
+  scenario_rows_credited: 6
+  r4_demotions_forge: 0
+  pb03: {admission: TECHNICALLY_CONFORMANT, admitted: 12, blocked: 18, runtime: PASS, executed_pass: 30, native_receipt: FRESH_EXACT, runtime_credit: EXECUTED_PASS}
+  af01_forge: PASS_20_OF_20
+  provider: NOT_SELECTED
+  architecture_freeze: NOT_CLAIMED
+  manifest_verified: 90/90 sha256 entries OK
+  full_python_suite: 3162 passed / 17 skipped / 0 failed
 
 objective: >-
   Build and qualify the smallest Lab-side Forge current-boundary scenario
@@ -190,7 +208,7 @@ remaining_scope:
   - optional: execute remaining constructible-not-observable rows once owner/attachment/graveyard projection exists
 
 status: ACTIVE
-phase: PHASE2_INTEGRATED_AWAITING_CURRENT_BOUNDARY_EPOCH
+phase: PHASE2_CURRENT_BOUNDARY_EPOCH_SEALED_PENDING_CI
 
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
