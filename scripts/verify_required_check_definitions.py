@@ -220,9 +220,9 @@ def _pr_trigger_status(workflow: dict[str, Any]) -> tuple[str, str]:
 
 def _masked_line(line: str) -> bool:
     stripped = line.strip()
-    if re.search(r"\|\|\s*(?:true|:|exit\s+0|echo\b|printf\b)(?:\s|$)", stripped):
-        return True
-    return bool(re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped))
+    return "||" in stripped or bool(
+        re.search(r";\s*(?:true|exit\s+0)(?:\s|$)", stripped)
+    )
 
 
 def _run_lines(run: str) -> list[str]:
