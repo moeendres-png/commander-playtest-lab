@@ -708,6 +708,8 @@ def verify_token(
         return _verify_amount_assignment(declared, trace)
     if match := re.fullmatch(r"cost_determined:base_plus_(\d+)_generic", token):
         return _verify_cost_determined(int(match.group(1)), trace, cost_obligation)
+    if match := re.fullmatch(r"cost_determined:base_minus_(\d+)_generic", token):
+        return _verify_cost_determined(-int(match.group(1)), trace, cost_obligation)
     return None
 
 
@@ -846,7 +848,7 @@ def _verify_cost_determined(
         return None
     expected = dict(base)
     expected["generic"] += increase
-    if determined != expected:
+    if expected["generic"] < 0 or determined != expected:
         return None
     charged = _mana_charged(payments)
     if charged is None or len(charged) != _mana_total(determined):
@@ -1362,6 +1364,15 @@ def _delve_card_answer(legal: dict[str, Any], native: str) -> dict[str, Any]:
     return card
 
 
+def _offers_cost(legal: dict[str, Any], kind: str, wanted: str, placed: dict[str, str]) -> bool:
+    """Whether this engine frame offers the owed cost choice at all."""
+    try:
+        _cost_choice_answer(legal, kind, wanted, placed)
+    except ml.MidgameLaneError:
+        return False
+    return True
+
+
 def _cost_choice_answer(
     legal: dict[str, Any], kind: str, wanted: str, placed: dict[str, str]
 ) -> dict[str, Any]:
@@ -1729,6 +1740,17 @@ def _scripted_answer(
             a
             for a in actions
             if _option_type(a) == "mode" and bound.lower() in _label_of(a).lower()
+        ]
+    elif kind == "boolean":
+        # A yes/no frame: the engine's own boolean offer whose value is the
+        # record's answer; the label is never read.
+        if not isinstance(value, bool):
+            raise ml.MidgameLaneError(f"boolean selector carries {value!r}")
+        matches = [
+            a
+            for a in actions
+            if _option_type(a) == "boolean"
+            and ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("value") is value
         ]
     elif kind == "integer":
         if not isinstance(value, int) or isinstance(value, bool):
@@ -2114,9 +2136,26 @@ def execute_row(
                     raise ml.MidgameLaneError("the engine offered no pass")
                 client.submit_options(decision, [passed])
                 continue
-            if pending_costs and decision_class in ("choose_object", "target", "choice"):
+            if decision_class == "choice" and pending_alternative is not None:
+                # The engine asks for the cost of the cast the record just made;
+                # the record's own step named the alternative cost to pay. The
+                # cost choice comes first: a sacrifice it requires is asked after.
+                action = _alternative_cost_answer(legal, pending_alternative)
+                frame.selected_label, frame.scripted = _label_of(action), True
+                frame.selected_key = pending_alternative
+                frame.selected_option_ids = _single_option_id(action)
+                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+                pending_alternative = None
+                continue
+            if (
+                pending_costs
+                and decision_class in ("choose_object", "target", "choice")
+                and _offers_cost(legal, *pending_costs[0], placed)
+            ):
                 # The engine asks for a cost of the action the record just
-                # took; the record's own step named it.
+                # took; the record's own step named it. A frame that does not
+                # offer the owed cost (the spell's target, asked first) is the
+                # scripted step's own.
                 kind, wanted = pending_costs[0]
                 action = _cost_choice_answer(legal, kind, wanted, placed)
                 frame.selected_label, frame.scripted = _label_of(action), True
@@ -2124,16 +2163,6 @@ def execute_row(
                 frame.selected_option_ids = _single_option_id(action)
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 pending_costs = pending_costs[1:]
-                continue
-            if decision_class == "choice" and pending_alternative is not None:
-                # The engine asks for the cost of the cast the record just made;
-                # the record's own step named the alternative cost to pay.
-                action = _alternative_cost_answer(legal, pending_alternative)
-                frame.selected_label, frame.scripted = _label_of(action), True
-                frame.selected_key = pending_alternative
-                frame.selected_option_ids = _single_option_id(action)
-                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
-                pending_alternative = None
                 continue
             if (
                 decision_class == "mana_payment"

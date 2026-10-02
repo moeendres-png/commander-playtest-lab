@@ -773,3 +773,79 @@ def test_battlefield_exact_compares_the_whole_battlefield_as_a_multiset() -> Non
         check, {"seats": [{**seat, "battlefield": seat["battlefield"][:2]}]}, [], []
     )
     assert not mr.check_terminal(check, {"seats": []}, [], [])
+
+
+# --------------------------------------------------------------------------- #
+# Causal stack entries (CARD_13, CARD_22)
+# --------------------------------------------------------------------------- #
+
+
+def _yes_no(value: bool) -> dict[str, Any]:
+    return _offer("Yes" if value else "No", "boolean", value=value)
+
+
+def test_a_boolean_step_answers_the_engine_value_never_the_label() -> None:
+    step = {"selection": {"selector_kind": "boolean", "semantic_value": True}}
+    legal = {"actions": [_yes_no(True), _yes_no(False)]}
+    assert mr._scripted_answer(legal, step, {}, mr.RowSpec(), 0).action is legal["actions"][0]
+    # A label reading "Yes" whose engine value is not True is not the answer.
+    mislabeled = {"actions": [_offer("Yes", "boolean", value=False)]}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(mislabeled, step, {}, mr.RowSpec(), 0)
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(
+            legal,
+            {"selection": {"selector_kind": "boolean", "semantic_value": "yes"}},
+            {},
+            mr.RowSpec(),
+            0,
+        )
+
+
+def test_an_owed_cost_answers_only_a_frame_that_offers_it() -> None:
+    placed = {"obj:goblin": "goblin-1"}
+    spell_target = {"actions": [_offer("Lightning Bolt", "target", object_id="bolt-spell")]}
+    assert not mr._offers_cost(spell_target, "sacrifice", "obj:goblin", placed)
+    sacrifice = {"actions": [_offer("Raging Goblin", "choice", object_id="goblin-1")]}
+    assert mr._offers_cost(sacrifice, "sacrifice", "obj:goblin", placed)
+
+
+def test_a_stack_spell_is_named_by_the_card_it_was_cast_from() -> None:
+    spell = _offer(
+        "Lightning Bolt", "target", object_id="spell-9", zone="stack", source_card_id="card-1"
+    )
+    assert mr._semantic_offers("obj:bolt", [spell], {"obj:bolt": "card-1"}) == [spell]
+    assert mr._semantic_offers("obj:bolt", [spell], {"obj:bolt": "card-2"}) == []
+
+
+def _payment(unpaid: str, label: str, option_type: str) -> mr.Frame:
+    return mr.Frame(
+        "mana_payment",
+        "P1",
+        [label],
+        selected_label=label,
+        selected_option_type=option_type,
+        decision_id=f"d-{label}",
+        context={"unpaid_mana": unpaid},
+    )
+
+
+def test_a_cost_reduction_is_read_from_the_engine_payment_frame() -> None:
+    cast = mr.Frame("priority", "P1", ["Bolt Bend"], scripted=True, selected_source_object="bb")
+    trace = [
+        cast,
+        _payment("{R}", "Mountain", "mana_ability"),
+        _payment("{R}", "Spend", "mana_pool"),
+    ]
+    obligation = ("bb", "{3}{R}", "{R}")
+    assert mr._verify_cost_determined(-3, trace, obligation) is not None
+    # The undiscounted total, or a different discount, is not the obligation.
+    assert mr._verify_cost_determined(-2, trace, obligation) is None
+    full = [
+        cast,
+        _payment("{3}{R}", "Mountain", "mana_ability"),
+        _payment("{3}{R}", "Spend", "mana_pool"),
+    ]
+    assert mr._verify_cost_determined(-3, full, obligation) is None
+    # A reduction below zero generic is never a cost.
+    assert mr._verify_cost_determined(-5, trace, ("bb", "{3}{R}", "{R}")) is None

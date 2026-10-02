@@ -2075,6 +2075,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     if (index >= 0) {
                         metadata.addProperty("zone_index", index);
                     }
+                    // A face-up spell on the stack is offered under its own
+                    // spell id; the card it was cast from is public, so its
+                    // id is reported too. A face-down spell's identity stays
+                    // its controller's alone (CR 708.4-5): never reported.
+                    if (zone == Zone.STACK) {
+                        Spell spell = game.getStack().getSpell(id);
+                        if (spell != null && !spell.isFaceDown(game) && spell.getSourceId() != null) {
+                            metadata.addProperty("source_card_id", spell.getSourceId().toString());
+                        }
+                    }
                 }
             }
         } catch (RuntimeException ignored) {

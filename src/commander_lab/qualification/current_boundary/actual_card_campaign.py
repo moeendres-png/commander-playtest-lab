@@ -1049,6 +1049,129 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Bolt Bend: P2's Lightning Bolt is cast causally at P1; Bolt Bend costs {3}
+    # less with P1's 4-power creature (the engine's own payment frame), targets
+    # that spell and the engine's new-target choice names P3. The Bolt then deals
+    # its 3 damage to P3 and none to P1: same spell, same mode, new target.
+    "CARD_22": ObligationPlan(
+        fixture_id="CARD_22",
+        proofs=(
+            PostconditionProof(
+                "The target spell has P3 as target; mode and other decisions are unchanged.",
+                terminal_check=_events(
+                    "DAMAGED_PLAYER",
+                    ("source_object", "obj:card22-bolt"),
+                    ("target_player", "P3"),
+                    ("amount", 3),
+                    count=1,
+                ),
+                also=(
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card22-bolt"),
+                        ("target_player", "P1"),
+                        count=0,
+                    ),
+                    _life("P3", 37),
+                    _life("P1", 40),
+                ),
+            ),
+        ),
+        cost_obligation=("obj:card_22-subject", "{3}{R}", "{R}"),
+        token_bindings=(
+            (
+                "cost_reduction:3",
+                midgame_rows_mod.VocabularyToken("cost_determined:base_minus_3_generic"),
+            ),
+            ("Bolt_Bend_cast", _events("SPELL_CAST", ("source_object", "obj:card_22-subject"))),
+            (
+                "change_single_target",
+                (
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card22-bolt"),
+                        ("target_player", "P3"),
+                        count=1,
+                    ),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card22-bolt"),
+                        ("target_player", "P1"),
+                        count=0,
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # Flare of Duplication for its alternative cost: the engine's own cost offer
+    # and the sacrifice of the red creature; the engine copies P2's Lightning
+    # Bolt (COPIED_STACKOBJECT, never a SPELL_CAST), the copy's target changes to
+    # P3 on the engine's own frames, and the copy deals its 3 damage to P3 while
+    # the original Bolt still deals its 3 to P1.
+    "CARD_13": ObligationPlan(
+        fixture_id="CARD_13",
+        proofs=(
+            PostconditionProof(
+                "The copy exists on stack/resolution path with P3 target.",
+                terminal_check=_events(
+                    "COPIED_STACKOBJECT", ("source_name", "Lightning Bolt"), count=1
+                ),
+                also=(
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_name", "Lightning Bolt"),
+                        ("target_player", "P3"),
+                        ("amount", 3),
+                        count=1,
+                    ),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card13-bolt"),
+                        ("target_player", "P1"),
+                        count=1,
+                    ),
+                ),
+            ),
+            PostconditionProof(
+                "Creating the copy did not create a cast event.",
+                terminal_check=_events("SPELL_CAST", ("source_name", "Lightning Bolt"), count=1),
+                also=(
+                    _events(
+                        "SPELL_CAST", ("source_object", "obj:card13-bolt"), ("player_player", "P2")
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "alternative_cost_sacrifice",
+                (
+                    _selected("choice", "Cast with alternative cost"),
+                    _events(
+                        "SACRIFICED_PERMANENT",
+                        ("target_object", "obj:card13-red-creature"),
+                        count=1,
+                    ),
+                ),
+            ),
+            (
+                "copy_spell",
+                _events("COPIED_STACKOBJECT", ("source_name", "Lightning Bolt"), count=1),
+            ),
+            (
+                "choose_new_target",
+                (
+                    _selected("choose_use", "Yes"),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_name", "Lightning Bolt"),
+                        ("target_player", "P3"),
+                        count=1,
+                    ),
+                ),
+            ),
+        ),
+    ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
     # the engine reports exactly two Talrand trigger instances for the one Bolt.
     "CARD_06": ObligationPlan(

@@ -83,7 +83,7 @@ BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11", "HIDDEN_06", "HIDDEN_12"]
 # card's Oracle text, versioned with its predecessor obligation preserved.
 CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
 # The final AF07 decision-script errata (1.0.18): the obligation is untouched.
-FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03"]
+FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03", "CARD_22", "CARD_13"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -135,12 +135,28 @@ def _declared_object_additions(patch: dict) -> list[str]:
     return added
 
 
+def _declared_causal_casts(patch: dict) -> list[str]:
+    """The stack objects an erratum declares it casts causally from hand instead."""
+    cast: list[str] = []
+    for step in patch["append_native_procedure"]:
+        cast += list(step["details"].get("causal_stack_objects") or ())
+    return cast
+
+
 def _assert_objects_only_gain_declared_additions(
-    record: dict, predecessor: dict, added: list[str]
+    record: dict, predecessor: dict, added: list[str], cast: tuple[str, ...] = ()
 ) -> None:
-    """Every predecessor object is kept byte for byte; only declared ids are new."""
+    """Every predecessor object is kept byte for byte; only declared ids are new.
+
+    A declared causal cast is the one exception: that stack object starts in its
+    controller's hand and nothing else about it changes.
+    """
     objects = record["semantic_objects"]
-    assert objects[: len(predecessor["semantic_objects"])] == predecessor["semantic_objects"]
+    expected = [
+        {**o, "zone": "hand"} if o["semantic_id"] in cast and o["zone"] == "stack" else o
+        for o in predecessor["semantic_objects"]
+    ]
+    assert objects[: len(predecessor["semantic_objects"])] == expected
     assert [o["semantic_id"] for o in objects[len(predecessor["semantic_objects"]) :]] == added
 
 
@@ -1024,9 +1040,16 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         record = resolver.effective_record(fixture_id)
         predecessor = base[fixture_id]
         assert record["obligation_digest"] == predecessor["obligation_digest"]
+        cast = tuple(_declared_causal_casts(patch))
         _assert_objects_only_gain_declared_additions(
-            record, predecessor, _declared_object_additions(patch)
+            record, predecessor, _declared_object_additions(patch), cast
         )
+        if cast:
+            # A causal cast replaces the predecessor's stack entries entirely.
+            assert record["stack_state"] == []
+            assert {entry["source_semantic_id"] for entry in predecessor["stack_state"]} == set(
+                cast
+            )
         assert record["expected_events"] == predecessor["expected_events"]
         assert record["terminal_postconditions"] == predecessor["terminal_postconditions"]
         assert (
@@ -1037,6 +1060,8 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         if _declared_object_additions(patch):
             # Only an erratum that declares its added objects may touch them.
             allowed.add("semantic_objects")
+        if _declared_causal_casts(patch):
+            allowed.add("stack_state")
         assert set(patch["replace"]) <= allowed
         erratum = record["native_procedure"][-1]["details"]
         assert erratum["erratum_class"] == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
