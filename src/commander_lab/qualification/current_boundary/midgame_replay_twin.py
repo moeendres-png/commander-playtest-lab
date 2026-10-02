@@ -706,7 +706,7 @@ def row_properties(
             "decision_tape_records_semantic_selections": bool(decisions)
             and all(decision["selected_fingerprints"] for decision in decisions),
             "mode_choice_taped": any(
-                decision["frame"]["decision_class"] == "choose_mode" for decision in decisions
+                decision["frame"]["decision_class"] == "mode" for decision in decisions
             ),
         }
     elif fixture_id == "REPLAY_EVENT_TAPE":
