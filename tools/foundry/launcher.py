@@ -79,8 +79,8 @@ CANONICAL_PROVIDER = "opencode-go"
 # Operator authority (2026-09-29): exactly two executors are reachable, each
 # pinned to one native reasoning level. DeepSeek MAX is the primary autonomous
 # engineering executor; Space Bunny MAX is the explicitly selected secondary
-# bounded/mechanical/token-heavy executor. Muse and GLM are inactive: they are
-# not reachable through this launcher. The project-level --effort field still
+# bounded/mechanical/token-heavy executor. No other OpenCode execution profile is
+# authorized or reachable through this launcher. The project-level --effort field still
 # describes task and authority routing and never lowers either native level. No
 # other variant of either model is selectable, and there is no automatic
 # fallback between them: a runtime/quota/auth/catalog failure is fail-closed
@@ -115,12 +115,11 @@ def execution_identity(
 ) -> dict:
     """Resolve one explicit executor; never infer/fallback from quota or failures."""
     if override is not None:
-        # The legacy `zen` override resolved to opencode/muse-spark-1.3-contributor-free.
-        # Muse is inactive, so every provider override now fails closed rather than
-        # silently exposing a retired executor.
+        # Legacy provider overrides are retired. Every provider override fails
+        # closed so callers cannot escape the exact two-profile allowlist.
         raise ValueError(
-            f"execution provider override {override!r} is retired; the Zen Muse provider "
-            "is not an authorized executor (operator authority 2026-09-29)"
+            f"execution provider override {override!r} is retired; provider overrides "
+            "are not authorized by the current two-profile execution policy"
         )
     if execution_profile not in (None, *EXECUTION_PROFILES):
         raise ValueError(f"unknown execution profile {execution_profile!r}")
@@ -1411,7 +1410,7 @@ def main(argv: list[str] | None = None) -> int:
         help=(
             "Explicit OpenCode Go executor profile. Omitted selects the DeepSeek MAX "
             "primary; 'space-bunny' explicitly selects the Space Bunny Free MAX "
-            "secondary. Muse and GLM are inactive and are rejected."
+            "secondary. Any other execution profile is unauthorized and rejected."
         ),
     )
     parser.add_argument(
@@ -1419,7 +1418,7 @@ def main(argv: list[str] | None = None) -> int:
         choices=("zen",),
         default=None,
         help=(
-            "Retired legacy Zen Muse provider override; always refused. Kept as an "
+            "Retired legacy provider override; always refused. Kept as an "
             "explicit refusal so it cannot be silently forwarded to the child argv."
         ),
     )
